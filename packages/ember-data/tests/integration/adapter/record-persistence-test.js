@@ -9,7 +9,7 @@ var hash = Ember.RSVP.hash;
 
 function assertClean(promise) {
   return promise.then(async(function(record) {
-    equal(record.get('isDirty'), false, "The record is now clean");
+    equal(record.get('hasDirtyAttributes'), false, "The record is now clean");
     return record;
   }));
 }
@@ -134,8 +134,8 @@ test("An adapter can notify the store that records were updated by calling `didS
       tom.set('name', "Michael Phelps");
       yehuda.set('name', "Usain Bolt");
 
-      ok(tom.get('isDirty'), "tom is dirty");
-      ok(yehuda.get('isDirty'), "yehuda is dirty");
+      ok(tom.get('hasDirtyAttributes'), "tom is dirty");
+      ok(yehuda.get('hasDirtyAttributes'), "yehuda is dirty");
 
       assertClean(tom.save()).then(async(function(record) {
         equal(record, tom, "The record is correct");
@@ -188,8 +188,8 @@ test("An adapter can notify the store that a record was updated by calling `didS
     people.tom.set('name', "Tom Dale");
     people.yehuda.set('name', "Yehuda Katz");
 
-    ok(people.tom.get('isDirty'), "tom is dirty");
-    ok(people.yehuda.get('isDirty'), "yehuda is dirty");
+    ok(people.tom.get('hasDirtyAttributes'), "tom is dirty");
+    ok(people.yehuda.get('hasDirtyAttributes'), "yehuda is dirty");
 
     assertClean(people.tom.save());
     assertClean(people.yehuda.save());

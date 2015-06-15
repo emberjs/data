@@ -37,7 +37,7 @@ test("When a record is in flight, changes can be made", function() {
     person.set('name', "Thomas Dale");
 
     promise.then(function(person) {
-      equal(person.get('isDirty'), true, "The person is still dirty");
+      equal(person.get('hasDirtyAttributes'), true, "The person is still dirty");
       equal(person.get('name'), "Thomas Dale", "The changes made still apply");
     });
   });
@@ -72,7 +72,7 @@ test("Make sure snapshot is created at save time not at flush time", function() 
     equal(person.get('name'), "Tomasz Dale", "the local changes applied on top");
 
     promise.then(async(function(person) {
-      equal(person.get('isDirty'), true, "The person is still dirty");
+      equal(person.get('hasDirtyAttributes'), true, "The person is still dirty");
       equal(person.get('name'), "Tomasz Dale", "The local changes apply");
     }));
   });
@@ -114,7 +114,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     equal(person.get('city'), "PDX", "the pushed change is available");
 
     promise.then(async(function(person) {
-      equal(person.get('isDirty'), true, "The person is still dirty");
+      equal(person.get('hasDirtyAttributes'), true, "The person is still dirty");
       equal(person.get('name'), "Tomasz Dale", "The local changes apply");
       equal(person.get('city'), "Portland", "The updates from the server apply on top of the previous pushes");
     }));
@@ -133,7 +133,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
     person.set('name', "Tomasz Dale");
   });
 
-  equal(person.get('isDirty'), true, "the person is currently dirty");
+  equal(person.get('hasDirtyAttributes'), true, "the person is currently dirty");
   equal(person.get('name'), "Tomasz Dale", "the update was effective");
   equal(person.get('city'), "San Francisco", "the original data applies");
 
@@ -141,7 +141,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
     store.push('person', { id: 1, name: "Thomas Dale", city: "Portland" });
   });
 
-  equal(person.get('isDirty'), true, "the local changes are reapplied");
+  equal(person.get('hasDirtyAttributes'), true, "the local changes are reapplied");
   equal(person.get('name'), "Tomasz Dale", "the local changes are reapplied");
   equal(person.get('city'), "Portland", "if there are no local changes, the new data applied");
 });
@@ -159,7 +159,7 @@ test("When a record is invalid, pushes are overridden by local changes", functio
     person.send('becameInvalid');
   });
 
-  equal(person.get('isDirty'), true, "the person is currently dirty");
+  equal(person.get('hasDirtyAttributes'), true, "the person is currently dirty");
   equal(person.get('isValid'), false, "the person is currently invalid");
   equal(person.get('name'), "Brondan McLoughlin", "the update was effective");
   equal(person.get('city'), "Boston", "the original data applies");
@@ -168,7 +168,7 @@ test("When a record is invalid, pushes are overridden by local changes", functio
     store.push('person', { id: 1, name: "bmac", city: "Prague" });
   });
 
-  equal(person.get('isDirty'), true, "the local changes are reapplied");
+  equal(person.get('hasDirtyAttributes'), true, "the local changes are reapplied");
   equal(person.get('isValid'), false, "record is still invalid");
   equal(person.get('name'), "Brondan McLoughlin", "the local changes are reapplied");
   equal(person.get('city'), "Prague", "if there are no local changes, the new data applied");
@@ -222,7 +222,7 @@ test("A dirty record can be reloaded", function() {
 
   run(function() {
     person.reload().then(function() {
-      equal(person.get('isDirty'), true, "the person is dirty");
+      equal(person.get('hasDirtyAttributes'), true, "the person is dirty");
       equal(person.get('name'), "Tomasz Dale", "the local changes remain");
       equal(person.get('city'), "Portland", "the new changes apply");
     });

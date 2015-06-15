@@ -430,7 +430,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
   }));
 
   var filter = store.filter('person', function(person) {
-    return !person.get('isDirty');
+    return !person.get('hasDirtyAttributes');
   });
 
   run(function() {
@@ -467,7 +467,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
   run(function() {
     filter = store.filter('person', function(person) {
-      return !person.get('isDirty');
+      return !person.get('hasDirtyAttributes');
     });
   });
 

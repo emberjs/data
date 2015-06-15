@@ -162,7 +162,7 @@ test("can load data for the same record if it is not dirty", function() {
     store.push('person', { id: 1, name: "Tom Dale" });
 
     store.findRecord('person', 1).then(async(function(tom) {
-      equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
+      equal(get(tom, 'hasDirtyAttributes'), false, "precond - record is not dirty");
       equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
       store.push('person', { id: 1, name: "Captain Underpants" });
@@ -305,7 +305,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
-  equal(get(person, 'isDirty'), true, "A newly created record is dirty");
+  equal(get(person, 'hasDirtyAttributes'), true, "A newly created record is dirty");
 
   run(function() {
     set(person, 'name', "Braaahm Dale");
@@ -355,7 +355,7 @@ test("an initial data hash can be provided via store.createRecord(type, hash)", 
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
-  equal(get(person, 'isDirty'), true, "A newly created record is dirty");
+  equal(get(person, 'hasDirtyAttributes'), true, "A newly created record is dirty");
 
   equal(get(person, 'name'), "Brohuda Katz", "The initial data hash is provided");
 });

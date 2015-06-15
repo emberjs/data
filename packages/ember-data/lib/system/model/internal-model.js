@@ -97,7 +97,7 @@ InternalModel.prototype = {
   isEmpty: retrieveFromCurrentState('isEmpty'),
   isLoading: retrieveFromCurrentState('isLoading'),
   isLoaded: retrieveFromCurrentState('isLoaded'),
-  isDirty: retrieveFromCurrentState('isDirty'),
+  hasDirtyAttributes: retrieveFromCurrentState('hasDirtyAttributes'),
   isSaving: retrieveFromCurrentState('isSaving'),
   isDeleted: retrieveFromCurrentState('isDeleted'),
   isNew: retrieveFromCurrentState('isNew'),

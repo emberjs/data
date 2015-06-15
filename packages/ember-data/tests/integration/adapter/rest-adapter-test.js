@@ -179,7 +179,7 @@ test("create - an empty payload is a basic success if an id was specified", func
       equal(passedVerb, "POST");
       deepEqual(passedHash.data, { post: { id: "some-uuid", name: "The Parley Letter" } });
 
-      equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+      equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
       equal(post.get('name'), "The Parley Letter", "the post was updated");
     }));
   });
@@ -212,7 +212,7 @@ test("create - a payload with a new ID and data applies the updates", function()
       deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
       equal(post.get('id'), "1", "the post has the updated ID");
-      equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+      equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
       equal(post.get('name'), "Dat Parley Letter", "the post was updated");
     }));
   });
@@ -231,7 +231,7 @@ test("create - a payload with a new ID and data applies the updates (with legacy
     deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
     equal(post.get('id'), "1", "the post has the updated ID");
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
   }));
 });
@@ -257,7 +257,7 @@ test("create - findMany doesn't overwrite owner", function() {
 
   run(function() {
     comment.save().then(async(function(comment) {
-      equal(comment.get('isDirty'), false, "the post isn't dirty anymore");
+      equal(comment.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
       equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
       equal(comment.get('post'), post, "the post is still set");
     }));
@@ -537,7 +537,7 @@ test("update - an empty payload is a basic success", function() {
     equal(passedVerb, "PUT");
     deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "The Parley Letter", "the post was updated");
   }));
 });
@@ -576,7 +576,7 @@ test("update - a payload with updates applies the updates", function() {
     equal(passedVerb, "PUT");
     deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
   }));
 });
@@ -596,7 +596,7 @@ test("update - a payload with updates applies the updates (with legacy singular 
     equal(passedVerb, "PUT");
     deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
   }));
 });
@@ -615,7 +615,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
       deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
       equal(post.get('id'), "1", "the post has the updated ID");
-      equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+      equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
       equal(post.get('name'), "Dat Parley Letter", "the post was updated");
 
       var comment = store.peekRecord('comment', 1);
@@ -642,7 +642,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
     equal(passedVerb, "PUT");
     deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
 
     var comment = store.peekRecord('comment', 1);
@@ -718,7 +718,7 @@ test("delete - an empty payload is a basic success", function() {
     equal(passedVerb, "DELETE");
     equal(passedHash, undefined);
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('isDeleted'), true, "the post is now deleted");
   }));
 });
@@ -757,7 +757,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
     equal(passedVerb, "DELETE");
     equal(passedHash, undefined);
 
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     equal(post.get('isDeleted'), true, "the post is now deleted");
 
     var comment = store.peekRecord('comment', 1);
@@ -780,7 +780,7 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
     equal(passedVerb, "DELETE");
     equal(passedHash, undefined);
 
-    equal(post.get('isDirty'), false, "the original post isn't dirty anymore");
+    equal(post.get('hasDirtyAttributes'), false, "the original post isn't dirty anymore");
     equal(post.get('isDeleted'), true, "the original post is now deleted");
 
     var newPost = store.peekRecord('post', 2);

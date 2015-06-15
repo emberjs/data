@@ -42,12 +42,12 @@ test("setting a property on a record that has not changed does not cause it to b
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
     store.findRecord('person', 1).then(function(person) {
-      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+      equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
 
       person.set('name', "Peter");
       person.set('isDrugAddict', true);
 
-      equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+      equal(person.get('hasDirtyAttributes'), false, "record does not become dirty after setting property to old value");
     });
   });
 });
@@ -58,11 +58,11 @@ test("resetting a property on a record cause it to become clean again", function
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
     store.findRecord('person', 1).then(function(person) {
-      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+      equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
-      equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
+      equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
       person.set('isDrugAddict', true);
-      equal(person.get('isDirty'), false, "record becomes clean after resetting property to the old value");
+      equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting property to the old value");
     });
   });
 });
@@ -73,15 +73,15 @@ test("a record becomes clean again only if all changed properties are reset", fu
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
     store.findRecord('person', 1).then(function(person) {
-      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+      equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
-      equal(person.get('isDirty'), true, "record becomes dirty after setting one property to a new value");
+      equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting one property to a new value");
       person.set('name', 'Mark');
-      equal(person.get('isDirty'), true, "record stays dirty after setting another property to a new value");
+      equal(person.get('hasDirtyAttributes'), true, "record stays dirty after setting another property to a new value");
       person.set('isDrugAddict', true);
-      equal(person.get('isDirty'), true, "record stays dirty after resetting only one property to the old value");
+      equal(person.get('hasDirtyAttributes'), true, "record stays dirty after resetting only one property to the old value");
       person.set('name', 'Peter');
-      equal(person.get('isDirty'), false, "record becomes clean after resetting both properties to the old value");
+      equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting both properties to the old value");
     });
   });
 });
@@ -900,4 +900,24 @@ test('accessing attributes in the initializer should not throw an error', functi
   var store = env.store;
 
   run(() => store.createRecord('person'));
+});
+
+
+test('isDirty should log a deprecation warning', function() {
+  expect(1);
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var env = setupStore({
+    person: Person
+  });
+  var store = env.store;
+
+  run(function() {
+    var person = store.createRecord('person');
+    expectDeprecation(function() {
+      person.get('isDirty');
+    }, /DS.Model#isDirty has been deprecated/);
+  });
 });

@@ -38,7 +38,7 @@ test("unload a dirty record", function() {
       record.set('title', 'toto2');
       record._internalModel.send('willCommit');
 
-      equal(get(record, 'isDirty'), true, "record is dirty");
+      equal(get(record, 'hasDirtyAttributes'), true, "record is dirty");
 
       expectAssertion(function() {
         record.unloadRecord();
@@ -59,13 +59,13 @@ test("unload a record", function() {
     store.push('record', { id: 1, title: 'toto' });
     store.findRecord('record', 1).then(function(record) {
       equal(get(record, 'id'), 1, "found record with id 1");
-      equal(get(record, 'isDirty'), false, "record is not dirty");
+      equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
 
       run(function() {
         store.unloadRecord(record);
       });
 
-      equal(get(record, 'isDirty'), false, "record is not dirty");
+      equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
       equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;

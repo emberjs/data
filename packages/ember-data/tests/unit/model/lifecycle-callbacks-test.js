@@ -70,7 +70,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     didUpdate: function() {
       callCount++;
       equal(get(this, 'isSaving'), false, "record should be saving");
-      equal(get(this, 'isDirty'), false, "record should not be dirty");
+      equal(get(this, 'hasDirtyAttributes'), false, "record should not be dirty");
     }
   });
 
@@ -118,7 +118,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
     didCreate: function() {
       callCount++;
       equal(get(this, 'isSaving'), false, "record should not be saving");
-      equal(get(this, 'isDirty'), false, "record should not be dirty");
+      equal(get(this, 'hasDirtyAttributes'), false, "record should not be dirty");
     }
   });
 
@@ -163,7 +163,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
       callCount++;
 
       equal(get(this, 'isSaving'), false, "record should not be saving");
-      equal(get(this, 'isDirty'), false, "record should not be dirty");
+      equal(get(this, 'hasDirtyAttributes'), false, "record should not be dirty");
     }
   });
 
@@ -215,7 +215,7 @@ test("an uncommited record also receives a didDelete callback when it is deleted
     didDelete: function() {
       callCount++;
       equal(get(this, 'isSaving'), false, "record should not be saving");
-      equal(get(this, 'isDirty'), false, "record should not be dirty");
+      equal(get(this, 'hasDirtyAttributes'), false, "record should not be dirty");
     }
   });
 
@@ -251,7 +251,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
       callCount++;
 
       equal(get(this, 'isSaving'), false, "record should not be saving");
-      equal(get(this, 'isDirty'), true, "record should be dirty");
+      equal(get(this, 'hasDirtyAttributes'), true, "record should be dirty");
     }
   });
 
