@@ -107,9 +107,9 @@ var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
-var forEach = Ember.EnumerableUtils.forEach;
-var indexOf = Ember.EnumerableUtils.indexOf;
-var map = Ember.EnumerableUtils.map;
+var forEach = Ember.ArrayPolyfills.forEach;
+var indexOf = Ember.ArrayPolyfills.indexOf;
+var map = Ember.ArrayPolyfills.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
@@ -668,7 +668,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var store = this;
 
-    return promiseArray(Ember.RSVP.all(map(ids, function(id) {
+    return promiseArray(Ember.RSVP.all(map.call(ids, function(id) {
       return store.findRecord(modelName, id);
     })).then(Ember.A, null, "DS: Store#findByIds of " + modelName + " complete"));
   },
@@ -697,8 +697,8 @@ Store = Service.extend({
   },
 
   scheduleFetchMany: function(records) {
-    var internalModels = map(records, function(record) { return record._internalModel; });
-    return Promise.all(map(internalModels, this.scheduleFetch, this));
+    var internalModels = map.call(records, function(record) { return record._internalModel; });
+    return Promise.all(map.call(internalModels, this.scheduleFetch, this));
   },
 
   scheduleFetch: function(internalModel, options) {
@@ -746,7 +746,7 @@ Store = Service.extend({
     }
 
     function resolveFoundRecords(records) {
-      forEach(records, function(record) {
+      forEach.call(records, function(record) {
         var pair = Ember.A(pendingFetchItems).findBy('record', record);
         if (pair) {
           var resolver = pair.resolver;
@@ -776,7 +776,7 @@ Store = Service.extend({
     }
 
     function rejectRecords(records, error) {
-      forEach(records, function(record) {
+      forEach.call(records, function(record) {
         var pair = Ember.A(pendingFetchItems).findBy('record', record);
         if (pair) {
           var resolver = pair.resolver;
@@ -802,7 +802,7 @@ Store = Service.extend({
 
       var snapshots = Ember.A(records).invoke('createSnapshot');
       var groups = adapter.groupRecordsForFindMany(this, snapshots);
-      forEach(groups, function (groupOfSnapshots) {
+      forEach.call(groups, function (groupOfSnapshots) {
         var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('_internalModel');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
@@ -819,7 +819,7 @@ Store = Service.extend({
         }
       });
     } else {
-      forEach(pendingFetchItems, _fetchRecord);
+      forEach.call(pendingFetchItems, _fetchRecord);
     }
   },
 
@@ -955,7 +955,7 @@ Store = Service.extend({
   */
   findMany: function(internalModels) {
     var store = this;
-    return Promise.all(map(internalModels, function(internalModel) {
+    return Promise.all(map.call(internalModels, function(internalModel) {
       return store._findByInternalModel(internalModel);
     }));
   },
@@ -1262,9 +1262,9 @@ Store = Service.extend({
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
 
-      var types = map(keys, byType);
+      var types = map.call(keys, byType);
 
-      forEach(types, this.unloadAll, this);
+      forEach.call(types, this.unloadAll, this);
     } else {
       var typeClass = this.modelFor(modelName);
       var typeMap = this.typeMapFor(typeClass);
@@ -1474,7 +1474,7 @@ Store = Service.extend({
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
-    forEach(pending, function(pendingItem) {
+    forEach.call(pending, function(pendingItem) {
       var snapshot = pendingItem.snapshot;
       var resolver = pendingItem.resolver;
       var record = snapshot._internalModel;
@@ -1774,7 +1774,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string' || typeof data === 'undefined');
     var internalModel = this._pushInternalModel(modelName, data);
     if (Ember.isArray(internalModel)) {
-      return map(internalModel, (item) => {
+      return map.call(internalModel, (item) => {
         return item.getRecord();
       });
     }
@@ -1786,7 +1786,7 @@ Store = Service.extend({
       //TODO Remove once the transition is complete
       var result = pushPayload(this, modelName);
       if (Ember.isArray(result)) {
-        return map(result, (item) => {
+        return map.call(result, (item) => {
           return item._internalModel;
         });
       }
@@ -1797,16 +1797,16 @@ Store = Service.extend({
     Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
 
     var type = this.modelFor(modelName);
-    var filter = Ember.EnumerableUtils.filter;
+    var filter = Ember.ArrayPolyfills.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
-        Ember.inspect(filter(Ember.keys(data), function(key) {
+        Ember.inspect(filter.call(Ember.keys(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
-        filter(Ember.keys(data), function(key) {
+        filter.call(Ember.keys(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         }).length === 0
       );
@@ -2061,7 +2061,7 @@ Store = Service.extend({
       delete typeMap.idToRecord[id];
     }
 
-    var loc = indexOf(typeMap.records, internalModel);
+    var loc = indexOf.call(typeMap.records, internalModel);
     typeMap.records.splice(loc, 1);
   },
 

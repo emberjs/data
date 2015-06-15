@@ -1,5 +1,5 @@
-var forEach = Ember.EnumerableUtils.forEach;
-var map = Ember.EnumerableUtils.map;
+var forEach = Ember.ArrayPolyfills.forEach;
+var map = Ember.ArrayPolyfills.map;
 
 /**
   This is a helper method that always returns a JSON-API Document.
@@ -43,7 +43,7 @@ export function _normalizeSerializerPayload(modelClass, payload) {
 
   if (payload) {
     if (Ember.isArray(payload)) {
-      data = map(payload, (payload) => {
+      data = map.call(payload, (payload) => {
         return _normalizeSerializerPayloadItem(modelClass, payload);
       });
     } else {
@@ -101,7 +101,7 @@ export function _normalizeSerializerPayloadItem(modelClass, itemPayload) {
       if (relationshipMeta.kind === 'belongsTo') {
         relationship.data = normalizeRelationshipData(value, relationshipMeta);
       } else if (relationshipMeta.kind === 'hasMany') {
-        relationship.data = map(Ember.A(value), function(item) {
+        relationship.data = map.call(Ember.A(value), function(item) {
           return normalizeRelationshipData(item, relationshipMeta);
         });
       }
@@ -155,7 +155,7 @@ export function pushPayloadData(store, payload) {
   var result;
   if (payload && payload.data) {
     if (Ember.isArray(payload.data)) {
-      result = map(payload.data, (item) => {
+      result = map.call(payload.data, (item) => {
         return _pushResourceObject(store, item);
       });
     } else {
@@ -178,7 +178,7 @@ export function pushPayloadData(store, payload) {
 export function pushPayloadIncluded(store, payload) {
   var result;
   if (payload && payload.included && Ember.isArray(payload.included)) {
-    result = map(payload.included, (item) => {
+    result = map.call(payload.included, (item) => {
       return _pushResourceObject(store, item);
     });
   }
@@ -220,14 +220,14 @@ export function convertResourceObject(payload) {
 
   if (payload.attributes) {
     var attributeKeys = Ember.keys(payload.attributes);
-    forEach(attributeKeys, function(key) {
+    forEach.call(attributeKeys, function(key) {
       var attribute = payload.attributes[key];
       data[key] = attribute;
     });
   }
   if (payload.relationships) {
     var relationshipKeys = Ember.keys(payload.relationships);
-    forEach(relationshipKeys, function(key) {
+    forEach.call(relationshipKeys, function(key) {
       var relationship = payload.relationships[key];
       if (relationship.hasOwnProperty('data')) {
         data[key] = relationship.data;

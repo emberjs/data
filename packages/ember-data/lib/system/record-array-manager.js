@@ -12,8 +12,8 @@ import {
 } from "ember-data/system/map";
 import OrderedSet from "ember-data/system/ordered-set";
 var get = Ember.get;
-var forEach = Ember.EnumerableUtils.forEach;
-var indexOf = Ember.EnumerableUtils.indexOf;
+var forEach = Ember.ArrayPolyfills.forEach;
+var indexOf = Ember.ArrayPolyfills.indexOf;
 
 /**
   @class RecordArrayManager
@@ -59,7 +59,7 @@ export default Ember.Object.extend({
     @method updateRecordArrays
   */
   updateRecordArrays: function() {
-    forEach(this.changedRecords, function(record) {
+    forEach.call(this.changedRecords, function(record) {
       if (record.isDeleted()) {
         this._recordWasDeleted(record);
       } else {
@@ -87,8 +87,7 @@ export default Ember.Object.extend({
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
-
-    forEach(recordArrays, function(array) {
+    forEach.call(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
       this.updateFilterRecordArray(array, filter, typeClass, record);
     }, this);
@@ -100,7 +99,7 @@ export default Ember.Object.extend({
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
 
-    forEach(recordArrays, function(array) {
+    forEach.call(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
       this.updateFilterRecordArray(array, filter, typeClass, record);
     }, this);
@@ -122,7 +121,6 @@ export default Ember.Object.extend({
   updateFilterRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray = filter(record.getRecord());
     var recordArrays = this.recordArraysForRecord(record);
-
     if (shouldBeInArray) {
       this._addRecordToRecordArray(array, record);
     } else {
@@ -286,7 +284,7 @@ export default Ember.Object.extend({
 
     // unregister filtered record array
     var recordArrays = this.filteredRecordArrays.get(typeClass);
-    var index = indexOf(recordArrays, array);
+    var index = indexOf.call(recordArrays, array);
     if (index !== -1) {
       recordArrays.splice(index, 1);
 
@@ -303,10 +301,10 @@ export default Ember.Object.extend({
     this._super.apply(this, arguments);
 
     this.filteredRecordArrays.forEach(function(value) {
-      forEach(flatten(value), destroy);
+      forEach.call(flatten(value), destroy);
     });
-    forEach(this.liveRecordArrays, destroy);
-    forEach(this._adapterPopulatedRecordArrays, destroy);
+    forEach.call(this.liveRecordArrays, destroy);
+    forEach.call(this._adapterPopulatedRecordArrays, destroy);
   }
 });
 

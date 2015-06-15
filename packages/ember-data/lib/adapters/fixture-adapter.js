@@ -3,7 +3,7 @@
 */
 var get = Ember.get;
 var fmt = Ember.String.fmt;
-var indexOf = Ember.EnumerableUtils.indexOf;
+var indexOf = Ember.ArrayPolyfills.indexOf;
 
 var counter = 0;
 
@@ -169,7 +169,7 @@ export default Adapter.extend({
 
     if (fixtures) {
       fixtures = fixtures.filter(function(item) {
-        return indexOf(ids, item.id) !== -1;
+        return indexOf.call(ids, item.id) !== -1;
       });
     }
 
@@ -280,7 +280,7 @@ export default Adapter.extend({
     var existingFixture = this.findExistingFixture(typeClass, snapshot);
 
     if (existingFixture) {
-      var index = indexOf(typeClass.FIXTURES, existingFixture);
+      var index = indexOf.call(typeClass.FIXTURES, existingFixture);
       typeClass.FIXTURES.splice(index, 1);
       return true;
     }

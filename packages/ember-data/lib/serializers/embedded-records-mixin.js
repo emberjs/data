@@ -1,6 +1,6 @@
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.EnumerableUtils.forEach;
+var forEach = Ember.ArrayPolyfills.forEach;
 var camelize = Ember.String.camelize;
 
 /**
@@ -445,7 +445,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var ids = [];
 
     var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
-    forEach(hash[key], function(data) {
+    forEach.call(hash[key], function(data) {
       var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
       store.push(embeddedTypeClass.modelName, embeddedRecord);
       ids.push(embeddedRecord.id);
@@ -466,7 +466,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     var ids = [];
 
-    forEach(hash[key], function(data) {
+    forEach.call(hash[key], function(data) {
       var modelName = data.type;
       var embeddedSerializer = store.serializerFor(modelName);
       var embeddedTypeClass = store.modelFor(modelName);
