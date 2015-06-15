@@ -1794,6 +1794,7 @@ Store = Service.extend({
     }
     Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + Ember.typeOf(data), Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
+    Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
 
     var type = this.modelFor(modelName);
     var filter = Ember.EnumerableUtils.filter;
