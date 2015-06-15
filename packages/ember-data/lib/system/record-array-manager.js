@@ -14,6 +14,7 @@ import OrderedSet from "ember-data/system/ordered-set";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
+var guidFor = Ember.guidFor;
 
 /**
   @class RecordArrayManager
@@ -121,8 +122,25 @@ export default Ember.Object.extend({
   */
   updateFilterRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray = filter(record.getRecord());
-    var recordArrays = this.recordArraysForRecord(record);
+    var key = guidFor(record);
+    if (shouldBeInArray && shouldBeInArray.then) {
+      array.lastFilterPromises[key] = shouldBeInArray;
+      shouldBeInArray.then((result) => {
+        // fighting race conditions here
+        if (shouldBeInArray !== array.lastFilterPromises[key]) {
+          return;
+        }
 
+        delete array.lastFilterPromises[key];
+        this._updateFilterRecordArray(array, result, typeClass, record);
+      });
+    } else {
+      this._updateFilterRecordArray(array, shouldBeInArray, typeClass, record);
+    }
+  },
+
+  _updateFilterRecordArray: function(array, shouldBeInArray, typeClass, record) {
+    var recordArrays = this.recordArraysForRecord(record);
     if (shouldBeInArray) {
       this._addRecordToRecordArray(array, record);
     } else {
