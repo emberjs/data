@@ -14,8 +14,8 @@ install:
 script:
   - ./bin/lint-features
   - npm run-script test
-  - npm run-script test:beta
-  - npm run-script test:canary
+#  - npm run-script test:beta
+#  - npm run-script test:canary
   - npm run-script test:optional-features
 after_success:
   - npm run-script publish-build:prebuilt
