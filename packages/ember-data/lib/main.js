@@ -120,8 +120,27 @@ DS.StringTransform = StringTransform;
 DS.NumberTransform = NumberTransform;
 DS.BooleanTransform = BooleanTransform;
 
-DS.ActiveModelAdapter    = ActiveModelAdapter;
-DS.ActiveModelSerializer = ActiveModelSerializer;
+if (Ember.platform.hasPropertyAccessors) {
+  Ember.defineProperty(DS, 'ActiveModelAdapter', {
+    get: function() {
+      Ember.deprecate('The ActiveModelAdapter has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
+        url: 'https://github.com/ember-data/active-model-adapter'
+      });
+      return ActiveModelAdapter;
+    }
+  });
+  Ember.defineProperty(DS, 'ActiveModelSerializer', {
+    get: function() {
+      Ember.deprecate('The ActiveModelSerializer has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
+        url: 'https://github.com/ember-data/active-model-adapter'
+      });
+      return ActiveModelSerializer;
+    }
+  });
+} else {
+  DS.ActiveModelAdapter    = ActiveModelAdapter;
+  DS.ActiveModelSerializer = ActiveModelSerializer;
+}
 DS.EmbeddedRecordsMixin  = EmbeddedRecordsMixin;
 
 DS.belongsTo = belongsTo;
