@@ -457,10 +457,6 @@ var RootState = {
   // you out of the in-flight state.
   rolledBack: Ember.K,
   unloadRecord: function(internalModel) {
-    // clear relationships before moving to deleted state
-    // otherwise it fails
-    internalModel.clearRelationships();
-    internalModel.transitionTo('deleted.saved');
   },
 
 
@@ -576,10 +572,6 @@ var RootState = {
       },
 
       unloadRecord: function(internalModel) {
-        // clear relationships before moving to deleted state
-        // otherwise it fails
-        internalModel.clearRelationships();
-        internalModel.transitionTo('deleted.saved');
       },
 
       didCommit: function(internalModel) {
@@ -685,8 +677,8 @@ var RootState = {
       isDirty: false,
 
       setup: function(internalModel) {
-        var store = internalModel.store;
-        store._dematerializeRecord(internalModel);
+        //var store = internalModel.store;
+        //store._dematerializeRecord(internalModel);
       },
 
       invokeLifecycleCallbacks: function(internalModel) {

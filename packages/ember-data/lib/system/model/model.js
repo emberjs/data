@@ -751,7 +751,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   willDestroy: function() {
     //TODO Move!
-    this._internalModel.clearRelationships();
     this._internalModel.recordObjectWillDestroy();
     this._super.apply(this, arguments);
     //TODO should we set internalModel to null here?

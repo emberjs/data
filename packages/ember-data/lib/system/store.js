@@ -1240,8 +1240,8 @@ Store = Service.extend({
 
       for (var i = 0; i < records.length; i++) {
         record = records[i];
-        record.unloadRecord();
-        record.destroy(); // maybe within unloadRecord
+        record.dematerializeRecord();
+        record.destroy();
       }
 
       typeMap.metadata = Ember.create(null);
@@ -2017,12 +2017,13 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _dematerializeRecord: function(internalModel) {
+    internalModel.dematerializeRecord();
+  },
+
+  _removeFromIdMap(internalModel) {
     var type = internalModel.type;
     var typeMap = this.typeMapFor(type);
     var id = internalModel.id;
-
-    internalModel.updateRecordArrays();
-
     if (id) {
       delete typeMap.idToRecord[id];
     }
