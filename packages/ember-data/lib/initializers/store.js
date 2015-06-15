@@ -1,3 +1,4 @@
+import Store from "ember-data/system/store";
 import { JSONAPISerializer, JSONSerializer, RESTSerializer } from "ember-data/serializers";
 import { JSONAPIAdapter, RESTAdapter } from "ember-data/adapters";
 import ContainerProxy from "ember-data/system/container-proxy";
@@ -17,15 +18,7 @@ export default function initializeStore(registry, application) {
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
-  // This will get deprecated later in the instace
-  // initializer. However we register it here so we have access to
-  // application.Store in the instance initializer.
-  if (application && application.Store) {
-    registry.register('store:application', application.Store);
-  }
-
   // allow older names to be looked up
-
   var proxy = new ContainerProxy(registry);
   proxy.registerDeprecations([
     { deprecated: 'serializer:_default',  valid: 'serializer:-default' },
@@ -40,4 +33,32 @@ export default function initializeStore(registry, application) {
 
   registry.register('adapter:-json-api', JSONAPIAdapter);
   registry.register('serializer:-json-api', JSONAPISerializer);
+
+
+  var store;
+  if (registry.has('store:main')) {
+    Ember.deprecate('Registering a custom store as `store:main` or defining a store in app/store.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`');
+    store = registry.lookup('store:main');
+  } else {
+    var storeMainProxy = new ContainerProxy(registry);
+    storeMainProxy.registerDeprecations([
+      { deprecated: 'store:main', valid: 'service:store' }
+    ]);
+  }
+
+  if (registry.has('store:application')) {
+    Ember.deprecate('Registering a custom store as `store:application` or defining a store in app/stores/application.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`');
+    store = registry.lookup('store:application');
+  } else {
+    var storeApplicationProxy = new ContainerProxy(registry);
+    storeApplicationProxy.registerDeprecations([
+      { deprecated: 'store:application', valid: 'service:store' }
+    ]);
+  }
+
+  if (store) {
+    registry.register('service:store', store, { instantiate: false });
+  } else {
+    registry.register('service:store', application && application.Store || Store);
+  }
 }
