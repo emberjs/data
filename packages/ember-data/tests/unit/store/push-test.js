@@ -596,3 +596,15 @@ test("Calling pushMany is deprecated", function() {
     });
   }, 'Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
 });
+
+
+test("Calling push(type, data) is deprecated", function() {
+  var person1;
+  expectDeprecation(function() {
+    run(function() {
+      person1 = { id: 1, firstName: 'John', lastName: 'Smith' };
+
+      store.push('person', person1);
+    });
+  }, /store.push\(type, data\) has been deprecated/);
+});
