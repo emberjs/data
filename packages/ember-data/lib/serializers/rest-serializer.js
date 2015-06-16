@@ -218,7 +218,9 @@ var RESTSerializer = JSONSerializer.extend({
     forEach.call(arrayHash, (hash) => {
       let { data, included } = serializer.normalize(modelClass, hash, prop);
       documentHash.data.push(data);
-      documentHash.included.push(...included);
+      if (included) {
+        documentHash.included.push(...included);
+      }
     }, this);
 
     return documentHash;
@@ -247,7 +249,10 @@ var RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    Ember.keys(payload).forEach((prop) => {
+    var keys = Ember.keys(payload);
+
+    for (let i = 0, length = keys.length; i < length; i++) {
+      let prop = keys[i];
       var modelName = prop;
       var forcedSecondary = false;
 
@@ -279,14 +284,14 @@ var RESTSerializer = JSONSerializer.extend({
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
         Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false);
-        return;
+        continue;
       }
 
       var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
       var value = payload[prop];
 
       if (value === null) {
-        return;
+        continue;
       }
 
       /*
@@ -301,15 +306,19 @@ var RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && Ember.typeOf(value) !== 'array') {
-        let { data, included } = this.normalize(primaryModelClass, value, prop);
+        let {data, included} = this.normalize(primaryModelClass, value, prop);
         documentHash.data = data;
-        documentHash.included.push(...included);
-        return;
+        if (included) {
+          documentHash.included.push(...included);
+        }
+        continue;
       }
 
       let { data, included } = this.normalizeArray(store, typeName, value, prop);
 
-      documentHash.included.push(...included);
+      if (included) {
+        documentHash.included.push(...included);
+      }
 
       if (isSingle) {
         /*jshint loopfunc:true*/
@@ -337,10 +346,12 @@ var RESTSerializer = JSONSerializer.extend({
         if (isPrimary) {
           documentHash.data = data;
         } else {
-          documentHash.included.push(...data);
+          if (data) {
+            documentHash.included.push(...data);
+          }
         }
       }
-    });
+    }
 
     return documentHash;
   },
@@ -1057,7 +1068,9 @@ function _newPushPayload(store, rawPayload) {
     forEach.call(Ember.makeArray(payload[prop]), (hash) => {
       let { data, included } = typeSerializer.normalize(type, hash, prop);
       documentHash.data.push(data);
-      documentHash.included.push(...included);
+      if (included) {
+        documentHash.included.push(...included);
+      }
     }, this);
   }
 

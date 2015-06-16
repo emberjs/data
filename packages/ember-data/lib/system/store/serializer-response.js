@@ -116,7 +116,9 @@ export function _normalizeSerializerPayloadItem(modelClass, itemPayload) {
       } else if (relationshipMeta.kind === 'hasMany') {
         //|| [] because the hasMany could be === null
         Ember.assert("A " + relationshipMeta.parentType + " record was pushed into the store with the value of " + key + " being '" + Ember.inspect(value) + "', but " + key + " is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.", Ember.isArray(value) || value === null);
-        relationship.data = Ember.A(value || []).map(function(item) {
+
+        var relationshipData = Ember.A(value || []);
+        relationship.data = map.call(relationshipData, function(item) {
           return normalizeRelationshipData(item, relationshipMeta);
         });
       }

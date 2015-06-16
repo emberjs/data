@@ -2339,9 +2339,16 @@ function deprecatePreload(preloadOrOptions, type, methodName) {
     fields.forEach(function(fieldType, key) {
       modelProperties.push(key);
     });
-    var preloadDetected = modelProperties.reduce(function(memo, key) {
-      return typeof preloadOrOptions[key] !== 'undefined' || memo;
-    }, false);
+
+    var preloadDetected = false;
+    for (let i = 0, length = modelProperties.length; i < length; i++) {
+      let key = modelProperties[i];
+      if (typeof preloadOrOptions[key] !== 'undefined') {
+        preloadDetected = true;
+        break;
+      }
+    }
+
     if (preloadDetected) {
       Ember.deprecate(`Passing a preload argument to \`store.${methodName}\` is deprecated. Please move it to the preload key on the ${methodName} \`options\` argument.`);
       var preload = preloadOrOptions;

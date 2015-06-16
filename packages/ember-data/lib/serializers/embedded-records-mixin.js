@@ -576,7 +576,9 @@ function _newExtractEmbeddedHasMany(store, key, hash, relationshipMeta) {
     let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
     hash.included = hash.included || [];
     hash.included.push(data);
-    hash.included.push(...included);
+    if (included) {
+      hash.included.push(...included);
+    }
 
     return { id: data.id, type: data.type };
   });
@@ -598,7 +600,9 @@ function _newExtractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
   let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
   hash.included = hash.included || [];
   hash.included.push(data);
-  hash.included.push(...included);
+  if (included) {
+    hash.included.push(...included);
+  }
 
   let belongsTo = { id: data.id, type: data.type };
   let relationship = { data: belongsTo };
