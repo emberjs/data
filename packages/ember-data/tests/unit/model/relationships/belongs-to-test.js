@@ -311,3 +311,22 @@ test("belongsTo gives a warning when provided with an embedded option", function
     });
   }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
 });
+
+module("unit/model/relationships - DS.belongsTo async by default deprecations", {
+  setup: function() {
+    setupStore();
+  }
+});
+
+test("setting DS.belongsTo without async false triggers deprecation", function() {
+  expectDeprecation(
+    function() {
+      run(function() {
+        DS.Model.extend({
+          post: DS.belongsTo('post')
+        });
+      });
+    },
+    'In the future, relationships will be asynchronous by default. You must set { async: false } if you wish for a relationship remain synchronous.'
+  );
+});

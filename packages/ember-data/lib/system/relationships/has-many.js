@@ -122,6 +122,10 @@ function hasMany(type, options) {
 
   options = options || {};
 
+  if (typeof options.async === 'undefined') {
+    Ember.deprecate('In the future, relationships will be asynchronous by default. You must set { async: false } if you wish for a relationship remain synchronous.');
+  }
+
   if (typeof type === 'string') {
     type = normalizeModelName(type);
   }
