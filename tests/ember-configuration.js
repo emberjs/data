@@ -11,6 +11,7 @@
 
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
+  ENV['ENABLE_DS_FILTER'] = true;
 
   // Handle testing feature flags
   ENV['ENABLE_OPTIONAL_FEATURES'] = !!QUnit.urlParams.enableoptionalfeatures;
