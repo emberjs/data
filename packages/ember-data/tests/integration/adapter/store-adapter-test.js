@@ -994,7 +994,7 @@ test("record.save should pass adapterOptions to the deleteRecord method", functi
 test("findRecord should pass adapterOptions to the find method", function() {
   expect(1);
 
-  env.adapter.find = async(function(store, type, id, snapshot) {
+  env.adapter.findRecord = async(function(store, type, id, snapshot) {
     deepEqual(snapshot.adapterOptions, { query: { embed: true } });
     return Ember.RSVP.resolve({ id: 1 });
   });

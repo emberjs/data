@@ -835,7 +835,7 @@ test("store should not call shouldReloadRecord when the record is not in the sto
       ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
       return false;
     },
-    find: function() {
+    findRecord: function() {
       ok(true, 'find is always called when the record is not in the store');
       return { id: 1 };
     }
@@ -863,7 +863,7 @@ test("store should not reload record when shouldReloadRecord returns false", fun
       ok(true, 'shouldReloadRecord should be called when the record is in the store');
       return false;
     },
-    find: function() {
+    findRecord: function() {
       ok(false, 'find should not be called when shouldReloadRecord returns false');
     }
   });
@@ -891,7 +891,7 @@ test("store should reload record when shouldReloadRecord returns true", function
       ok(true, 'shouldReloadRecord should be called when the record is in the store');
       return true;
     },
-    find: function() {
+    findRecord: function() {
       ok(true, 'find should not be called when shouldReloadRecord returns false');
       return { id: 1, name: 'Tom' };
     }
@@ -924,7 +924,7 @@ test("store should not call shouldBackgroundReloadRecord when the store is alrea
     shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
       ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
     },
-    find: function() {
+    findRecord: function() {
       ok(true, 'find should be called');
       return { id: 1, name: 'Tom' };
     }
@@ -955,7 +955,7 @@ test("store should not reload a record when `shouldBackgroundReloadRecord` is fa
       ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
       return false;
     },
-    find: function() {
+    findRecord: function() {
       ok(false, 'find should not be called');
       return { id: 1, name: 'Tom' };
     }
@@ -987,7 +987,7 @@ test("store should reload the record in the background when `shouldBackgroundRel
       ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
       return true;
     },
-    find: function() {
+    findRecord: function() {
       ok(true, 'find should not be called');
       return { id: 1, name: 'Tom' };
     }

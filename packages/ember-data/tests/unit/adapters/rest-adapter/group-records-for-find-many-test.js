@@ -8,7 +8,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
 
       coalesceFindRequests: true,
 
-      find: function(store, type, id, snapshot) {
+      findRecord: function(store, type, id, snapshot) {
         return Ember.RSVP.Promise.resolve({ id: id });
       },
 
