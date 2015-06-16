@@ -8,13 +8,13 @@ test("belongsTo lazily loads relationships as needed", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    people: DS.hasMany('person')
+    people: DS.hasMany('person', { async: false })
   });
   Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo('tag')
+    tag: DS.belongsTo('tag', { async: false })
   });
   Person.toString = function() { return "Person"; };
 
@@ -118,12 +118,12 @@ test("calling createRecord and passing in an undefined value for a relationship 
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo('tag')
+    tag: DS.belongsTo('tag', { async: false })
   });
 
   var env = setupStore({ tag: Tag, person: Person });
@@ -143,7 +143,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
 test("When finding a hasMany relationship the inverse belongsTo relationship is available immediately", function() {
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   Occupation.toString = function() { return "Occupation"; };
@@ -189,7 +189,7 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
 
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   Occupation.toString = function() { return "Occupation"; };
@@ -223,13 +223,13 @@ test("belongsTo supports relationships to models with id 0", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    people: DS.hasMany('person')
+    people: DS.hasMany('person', { async: false })
   });
   Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo('tag')
+    tag: DS.belongsTo('tag', { async: false })
   });
   Person.toString = function() { return "Person"; };
 
@@ -262,7 +262,7 @@ test("belongsTo gives a warning when provided with a serialize option", function
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    hobby: DS.belongsTo('hobby', { serialize: true })
+    hobby: DS.belongsTo('hobby', { serialize: true, async: true })
   });
   Person.toString = function() { return "Person"; };
 
@@ -291,7 +291,7 @@ test("belongsTo gives a warning when provided with an embedded option", function
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    hobby: DS.belongsTo('hobby', { embedded: true })
+    hobby: DS.belongsTo('hobby', { embedded: true, async: true })
   });
   Person.toString = function() { return "Person"; };
 
@@ -310,4 +310,34 @@ test("belongsTo gives a warning when provided with an embedded option", function
       }));
     });
   }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
+});
+
+module("unit/model/relationships - DS.belongsTo async by default deprecations", {
+  setup: function() {
+    setupStore();
+  }
+});
+
+test("setting DS.belongsTo without async false triggers deprecation", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag')
+  });
+
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.createRecord('person').get('tag');
+      });
+    },
+    /In Ember Data 2.0, relationships will be asynchronous by default. You must set `tag: DS.belongsTo\('tag', { async: false }\)`/
+  );
 });

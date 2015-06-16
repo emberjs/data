@@ -6,13 +6,13 @@ var env;
 
 var Person = DS.Model.extend({
   name: attr('string'),
-  cars: hasMany('car')
+  cars: hasMany('car', { async: false })
 });
 
 Person.toString = function() { return "Person"; };
 
 var Group = DS.Model.extend({
-  people: hasMany('person')
+  people: hasMany('person', { async: false })
 });
 
 Group.toString = function() { return "Group"; };
@@ -20,7 +20,7 @@ Group.toString = function() { return "Group"; };
 var Car = DS.Model.extend({
   make: attr('string'),
   model: attr('string'),
-  person: belongsTo('person')
+  person: belongsTo('person', { async: false })
 });
 
 Car.toString = function() { return "Car"; };

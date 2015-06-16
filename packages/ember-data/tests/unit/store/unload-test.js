@@ -90,11 +90,11 @@ test("can commit store after unload record with relationships", function() {
 
   var Product = DS.Model.extend({
     description: DS.attr('string'),
-    brand: DS.belongsTo('brand')
+    brand: DS.belongsTo('brand', { async: false })
   });
 
   var Like = DS.Model.extend({
-    product: DS.belongsTo('product')
+    product: DS.belongsTo('product', { async: false })
   });
 
   var store = createStore({

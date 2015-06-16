@@ -83,11 +83,11 @@ test("a loaded record is removed from a record array when it is deleted", functi
   expect(4);
 
   var Tag = DS.Model.extend({
-    people: DS.hasMany('person')
+    people: DS.hasMany('person', { async: false })
   });
 
   Person.reopen({
-    tag: DS.belongsTo('tag')
+    tag: DS.belongsTo('tag', { async: false })
   });
 
   var env = setupStore({
@@ -130,7 +130,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
 test("a loaded record is removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
   var Tag = DS.Model.extend({
-    people: DS.hasMany('person')
+    people: DS.hasMany('person', { async: false })
   });
 
   var env = setupStore({
@@ -151,11 +151,11 @@ test("a loaded record is removed from a record array when it is deleted even if 
 
 test("a loaded record is removed both from the record array and from the belongs to, even if the belongsTo side isn't defined", function() {
   var Tag = DS.Model.extend({
-    people: DS.hasMany('person')
+    people: DS.hasMany('person', { async: false })
   });
 
   var Tool = DS.Model.extend({
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var env = setupStore({

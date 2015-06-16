@@ -13,13 +13,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
-      job: belongsTo('job')
+      job: belongsTo('job', { async: false })
     });
     User.toString = stringify('User');
 
     Job = DS.Model.extend({
       isGood: attr(),
-      user: belongsTo('user')
+      user: belongsTo('user', { async: false })
     });
     Job.toString = stringify('Job');
 

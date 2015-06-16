@@ -7,15 +7,15 @@ module("integration/multiple_stores - Multiple Stores Tests", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains' }),
-      evilMinions:     DS.hasMany('evil-minion')
+      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains', async: false }),
+      evilMinions:     DS.hasMany('evil-minion', { async: false })
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet' })
+      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet', async: false })
     });
     EvilMinion = DS.Model.extend({
-      superVillain:    DS.belongsTo('super-villain'),
+      superVillain:    DS.belongsTo('super-villain', { async: false }),
       name:            DS.attr('string')
     });
 

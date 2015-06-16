@@ -5,11 +5,11 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
 
 test("When a record is added to a has-many relationship, the inverse belongsTo is determined automatically", function() {
   Post = DS.Model.extend({
-    comments: DS.hasMany('comment')
+    comments: DS.hasMany('comment', { async: false })
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment });
@@ -33,12 +33,12 @@ test("Inverse relationships can be explicitly nullable", function () {
   User = DS.Model.extend();
 
   Post = DS.Model.extend({
-    lastParticipant: DS.belongsTo('user', { inverse: null }),
-    participants: DS.hasMany('user', { inverse: 'posts' })
+    lastParticipant: DS.belongsTo('user', { inverse: null, async: false }),
+    participants: DS.hasMany('user', { inverse: 'posts', async: false })
   });
 
   User.reopen({
-    posts: DS.hasMany('post', { inverse: 'participants' })
+    posts: DS.hasMany('post', { inverse: 'participants', async: false })
   });
 
   var store = createStore({
@@ -59,14 +59,14 @@ test("Inverse relationships can be explicitly nullable", function () {
 
 test("When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly", function() {
   Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { inverse: 'redPost' })
+    comments: DS.hasMany('comment', { inverse: 'redPost', async: false })
   });
 
   Comment = DS.Model.extend({
-    onePost: DS.belongsTo('post'),
-    twoPost: DS.belongsTo('post'),
-    redPost: DS.belongsTo('post'),
-    bluePost: DS.belongsTo('post')
+    onePost: DS.belongsTo('post', { async: false }),
+    twoPost: DS.belongsTo('post', { async: false }),
+    redPost: DS.belongsTo('post', { async: false }),
+    bluePost: DS.belongsTo('post', { async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment });
@@ -95,13 +95,13 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
 
 test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function() {
   Post = DS.Model.extend({
-    meComments: DS.hasMany('comment'),
-    youComments: DS.hasMany('comment'),
-    everyoneWeKnowComments: DS.hasMany('comment')
+    meComments: DS.hasMany('comment', { async: false }),
+    youComments: DS.hasMany('comment', { async: false }),
+    everyoneWeKnowComments: DS.hasMany('comment', { async: false })
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { inverse: 'youComments' })
+    post: DS.belongsTo('post', { inverse: 'youComments', async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment });
@@ -130,11 +130,11 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
 test("When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used", function() {
   Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment')
+    bestComment: DS.belongsTo('comment', { async: false })
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment });
@@ -166,11 +166,11 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
 
 test("When setting a belongsTo, the OneToOne invariant is transitive", function() {
   Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment')
+    bestComment: DS.belongsTo('comment', { async: false })
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var store = createStore({
@@ -204,11 +204,11 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
 
 test("When setting a belongsTo, the OneToOne invariant is commutative", function() {
   Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment')
+    bestComment: DS.belongsTo('comment', { async: false })
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var store = createStore({
@@ -245,7 +245,7 @@ test("OneToNone relationship works", function() {
   });
 
   Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment });
@@ -278,16 +278,17 @@ test("OneToNone relationship works", function() {
 test("When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly", function() {
   User = DS.Model.extend({
     messages: DS.hasMany('message', {
+      async: false,
       inverse: 'redUser',
       polymorphic: true
     })
   });
 
   Message = DS.Model.extend({
-    oneUser: DS.belongsTo('user'),
-    twoUser: DS.belongsTo('user'),
-    redUser: DS.belongsTo('user'),
-    blueUser: DS.belongsTo('user')
+    oneUser: DS.belongsTo('user', { async: false }),
+    twoUser: DS.belongsTo('user', { async: false }),
+    redUser: DS.belongsTo('user', { async: false }),
+    blueUser: DS.belongsTo('user', { async: false })
   });
 
   Post = Message.extend();
@@ -327,13 +328,13 @@ test("When a record is added to or removed from a polymorphic has-many relations
 
 test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", function() {
   User = DS.Model.extend({
-    meMessages: DS.hasMany('message', { polymorphic: true }),
-    youMessages: DS.hasMany('message', { polymorphic: true }),
-    everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true })
+    meMessages: DS.hasMany('message', { polymorphic: true, async: false }),
+    youMessages: DS.hasMany('message', { polymorphic: true, async: false }),
+    everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true, async: false })
   });
 
   Message = DS.Model.extend({
-    user: DS.belongsTo('user', { inverse: 'youMessages' })
+    user: DS.belongsTo('user', { inverse: 'youMessages', async: false })
   });
 
   Post = Message.extend();
@@ -370,15 +371,16 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
 test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function() {
   Message = DS.Model.extend({
-    meMessages: DS.hasMany('comment', { inverse: null }),
-    youMessages: DS.hasMany('comment', { inverse: 'message' }),
-    everyoneWeKnowMessages: DS.hasMany('comment', { inverse: null })
+    meMessages: DS.hasMany('comment', { inverse: null, async: false }),
+    youMessages: DS.hasMany('comment', { inverse: 'message', async: false }),
+    everyoneWeKnowMessages: DS.hasMany('comment', { inverse: null, async: false })
   });
 
   Post = Message.extend();
 
   Comment = Message.extend({
     message: DS.belongsTo('message', {
+      async: false,
       polymorphic: true,
       inverse: 'youMessages'
     })
@@ -419,7 +421,7 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
   Comment = DS.Model.extend();
 
   Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { inverse: 'testPost' })
+    comments: DS.hasMany('comment', { inverse: 'testPost', async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
@@ -441,7 +443,7 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
   Comment = DS.Model.extend();
 
   Post = DS.Model.extend({
-    user: DS.belongsTo('user', { inverse: 'testPost' })
+    user: DS.belongsTo('user', { inverse: 'testPost', async: false })
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });

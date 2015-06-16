@@ -10,7 +10,7 @@ module("unit/many_array - DS.ManyArray", {
   setup: function() {
     Post = DS.Model.extend({
       title: attr('string'),
-      tags: hasMany('tag')
+      tags: hasMany('tag', { async: false })
     });
     Post.toString = function() {
       return 'Post';
@@ -18,7 +18,7 @@ module("unit/many_array - DS.ManyArray", {
 
     Tag = DS.Model.extend({
       name: attr('string'),
-      post: belongsTo('post')
+      post: belongsTo('post', { async: false })
     });
     Tag.toString = function() {
       return 'Tag';

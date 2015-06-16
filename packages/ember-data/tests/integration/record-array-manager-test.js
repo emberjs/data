@@ -3,7 +3,7 @@ var run = Ember.run;
 
 var Person = DS.Model.extend({
   name: DS.attr('string'),
-  cars: DS.hasMany('car')
+  cars: DS.hasMany('car', { async: false })
 });
 
 Person.toString = function() { return "Person"; };
@@ -11,7 +11,7 @@ Person.toString = function() { return "Person"; };
 var Car = DS.Model.extend({
   make: DS.attr('string'),
   model: DS.attr('string'),
-  person: DS.belongsTo('person')
+  person: DS.belongsTo('person', { async: false })
 });
 
 Car.toString = function() { return "Car"; };

@@ -10,38 +10,38 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains' }),
-      secretLab:       DS.belongsTo('secret-lab'),
-      secretWeapons:   DS.hasMany('secret-weapon'),
-      evilMinions:     DS.hasMany('evil-minion')
+      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains', async: true }),
+      secretLab:       DS.belongsTo('secret-lab', { async: false }),
+      secretWeapons:   DS.hasMany('secret-weapon', { async: false }),
+      evilMinions:     DS.hasMany('evil-minion', { async: false })
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet' })
+      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet', async: false })
     });
     SecretLab = DS.Model.extend({
       minionCapacity:  DS.attr('number'),
       vicinity:        DS.attr('string'),
-      superVillain:    DS.belongsTo('super-villain')
+      superVillain:    DS.belongsTo('super-villain', { async: false })
     });
     BatCave = SecretLab.extend({
       infiltrated:     DS.attr('boolean')
     });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
-      superVillain:    DS.belongsTo('super-villain')
+      superVillain:    DS.belongsTo('super-villain', { async: false })
     });
     LightSaber = SecretWeapon.extend({
       color:           DS.attr('string')
     });
     EvilMinion = DS.Model.extend({
-      superVillain:    DS.belongsTo('super-villain'),
+      superVillain:    DS.belongsTo('super-villain', { async: false }),
       name:            DS.attr('string')
     });
     Comment = DS.Model.extend({
       body:            DS.attr('string'),
       root:            DS.attr('boolean'),
-      children:        DS.hasMany('comment', { inverse: null })
+      children:        DS.hasMany('comment', { inverse: null, async: false })
     });
     env = setupStore({
       superVillain:    SuperVillain,
@@ -255,7 +255,7 @@ test("extractSingle with embedded objects inside embedded objects of same type",
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('super-villain', { inverse: null })
+    reformedVillains: DS.hasMany('super-villain', { inverse: null, async: false })
   });
 
   env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
@@ -479,7 +479,7 @@ test("extractArray with embedded objects of same type as primary type", function
 
 test("extractArray with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('super-villain')
+    reformedVillains: DS.hasMany('super-villain', { async: false })
   });
 
   env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
@@ -1138,7 +1138,7 @@ test("extractSingle with multiply-nested belongsTo", function() {
 
 test("extractSingle with polymorphic hasMany", function() {
   SuperVillain.reopen({
-    secretWeapons: DS.hasMany('secret-weapon', { polymorphic: true })
+    secretWeapons: DS.hasMany('secret-weapon', { polymorphic: true, async: false })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1193,7 +1193,7 @@ test("extractSingle with polymorphic hasMany", function() {
 
 test("extractSingle with polymorphic hasMany and custom primary key", function() {
   SuperVillain.reopen({
-    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true })
+    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true, async: false })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1252,7 +1252,7 @@ test("extractSingle with polymorphic belongsTo", function() {
   expect(2);
 
   SuperVillain.reopen({
-    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true, async: true })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1298,7 +1298,7 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
   expect(2);
 
   SuperVillain.reopen({
-    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true, async: true })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1347,7 +1347,7 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
   expect(2);
 
   SuperVillain.reopen({
-    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true, async: true })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1543,7 +1543,7 @@ test("serializing belongsTo correctly removes embedded foreign key", function() 
     superVillain: null
   });
   EvilMinion.reopen({
-    secretWeapon: DS.belongsTo('secret-weapon'),
+    secretWeapon: DS.belongsTo('secret-weapon', { async: false }),
     superVillain: null
   });
 

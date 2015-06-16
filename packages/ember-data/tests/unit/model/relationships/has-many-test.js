@@ -13,18 +13,18 @@ test("hasMany handles pre-loaded relationships", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Pet = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag'),
-    pets: DS.hasMany('pet')
+    tags: DS.hasMany('tag', { async: false }),
+    pets: DS.hasMany('pet', { async: false })
   });
 
   env.registry.register('model:tag', Tag);
@@ -100,18 +100,18 @@ test("hasMany lazily loads async relationships", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Pet = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany('tag', { async: true }),
-    pets: DS.hasMany('pet')
+    pets: DS.hasMany('pet', { async: false })
   });
 
   env.registry.register('model:tag', Tag);
@@ -169,7 +169,8 @@ test("should be able to retrieve the type for a hasMany relationship without spe
   var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    tags: DS.hasMany()
+    tags: DS.hasMany('tag', { async: false })
+
   });
 
   var env = setupStore({
@@ -184,7 +185,7 @@ test("should be able to retrieve the type for a hasMany relationship specified u
   var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var env = setupStore({
@@ -199,7 +200,7 @@ test("should be able to retrieve the type for a belongsTo relationship without s
   var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    tag: DS.belongsTo()
+    tag: DS.belongsTo('tag', { async: false })
   });
 
   var env = setupStore({
@@ -216,7 +217,7 @@ test("should be able to retrieve the type for a belongsTo relationship specified
   });
 
   var Person = DS.Model.extend({
-    tags: DS.belongsTo('tag')
+    tags: DS.belongsTo('tag', { async: false })
   });
 
   var env = setupStore({
@@ -234,7 +235,7 @@ test("relationships work when declared with a string path", function() {
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var Tag = DS.Model.extend({
@@ -264,7 +265,7 @@ test("hasMany relationships work when the data hash has not been loaded", functi
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   Tag.toString = function() { return "Tag"; };
@@ -314,12 +315,12 @@ test("it is possible to add a new item to a relationship", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    people: DS.belongsTo('person')
+    people: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var env = setupStore({
@@ -353,12 +354,12 @@ test("possible to replace items in a relationship using setObjects w/ Ember Enum
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var env   = setupStore({ tag: Tag, person: Person });
@@ -390,12 +391,12 @@ test("it is possible to remove an item from a relationship", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var env = setupStore({ tag: Tag, person: Person });
@@ -424,12 +425,12 @@ test("it is possible to remove an item from a relationship", function() {
 test("it is possible to add an item to a relationship, remove it, then add it again", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   Tag.toString = function() { return "Tag"; };
@@ -465,4 +466,34 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
   equal(tags.objectAt(0), tag2);
   equal(tags.objectAt(1), tag1);
   equal(tags.objectAt(2), tag3);
+});
+
+module("unit/model/relationships - DS.hasMany async by default deprecations", {
+  setup: function() {
+    env = setupStore();
+  }
+});
+
+test("setting DS.hasMany without async false triggers deprecation", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.createRecord('tag').get('people');
+      });
+    },
+    /In Ember Data 2.0, relationships will be asynchronous by default. You must set `people: DS.hasMany\('person', { async: false }\)/
+  );
 });

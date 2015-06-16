@@ -13,14 +13,14 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     User = DS.Model.extend({
       name: attr('string'),
       topics: hasMany('topic', { async: true }),
-      accounts: hasMany('account')
+      accounts: hasMany('account', { async: false })
     });
 
     User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
-      users: hasMany('user')
+      users: hasMany('user', { async: false })
     });
 
     Account.toString = stringify('Account');

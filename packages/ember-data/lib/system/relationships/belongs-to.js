@@ -92,18 +92,29 @@ function belongsTo(modelName, options) {
 
   opts = opts || {};
 
+  var shouldWarnAsync = false;
+  if (typeof opts.async === 'undefined') {
+    shouldWarnAsync = true;
+  }
+
   var meta = {
     type: userEnteredModelName,
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',
-    key: null
+    key: null,
+    shouldWarnAsync: shouldWarnAsync
   };
 
   return computedPolyfill({
     get: function(key) {
       Ember.warn('You provided a serialize option on the "' + key + '" property in the "' + this._internalModel.modelName + '" class, this belongs in the serializer. See DS.Serializer and it\'s implementations http://emberjs.com/api/data/classes/DS.Serializer.html', !opts.hasOwnProperty('serialize'));
       Ember.warn('You provided an embedded option on the "' + key + '" property in the "' + this._internalModel.modelName + '" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin http://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html', !opts.hasOwnProperty('embedded'));
+
+      if (meta.shouldWarnAsync) {
+        Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.belongsTo('${modelName}', { async: false })\` if you wish for a relationship remain synchronous.`);
+        meta.shouldWarnAsycn = false;
+      }
 
       return this._internalModel._relationships.get(key).getRecord();
     },

@@ -241,7 +241,7 @@ test("create - findMany doesn't overwrite owner", function() {
   var comment;
 
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [] });
@@ -341,7 +341,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
 
   ajaxResponse();
 
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     var post = store.createRecord('post', { id: "a-post-id", name: "The Parley Letter" });
@@ -366,7 +366,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
 
   ajaxResponse();
 
-  Post.reopen({ comments: DS.hasMany('comment') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
 
   run(function() {
     var comment = store.createRecord('comment', { id: "a-comment-id", name: "First!" });
@@ -405,8 +405,8 @@ test("create - a record on the many side of a hasMany relationship should update
     // }
   });
 
-  Post.reopen({ comments: DS.hasMany('comment') });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1] });
@@ -434,8 +434,8 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
   expect(4);
   var post;
 
-  Post.reopen({ comment: DS.belongsTo('comment') });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comment: DS.belongsTo('comment', { async: false }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     post = store.createRecord('post', { name: "man" });
@@ -472,8 +472,8 @@ test("create - response can contain relationships the client doesn't yet know ab
     }]
   });
 
-  Post.reopen({ comments: DS.hasMany('comment') });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   var post;
   run(function() {
@@ -496,8 +496,8 @@ test("create - response can contain relationships the client doesn't yet know ab
 test("create - relationships are not duplicated", function() {
   var post, comment;
 
-  Post.reopen({ comments: DS.hasMany('comment') });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     post = store.createRecord('post', { name: "Tomtomhuda" });
@@ -673,8 +673,8 @@ test("update - a serializer's primary key and attributes are consulted when buil
 });
 
 test("update - hasMany relationships faithfully reflect simultaneous adds and removes", function() {
-  Post.reopen({ comments: DS.hasMany('comment') });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   run(function() {
     store.push('post', { id: 1, name: "Not everyone uses Rails", comments: [1] });
@@ -1520,7 +1520,7 @@ test('findBelongsTo - passes buildURL the requestType', function() {
 });
 
 test('coalesceFindRequests warns if the expected records are not returned in the coalesced request', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   adapter.coalesceFindRequests = true;
@@ -1537,7 +1537,7 @@ test('coalesceFindRequests warns if the expected records are not returned in the
 });
 
 test('groupRecordsForFindMany groups records based on their url', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
@@ -1570,7 +1570,7 @@ test('groupRecordsForFindMany groups records based on their url', function() {
 });
 
 test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
@@ -1625,8 +1625,8 @@ test('normalizeKey - to set up _ids and _id', function() {
   env.registry.register('model:post', DS.Model.extend({
     name: DS.attr(),
     authorName: DS.attr(),
-    author: DS.belongsTo('user'),
-    comments: DS.hasMany('comment')
+    author: DS.belongsTo('user', { async: false }),
+    comments: DS.hasMany('comment', { async: false })
   }));
 
   env.registry.register('model:user', DS.Model.extend({
@@ -1671,7 +1671,7 @@ test('normalizeKey - to set up _ids and _id', function() {
 });
 
 test('groupRecordsForFindMany splits up calls for large ids', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   expect(2);
@@ -1708,7 +1708,7 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 });
 
 test('groupRecordsForFindMany groups calls for small ids', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   expect(1);

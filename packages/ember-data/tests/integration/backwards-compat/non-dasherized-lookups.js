@@ -57,14 +57,14 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     run(function() {
       App = Ember.Application.create();
       App.PostNote = DS.Model.extend({
-        notePost: DS.belongsTo('notePost'),
+        notePost: DS.belongsTo('notePost', { async: false }),
         name: DS.attr()
       });
       App.NotePost = DS.Model.extend({
         name: DS.attr()
       });
       App.LongModelName = DS.Model.extend({
-        postNotes: DS.hasMany('post_note')
+        postNotes: DS.hasMany('post_note', { async: false })
       });
     });
     store = App.__container__.lookup('service:store');

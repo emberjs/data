@@ -16,8 +16,8 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   var User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
-    maritalStatus: DS.belongsTo('marital-status'),
-    posts: DS.hasMany('post')
+    maritalStatus: DS.belongsTo('marital-status', { async: false }),
+    posts: DS.hasMany('post', { async: false })
   });
 
   var store = createStore({

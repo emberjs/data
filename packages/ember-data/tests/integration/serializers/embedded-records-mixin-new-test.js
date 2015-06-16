@@ -8,38 +8,38 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin (new API)", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo("homePlanet", { inverse: 'villains' }),
-      secretLab:       DS.belongsTo("secretLab"),
-      secretWeapons:   DS.hasMany("secretWeapon"),
-      evilMinions:     DS.hasMany("evilMinion")
+      homePlanet:      DS.belongsTo("homePlanet", { inverse: 'villains', async: true }),
+      secretLab:       DS.belongsTo("secretLab", { async: false }),
+      secretWeapons:   DS.hasMany("secretWeapon", { async: false }),
+      evilMinions:     DS.hasMany("evilMinion", { async: false })
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('superVillain', { inverse: 'homePlanet' })
+      villains:        DS.hasMany('superVillain', { inverse: 'homePlanet', async: false })
     });
     SecretLab = DS.Model.extend({
       minionCapacity:  DS.attr('number'),
       vicinity:        DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('superVillain', { async: false })
     });
     BatCave = SecretLab.extend({
       infiltrated:     DS.attr('boolean')
     });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('superVillain', { async: false })
     });
     LightSaber = SecretWeapon.extend({
       color:           DS.attr('string')
     });
     EvilMinion = DS.Model.extend({
-      superVillain:    DS.belongsTo('superVillain'),
+      superVillain:    DS.belongsTo('superVillain', { async: false }),
       name:            DS.attr('string')
     });
     Comment = DS.Model.extend({
       body:            DS.attr('string'),
       root:            DS.attr('boolean'),
-      children:        DS.hasMany('comment', { inverse: null })
+      children:        DS.hasMany('comment', { inverse: null, async: false })
     });
     TestSerializer = DS.RESTSerializer.extend({
       isNewSerializerAPI: true
@@ -360,7 +360,7 @@ test("normalizeSingleResponse with embedded objects inside embedded objects of s
 
 test("normalizeSingleResponse with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain', { inverse: null })
+    reformedVillains: DS.hasMany('superVillain', { inverse: null, async: false })
   });
 
   env.registry.register('adapter:home-planet', DS.RESTAdapter);
@@ -696,7 +696,7 @@ test("normalizeArrayResponse with embedded objects of same type as primary type"
 
 test("normalizeArrayResponse with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain')
+    reformedVillains: DS.hasMany('superVillain', { async: false })
   });
 
   env.registry.register('adapter:home-planet', DS.RESTAdapter);
@@ -1011,7 +1011,7 @@ test("normalizeSingleResponse with multiply-nested belongsTo", function() {
 
 test("normalizeSingleResponse with polymorphic hasMany", function() {
   SuperVillain.reopen({
-    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true })
+    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true, async: false })
   });
 
   env.registry.register('adapter:super-villain', DS.RESTAdapter);
@@ -1086,7 +1086,7 @@ test("normalizeSingleResponse with polymorphic hasMany", function() {
 
 test("normalizeSingleResponse with polymorphic belongsTo", function() {
   SuperVillain.reopen({
-    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true, async: true })
   });
 
   env.registry.register('adapter:super-villain', DS.RESTAdapter);
