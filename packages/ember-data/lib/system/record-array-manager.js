@@ -303,7 +303,7 @@ export default Ember.Object.extend({
     this.filteredRecordArrays.forEach(function(value) {
       forEach.call(flatten(value), destroy);
     });
-    forEach.call(this.liveRecordArrays, destroy);
+    this.liveRecordArrays.forEach(destroy);
     forEach.call(this._adapterPopulatedRecordArrays, destroy);
   }
 });
