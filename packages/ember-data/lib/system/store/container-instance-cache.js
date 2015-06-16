@@ -46,9 +46,6 @@ Ember.merge(ContainerInstanceCache.prototype, {
       let instance = this.instanceFor(lookupKey);
 
       if (instance) {
-        if (fallback === '-default') {
-          instance.set('isNewSerializerAPI', true);
-        }
         return instance;
       }
     }
