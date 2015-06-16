@@ -1,6 +1,9 @@
 import {RESTAdapter} from "ember-data/adapters";
-import {InvalidError} from "ember-data/system/adapter";
 import {pluralize} from "ember-inflector";
+import {
+  InvalidError,
+  errorsHashToArray
+} from "ember-data/adapters/errors";
 
 /**
   @module ember-data
@@ -122,9 +125,9 @@ var ActiveModelAdapter = RESTAdapter.extend({
   },
 
   /**
-    The ActiveModelAdapter overrides the `ajaxError` method
-    to return a DS.InvalidError for all 422 Unprocessable Entity
-    responses.
+    The ActiveModelAdapter overrides the `handleResponse` method
+    to format errors passed to a DS.InvalidError for all
+    422 Unprocessable Entity responses.
 
     A 422 HTTP response from the server generally implies that the request
     was well formed but the API was unable to process it because the
@@ -137,14 +140,13 @@ var ActiveModelAdapter = RESTAdapter.extend({
     @param {Object} jqXHR
     @return error
   */
-  ajaxError: function(jqXHR) {
-    var error = this._super.apply(this, arguments);
+  handleResponse: function(status, headers, payload) {
+    if (this.isInvalid(status, headers, payload)) {
+      let errors = errorsHashToArray(payload.errors);
 
-    if (jqXHR && jqXHR.status === 422) {
-      var response = Ember.$.parseJSON(jqXHR.responseText);
-      return new InvalidError(response);
+      return new InvalidError(errors);
     } else {
-      return error;
+      return this._super(...arguments);
     }
   }
 });

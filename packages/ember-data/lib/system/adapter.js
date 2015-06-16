@@ -1,5 +1,3 @@
-import InvalidError from "ember-data/system/model/errors/invalid";
-
 /**
   @module ember-data
 */
@@ -530,8 +528,4 @@ var Adapter = Ember.Object.extend({
   }
 });
 
-export {
-  InvalidError,
-  Adapter
-};
 export default Adapter;

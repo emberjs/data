@@ -1,4 +1,5 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
+import Errors from "ember-data/system/model/errors";
 
 /**
   @module ember-data
@@ -381,7 +382,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {DS.Errors}
   */
   errors: Ember.computed(function() {
-    return this._internalModel.getErrors();
+    let errors = Errors.create();
+
+    errors.registerHandlers(this._internalModel,
+      function() {
+        this.send('becameInvalid');
+      },
+      function() {
+        this.send('becameValid');
+      });
+
+    return errors;
   }).readOnly(),
 
   /**

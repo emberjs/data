@@ -2,6 +2,8 @@ import Serializer from "ember-data/system/serializer";
 import coerceId from "ember-data/system/coerce-id";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
+import { errorsArrayToHash } from "ember-data/adapters/errors";
+
 var get = Ember.get;
 var isNone = Ember.isNone;
 var map = Ember.ArrayPolyfills.map;
@@ -1548,9 +1550,10 @@ var JSONSerializer = Serializer.extend({
   */
   extractErrors: function(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
-      payload = payload.errors;
+      payload = errorsArrayToHash(payload.errors);
       this.normalizeErrors(typeClass, payload);
     }
+
     return payload;
   },
 

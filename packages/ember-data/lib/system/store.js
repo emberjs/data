@@ -8,7 +8,7 @@
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
   InvalidError
-} from "ember-data/system/adapter";
+} from 'ember-data/adapters/errors';
 import {
   Map
 } from "ember-data/system/map";
@@ -1552,9 +1552,10 @@ Store = Service.extend({
     @method recordWasError
     @private
     @param {InternalModel} internalModel
+    @param {Error} error
   */
-  recordWasError: function(internalModel) {
-    internalModel.adapterDidError();
+  recordWasError: function(internalModel, error) {
+    internalModel.adapterDidError(error);
   },
 
   /**
@@ -2263,40 +2264,39 @@ function defaultSerializer(container) {
 }
 
 function _commit(adapter, store, operation, snapshot) {
-  var record = snapshot._internalModel;
+  var internalModel = snapshot._internalModel;
   var modelName = snapshot.modelName;
-  var type = store.modelFor(modelName);
-  var promise = adapter[operation](store, type, snapshot);
+  var typeClass = store.modelFor(modelName);
+  var promise = adapter[operation](store, typeClass, snapshot);
   var serializer = serializerForAdapter(store, adapter, modelName);
-  var label = "DS: Extract and notify about " + operation + " completion of " + record;
+  var label = "DS: Extract and notify about " + operation + " completion of " + internalModel;
 
   Ember.assert("Your adapter's '" + operation + "' method must return a value, but it returned `undefined", promise !==undefined);
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
-  promise = _guard(promise, _bind(_objectIsAlive, record));
+  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(function(adapterPayload) {
     store._adapterRun(function() {
       var payload, data;
       if (adapterPayload) {
-        payload = normalizeResponseHelper(serializer, store, type, adapterPayload, snapshot.id, operation);
+        payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, snapshot.id, operation);
         data = convertResourceObject(payload.data);
       }
-      store.didSaveRecord(record, _normalizeSerializerPayload(record.type, data));
+      store.didSaveRecord(internalModel, _normalizeSerializerPayload(internalModel.type, data));
     });
 
-    return record;
-  }, function(reason) {
-    if (reason instanceof InvalidError) {
-      var errors = serializer.extractErrors(store, type, reason.errors, snapshot.id);
-      store.recordWasInvalid(record, errors);
-      reason = new InvalidError(errors);
+    return internalModel;
+  }, function(error) {
+    if (error instanceof InvalidError) {
+      var errors = serializer.extractErrors(store, typeClass, error, snapshot.id);
+      store.recordWasInvalid(internalModel, errors);
     } else {
-      store.recordWasError(record, reason);
+      store.recordWasError(internalModel, error);
     }
 
-    throw reason;
+    throw error;
   }, label);
 }
 

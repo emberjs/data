@@ -1743,10 +1743,13 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 });
 
 
-test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
+test("calls adapter.handleResponse with the jqXHR and json", function() {
   expect(2);
   var originalAjax = Ember.$.ajax;
-  var jqXHR = {};
+  var jqXHR = {
+    status: 200,
+    getAllResponseHeaders: function() { return ''; }
+  };
   var data = {
     post: {
       id: "1",
@@ -1758,8 +1761,8 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
     hash.success(data, 'ok', jqXHR);
   };
 
-  adapter.ajaxSuccess = function(xhr, json) {
-    deepEqual(jqXHR, xhr);
+  adapter.handleResponse = function(status, headers, json) {
+    deepEqual(status, 200);
     deepEqual(json, data);
     return json;
   };
@@ -1773,21 +1776,23 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
   }
 });
 
-test('calls ajaxError with jqXHR, jqXHR.responseText', function() {
+test('calls handleResponse with jqXHR, jqXHR.responseText', function() {
   expect(3);
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
-    responseText: 'Nope lol'
+    status: 400,
+    responseText: 'Nope lol',
+    getAllResponseHeaders: function() { return ''; }
   };
 
   Ember.$.ajax = function(hash) {
     hash.error(jqXHR, jqXHR.responseText);
   };
 
-  adapter.ajaxError = function(xhr, responseText) {
-    deepEqual(xhr, jqXHR);
-    deepEqual(responseText, jqXHR.responseText);
-    return new Error('nope!');
+  adapter.handleResponse = function(status, headers, json) {
+    deepEqual(status, 400);
+    deepEqual(json, jqXHR.responseText);
+    return new DS.AdapterError('nope!');
   };
 
   try {
@@ -1801,10 +1806,12 @@ test('calls ajaxError with jqXHR, jqXHR.responseText', function() {
   }
 });
 
-test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", function() {
+test("rejects promise if DS.AdapterError is returned from adapter.handleResponse", function() {
   expect(3);
   var originalAjax = Ember.$.ajax;
-  var jqXHR = {};
+  var jqXHR = {
+    getAllResponseHeaders: function() { return ''; }
+  };
   var data = {
     something: 'is invalid'
   };
@@ -1813,27 +1820,28 @@ test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", 
     hash.success(data, 'ok', jqXHR);
   };
 
-  adapter.ajaxSuccess = function(xhr, json) {
-    ok(true, 'ajaxSuccess should be called');
-    return new DS.InvalidError(json);
+  adapter.handleResponse = function(status, headers, json) {
+    ok(true, 'handleResponse should be called');
+    return new DS.AdapterError(json);
   };
 
   Ember.run(function() {
     store.find('post', '1').then(null, function(reason) {
       ok(true, 'promise should be rejected');
-      ok(reason instanceof DS.InvalidError, 'reason should be an instance of DS.InvalidError');
+      ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
     });
   });
 
   Ember.$.ajax = originalAjax;
 });
 
-test('ajaxError appends errorThrown for sanity', function() {
-  expect(6);
+test('on error appends errorThrown for sanity', function() {
+  expect(2);
 
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
-    responseText: 'Nope lol'
+    responseText: 'Nope lol',
+    getAllResponseHeaders: function() { return ''; }
   };
 
   var errorThrown = new Error('nope!');
@@ -1842,19 +1850,14 @@ test('ajaxError appends errorThrown for sanity', function() {
     hash.error(jqXHR, jqXHR.responseText, errorThrown);
   };
 
-  var originalAjaxError = adapter.ajaxError;
-  adapter.ajaxError = function(xhr, responseText, _errorThrown) {
-    deepEqual(_errorThrown, errorThrown);
-    ok(errorThrown);
-    deepEqual(xhr, jqXHR);
-    deepEqual(responseText, jqXHR.responseText);
-    return originalAjaxError.apply(adapter, arguments);
+  adapter.handleResponse = function(status, headers, payload) {
+    ok(false);
   };
 
   try {
     run(function() {
       store.find('post', '1').catch(function(err) {
-        equal(err.errorThrown, errorThrown);
+        equal(err, errorThrown);
         ok(err, 'promise rejected');
       });
     });
@@ -1864,24 +1867,25 @@ test('ajaxError appends errorThrown for sanity', function() {
 });
 
 
-test('ajaxError wraps the error string in an Error object', function() {
+test('on error wraps the error string in an DS.AdapterError object', function() {
   expect(2);
 
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
-    responseText: 'Nope lol'
+    responseText: 'Nope lol',
+    getAllResponseHeaders: function() { return ''; }
   };
 
   var errorThrown = 'nope!';
 
   Ember.$.ajax = function(hash) {
-    hash.error(jqXHR, jqXHR.responseText, errorThrown);
+    hash.error(jqXHR, 'error', errorThrown);
   };
 
   try {
     run(function() {
       store.find('post', '1').catch(function(err) {
-        equal(err.errorThrown.message, errorThrown);
+        equal(err.message, errorThrown);
         ok(err, 'promise rejected');
       });
     });
