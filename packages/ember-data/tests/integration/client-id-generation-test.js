@@ -5,11 +5,11 @@ var run = Ember.run;
 module("integration/client_id_generation - Client-side ID Generation", {
   setup: function() {
     Comment = DS.Model.extend({
-      post: DS.belongsTo('post')
+      post: DS.belongsTo('post', { async: false })
     });
 
     Post = DS.Model.extend({
-      comments: DS.hasMany('comment')
+      comments: DS.hasMany('comment', { async: false })
     });
 
     Misc = DS.Model.extend({

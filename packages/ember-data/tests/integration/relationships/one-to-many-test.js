@@ -15,13 +15,13 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true }),
-      accounts: hasMany('account')
+      accounts: hasMany('account', { async: false })
     });
     User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
-      user: belongsTo('user')
+      user: belongsTo('user', { async: false })
     });
     Account.toString = stringify('Account');
 

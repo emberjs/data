@@ -714,7 +714,7 @@ test("the filter method can optionally take a server query as well", function() 
 
 test("relationships returned via `commit` do not trigger additional findManys", function() {
   Person.reopen({
-    dogs: DS.hasMany()
+    dogs: DS.hasMany('dog', { async: false })
   });
 
   run(function() {

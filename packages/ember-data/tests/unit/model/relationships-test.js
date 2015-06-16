@@ -7,9 +7,9 @@ module("unit/model/relationships - DS.Model", {
     Occupation = DS.Model.extend();
 
     Person = DS.Model.extend({
-      occupations: DS.hasMany('occupation'),
-      people: DS.hasMany('person', { inverse: 'parent' }),
-      parent: DS.belongsTo('person', { inverse: 'people' })
+      occupations: DS.hasMany('occupation', { async: false }),
+      people: DS.hasMany('person', { inverse: 'parent', async: false }),
+      parent: DS.belongsTo('person', { inverse: 'people', async: false })
     });
 
     store = createStore({

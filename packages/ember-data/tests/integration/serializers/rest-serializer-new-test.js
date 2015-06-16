@@ -5,27 +5,27 @@ module("integration/serializer/rest - RESTSerializer (new API)", {
   setup: function() {
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      superVillains: DS.hasMany('superVillain')
+      superVillains: DS.hasMany('superVillain', { async: false })
     });
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
-      homePlanet:    DS.belongsTo("homePlanet"),
-      evilMinions:   DS.hasMany("evilMinion")
+      homePlanet:    DS.belongsTo("homePlanet", { async: false }),
+      evilMinions:   DS.hasMany("evilMinion", { async: false })
     });
     EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('superVillain'),
+      superVillain: DS.belongsTo('superVillain', { async: false }),
       name:         DS.attr('string')
     });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinion:   DS.belongsTo('evilMinion', { polymorphic: true })
+      evilMinion:   DS.belongsTo('evilMinion', { polymorphic: true, async: true })
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
       root: DS.attr('boolean'),
-      children: DS.hasMany('comment', { inverse: null })
+      children: DS.hasMany('comment', { inverse: null, async: false })
     });
     TestSerializer = DS.RESTSerializer.extend({
       isNewSerializerAPI: true

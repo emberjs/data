@@ -68,7 +68,7 @@ test('buildURL - with relative paths in links', function() {
     });
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
 
@@ -88,7 +88,7 @@ test('buildURL - with absolute paths in links', function() {
     });
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
@@ -109,7 +109,7 @@ test('buildURL - with absolute paths in links and protocol relative host', funct
     });
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
@@ -127,7 +127,7 @@ test('buildURL - with full URLs in links', function() {
     namespace: 'api/v1'
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
   ajaxResponse({
     posts: [
@@ -165,7 +165,7 @@ test('buildURL - with camelized names', function() {
 });
 
 test('buildURL - buildURL takes a record from find', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   adapter.buildURL = function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };
@@ -185,7 +185,7 @@ test('buildURL - buildURL takes a record from find', function() {
 });
 
 test('buildURL - buildURL takes the records from findMany', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   adapter.buildURL = function(type, ids, snapshots) {
@@ -208,7 +208,7 @@ test('buildURL - buildURL takes the records from findMany', function() {
 });
 
 test('buildURL - buildURL takes a record from create', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   adapter.buildURL = function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/';
   };
@@ -251,7 +251,7 @@ test('buildURL - buildURL takes a record from create to query a resolved async b
 });
 
 test('buildURL - buildURL takes a record from update', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   adapter.buildURL = function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };
@@ -272,8 +272,8 @@ test('buildURL - buildURL takes a record from update', function() {
 });
 
 test('buildURL - buildURL takes a record from delete', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
-  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   adapter.buildURL = function(type, id, snapshot) {
     return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };

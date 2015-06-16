@@ -6,27 +6,27 @@ module("integration/serializer/rest - RESTSerializer", {
   setup: function() {
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      superVillains: DS.hasMany('super-villain')
+      superVillains: DS.hasMany('super-villain', { async: false })
     });
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
-      homePlanet:    DS.belongsTo('home-planet'),
-      evilMinions:   DS.hasMany('evil-minion')
+      homePlanet:    DS.belongsTo('home-planet', { async: false }),
+      evilMinions:   DS.hasMany('evil-minion', { async: false })
     });
     EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('super-villain'),
+      superVillain: DS.belongsTo('super-villain', { async: false }),
       name:         DS.attr('string')
     });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinion:   DS.belongsTo('evil-minion', { polymorphic: true })
+      evilMinion:   DS.belongsTo('evil-minion', { polymorphic: true, async: true })
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
       root: DS.attr('boolean'),
-      children: DS.hasMany('comment', { inverse: null })
+      children: DS.hasMany('comment', { inverse: null, async: false })
     });
     env = setupStore({
       superVillain:   SuperVillain,

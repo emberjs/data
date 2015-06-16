@@ -13,20 +13,20 @@ module('integration/inverse_test - inverseFor', {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: null }),
-      job: belongsTo('job')
+      job: belongsTo('job', { async: false })
     });
 
     User.toString = stringify('user');
 
     Job = DS.Model.extend({
       isGood: attr(),
-      user: belongsTo('user')
+      user: belongsTo('user', { async: false })
     });
 
     Job.toString = stringify('job');
 
     ReflexiveModel = DS.Model.extend({
-      reflexiveProp: belongsTo('reflexive-model')
+      reflexiveProp: belongsTo('reflexive-model', { async: false })
     });
 
     ReflexiveModel.toString = stringify('reflexiveModel');
@@ -62,11 +62,11 @@ test("Finds the inverse when there is only one possible available", function () 
 
 test("Finds the inverse when only one side has defined it manually", function () {
   Job.reopen({
-    owner: belongsTo('user', { inverse: 'previousJob' })
+    owner: belongsTo('user', { inverse: 'previousJob', async: false })
   });
 
   User.reopen({
-    previousJob: belongsTo('job')
+    previousJob: belongsTo('job', { async: false })
   });
 
   //Maybe store is evaluated lazily, so we need this :(
@@ -91,11 +91,11 @@ test("Finds the inverse when only one side has defined it manually", function ()
 
 test("Returns null if inverse relationship it is manually set with a different relationship key", function () {
   Job.reopen({
-    user: belongsTo('user', { inverse: 'previousJob' })
+    user: belongsTo('user', { inverse: 'previousJob', async: false })
   });
 
   User.reopen({
-    job: belongsTo('job')
+    job: belongsTo('job', { async: false })
   });
   //Maybe store is evaluated lazily, so we need this :(
   var user;
@@ -108,12 +108,12 @@ test("Returns null if inverse relationship it is manually set with a different r
 
 test("Errors out if you define 2 inverses to the same model", function () {
   Job.reopen({
-    user: belongsTo('user', { inverse: 'job' }),
-    owner: belongsTo('user', { inverse: 'job' })
+    user: belongsTo('user', { inverse: 'job', async: false }),
+    owner: belongsTo('user', { inverse: 'job', async: false })
   });
 
   User.reopen({
-    job: belongsTo('job')
+    job: belongsTo('job', { async: false })
   });
 
   //Maybe store is evaluated lazily, so we need this :(

@@ -10,7 +10,7 @@ module("unit/store/push - DS.Store#push", {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
-      phoneNumbers: hasMany('phone-number')
+      phoneNumbers: hasMany('phone-number', { async: false })
     });
     Person.toString = function() {
       return 'Person';
@@ -18,7 +18,7 @@ module("unit/store/push - DS.Store#push", {
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
-      person: belongsTo('person')
+      person: belongsTo('person', { async: false })
     });
     PhoneNumber.toString = function() {
       return 'PhoneNumber';

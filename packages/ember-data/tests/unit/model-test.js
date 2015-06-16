@@ -848,10 +848,10 @@ test("A subclass of DS.Model throws an error when calling create() directly", fu
 
 test('toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create', function() {
   var Person = DS.Model.extend({
-    posts: DS.hasMany('post')
+    posts: DS.hasMany('post', { async: false })
   });
   var Post = DS.Model.extend({
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var env = setupStore({

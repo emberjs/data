@@ -35,12 +35,12 @@ test("can create child record from a hasMany relationship", function() {
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany('tag', { async: false })
   });
 
   var env = setupStore({ tag: Tag, person: Person });

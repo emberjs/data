@@ -5,11 +5,11 @@ module("integration/serializer/json - JSONSerializer (new API)", {
   setup: function() {
     Post = DS.Model.extend({
       title: DS.attr('string'),
-      comments: DS.hasMany('comment', { inverse: null })
+      comments: DS.hasMany('comment', { inverse: null, async: false })
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
-      post: DS.belongsTo('post')
+      post: DS.belongsTo('post', { async: false })
     });
     Favorite = DS.Model.extend({
       post: DS.belongsTo('post', { async: true, polymorphic: true })
@@ -144,7 +144,7 @@ test("Serializer should respect keyForRelationship when extracting records", fun
 test("Calling normalize should normalize the payload (only the passed keys)", function () {
   expect(1);
   var Person = DS.Model.extend({
-    posts: DS.hasMany('post')
+    posts: DS.hasMany('post', { async: false })
   });
   env.registry.register('serializer:post', TestSerializer.extend({
     attrs: {
@@ -157,7 +157,7 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
 
   Post.reopen({
     content: DS.attr('string'),
-    author: DS.belongsTo('person'),
+    author: DS.belongsTo('person', { async: false }),
     notInHash: DS.attr('string'),
     inHash: DS.attr('string')
   });

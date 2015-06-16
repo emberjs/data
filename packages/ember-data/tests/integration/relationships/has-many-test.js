@@ -16,12 +16,12 @@ module("integration/relationships/has_many - Has-Many Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', { polymorphic: true }),
-      contacts: hasMany('user', { inverse: null })
+      messages: hasMany('message', { polymorphic: true, async: false }),
+      contacts: hasMany('user', { inverse: null, async: false })
     });
 
     Contact = DS.Model.extend({
-      user: belongsTo('user')
+      user: belongsTo('user', { async: false })
     });
 
     Email = Contact.extend({
@@ -33,20 +33,20 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     });
 
     Message = DS.Model.extend({
-      user: belongsTo('user'),
+      user: belongsTo('user', { async: false }),
       created_at: attr('date')
     });
     Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
-      comments: hasMany('comment')
+      comments: hasMany('comment', { async: false })
     });
     Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
-      message: DS.belongsTo('post', { polymorphic: true })
+      message: DS.belongsTo('post', { polymorphic: true, async: true })
     });
     Comment.toString = stringify('Comment');
 
@@ -58,13 +58,13 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 
     Chapter = DS.Model.extend({
       title: attr(),
-      pages: hasMany('page')
+      pages: hasMany('page', { async: false })
     });
     Chapter.toString = stringify('Chapter');
 
     Page = DS.Model.extend({
       number: attr('number'),
-      chapter: belongsTo('chapter')
+      chapter: belongsTo('chapter', { async: false })
     });
     Page.toString = stringify('Page');
 
@@ -378,7 +378,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
 
 test("A sync hasMany relationship can be reloaded if it was fetched via ids", function() {
   Post.reopen({
-    comments: DS.hasMany('comment')
+    comments: DS.hasMany('comment', { async: false })
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -711,7 +711,7 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
 
 test("Polymorphic relationships work with a hasMany whose type is inferred", function() {
   User.reopen({
-    contacts: DS.hasMany({ polymorphic: true })
+    contacts: DS.hasMany({ polymorphic: true, async: false })
   });
 
   expect(1);
@@ -733,11 +733,11 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   expect(2);
 
   Contact.reopen({
-    posts: DS.hasMany('post')
+    posts: DS.hasMany('post', { async: false })
   });
 
   Post.reopen({
-    contact: DS.belongsTo('contact', { polymorphic: true })
+    contact: DS.belongsTo('contact', { polymorphic: true, async: false })
   });
   var email, post;
 
@@ -943,11 +943,11 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
 
 test("dual non-async HM <-> BT", function() {
   Post.reopen({
-    comments: DS.hasMany('comment', { inverse: 'post' })
+    comments: DS.hasMany('comment', { inverse: 'post', async: false })
   });
 
   Comment.reopen({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
@@ -1192,7 +1192,7 @@ test("Passing a model as type to hasMany should not work", function () {
     User = DS.Model.extend();
 
     Contact = DS.Model.extend({
-      users: hasMany(User)
+      users: hasMany(User, { async: false })
     });
   }, /The first argument to DS.hasMany must be a string/);
 });
@@ -1201,11 +1201,11 @@ test("Relationship.clear removes all records correctly", function() {
   var post;
 
   Comment.reopen({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   Post.reopen({
-    comments: DS.hasMany('comment', { inverse: 'post' })
+    comments: DS.hasMany('comment', { inverse: 'post', async: false })
   });
 
   run(function() {
@@ -1230,11 +1230,11 @@ test('unloading a record with associated records does not prevent the store from
   var post;
 
   Comment.reopen({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   Post.reopen({
-    comments: DS.hasMany('comment', { inverse: 'post' })
+    comments: DS.hasMany('comment', { inverse: 'post', async: false })
   });
 
   run(function() {
@@ -1273,7 +1273,7 @@ test("adding and removing records from hasMany relationship #2666", function() {
   ];
 
   var Comment = DS.Model.extend({
-    post: DS.belongsTo('post')
+    post: DS.belongsTo('post', { async: false })
   });
 
   var COMMENT_FIXTURES = [

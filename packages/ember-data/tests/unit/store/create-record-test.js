@@ -9,7 +9,7 @@ module("unit/store/createRecord - Store creating records", {
 
     Storage = DS.Model.extend({
       name: DS.attr('name'),
-      records: DS.hasMany('record')
+      records: DS.hasMany('record', { async: false })
     });
 
     store = createStore({

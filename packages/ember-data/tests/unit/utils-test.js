@@ -7,12 +7,12 @@ module("unit/utils", {
   setup() {
     Person = DS.Model.extend();
     User = DS.Model.extend({
-      messages: DS.hasMany('message')
+      messages: DS.hasMany('message', { async: false })
     });
 
     Message = DS.Model.extend();
     Post = Message.extend({
-      medias: DS.hasMany('medium')
+      medias: DS.hasMany('medium', { async: false })
     });
 
     Medium = Ember.Mixin.create();

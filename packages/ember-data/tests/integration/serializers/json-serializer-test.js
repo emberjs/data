@@ -5,11 +5,11 @@ module("integration/serializer/json - JSONSerializer", {
   setup: function() {
     Post = DS.Model.extend({
       title: DS.attr('string'),
-      comments: DS.hasMany('comment', { inverse: null })
+      comments: DS.hasMany('comment', { inverse: null, async: false })
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
-      post: DS.belongsTo('post')
+      post: DS.belongsTo('post', { async: false })
     });
     Favorite = DS.Model.extend({
       post: DS.belongsTo('post', { async: true, polymorphic: true })
@@ -239,7 +239,7 @@ test('Serializer should respect the attrs hash when extracting records', functio
 
 test('Serializer should respect the attrs hash when serializing records', function() {
   Post.reopen({
-    parentPost: DS.belongsTo('post', { inverse: null })
+    parentPost: DS.belongsTo('post', { inverse: null, async: true })
   });
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
@@ -512,7 +512,7 @@ test("normalizePayload is called during extractSingle", function() {
 test("Calling normalize should normalize the payload (only the passed keys)", function () {
   expect(1);
   var Person = DS.Model.extend({
-    posts: DS.hasMany('post')
+    posts: DS.hasMany('post', { async: false })
   });
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     attrs: {
@@ -525,7 +525,7 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
 
   Post.reopen({
     content: DS.attr('string'),
-    author: DS.belongsTo('person'),
+    author: DS.belongsTo('person', { async: false }),
     notInHash: DS.attr('string'),
     inHash: DS.attr('string')
   });

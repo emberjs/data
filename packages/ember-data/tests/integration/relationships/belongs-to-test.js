@@ -26,39 +26,39 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', { polymorphic: true }),
-      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null })
+      messages: hasMany('message', { polymorphic: true, async: false }),
+      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false })
     });
 
     Message = DS.Model.extend({
-      user: belongsTo('user', { inverse: 'messages' }),
+      user: belongsTo('user', { inverse: 'messages', async: false }),
       created_at: attr('date')
     });
 
     Post = Message.extend({
       title: attr('string'),
-      comments: hasMany('comment')
+      comments: hasMany('comment', { async: false })
     });
 
     Comment = Message.extend({
       body: DS.attr('string'),
-      message: DS.belongsTo('message', { polymorphic: true })
+      message: DS.belongsTo('message', { polymorphic: true, async: false })
     });
 
     Book = DS.Model.extend({
       name: attr('string'),
-      author: belongsTo('author'),
-      chapters: hasMany('chapters')
+      author: belongsTo('author', { async: false }),
+      chapters: hasMany('chapters', { async: false })
     });
 
     Chapter = DS.Model.extend({
       title: attr('string'),
-      book: belongsTo('book')
+      book: belongsTo('book', { async: false })
     });
 
     Author = DS.Model.extend({
       name: attr('string'),
-      books: hasMany('books')
+      books: hasMany('books', { async: false })
     });
 
     env = setupStore({
@@ -215,7 +215,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
 
 test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function() {
   var Group = DS.Model.extend({
-    people: DS.hasMany()
+    people: DS.hasMany('person', { async: false })
   });
 
   var Person = DS.Model.extend({
@@ -253,7 +253,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
 
 test('A record with an async belongsTo relationship always returns a promise for that relationship', function () {
   var Seat = DS.Model.extend({
-    person: DS.belongsTo('person')
+    person: DS.belongsTo('person', { async: false })
   });
 
   var Person = DS.Model.extend({
@@ -291,7 +291,7 @@ test("A record with an async belongsTo relationship returning null should resolv
   expect(1);
 
   var Group = DS.Model.extend({
-    people: DS.hasMany()
+    people: DS.hasMany('person', { async: false })
   });
 
   var Person = DS.Model.extend({
@@ -324,7 +324,7 @@ test("A record can be created with a resolved belongsTo promise", function() {
   expect(1);
 
   var Group = DS.Model.extend({
-    people: DS.hasMany()
+    people: DS.hasMany('person', { async: false })
   });
 
   var Person = DS.Model.extend({
@@ -499,8 +499,7 @@ test("relationship changes shouldn’t cause async fetches", function() {
   });
 
   env.store.modelFor('comment').reopen({
-    post: DS.belongsTo('post', {
-    })
+    post: DS.belongsTo('post', { async: false })
   });
   var post, comment;
   run(function() {
@@ -619,7 +618,7 @@ test("Passing a model as type to belongsTo should not work", function () {
     User = DS.Model.extend();
 
     Contact = DS.Model.extend({
-      user: belongsTo(User)
+      user: belongsTo(User, { async: false })
     });
   }, /The first argument to DS.belongsTo must be a string/);
 });

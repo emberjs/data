@@ -19,7 +19,7 @@ var shouldNotContain = function(array, item) {
 module("integration/filter - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale", bestFriend: 2 }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
-    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null }) });
+    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null, async: false }) });
 
     env = setupStore({ person: Person });
     store = env.store;
