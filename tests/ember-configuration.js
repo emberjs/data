@@ -94,9 +94,6 @@
     registry.register('serializer:-rest', DS.RESTSerializer);
     registry.register('serializer:-rest-new', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
 
-    registry.register('adapter:-active-model', DS.ActiveModelAdapter);
-    registry.register('serializer:-active-model', DS.ActiveModelSerializer);
-
     registry.register('adapter:-rest', DS.RESTAdapter);
 
     registry.register('adapter:-json-api', DS.JSONAPIAdapter);
