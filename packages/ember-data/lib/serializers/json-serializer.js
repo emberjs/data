@@ -236,6 +236,8 @@ var JSONSerializer = Serializer.extend({
     switch (requestType) {
       case 'findRecord':
         return this.normalizeFindRecordResponse(...arguments);
+      case 'queryRecord':
+        return this.normalizeQueryRecordResponse(...arguments);
       case 'findAll':
         return this.normalizeFindAllResponse(...arguments);
       case 'findBelongsTo':
@@ -265,6 +267,19 @@ var JSONSerializer = Serializer.extend({
     @return {Object} JSON-API Document
   */
   normalizeFindRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSingleResponse(...arguments);
+  },
+
+  /*
+    @method normalizeQueryRecordResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeQueryRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
