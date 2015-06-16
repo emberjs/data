@@ -1,5 +1,17 @@
 ;(function() {
 
+  // Since store.pushMany is used pretty heavily inside the tests, fixing all
+  // the deprecation warnings at once would be a big changeset. That's why the
+  // log level for this deprecation is set to LOG, so the deprecations are
+  // logged but they do not result in a failed test.
+  Ember.Debug._addDeprecationLevel("ember-data-pushMany", Ember.Debug._deprecationLevels.LOG);
+
+  // `DS.Serializer#extract` is deprecated when the `ds-new-serializer-api`
+  // feature is turned on; since this results in many deprecation warnings,
+  // this is soft-deprecated so the deprecations are logged but do not make the
+  // tests fail.
+  Ember.Debug._addDeprecationLevel("ember-data-extract", Ember.Debug._deprecationLevels.LOG);
+
   Ember.RSVP.configure('onerror', function(reason) {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
