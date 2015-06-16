@@ -34,8 +34,8 @@ export default function initializeStore(registry, application) {
   ]);
 
   // new go forward paths
-  registry.register('serializer:-default', JSONSerializer);
-  registry.register('serializer:-rest', RESTSerializer);
+  registry.register('serializer:-default', JSONSerializer.extend({ isNewSerializerAPI: true }));
+  registry.register('serializer:-rest', RESTSerializer.extend({ isNewSerializerAPI: true }));
   registry.register('adapter:-rest', RESTAdapter);
 
   registry.register('adapter:-json-api', JSONAPIAdapter);
