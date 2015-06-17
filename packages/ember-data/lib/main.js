@@ -143,21 +143,34 @@ DS.StringTransform = StringTransform;
 DS.NumberTransform = NumberTransform;
 DS.BooleanTransform = BooleanTransform;
 
+var _ActiveModelAdapter = ActiveModelAdapter;
+var _ActiveModelSerializer = ActiveModelSerializer;
+
 if (Ember.platform.hasPropertyAccessors) {
   Ember.defineProperty(DS, 'ActiveModelAdapter', {
     get: function() {
-      Ember.deprecate('The ActiveModelAdapter has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-        url: 'https://github.com/ember-data/active-model-adapter'
-      });
-      return ActiveModelAdapter;
+      if (_ActiveModelSerializer === ActiveModelAdapter) {
+        Ember.deprecate('The ActiveModelAdapter has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
+          url: 'https://github.com/ember-data/active-model-adapter'
+        });
+      }
+      return _ActiveModelAdapter;
+    },
+    set: function(ActiveModelAdapter) {
+      _ActiveModelAdapter = ActiveModelAdapter;
     }
   });
   Ember.defineProperty(DS, 'ActiveModelSerializer', {
     get: function() {
-      Ember.deprecate('The ActiveModelSerializer has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-        url: 'https://github.com/ember-data/active-model-adapter'
-      });
-      return ActiveModelSerializer;
+      if (_ActiveModelSerializer === ActiveModelSerializer) {
+        Ember.deprecate('The ActiveModelSerializer has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
+          url: 'https://github.com/ember-data/active-model-adapter'
+        });
+      }
+      return _ActiveModelSerializer;
+    },
+    set: function(ActiveModelSerializer) {
+      _ActiveModelSerializer = ActiveModelSerializer;
     }
   });
 } else {
@@ -182,16 +195,18 @@ Ember.defineProperty(DS, 'normalizeModelName', {
   value: normalizeModelName
 });
 
-var fixtureAdapterWasDeprecated = false;
+var _FixtureAdapter = FixtureAdapter;
 
 if (Ember.platform.hasPropertyAccessors) {
   Ember.defineProperty(DS, 'FixtureAdapter', {
     get: function() {
-      if (!fixtureAdapterWasDeprecated) {
+      if (_FixtureAdapter === FixtureAdapter) {
         Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
-        fixtureAdapterWasDeprecated = true;
       }
-      return FixtureAdapter;
+      return _FixtureAdapter;
+    },
+    set:  function(FixtureAdapter) {
+      _FixtureAdapter = FixtureAdapter;
     }
   });
 } else {
