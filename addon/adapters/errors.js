@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import {assert} from 'ember-data/-private/debug';
+import isEnabled from "ember-data/-private/features";
 
 const EmberError = Ember.Error;
 
@@ -23,7 +24,33 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
+const extendedErrorsEnabled = isEnabled('ds-extended-errors');
+
+function extendFn(ErrorClass) {
+  return function({ message: defaultMessage } = {}) {
+    return extend(ErrorClass, defaultMessage);
+  };
+}
+
+function extend(ParentErrorClass, defaultMessage) {
+  let ErrorClass = function(errors, message) {
+    assert('`AdapterError` expects json-api formatted errors array.', Ember.isArray(errors || []));
+    ParentErrorClass.call(this, errors, message || defaultMessage);
+  };
+  ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
+
+  if (extendedErrorsEnabled) {
+    ErrorClass.extend = extendFn(ErrorClass);
+  }
+
+  return ErrorClass;
+}
+
 AdapterError.prototype = Object.create(EmberError.prototype);
+
+if (extendedErrorsEnabled) {
+  AdapterError.extend = extendFn(AdapterError);
+}
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -83,32 +110,50 @@ AdapterError.prototype = Object.create(EmberError.prototype);
   @class InvalidError
   @namespace DS
 */
-export function InvalidError(errors) {
-  assert('`InvalidError` expects json-api formatted errors array.', Ember.isArray(errors || []));
-  AdapterError.call(this, errors, 'The adapter rejected the commit because it was invalid');
-}
-
-InvalidError.prototype = Object.create(AdapterError.prototype);
+export const InvalidError = extend(AdapterError,
+  'The adapter rejected the commit because it was invalid');
 
 /**
   @class TimeoutError
   @namespace DS
 */
-export function TimeoutError() {
-  AdapterError.call(this, null, 'The adapter operation timed out');
-}
-
-TimeoutError.prototype = Object.create(AdapterError.prototype);
+export const TimeoutError = extend(AdapterError,
+  'The adapter operation timed out');
 
 /**
   @class AbortError
   @namespace DS
 */
-export function AbortError() {
-  AdapterError.call(this, null, 'The adapter operation was aborted');
-}
+export const AbortError = extend(AdapterError,
+  'The adapter operation was aborted');
 
-AbortError.prototype = Object.create(AdapterError.prototype);
+/**
+  @class UnauthorizedError
+  @namespace DS
+*/
+export const UnauthorizedError = extendedErrorsEnabled ?
+  extend(AdapterError, 'The adapter operation is unauthorized') : null;
+
+/**
+  @class ForbiddenError
+  @namespace DS
+*/
+export const ForbiddenError = extendedErrorsEnabled ?
+  extend(AdapterError, 'The adapter operation is forbidden') : null;
+
+/**
+  @class NotFoundError
+  @namespace DS
+*/
+export const NotFoundError = extendedErrorsEnabled ?
+  extend(AdapterError, 'The adapter could not find the resource') : null;
+
+/**
+  @class ConflictError
+  @namespace DS
+*/
+export const ConflictError = extendedErrorsEnabled ?
+  extend(AdapterError, 'The adapter operation failed due to a conflict') : null;
 
 /**
   @method errorsHashToArray
