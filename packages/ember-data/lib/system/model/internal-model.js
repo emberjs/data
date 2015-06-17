@@ -342,7 +342,6 @@ InternalModel.prototype = {
     if (this.isDeleted()) {
       //TODO: Should probably move this to the state machine somehow
       this.becameReady();
-      this.reconnectRelationships();
     }
 
     if (this.isNew()) {
@@ -452,7 +451,6 @@ InternalModel.prototype = {
     this.eachRelationship(function(name, relationship) {
       if (this._relationships.has(name)) {
         var rel = this._relationships.get(name);
-        //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
       }
@@ -461,26 +459,6 @@ InternalModel.prototype = {
     forEach.call(Ember.keys(this._implicitRelationships), function(key) {
       model._implicitRelationships[key].clear();
       model._implicitRelationships[key].destroy();
-    });
-  },
-
-  disconnectRelationships: function() {
-    this.eachRelationship(function(name, relationship) {
-      this._relationships.get(name).disconnect();
-    }, this);
-    var model = this;
-    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
-      model._implicitRelationships[key].disconnect();
-    });
-  },
-
-  reconnectRelationships: function() {
-    this.eachRelationship(function(name, relationship) {
-      this._relationships.get(name).reconnect();
-    }, this);
-    var model = this;
-    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
-      model._implicitRelationships[key].reconnect();
     });
   },
 

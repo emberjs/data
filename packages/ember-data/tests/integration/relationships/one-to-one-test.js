@@ -303,21 +303,11 @@ test("Setting a belongsTo to a different record, sets the old relationship to nu
 });
 
 /*
-Deleting tests
+Deleting
 */
 
-test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - async", function () {
-  // This observer is here to make sure that inverseRecord gets cleared, when
-  // the record is deleted, before notifyRecordRelationshipRemoved() and in turn
-  // notifyPropertyChange() gets called. If not properly cleared observers will
-  // trigger with the old value of the relationship.
-  User.reopen({
-    bestFriendObserver: Ember.observer('bestFriend', function() {
-      this.get('bestFriend');
-    })
-  });
+test("Deleting a record that has a belongsTo relationship does not remove the record from the inverse and still has access to its own relationship - async", function () {
   var stanleysFriend, stanley;
-
   run(function() {
     stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
     stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
@@ -325,15 +315,15 @@ test("When deleting a record that has a belongsTo relationship, the record is re
   run(function() {
     stanley.deleteRecord();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
-      equal(fetchedUser, null, 'Stanley got removed');
+      equal(fetchedUser, stanley, 'Stanleys friend still has Stanley');
     });
     stanley.get('bestFriend').then(function(fetchedUser) {
-      equal(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
+      equal(fetchedUser, stanleysFriend, 'Stanley still has Stanleys friend');
     });
   });
 });
 
-test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - sync", function () {
+test("Deleting a record that has a belongsTo relationship does not remove the record from the inverse and still has access to its own relationship - sync", function () {
   var job, user;
   run(function() {
     job = store.push('job', { id: 2 , isGood: true });
@@ -342,7 +332,7 @@ test("When deleting a record that has a belongsTo relationship, the record is re
   run(function() {
     job.deleteRecord();
   });
-  equal(user.get('job'), null, 'Job got removed from the user');
+  equal(user.get('job'), job, 'User still has the job');
   equal(job.get('user'), user, 'Job still has the user');
 });
 

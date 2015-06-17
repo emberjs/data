@@ -38,18 +38,6 @@ Relationship.prototype = {
     }
   },
 
-  disconnect: function() {
-    this.members.forEach(function(member) {
-      this.removeRecordFromInverse(member);
-    }, this);
-  },
-
-  reconnect: function() {
-    this.members.forEach(function(member) {
-      this.addRecordToInverse(member);
-    }, this);
-  },
-
   removeRecords: function(records) {
     var self = this;
     forEach.call(records, function(record) {
@@ -144,12 +132,6 @@ Relationship.prototype = {
           record._implicitRelationships[this.inverseKeyForImplicit].removeRecord(this.record);
         }
       }
-    }
-  },
-
-  addRecordToInverse: function(record) {
-    if (this.inverseKey) {
-      record._relationships.get(this.inverseKey).addRecord(this.record);
     }
   },
 

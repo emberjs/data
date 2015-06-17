@@ -61,6 +61,16 @@ export default Ember.Object.extend({
   updateRecordArrays: function() {
     forEach.call(this.changedRecords, function(record) {
       if (record.isDeleted()) {
+
+      // master ^
+
+      // ianstarz' attempt
+      // if (get(record, 'isDestroyed') || get(record, 'isDestroying') ||
+      //     (get(record, 'isDeleted') && !get(record, 'isDirty'))) {
+
+      // drogus' attempt
+      // if (get(record, 'record.isDestroyed') || get(record, 'record.isDestroying') || (record.isDeleted() && !record.isDirty())) {
+
         this._recordWasDeleted(record);
       } else {
         this._recordWasChanged(record);

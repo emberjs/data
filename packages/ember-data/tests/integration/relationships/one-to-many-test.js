@@ -386,7 +386,7 @@ test("Setting the belongsTo side to null removes the record from the hasMany sid
 Deleting
 */
 
-test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- async", function () {
+test("Deleting a record that has a belongsTo does not remove it from the hasMany side and does not remove the other record from itself - async", function () {
   var user, message;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', messages: [2] });
@@ -398,24 +398,23 @@ test("When deleting a record that has a belongsTo it is removed from the hasMany
       equal(fetchedUser, user, 'Message still has the user');
     });
     user.get('messages').then(function(fetchedMessages) {
-      equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
-      equal(fetchedMessages.get('firstObject'), null, "Message can't be accessed");
+      equal(fetchedMessages.objectAt(0), message, 'User still has the message');
     });
   });
 });
 
-test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- sync", function () {
+test("Deleting a record that has a belongsTo does not remove it from the hasMany side and does not remove the other record from itself - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
     user = store.push('user', { id: 1, name: 'Stanley', accounts: [2] });
     account.deleteRecord();
   });
-  equal(user.get('accounts.length'), 0, "User was removed from the accounts");
+  equal(user.get('accounts').objectAt(0), account, 'User still has the account');
   equal(account.get('user'), user, 'Account still has the user');
 });
 
-test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side- async", function () {
+test("Deleting a record that has a hasMany does not remove from the belongsTo side and does not remove the other record from itself - async", function () {
   var user, message;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', messages: [2] });
@@ -424,15 +423,15 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
   run(user, 'deleteRecord');
   run(function() {
     message.get('user').then(function(fetchedUser) {
-      equal(fetchedUser, null, 'Message does not have the user anymore');
+      equal(fetchedUser, user, 'Message still has the user');
     });
     user.get('messages').then(function(fetchedMessages) {
-      equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+      equal(fetchedMessages.objectAt(0), message, 'User still has the message');
     });
   });
 });
 
-test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side - sync", function () {
+test("Deleting a record that has a hasMany does not remove from the belongsTo side and does not remove the other record from itself - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
@@ -441,8 +440,8 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
   run(function() {
     user.deleteRecord();
   });
-  equal(user.get('accounts.length'), 1, "User still has the accounts");
-  equal(account.get('user'), null, 'Account no longer has the user');
+  equal(user.get('accounts').objectAt(0), account, 'User still has the account');
+  equal(account.get('user'), user, 'Account still has the user');
 });
 
 /*

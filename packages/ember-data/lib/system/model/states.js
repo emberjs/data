@@ -322,7 +322,6 @@ var DirtyState = {
     // EVENTS
     deleteRecord: function(internalModel) {
       internalModel.transitionTo('deleted.uncommitted');
-      internalModel.disconnectRelationships();
     },
 
     didSetProperty: function(internalModel, context) {
@@ -410,7 +409,6 @@ var updatedState = dirtyState({
 });
 
 createdState.uncommitted.deleteRecord = function(internalModel) {
-  internalModel.disconnectRelationships();
   internalModel.transitionTo('deleted.saved');
   internalModel.send('invokeLifecycleCallbacks');
 };
@@ -435,7 +433,6 @@ updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
 
 updatedState.uncommitted.deleteRecord = function(internalModel) {
   internalModel.transitionTo('deleted.uncommitted');
-  internalModel.disconnectRelationships();
 };
 
 var RootState = {
@@ -572,7 +569,6 @@ var RootState = {
 
       deleteRecord: function(internalModel) {
         internalModel.transitionTo('deleted.uncommitted');
-        internalModel.disconnectRelationships();
       },
 
       unloadRecord: function(internalModel) {
