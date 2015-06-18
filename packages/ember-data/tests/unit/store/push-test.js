@@ -608,3 +608,111 @@ test("Calling push(type, data) is deprecated", function() {
     });
   }, /store.push\(type, data\) has been deprecated/);
 });
+
+
+module("unit/store/push - DS.Store#push with JSON-API", {
+  setup: function() {
+    var Person = DS.Model.extend({
+      name: DS.attr('string'),
+      cars: DS.hasMany('car', { async: false })
+    });
+
+    Person.toString = function() { return "Person"; };
+
+    var Car = DS.Model.extend({
+      make: DS.attr('string'),
+      model: DS.attr('string'),
+      person: DS.belongsTo('person', { async: false })
+    });
+
+    Car.toString = function() { return "Car"; };
+
+    env = setupStore({
+      adapter: DS.Adapter,
+      car: Car,
+      person: Person
+    });
+    store = env.store;
+
+  },
+
+  teardown: function() {
+    run(function() {
+      store.destroy();
+    });
+  }
+});
+
+
+test("Should support pushing multiple models into the store", function() {
+  expect(2);
+
+  run(function() {
+    store.push({
+      data: [{
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }, {
+        type: 'person',
+        id: 2,
+        attributes: {
+          name: "Tomster"
+        }
+      }]
+    });
+  });
+
+  var tom = store.peekRecord('person', 1);
+  equal(tom.get('name'), 'Tom Dale', 'Tom should be in the store');
+
+  var tomster = store.peekRecord('person', 2);
+  equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+});
+
+
+test("Should support pushing included models into the store", function() {
+  expect(2);
+
+  run(function() {
+    store.push({
+      data: [{
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tomster'
+        },
+        relationships: {
+          cars: [{
+            data: {
+              type: 'person', id: 1
+            }
+          }]
+        }
+      }],
+      included: [{
+        type: 'car',
+        id: 1,
+        attributes: {
+          make: 'Dodge',
+          model: 'Neon'
+        },
+        relationships: {
+          person: {
+            data: {
+              id: 1, type: 'person'
+            }
+          }
+        }
+      }]
+    });
+  });
+
+  var tomster = store.peekRecord('person', 1);
+  equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+
+  var car = store.peekRecord('car', 1);
+  equal(car.get('model'), 'Neon', 'Tomster\'s car should be in the store');
+});
