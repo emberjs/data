@@ -14,7 +14,6 @@ import {
 } from "ember-data/system/map";
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
 
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
@@ -186,7 +185,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   @extends DS.Adapter
   @uses DS.BuildURLMixin
 */
-var RestAdapter = Adapter.extend(BuildURLMixin, {
+var RESTAdapter =  Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   /**
@@ -231,7 +230,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   sortQueryParams: function(obj) {
-    var keys = Ember.keys(obj);
+    var keys = Object.keys(obj);
     var len = keys.length;
     if (len < 2) {
       return obj;
@@ -382,7 +381,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord: function(store, type, id, snapshot) {
-    var find = RestAdapter.prototype.find;
+    var find = RESTAdapter.prototype.find;
     if (find !== this.find) {
       Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
       return this.find(store, type, id, snapshot);
@@ -463,7 +462,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query: function(store, type, query) {
-    var findQuery = RestAdapter.prototype.findQuery;
+    var findQuery = RESTAdapter.prototype.findQuery;
     if (findQuery !== this.findQuery) {
       Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
       return this.findQuery(store, type, query);
@@ -705,7 +704,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     var adapter = this;
     var maxURLLength = this.maxURLLength;
 
-    forEach.call(snapshots, function(snapshot) {
+    snapshots.forEach((snapshot) => {
       var baseUrl = adapter._stripIDFromURL(store, snapshot);
       groups.get(baseUrl).push(snapshot);
     });
@@ -715,7 +714,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
       var idsSize = 0;
       var splitGroups = [[]];
 
-      forEach.call(group, function(snapshot) {
+      group.forEach((snapshot) => {
         var additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
         if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
           idsSize = 0;
@@ -732,13 +731,11 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     var groupsArray = [];
-    groups.forEach(function(group, key) {
+    groups.forEach((group, key) => {
       var paramNameLength = '&ids%5B%5D='.length;
       var splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
 
-      forEach.call(splitGroups, function(splitGroup) {
-        groupsArray.push(splitGroup);
-      });
+      splitGroups.forEach((splitGroup) => groupsArray.push(splitGroup));
     });
 
     return groupsArray;
@@ -940,9 +937,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     var headers = get(this, 'headers');
     if (headers !== undefined) {
       hash.beforeSend = function (xhr) {
-        forEach.call(Ember.keys(headers), function(key) {
-          xhr.setRequestHeader(key, headers[key]);
-        });
+        Object.keys(headers).forEach((key) =>  xhr.setRequestHeader(key, headers[key]));
       };
     }
 
@@ -1017,19 +1012,17 @@ function endsWith(string, suffix) {
   }
 }
 
-if (Ember.platform.hasPropertyAccessors) {
-  Ember.defineProperty(RestAdapter.prototype, 'maxUrlLength', {
-    enumerable: false,
-    get: function() {
-      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
-      return this.maxURLLength;
-    },
+Object.defineProperty(RESTAdapter.prototype, 'maxUrlLength', {
+  enumerable: false,
+  get: function() {
+    Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+    return this.maxURLLength;
+  },
 
-    set: function(value) {
-      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
-      set(this, 'maxURLLength', value);
-    }
-  });
-}
+  set: function(value) {
+    Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+    set(this, 'maxURLLength', value);
+  }
+});
 
-export default RestAdapter;
+export default RESTAdapter;

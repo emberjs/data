@@ -5,10 +5,7 @@ import ManyArray from "ember-data/system/many-array";
 
 import { assertPolymorphicType } from "ember-data/utils";
 
-var map = Ember.ArrayPolyfills.map;
-
-
-var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
+export default function ManyRelationship(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.belongsToType = relationshipMeta.type;
   this.canonicalState = [];
@@ -21,9 +18,9 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   });
   this.isPolymorphic = relationshipMeta.options.polymorphic;
   this.manyArray.isPolymorphic = this.isPolymorphic;
-};
+}
 
-ManyRelationship.prototype = Ember.create(Relationship.prototype);
+ManyRelationship.prototype = Object.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
@@ -156,13 +153,13 @@ ManyRelationship.prototype.fetchLink = function() {
 };
 
 ManyRelationship.prototype.findRecords = function() {
-  var manyArray = this.manyArray;
   //TODO CLEANUP
-  return this.store.findMany(map.call(manyArray.toArray(), function(rec) { return rec._internalModel; })).then(function() {
-    //Goes away after the manyArray refactor
-    manyArray.set('isLoaded', true);
-    return manyArray;
-  });
+  return this.store.findMany(this.manyArray.toArray().map((rec) => rec._internalModel)).
+    then(() => {
+      //Goes away after the manyArray refactor
+      this.manyArray.set('isLoaded', true);
+      return this.manyArray;
+    });
 };
 ManyRelationship.prototype.notifyHasManyChanged = function() {
   this.record.notifyHasManyAdded(this.key);
@@ -171,12 +168,9 @@ ManyRelationship.prototype.notifyHasManyChanged = function() {
 ManyRelationship.prototype.getRecords = function() {
   //TODO(Igor) sync server here, once our syncing is not stupid
   if (this.isAsync) {
-    var self = this;
     var promise;
     if (this.link) {
-      promise = this.findLink().then(function() {
-        return self.findRecords();
-      });
+      promise = this.findLink().then(() => this.findRecords());
     } else {
       promise = this.findRecords();
     }
@@ -206,5 +200,3 @@ function setForArray(array) {
 
   return set;
 }
-
-export default ManyRelationship;

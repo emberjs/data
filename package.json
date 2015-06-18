@@ -42,7 +42,7 @@
     "broccoli-file-creator": "^0.1.0",
     "broccoli-file-mover": "~0.2.0",
     "broccoli-jscs": "0.0.22",
-    "broccoli-jshint": "^0.5.1",
+    "broccoli-jshint": "^0.5.6",
     "broccoli-merge-trees": "^0.1.4",
     "broccoli-render-template": "0.0.3",
     "broccoli-replace": "~0.2.0",

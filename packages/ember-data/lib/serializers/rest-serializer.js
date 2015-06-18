@@ -8,8 +8,6 @@ import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 import { pushPayload } from "ember-data/system/store/serializer-response";
 
-var forEach = Ember.ArrayPolyfills.forEach;
-var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
 
 /**
@@ -214,14 +212,13 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    /*jshint loopfunc:true*/
-    forEach.call(arrayHash, (hash) => {
+    arrayHash.forEach((hash) => {
       let { data, included } = serializer.normalize(modelClass, hash, prop);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
       }
-    }, this);
+    });
 
     return documentHash;
   },
@@ -249,7 +246,7 @@ var RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    var keys = Ember.keys(payload);
+    var keys = Object.keys(payload);
 
     for (let i = 0, length = keys.length; i < length; i++) {
       let prop = keys[i];
@@ -322,7 +319,7 @@ var RESTSerializer = JSONSerializer.extend({
 
       if (isSingle) {
         /*jshint loopfunc:true*/
-        forEach.call(data, function(resource) {
+        data.forEach((resource) => {
 
           /*
             Figures out if this is the primary record or not.
@@ -459,7 +456,7 @@ var RESTSerializer = JSONSerializer.extend({
       }
 
       /*jshint loopfunc:true*/
-      forEach.call(value, function(hash) {
+      value.forEach((hash) => {
         var typeName = this.modelNameFromPayloadKey(prop);
         var type = store.modelFor(typeName);
         var typeSerializer = store.serializerFor(type.modelName);
@@ -480,7 +477,7 @@ var RESTSerializer = JSONSerializer.extend({
         } else {
           store.push(modelName, hash);
         }
-      }, this);
+      });
     }
 
     return primaryRecord;
@@ -611,9 +608,7 @@ var RESTSerializer = JSONSerializer.extend({
       var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryTypeClass));
 
       /*jshint loopfunc:true*/
-      var normalizedArray = map.call(payload[prop], function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
-      }, this);
+      var normalizedArray = payload[prop].map((hash) => typeSerializer.normalize(type, hash, prop));
 
       if (isPrimary) {
         primaryArray = normalizedArray;
@@ -679,9 +674,9 @@ var RESTSerializer = JSONSerializer.extend({
       var typeSerializer = store.serializerFor(modelName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
+      var normalizedArray = Ember.makeArray(payload[prop]).map((hash) => {
         return typeSerializer.normalize(typeClass, hash, prop);
-      }, this);
+      });
 
       store.pushMany(modelName, normalizedArray);
     }
@@ -903,7 +898,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object} json
   */
   serialize: function(snapshot, options) {
-    return this._super.apply(this, arguments);
+    return this._super(...arguments);
   },
 
   /**
@@ -1065,13 +1060,13 @@ function _newPushPayload(store, rawPayload) {
     var typeSerializer = store.serializerFor(type.modelName);
 
     /*jshint loopfunc:true*/
-    forEach.call(Ember.makeArray(payload[prop]), (hash) => {
+    Ember.makeArray(payload[prop]).forEach((hash) => {
       let { data, included } = typeSerializer.normalize(type, hash, prop);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
       }
-    }, this);
+    });
   }
 
   pushPayload(store, documentHash);

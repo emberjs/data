@@ -23,11 +23,9 @@ Model.reopen({
     var relationships = { belongsTo: [], hasMany: [] };
     var expensiveProperties = [];
 
-    this.eachAttribute(function(name, meta) {
-      attributes.push(name);
-    }, this);
+    this.eachAttribute((name, meta) => attributes.push(name));
 
-    this.eachRelationship(function(name, relationship) {
+    this.eachRelationship((name, relationship) => {
       relationships[relationship.kind].push(name);
       expensiveProperties.push(name);
     });

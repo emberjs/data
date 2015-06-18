@@ -11,18 +11,16 @@ var get = Ember.get;
   @constructor
   @param {DS.Model} internalModel The model to create a snapshot from
 */
-function Snapshot(internalModel) {
-  this._attributes = Ember.create(null);
-  this._belongsToRelationships = Ember.create(null);
-  this._belongsToIds = Ember.create(null);
-  this._hasManyRelationships = Ember.create(null);
-  this._hasManyIds = Ember.create(null);
+export default function Snapshot(internalModel) {
+  this._attributes = Object.create(null);
+  this._belongsToRelationships = Object.create(null);
+  this._belongsToIds = Object.create(null);
+  this._hasManyRelationships = Object.create(null);
+  this._hasManyIds = Object.create(null);
 
   var record = internalModel.getRecord();
   this.record = record;
-  record.eachAttribute(function(keyName) {
-    this._attributes[keyName] = get(record, keyName);
-  }, this);
+  record.eachAttribute((keyName) => this._attributes[keyName] = get(record, keyName));
 
   this.id = internalModel.id;
   this._internalModel = internalModel;
@@ -37,27 +35,23 @@ function Snapshot(internalModel) {
   // With snapshots you should use `type` instead of `constructor`.
   //
   // Remove for Ember Data 1.0.
-  if (Ember.platform.hasPropertyAccessors) {
-    var callDeprecate = true;
+  var callDeprecate = true;
 
-    Ember.defineProperty(this, 'constructor', {
-      get: function() {
-        // Ugly hack since accessing error.stack (done in `Ember.deprecate()`)
-        // causes the internals of Chrome to access the constructor, which then
-        // causes an infinite loop if accessed and calls `Ember.deprecate()`
-        // again.
-        if (callDeprecate) {
-          callDeprecate = false;
-          Ember.deprecate('Usage of `snapshot.constructor` is deprecated, use `snapshot.type` instead.');
-          callDeprecate = true;
-        }
-
-        return this.type;
+  Object.defineProperty(this, 'constructor', {
+    get: function() {
+      // Ugly hack since accessing error.stack (done in `Ember.deprecate()`)
+      // causes the internals of Chrome to access the constructor, which then
+      // causes an infinite loop if accessed and calls `Ember.deprecate()`
+      // again.
+      if (callDeprecate) {
+        callDeprecate = false;
+        Ember.deprecate('Usage of `snapshot.constructor` is deprecated, use `snapshot.type` instead.');
+        callDeprecate = true;
       }
-    });
-  } else {
-    this.constructor = this.type;
-  }
+
+      return this.type;
+    }
+  });
 }
 
 Snapshot.prototype = {
@@ -165,8 +159,8 @@ Snapshot.prototype = {
     @return {Object} All changed attributes of the current snapshot
   */
   changedAttributes: function() {
-    let changedAttributes = Ember.create(null);
-    let changedAttributeKeys = Ember.keys(this._changedAttributes);
+    let changedAttributes = Object.create(null);
+    let changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];
@@ -305,7 +299,7 @@ Snapshot.prototype = {
 
     if (hasData) {
       results = [];
-      members.forEach(function(member) {
+      members.forEach((member) => {
         if (!member.isDeleted()) {
           if (ids) {
             results.push(member.id);
@@ -423,7 +417,7 @@ Snapshot.prototype = {
   }
 };
 
-Ember.defineProperty(Snapshot.prototype, 'typeKey', {
+Object.defineProperty(Snapshot.prototype, 'typeKey', {
   enumerable: false,
   get: function() {
     Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.');

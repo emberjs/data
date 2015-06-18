@@ -1,6 +1,5 @@
 var get = Ember.get;
 var isEmpty = Ember.isEmpty;
-var map = Ember.ArrayPolyfills.map;
 
 import {
   MapWithDefault
@@ -237,7 +236,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   _findOrCreateMessages: function(attribute, messages) {
     var errors = this.errorsFor(attribute);
 
-    return map.call(Ember.makeArray(messages), function(message) {
+    return Ember.makeArray(messages).map((message) => {
       return errors.findBy('message', message) || {
         attribute: attribute,
         message: message

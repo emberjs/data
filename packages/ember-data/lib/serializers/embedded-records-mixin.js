@@ -1,6 +1,5 @@
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
 var camelize = Ember.String.camelize;
 
 /**
@@ -316,13 +315,16 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForAttribute(attr, 'serialize');
       hasMany = snapshot.hasMany(attr);
 
-      Ember.warn("The embedded relationship '" + key + "' is undefined for '" + snapshot.modelName + "' with id '" + snapshot.id + "'. Please include it in your original payload.", Ember.typeOf(hasMany) !== 'undefined');
+      Ember.warn("The embedded relationship '" + key + "' is undefined for '" +
+                 snapshot.modelName +
+                 "' with id '" + snapshot.id +
+                 "'. Please include it in your original payload.", Ember.typeOf(hasMany) !== 'undefined');
 
-      json[key] = Ember.A(hasMany).map(function(embeddedSnapshot) {
+      json[key] = Ember.A(hasMany).map((embeddedSnapshot) => {
         var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
         return embeddedJson;
-      }, this);
+      });
     }
   },
 
@@ -406,7 +408,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       return _newExtractEmbeddedRecords.apply(this, arguments);
     }
 
-    typeClass.eachRelationship(function(key, relationship) {
+    typeClass.eachRelationship((key, relationship) => {
       if (serializer.hasDeserializeRecordsOption(key)) {
         var embeddedTypeClass = store.modelFor(relationship.type);
         if (relationship.kind === "hasMany") {
@@ -424,7 +426,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
           }
         }
       }
-    }, this);
+    });
 
     return partial;
   },
@@ -445,7 +447,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var ids = [];
 
     var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
-    forEach.call(hash[key], function(data) {
+    hash[key].forEach((data) => {
       var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
       store.push(embeddedTypeClass.modelName, embeddedRecord);
       ids.push(embeddedRecord.id);
@@ -466,7 +468,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     var ids = [];
 
-    forEach.call(hash[key], function(data) {
+    hash[key].forEach((data) => {
       var modelName = data.type;
       var embeddedSerializer = store.serializerFor(modelName);
       var embeddedTypeClass = store.modelFor(modelName);
@@ -539,7 +541,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     return serializer.normalize(modelClass, relationshipHash, null);
   }
-
 });
 
 export default EmbeddedRecordsMixin;
@@ -558,7 +559,7 @@ function _newExtractEmbeddedRecords(serializer, store, typeClass, partial) {
         this._extractEmbeddedBelongsTo(store, key, partial, relationship);
       }
     }
-  }, this);
+  });
   return partial;
 }
 

@@ -9,7 +9,6 @@ import {
 } from "ember-data/system/map";
 
 var get = Ember.get;
-var filter = Ember.ArrayPolyfills.filter;
 
 var relationshipsDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
@@ -21,7 +20,7 @@ var relationshipsDescriptor = Ember.computed(function() {
   });
 
   // Loop through each computed property on the class
-  this.eachComputedProperty(function(name, meta) {
+  this.eachComputedProperty((name, meta) => {
     // If the computed property is a relationship, add
     // it to the map.
     if (meta.isRelationship) {
@@ -49,7 +48,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
   // Loop through each computed property on the class,
   // and create an array of the unique types involved
   // in relationships
-  this.eachComputedProperty(function(name, meta) {
+  this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
       modelName = typeForRelationshipMeta(meta);
@@ -73,7 +72,7 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
 
   var map = Map.create();
 
-  this.eachComputedProperty(function(name, meta) {
+  this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
       var relationship = relationshipFromMeta(meta);
@@ -186,7 +185,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return Ember.create(null);
+    return Object.create(null);
   }),
 
   /**
@@ -261,7 +260,7 @@ Model.reopenClass({
 
       if (possibleRelationships.length === 0) { return null; }
 
-      var filteredRelationships = filter.call(possibleRelationships, function(possibleRelationship) {
+      var filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
         var optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
         return name === optionsForRelationship.inverse;
       });
@@ -290,7 +289,7 @@ Model.reopenClass({
 
       var relationships = relationshipMap.get(type.modelName);
 
-      relationships = filter.call(relationships, function(relationship) {
+      relationships = relationships.filter((relationship) => {
         var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
         if (!optionsForRelationship.inverse) {
@@ -400,7 +399,7 @@ Model.reopenClass({
       belongsTo: []
     };
 
-    this.eachComputedProperty(function(name, meta) {
+    this.eachComputedProperty((name, meta) => {
       if (meta.isRelationship) {
         names[meta.kind].push(name);
       }
@@ -526,7 +525,7 @@ Model.reopenClass({
   fields: Ember.computed(function() {
     var map = Map.create();
 
-    this.eachComputedProperty(function(name, meta) {
+    this.eachComputedProperty((name, meta) => {
       if (meta.isRelationship) {
         map.set(name, meta.kind);
       } else if (meta.isAttribute) {
@@ -548,7 +547,7 @@ Model.reopenClass({
     @param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelationship: function(callback, binding) {
-    get(this, 'relationshipsByName').forEach(function(relationship, name) {
+    get(this, 'relationshipsByName').forEach((relationship, name) => {
       callback.call(binding, name, relationship);
     });
   },
@@ -565,7 +564,7 @@ Model.reopenClass({
     @param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelatedType: function(callback, binding) {
-    get(this, 'relatedTypes').forEach(function(type) {
+    get(this, 'relatedTypes').forEach((type) => {
       callback.call(binding, type);
     });
   },

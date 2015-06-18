@@ -1,5 +1,5 @@
 export default function cloneNull(source) {
-  var clone = Ember.create(null);
+  var clone = Object.create(null);
   for (var key in source) {
     clone[key] = source[key];
   }

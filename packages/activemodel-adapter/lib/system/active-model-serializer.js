@@ -5,8 +5,7 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   @module ember-data
 */
 
-var forEach = Ember.EnumerableUtils.forEach;
-var camelize =   Ember.String.camelize;
+var camelize = Ember.String.camelize;
 var classify = Ember.String.classify;
 var decamelize = Ember.String.decamelize;
 var underscore = Ember.String.underscore;
@@ -279,10 +278,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
           if (payload && payload.type) {
             payload.type = this.modelNameFromPayloadKey(payload.type);
           } else if (payload && relationship.kind === "hasMany") {
-            var self = this;
-            forEach(payload, function(single) {
-              single.type = self.modelNameFromPayloadKey(single.type);
-            });
+            payload.forEach((single) => single.type = this.modelNameFromPayloadKey(single.type));
           }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind, "deserialize");

@@ -14,10 +14,6 @@ if (Ember.VERSION.match(/^1\.12\.0/)) {
   throw new Ember.Error("Ember Data does not work with Ember 1.12.0. Please upgrade to Ember 1.12.1 or higher.");
 }
 
-// support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
-Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
-
-
 import DS from "ember-data/core";
 import "ember-data/ext/date";
 
@@ -188,7 +184,7 @@ DS.ContainerProxy = ContainerProxy;
 
 DS._setupContainer = setupContainer;
 
-Ember.defineProperty(DS, 'normalizeModelName', {
+Object.defineProperty(DS, 'normalizeModelName', {
   enumerable: true,
   writable: false,
   configurable: false,
@@ -197,21 +193,17 @@ Ember.defineProperty(DS, 'normalizeModelName', {
 
 var _FixtureAdapter = FixtureAdapter;
 
-if (Ember.platform.hasPropertyAccessors) {
-  Ember.defineProperty(DS, 'FixtureAdapter', {
-    get: function() {
-      if (_FixtureAdapter === FixtureAdapter) {
-        Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
-      }
-      return _FixtureAdapter;
-    },
-    set:  function(FixtureAdapter) {
-      _FixtureAdapter = FixtureAdapter;
+Object.defineProperty(DS, 'FixtureAdapter', {
+  get: function() {
+    if (_FixtureAdapter === FixtureAdapter) {
+      Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
     }
-  });
-} else {
-  DS.FixtureAdapter = FixtureAdapter;
-}
+    return _FixtureAdapter;
+  },
+  set:  function(FixtureAdapter) {
+    _FixtureAdapter = FixtureAdapter;
+  }
+});
 
 Ember.lookup.DS = DS;
 

@@ -10,7 +10,7 @@
   @param {Array} snapshots An array of snapshots
   @param {Object} meta
 */
-function SnapshotRecordArray(recordArray, meta, adapterOptions) {
+export default function SnapshotRecordArray(recordArray, meta, adapterOptions) {
   this._snapshots = null;
   this._recordArray = recordArray;
   this.length = recordArray.get('length');
@@ -28,5 +28,3 @@ SnapshotRecordArray.prototype.snapshots = function() {
 
   return this._snapshots;
 };
-
-export default SnapshotRecordArray;

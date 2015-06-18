@@ -6,15 +6,15 @@ import { assertPolymorphicType } from "ember-data/utils";
 
 import Relationship from "ember-data/system/relationships/state/relationship";
 
-var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
+export default function BelongsToRelationship(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.record = record;
   this.key = relationshipMeta.key;
   this.inverseRecord = null;
   this.canonicalState = null;
-};
+}
 
-BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
+BelongsToRelationship.prototype = Object.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 BelongsToRelationship.prototype._super$constructor = Relationship;
 
@@ -105,10 +105,9 @@ BelongsToRelationship.prototype.findRecord = function() {
 };
 
 BelongsToRelationship.prototype.fetchLink = function() {
-  var self = this;
-  return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record) {
+  return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then((record) => {
     if (record) {
-      self.addRecord(record);
+      this.addRecord(record);
     }
     return record;
   });
@@ -119,9 +118,8 @@ BelongsToRelationship.prototype.getRecord = function() {
   if (this.isAsync) {
     var promise;
     if (this.link) {
-      var self = this;
-      promise = this.findLink().then(function() {
-        return self.findRecord();
+      promise = this.findLink().then(() => {
+        return this.findRecord();
       });
     } else {
       promise = this.findRecord();
@@ -140,5 +138,3 @@ BelongsToRelationship.prototype.getRecord = function() {
     return toReturn;
   }
 };
-
-export default BelongsToRelationship;

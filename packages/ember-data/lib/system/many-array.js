@@ -5,7 +5,6 @@ import { PromiseArray } from "ember-data/system/promise-proxies";
 
 var get = Ember.get;
 var set = Ember.set;
-var filter = Ember.ArrayPolyfills.filter;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -52,6 +51,7 @@ var filter = Ember.ArrayPolyfills.filter;
 */
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init: function() {
+    this._super(...arguments);
     this.currentState = Ember.A([]);
   },
 
@@ -72,15 +72,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   flushCanonical: function() {
     //TODO make this smarter, currently its plenty stupid
-    var toSet = filter.call(this.canonicalState, function(internalModel) {
-      return !internalModel.isDeleted();
-    });
+    var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    var newRecords = this.currentState.filter(function(internalModel) {
-      return internalModel.isNew();
-    });
+    var newRecords = this.currentState.filter((internalModel) => internalModel.isNew());
     toSet = toSet.concat(newRecords);
     var oldLength = this.length;
     this.arrayContentWillChange(0, this.length, toSet.length);
@@ -192,9 +188,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       records = this.currentState.slice(idx, idx+amt);
       this.get('relationship').removeRecords(records);
     }
-    var map = objects.map || Ember.ArrayPolyfills.map;
     if (objects) {
-      this.get('relationship').addRecords(map.call(objects, function(obj) { return obj._internalModel; }), idx);
+      this.get('relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
     }
   },
   /**
@@ -261,7 +256,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       return manyArray;
     }, null, "DS: ManyArray#save return ManyArray");
 
-    return PromiseArray.create({ promise: promise });
+    return PromiseArray.create({ promise });
   },
 
   /**
@@ -278,7 +273,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     var record;
 
     Ember.assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
-
     record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 

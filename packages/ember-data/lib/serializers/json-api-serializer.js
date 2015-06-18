@@ -7,7 +7,6 @@ import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector/lib/system/string';
 
 var dasherize = Ember.String.dasherize;
-var map = Ember.EnumerableUtils.map;
 
 /**
   @class JSONAPISerializer
@@ -68,11 +67,11 @@ export default JSONSerializer.extend({
     if (Ember.typeOf(payload.data) === 'object') {
       payload.data = this._normalizeResourceHelper(payload.data);
     } else {
-      payload.data = map(payload.data, this._normalizeResourceHelper, this);
+      payload.data = payload.data.map(this._normalizeResourceHelper, this);
     }
 
     if (Ember.typeOf(payload.included) === 'array') {
-      payload.included = map(payload.included, this._normalizeResourceHelper, this);
+      payload.included = payload.included.map(this._normalizeResourceHelper, this);
     }
 
     return payload;
@@ -111,7 +110,7 @@ export default JSONSerializer.extend({
     }
 
     if (Ember.typeOf(relationshipHash.data) === 'array') {
-      relationshipHash.data = map(relationshipHash.data, this._normalizeRelationshipDataHelper, this);
+      relationshipHash.data = relationshipHash.data.map(this._normalizeRelationshipDataHelper, this);
     }
 
     return relationshipHash;
@@ -305,7 +304,7 @@ export default JSONSerializer.extend({
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
 
-        let data = map(hasMany, (item) => {
+        let data = hasMany.map((item) => {
           return {
             type: item.modelName,
             id: item.id

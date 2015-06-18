@@ -6,7 +6,6 @@ import { errorsArrayToHash } from "ember-data/adapters/errors";
 
 var get = Ember.get;
 var isNone = Ember.isNone;
-var map = Ember.ArrayPolyfills.map;
 var merge = Ember.merge;
 
 /*
@@ -188,12 +187,12 @@ var JSONSerializer = Serializer.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms: function(typeClass, data) {
-    typeClass.eachTransformedAttribute(function applyTransform(key, typeClass) {
+    typeClass.eachTransformedAttribute((key, typeClass) => {
       if (!data.hasOwnProperty(key)) { return; }
 
       var transform = this.transformFor(typeClass);
       data[key] = transform.deserialize(data[key]);
-    }, this);
+    });
 
     return data;
   },
@@ -513,6 +512,7 @@ var JSONSerializer = Serializer.extend({
 
     this.normalizeUsingDeclaredMapping(typeClass, hash);
     this.applyTransforms(typeClass, hash);
+
     return hash;
   },
 
@@ -542,12 +542,12 @@ var JSONSerializer = Serializer.extend({
     var attributeKey;
     var attributes = {};
 
-    modelClass.eachAttribute(function(key) {
+    modelClass.eachAttribute((key) => {
       attributeKey = this.keyForAttribute(key, 'deserialize');
       if (resourceHash.hasOwnProperty(attributeKey)) {
         attributes[key] = resourceHash[attributeKey];
       }
-    }, this);
+    });
 
     return attributes;
   },
@@ -594,7 +594,7 @@ var JSONSerializer = Serializer.extend({
   extractRelationships: function(modelClass, resourceHash) {
     let relationships = {};
 
-    modelClass.eachRelationship(function(key, relationshipMeta) {
+    modelClass.eachRelationship((key, relationshipMeta) => {
       let relationship = null;
       let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
       if (resourceHash.hasOwnProperty(relationshipKey)) {
@@ -603,9 +603,7 @@ var JSONSerializer = Serializer.extend({
         if (relationshipMeta.kind === 'belongsTo') {
           data = this.extractRelationship(relationshipMeta.type, relationshipHash);
         } else if (relationshipMeta.kind === 'hasMany') {
-          data = Ember.A(relationshipHash).map(function(item) {
-            return this.extractRelationship(relationshipMeta.type, item);
-          }, this);
+          data = relationshipHash.map((item) => this.extractRelationship(relationshipMeta.type, item));
         }
         relationship = { data };
       }
@@ -620,7 +618,7 @@ var JSONSerializer = Serializer.extend({
       if (relationship) {
         relationships[key] = relationship;
       }
-    }, this);
+    });
 
     return relationships;
   },
@@ -669,14 +667,14 @@ var JSONSerializer = Serializer.extend({
     var payloadKey;
 
     if (this.keyForAttribute) {
-      typeClass.eachAttribute(function(key) {
+      typeClass.eachAttribute((key) => {
         payloadKey = this.keyForAttribute(key, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
-      }, this);
+      });
     }
   },
 
@@ -688,14 +686,14 @@ var JSONSerializer = Serializer.extend({
     var payloadKey;
 
     if (this.keyForRelationship) {
-      typeClass.eachRelationship(function(key, relationship) {
+      typeClass.eachRelationship((key, relationship) => {
         payloadKey = this.keyForRelationship(key, relationship.kind, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
-      }, this);
+      });
     }
   },
 
@@ -984,17 +982,17 @@ var JSONSerializer = Serializer.extend({
       }
     }
 
-    snapshot.eachAttribute(function(key, attribute) {
+    snapshot.eachAttribute((key, attribute) => {
       this.serializeAttribute(snapshot, json, key, attribute);
-    }, this);
+    });
 
-    snapshot.eachRelationship(function(key, relationship) {
+    snapshot.eachRelationship((key, relationship) => {
       if (relationship.kind === 'belongsTo') {
         this.serializeBelongsTo(snapshot, json, relationship);
       } else if (relationship.kind === 'hasMany') {
         this.serializeHasMany(snapshot, json, relationship);
       }
-    }, this);
+    });
 
     return json;
   },
@@ -1491,11 +1489,7 @@ var JSONSerializer = Serializer.extend({
   */
   extractArray: function(store, typeClass, arrayPayload, id, requestType) {
     var normalizedPayload = this.normalizePayload(arrayPayload);
-    var serializer = this;
-
-    return map.call(normalizedPayload, function(singlePayload) {
-      return serializer.normalize(typeClass, singlePayload);
-    });
+    return normalizedPayload.map((singlePayload) => this.normalize(typeClass, singlePayload));
   },
 
   /**
