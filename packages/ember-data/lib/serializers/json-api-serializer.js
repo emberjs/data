@@ -17,6 +17,16 @@ var map = Ember.EnumerableUtils.map;
 export default JSONSerializer.extend({
 
   /*
+    This is only to be used temporarily during the transition from the old
+    serializer API to the new one.
+
+    `JSONAPISerializer` only supports the new Serializer API.
+
+    @property isNewSerializerAPI
+  */
+  isNewSerializerAPI: true,
+
+  /*
     @method _normalizeRelationshipDataHelper
     @param {Object} relationshipDataHash
     @return {Object}
