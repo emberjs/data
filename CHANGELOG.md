@@ -2,6 +2,12 @@
 
 ### Master
 
+### Release 1.13.1 (June 17, 2015)
+
+- [#3369](https://github.com/emberjs/data/pull/3369) Fix deprecation message for store.shouldReloadAll [@pangratz](https://github.com/pangratz)
+- [#3370](https://github.com/emberjs/data/pull/3370) Allow overwrite for deprecated adapters [@tricknotes](https://github.com/tricknotes)
+- [#3374](https://github.com/emberjs/data/pull/3374) fix jquery error handler [@tchak](https://github.com/tchak)
+
 ### Release 1.13 (June 16, 2015)
 
 - [#3143](https://github.com/emberjs/data/pull/3143) Refactor the Serializer API [@emberjs](https://github.com/emberjs)
