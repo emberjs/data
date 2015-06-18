@@ -1786,7 +1786,7 @@ test('calls handleResponse with jqXHR, jqXHR.responseText', function() {
   };
 
   Ember.$.ajax = function(hash) {
-    hash.error(jqXHR, jqXHR.responseText);
+    hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
   };
 
   adapter.handleResponse = function(status, headers, json) {
@@ -1872,7 +1872,7 @@ test('on error wraps the error string in an DS.AdapterError object', function() 
 
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
-    responseText: 'Nope lol',
+    responseText: '',
     getAllResponseHeaders: function() { return ''; }
   };
 
@@ -1885,7 +1885,7 @@ test('on error wraps the error string in an DS.AdapterError object', function() 
   try {
     run(function() {
       store.find('post', '1').catch(function(err) {
-        equal(err.message, errorThrown);
+        equal(err.errors[0].details, errorThrown);
         ok(err, 'promise rejected');
       });
     });

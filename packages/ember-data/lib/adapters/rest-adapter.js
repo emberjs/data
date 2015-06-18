@@ -894,10 +894,6 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
           error = adapter.ajaxError(jqXHR, textStatus, errorThrown);
         }
 
-        if (typeof errorThrown === 'string') {
-          errorThrown = new Error(errorThrown);
-        }
-
         if (!(error instanceof Error)) {
           if (errorThrown instanceof Error) {
             error = errorThrown;
@@ -909,7 +905,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
             error = adapter.handleResponse(
               jqXHR.status,
               parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-              adapter.parseErrorResponse(jqXHR.responseText)
+              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown
             );
           }
         }
