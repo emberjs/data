@@ -287,6 +287,48 @@ test('A record with an async belongsTo relationship always returns a promise for
   });
 });
 
+test('Getting the record for a belongsTo relationship should not fetch the link if its inverse record is already loaded', function () {
+  expect(1);
+
+  var Group = DS.Model.extend({
+    people: DS.hasMany('person', { async: true })
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo('group', { async: true })
+  });
+
+  env.registry.register('model:group', Group);
+  env.registry.register('model:person', Person);
+
+  env.adapter.findHasMany = function () {
+    return Ember.RSVP.resolve([{
+      id: 10,
+      links: {
+        group: '/people/10/group'
+      }
+    }]);
+  };
+
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
+    throw new Error("Adapter's findBelongsTo method should not be called");
+  };
+
+  run(function() {
+    store.push('group', { id: 1, links: { people: '/groups/1/people' } });
+  });
+
+  run(function() {
+    var group = env.store.getById('group', 1);
+
+    group.get('people').then(function(people) {
+      return people.objectAt(0).get('group');
+    }).then(function (thisGroup) {
+      equal(thisGroup, group, 'The same group is returned');
+    });
+  });
+});
+
 test("A record with an async belongsTo relationship returning null should resolve null", function() {
   expect(1);
 

@@ -119,10 +119,14 @@ BelongsToRelationship.prototype.getRecord = function() {
   if (this.isAsync) {
     var promise;
     if (this.link) {
-      var self = this;
-      promise = this.findLink().then(function() {
-        return self.findRecord();
-      });
+      if (this.hasData) {
+        promise = this.findRecord();
+      } else {
+        var self = this;
+        promise = this.findLink().then(function() {
+          return self.findRecord();
+        });
+      }
     } else {
       promise = this.findRecord();
     }
