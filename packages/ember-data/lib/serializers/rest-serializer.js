@@ -11,6 +11,7 @@ import { pushPayload } from "ember-data/system/store/serializer-response";
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
+var get = Ember.get;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -213,6 +214,8 @@ var RESTSerializer = JSONSerializer.extend({
 
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
+
+    Ember.assert(`${this.toString()} has opted into the new serializer API and expects the ${serializer.toString()} it collaborates with to also support the new serializer API by setting its \`isNewSerializerAPI\` property to true.`, get(serializer, 'isNewSerializerAPI'));
 
     /*jshint loopfunc:true*/
     forEach.call(arrayHash, (hash) => {
