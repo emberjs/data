@@ -409,3 +409,24 @@ test('normalize should allow for different levels of normalization', function() 
 
   equal(array.data[0].relationships.superVillain.data.id, 1);
 });
+
+
+test("should assert with collaborating with non newSerializerAPI serializers", function() {
+  expect(1);
+
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
+    isNewSerializerAPI: false
+  }));
+
+
+  var jsonHash = {
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+    super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
+  };
+  var array;
+  expectAssertion(function() {
+    run(function() {
+      array = env.restNewSerializer.normalizeArrayResponse(env.store, SuperVillain, jsonHash, null, 'findAll');
+    });
+  }, /collaborates with to also support the new serializer API by setting its `isNewSerializerAPI` property to true./);
+});
