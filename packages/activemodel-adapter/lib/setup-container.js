@@ -9,6 +9,6 @@ export default function setupActiveModelAdapter(registry, application) {
     { deprecated: 'adapter:_ams',     valid: 'adapter:-active-model' }
   ]);
 
-  registry.register('serializer:-active-model', ActiveModelSerializer);
+  registry.register('serializer:-active-model', ActiveModelSerializer.extend({ isNewSerializerAPI: true }));
   registry.register('adapter:-active-model', ActiveModelAdapter);
 }
