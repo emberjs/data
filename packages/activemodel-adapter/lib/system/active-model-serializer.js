@@ -176,9 +176,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = classify(belongsTo.modelName).replace(/(\/)([a-z])/g, function(match, separator, chr) {
-        return match.toUpperCase();
-      }).replace('/', '::');
+      json[jsonKey] = classify(belongsTo.modelName).replace('/', '::');
     }
   },
 
@@ -295,9 +293,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
   modelNameFromPayloadKey: function(key) {
-    var convertedFromRubyModule = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
-      return match.toLowerCase();
-    }).replace('::', '/');
+    var convertedFromRubyModule = singularize(key.replace('::', '/'));
     return normalizeModelName(convertedFromRubyModule);
   }
 });
