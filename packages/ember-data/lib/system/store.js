@@ -1962,6 +1962,7 @@ Store = Service.extend({
     @param {String} modelName
     @param {Array} datas
     @return {Array}
+    @deprecated Use [push](#method_push) instead
   */
   pushMany: function(modelName, datas) {
     Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
