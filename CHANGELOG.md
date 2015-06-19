@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 1.13.3 (June 19, 2015)
+
+- [#3375](https://github.com/emberjs/data/pull/3375) JSONAPISerializer only supports the new Serializer API [@wecc](https://github.com/wecc)
+- [#3379](https://github.com/emberjs/data/pull/3379) store.push should support arrays in the JSONAPI data property [@bmac](https://github.com/bmac)
+- [#3384](https://github.com/emberjs/data/pull/3384) Assert if the RESTSerializers when using the new format calls another [@bmac](https://github.com/bmac)
+- [#3388](https://github.com/emberjs/data/pull/3388) Have looked up ActiveModelSerializer opt into the new Serializer API [@wecc](https://github.com/wecc)
+
 ### Release 1.13.2 (June 18, 2015)
 
 - [#3370](https://github.com/emberjs/data/pull/3370) Allow overwrite for deprecated adapters [@tricknotes](https://github.com/tricknotes)
