@@ -1397,8 +1397,20 @@ Store = Service.extend({
     @method metadataFor
     @param {String} modelName
     @return {object}
+    @deprecated
   */
   metadataFor: function(modelName) {
+    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.");
+    return this._metadataFor(modelName);
+  },
+
+  /**
+    @method _metadataFor
+    @param {String} modelName
+    @return {object}
+    @private
+  */
+  _metadataFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     return this.typeMapFor(typeClass).metadata;
@@ -1411,8 +1423,20 @@ Store = Service.extend({
     @param {String} modelName
     @param {Object} metadata metadata to set
     @return {object}
+    @deprecated
   */
   setMetadataFor: function(modelName, metadata) {
+    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.");
+    this._setMetadataFor(modelName, metadata);
+  },
+
+  /**
+    @method _setMetadataFor
+    @param {String} modelName
+    @param {Object} metadata metadata to set
+    @private
+  */
+  _setMetadataFor: function(modelName, metadata) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     Ember.merge(this.typeMapFor(typeClass).metadata, metadata);

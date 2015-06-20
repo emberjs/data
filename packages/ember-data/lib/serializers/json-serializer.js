@@ -1529,7 +1529,7 @@ var JSONSerializer = Serializer.extend({
     }
 
     if (payload && payload.meta) {
-      store.setMetadataFor(typeClass, payload.meta);
+      store._setMetadataFor(typeClass, payload.meta);
       delete payload.meta;
     }
   },
