@@ -21,7 +21,12 @@ const get = Ember.get;
 */
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
   if (serializer.get('isNewSerializerAPI')) {
-    return serializer.normalizeResponse(store, modelClass, payload, id, requestType);
+    let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
+    // TODO: Remove after metadata refactor
+    if (normalizedResponse.meta) {
+      store._setMetadataFor(modelClass.modelName, normalizedResponse.meta);
+    }
+    return normalizedResponse;
   } else {
     Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.');
     let serializerPayload = serializer.extract(store, modelClass, payload, id, requestType);

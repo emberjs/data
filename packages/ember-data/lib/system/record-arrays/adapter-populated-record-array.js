@@ -48,7 +48,7 @@ export default RecordArray.extend({
     var store = get(this, 'store');
     var type = get(this, 'type');
     var modelName = type.modelName;
-    var meta = store.metadataFor(modelName);
+    var meta = store._metadataFor(modelName);
 
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
