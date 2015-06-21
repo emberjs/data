@@ -26,6 +26,27 @@ export default JSONSerializer.extend({
   isNewSerializerAPI: true,
 
   /*
+    @method _normalizeDocumentHelper
+    @param {Object} documentHash
+    @return {Object}
+    @private
+  */
+  _normalizeDocumentHelper: function(documentHash) {
+
+    if (Ember.typeOf(documentHash.data) === 'object') {
+      documentHash.data = this._normalizeResourceHelper(documentHash.data);
+    } else {
+      documentHash.data = documentHash.data.map(this._normalizeResourceHelper, this);
+    }
+
+    if (Ember.typeOf(documentHash.included) === 'array') {
+      documentHash.included = documentHash.included.map(this._normalizeResourceHelper, this);
+    }
+
+    return documentHash;
+  },
+
+  /*
     @method _normalizeRelationshipDataHelper
     @param {Object} relationshipDataHash
     @return {Object}
@@ -52,6 +73,16 @@ export default JSONSerializer.extend({
   },
 
   /**
+    @method pushPayload
+    @param {DS.Store} store
+    @param {Object} payload
+  */
+  pushPayload: function(store, payload) {
+    let normalizedPayload = this._normalizeDocumentHelper(payload);
+    store.push(normalizedPayload);
+  },
+
+  /**
     @method _normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -63,18 +94,8 @@ export default JSONSerializer.extend({
     @private
   */
   _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
-
-    if (Ember.typeOf(payload.data) === 'object') {
-      payload.data = this._normalizeResourceHelper(payload.data);
-    } else {
-      payload.data = payload.data.map(this._normalizeResourceHelper, this);
-    }
-
-    if (Ember.typeOf(payload.included) === 'array') {
-      payload.included = payload.included.map(this._normalizeResourceHelper, this);
-    }
-
-    return payload;
+    let normalizedPayload = this._normalizeDocumentHelper(payload);
+    return normalizedPayload;
   },
 
   /*
