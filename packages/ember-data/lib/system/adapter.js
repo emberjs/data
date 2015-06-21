@@ -286,7 +286,7 @@ var Adapter = Ember.Object.extend({
     Implement this method in a subclass to handle the creation of
     new records.
 
-    Serializes the record and send it to the server.
+    Serializes the record and sends it to the server.
 
     Example
 
@@ -327,7 +327,7 @@ var Adapter = Ember.Object.extend({
     Implement this method in a subclass to handle the updating of
     a record.
 
-    Serializes the record update and send it to the server.
+    Serializes the record update and sends it to the server.
 
     Example
 
@@ -411,7 +411,7 @@ var Adapter = Ember.Object.extend({
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
     You can opt out of this behaviour by either not implementing the findMany hook or by setting
-    coalesceFindRequests to false
+    coalesceFindRequests to false.
 
     @property coalesceFindRequests
     @type {boolean}
@@ -419,7 +419,7 @@ var Adapter = Ember.Object.extend({
   coalesceFindRequests: true,
 
   /**
-    Find multiple records at once if coalesceFindRequests is true
+    Find multiple records at once if coalesceFindRequests is true.
 
     @method findMany
     @param {DS.Store} store
@@ -454,7 +454,7 @@ var Adapter = Ember.Object.extend({
     reload a record from the adapter when a record is requested by
     `store.findRecord`.
 
-    If this method returns true the store will re fetch a record form
+    If this method returns true the store will re fetch a record from
     the adapter. If is method returns false the store will resolve
     immediately using the cached record.
 
@@ -472,7 +472,7 @@ var Adapter = Ember.Object.extend({
     reload all records from the adapter when records are requested by
     `store.findAll`.
 
-    If this method returns true the store will re fetch all records form
+    If this method returns true the store will re fetch all records from
     the adapter. If is method returns false the store will resolve
     immediately using the cached record.
 
@@ -490,12 +490,12 @@ var Adapter = Ember.Object.extend({
   /**
     This method is used by the store to determine if the store should
     reload a record after the `store.findRecord` method resolves a
-    chached record.
+    cached record.
 
     This method is *only* checked by the store when the store is
     returning a cached record.
 
-    If this method returns true the store will re-fetch a record form
+    If this method returns true the store will re-fetch a record from
     the adapter.
 
     @method shouldBackgroundReloadRecord
@@ -511,13 +511,13 @@ var Adapter = Ember.Object.extend({
   /**
     This method is used by the store to determine if the store should
     reload a record array after the `store.findAll` method resolves
-    with a chached record array.
+    with a cached record array.
 
     This method is *only* checked by the store when the store is
     returning a cached record array.
 
     If this method returns true the store will re-fetch all records
-    form the adapter.
+    from the adapter.
 
     @method shouldBackgroundReloadAll
     @param {DS.Store} store
