@@ -1284,7 +1284,9 @@ Store = Service.extend({
     @deprecated
   */
   metadataFor: function(modelName) {
-    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.");
+    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.", false, {
+      id: 'ember-data-metadataFor'
+    });
     return this._metadataFor(modelName);
   },
 
@@ -1310,7 +1312,9 @@ Store = Service.extend({
     @deprecated
   */
   setMetadataFor: function(modelName, metadata) {
-    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.");
+    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.", false, {
+      id: 'ember-data-setMetadataFor'
+    });
     this._setMetadataFor(modelName, metadata);
   },
 
