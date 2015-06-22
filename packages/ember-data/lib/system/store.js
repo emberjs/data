@@ -2292,6 +2292,9 @@ function _commit(adapter, store, operation, snapshot) {
       var payload, data;
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, snapshot.id, operation);
+        if (payload.included) {
+          store.push({ data: payload.included });
+        }
         data = convertResourceObject(payload.data);
       }
       store.didSaveRecord(internalModel, _normalizeSerializerPayload(internalModel.type, data));
