@@ -62,7 +62,7 @@ test("store.findAll should trigger a deprecation warning about store.shouldReloa
   run(function() {
     expectDeprecation(function() {
       store.findAll('person');
-    }, 'The default behavior of shouldReloadAll will change in Ember Data 2.0 to always return false when there is at least one "person" record in the store. If you would like to preserve the current behavior please override shouldReloadAll in you adapter:application and return true.');
+    }, 'The default behavior of shouldReloadAll will change in Ember Data 2.0 to always return false when there is at least one "person" record in the store. If you would like to preserve the current behavior please override shouldReloadAll in your adapter:application and return true.');
   });
 });
 
