@@ -45,7 +45,7 @@ export function _normalizeSerializerPayload(modelClass, payload) {
   let data = null;
 
   if (payload) {
-    if (Ember.isArray(payload)) {
+    if (Ember.typeOf(payload) === 'array') {
       data = map.call(payload, (payload) => {
         return _normalizeSerializerPayloadItem(modelClass, payload);
       });
