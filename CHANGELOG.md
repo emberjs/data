@@ -2,6 +2,18 @@
 
 ### Master
 
+### Release 1.13.4 (June 22, 2015)
+
+- [#3398](https://github.com/emberjs/data/pull/3398) [REGRESSION release] Make meta available with new Serializer API [@wecc](https://github.com/wecc)
+- [#3400](https://github.com/emberjs/data/pull/3400) [BUGFIX release] Correctly serialize type for hasMany relationships [@wecc](https://github.com/wecc)
+- [#3408](https://github.com/emberjs/data/pull/3408) Fix Typos in Documentation for DS.Adapter [@heathharrelson](https://github.com/heathharrelson)
+- [#3409](https://github.com/emberjs/data/pull/3409) [BUGFIX release] JSONAPISerializer missing pushPayload [@wecc](https://github.com/wecc)
+- [#3410](https://github.com/emberjs/data/pull/3410) Fix minor typo in deprecation warning [@Dhaulagiri](https://github.com/Dhaulagiri)
+- [#3413](https://github.com/emberjs/data/pull/3413) [BUGFIX release] Sideloaded records are not pushed when saving [@wecc](https://github.com/wecc)
+- [#3397](https://github.com/emberjs/data/pull/3397) [BUGFIX release] Use typeOf instead of isArray in `_normalizeSerializerPayload` [@wecc](https://github.com/wecc)
+- [#3396](https://github.com/emberjs/data/pull/3396) make sure deprecate error doesnt get swallowed when using store.push(type, data) [@jcope2013](https://github.com/jcope2013)
+- [#3411](https://github.com/emberjs/data/pull/3411) Remove some usages of enumerable utils that made it into the release branch [@bmac](https://github.com/bmac)
+
 ### Release 1.13.3 (June 19, 2015)
 
 - [#3375](https://github.com/emberjs/data/pull/3375) JSONAPISerializer only supports the new Serializer API [@wecc](https://github.com/wecc)
