@@ -6,6 +6,9 @@
   // logged but they do not result in a failed test.
   Ember.Debug._addDeprecationLevel("ember-data-pushMany", Ember.Debug._deprecationLevels.LOG);
 
+  Ember.Debug._addDeprecationLevel("ember-data-shouldBackgroundReloadRecord", Ember.Debug._deprecationLevels.LOG);
+  Ember.Debug._addDeprecationLevel("ember-data-shouldReloadAll", Ember.Debug._deprecationLevels.LOG);
+
   Ember.RSVP.configure('onerror', function(reason) {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
