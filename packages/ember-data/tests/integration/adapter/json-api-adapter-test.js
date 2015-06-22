@@ -798,3 +798,80 @@ test('update record', function() {
     });
   });
 });
+
+test('update record - serialize hasMany', function() {
+  expect(3);
+
+  ajaxResponse([{
+    data: {
+      type: 'users',
+      id: '1'
+    }
+  }]);
+
+  env.registry.register('serializer:user', DS.JSONAPISerializer.extend({
+    attrs: {
+      handles: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    var user = store.push({ data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
+      }
+    } });
+
+    var githubHandle = store.push({ data: {
+      type: 'github-handle',
+      id: '2',
+      attributes: {
+        username: 'wycats'
+      }
+    } });
+
+    var twitterHandle = store.push({ data: {
+      type: 'twitter-handle',
+      id: '3',
+      attributes: {
+        nickname: '@wycats'
+      }
+    } });
+
+    user.set('firstName', 'Yehuda!');
+
+    user.get('handles').then(function(handles) {
+      handles.addObject(githubHandle);
+      handles.addObject(twitterHandle);
+
+      user.save().then(function() {
+        equal(passedUrl[0], '/users/1');
+        equal(passedVerb[0], 'PATCH');
+        deepEqual(passedHash[0], {
+          data: {
+            data : {
+              type: 'users',
+              id: '1',
+              attributes: {
+                'first-name': 'Yehuda!',
+                'last-name': 'Katz'
+              },
+              relationships: {
+                handles: {
+                  data: [
+                    { type: 'github-handles', id: '2' },
+                    { type: 'twitter-handles', id: '3' }
+                  ]
+                }
+              }
+            }
+          }
+        });
+      });
+
+    });
+  });
+});

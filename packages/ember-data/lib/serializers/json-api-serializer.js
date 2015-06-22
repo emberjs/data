@@ -306,7 +306,7 @@ export default JSONSerializer.extend({
 
         let data = hasMany.map((item) => {
           return {
-            type: item.modelName,
+            type: this.payloadKeyFromModelName(item.modelName),
             id: item.id
           };
         });
