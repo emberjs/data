@@ -7,7 +7,7 @@ import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector/lib/system/string';
 
 var dasherize = Ember.String.dasherize;
-var map = Ember.EnumerableUtils.map;
+var map = Ember.ArrayPolyfills.map;
 
 /**
   @class JSONAPISerializer
@@ -37,11 +37,11 @@ export default JSONSerializer.extend({
     if (Ember.typeOf(documentHash.data) === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
     } else {
-      documentHash.data = map(documentHash.data, this._normalizeResourceHelper, this);
+      documentHash.data = map.call(documentHash.data, this._normalizeResourceHelper, this);
     }
 
     if (Ember.typeOf(documentHash.included) === 'array') {
-      documentHash.included = map(documentHash.included, this._normalizeResourceHelper, this);
+      documentHash.included = map.call(documentHash.included, this._normalizeResourceHelper, this);
     }
 
     return documentHash;
@@ -133,7 +133,7 @@ export default JSONSerializer.extend({
     }
 
     if (Ember.typeOf(relationshipHash.data) === 'array') {
-      relationshipHash.data = map(relationshipHash.data, this._normalizeRelationshipDataHelper, this);
+      relationshipHash.data = map.call(relationshipHash.data, this._normalizeRelationshipDataHelper, this);
     }
 
     return relationshipHash;
@@ -327,7 +327,7 @@ export default JSONSerializer.extend({
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
 
-        let data = map(hasMany, (item) => {
+        let data = map.call(hasMany, (item) => {
           return {
             type: this.payloadKeyFromModelName(item.modelName),
             id: item.id
