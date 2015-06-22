@@ -6,6 +6,8 @@
   // logged but they do not result in a failed test.
   Ember.Debug._addDeprecationLevel("ember-data-pushMany", Ember.Debug._deprecationLevels.LOG);
 
+  Ember.Debug._addDeprecationLevel("ember-data-store#push(type, data)", Ember.Debug._deprecationLevels.LOG);
+
   Ember.Debug._addDeprecationLevel("ember-data-shouldBackgroundReloadRecord", Ember.Debug._deprecationLevels.LOG);
   Ember.Debug._addDeprecationLevel("ember-data-shouldReloadAll", Ember.Debug._deprecationLevels.LOG);
 
