@@ -3,8 +3,6 @@ import {
   Map
 } from "ember-data/system/map";
 
-import computedPolyfill from "ember-new-computed";
-
 /**
   @module ember-data
 */
@@ -315,7 +313,7 @@ export default function attr(type, options) {
     options: options
   };
 
-  return computedPolyfill({
+  return Ember.computed({
     get: function(key) {
       var internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {

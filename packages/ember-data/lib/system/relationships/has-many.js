@@ -2,7 +2,6 @@
   @module ember-data
 */
 
-import computedPolyfill from "ember-new-computed";
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
@@ -144,7 +143,7 @@ function hasMany(type, options) {
     shouldWarnAsync: shouldWarnAsync
   };
 
-  return computedPolyfill({
+  return Ember.computed({
     get: function(key) {
       if (meta.shouldWarnAsync) {
         Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.hasMany('${type}', { async: false })\` if you wish for a relationship remain synchronous.`);

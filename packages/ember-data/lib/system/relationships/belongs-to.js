@@ -1,5 +1,4 @@
 import Model from 'ember-data/system/model';
-import computedPolyfill from "ember-new-computed";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
 /**
@@ -106,7 +105,7 @@ function belongsTo(modelName, options) {
     shouldWarnAsync: shouldWarnAsync
   };
 
-  return computedPolyfill({
+  return Ember.computed({
     get: function(key) {
       Ember.warn('You provided a serialize option on the "' + key + '" property in the "' + this._internalModel.modelName + '" class, this belongs in the serializer. See DS.Serializer and it\'s implementations http://emberjs.com/api/data/classes/DS.Serializer.html', !opts.hasOwnProperty('serialize'));
       Ember.warn('You provided an embedded option on the "' + key + '" property in the "' + this._internalModel.modelName + '" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin http://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html', !opts.hasOwnProperty('embedded'));
