@@ -2292,7 +2292,7 @@ function _commit(adapter, store, operation, snapshot) {
       var payload, data;
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, snapshot.id, operation);
-        if (payload.included) {
+        if (payload.included && payload.included.length > 0) {
           store.push({ data: payload.included });
         }
         data = convertResourceObject(payload.data);
