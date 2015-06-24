@@ -13,7 +13,6 @@ import {
   MapWithDefault
 } from "ember-data/system/map";
 var get = Ember.get;
-var set = Ember.set;
 
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
@@ -351,20 +350,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
    */
 
   /**
-    @method find
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {String} id
-    @param {DS.Snapshot} snapshot
-    @return {Promise} promise
-    @deprecated Use [findRecord](#method_findRecord) instead
-  */
-  find: function(store, type, id, snapshot) {
-    Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'find'), 'GET');
-  },
-
-  /**
     Called by the store in order to fetch the JSON for a given
     type and ID.
 
@@ -381,11 +366,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord: function(store, type, id, snapshot) {
-    var find = RESTAdapter.prototype.find;
-    if (find !== this.find) {
-      Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
-      return this.find(store, type, id, snapshot);
-    }
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'findRecord'), 'GET');
   },
 
@@ -426,35 +406,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     to the server as parameters.
 
     @private
-    @method findQuery
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {Object} query
-    @return {Promise} promise
-    @deprecated Use [query](#method_query) instead
-  */
-  findQuery: function(store, type, query) {
-    Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
-    var url = this.buildURL(type.modelName, null, null, 'findQuery', query);
-
-    if (this.sortQueryParams) {
-      query = this.sortQueryParams(query);
-    }
-
-    return this.ajax(url, 'GET', { data: query });
-  },
-
-  /**
-    Called by the store in order to fetch a JSON array for
-    the records that match a particular query.
-
-    The `findQuery` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    The `query` argument is a simple JavaScript object that will be passed directly
-    to the server as parameters.
-
-    @private
     @method query
     @param {DS.Store} store
     @param {DS.Model} type
@@ -462,12 +413,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query: function(store, type, query) {
-    var findQuery = RESTAdapter.prototype.findQuery;
-    if (findQuery !== this.findQuery) {
-      Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
-      return this.findQuery(store, type, query);
-    }
-
     var url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -741,28 +686,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     return groupsArray;
   },
 
-
-  /**
-    Takes an ajax response, and returns an error payload.
-
-    @method ajaxError
-    @deprecated Use [handleResponse](#method_handleResponse) instead
-    @param  {Object} jqXHR
-    @param  {Object} responseText
-    @param  {Object} errorThrown
-    @return {Object} jqXHR
-  */
-
-  /**
-    Takes an ajax response, and returns the json payload.
-
-    @method ajaxSuccess
-    @deprecated Use [handleResponse](#method_handleResponse) instead
-    @param  {Object} jqXHR
-    @param  {Object} jsonPayload
-    @return {Object} jsonPayload
-  */
-
   /**
     Takes an ajax response, and returns the json payload or an error.
 
@@ -863,11 +786,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
       hash.success = function(payload, textStatus, jqXHR) {
         let response;
 
-        if (adapter.ajaxSuccess) {
-          Ember.deprecate("`ajaxSuccess` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
-          response = adapter.ajaxSuccess(jqXHR, payload);
-        }
-
         if (!(response instanceof AdapterError)) {
           response = adapter.handleResponse(
             jqXHR.status,
@@ -885,11 +803,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
         let error;
-
-        if (adapter.ajaxError) {
-          Ember.deprecate("`ajaxError` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
-          error = adapter.ajaxError(jqXHR, textStatus, errorThrown);
-        }
 
         if (!(error instanceof Error)) {
           if (errorThrown instanceof Error) {
@@ -1011,18 +924,5 @@ function endsWith(string, suffix) {
     return string.endsWith(suffix);
   }
 }
-
-Object.defineProperty(RESTAdapter.prototype, 'maxUrlLength', {
-  enumerable: false,
-  get: function() {
-    Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
-    return this.maxURLLength;
-  },
-
-  set: function(value) {
-    Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
-    set(this, 'maxURLLength', value);
-  }
-});
 
 export default RESTAdapter;
