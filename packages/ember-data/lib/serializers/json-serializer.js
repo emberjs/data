@@ -656,6 +656,7 @@ var JSONSerializer = Serializer.extend({
     @method normalizePayload
     @param {Object} payload
     @return {Object} the normalized payload
+    @deprecated
   */
   normalizePayload: function(payload) {
     return payload;
@@ -1459,6 +1460,7 @@ var JSONSerializer = Serializer.extend({
     @return {Object} json The deserialized payload
   */
   extractSingle: function(store, typeClass, payload, id, requestType) {
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
     var normalizedPayload = this.normalizePayload(payload);
     return this.normalize(typeClass, normalizedPayload);
   },
@@ -1490,6 +1492,7 @@ var JSONSerializer = Serializer.extend({
     @return {Array} array An array of deserialized objects
   */
   extractArray: function(store, typeClass, arrayPayload, id, requestType) {
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
     var normalizedPayload = this.normalizePayload(arrayPayload);
     var serializer = this;
 

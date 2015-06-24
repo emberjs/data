@@ -438,6 +438,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object} the primary response to the original request
   */
   extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
     var payload = this.normalizePayload(rawPayload);
     var primaryRecord;
 
@@ -592,6 +593,7 @@ var RESTSerializer = JSONSerializer.extend({
       to the original query.
   */
   extractArray: function(store, primaryTypeClass, rawPayload) {
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
     var payload = this.normalizePayload(rawPayload);
     var primaryArray;
 
@@ -670,6 +672,7 @@ var RESTSerializer = JSONSerializer.extend({
       return;
     }
 
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
@@ -1056,6 +1059,8 @@ function _newPushPayload(store, rawPayload) {
     data: [],
     included: []
   };
+
+  Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
   let payload = this.normalizePayload(rawPayload);
 
   for (var prop in payload) {
