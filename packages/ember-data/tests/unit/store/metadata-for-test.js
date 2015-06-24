@@ -29,7 +29,7 @@ test("metadataFor and setMetadataFor should return and set correct metadata", fu
   expect(7);
 
   function metadataKeys(type) {
-    return Ember.keys(store.metadataFor(type));
+    return Object.keys(store.metadataFor(type));
   }
 
   // Currently not using QUnit.deepEqual due to the way deepEqual

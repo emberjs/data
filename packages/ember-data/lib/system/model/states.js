@@ -354,7 +354,7 @@ var DirtyState = {
     },
 
     exit: function(internalModel) {
-      internalModel._inFlightAttributes = Ember.create(null);
+      internalModel._inFlightAttributes = Object.create(null);
     }
   }
 };
@@ -546,7 +546,7 @@ var RootState = {
     saved: {
       setup: function(internalModel) {
         var attrs = internalModel._attributes;
-        var isDirty = Ember.keys(attrs).length > 0;
+        var isDirty = Object.keys(attrs).length > 0;
 
         if (isDirty) {
           internalModel.adapterDidDirty();
