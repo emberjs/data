@@ -107,6 +107,7 @@ var RESTSerializer = JSONSerializer.extend({
     @property normalizeHash
     @type {Object}
     @default undefined
+    @deprecated
   */
 
   /**
@@ -188,6 +189,7 @@ var RESTSerializer = JSONSerializer.extend({
     this.normalizeUsingDeclaredMapping(typeClass, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
+      Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.');
       this.normalizeHash[prop](hash);
     }
 
@@ -1045,6 +1047,7 @@ export default RESTSerializer;
 */
 function _newNormalize(modelClass, resourceHash, prop) {
   if (this.normalizeHash && this.normalizeHash[prop]) {
+    Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.');
     this.normalizeHash[prop](resourceHash);
   }
 }
