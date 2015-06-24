@@ -6,10 +6,8 @@ import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
-import { pushPayload } from "ember-data/system/store/serializer-response";
 
 var camelize = Ember.String.camelize;
-var get = Ember.get;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -168,43 +166,31 @@ var RESTSerializer = JSONSerializer.extend({
     payload.
 
     @method normalize
-    @param {DS.Model} typeClass
-    @param {Object} hash
+    @param {DS.Model} modelClass
+    @param {Object} resourceHash
     @param {String} prop
     @return {Object}
   */
-  normalize: function(typeClass, hash, prop) {
-    if (this.get('isNewSerializerAPI')) {
-      _newNormalize.apply(this, arguments);
-      return this._super(...arguments);
-    }
-
-    this.normalizeId(hash);
-    this.normalizeAttributes(typeClass, hash);
-    this.normalizeRelationships(typeClass, hash);
-
-    this.normalizeUsingDeclaredMapping(typeClass, hash);
-
+  normalize: function(modelClass, resourceHash, prop) {
     if (this.normalizeHash && this.normalizeHash[prop]) {
-      this.normalizeHash[prop](hash);
+      this.normalizeHash[prop](resourceHash);
     }
-
-    this.applyTransforms(typeClass, hash);
-    return hash;
+    return this._super(modelClass, resourceHash, prop);
   },
 
   /*
     Normalizes an array of resource payloads and returns a JSON-API Document
     with primary data and, if any, included data as `{ data, included }`.
 
-    @method normalizeArray
+    @method _normalizeArray
     @param {DS.Store} store
     @param {String} modelName
     @param {Object} arrayHash
     @param {String} prop
     @return {Object}
+    @private
   */
-  normalizeArray: function(store, modelName, arrayHash, prop) {
+  _normalizeArray: function(store, modelName, arrayHash, prop) {
     let documentHash = {
       data: [],
       included: []
@@ -212,8 +198,6 @@ var RESTSerializer = JSONSerializer.extend({
 
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
-
-    Ember.assert(`${this.toString()} has opted into the new serializer API and expects the ${serializer.toString()} it collaborates with to also support the new serializer API by setting its \`isNewSerializerAPI\` property to true.`, get(serializer, 'isNewSerializerAPI'));
 
     arrayHash.forEach((hash) => {
       let { data, included } = serializer.normalize(modelClass, hash, prop);
@@ -314,7 +298,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      let { data, included } = this.normalizeArray(store, typeName, value, prop);
+      let { data, included } = this._normalizeArray(store, typeName, value, prop);
 
       if (included) {
         documentHash.included.push(...included);
@@ -356,273 +340,6 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  /**
-    Called when the server has returned a payload representing
-    a single record, such as in response to a `find` or `save`.
-
-    It is your opportunity to clean up the server's response into the normalized
-    form expected by Ember Data.
-
-    If you want, you can just restructure the top-level of your payload, and
-    do more fine-grained normalization in the `normalize` method.
-
-    For example, if you have a payload like this in response to a request for
-    post 1:
-
-    ```js
-    {
-      "id": 1,
-      "title": "Rails is omakase",
-
-      "_embedded": {
-        "comment": [{
-          "_id": 1,
-          "comment_title": "FIRST"
-        }, {
-          "_id": 2,
-          "comment_title": "Rails is unagi"
-        }]
-      }
-    }
-    ```
-
-    You could implement a serializer that looks like this to get your payload
-    into shape:
-
-    ```app/serializers/post.js
-    import DS from 'ember-data';
-
-    export default DS.RESTSerializer.extend({
-      // First, restructure the top-level so it's organized by type
-      extractSingle: function(store, typeClass, payload, id) {
-        var comments = payload._embedded.comment;
-        delete payload._embedded;
-
-        payload = { comments: comments, post: payload };
-        return this._super(store, typeClass, payload, id);
-      },
-
-      normalizeHash: {
-        // Next, normalize individual comments, which (after `extract`)
-        // are now located under `comments`
-        comments: function(hash) {
-          hash.id = hash._id;
-          hash.title = hash.comment_title;
-          delete hash._id;
-          delete hash.comment_title;
-          return hash;
-        }
-      }
-    })
-    ```
-
-    When you call super from your own implementation of `extractSingle`, the
-    built-in implementation will find the primary record in your normalized
-    payload and push the remaining records into the store.
-
-    The primary record is the single hash found under `post` or the first
-    element of the `posts` array.
-
-    The primary record has special meaning when the record is being created
-    for the first time or updated (`createRecord` or `updateRecord`). In
-    particular, it will update the properties of the record that was saved.
-
-    @method extractSingle
-    @param {DS.Store} store
-    @param {DS.Model} primaryTypeClass
-    @param {Object} rawPayload
-    @param {String} recordId
-    @return {Object} the primary response to the original request
-  */
-  extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
-    var payload = this.normalizePayload(rawPayload);
-    var primaryRecord;
-
-    for (var prop in payload) {
-      var modelName = this.modelNameFromPayloadKey(prop);
-
-      if (!store.modelFactoryFor(modelName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
-        continue;
-      }
-      var isPrimary = this.isPrimaryType(store, modelName, primaryTypeClass);
-      var value = payload[prop];
-
-      if (value === null) {
-        continue;
-      }
-
-      // legacy support for singular resources
-      if (isPrimary && Ember.typeOf(value) !== "array" ) {
-        primaryRecord = this.normalize(primaryTypeClass, value, prop);
-        continue;
-      }
-
-      /*jshint loopfunc:true*/
-      value.forEach((hash) => {
-        var typeName = this.modelNameFromPayloadKey(prop);
-        var type = store.modelFor(typeName);
-        var typeSerializer = store.serializerFor(type.modelName);
-
-        hash = typeSerializer.normalize(type, hash, prop);
-
-        var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord;
-        var isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
-
-        // find the primary record.
-        //
-        // It's either:
-        // * the record with the same ID as the original request
-        // * in the case of a newly created record that didn't have an ID, the first
-        //   record in the Array
-        if (isFirstCreatedRecord || isUpdatedRecord) {
-          primaryRecord = hash;
-        } else {
-          store.push(modelName, hash);
-        }
-      });
-    }
-
-    return primaryRecord;
-  },
-
-  /**
-    Called when the server has returned a payload representing
-    multiple records, such as in response to a `findAll` or `findQuery`.
-
-    It is your opportunity to clean up the server's response into the normalized
-    form expected by Ember Data.
-
-    If you want, you can just restructure the top-level of your payload, and
-    do more fine-grained normalization in the `normalize` method.
-
-    For example, if you have a payload like this in response to a request for
-    all posts:
-
-    ```js
-    {
-      "_embedded": {
-        "post": [{
-          "id": 1,
-          "title": "Rails is omakase"
-        }, {
-          "id": 2,
-          "title": "The Parley Letter"
-        }],
-        "comment": [{
-          "_id": 1,
-          "comment_title": "Rails is unagi",
-          "post_id": 1
-        }, {
-          "_id": 2,
-          "comment_title": "Don't tread on me",
-          "post_id": 2
-        }]
-      }
-    }
-    ```
-
-    You could implement a serializer that looks like this to get your payload
-    into shape:
-
-    ```app/serializers/post.js
-    import DS from 'ember-data';
-
-    export default DS.RESTSerializer.extend({
-      // First, restructure the top-level so it's organized by type
-      // and the comments are listed under a post's `comments` key.
-      extractArray: function(store, type, payload) {
-        var posts = payload._embedded.post;
-        var comments = [];
-        var postCache = {};
-
-        posts.forEach(function(post) {
-          post.comments = [];
-          postCache[post.id] = post;
-        });
-
-        payload._embedded.comment.forEach(function(comment) {
-          comments.push(comment);
-          postCache[comment.post_id].comments.push(comment);
-          delete comment.post_id;
-        });
-
-        payload = { comments: comments, posts: posts };
-
-        return this._super(store, type, payload);
-      },
-
-      normalizeHash: {
-        // Next, normalize individual comments, which (after `extract`)
-        // are now located under `comments`
-        comments: function(hash) {
-          hash.id = hash._id;
-          hash.title = hash.comment_title;
-          delete hash._id;
-          delete hash.comment_title;
-          return hash;
-        }
-      }
-    })
-    ```
-
-    When you call super from your own implementation of `extractArray`, the
-    built-in implementation will find the primary array in your normalized
-    payload and push the remaining records into the store.
-
-    The primary array is the array found under `posts`.
-
-    The primary record has special meaning when responding to `findQuery`
-    or `findHasMany`. In particular, the primary array will become the
-    list of records in the record array that kicked off the request.
-
-    If your primary array contains secondary (embedded) records of the same type,
-    you cannot place these into the primary array `posts`. Instead, place the
-    secondary items into an underscore prefixed property `_posts`, which will
-    push these items into the store and will not affect the resulting query.
-
-    @method extractArray
-    @param {DS.Store} store
-    @param {DS.Model} primaryTypeClass
-    @param {Object} rawPayload
-    @return {Array} The primary array that was returned in response
-      to the original query.
-  */
-  extractArray: function(store, primaryTypeClass, rawPayload) {
-    var payload = this.normalizePayload(rawPayload);
-    var primaryArray;
-
-    for (var prop in payload) {
-      var modelName = prop;
-      var forcedSecondary = false;
-
-      if (prop.charAt(0) === '_') {
-        forcedSecondary = true;
-        modelName = prop.substr(1);
-      }
-
-      var typeName = this.modelNameFromPayloadKey(modelName);
-      if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
-        continue;
-      }
-      var type = store.modelFor(typeName);
-      var typeSerializer = store.serializerFor(type.modelName);
-      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryTypeClass));
-
-      /*jshint loopfunc:true*/
-      var normalizedArray = payload[prop].map((hash) => typeSerializer.normalize(type, hash, prop));
-
-      if (isPrimary) {
-        primaryArray = normalizedArray;
-      } else {
-        store.pushMany(typeName, normalizedArray);
-      }
-    }
-
-    return primaryArray;
-  },
-
   isPrimaryType: function(store, typeName, primaryTypeClass) {
     var typeClass = store.modelFor(typeName);
     return typeClass.modelName === primaryTypeClass.modelName;
@@ -660,12 +377,11 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} rawPayload
   */
   pushPayload: function(store, rawPayload) {
-    if (this.get('isNewSerializerAPI')) {
-      _newPushPayload.apply(this, arguments);
-      return;
-    }
-
-    var payload = this.normalizePayload(rawPayload);
+    let documentHash = {
+      data: [],
+      included: []
+    };
+    let payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
@@ -673,16 +389,20 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var typeClass = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(modelName);
+      var type = store.modelFor(modelName);
+      var typeSerializer = store.serializerFor(type.modelName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = Ember.makeArray(payload[prop]).map((hash) => {
-        return typeSerializer.normalize(typeClass, hash, prop);
+      Ember.makeArray(payload[prop]).forEach((hash) => {
+        let { data, included } = typeSerializer.normalize(type, hash, prop);
+        documentHash.data.push(data);
+        if (included) {
+          documentHash.included.push(...included);
+        }
       });
-
-      store.pushMany(modelName, normalizedArray);
     }
+
+    store.push(documentHash);
   },
 
   /**
@@ -1026,51 +746,3 @@ Ember.runInDebug(function() {
 });
 
 export default RESTSerializer;
-
-/*
-  @method _newNormalize
-  @param {DS.Model} modelClass
-  @param {Object} resourceHash
-  @param {String} prop
-  @return {Object}
-  @private
-*/
-function _newNormalize(modelClass, resourceHash, prop) {
-  if (this.normalizeHash && this.normalizeHash[prop]) {
-    this.normalizeHash[prop](resourceHash);
-  }
-}
-
-/*
-  @method _newPushPayload
-  @param {DS.Store} store
-  @param {Object} rawPayload
-*/
-function _newPushPayload(store, rawPayload) {
-  let documentHash = {
-    data: [],
-    included: []
-  };
-  let payload = this.normalizePayload(rawPayload);
-
-  for (var prop in payload) {
-    var modelName = this.modelNameFromPayloadKey(prop);
-    if (!store.modelFactoryFor(modelName)) {
-      Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
-      continue;
-    }
-    var type = store.modelFor(modelName);
-    var typeSerializer = store.serializerFor(type.modelName);
-
-    /*jshint loopfunc:true*/
-    Ember.makeArray(payload[prop]).forEach((hash) => {
-      let { data, included } = typeSerializer.normalize(type, hash, prop);
-      documentHash.data.push(data);
-      if (included) {
-        documentHash.included.push(...included);
-      }
-    });
-  }
-
-  pushPayload(store, documentHash);
-}

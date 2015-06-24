@@ -16,16 +16,6 @@ var dasherize = Ember.String.dasherize;
 export default JSONSerializer.extend({
 
   /*
-    This is only to be used temporarily during the transition from the old
-    serializer API to the new one.
-
-    `JSONAPISerializer` only supports the new Serializer API.
-
-    @property isNewSerializerAPI
-  */
-  isNewSerializerAPI: true,
-
-  /*
     @method _normalizeDocumentHelper
     @param {Object} documentHash
     @return {Object}

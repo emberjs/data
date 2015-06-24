@@ -1,14 +1,9 @@
 import Model from 'ember-data/system/model/model';
 
 const get = Ember.get;
+
 /**
   This is a helper method that always returns a JSON-API Document.
-
-  If the current serializer has `isNewSerializerAPI` set to `true`
-  this helper calls `normalizeResponse` instead of `extract`.
-
-  All the built-in serializers get `isNewSerializerAPI` set to `true` automatically
-  if the feature flag is enabled.
 
   @method normalizeResponseHelper
   @param {DS.Serializer} serializer
@@ -20,18 +15,14 @@ const get = Ember.get;
   @return {Object} JSON-API Document
 */
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
-  if (serializer.get('isNewSerializerAPI')) {
-    let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
-    // TODO: Remove after metadata refactor
-    if (normalizedResponse.meta) {
-      store._setMetadataFor(modelClass.modelName, normalizedResponse.meta);
-    }
-    return normalizedResponse;
-  } else {
-    Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.');
-    let serializerPayload = serializer.extract(store, modelClass, payload, id, requestType);
-    return _normalizeSerializerPayload(modelClass, serializerPayload);
+  let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
+
+  // TODO: Remove after metadata refactor
+  if (normalizedResponse.meta) {
+    store._setMetadataFor(modelClass.modelName, normalizedResponse.meta);
   }
+
+  return normalizedResponse;
 }
 
 /**
@@ -138,75 +129,6 @@ function normalizeRelationshipData(key, value, relationshipMeta) {
 
   Ember.assert(`A  ${relationshipMeta.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(value)}, but  ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Ember.isArray(value));
   return { id: `${value}`, type: relationshipMeta.type };
-}
-
-/**
-  Push a JSON-API Document to the store.
-
-  This will push both primary data located in `data` and secondary data located
-  in `included` (if present).
-
-  @method pushPayload
-  @param {DS.Store} store
-  @param {Object} payload
-  @return {DS.Model|Array} one or multiple records from `data`
-*/
-export function pushPayload(store, payload) {
-  var result = pushPayloadData(store, payload);
-  pushPayloadIncluded(store, payload);
-  return result;
-}
-
-/**
-  Push the primary data of a JSON-API Document to the store.
-
-  This method only pushes the primary data located in `data`.
-
-  @method pushPayloadData
-  @param {DS.Store} store
-  @param {Object} payload
-  @return {DS.Model|Array} one or multiple records from `data`
-*/
-export function pushPayloadData(store, payload) {
-  var result;
-  if (payload && payload.data) {
-    if (Array.isArray(payload.data)) {
-      result = payload.data.map((item) => _pushResourceObject(store, item));
-    } else {
-      result = _pushResourceObject(store, payload.data);
-    }
-  }
-  return result;
-}
-
-/**
-  Push the secondary data of a JSON-API Document to the store.
-
-  This method only pushes the secondary data located in `included`.
-
-  @method pushPayloadIncluded
-  @param {DS.Store} store
-  @param {Object} payload
-  @return {Array} an array containing zero or more records from `included`
-*/
-export function pushPayloadIncluded(store, payload) {
-  var result;
-  if (payload && payload.included && Array.isArray(payload.included)) {
-    result = payload.included.map((item) => _pushResourceObject(store, item));
-  }
-  return result;
-}
-
-/**
-  Push a single JSON-API Resource Object to the store.
-
-  @method _pushResourceObject
-  @private
-  @param {Object} resourceObject
-  @return {DS.Model} a record
-*/
-export function _pushResourceObject(store, resourceObject) {
-  return store.push({ data: resourceObject });
 }
 
 /**

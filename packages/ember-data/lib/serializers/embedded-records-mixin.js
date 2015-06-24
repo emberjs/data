@@ -404,30 +404,16 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @private
   */
   _extractEmbeddedRecords: function(serializer, store, typeClass, partial) {
-    if (this.get('isNewSerializerAPI')) {
-      return _newExtractEmbeddedRecords.apply(this, arguments);
-    }
-
     typeClass.eachRelationship((key, relationship) => {
       if (serializer.hasDeserializeRecordsOption(key)) {
-        var embeddedTypeClass = store.modelFor(relationship.type);
         if (relationship.kind === "hasMany") {
-          if (relationship.options.polymorphic) {
-            this._extractEmbeddedHasManyPolymorphic(store, key, partial);
-          } else {
-            this._extractEmbeddedHasMany(store, key, embeddedTypeClass, partial);
-          }
+          this._extractEmbeddedHasMany(store, key, partial, relationship);
         }
         if (relationship.kind === "belongsTo") {
-          if (relationship.options.polymorphic) {
-            this._extractEmbeddedBelongsToPolymorphic(store, key, partial);
-          } else {
-            this._extractEmbeddedBelongsTo(store, key, embeddedTypeClass, partial);
-          }
+          this._extractEmbeddedBelongsTo(store, key, partial, relationship);
         }
       }
     });
-
     return partial;
   },
 
@@ -435,96 +421,48 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @method _extractEmbeddedHasMany
    @private
   */
-  _extractEmbeddedHasMany: function(store, key, embeddedTypeClass, hash) {
-    if (this.get('isNewSerializerAPI')) {
-      return _newExtractEmbeddedHasMany.apply(this, arguments);
+  _extractEmbeddedHasMany: function(store, key, hash, relationshipMeta) {
+    let relationshipHash = get(hash, `data.relationships.${key}.data`);
+    if (!relationshipHash) {
+      return;
     }
 
-    if (!hash[key]) {
-      return hash;
-    }
+    let hasMany = relationshipHash.map(item => {
+      let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
+      hash.included = hash.included || [];
+      hash.included.push(data);
+      if (included) {
+        hash.included.push(...included);
+      }
 
-    var ids = [];
-
-    var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
-    hash[key].forEach((data) => {
-      var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-      store.push(embeddedTypeClass.modelName, embeddedRecord);
-      ids.push(embeddedRecord.id);
+      return { id: data.id, type: data.type };
     });
 
-    hash[key] = ids;
-    return hash;
-  },
-
-  /**
-   @method _extractEmbeddedHasManyPolymorphic
-   @private
-  */
-  _extractEmbeddedHasManyPolymorphic: function(store, key, hash) {
-    if (!hash[key]) {
-      return hash;
-    }
-
-    var ids = [];
-
-    hash[key].forEach((data) => {
-      var modelName = data.type;
-      var embeddedSerializer = store.serializerFor(modelName);
-      var embeddedTypeClass = store.modelFor(modelName);
-      // var primaryKey = embeddedSerializer.get('primaryKey');
-
-      var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-      store.push(embeddedTypeClass.modelName, embeddedRecord);
-      ids.push({ id: embeddedRecord.id, type: modelName });
-    });
-
-    hash[key] = ids;
-    return hash;
+    let relationship = { data: hasMany };
+    set(hash, `data.relationships.${key}`, relationship);
   },
 
   /**
    @method _extractEmbeddedBelongsTo
    @private
   */
-  _extractEmbeddedBelongsTo: function(store, key, embeddedTypeClass, hash) {
-    if (this.get('isNewSerializerAPI')) {
-      return _newExtractEmbeddedBelongsTo.apply(this, arguments);
+  _extractEmbeddedBelongsTo: function(store, key, hash, relationshipMeta) {
+    let relationshipHash = get(hash, `data.relationships.${key}.data`);
+    if (!relationshipHash) {
+      return;
     }
 
-    if (!hash[key]) {
-      return hash;
+    let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
+    hash.included = hash.included || [];
+    hash.included.push(data);
+    if (included) {
+      hash.included.push(...included);
     }
 
-    var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
-    var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, hash[key], null);
-    store.push(embeddedTypeClass.modelName, embeddedRecord);
+    let belongsTo = { id: data.id, type: data.type };
+    let relationship = { data: belongsTo };
 
-    hash[key] = embeddedRecord.id;
-    return hash;
-  },
-
-  /**
-   @method _extractEmbeddedBelongsToPolymorphic
-   @private
-  */
-  _extractEmbeddedBelongsToPolymorphic: function(store, key, hash) {
-    if (!hash[key]) {
-      return hash;
-    }
-
-    var data = hash[key];
-    var modelName = data.type;
-    var embeddedSerializer = store.serializerFor(modelName);
-    var embeddedTypeClass = store.modelFor(modelName);
-    // var primaryKey = embeddedSerializer.get('primaryKey');
-
-    var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-    store.push(embeddedTypeClass.modelName, embeddedRecord);
-
-    hash[key] = embeddedRecord.id;
-    hash[key + 'Type'] = modelName;
-    return hash;
+    set(hash, `data.relationships.${key}`, relationship);
   },
 
   /**
@@ -544,69 +482,3 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 });
 
 export default EmbeddedRecordsMixin;
-
-/*
- @method _newExtractEmbeddedRecords
- @private
-*/
-function _newExtractEmbeddedRecords(serializer, store, typeClass, partial) {
-  typeClass.eachRelationship((key, relationship) => {
-    if (serializer.hasDeserializeRecordsOption(key)) {
-      if (relationship.kind === "hasMany") {
-        this._extractEmbeddedHasMany(store, key, partial, relationship);
-      }
-      if (relationship.kind === "belongsTo") {
-        this._extractEmbeddedBelongsTo(store, key, partial, relationship);
-      }
-    }
-  });
-  return partial;
-}
-
-/*
- @method _newExtractEmbeddedHasMany
- @private
-*/
-function _newExtractEmbeddedHasMany(store, key, hash, relationshipMeta) {
-  let relationshipHash = get(hash, `data.relationships.${key}.data`);
-  if (!relationshipHash) {
-    return;
-  }
-
-  let hasMany = relationshipHash.map(item => {
-    let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
-    hash.included = hash.included || [];
-    hash.included.push(data);
-    if (included) {
-      hash.included.push(...included);
-    }
-
-    return { id: data.id, type: data.type };
-  });
-
-  let relationship = { data: hasMany };
-  set(hash, `data.relationships.${key}`, relationship);
-}
-
-/*
- @method _newExtractEmbeddedBelongsTo
- @private
-*/
-function _newExtractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
-  let relationshipHash = get(hash, `data.relationships.${key}.data`);
-  if (!relationshipHash) {
-    return;
-  }
-
-  let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash);
-  hash.included = hash.included || [];
-  hash.included.push(data);
-  if (included) {
-    hash.included.push(...included);
-  }
-
-  let belongsTo = { id: data.id, type: data.type };
-  let relationship = { data: belongsTo };
-
-  set(hash, `data.relationships.${key}`, relationship);
-}
