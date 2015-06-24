@@ -55,57 +55,6 @@ var camelize = Ember.String.camelize;
 var RESTSerializer = JSONSerializer.extend({
 
   /**
-    If you want to do normalizations specific to some part of the payload, you
-    can specify those under `normalizeHash`.
-
-    For example, given the following json where the the `IDs` under
-    `"comments"` are provided as `_id` instead of `id`.
-
-    ```javascript
-    {
-      "post": {
-        "id": 1,
-        "title": "Rails is omakase",
-        "comments": [ 1, 2 ]
-      },
-      "comments": [{
-        "_id": 1,
-        "body": "FIRST"
-      }, {
-        "_id": 2,
-        "body": "Rails is unagi"
-      }]
-    }
-    ```
-
-    You use `normalizeHash` to normalize just the comments:
-
-    ```app/serializers/post.js
-    import DS from 'ember-data';
-
-    export default DS.RESTSerializer.extend({
-      normalizeHash: {
-        comments: function(hash) {
-          hash.id = hash._id;
-          delete hash._id;
-          return hash;
-        }
-      }
-    });
-    ```
-
-    The key under `normalizeHash` is usually just the original key
-    that was in the original payload. However, key names will be
-    impacted by any modifications done in the `normalizePayload`
-    method. The `DS.RESTSerializer`'s default implementation makes no
-    changes to the payload keys.
-
-    @property normalizeHash
-    @type {Object}
-    @default undefined
-  */
-
-  /**
     Normalizes a part of the JSON payload returned by
     the server. You should override this method, munge the hash
     and call super if you have generic normalization to do.
@@ -374,14 +323,13 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method pushPayload
     @param {DS.Store} store
-    @param {Object} rawPayload
+    @param {Object} payload
   */
-  pushPayload: function(store, rawPayload) {
+  pushPayload: function(store, payload) {
     let documentHash = {
       data: [],
       included: []
     };
-    let payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
@@ -700,19 +648,6 @@ var RESTSerializer = JSONSerializer.extend({
   */
   payloadKeyFromModelName: function(modelName) {
     return camelize(modelName);
-  },
-
-  /**
-   Deprecated. Use modelNameFromPayloadKey instead
-
-    @method typeForRoot
-    @param {String} modelName
-    @return {String}
-    @deprecated
-  */
-  typeForRoot: function(modelName) {
-    Ember.deprecate("typeForRoot is deprecated. Use modelNameFromPayloadKey instead.");
-    return this.modelNameFromPayloadKey(modelName);
   },
 
   /**
