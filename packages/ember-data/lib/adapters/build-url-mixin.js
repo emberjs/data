@@ -51,16 +51,10 @@ export default Ember.Mixin.create({
   */
   buildURL: function(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
-      case 'find':
-        // The `find` case is deprecated
-        return this.urlForFind(id, modelName, snapshot);
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);
       case 'findAll':
         return this.urlForFindAll(modelName);
-      case 'findQuery':
-        // The `findQuery` case is deprecated
-        return this.urlForFindQuery(query, modelName);
       case 'query':
         return this.urlForQuery(query, modelName);
       case 'findMany':
@@ -115,22 +109,8 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @param {DS.Snapshot} snapshot
    * @return {String} url
-   * @deprecated Use [urlForFindRecord](#method_urlForFindRecord) instead
-   */
-  urlForFind: urlForFind,
-
-  /**
-   * @method urlForFind
-   * @param {String} id
-   * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
-   * @return {String} url
    */
   urlForFindRecord: function(id, modelName, snapshot) {
-    if (this.urlForFind !== urlForFind) {
-      Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
-      return this.urlForFind(id, modelName, snapshot);
-    }
     return this._buildURL(modelName, id);
   },
 
@@ -144,25 +124,12 @@ export default Ember.Mixin.create({
   },
 
   /**
-   * @method urlForFindQuery
-   * @param {Object} query
-   * @param {String} modelName
-   * @return {String} url
-   * @deprecated Use [urlForQuery](#method_urlForQuery) instead
-   */
-  urlForFindQuery: urlForFindQuery,
-
-  /**
    * @method urlForQuery
    * @param {Object} query
    * @param {String} modelName
    * @return {String} url
    */
   urlForQuery: function(query, modelName) {
-    if (this.urlForFindQuery !== urlForFindQuery) {
-      Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
-      return this.urlForFindQuery(query, modelName);
-    }
     return this._buildURL(modelName);
   },
 
@@ -303,13 +270,3 @@ export default Ember.Mixin.create({
     return Ember.String.pluralize(camelized);
   }
 });
-
-function urlForFind(id, modelName, snapshot) {
-  Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
-  return this._buildURL(modelName, id);
-}
-
-function urlForFindQuery(query, modelName) {
-  Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
-  return this._buildURL(modelName);
-}
