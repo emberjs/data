@@ -104,7 +104,7 @@ test("a record's changes can be made if it fails to save", function() {
 
       equal(person.get('firstName'), "Tom");
       equal(person.get('isError'), false);
-      equal(Ember.keys(person.changedAttributes()).length, 0);
+      equal(Object.keys(person.changedAttributes()).length, 0);
     });
   });
 });

@@ -105,7 +105,7 @@ test("can unload all records", function () {
 test("Unloading all records for a given type clears saved meta data.", function () {
 
   function metadataKeys(type) {
-    return Ember.keys(env.store.metadataFor(type));
+    return Object.keys(env.store.metadataFor(type));
   }
 
   run(function() {
