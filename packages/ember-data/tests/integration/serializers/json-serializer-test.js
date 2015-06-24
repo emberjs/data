@@ -198,11 +198,11 @@ test("serializePolymorphicType async", function() {
   env.container.lookup('serializer:comment').serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
 });
 
-test("extractArray normalizes each record in the array", function() {
+test("normalizeResponse normalizes each record in the array", function() {
   var postNormalizeCount = 0;
   var posts = [
-    { title: "Rails is omakase" },
-    { title: "Another Post" }
+    { id: "1", title: "Rails is omakase" },
+    { id: "2", title: "Another Post" }
   ];
 
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
@@ -213,7 +213,7 @@ test("extractArray normalizes each record in the array", function() {
   }));
 
   run(function() {
-    env.container.lookup("serializer:post").extractArray(env.store, Post, posts);
+    env.container.lookup("serializer:post").normalizeResponse(env.store, Post, posts, null, 'findAll');
   });
   equal(postNormalizeCount, 2, "two posts are normalized");
 });
@@ -227,14 +227,15 @@ test('Serializer should respect the attrs hash when extracting records', functio
   }));
 
   var jsonHash = {
+    id: "1",
     title_payload_key: "Rails is omakase",
     my_comments: [1, 2]
   };
 
-  var post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+  var post = env.container.lookup("serializer:post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  equal(post.title, "Rails is omakase");
-  deepEqual(post.comments, [1,2]);
+  equal(post.data.attributes.title, "Rails is omakase");
+  deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }, { id: "2", type: "comment" }]);
 });
 
 test('Serializer should respect the attrs hash when serializing records', function() {
@@ -437,11 +438,11 @@ test("Serializer should respect the primaryKey attribute when extracting records
   var jsonHash = { "_ID_": 1, title: "Rails is omakase" };
 
   run(function() {
-    post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+    post = env.container.lookup("serializer:post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
   });
 
-  equal(post.id, "1");
-  equal(post.title, "Rails is omakase");
+  equal(post.data.id, "1");
+  equal(post.data.attributes.title, "Rails is omakase");
 });
 
 test("Serializer should respect the primaryKey attribute when serializing records", function() {
@@ -469,8 +470,8 @@ test("Serializer should respect keyForAttribute when extracting records", functi
 
   post = env.container.lookup("serializer:post").normalize(Post, jsonHash);
 
-  equal(post.id, "1");
-  equal(post.title, "Rails is omakase");
+  equal(post.data.id, "1");
+  equal(post.data.attributes.title, "Rails is omakase");
 });
 
 test("Serializer should respect keyForRelationship when extracting records", function() {
@@ -484,29 +485,7 @@ test("Serializer should respect keyForRelationship when extracting records", fun
 
   post = env.container.lookup("serializer:post").normalize(Post, jsonHash);
 
-  deepEqual(post.comments, ['1']);
-});
-
-test("normalizePayload is called during extractSingle", function() {
-  env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    normalizePayload: function(payload) {
-      return payload.response;
-    }
-  }));
-
-  var jsonHash = {
-    response: {
-      id: 1,
-      title: "Rails is omakase"
-    }
-  };
-
-  run(function() {
-    post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
-  });
-
-  equal(post.id, "1");
-  equal(post.title, "Rails is omakase");
+  deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }]);
 });
 
 test("Calling normalize should normalize the payload (only the passed keys)", function () {
@@ -538,10 +517,19 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
   });
 
   deepEqual(normalizedPayload, {
-    id: '1',
-    title: 'Ember rocks',
-    author: 1,
-    inHash: 'blah'
+    "data": {
+      "id": "1",
+      "type": "post",
+      "attributes": {
+        "inHash": "blah",
+        "title": "Ember rocks"
+      },
+      "relationships": {
+        "author": {
+          "data": { "id": "1", "type": "person" }
+        }
+      }
+    }
   });
 });
 
@@ -623,4 +611,27 @@ test('extractErrors leaves payload untouched if it has no errors property', func
   var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
 
   deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
+});
+
+test('normalizeResponse should extract meta using extractMeta', function() {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    extractMeta: function(store, modelClass, payload) {
+      let meta = this._super(...arguments);
+      meta.authors.push('Tomhuda');
+      return meta;
+    }
+  }));
+
+  var jsonHash = {
+    id: "1",
+    title_payload_key: "Rails is omakase",
+    my_comments: [1, 2],
+    meta: {
+      authors: ['Tomster']
+    }
+  };
+
+  var post = env.container.lookup("serializer:post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
 });

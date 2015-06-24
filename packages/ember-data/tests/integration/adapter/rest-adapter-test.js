@@ -1922,3 +1922,36 @@ test('findAll resolves with a collection of DS.Models, not DS.InternalModels', (
   });
 
 });
+
+test("create - sideloaded records are pushed to the store", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment')
+  });
+
+  ajaxResponse({
+    post: {
+      id: 1,
+      name: 'The Parley Letter',
+      comments: [2, 3]
+    },
+    comments: [{
+      id: 2,
+      name: 'First comment'
+    }, {
+      id: 3,
+      name: 'Second comment'
+    }]
+  });
+  var post;
+
+  run(function() {
+    post = store.createRecord('post', { name: 'The Parley Letter' });
+    post.save().then(function(post) {
+      var comments = store.peekAll('comment');
+
+      equal(get(comments, 'length'), 2, 'comments.length is correct');
+      equal(get(comments, 'firstObject.name'), 'First comment', 'comments.firstObject.name is correct');
+      equal(get(comments, 'lastObject.name'), 'Second comment', 'comments.lastObject.name is correct');
+    });
+  });
+});
