@@ -984,7 +984,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
 });
 
 function parseResponseHeaders(headerStr) {
-  var headers = Ember.create(null);
+  var headers = Object.create(null);
   if (!headerStr) { return headers; }
 
   var headerPairs = headerStr.split('\u000d\u000a');
