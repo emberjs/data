@@ -1,4 +1,3 @@
-var get = Ember.get;
 var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, env;
 var run = Ember.run;
 
@@ -57,8 +56,75 @@ test("modelNameFromPayloadKey returns always same modelName even for uncountable
   equal(env.restSerializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
 });
 
-test("extractSingle warning with custom modelNameFromPayloadKey", function() {
+test('normalizeResponse should extract meta using extractMeta', function() {
+  env.registry.register("serializer:home-planet", DS.RESTSerializer.extend({
+    extractMeta: function(store, modelClass, payload) {
+      let meta = this._super(...arguments);
+      meta.authors.push('Tomhuda');
+      return meta;
+    }
+  }));
+
+  var jsonHash = {
+    meta: { authors: ['Tomster'] },
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
+  };
+
+  var json = env.container.lookup("serializer:home-planet").normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+
+  deepEqual(json.meta.authors, ['Tomster', 'Tomhuda']);
+});
+
+test("normalizeResponse with custom modelNameFromPayloadKey", function() {
+  expect(1);
+
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
+    var camelized = Ember.String.camelize(root);
+    return Ember.String.singularize(camelized);
+  };
+
+  var jsonHash = {
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+    super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
+  };
+  var array;
+
+  run(function() {
+    array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
+  });
+
+  deepEqual(array, {
+    data: {
+      id: '1',
+      type: 'home-planet',
+      attributes: {
+        name: 'Umber'
+      },
+      relationships: {
+        superVillains: {
+          data: [{ id: '1', type: 'super-villain' }]
+        }
+      }
+    },
+    included: [{
+      id: '1',
+      type: 'super-villain',
+      attributes: {
+        firstName: 'Tom',
+        lastName: 'Dale'
+      },
+      relationships: {
+        homePlanet: {
+          data: { id: '1', type: 'home-planet' }
+        }
+      }
+    }]
+  });
+});
+
+test("normalizeResponse warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
+  var oldModelNameFromPayloadKey = env.restSerializer.modelNameFromPayloadKey;
   env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
     return "garbage";
@@ -70,9 +136,41 @@ test("extractSingle warning with custom modelNameFromPayloadKey", function() {
 
   warns(Ember.run.bind(null, function() {
     run(function() {
-      env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
+      env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
   }), /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
+
+  // should not warn if a model is found.
+  env.restSerializer.modelNameFromPayloadKey = oldModelNameFromPayloadKey;
+  jsonHash = {
+    home_planet: { id: "1", name: "Umber", superVillains: [1] }
+  };
+
+  noWarns(function() {
+    run(function() {
+
+      homePlanet = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
+    });
+  });
+
+  equal(homePlanet.data.attributes.name, "Umber");
+  deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
+});
+
+test("normalizeResponse warning with custom modelNameFromPayloadKey", function() {
+  var homePlanets;
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
+    //return some garbage that won"t resolve in the container
+    return "garbage";
+  };
+
+  var jsonHash = {
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
+  };
+
+  warns(function() {
+    env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+  }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
   // should not warn if a model is found.
   env.restSerializer.modelNameFromPayloadKey = function(root) {
@@ -80,17 +178,18 @@ test("extractSingle warning with custom modelNameFromPayloadKey", function() {
   };
 
   jsonHash = {
-    home_planet: { id: "1", name: "Umber", superVillains: [1] }
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
   noWarns(function() {
     run(function() {
-      homePlanet = env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
+      homePlanets = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
     });
   });
 
-  equal(get(homePlanet, "name"), "Umber");
-  deepEqual(get(homePlanet, "superVillains"), [1]);
+  equal(homePlanets.data.length, 1);
+  equal(homePlanets.data[0].attributes.name, "Umber");
+  deepEqual(homePlanets.data[0].relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
 });
 
 test("serialize polymorphicType", function() {
@@ -122,30 +221,6 @@ test("serialize polymorphicType with decamelized modelName", function() {
   deepEqual(json["evilMinionType"], "yellowMinion");
 });
 
-test("normalizePayload is called during extractSingle", function() {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizePayload: function(payload) {
-      return payload.response;
-    }
-  }));
-
-  var jsonHash = {
-    response: {
-      evilMinion: { id: "1", name: "Tom Dale", superVillain: 1 },
-      superVillains: [{ id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1" }]
-    }
-  };
-
-  var applicationSerializer = env.container.lookup('serializer:application');
-  var data;
-
-  run(function() {
-    data = applicationSerializer.extractSingle(env.store, EvilMinion, jsonHash);
-  });
-
-  equal(data.name, jsonHash.response.evilMinion.name, "normalize reads off the response");
-
-});
 test("serialize polymorphic when associated object is null", function() {
   var ray;
   run(function() {
@@ -157,7 +232,7 @@ test("serialize polymorphic when associated object is null", function() {
   deepEqual(json["evilMinionType"], null);
 });
 
-test("extractSingle loads secondary records with correct serializer", function() {
+test("normalizeResponse loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
@@ -173,13 +248,13 @@ test("extractSingle loads secondary records with correct serializer", function()
   };
 
   run(function() {
-    env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+    env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, '1', 'findRecord');
   });
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-test("extractSingle returns null if payload contains null", function() {
+test("normalizeResponse returns null if payload contains null", function() {
   expect(1);
 
   var jsonHash = {
@@ -188,13 +263,13 @@ test("extractSingle returns null if payload contains null", function() {
   var value;
 
   run(function() {
-    value = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+    value = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findRecord');
   });
 
-  equal(value, null, "returned value is null");
+  deepEqual(value, { data: null, included: [] }, "returned value is null");
 });
 
-test("extractArray loads secondary records with correct serializer", function() {
+test("normalizeResponse loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
@@ -210,7 +285,7 @@ test("extractArray loads secondary records with correct serializer", function() 
   };
 
   run(function() {
-    env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+    env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
   });
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
@@ -233,14 +308,27 @@ test('normalizeHash normalizes specific parts of the payload', function() {
   var array;
 
   run(function() {
-    array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
+    array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
   });
 
-  deepEqual(array, [{
-    "id": "1",
-    "name": "Umber",
-    "superVillains": [1]
-  }]);
+  deepEqual(array, {
+    "data": [{
+      "id": "1",
+      "type": "home-planet",
+      "attributes": {
+        "name": "Umber"
+      },
+      "relationships": {
+        "superVillains": {
+          "data": [
+            { "id": "1", "type": "super-villain" }
+          ]
+        }
+      }
+    }],
+    "included": []
+  });
+
 });
 
 test('normalizeHash works with transforms', function() {
@@ -279,10 +367,10 @@ test('normalizeHash works with transforms', function() {
   var array;
 
   run(function() {
-    array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+    array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
   });
 
-  equal(array[0].condition, "healing");
+  equal(array.data[0].attributes.condition, "healing");
 });
 
 test('normalize should allow for different levels of normalization', function() {
@@ -301,10 +389,10 @@ test('normalize should allow for different levels of normalization', function() 
   var array;
 
   run(function() {
-    array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+    array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
   });
 
-  equal(array[0].superVillain, 1);
+  equal(array.data[0].relationships.superVillain.data.id, 1);
 });
 
 test("serializeIntoHash", function() {
@@ -379,5 +467,56 @@ test('typeForRoot is deprecated', function() {
   expectDeprecation(function() {
     Ember.Inflector.inflector.uncountable('words');
     return env.restSerializer.typeForRoot('multi_words');
+  });
+});
+
+test("normalizeResponse can load secondary records of the same type without affecting the query count", function() {
+  var jsonHash = {
+    comments: [{ id: "1", body: "Parent Comment", root: true, children: [2, 3] }],
+    _comments: [
+      { id: "2", body: "Child Comment 1", root: false },
+      { id: "3", body: "Child Comment 2", root: false }
+    ]
+  };
+  var array;
+
+  run(function() {
+    array = env.restSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
+  });
+
+  deepEqual(array, {
+    "data": {
+      "id": "1",
+      "type": "comment",
+      "attributes": {
+        "body": "Parent Comment",
+        "root": true
+      },
+      "relationships": {
+        "children": {
+          "data": [
+            { "id": "2", "type": "comment" },
+            { "id": "3", "type": "comment" }
+          ]
+        }
+      }
+    },
+    "included": [{
+      "id": "2",
+      "type": "comment",
+      "attributes": {
+        "body": "Child Comment 1",
+        "root": false
+      },
+      "relationships": {}
+    }, {
+      "id": "3",
+      "type": "comment",
+      "attributes": {
+        "body": "Child Comment 2",
+        "root": false
+      },
+      "relationships": {}
+    }]
   });
 });

@@ -154,7 +154,7 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
       lastName: "Jackson"
     });
 
-    store.push('person', store.normalize('person', {
+    store.push(store.normalize('person', {
       id: '1',
       firstName: "Jacquie"
     }));

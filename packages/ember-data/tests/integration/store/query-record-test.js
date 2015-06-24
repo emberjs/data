@@ -1,4 +1,4 @@
-var Person, store, env, TestSerializer;
+var Person, store, env;
 var run = Ember.run;
 
 module("integration/store/query-record - Query one record with a query hash", {
@@ -14,10 +14,6 @@ module("integration/store/query-record - Query one record with a query hash", {
       person: Person
     });
     store = env.store;
-
-    TestSerializer = DS.JSONAPISerializer.extend({
-      isNewSerializerAPI: true
-    });
   },
 
   teardown: function() {
@@ -69,7 +65,7 @@ test("When a record is requested, and the promise is rejected, .queryRecord() is
 test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function() {
   expect(1);
 
-  env.registry.register('serializer:person', TestSerializer.extend({
+  env.registry.register('serializer:person', DS.JSONAPISerializer.extend({
     normalizeQueryRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
       equal(payload.data.id , '1', "the normalizeQueryRecordResponse method was called with the right payload");
       return this._super(...arguments);
