@@ -22,8 +22,38 @@ test("belongsTo lazily loads relationships as needed", function() {
   var store = env.store;
 
   run(function() {
-    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-    store.push('person', { id: 1, name: "Tom Dale", tag: 5 });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '5',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'smarmy'
+        }
+      }, {
+        type: 'tag',
+        id: '12',
+        attributes: {
+          name: 'oohlala'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '5' }
+          }
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -96,8 +126,26 @@ test("async belongsTo relationships work when the data hash has already been loa
   var store = env.store;
 
   run(function() {
-    store.push('tag', { id: 2, name: "friendly" });
-    store.push('person', { id: 1, name: "Tom Dale", tag: 2 });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '2' }
+          }
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -166,7 +214,23 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
   env.adapter.coalesceFindRequests = true;
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale", occupations: [5, 2] });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          occupations: {
+            data: [
+              { type: 'occupation', id: '5' },
+              { type: 'occupation', id: '2' }
+            ]
+          }
+        }
+      }
+    });
   });
 
   run(function() {
@@ -210,7 +274,20 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   };
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale", occupation: 5 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          occupation: {
+            data: { type: 'occupation', id: '5' }
+          }
+        }
+      }
+    });
   });
 
   run(function() {
@@ -237,8 +314,38 @@ test("belongsTo supports relationships to models with id 0", function() {
   var store = env.store;
 
   run(function() {
-    store.pushMany('tag', [{ id: 0, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-    store.push('person', { id: 1, name: "Tom Dale", tag: 0 });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '0',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'smarmy'
+        }
+      }, {
+        type: 'tag',
+        id: '12',
+        attributes: {
+          name: 'oohlala'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '0' }
+          }
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -270,8 +377,32 @@ test("belongsTo gives a warning when provided with a serialize option", function
   var store = env.store;
 
   run(function() {
-    store.pushMany('hobby', [{ id: 1, name: "fishing" }, { id: 1, name: "coding" }]);
-    store.push('person', { id: 1, name: "Tom Dale", hobby: 1 });
+    store.push({
+      data: [{
+        type: 'hobby',
+        id: '1',
+        attributes: {
+          name: 'fishing'
+        }
+      }, {
+        type: 'hobby',
+        id: '2',
+        attributes: {
+          name: 'coding'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          hobby: {
+            data: { type: 'hobby', id: '1' }
+          }
+        }
+      }]
+    });
   });
 
   warns(function() {
@@ -299,8 +430,32 @@ test("belongsTo gives a warning when provided with an embedded option", function
   var store = env.store;
 
   run(function() {
-    store.pushMany('hobby', [{ id: 1, name: "fishing" }, { id: 1, name: "coding" }]);
-    store.push('person', { id: 1, name: "Tom Dale", hobby: 1 });
+    store.push({
+      data: [{
+        type: 'hobby',
+        id: '1',
+        attributes: {
+          name: 'fishing'
+        }
+      }, {
+        type: 'hobby',
+        id: '2',
+        attributes: {
+          name: 'coding'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          hobby: {
+            data: { type: 'hobby', id: '1' }
+          }
+        }
+      }]
+    });
   });
 
   warns(function() {

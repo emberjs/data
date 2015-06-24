@@ -4,6 +4,7 @@
 
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";
+import isArrayLike from "ember-data/system/is-array-like";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -145,7 +146,7 @@ function hasMany(type, options) {
     set: function(key, records) {
       var relationship = this._internalModel._relationships.get(key);
       relationship.clear();
-      Ember.assert("You must pass an array of records to set a hasMany relationship", Ember.isArray(records));
+      Ember.assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
       relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
       return relationship.getRecords();
     }

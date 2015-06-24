@@ -42,10 +42,65 @@ test("hasMany handles pre-loaded relationships", function() {
   var store = env.store;
 
   run(function() {
-    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
-    store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
-    store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
-    store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '5',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'smarmy'
+        }
+      }, {
+        type: 'pet',
+        id: '4',
+        attributes: {
+          name: 'fluffy'
+        }
+      }, {
+        type: 'pet',
+        id: '7',
+        attributes: {
+          name: 'snowy'
+        }
+      }, {
+        type: 'pet',
+        id: '12',
+        attributes: {
+          name: 'cerberus'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '5' }
+            ]
+          }
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Yehuda Katz'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '12' }
+            ]
+          }
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -57,7 +112,23 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(tags.objectAt(0), 'name'), "friendly", "the first tag should be a Tag");
 
       run(function() {
-        store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Tom Dale'
+            },
+            relationships: {
+              tags: {
+                data: [
+                  { type: 'tag', id: '5' },
+                  { type: 'tag', id: '2' }
+                ]
+              }
+            }
+          }
+        });
       });
 
       equal(tags, get(person, 'tags'), "a relationship returns the same object every time");
@@ -67,7 +138,15 @@ test("hasMany handles pre-loaded relationships", function() {
       asyncEqual(get(person, 'tags').objectAt(0), store.findRecord('tag', 5), "relationship objects are the same as objects retrieved directly");
 
       run(function() {
-        store.push('person', { id: 3, name: "KSelden" });
+        store.push({
+          data: {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'KSelden'
+            }
+          }
+        });
       });
 
       return store.findRecord('person', 3);
@@ -75,7 +154,22 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
 
       run(function() {
-        store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4] });
+        store.push({
+          data: {
+            type: 'person',
+            id: '4',
+            attributes: {
+              name: 'Cyvid Hamluck'
+            },
+            relationships: {
+              pets: {
+                data: [
+                  { type: 'pet', id: '4' }
+                ]
+              }
+            }
+          }
+        });
       });
       return store.findRecord('person', 4);
     }).then(function(cyvid) {
@@ -86,7 +180,23 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
       run(function() {
-        store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
+        store.push({
+          data: {
+            type: 'person',
+            id: '4',
+            attributes: {
+              name: 'Cyvid Hamluck'
+            },
+            relationships: {
+              pets: {
+                data: [
+                  { type: 'pet', id: '4' },
+                  { type: 'pet', id: '12' }
+                ]
+              }
+            }
+          }
+        });
       });
 
       equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
@@ -129,10 +239,65 @@ test("hasMany lazily loads async relationships", function() {
   var store = env.store;
 
   run(function() {
-    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
-    store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
-    store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
-    store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '5',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'smarmy'
+        }
+      }, {
+        type: 'pet',
+        id: '4',
+        attributes: {
+          name: 'fluffy'
+        }
+      }, {
+        type: 'pet',
+        id: '7',
+        attributes: {
+          name: 'snowy'
+        }
+      }, {
+        type: 'pet',
+        id: '12',
+        attributes: {
+          name: 'cerberus'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '5' }
+            ]
+          }
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Yehuda Katz'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '12' }
+            ]
+          }
+        }
+      }]
+    });
   });
 
   var wycats;
@@ -248,8 +413,41 @@ test("relationships work when declared with a string path", function() {
   });
 
   run(function() {
-    env.store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-    env.store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
+    env.store.push({
+      data: [{
+        type: 'tag',
+        id: '5',
+        attributes: {
+          name: 'friendly'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'smarmy'
+        }
+      }, {
+        type: 'tag',
+        id: '12',
+        attributes: {
+          name: 'oohlala'
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '5' },
+              { type: 'tag', id: '2' }
+            ]
+          }
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -331,8 +529,28 @@ test("it is possible to add a new item to a relationship", function() {
   var store = env.store;
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale", tags: [1] });
-    store.push('tag', { id: 1, name: "ember" });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' }
+            ]
+          }
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        attributes: {
+          name: 'ember'
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -366,10 +584,47 @@ test("possible to replace items in a relationship using setObjects w/ Ember Enum
   var store = env.store;
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale", tags: [1] });
-    store.push('person', { id: 2, name: "Sylvain Mina", tags: [2] });
-    store.push('tag', { id: 1, name: "ember" });
-    store.push('tag', { id: 2, name: "ember-data" });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' }
+            ]
+          }
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Sylvain Mina'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '2' }
+            ]
+          }
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        attributes: {
+          name: 'ember'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'ember-data'
+        }
+      }]
+    });
   });
 
   var tom, sylvain;
@@ -403,8 +658,28 @@ test("it is possible to remove an item from a relationship", function() {
   var store = env.store;
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale", tags: [1] });
-    store.push('tag', { id: 1, name: "ember" });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' }
+            ]
+          }
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        attributes: {
+          name: 'ember'
+        }
+      }]
+    });
   });
 
   run(function() {

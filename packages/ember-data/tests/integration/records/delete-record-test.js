@@ -31,8 +31,23 @@ test("records should not be removed from record arrays just after deleting, but 
 
   var all;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    dave = env.store.push('person', { id: 2, name: "Dave Sunderland" });
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Dave Sunderland'
+        }
+      }]
+    });
+    adam = env.store.peekRecord('person', 1);
+    dave = env.store.peekRecord('person', 2);
     all  = env.store.peekAll('person');
   });
 
@@ -57,8 +72,23 @@ test("records can be deleted during record array enumeration", function () {
   };
 
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    dave = env.store.push('person', { id: 2, name: "Dave Sunderland" });
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Dave Sunderland'
+        }
+      }]
+    });
+    adam = env.store.peekRecord('person', 1);
+    dave = env.store.peekRecord('person', 2);
   });
   var all = env.store.peekAll('person');
 
@@ -78,8 +108,23 @@ test("records can be deleted during record array enumeration", function () {
 test("when deleted records are rolled back, they are still in their previous record arrays", function () {
   var jaime, cersei;
   run(function() {
-    jaime = env.store.push('person', { id: 1, name: "Jaime Lannister" });
-    cersei = env.store.push('person', { id: 2, name: "Cersei Lannister" });
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Jaime Lannister'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Cersei Lannister'
+        }
+      }]
+    });
+    jaime = env.store.peekRecord('person', 1);
+    cersei = env.store.peekRecord('person', 2);
   });
   var all = env.store.peekAll('person');
   var filtered;

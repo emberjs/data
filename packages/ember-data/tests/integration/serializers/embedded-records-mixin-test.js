@@ -898,7 +898,16 @@ test("serialize with embedded objects (hasMany relationship)", function() {
 test("serialize with embedded objects (unknown hasMany relationship)", function() {
   var league;
   run(function() {
-    league = env.store.push('home-planet', { name: "Villain League", id: "123" });
+    env.store.push({
+      data: {
+        type: 'home-planet',
+        id: '123',
+        attributes: {
+          name: "Villain League"
+        }
+      }
+    });
+    league = env.store.peekRecord('home-planet', 123);
   });
 
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
