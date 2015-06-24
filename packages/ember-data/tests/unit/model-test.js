@@ -593,14 +593,10 @@ var converts = function(type, provided, expected) {
     registry = container;
   }
   var testStore = createStore({ model: Model });
-  var serializer = DS.JSONSerializer.create({
-    store: testStore,
-    container: container
-  });
 
   run(function() {
-    testStore.push('model', serializer.normalize(Model, { id: 1, name: provided }));
-    testStore.push('model', serializer.normalize(Model, { id: 2 }));
+    testStore.push(testStore.normalize('model', { id: 1, name: provided }));
+    testStore.push(testStore.normalize('model', { id: 2 }));
     testStore.findRecord('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
@@ -626,13 +622,9 @@ var convertsFromServer = function(type, provided, expected) {
     registry = container;
   }
   var testStore = createStore({ model: Model });
-  var serializer = DS.JSONSerializer.create({
-    store: testStore,
-    container: container
-  });
 
   run(function() {
-    testStore.push('model', serializer.normalize(Model, { id: "1", name: provided }));
+    testStore.push(testStore.normalize('model', { id: "1", name: provided }));
     testStore.findRecord('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });

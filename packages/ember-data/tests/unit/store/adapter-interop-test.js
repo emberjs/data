@@ -227,7 +227,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   });
 });
 
-test("Find with query calls the correct extract", function() {
+test("Find with query calls the correct normalizeResponse", function() {
   var passedQuery = { page: 1 };
 
   var Person = DS.Model.extend({
@@ -243,9 +243,9 @@ test("Find with query calls the correct extract", function() {
   var callCount = 0;
 
   var ApplicationSerializer = DS.JSONSerializer.extend({
-    extractFindQuery: function(store, type, payload) {
+    normalizeQueryResponse: function() {
       callCount++;
-      return [];
+      return this._super(...arguments);
     }
   });
 
@@ -260,7 +260,7 @@ test("Find with query calls the correct extract", function() {
   run(function() {
     store.query('person', passedQuery);
   });
-  equal(callCount, 1, 'extractQuery was called');
+  equal(callCount, 1, 'normalizeQueryResponse was called');
 });
 
 test("peekAll(type) returns a record array of all records of a specific type", function() {

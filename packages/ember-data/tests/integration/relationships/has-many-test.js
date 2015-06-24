@@ -1464,7 +1464,7 @@ test("metadata is accessible when pushed as a meta property for a relationship",
 
 test("metadata is accessible when return from a fetchLink", function() {
   expect(1);
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
+  env.registry.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     return resolve({
@@ -1494,7 +1494,7 @@ test("metadata is accessible when return from a fetchLink", function() {
 
 test("metadata should be reset between requests", function() {
   var counter = 0;
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
+  env.registry.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     var data = {
