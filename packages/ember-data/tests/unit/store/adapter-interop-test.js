@@ -1034,7 +1034,7 @@ test("store should not reload record array when shouldReloadAll returns false", 
   });
 
   run(function() {
-    store.find('person');
+    store.findAll('person');
   });
 });
 

@@ -8,7 +8,7 @@ module("DS.DebugAdapter", {
       App = Ember.Application.create();
       App.toString = function() { return 'App'; };
 
-      App.ApplicationStore = DS.Store.extend({
+      App.StoreService = DS.Store.extend({
         adapter: DS.Adapter.extend()
       });
 
