@@ -499,21 +499,23 @@ var JSONSerializer = Serializer.extend({
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(typeClass, hash) {
-    if (this.get('isNewSerializerAPI')) {
-      return _newNormalize.apply(this, arguments);
+  normalize: function(modelClass, resourceHash) {
+    let data = null;
+
+    if (resourceHash) {
+      this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
+
+      data = {
+        id:            this.extractId(resourceHash),
+        type:          modelClass.modelName,
+        attributes:    this.extractAttributes(modelClass, resourceHash),
+        relationships: this.extractRelationships(modelClass, resourceHash)
+      };
+
+      this.applyTransforms(modelClass, data.attributes);
     }
 
-    if (!hash) { return hash; }
-
-    this.normalizeId(hash);
-    this.normalizeAttributes(typeClass, hash);
-    this.normalizeRelationships(typeClass, hash);
-
-    this.normalizeUsingDeclaredMapping(typeClass, hash);
-    this.applyTransforms(typeClass, hash);
-
-    return hash;
+    return { data };
   },
 
   /*
@@ -729,17 +731,6 @@ var JSONSerializer = Serializer.extend({
 
     hash.id = hash[primaryKey];
     delete hash[primaryKey];
-  },
-
-  /**
-    @method normalizeErrors
-    @private
-  */
-  normalizeErrors: function(typeClass, hash) {
-    this.normalizeId(hash);
-    this.normalizeAttributes(typeClass, hash);
-    this.normalizeRelationships(typeClass, hash);
-    this.normalizeUsingDeclaredMapping(typeClass, hash);
   },
 
   /**
@@ -1203,295 +1194,6 @@ var JSONSerializer = Serializer.extend({
   */
   serializePolymorphicType: Ember.K,
 
-  // EXTRACT
-
-  /**
-    The `extract` method is used to deserialize payload data from the
-    server. By default the `JSONSerializer` does not push the records
-    into the store. However records that subclass `JSONSerializer`
-    such as the `RESTSerializer` may push records into the store as
-    part of the extract call.
-
-    This method delegates to a more specific extract method based on
-    the `requestType`.
-
-    To override this method with a custom one, make sure to call
-    `return this._super(store, type, payload, id, requestType)` with your
-    pre-processed data.
-
-    Here's an example of using `extract` manually:
-
-    ```javascript
-    socket.on('message', function(message) {
-      var data = message.data;
-      var typeClass = store.modelFor(message.modelName);
-      var serializer = store.serializerFor(typeClass.modelName);
-      var record = serializer.extract(store, typeClass, data, data.id, 'single');
-
-      store.push(message.modelName, record);
-    });
-    ```
-
-    @method extract
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extract: function(store, typeClass, payload, id, requestType) {
-    this.extractMeta(store, typeClass.modelName, payload);
-
-    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
-    return this[specificExtract](store, typeClass, payload, id, requestType);
-  },
-
-  /**
-    `extractFindAll` is a hook into the extract method used when a
-    call is made to `DS.Store#findAll`. By default this method is an
-    alias for [extractArray](#method_extractArray).
-
-    @method extractFindAll
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Array} array An array of deserialized objects
-  */
-  extractFindAll: function(store, typeClass, payload, id, requestType) {
-    return this.extractArray(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractFindQuery` is a hook into the extract method used when a
-    call is made to `DS.Store#findQuery`. By default this method is an
-    alias for [extractArray](#method_extractArray).
-
-    @method extractFindQuery
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Array} array An array of deserialized objects
-  */
-  extractFindQuery: function(store, typeClass, payload, id, requestType) {
-    return this.extractArray(store, typeClass, payload, id, requestType);
-  },
-  /**
-    TODO: remove this in a couple of days
-
-    `extractQueryRecord` is a hook into the extract method used when a
-    call is made to `DS.Store#queryRecord`. By default this method is an
-    alias for [extractSingle](#method_extractSingle).
-
-    @method extractQueryRecord
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} object A hash of deserialized object
-  */
-  extractQueryRecord: function(store, typeClass, payload, id, requestType) {
-    return this.extractSingle(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractFindMany` is a hook into the extract method used when a
-    call is made to `DS.Store#findMany`. By default this method is
-    alias for [extractArray](#method_extractArray).
-
-    @method extractFindMany
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Array} array An array of deserialized objects
-  */
-  extractFindMany: function(store, typeClass, payload, id, requestType) {
-    return this.extractArray(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractFindHasMany` is a hook into the extract method used when a
-    call is made to `DS.Store#findHasMany`. By default this method is
-    alias for [extractArray](#method_extractArray).
-
-    @method extractFindHasMany
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Array} array An array of deserialized objects
-  */
-  extractFindHasMany: function(store, typeClass, payload, id, requestType) {
-    return this.extractArray(store, typeClass, payload, id, requestType);
-  },
-
-  /**
-    `extractCreateRecord` is a hook into the extract method used when a
-    call is made to `DS.Model#save` and the record is new. By default
-    this method is alias for [extractSave](#method_extractSave).
-
-    @method extractCreateRecord
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractCreateRecord: function(store, typeClass, payload, id, requestType) {
-    return this.extractSave(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractUpdateRecord` is a hook into the extract method used when
-    a call is made to `DS.Model#save` and the record has been updated.
-    By default this method is alias for [extractSave](#method_extractSave).
-
-    @method extractUpdateRecord
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractUpdateRecord: function(store, typeClass, payload, id, requestType) {
-    return this.extractSave(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractDeleteRecord` is a hook into the extract method used when
-    a call is made to `DS.Model#save` and the record has been deleted.
-    By default this method is alias for [extractSave](#method_extractSave).
-
-    @method extractDeleteRecord
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractDeleteRecord: function(store, typeClass, payload, id, requestType) {
-    return this.extractSave(store, typeClass, payload, id, requestType);
-  },
-
-  /**
-    `extractFind` is a hook into the extract method used when
-    a call is made to `DS.Store#find`. By default this method is
-    alias for [extractSingle](#method_extractSingle).
-
-    @method extractFind
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractFind: function(store, typeClass, payload, id, requestType) {
-    return this.extractSingle(store, typeClass, payload, id, requestType);
-  },
-
-  /**
-    `extractFindBelongsTo` is a hook into the extract method used when
-    a call is made to `DS.Store#findBelongsTo`. By default this method is
-    alias for [extractSingle](#method_extractSingle).
-
-    @method extractFindBelongsTo
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractFindBelongsTo: function(store, typeClass, payload, id, requestType) {
-    return this.extractSingle(store, typeClass, payload, id, requestType);
-  },
-  /**
-    `extractSave` is a hook into the extract method used when a call
-    is made to `DS.Model#save`. By default this method is alias
-    for [extractSingle](#method_extractSingle).
-
-    @method extractSave
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractSave: function(store, typeClass, payload, id, requestType) {
-    return this.extractSingle(store, typeClass, payload, id, requestType);
-  },
-
-  /**
-    `extractSingle` is used to deserialize a single record returned
-    from the adapter.
-
-    Example
-
-    ```app/serializers/post.js
-    import DS from 'ember-data';
-
-    export default DS.JSONSerializer.extend({
-      extractSingle: function(store, typeClass, payload) {
-        payload.comments = payload._embedded.comment;
-        delete payload._embedded;
-
-        return this._super(store, typeClass, payload);
-      },
-    });
-    ```
-
-    @method extractSingle
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} payload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Object} json The deserialized payload
-  */
-  extractSingle: function(store, typeClass, payload, id, requestType) {
-    var normalizedPayload = this.normalizePayload(payload);
-    return this.normalize(typeClass, normalizedPayload);
-  },
-
-  /**
-    `extractArray` is used to deserialize an array of records
-    returned from the adapter.
-
-    Example
-
-    ```app/serializers/post.js
-    import DS from 'ember-data';
-
-    export default DS.JSONSerializer.extend({
-      extractArray: function(store, typeClass, payload) {
-        return payload.map(function(json) {
-          return this.extractSingle(store, typeClass, json);
-        }, this);
-      }
-    });
-    ```
-
-    @method extractArray
-    @param {DS.Store} store
-    @param {DS.Model} typeClass
-    @param {Object} arrayPayload
-    @param {(String|Number)} id
-    @param {String} requestType
-    @return {Array} array An array of deserialized objects
-  */
-  extractArray: function(store, typeClass, arrayPayload, id, requestType) {
-    var normalizedPayload = this.normalizePayload(arrayPayload);
-    return normalizedPayload.map((singlePayload) => this.normalize(typeClass, singlePayload));
-  },
-
   /**
     `extractMeta` is used to deserialize any meta information in the
     adapter payload. By default Ember Data expects meta information to
@@ -1514,17 +1216,14 @@ var JSONSerializer = Serializer.extend({
 
     @method extractMeta
     @param {DS.Store} store
-    @param {DS.Model} typeClass
+    @param {DS.Model} modelClass
     @param {Object} payload
   */
-  extractMeta: function(store, typeClass, payload) {
-    if (this.get('isNewSerializerAPI')) {
-      return _newExtractMeta.apply(this, arguments);
-    }
-
-    if (payload && payload.meta) {
-      store._setMetadataFor(typeClass, payload.meta);
+  extractMeta: function(store, modelClass, payload) {
+    if (payload && payload.hasOwnProperty('meta')) {
+      let meta = payload.meta;
       delete payload.meta;
+      return meta;
     }
   },
 
@@ -1560,7 +1259,24 @@ var JSONSerializer = Serializer.extend({
   extractErrors: function(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
       payload = errorsArrayToHash(payload.errors);
-      this.normalizeErrors(typeClass, payload);
+
+      this.normalizeUsingDeclaredMapping(typeClass, payload);
+
+      typeClass.eachAttribute((name) => {
+        let key = this.keyForAttribute(name, 'deserialize');
+        if (key !== name && payload.hasOwnProperty(key)) {
+          payload[name] = payload[key];
+          delete payload[key];
+        }
+      });
+
+      typeClass.eachRelationship((name) => {
+        let key = this.keyForRelationship(name, 'deserialize');
+        if (key !== name && payload.hasOwnProperty(key)) {
+          payload[name] = payload[key];
+          delete payload[key];
+        }
+      });
     }
 
     return payload;
@@ -1646,47 +1362,5 @@ var JSONSerializer = Serializer.extend({
     return transform;
   }
 });
-
-/*
-  @method _newNormalize
-  @param {DS.Model} modelClass
-  @param {Object} resourceHash
-  @return {Object}
-  @private
-*/
-function _newNormalize(modelClass, resourceHash) {
-  let data = null;
-
-  if (resourceHash) {
-    this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
-
-    data = {
-      id:            this.extractId(resourceHash),
-      type:          modelClass.modelName,
-      attributes:    this.extractAttributes(modelClass, resourceHash),
-      relationships: this.extractRelationships(modelClass, resourceHash)
-    };
-
-    this.applyTransforms(modelClass, data.attributes);
-  }
-
-  return { data };
-}
-
-/*
-  @method _newExtractMeta
-  @param {DS.Store} store
-  @param {DS.Model} modelClass
-  @param {Object} payload
-  @return {Object}
-  @private
-*/
-function _newExtractMeta(store, modelClass, payload) {
-  if (payload && payload.hasOwnProperty('meta')) {
-    let meta = payload.meta;
-    delete payload.meta;
-    return meta;
-  }
-}
 
 export default JSONSerializer;
