@@ -37,23 +37,6 @@ test("record._createSnapshot() returns a snapshot", function() {
   });
 });
 
-test("snapshot._createSnapshot() returns a snapshot (self) but is deprecated", function() {
-  expect(2);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot1 = post._createSnapshot();
-    var snapshot2;
-
-    expectDeprecation(function() {
-      snapshot2 = snapshot1._createSnapshot();
-    }, /You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default./);
-
-    ok(snapshot2 === snapshot1, 'snapshot._createSnapshot() returns self');
-  });
-
-});
-
 test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", function() {
   expect(3);
 
@@ -66,27 +49,6 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
     equal(snapshot.modelName, 'post', 'modelName is correct');
   });
 });
-
-if (Ember.platform.hasPropertyAccessors) {
-  test("snapshot.constructor is unique and deprecated", function() {
-    expect(4);
-
-    run(function() {
-      var comment = env.store.push('comment', { id: 1, body: 'This is comment' });
-      var post = env.store.push('post', { id: 2, title: 'Hello World' });
-      var commentSnapshot = comment._createSnapshot();
-      var postSnapshot = post._createSnapshot();
-
-      expectDeprecation(function() {
-        equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
-      });
-
-      expectDeprecation(function() {
-        equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
-      });
-    });
-  });
-}
 
 test("snapshot.attr() does not change when record changes", function() {
   expect(2);
@@ -551,94 +513,6 @@ test("snapshot.hasMany() does not trigger a call to store.scheduleFetch", functi
   });
 });
 
-test("snapshot.get() is deprecated", function() {
-  expect(1);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot = post._createSnapshot();
-
-    expectDeprecation(function() {
-      snapshot.get('title');
-    }, 'Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
-  });
-});
-
-test("snapshot.get() returns id", function() {
-  expect(2);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot = post._createSnapshot();
-
-    expectDeprecation(function() {
-      equal(snapshot.get('id'), '1', 'snapshot id is correct');
-    });
-  });
-});
-
-test("snapshot.get() returns attribute", function() {
-  expect(2);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot = post._createSnapshot();
-
-    expectDeprecation(function() {
-      equal(snapshot.get('title'), 'Hello World', 'snapshot title is correct');
-    });
-  });
-});
-
-test("snapshot.get() returns belongsTo", function() {
-  expect(3);
-
-  run(function() {
-    var comment = env.store.push('comment', { id: 1, body: 'This is a comment', post: 2 });
-    var snapshot = comment._createSnapshot();
-    var relationship;
-
-    expectDeprecation(function() {
-      relationship = snapshot.get('post');
-    });
-
-    ok(relationship instanceof DS.Snapshot, 'relationship is an instance of DS.Snapshot');
-    equal(relationship.id, '2', 'relationship id is correct');
-  });
-});
-
-test("snapshot.get() returns hasMany", function() {
-  expect(3);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World', comments: [2, 3] });
-    var snapshot = post._createSnapshot();
-    var relationship;
-
-    expectDeprecation(function() {
-      relationship = snapshot.get('comments');
-    });
-
-    ok(relationship instanceof Array, 'relationship is an instance of Array');
-    equal(relationship.length, 2, 'relationship has two items');
-  });
-});
-
-test("snapshot.get() proxies property to record unless identified as id, attribute or relationship", function() {
-  expect(2);
-
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot = post._createSnapshot();
-
-    post.set('category', 'Ember.js'); // category is not defined as an DS.attr()
-
-    expectDeprecation(function() {
-      equal(snapshot.get('category'), 'Ember.js', 'snapshot proxies unknown property correctly');
-    });
-  });
-});
-
 test("snapshot.serialize() serializes itself", function() {
   expect(2);
 
@@ -652,19 +526,3 @@ test("snapshot.serialize() serializes itself", function() {
     deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options');
   });
 });
-
-if (Ember.platform.hasPropertyAccessors) {
-  test('snapshot.typeKey is deprecated', function() {
-    expect(1);
-
-    run(function() {
-      var post = env.store.push('post', { id: 1, title: 'Hello World' });
-      var snapshot = post._createSnapshot();
-
-      expectDeprecation(function() {
-        return snapshot.typeKey;
-      });
-    });
-
-  });
-}

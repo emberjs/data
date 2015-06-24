@@ -28,30 +28,6 @@ export default function Snapshot(internalModel) {
   this.modelName = internalModel.type.modelName;
 
   this._changedAttributes = record.changedAttributes();
-
-  // The following code is here to keep backwards compatibility when accessing
-  // `constructor` directly.
-  //
-  // With snapshots you should use `type` instead of `constructor`.
-  //
-  // Remove for Ember Data 1.0.
-  var callDeprecate = true;
-
-  Object.defineProperty(this, 'constructor', {
-    get: function() {
-      // Ugly hack since accessing error.stack (done in `Ember.deprecate()`)
-      // causes the internals of Chrome to access the constructor, which then
-      // causes an infinite loop if accessed and calls `Ember.deprecate()`
-      // again.
-      if (callDeprecate) {
-        callDeprecate = false;
-        Ember.deprecate('Usage of `snapshot.constructor` is deprecated, use `snapshot.type` instead.');
-        callDeprecate = true;
-      }
-
-      return this.type;
-    }
-  });
 }
 
 Snapshot.prototype = {
@@ -360,72 +336,13 @@ Snapshot.prototype = {
   },
 
   /**
-    @method get
-    @param {String} keyName
-    @return {Object} The property value
-    @deprecated Use [attr](#method_attr), [belongsTo](#method_belongsTo) or [hasMany](#method_hasMany) instead
-  */
-  get: function(keyName) {
-    Ember.deprecate('Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
-
-    if (keyName === 'id') {
-      return this.id;
-    }
-
-    if (keyName in this._attributes) {
-      return this.attr(keyName);
-    }
-
-    var relationship = this._internalModel._relationships.get(keyName);
-
-    if (relationship && relationship.relationshipMeta.kind === 'belongsTo') {
-      return this.belongsTo(keyName);
-    }
-    if (relationship && relationship.relationshipMeta.kind === 'hasMany') {
-      return this.hasMany(keyName);
-    }
-
-    return get(this.record, keyName);
-  },
-
-  /**
     @method serialize
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
    */
   serialize: function(options) {
     return this.record.store.serializerFor(this.modelName).serialize(this, options);
-  },
-
-  /**
-    @method unknownProperty
-    @param {String} keyName
-    @return {Object} The property value
-    @deprecated Use [attr](#method_attr), [belongsTo](#method_belongsTo) or [hasMany](#method_hasMany) instead
-  */
-  unknownProperty: function(keyName) {
-    return this.get(keyName);
-  },
-
-  /**
-    @method _createSnapshot
-    @private
-  */
-  _createSnapshot: function() {
-    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
-    return this;
   }
 };
-
-Object.defineProperty(Snapshot.prototype, 'typeKey', {
-  enumerable: false,
-  get: function() {
-    Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.');
-    return this.modelName;
-  },
-  set: function() {
-    Ember.assert('Setting snapshot.typeKey is not supported. In addition, Snapshot.typeKey has been deprecated for Snapshot.modelName.');
-  }
-});
 
 export default Snapshot;
