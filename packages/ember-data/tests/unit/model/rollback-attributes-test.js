@@ -16,7 +16,17 @@ module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
 test("changes to attributes can be rolled back", function() {
   var person;
   run(function() {
-    person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: "Tom",
+          lastName: "Dale"
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
   });
 
@@ -33,7 +43,16 @@ test("changes to attributes can be rolled back", function() {
 test("changes to unassigned attributes can be rolled back", function() {
   var person;
   run(function() {
-    person = store.push('person', { id: 1, lastName: "Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          lastName: "Dale"
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
   });
 
@@ -57,7 +76,17 @@ test("changes to attributes made after a record is in-flight only rolls back the
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: "Tom",
+          lastName: "Dale"
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
   });
 
@@ -89,7 +118,17 @@ test("a record's changes can be made if it fails to save", function() {
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: "Tom",
+          lastName: "Dale"
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
   });
 
@@ -117,7 +156,17 @@ test("a deleted record's attributes can be rollbacked if it fails to save, recor
   var person, people;
 
   run(function() {
-    person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: "Tom",
+          lastName: "Dale"
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
     people = store.peekAll('person');
   });
 
@@ -209,7 +258,13 @@ test("deleted record's attributes can be rollbacked", function() {
   var person, people;
 
   run(function() {
-    person = store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
+    person = store.peekRecord('person', 1);
     people = store.peekAll('person');
     person.deleteRecord();
   });
@@ -259,7 +314,16 @@ test("invalid record's attributes can be rollbacked", function() {
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
   run(function() {
-    dog = env.store.push('dog', { id: 1, name: "Pluto" });
+    env.store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: "Pluto"
+        }
+      }
+    });
+    dog = env.store.peekRecord('dog', 1);
     dog.set('name', "is a dwarf planet");
   });
 
@@ -321,7 +385,17 @@ test("invalid record's attributes rolled back to correct state after set", funct
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
   run(function() {
-    dog = env.store.push('dog', { id: 1, name: "Pluto", breed: "Disney" });
+    env.store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: "Pluto",
+          breed: "Disney"
+        }
+      }
+    });
+    dog = env.store.peekRecord('dog', 1);
     dog.set('name', "is a dwarf planet");
     dog.set('breed', 'planet');
   });
@@ -382,7 +456,16 @@ test("when destroying a record setup the record state to invalid, the record's a
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
   run(function() {
-    dog = env.store.push('dog', { id: 1, name: "Pluto" });
+    env.store.push({
+      data: {
+        type: 'dog',
+        id: '1',
+        attributes: {
+          name: "Pluto"
+        }
+      }
+    });
+    dog = env.store.peekRecord('dog', 1);
   });
 
   run(function() {

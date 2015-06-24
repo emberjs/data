@@ -22,7 +22,12 @@ module("unit/store/peekRecord - Store peekRecord", {
 
 test("peekRecord should return the record if it is in the store ", function() {
   run(function() {
-    var person = store.push('person', { id: 1 });
+    var person = store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     equal(person, store.peekRecord('person', 1), 'peekRecord only return the corresponding record in the store');
   });
 });

@@ -251,7 +251,16 @@ test('Serializer should respect the attrs hash when serializing records', functi
   var parentPost;
 
   run(function() {
-    parentPost = env.store.push('post', { id: 2, title: "Rails is omakase" });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '2',
+        attributes: {
+          title: "Rails is omakase"
+        }
+      }
+    });
+    parentPost = env.store.peekRecord('post', 2);
     post = env.store.createRecord('post', { title: "Rails is omakase", parentPost: parentPost });
   });
 

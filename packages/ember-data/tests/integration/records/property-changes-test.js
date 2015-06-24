@@ -28,11 +28,17 @@ test('Calling push with partial records trigger observers for just those attribu
   var person;
 
   run(function() {
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        }
+      }
     });
+    person = store.peekRecord('person', 'wat');
   });
 
   person.addObserver('firstName', function() {
@@ -44,10 +50,15 @@ test('Calling push with partial records trigger observers for just those attribu
   });
 
   run(function() {
-    store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz!'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz!'
+        }
+      }
     });
   });
 });
@@ -57,12 +68,17 @@ test('Calling push does not trigger observers for locally changed attributes wit
   var person;
 
   run(function() {
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        }
+      }
     });
-
+    person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
   });
 
@@ -75,10 +91,15 @@ test('Calling push does not trigger observers for locally changed attributes wit
   });
 
   run(function() {
-    store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz!'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz!'
+        }
+      }
     });
   });
 });
@@ -92,12 +113,17 @@ test('Saving a record trigger observers for locally changed attributes with the 
   };
 
   run(function() {
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        }
+      }
     });
-
+    person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
   });
 
@@ -119,12 +145,17 @@ test('store.push should not override a modified attribute', function() {
   var person;
 
   run(function() {
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        }
+      }
     });
-
+    person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
   });
 
@@ -137,10 +168,15 @@ test('store.push should not override a modified attribute', function() {
   });
 
   run(function() {
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'Tom',
-      lastName: 'Dale'
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Tom',
+          lastName: 'Dale'
+        }
+      }
     });
   });
 });

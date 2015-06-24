@@ -126,7 +126,15 @@ test("IDs provided as numbers are coerced to strings", function() {
     currentStore.findRecord('test', 1).then(async(function(object) {
       equal(typeof object.get('id'), 'string', "id was coerced to a string");
       run(function() {
-        currentStore.push('test', { id: 2, name: "Scumbag Sam Saffron" });
+        currentStore.push({
+          data: {
+            type: 'test',
+            id: '2',
+            attributes: {
+              name: "Scumbag Sam Saffron"
+            }
+          }
+        });
       });
       return currentStore.findRecord('test', 2);
     })).then(async(function(object) {
@@ -135,9 +143,6 @@ test("IDs provided as numbers are coerced to strings", function() {
     }));
   });
 });
-
-
-var array = [{ id: "1", name: "Scumbag Dale" }, { id: "2", name: "Scumbag Katz" }, { id: "3", name: "Scumbag Bryn" }];
 
 test("can load data for the same record if it is not dirty", function() {
   expect(3);
@@ -151,13 +156,29 @@ test("can load data for the same record if it is not dirty", function() {
   });
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: "Tom Dale"
+        }
+      }
+    });
 
     store.findRecord('person', 1).then(async(function(tom) {
       equal(get(tom, 'hasDirtyAttributes'), false, "precond - record is not dirty");
       equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
-      store.push('person', { id: 1, name: "Captain Underpants" });
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: "Captain Underpants"
+          }
+        }
+      });
       equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
     }));
   });
@@ -174,23 +195,6 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
   equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
 });
 */
-
-test("pushMany extracts ids from an Array of hashes if no ids are specified", function() {
-  expect(1);
-
-  var Person = DS.Model.extend({ name: DS.attr('string') });
-
-  var store = createStore({
-    person: Person
-  });
-
-  run(function() {
-    store.pushMany('person', array);
-    store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
-    }));
-  });
-});
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
   expect(2);
@@ -265,7 +269,15 @@ test("peekAll(type) returns a record array of all records of a specific type", f
   });
 
   run(function() {
-    store.push('person', { id: 1, name: "Tom Dale" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: "Tom Dale"
+        }
+      }
+    });
   });
 
   var results = store.peekAll('person');
@@ -273,7 +285,15 @@ test("peekAll(type) returns a record array of all records of a specific type", f
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
   run(function() {
-    store.push('person', { id: 2, name: "Yehuda Katz" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: "Yehuda Katz"
+        }
+      }
+    });
   });
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
@@ -418,7 +438,16 @@ test("initial values of belongsTo can be passed in as the third argument to find
   var tom;
 
   run(function() {
-    tom = store.push('person', { id: 2, name: 'Tom' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Tom'
+        }
+      }
+    });
+    tom = store.peekRecord('person', 2);
     store.findRecord('person', 1, { preload: { friend: tom } });
   });
 });
@@ -476,7 +505,16 @@ test("initial values of hasMany can be passed in as the third argument to find a
   var tom;
 
   run(function() {
-    tom = store.push('person', { id: 2, name: 'Tom' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Tom'
+        }
+      }
+    });
+    tom = store.peekRecord('person', 2);
     store.findRecord('person', 1, { preload: { friends: [tom] } });
   });
 });
@@ -866,7 +904,12 @@ test("store should not reload record when shouldReloadRecord returns false", fun
   });
 
   run(function() {
-    store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     store.findRecord('person', 1);
   });
 });
@@ -895,7 +938,12 @@ test("store should reload record when shouldReloadRecord returns true", function
   });
 
   run(function() {
-    store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     store.findRecord('person', 1).then(function(record) {
       equal(record.get('name'), 'Tom');
     });
@@ -928,7 +976,12 @@ test("store should not call shouldBackgroundReloadRecord when the store is alrea
   });
 
   run(function() {
-    store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     store.findRecord('person', 1).then(function(record) {
       equal(record.get('name'), 'Tom');
     });
@@ -959,7 +1012,12 @@ test("store should not reload a record when `shouldBackgroundReloadRecord` is fa
   });
 
   run(function() {
-    store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     store.findRecord('person', 1).then(function(record) {
       equal(record.get('name'), undefined);
     });
@@ -991,7 +1049,12 @@ test("store should reload the record in the background when `shouldBackgroundRel
   });
 
   run(function() {
-    store.push('person', { id: 1 });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1'
+      }
+    });
     store.findRecord('person', 1).then(function(record) {
       equal(record.get('name'), undefined);
     });

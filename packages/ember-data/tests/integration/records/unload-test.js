@@ -44,7 +44,16 @@ module("integration/unload - Unloading Records", {
 test("can unload a single record", function () {
   var adam;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+    adam = env.store.peekRecord('person', 1);
   });
 
   Ember.run(function() {
@@ -59,15 +68,40 @@ test("can unload all records for a given type", function () {
 
   var adam, bob, dudu;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
-
-    dudu = env.store.push('car', {
-      id: 1,
-      make: "VW",
-      model: "Beetle",
-      person: 1
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Bobson'
+        }
+      }]
     });
+    adam = env.store.peekRecord('person', 1);
+    bob = env.store.peekRecord('person', 2);
+
+    env.store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: "VW",
+          model: "Beetle"
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }
+    });
+    dudu = bob = env.store.peekRecord('car', 1);
   });
 
   Ember.run(function() {
@@ -83,15 +117,40 @@ test("can unload all records", function () {
 
   var adam, bob, dudu;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
-
-    dudu = env.store.push('car', {
-      id: 1,
-      make: "VW",
-      model: "Beetle",
-      person: 1
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Bobson'
+        }
+      }]
     });
+    adam = env.store.peekRecord('person', 1);
+    bob = env.store.peekRecord('person', 2);
+
+    env.store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: "VW",
+          model: "Beetle"
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }
+    });
+    dudu = bob = env.store.peekRecord('car', 1);
   });
 
   Ember.run(function() {
@@ -102,29 +161,26 @@ test("can unload all records", function () {
   equal(env.store.peekAll('car').get('length'), 0);
 });
 
-test("Unloading all records for a given type clears saved meta data.", function () {
-
-  function metadataKeys(type) {
-    return Object.keys(env.store.metadataFor(type));
-  }
-
-  run(function() {
-    env.store.setMetadataFor('person', { count: 10 });
-  });
-
-  Ember.run(function() {
-    env.store.unloadAll('person');
-  });
-
-  deepEqual(metadataKeys('person'), [], 'Metadata for person is empty');
-
-});
-
 test("removes findAllCache after unloading all records", function () {
   var adam, bob;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Bobson'
+        }
+      }]
+    });
+    adam = env.store.peekRecord('person', 1);
+    bob = env.store.peekRecord('person', 2);
   });
 
   Ember.run(function() {
@@ -138,8 +194,23 @@ test("removes findAllCache after unloading all records", function () {
 test("unloading all records also updates record array from peekAll()", function() {
   var adam, bob;
   run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
+    env.store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Bobson'
+        }
+      }]
+    });
+    adam = env.store.peekRecord('person', 1);
+    bob = env.store.peekRecord('person', 2);
   });
   var all = env.store.peekAll('person');
 
@@ -156,20 +227,42 @@ test("unloading all records also updates record array from peekAll()", function(
 test("unloading a record also clears its relationship", function() {
   var adam, bob;
   run(function() {
-    adam = env.store.push('person', {
-      id: 1,
-      name: "Adam Sunderland",
-      cars: [1]
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        },
+        relationships: {
+          cars: {
+            data: [
+              { type: 'car', id: '1' }
+            ]
+          }
+        }
+      }
     });
+    adam = env.store.peekRecord('person', 1);
   });
 
   run(function() {
-    bob = env.store.push('car', {
-      id: 1,
-      make: "Lotus",
-      model: "Exige",
-      person: 1
+    env.store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: "Lotus",
+          model: "Exige"
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }
     });
+    bob = env.store.peekRecord('car', 1);
   });
 
   run(function() {
@@ -188,17 +281,33 @@ test("unloading a record also clears its relationship", function() {
 test("unloading a record also clears the implicit inverse relationships", function() {
   var adam, bob;
   run(function() {
-    adam = env.store.push('person', {
-      id: 1,
-      name: "Adam Sunderland"
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
     });
+    adam = env.store.peekRecord('person', 1);
   });
 
   run(function() {
-    bob = env.store.push('group', {
-      id: 1,
-      people: [1]
+    env.store.push({
+      data: {
+        type: 'group',
+        id: '1',
+        relationships: {
+          people: {
+            data: [
+              { type: 'person', id: '1' }
+            ]
+          }
+        }
+      }
     });
+    bob = env.store.peekRecord('group', 1);
   });
 
   run(function() {
