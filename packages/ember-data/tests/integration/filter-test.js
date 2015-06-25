@@ -16,8 +16,34 @@ var shouldNotContain = function(array, item) {
 
 module("integration/filter - DS.Model updating", {
   setup: function() {
-    array = [{ id: 1, name: "Scumbag Dale", bestFriend: 2 }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
-    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null, async: false }) });
+    array = [{
+      id: '1',
+      type: 'person',
+      attributes: {
+        name: 'Scumbag Dale'
+      },
+      relationships: {
+        bestFriend: {
+          data: {
+            id: '2',
+            type: 'person'
+          }
+        }
+      }
+    }, {
+      id: '2',
+      type: 'person',
+      attributes: {
+        name: 'Scumbag Katz'
+      }
+    }, {
+      id: '3',
+      type: 'person',
+      attributes: {
+        name: 'Scumbag Bryn'
+      }
+    }];
+    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null }) });
 
     env = setupStore({ person: Person });
     store = env.store;
@@ -48,7 +74,7 @@ function tapFn(fn, callback) {
 
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
   var people;
 
@@ -83,7 +109,7 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
 
 test("when a DS.Model updates its relationships, its changes affect its filtered Array membership", function() {
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
   var people;
 
@@ -121,7 +147,7 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
 test("a record array can have a filter on it", function() {
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
   var recordArray;
 
@@ -133,14 +159,30 @@ test("a record array can have a filter on it", function() {
 
   equal(get(recordArray, 'length'), 2, "The Record Array should have the filtered objects on it");
 
-  run(function() {
-    store.push('person', { id: 4, name: "Scumbag Koz" });
+  run(function () {
+    store.push({
+      data: [{
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'Scumbag Koz'
+        }
+      }]
+    });
   });
 
   equal(get(recordArray, 'length'), 3, "The Record Array should be updated as new items are added to the store");
 
-  run(function() {
-    store.push('person', { id: 1, name: "Scumbag Tom" });
+  run(function () {
+    store.push({
+      data: [{
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Scumbag Tom'
+        }
+      }]
+    });
   });
 
   equal(get(recordArray, 'length'), 2, "The Record Array should be updated as existing members are updated");
@@ -148,7 +190,7 @@ test("a record array can have a filter on it", function() {
 
 test("a filtered record array includes created elements", function() {
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
   var recordArray;
 
@@ -175,7 +217,7 @@ test("a Record Array can update its filter", function() {
   }));
 
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
 
   var dickens = run(function() {
@@ -209,14 +251,30 @@ test("a Record Array can update its filter", function() {
 
       equal(get(recordArray, 'length'), 1, "The Record Array should have one object on it");
 
-      Ember.run(function() {
-        store.push('person', { id: 5, name: "Other Katz" });
+      Ember.run(function () {
+        store.push({
+          data: [{
+            id: '5',
+            type: 'person',
+            attributes: {
+              name: 'Other Katz'
+            }
+          }]
+        });
       });
 
       equal(get(recordArray, 'length'), 2, "The Record Array now has the new object matching the filter");
 
-      Ember.run(function() {
-        store.push('person', { id: 6, name: "Scumbag Demon" });
+      Ember.run(function () {
+        store.push({
+          data: [{
+            id: '6',
+            type: 'person',
+            attributes: {
+              name: 'Scumbag Demon'
+            }
+          }]
+        });
       });
 
       equal(get(recordArray, 'length'), 2, "The Record Array doesn't have objects matching the old filter");
@@ -232,7 +290,7 @@ test("a Record Array can update its filter and notify array observers", function
   }));
 
   run(function() {
-    store.pushMany('person', array);
+    store.push({ data: array });
   });
   var dickens;
 
@@ -279,8 +337,16 @@ test("a Record Array can update its filter and notify array observers", function
       equal(didChangeRemoved, 1, "removed one item from array");
       didChangeRemoved = 0;
 
-      Ember.run(function() {
-        store.push('person', { id: 5, name: "Other Katz" });
+      Ember.run(function () {
+        store.push({
+          data: [{
+            id: '5',
+            type: 'person',
+            attributes: {
+              name: 'Other Katz'
+            }
+          }]
+        });
       });
 
       equal(didChangeAdded, 1, "one item was added");
@@ -288,8 +354,16 @@ test("a Record Array can update its filter and notify array observers", function
 
       equal(recordArray.objectAt(didChangeIdx).get('name'), "Other Katz");
 
-      Ember.run(function() {
-        store.push('person', { id: 6, name: "Scumbag Demon" });
+      Ember.run(function () {
+        store.push({
+          data: [{
+            id: '6',
+            type: 'person',
+            attributes: {
+              name: 'Scumbag Demon'
+            }
+          }]
+        });
       });
 
       equal(didChangeAdded, 0, "did not get called when an object that doesn't match is added");
@@ -324,8 +398,16 @@ test("it is possible to filter by computed properties", function() {
 
   equal(filter.get('length'), 0, "precond - the filter starts empty");
 
-  run(function() {
-    store.push('person', { id: 1, name: "Tom Dale" });
+  run(function () {
+    store.push({
+      data: [{
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }]
+    });
   });
 
   equal(filter.get('length'), 1, "the filter now has a record in it");
@@ -347,8 +429,16 @@ test("a filter created after a record is already loaded works", function() {
     }).property('name')
   });
 
-  run(function() {
-    store.push('person', { id: 1, name: "Tom Dale" });
+  run(function () {
+    store.push({
+      data: [{
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }]
+    });
   });
   var filter;
 
@@ -431,8 +521,16 @@ test("it is possible to filter loaded records by dirtiness", function() {
     return !person.get('hasDirtyAttributes');
   });
 
-  run(function() {
-    store.push('person', { id: 1, name: "Tom Dale" });
+  run(function () {
+    store.push({
+      data: [{
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }]
+    });
   });
 
   store.findRecord('person', 1).then(async(function(person) {
@@ -550,7 +648,7 @@ var setup = function(serverCallbacks) {
   run(function() {
     customAdapter(env, DS.Adapter.extend(serverCallbacks));
 
-    store.pushMany('person', array);
+    store.push({ data: array });
 
     recordArray = store.filter('person', function(hash) {
       if (hash.get('name').match(/Scumbag/)) { return true; }
@@ -647,12 +745,15 @@ test("a Record Array can update its filter after server-side creates multiple re
 
 test("destroying filteredRecordArray unregisters models from being filtered", function() {
   var filterFn = tapFn(function() { return true; });
-  var person;
-
-  run(function() {
-    person = store.push('person', {
-      id: 1,
-      name: 'Tom Dale'
+  run(function () {
+    store.push({
+      data: [{
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }]
     });
   });
 
