@@ -25,7 +25,7 @@ export default JSONSerializer.extend({
 
     if (Ember.typeOf(documentHash.data) === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
-    } else {
+    } else if (Ember.typeOf(documentHash.data) === 'array') {
       documentHash.data = documentHash.data.map(this._normalizeResourceHelper, this);
     }
 
