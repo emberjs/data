@@ -58,7 +58,15 @@ test("Make sure snapshot is created at save time not at flush time", function() 
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Tom" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom'
+        }
+      }
+    });
     person.set('name', "Thomas Dale");
   });
 
@@ -97,7 +105,15 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Tom" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom'
+        }
+      }
+    });
     person.set('name', "Thomas Dale");
   });
 
@@ -108,7 +124,16 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 
     person.set('name', "Tomasz Dale");
 
-    store.push('person', { id: 1, name: "Tommy Dale", city: "PDX" });
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tommy Dale',
+          city: 'PDX'
+        }
+      }
+    });
 
     equal(person.get('name'), "Tomasz Dale", "the local changes applied on top");
     equal(person.get('city'), "PDX", "the pushed change is available");
@@ -129,7 +154,16 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Tom Dale", city: "San Francisco" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom Dale',
+          city: 'San Francisco'
+        }
+      }
+    });
     person.set('name', "Tomasz Dale");
   });
 
@@ -138,7 +172,16 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('city'), "San Francisco", "the original data applies");
 
   run(function() {
-    store.push('person', { id: 1, name: "Thomas Dale", city: "Portland" });
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Thomas Dale',
+          city: 'Portland'
+        }
+      }
+    });
   });
 
   equal(person.get('hasDirtyAttributes'), true, "the local changes are reapplied");
@@ -154,7 +197,16 @@ test("When a record is invalid, pushes are overridden by local changes", functio
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Brendan McLoughlin", city: "Boston" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Brendan McLoughlin',
+          city: 'Boston'
+        }
+      }
+    });
     person.set('name', "Brondan McLoughlin");
     person.send('becameInvalid');
   });
@@ -165,7 +217,16 @@ test("When a record is invalid, pushes are overridden by local changes", functio
   equal(person.get('city'), "Boston", "the original data applies");
 
   run(function() {
-    store.push('person', { id: 1, name: "bmac", city: "Prague" });
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'bmac',
+          city: 'Prague'
+        }
+      }
+    });
   });
 
   equal(person.get('hasDirtyAttributes'), true, "the local changes are reapplied");
@@ -190,7 +251,15 @@ test("A record with no changes can still be saved", function() {
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Tom Dale" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }
+    });
   });
 
   run(function() {
@@ -216,7 +285,15 @@ test("A dirty record can be reloaded", function() {
   var person;
 
   run(function() {
-    person = store.push('person', { id: 1, name: "Tom Dale" });
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }
+    });
     person.set('name', "Tomasz Dale");
   });
 
