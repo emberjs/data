@@ -263,7 +263,7 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   };
 
   run(function() {
-    store.query('person', { page: 1 }).then(function(people) {
+    store.query('person', { query: { page: 1 } }).then(function(people) {
       equal(get(people, 'isLoaded'), true, "The array is now loaded");
     });
   });

@@ -195,16 +195,16 @@ test("pushMany extracts ids from an Array of hashes if no ids are specified", fu
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
   expect(2);
 
-  var passedQuery = { page: 1 };
+  var passedQuery = { query: { page: 1 } };
 
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
 
   var adapter = TestAdapter.extend({
-    query: function(store, type, query) {
+    query: function(store, type, options) {
       equal(type, store.modelFor('person'), 'The type was Person');
-      equal(query, passedQuery, "The query was passed in");
+      equal(options, passedQuery, "The query was passed in");
       return Ember.RSVP.resolve([]);
     }
   });
@@ -220,7 +220,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
 });
 
 test("Find with query calls the correct normalizeResponse", function() {
-  var passedQuery = { page: 1 };
+  var passedQuery = { query: { page: 1 } };
 
   var Person = DS.Model.extend({
     name: DS.attr('string')

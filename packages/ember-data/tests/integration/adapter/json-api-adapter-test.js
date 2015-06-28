@@ -204,9 +204,9 @@ test('find many records', function() {
   }]);
 
   run(function() {
-    store.query('post', { filter: { id: 1 } }).then(function(posts) {
+    store.query('post', { query: { filter: { id: 1 } } }).then(function(posts) {
       equal(passedUrl[0], '/posts');
-      deepEqual(passedHash[0], { data: { filter: { id: 1 } } });
+      deepEqual(passedHash[0], { data: { query: { filter: { id: 1 } } } });
 
       equal(posts.get('length'), '1');
       equal(posts.get('firstObject.title'), 'Ember.js rocks');

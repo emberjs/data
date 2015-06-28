@@ -40,7 +40,7 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
 });
 
 test("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
-  adapter.query = function(store, type, query, recordArray) {
+  adapter.query = function(store, type, options, recordArray) {
     return Ember.RSVP.resolve([{
       id: 1,
       name: "Mickael Ramírez"
@@ -50,8 +50,8 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
     }]);
   };
 
-  run(store, 'query', 'person', { q: 'bla' }).then(async(function(people) {
-    var people2 = store.query('person', { q: 'bla2' });
+  run(store, 'query', 'person', { query: { q: 'bla' } }).then(async(function(people) {
+    var people2 = store.query('person', { query: { q: 'bla2' } });
 
     return Ember.RSVP.hash({ people: people, people2: people2 });
   })).then(async(function(results) {
@@ -697,7 +697,7 @@ test("the filter method can optionally take a server query as well", function() 
     ]);
   };
 
-  var asyncFilter = store.filter('person', { page: 1 }, function(data) {
+  var asyncFilter = store.filter('person', { query: { page: 1 } }, function(data) {
     return data.get('name') === "Tom Dale";
   });
 

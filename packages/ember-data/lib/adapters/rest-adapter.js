@@ -225,22 +225,22 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     ```
 
     @method sortQueryParams
-    @param {Object} obj
+    @param {Object} passedQueryParams
     @return {Object}
   */
-  sortQueryParams: function(obj) {
-    var keys = Object.keys(obj);
+  sortQueryParams: function(passedQueryParams) {
+    var keys = Object.keys(passedQueryParams);
     var len = keys.length;
     if (len < 2) {
-      return obj;
+      return { query: passedQueryParams };
     }
     var newQueryParams = {};
     var sortedKeys = keys.sort();
 
     for (var i = 0; i < len; i++) {
-      newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
+      newQueryParams[sortedKeys[i]] = passedQueryParams[sortedKeys[i]];
     }
-    return newQueryParams;
+    return { query: newQueryParams };
   },
 
   /**
@@ -413,14 +413,14 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     @param {Object} query
     @return {Promise} promise
   */
-  query: function(store, type, query) {
-    var url = this.buildURL(type.modelName, null, null, 'query', query);
+  query: function(store, type, options) {
+    var url = this.buildURL(type.modelName, null, null, 'query', options.query);
 
     if (this.sortQueryParams) {
-      query = this.sortQueryParams(query);
+      options.query = this.sortQueryParams(options.query);
     }
 
-    return this.ajax(url, 'GET', { data: query });
+    return this.ajax(url, 'GET', { data: options.query });
   },
 
   /**

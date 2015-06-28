@@ -27,10 +27,10 @@ test("It raises an assertion when no type is passed", function() {
   }, "You need to pass a type to the store's queryRecord method");
 });
 
-test("It raises an assertion when no query hash is passed", function() {
+test("It raises an assertion when the query is not namespaced in a hash", function() {
   expectAssertion(function() {
-    store.queryRecord('person');
-  }, "You need to pass a query hash to the store's queryRecord method");
+    store.queryRecord('person', { withRelated: 'posts' });
+  }, "You need to pass a namespaced query hash to the store's queryRecord method");
 });
 
 test("When a record is requested, the adapter's queryRecord method should be called.", function() {
@@ -44,7 +44,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
   }));
 
   run(function() {
-    store.queryRecord('person', { related: 'posts' });
+    store.queryRecord('person', { query: { related: 'posts' } });
   });
 });
 
@@ -56,7 +56,7 @@ test("When a record is requested, and the promise is rejected, .queryRecord() is
   }));
 
   run(function() {
-    store.queryRecord('person', {}).then(null, async(function(reason) {
+    store.queryRecord('person', { query : {} }).then(null, async(function(reason) {
       ok(true, "The rejection handler was called");
     }));
   });
@@ -87,6 +87,6 @@ test("When a record is requested, the serializer's normalizeQueryRecordResponse 
   }));
 
   run(function() {
-    store.queryRecord('person', { related: 'posts' });
+    store.queryRecord('person', { query: { related: 'posts' }});
   });
 });
