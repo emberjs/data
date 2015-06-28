@@ -210,18 +210,3 @@ test("transforms initializer is run (DEPRECATED)", function() {
 
   ok(ran, 'transforms initializer was found');
 });
-
-test("activeModelAdapter initializer is run (DEPRECATED)", function() {
-  var ran = false;
-  App.initializer({
-    name:       "after-store",
-    after:      'activeModelAdapter',
-    initialize: function() { ran = true; }
-  });
-
-  run(function() {
-    app = App.create();
-  });
-
-  ok(ran, 'activeModelAdapter initializer was found');
-});

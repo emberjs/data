@@ -68,12 +68,6 @@ Ember.onLoad('Ember.Application', function(Application) {
   });
 
   Application.initializer({
-    name:       "activeModelAdapter",
-    before:     "store",
-    initialize: K
-  });
-
-  Application.initializer({
     name:       "transforms",
     before:     "store",
     initialize: K

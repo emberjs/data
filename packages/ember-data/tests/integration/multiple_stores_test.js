@@ -25,9 +25,8 @@ module("integration/multiple_stores - Multiple Stores Tests", {
       evilMinion:     EvilMinion
     });
 
-    env.registry.register('serializer:application', DS.ActiveModelSerializer);
-    env.registry.register('serializer:-active-model', DS.ActiveModelSerializer);
-    env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);
+    env.registry.register('adapter:application', DS.RESTAdapter);
+    env.registry.register('serializer:application', DS.RESTSerializer);
 
     env.registry.register('store:store-a', DS.Store);
     env.registry.register('store:store-b', DS.Store);
@@ -42,36 +41,32 @@ module("integration/multiple_stores - Multiple Stores Tests", {
 });
 
 test("should be able to push into multiple stores", function() {
-  env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
-  env.registry.register('serializer:home-planet', DS.ActiveModelSerializer);
-
   var home_planet_main = { id: '1', name: 'Earth' };
   var home_planet_a = { id: '1', name: 'Mars' };
   var home_planet_b = { id: '1', name: 'Saturn' };
 
-  run(env.store, 'push', 'homePlanet', home_planet_main);
-  run(env.store_a, 'push', 'homePlanet', home_planet_a);
-  run(env.store_b, 'push', 'homePlanet', home_planet_b);
+  run(function() {
+    env.store.push(env.store.normalize('home-planet', home_planet_main));
+    env.store_a.push(env.store_a.normalize('home-planet', home_planet_a));
+    env.store_b.push(env.store_b.normalize('home-planet', home_planet_b));
+  });
 
-  run(env.store, 'find', 'homePlanet', 1).then(async(function(homePlanet) {
+  run(env.store, 'find', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Earth");
   }));
 
-  run(env.store_a, 'find', 'homePlanet', 1).then(async(function(homePlanet) {
+  run(env.store_a, 'find', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Mars");
   }));
 
-  run(env.store_b, 'find', 'homePlanet', 1).then(async(function(homePlanet) {
+  run(env.store_b, 'find', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Saturn");
   }));
 
 });
 
 test("embedded records should be created in multiple stores", function() {
-  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
-  env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
-
-  env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -82,35 +77,35 @@ test("embedded records should be created in multiple stores", function() {
   var serializer_b = env.store_b.serializerFor('home-planet');
 
   var json_hash_main = {
-    home_planet: {
+    homePlanet: {
       id: "1",
       name: "Earth",
       villains: [{
         id: "1",
-        first_name: "Tom",
-        last_name: "Dale"
+        firstName: "Tom",
+        lastName: "Dale"
       }]
     }
   };
   var json_hash_a = {
-    home_planet: {
+    homePlanet: {
       id: "1",
       name: "Mars",
       villains: [{
         id: "1",
-        first_name: "James",
-        last_name: "Murphy"
+        firstName: "James",
+        lastName: "Murphy"
       }]
     }
   };
   var json_hash_b = {
-    home_planet: {
+    homePlanet: {
       id: "1",
       name: "Saturn",
       villains: [{
         id: "1",
-        first_name: "Jade",
-        last_name: "John"
+        firstName: "Jade",
+        lastName: "John"
       }]
     }
   };
