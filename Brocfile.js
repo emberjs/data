@@ -59,7 +59,6 @@ var yuidocTree = yuidoc('packages', {
     "options": {
       "paths": [
         "packages/ember-data/lib",
-        "packages/activemodel-adapter/lib",
         "packages/ember-inflector/addon"
       ],
       "exclude": "vendor",
@@ -89,7 +88,6 @@ function packageAddon(packagePath, vendorPath) {
 var packages = merge([
   packageAddon('ember-inflector', 'node_modules/'),
   package('ember-data'),
-  package('activemodel-adapter'),
   package('ember')
 ]);
 

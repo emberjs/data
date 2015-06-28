@@ -38,7 +38,7 @@ module("unit/store/push - DS.Store#push", {
 
     store = env.store;
 
-    env.registry.register('serializer:post', DS.ActiveModelSerializer);
+    env.registry.register('serializer:post', DS.RESTSerializer);
   },
 
   teardown: function() {
@@ -52,17 +52,20 @@ test("Calling push with a normalized hash returns a record", function() {
   expect(2);
 
   run(function() {
-    var person = store.push('person', {
+    var person = store.push({
+      type: 'person',
       id: 'wat',
-      firstName: "Yehuda",
-      lastName: "Katz"
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
+      }
     });
     store.findRecord('person', 'wat').then(function(foundPerson) {
       equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
-        firstName: "Yehuda",
-        lastName: "Katz"
+        firstName: 'Yehuda',
+        lastName: 'Katz'
       });
     });
   });
@@ -75,17 +78,20 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   env.registry.register('model:programmer', Programmer);
 
   run(function() {
-    store.push('programmer', {
+    store.push({
+      type: 'programmer',
       id: 'wat',
-      firstName: "Yehuda",
-      lastName: "Katz"
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
+      }
     });
 
     store.findRecord('programmer', 'wat').then(function(foundProgrammer) {
       deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
-        firstName: "Yehuda",
-        lastName: "Katz"
+        firstName: 'Yehuda',
+        lastName: 'Katz'
       });
     });
   });
@@ -101,10 +107,13 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
   });
 
   run(function() {
-    store.push('person', {
+    store.push({
+      type: 'person',
       id: 'wat',
-      firstName: "Yehuda",
-      lastName: "Katz"
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
+      }
     });
   });
 });
@@ -121,22 +130,28 @@ test("Calling push with partial records updates just those attributes", function
   expect(2);
 
   run(function() {
-    var person = store.push('person', {
+    var person = store.push({
+      type: 'person',
       id: 'wat',
-      firstName: "Yehuda",
-      lastName: "Katz"
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
+      }
     });
 
-    store.push('person', {
+    store.push({
+      type: 'person',
       id: 'wat',
-      lastName: "Katz!"
+      attributes: {
+        lastName: "Katz!"
+      }
     });
 
     store.findRecord('person', 'wat').then(function(foundPerson) {
       equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
-        firstName: "Yehuda",
+        firstName: 'Yehuda',
         lastName: "Katz!"
       });
     });
@@ -148,10 +163,15 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
   var person;
 
   run(function() {
-    person = store.push('person', {
-      id: '1',
-      firstName: "Robert",
-      lastName: "Jackson"
+    person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          firstName: 'Robert',
+          lastName: 'Jackson'
+        }
+      }
     });
 
     store.push(store.normalize('person', {
@@ -218,12 +238,12 @@ test("Calling push with a normalized hash containing IDs of related records retu
   var person;
 
   run(function() {
-    person = store.push('person', {
+    person = store.push(store.normalize('person', {
       id: 'wat',
       firstName: 'John',
       lastName: 'Smith',
       phoneNumbers: ["1", "2"]
-    });
+    }));
     person.get('phoneNumbers').then(function(phoneNumbers) {
       deepEqual(phoneNumbers.map(function(item) {
         return item.getProperties('id', 'number', 'person');
@@ -245,7 +265,7 @@ test("Calling pushPayload allows pushing raw JSON", function () {
     store.pushPayload('post', {
       posts: [{
         id: '1',
-        post_title: "Ember rocks"
+        postTitle: "Ember rocks"
       }]
     });
   });
@@ -258,7 +278,7 @@ test("Calling pushPayload allows pushing raw JSON", function () {
     store.pushPayload('post', {
       posts: [{
         id: '1',
-        post_title: "Ember rocks (updated)"
+        postTitle: "Ember rocks (updated)"
       }]
     });
   });
@@ -271,7 +291,7 @@ test("Calling pushPayload allows pushing singular payload properties", function 
     store.pushPayload('post', {
       post: {
         id: '1',
-        post_title: "Ember rocks"
+        postTitle: "Ember rocks"
       }
     });
   });
@@ -284,7 +304,7 @@ test("Calling pushPayload allows pushing singular payload properties", function 
     store.pushPayload('post', {
       post: {
         id: '1',
-        post_title: "Ember rocks (updated)"
+        postTitle: "Ember rocks (updated)"
       }
     });
   });
@@ -446,12 +466,12 @@ test('Calling push with a link for a non async relationship should warn', functi
 
   warns(function() {
     run(function() {
-      store.push('person', {
+      store.push(store.normalize('person', {
         id: '1',
         links: {
           phoneNumbers: '/api/people/1/phone-numbers'
         }
-      });
+      }));
     });
   }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
 });
@@ -463,27 +483,27 @@ test('Calling push with a link containing an object throws an assertion error', 
 
   expectAssertion(function() {
     run(function() {
-      store.push('person', {
+      store.push(store.normalize('person', {
         id: '1',
         links: {
           phoneNumbers: {
             href: '/api/people/1/phone-numbers'
           }
         }
-      });
+      }));
     });
   }, "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
 });
 
 test('Calling push with a link containing the value null', function() {
   run(function() {
-    store.push('person', {
+    store.push(store.normalize('person', {
       id: '1',
       firstName: 'Tan',
       links: {
         phoneNumbers: null
       }
-    });
+    }));
   });
 
   var person = store.peekRecord('person', 1);
