@@ -232,7 +232,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     var keys = Object.keys(passedQueryParams);
     var len = keys.length;
     if (len < 2) {
-      return { query: passedQueryParams };
+      return passedQueryParams;
     }
     var newQueryParams = {};
     var sortedKeys = keys.sort();
@@ -240,7 +240,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     for (var i = 0; i < len; i++) {
       newQueryParams[sortedKeys[i]] = passedQueryParams[sortedKeys[i]];
     }
-    return { query: newQueryParams };
+    return newQueryParams;
   },
 
   /**
@@ -420,7 +420,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
       options.query = this.sortQueryParams(options.query);
     }
 
-    return this.ajax(url, 'GET', { data: options.query });
+    return this.ajax(url, 'GET', { data: options });
   },
 
   /**

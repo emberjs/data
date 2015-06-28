@@ -988,7 +988,7 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
+    deepEqual(Object.keys(hash.data.query), ["params", "in", "wrong", "order"], 'query params are received in their original order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -1006,7 +1006,7 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
+    deepEqual(Object.keys(hash.data.query), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
