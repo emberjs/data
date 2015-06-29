@@ -87,6 +87,6 @@ test("When a record is requested, the serializer's normalizeQueryRecordResponse 
   }));
 
   run(function() {
-    store.queryRecord('person', { query: { related: 'posts' }});
+    store.queryRecord('person', { query: { related: 'posts' } });
   });
 });

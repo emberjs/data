@@ -140,7 +140,7 @@ test("destroying the store correctly cleans everything up", function() {
   var adapterPopulatedPeople, filterdPeople;
 
   run(function() {
-    let query = { someCrazy: 'query' };
+    const query = { someCrazy: 'query' };
     adapterPopulatedPeople = store.query('person', { query });
   });
 
