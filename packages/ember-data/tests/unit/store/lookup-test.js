@@ -13,8 +13,6 @@ function resetStore() {
   env.registry.unregister('adapter:application');
   env.registry.unregister('serializer:application');
 
-  env.registry.register('serializer:-active-model', DS.ActiveModelSerializer);
-
   env.registry.optionsForType('serializer', { singleton: true });
   env.registry.optionsForType('adapter', { singleton: true });
 
@@ -90,15 +88,15 @@ test('adapter lookup order', () => {
   strictEqual(personAdapter, lookupAdapter('-rest'), 'looks up the RESTAdapter first');
   resetStore();
 
-  registerAdapter('application', DS.ActiveModelSerializer.extend());
+  registerAdapter('application', DS.RESTSerializer.extend());
   personAdapter = lookupAdapter('person');
 
   strictEqual(personAdapter, lookupAdapter('application'), 'looks up application adapter before RESTAdapter if it exists');
 
   resetStore();
 
-  registerAdapter('application', DS.ActiveModelSerializer.extend());
-  registerAdapter('person', DS.ActiveModelSerializer.extend({ customThingy: true }));
+  registerAdapter('application', DS.RESTSerializer.extend());
+  registerAdapter('person', DS.RESTSerializer.extend({ customThingy: true }));
 
   ok(lookupAdapter('person').get('customThingy'), 'looks up type serializer before application');
 });
@@ -112,23 +110,23 @@ test('serializer lookup order', () => {
 
   resetStore();
 
-  registerSerializer('application', DS.ActiveModelSerializer.extend());
+  registerSerializer('application', DS.RESTSerializer.extend());
   personSerializer = lookupSerializer('person');
   strictEqual(personSerializer, lookupSerializer('application'), 'looks up application before default');
 
   resetStore();
   registerAdapter('person', DS.Adapter.extend({
-    defaultSerializer: '-active-model'
+    defaultSerializer: '-rest'
   }));
   personSerializer = lookupSerializer('person');
 
-  strictEqual(personSerializer, lookupSerializer('-active-model'), 'uses defaultSerializer on adapterFor("model") if application not defined');
+  strictEqual(personSerializer, lookupSerializer('-rest'), 'uses defaultSerializer on adapterFor("model") if application not defined');
 
   resetStore();
   registerAdapter('person', DS.Adapter.extend({
-    defaultSerializer: '-active-model'
+    defaultSerializer: '-rest'
   }));
-  registerSerializer('application', DS.ActiveModelSerializer.extend());
+  registerSerializer('application', DS.RESTSerializer.extend());
   registerSerializer('person', DS.JSONSerializer.extend({ customThingy: true }));
   personSerializer = lookupSerializer('person');
 

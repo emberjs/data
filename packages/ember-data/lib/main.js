@@ -69,10 +69,6 @@ import {
 } from "ember-data/serializers";
 import "ember-inflector";
 import EmbeddedRecordsMixin from "ember-data/serializers/embedded-records-mixin";
-import {
-  ActiveModelAdapter,
-  ActiveModelSerializer
-} from "activemodel-adapter";
 
 import {
   Transform,
@@ -139,40 +135,6 @@ DS.StringTransform = StringTransform;
 DS.NumberTransform = NumberTransform;
 DS.BooleanTransform = BooleanTransform;
 
-var _ActiveModelAdapter = ActiveModelAdapter;
-var _ActiveModelSerializer = ActiveModelSerializer;
-
-if (Ember.platform.hasPropertyAccessors) {
-  Ember.defineProperty(DS, 'ActiveModelAdapter', {
-    get: function() {
-      if (_ActiveModelSerializer === ActiveModelAdapter) {
-        Ember.deprecate('The ActiveModelAdapter has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-          url: 'https://github.com/ember-data/active-model-adapter'
-        });
-      }
-      return _ActiveModelAdapter;
-    },
-    set: function(ActiveModelAdapter) {
-      _ActiveModelAdapter = ActiveModelAdapter;
-    }
-  });
-  Ember.defineProperty(DS, 'ActiveModelSerializer', {
-    get: function() {
-      if (_ActiveModelSerializer === ActiveModelSerializer) {
-        Ember.deprecate('The ActiveModelSerializer has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-          url: 'https://github.com/ember-data/active-model-adapter'
-        });
-      }
-      return _ActiveModelSerializer;
-    },
-    set: function(ActiveModelSerializer) {
-      _ActiveModelSerializer = ActiveModelSerializer;
-    }
-  });
-} else {
-  DS.ActiveModelAdapter    = ActiveModelAdapter;
-  DS.ActiveModelSerializer = ActiveModelSerializer;
-}
 DS.EmbeddedRecordsMixin  = EmbeddedRecordsMixin;
 
 DS.belongsTo = belongsTo;
