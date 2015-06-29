@@ -300,11 +300,21 @@ Store = Service.extend({
     Create a new record in the current store. The properties passed
     to this method are set on the newly created record.
 
-    To create a new instance of `App.Post`:
+    To create a new instance of a `Post`:
 
     ```js
     store.createRecord('post', {
       title: "Rails is omakase"
+    });
+    ```
+
+    To create a new instance of a `Post` that has a relationship with a `User` record:
+
+    ```js
+    var user = this.store.peekRecord('user', 1);
+    store.createRecord('post', {
+      title: "Rails is omakase",
+      user: user
     });
     ```
 
