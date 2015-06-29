@@ -454,8 +454,8 @@ var Adapter = Ember.Object.extend({
     reload a record from the adapter when a record is requested by
     `store.findRecord`.
 
-    If this method returns true the store will re fetch a record from
-    the adapter. If is method returns false the store will resolve
+    If this method returns true, the store will re-fetch a record from
+    the adapter. If this method returns false, the store will resolve
     immediately using the cached record.
 
     @method shouldReloadRecord
@@ -472,11 +472,11 @@ var Adapter = Ember.Object.extend({
     reload all records from the adapter when records are requested by
     `store.findAll`.
 
-    If this method returns true the store will re fetch all records from
-    the adapter. If is method returns false the store will resolve
+    If this method returns true, the store will re-fetch all records from
+    the adapter. If this method returns false, the store will resolve
     immediately using the cached record.
 
-    @method shouldReloadRecord
+    @method shouldReloadAll
     @param {DS.Store} store
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
