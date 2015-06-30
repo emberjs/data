@@ -308,33 +308,3 @@ test('buildURL - with absolute namespace', function() {
     equal(passedUrl, "/api/v1/posts/1");
   }));
 });
-
-
-test('buildURL - urlForFindRecord calls deprecated urlForFind', function() {
-  expect(2);
-
-  var adapter = DS.RESTAdapter.extend({
-    urlForFind: function() {
-      ok(true, 'urlForFind should be called');
-    }
-  }).create();
-
-  expectDeprecation(function() {
-    adapter.buildURL('post', 1, {}, 'findRecord');
-  }, /urlForFindRecord/);
-});
-
-
-test('buildURL - urlForQuery calls deprecated urlForFindQuery', function() {
-  expect(2);
-
-  var adapter = DS.RESTAdapter.extend({
-    urlForFindQuery: function() {
-      ok(true, 'urlForFindQuery should be called');
-    }
-  }).create();
-
-  expectDeprecation(function() {
-    adapter.buildURL('post', 1, {}, 'query');
-  }, /urlForQuery/);
-});
