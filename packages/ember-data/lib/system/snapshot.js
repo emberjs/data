@@ -3,6 +3,10 @@
 */
 
 var get = Ember.get;
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
 
 /**
   @class Snapshot
@@ -12,11 +16,11 @@ var get = Ember.get;
   @param {DS.Model} internalModel The model to create a snapshot from
 */
 function Snapshot(internalModel) {
-  this._attributes = Ember.create(null);
-  this._belongsToRelationships = Ember.create(null);
-  this._belongsToIds = Ember.create(null);
-  this._hasManyRelationships = Ember.create(null);
-  this._hasManyIds = Ember.create(null);
+  this._attributes = create(null);
+  this._belongsToRelationships = create(null);
+  this._belongsToIds = create(null);
+  this._hasManyRelationships = create(null);
+  this._hasManyIds = create(null);
 
   var record = internalModel.getRecord();
   this.record = record;
@@ -165,8 +169,8 @@ Snapshot.prototype = {
     @return {Object} All changed attributes of the current snapshot
   */
   changedAttributes: function() {
-    let changedAttributes = Ember.create(null);
-    let changedAttributeKeys = Ember.keys(this._changedAttributes);
+    let changedAttributes = create(null);
+    let changedAttributeKeys = keysFunc(this._changedAttributes);
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];

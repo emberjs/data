@@ -1,8 +1,12 @@
 const EmberError = Ember.Error;
-const create = Ember.create;
 
 const forEach = Ember.ArrayPolyfills.forEach;
 const SOURCE_POINTER_REGEXP = /data\/(attributes|relationships)\/(.*)/;
+
+import {
+  keysFunc,
+  create
+} from 'ember-data/system/object-polyfills';
 
 /**
   @class AdapterError
@@ -118,7 +122,7 @@ export function errorsHashToArray(errors) {
   let out = [];
 
   if (Ember.isPresent(errors)) {
-    forEach.call(Ember.keys(errors), function(key) {
+    forEach.call(keysFunc(errors), function(key) {
       let messages = Ember.makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         out.push({

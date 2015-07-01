@@ -1,3 +1,5 @@
+const keysFunc = Object.keys || Ember.keys;
+
 var env, store, Person, Dog;
 var run = Ember.run;
 
@@ -104,7 +106,7 @@ test("a record's changes can be made if it fails to save", function() {
 
       equal(person.get('firstName'), "Tom");
       equal(person.get('isError'), false);
-      equal(Ember.keys(person.changedAttributes()).length, 0);
+      equal(keysFunc(person.changedAttributes()).length, 0);
     });
   });
 });

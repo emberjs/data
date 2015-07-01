@@ -1,6 +1,11 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
 
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 /**
   @module ember-data
 */
@@ -633,9 +638,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   changedAttributes: function() {
     var oldData = get(this._internalModel, '_data');
     var newData = get(this._internalModel, '_attributes');
-    var diffData = Ember.create(null);
+    var diffData = create(null);
 
-    var newDataKeys = Ember.keys(newData);
+    var newDataKeys = keysFunc(newData);
 
     for (let i = 0, length = newDataKeys.length; i < length; i++) {
       let key = newDataKeys[i];
@@ -815,7 +820,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   // rely on the data property.
   willMergeMixin: function(props) {
     var constructor = this.constructor;
-    Ember.assert('`' + intersection(Ember.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Ember.keys(props), RESERVED_MODEL_PROPS)[0]);
+    Ember.assert('`' + intersection(keysFunc(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(keysFunc(props), RESERVED_MODEL_PROPS)[0]);
   },
 
   attr: function() {

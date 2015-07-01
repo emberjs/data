@@ -1,6 +1,10 @@
 import ManyRelationship from "ember-data/system/relationships/state/has-many";
 import BelongsToRelationship from "ember-data/system/relationships/state/belongs-to";
 
+import {
+  create
+} from 'ember-data/system/object-polyfills';
+
 var get = Ember.get;
 
 var createRelationshipFor = function(record, relationshipMeta, store) {
@@ -20,7 +24,7 @@ var createRelationshipFor = function(record, relationshipMeta, store) {
 
 var Relationships = function(record) {
   this.record = record;
-  this.initializedRelationships = Ember.create(null);
+  this.initializedRelationships = create(null);
 };
 
 Relationships.prototype.has = function(key) {

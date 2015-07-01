@@ -51,7 +51,13 @@ import ContainerInstanceCache from 'ember-data/system/store/container-instance-c
 
 import InternalModel from "ember-data/system/model/internal-model";
 
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
+
 
 //Shim Backburner.join
 if (!Backburner.prototype.join) {
@@ -311,7 +317,7 @@ Store = Service.extend({
   createRecord: function(modelName, inputProperties) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
-    var properties = copy(inputProperties) || Ember.create(null);
+    var properties = copy(inputProperties) || create(null);
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -1254,7 +1260,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
-      var keys = Ember.keys(typeMaps);
+      var keys = keysFunc(typeMaps);
 
       var types = map.call(keys, byType);
 
@@ -1271,7 +1277,7 @@ Store = Service.extend({
         record.destroy(); // maybe within unloadRecord
       }
 
-      typeMap.metadata = Ember.create(null);
+      typeMap.metadata = create(null);
     }
 
     function byType(entry) {
@@ -1614,9 +1620,9 @@ Store = Service.extend({
     if (typeMap) { return typeMap; }
 
     typeMap = {
-      idToRecord: Ember.create(null),
+      idToRecord: create(null),
       records: [],
-      metadata: Ember.create(null),
+      metadata: create(null),
       type: typeClass
     };
 
@@ -1845,10 +1851,10 @@ Store = Service.extend({
 
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
-        Ember.inspect(filter.call(Ember.keys(data), function(key) {
+        Ember.inspect(filter.call(keysFunc(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
-        filter.call(Ember.keys(data), function(key) {
+        filter.call(keysFunc(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         }).length === 0
       );

@@ -1,9 +1,12 @@
+import {
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 function merge(original, updates) {
   if (!updates || typeof updates !== 'object') {
     return original;
   }
-
-  var props = Ember.keys(updates);
+  var props = keysFunc(updates);
   var prop;
   var length = props.length;
 

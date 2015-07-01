@@ -1,5 +1,9 @@
 import Model from 'ember-data/system/model/model';
 
+import {
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var get = Ember.get;
@@ -242,14 +246,14 @@ export function convertResourceObject(payload) {
   };
 
   if (payload.attributes) {
-    var attributeKeys = Ember.keys(payload.attributes);
+    var attributeKeys = keysFunc(payload.attributes);
     forEach.call(attributeKeys, function(key) {
       var attribute = payload.attributes[key];
       data[key] = attribute;
     });
   }
   if (payload.relationships) {
-    var relationshipKeys = Ember.keys(payload.relationships);
+    var relationshipKeys = keysFunc(payload.relationships);
     forEach.call(relationshipKeys, function(key) {
       var relationship = payload.relationships[key];
       if (relationship.hasOwnProperty('data')) {

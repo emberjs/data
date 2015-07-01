@@ -1,3 +1,7 @@
+import {
+  create
+} from 'ember-data/system/object-polyfills';
+
 var EmberOrderedSet = Ember.OrderedSet;
 var guidFor = Ember.guidFor;
 
@@ -10,7 +14,7 @@ OrderedSet.create = function() {
   return new Constructor();
 };
 
-OrderedSet.prototype = Ember.create(EmberOrderedSet.prototype);
+OrderedSet.prototype = create(EmberOrderedSet.prototype);
 OrderedSet.prototype.constructor = OrderedSet;
 OrderedSet.prototype._super$constructor = EmberOrderedSet;
 

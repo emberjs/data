@@ -1,3 +1,5 @@
+const keysFunc = Object.keys || Ember.keys;
+
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 var hasMany = DS.hasMany;
@@ -105,7 +107,7 @@ test("can unload all records", function () {
 test("Unloading all records for a given type clears saved meta data.", function () {
 
   function metadataKeys(type) {
-    return Ember.keys(env.store.metadataFor(type));
+    return keysFunc(env.store.metadataFor(type));
   }
 
   run(function() {

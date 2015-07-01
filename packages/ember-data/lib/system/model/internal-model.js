@@ -3,14 +3,19 @@ import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
 
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 
-var _extractPivotNameCache = Ember.create(null);
-var _splitOnDotCache = Ember.create(null);
+var _extractPivotNameCache = create(null);
+var _splitOnDotCache = create(null);
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -51,13 +56,13 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this.id = id;
   this.store = store;
   this.container = container;
-  this._data = data || Ember.create(null);
+  this._data = data || create(null);
   this.modelName = type.modelName;
   this.dataHasInitialized = false;
   //Look into making this lazy
   this._deferredTriggers = [];
-  this._attributes = Ember.create(null);
-  this._inFlightAttributes = Ember.create(null);
+  this._attributes = create(null);
+  this._inFlightAttributes = create(null);
   this._relationships = new Relationships(this);
   this.currentState = RootState.empty;
   this.isReloading = false;
@@ -90,7 +95,7 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
     would have a implicit post relationship in order to be do things like remove ourselves from the post
     when we are deleted
   */
-  this._implicitRelationships = Ember.create(null);
+  this._implicitRelationships = create(null);
 };
 
 InternalModel.prototype = {
@@ -266,7 +271,7 @@ InternalModel.prototype = {
 
   flushChangedAttributes: function() {
     this._inFlightAttributes = this._attributes;
-    this._attributes = Ember.create(null);
+    this._attributes = create(null);
   },
 
   /**
@@ -327,12 +332,12 @@ InternalModel.prototype = {
   },
 
   rollbackAttributes: function() {
-    var dirtyKeys = Ember.keys(this._attributes);
+    var dirtyKeys = keysFunc(this._attributes);
 
-    this._attributes = Ember.create(null);
+    this._attributes = create(null);
 
     if (get(this, 'isError')) {
-      this._inFlightAttributes = Ember.create(null);
+      this._inFlightAttributes = create(null);
       this.didCleanError();
     }
 
@@ -350,7 +355,7 @@ InternalModel.prototype = {
     }
 
     if (this.isValid()) {
-      this._inFlightAttributes = Ember.create(null);
+      this._inFlightAttributes = create(null);
     }
 
     this.send('rolledBack');
@@ -458,7 +463,7 @@ InternalModel.prototype = {
       }
     }, this);
     var model = this;
-    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+    forEach.call(keysFunc(this._implicitRelationships), function(key) {
       model._implicitRelationships[key].clear();
       model._implicitRelationships[key].destroy();
     });
@@ -469,7 +474,7 @@ InternalModel.prototype = {
       this._relationships.get(name).disconnect();
     }, this);
     var model = this;
-    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+    forEach.call(keysFunc(this._implicitRelationships), function(key) {
       model._implicitRelationships[key].disconnect();
     });
   },
@@ -479,7 +484,7 @@ InternalModel.prototype = {
       this._relationships.get(name).reconnect();
     }, this);
     var model = this;
-    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+    forEach.call(keysFunc(this._implicitRelationships), function(key) {
       model._implicitRelationships[key].reconnect();
     });
   },
@@ -503,7 +508,7 @@ InternalModel.prototype = {
   _preloadData: function(preload) {
     var record = this;
     //TODO(Igor) consider the polymorphic case
-    forEach.call(Ember.keys(preload), function(key) {
+    forEach.call(keysFunc(preload), function(key) {
       var preloadValue = get(preload, key);
       var relationshipMeta = record.type.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
@@ -611,7 +616,7 @@ InternalModel.prototype = {
       merge(this._data, data);
     }
 
-    this._inFlightAttributes = Ember.create(null);
+    this._inFlightAttributes = create(null);
 
     this.send('didCommit');
     this.updateRecordArraysLater();
@@ -676,13 +681,13 @@ InternalModel.prototype = {
   },
 
   _saveWasRejected: function() {
-    var keys = Ember.keys(this._inFlightAttributes);
+    var keys = keysFunc(this._inFlightAttributes);
     for (var i=0; i < keys.length; i++) {
       if (this._attributes[keys[i]] === undefined) {
         this._attributes[keys[i]] = this._inFlightAttributes[keys[i]];
       }
     }
-    this._inFlightAttributes = Ember.create(null);
+    this._inFlightAttributes = create(null);
   },
 
   /**
@@ -732,10 +737,10 @@ InternalModel.prototype = {
 
     if (updates) {
       var original, i, value, key;
-      var keys = Ember.keys(updates);
+      var keys = keysFunc(updates);
       var length = keys.length;
 
-      original = merge(Ember.create(null), this._data);
+      original = merge(create(null), this._data);
       original = merge(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {

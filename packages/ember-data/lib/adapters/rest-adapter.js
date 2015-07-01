@@ -16,6 +16,11 @@ var get = Ember.get;
 var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
 /**
@@ -231,7 +236,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   sortQueryParams: function(obj) {
-    var keys = Ember.keys(obj);
+    var keys = keysFunc(obj);
     var len = keys.length;
     if (len < 2) {
       return obj;
@@ -940,7 +945,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     var headers = get(this, 'headers');
     if (headers !== undefined) {
       hash.beforeSend = function (xhr) {
-        forEach.call(Ember.keys(headers), function(key) {
+        forEach.call(keysFunc(headers), function(key) {
           xhr.setRequestHeader(key, headers[key]);
         });
       };
@@ -989,7 +994,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 });
 
 function parseResponseHeaders(headerStr) {
-  var headers = Ember.create(null);
+  var headers = create(null);
   if (!headerStr) { return headers; }
 
   var headerPairs = headerStr.split('\u000d\u000a');

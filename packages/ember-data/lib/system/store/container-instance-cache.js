@@ -1,5 +1,10 @@
 import Ember from 'ember';
 
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 /**
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
  * instances of serializers and adapters. It has some additional logic for
@@ -20,10 +25,10 @@ import Ember from 'ember';
 */
 function ContainerInstanceCache(container) {
   this._container  = container;
-  this._cache      = Ember.create(null);
+  this._cache      = create(null);
 }
 
-ContainerInstanceCache.prototype = Ember.create(null);
+ContainerInstanceCache.prototype = create(null);
 
 Ember.merge(ContainerInstanceCache.prototype, {
   get: function(type, preferredKey, fallbacks) {
@@ -68,7 +73,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
 
   destroy: function() {
     let cache = this._cache;
-    let cacheEntries = Ember.keys(cache);
+    let cacheEntries = keysFunc(cache);
 
     for (let i = 0, length = cacheEntries.length; i < length; i++) {
       let cacheKey = cacheEntries[i];
