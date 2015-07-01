@@ -872,7 +872,7 @@ Model.reopenClass({
      }
    });
    ```
-   @property
+   @property modelName
    @type String
    @readonly
   */
