@@ -1018,3 +1018,51 @@ test("findAll should pass adapterOptions to the findAll method", function() {
     store.findAll('person', { adapterOptions: { query: { embed: true } } });
   });
 });
+
+
+test("An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord", function() {
+  var Post = DS.Model.extend({
+    name: DS.attr("string"),
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  var Comment = DS.Model.extend({
+    name: DS.attr("string")
+  });
+
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter.extend({
+      findRecord: function() {
+        return {
+          posts: {
+            id: 1,
+            name: "Rails is omakase",
+            links: { comments: '/posts/1/comments' }
+          }
+        };
+      },
+      findHasMany: function() {
+        return Ember.RSVP.resolve({
+          comments: [
+            { id: 1, name: "FIRST" },
+            { id: 2, name: "Rails is unagi" },
+            { id: 3, name: "What is omakase?" }
+          ]
+        });
+      },
+      shouldBackgroundReloadRecord: function() {
+        ok(false, 'shouldBackgroundReloadRecord should not be called');
+      }
+    })
+  });
+
+  store = env.store;
+
+  run(store, 'find', 'post', '1').then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('length'), 3);
+  }));
+});
