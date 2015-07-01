@@ -105,7 +105,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
       inverse: 'messages'
     })
   });
-
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.findRecord = function(store, type, id, snapshot) {
     ok(true, "The adapter's find method should be called");
     return Ember.RSVP.resolve({
@@ -139,7 +139,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
-
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -169,6 +169,7 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
 });
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   expect(1);
   run(function() {
     store.push({
@@ -219,6 +220,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 });
 
 test("The store can load a polymorphic belongsTo association", function() {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
       data: {
@@ -254,6 +256,7 @@ test("The store can load a polymorphic belongsTo association", function() {
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   var serializerInstance = store.serializerFor('comment');
 
   serializerInstance.serializePolymorphicType = function(record, json, relationship) {
@@ -291,6 +294,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
 });
 
 test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function() {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   var Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -341,6 +345,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
 });
 
 test('A record with an async belongsTo relationship always returns a promise for that relationship', function () {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   var Seat = DS.Model.extend({
     person: DS.belongsTo('person', { async: false })
   });
@@ -391,6 +396,7 @@ test('A record with an async belongsTo relationship always returns a promise for
 test("A record with an async belongsTo relationship returning null should resolve null", function() {
   expect(1);
 
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   var Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -436,6 +442,7 @@ test("A record with an async belongsTo relationship returning null should resolv
 test("A record can be created with a resolved belongsTo promise", function() {
   expect(1);
 
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   var Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });

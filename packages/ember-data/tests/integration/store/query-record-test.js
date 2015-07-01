@@ -56,9 +56,9 @@ test("When a record is requested, and the promise is rejected, .queryRecord() is
   }));
 
   run(function() {
-    store.queryRecord('person', {}).then(null, async(function(reason) {
+    store.queryRecord('person', {}).catch(function(reason) {
       ok(true, "The rejection handler was called");
-    }));
+    });
   });
 });
 

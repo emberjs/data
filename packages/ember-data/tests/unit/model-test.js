@@ -38,7 +38,7 @@ test("can have a property set on it", function() {
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
   expect(2);
-
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -64,6 +64,7 @@ test("setting a property on a record that has not changed does not cause it to b
 
 test("resetting a property on a record cause it to become clean again", function() {
   expect(3);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -88,6 +89,7 @@ test("resetting a property on a record cause it to become clean again", function
 
 test("a record becomes clean again only if all changed properties are reset", function() {
   expect(5);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -116,6 +118,7 @@ test("a record becomes clean again only if all changed properties are reset", fu
 
 test("a record reports its unique id via the `id` property", function() {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -132,6 +135,7 @@ test("a record reports its unique id via the `id` property", function() {
 
 test("a record's id is included in its toString representation", function() {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -174,6 +178,7 @@ test("trying to set an `id` attribute should raise", function() {
 
 test("a collision of a record's id with object function's name", function() {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var hasWatchMethod = Object.prototype.watch;
   try {
@@ -431,6 +436,7 @@ module("unit/model - DS.Model updating", {
 
 test("a DS.Model can update its attributes", function() {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.findRecord('person', 2).then(function(person) {
@@ -562,6 +568,7 @@ test("setting a property to undefined on a newly created record should not impac
 // thrown out if/when the current `_attributes` hash logic is removed.
 test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
   expect(3);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.findRecord('person', 1).then(function(person) {
@@ -706,9 +713,8 @@ var converts = function(type, provided, expected) {
   run(function() {
     testStore.push(testStore.normalize('model', { id: 1, name: provided }));
     testStore.push(testStore.normalize('model', { id: 2 }));
-    testStore.findRecord('model', 1).then(function(record) {
-      deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-    });
+    var record = testStore.peekRecord('model', 1);
+    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
   });
 
   // See: Github issue #421
@@ -730,7 +736,12 @@ var convertsFromServer = function(type, provided, expected) {
     container = new Ember.Container();
     registry = container;
   }
-  var testStore = createStore({ model: Model });
+  var testStore = createStore({
+    model: Model,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
+  });
 
   run(function() {
     testStore.push(testStore.normalize('model', { id: "1", name: provided }));
@@ -745,7 +756,12 @@ var convertsWhenSet = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var testStore = createStore({ model: Model });
+  var testStore = createStore({
+    model: Model,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
+  });
 
   run(function() {
     testStore.push({
@@ -813,7 +829,10 @@ test("a DS.Model can describe Date attributes", function() {
   });
 
   var store = createStore({
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
   });
 
   run(function() {

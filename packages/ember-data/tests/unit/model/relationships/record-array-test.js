@@ -66,6 +66,7 @@ test("can create child record from a hasMany relationship", function() {
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
