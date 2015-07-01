@@ -25,7 +25,12 @@ module("integration/adapter/record_persistence - Persisting Records", {
     });
     Person.toString = function() { return "Person"; };
 
-    env = setupStore({ person: Person });
+    env = setupStore({
+      adapter: DS.Adapter.extend({
+        shouldBackgroundReloadRecord: () => false
+      }),
+      person: Person
+    });
     store = env.store;
   },
 
@@ -58,11 +63,13 @@ test("When a store is committed, the adapter's `commit` method should be called 
 
   var tom;
 
-  env.store.find('person', 1).then(async(function(person) {
-    tom = person;
-    set(tom, "name", "Tom Dale");
-    tom.save();
-  }));
+  run(function() {
+    env.store.findRecord('person', 1).then(async(function(person) {
+      tom = person;
+      set(tom, "name", "Tom Dale");
+      tom.save();
+    }));
+  });
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {

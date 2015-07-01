@@ -576,25 +576,27 @@ test("update - an empty payload is a basic success", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  run(function() {
+    var post = store.peekRecord('post', 1);
     ajaxResponse();
 
     post.set('name', "The Parley Letter");
-    return post.save();
-  })).then(async(function(post) {
-    equal(passedUrl, "/posts/1");
-    equal(passedVerb, "PUT");
-    deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
+    post.save().then(async(function(post) {
+      equal(passedUrl, "/posts/1");
+      equal(passedVerb, "PUT");
+      deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
 
-    equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
-    equal(post.get('name'), "The Parley Letter", "the post was updated");
-  }));
+      equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
+      equal(post.get('name'), "The Parley Letter", "the post was updated");
+    }));
+  });
 });
 
 test("update - passes the requestType to buildURL", function() {
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
   };
+  adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -608,17 +610,20 @@ test("update - passes the requestType to buildURL", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
-    ajaxResponse();
+  run(function() {
+    store.findRecord('post', 1).then(async(function(post) {
+      ajaxResponse();
 
-    post.set('name', "The Parley Letter");
-    return post.save();
-  })).then(async(function(post) {
-    equal(passedUrl, "/posts/1/updateRecord");
-  }));
+      post.set('name', "The Parley Letter");
+      return post.save();
+    })).then(async(function(post) {
+      equal(passedUrl, "/posts/1/updateRecord");
+    }));
+  });
 });
 
 test("update - a payload with updates applies the updates", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -631,7 +636,7 @@ test("update - a payload with updates applies the updates", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }] });
 
     post.set('name', "The Parley Letter");
@@ -647,6 +652,7 @@ test("update - a payload with updates applies the updates", function() {
 });
 
 test("update - a payload with updates applies the updates (with legacy singular name)", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -659,7 +665,7 @@ test("update - a payload with updates applies the updates (with legacy singular 
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({ post: { id: 1, name: "Dat Parley Letter" } });
 
     post.set('name', "The Parley Letter");
@@ -698,6 +704,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
 });
 
 test("update - a payload with sideloaded updates pushes the updates", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -710,7 +717,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       posts: [{ id: 1, name: "Dat Parley Letter" }],
       comments: [{ id: 1, name: "FIRST" }]
@@ -732,6 +739,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
 });
 
 test("update - a serializer's primary key and attributes are consulted when building the payload", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
 
@@ -751,7 +759,7 @@ test("update - a serializer's primary key and attributes are consulted when buil
   });
   ajaxResponse();
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     post.set('name', "The Parley Letter");
     return post.save();
   })).then(async(function(post) {
@@ -762,6 +770,7 @@ test("update - a serializer's primary key and attributes are consulted when buil
 test("update - hasMany relationships faithfully reflect simultaneous adds and removes", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+  adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -799,8 +808,8 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
     posts: { id: 1, name: "Not everyone uses Rails", comments: [2] }
   });
 
-  store.find('comment', 2).then(async(function() {
-    return store.find('post', 1);
+  store.findRecord('comment', 2).then(async(function() {
+    return store.findRecord('post', 1);
   })).then(async(function(post) {
     var newComment = store.peekRecord('comment', 2);
     var comments = post.get('comments');
@@ -817,6 +826,7 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
 });
 
 test("delete - an empty payload is a basic success", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -829,7 +839,7 @@ test("delete - an empty payload is a basic success", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse();
 
     post.deleteRecord();
@@ -845,6 +855,7 @@ test("delete - an empty payload is a basic success", function() {
 });
 
 test("delete - passes the requestType to buildURL", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
   };
@@ -861,7 +872,7 @@ test("delete - passes the requestType to buildURL", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse();
 
     post.deleteRecord();
@@ -872,6 +883,7 @@ test("delete - passes the requestType to buildURL", function() {
 });
 
 test("delete - a payload with sideloaded updates pushes the updates", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -884,7 +896,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({ comments: [{ id: 1, name: "FIRST" }] });
 
     post.deleteRecord();
@@ -903,6 +915,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
 });
 
 test("delete - a payload with sidloaded updates pushes the updates when the original record is omitted", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: {
@@ -915,7 +928,7 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({ posts: [{ id: 2, name: "The Parley Letter" }] });
 
     post.deleteRecord();
@@ -1446,6 +1459,7 @@ test("findMany - findMany does not coalesce by default", function() {
 });
 
 test("findMany - returning an array populates the array", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
@@ -1470,7 +1484,7 @@ test("findMany - returning an array populates the array", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1498,6 +1512,7 @@ test("findMany - returning an array populates the array", function() {
 });
 
 test("findMany - returning sideloaded data loads the data", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
@@ -1522,7 +1537,7 @@ test("findMany - returning sideloaded data loads the data", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1553,6 +1568,7 @@ test("findMany - returning sideloaded data loads the data", function() {
 });
 
 test("findMany - a custom serializer is used if present", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
@@ -1587,7 +1603,7 @@ test("findMany - a custom serializer is used if present", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       comments: [
         { _ID_: 1, _NAME_: "FIRST" },
@@ -1610,6 +1626,7 @@ test("findMany - a custom serializer is used if present", function() {
 });
 
 test("findHasMany - returning an array populates the array", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   run(function() {
@@ -1631,7 +1648,7 @@ test("findHasMany - returning an array populates the array", function() {
     });
   });
 
-  run(store, 'find', 'post', '1').then(async(function(post) {
+  run(store, 'findRecord', 'post', '1').then(async(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1659,6 +1676,7 @@ test("findHasMany - returning an array populates the array", function() {
 });
 
 test("findHasMany - passes buildURL the requestType", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
     equal(requestType, 'findHasMany');
   };
@@ -1684,7 +1702,7 @@ test("findHasMany - passes buildURL the requestType", function() {
     });
   });
 
-  run(store, 'find', 'post', '1').then(async(function(post) {
+  run(store, 'findRecord', 'post', '1').then(async(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1702,6 +1720,7 @@ test("findHasMany - passes buildURL the requestType", function() {
 
 
 test("findMany - returning sideloaded data loads the data", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
@@ -1724,7 +1743,7 @@ test("findMany - returning sideloaded data loads the data", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1748,6 +1767,7 @@ test("findMany - returning sideloaded data loads the data", function() {
 });
 
 test("findMany - a custom serializer is used if present", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
@@ -1779,7 +1799,7 @@ test("findMany - a custom serializer is used if present", function() {
     });
   });
 
-  store.find('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(async(function(post) {
     ajaxResponse({
       comments: [
         { _ID_: 1, _NAME_: "FIRST" },
@@ -1802,6 +1822,7 @@ test("findMany - a custom serializer is used if present", function() {
 });
 
 test('findBelongsTo - passes buildURL the requestType', function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
     equal(requestType, 'findBelongsTo');
   };
@@ -1827,7 +1848,7 @@ test('findBelongsTo - passes buildURL the requestType', function() {
     });
   });
 
-  run(store, 'find', 'comment', 1).then(async(function(comment) {
+  run(store, 'findRecord', 'comment', 1).then(async(function(comment) {
     ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
     return comment.get('post');
   })).then(async(function(post) {

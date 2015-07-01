@@ -96,6 +96,10 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
     ok(false, "The adapter's find method should not be called");
   };
 
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1, comments: [1] };
+  };
+
   run(function() {
     env.store.push({
       data: {
@@ -131,6 +135,10 @@ test("adapter.findMany only gets unique IDs even if duplicate IDs are present in
       { id: 2, title: 'Chapter One' },
       { id: 3, title: 'Chapter Two' }
     ]);
+  };
+
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1, chapters: [2, 3, 3] };
   };
 
   run(function() {
@@ -753,6 +761,10 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
     ok(false, "The adapter's find method should not be called");
   };
 
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1, messages: [{ id: 1, type: 'post' }, { id: 3, type: 'comment' }] };
+  };
+
   run(function() {
     env.store.push({
       data: {
@@ -789,7 +801,7 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   User.reopen({
     messages: hasMany('message', { polymorphic: true, async: true })
   });
-
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Post) {
       return Ember.RSVP.resolve({ id: 1 });
@@ -848,6 +860,11 @@ test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_IN
 
 test("Type can be inferred from the key of a hasMany relationship", function() {
   expect(1);
+
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1, contacts: [1] };
+  };
+
   run(function() {
     env.store.push({
       data: {
@@ -877,11 +894,16 @@ test("Type can be inferred from the key of a hasMany relationship", function() {
 });
 
 test("Type can be inferred from the key of an async hasMany relationship", function() {
+  expect(1);
+
   User.reopen({
     contacts: DS.hasMany({ async: true })
   });
 
-  expect(1);
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1, contacts: [1] };
+  };
+
   run(function() {
     env.store.push({
       data: {
@@ -914,6 +936,10 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
   User.reopen({
     contacts: DS.hasMany({ polymorphic: true, async: false })
   });
+
+  env.adapter.findRecord = function(store, type, ids, snapshots) {
+    return { id: 1 };
+  };
 
   expect(1);
   run(function() {
@@ -972,6 +998,7 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
 });
 
 test("A record can't be created from a polymorphic hasMany relationship", function() {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
       data: {
@@ -999,6 +1026,7 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
 
 test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
       data: [{
@@ -1030,6 +1058,7 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
 
 test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
   expect(2);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
       data: [{
@@ -1090,7 +1119,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
 test("A record can be removed from a polymorphic association", function() {
   expect(4);
-
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
       data: {
@@ -1965,7 +1994,9 @@ test("adding and removing records from hasMany relationship #2666", function() {
   env = setupStore({
     post: Post,
     comment: Comment,
-    adapter: DS.RESTAdapter
+    adapter: DS.RESTAdapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
   });
 
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({

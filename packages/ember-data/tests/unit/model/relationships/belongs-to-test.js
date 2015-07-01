@@ -20,6 +20,7 @@ test("belongsTo lazily loads relationships as needed", function() {
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -149,12 +150,11 @@ test("async belongsTo relationships work when the data hash has already been loa
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
-      return run(function() {
-        return get(person, 'tag');
-      });
-    })).then(async(function(tag) {
+    var person = store.peekRecord('person', 1);
+    equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+    return run(function() {
+      return get(person, 'tag');
+    }).then(async(function(tag) {
       equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
       equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
     }));
@@ -176,6 +176,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.createRecord('person', { id: 1, tag: undefined });
@@ -205,6 +206,7 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
 
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
     equal(snapshots[0].belongsTo('person').id, '1');
@@ -312,6 +314,7 @@ test("belongsTo supports relationships to models with id 0", function() {
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -375,6 +378,7 @@ test("belongsTo gives a warning when provided with a serialize option", function
 
   var env = setupStore({ hobby: Hobby, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
@@ -428,6 +432,7 @@ test("belongsTo gives a warning when provided with an embedded option", function
 
   var env = setupStore({ hobby: Hobby, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({

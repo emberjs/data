@@ -69,7 +69,7 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
 
 test("by default, createRecords calls createRecord once per record", function() {
   var count = 1;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.createRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -114,7 +114,7 @@ test("by default, createRecords calls createRecord once per record", function() 
 
 test("by default, updateRecords calls updateRecord once per record", function() {
   var count = 0;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -180,7 +180,7 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
 test("calling store.didSaveRecord can provide an optional hash", function() {
   var count = 0;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -244,7 +244,7 @@ test("by default, deleteRecord calls deleteRecord once per record", function() {
   expect(4);
 
   var count = 0;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -302,7 +302,7 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
   expect(4);
 
   var count = 0;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -357,7 +357,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   expect(5);
 
   var count = 0;
-
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     count++;
     equal(snapshot.id, 'deleted-record', "should pass correct record to deleteRecord");
@@ -401,6 +401,7 @@ test("if a deleted record errors, it enters the error state", function() {
   var count = 0;
   var error = new DS.AdapterError();
 
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject(error);
@@ -588,6 +589,7 @@ test("if a created record is marked as erred by the server, it enters an error s
 });
 
 test("if an updated record is marked as invalid by the server, it enters an error state", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
@@ -643,6 +645,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
 
 
 test("records can have errors on arbitrary properties after update", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ base: ['is a generally unsavoury character'] }));
@@ -702,6 +705,7 @@ test("records can have errors on arbitrary properties after update", function() 
 
 test("if an updated record is marked as invalid by the server, you can attempt the save again", function() {
   var saveCount = 0;
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
     saveCount++;
@@ -762,6 +766,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
 test("if a updated record is marked as erred by the server, it enters an error state", function() {
   var error = new DS.AdapterError();
 
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject(error);
   };
@@ -803,6 +808,7 @@ test("can be created after the DS.Store", function() {
 });
 
 test("the filter method can optionally take a server query as well", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   adapter.query = function(store, type, query, array) {
     return Ember.RSVP.resolve([
       { id: 1, name: "Yehuda Katz" },
@@ -894,6 +900,7 @@ test("relationships returned via `commit` do not trigger additional findManys", 
 });
 
 test("relationships don't get reset if the links is the same", function() {
+  adapter.shouldBackgroundReloadRecord = () => false;
   Person.reopen({
     dogs: DS.hasMany({ async: true })
   });

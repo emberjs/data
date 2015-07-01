@@ -213,7 +213,8 @@ test("a Record Array can update its filter", function() {
   customAdapter(env, DS.Adapter.extend({
     deleteRecord: function(store, type, snapshot) {
       return Ember.RSVP.resolve();
-    }
+    },
+    shouldBackgroundReloadRecord: () => false
   }));
 
   run(function() {
@@ -286,7 +287,8 @@ test("a Record Array can update its filter and notify array observers", function
   customAdapter(env, DS.Adapter.extend({
     deleteRecord: function(store, type, snapshot) {
       return Ember.RSVP.resolve();
-    }
+    },
+    shouldBackgroundReloadRecord: () => false
   }));
 
   run(function() {
@@ -382,6 +384,9 @@ test("a Record Array can update its filter and notify array observers", function
 });
 
 test("it is possible to filter by computed properties", function() {
+  customAdapter(env, DS.Adapter.extend({
+    shouldBackgroundReloadRecord: () => false
+  }));
   Person.reopen({
     name: DS.attr('string'),
     upperName: Ember.computed(function() {
@@ -422,6 +427,9 @@ test("it is possible to filter by computed properties", function() {
 });
 
 test("a filter created after a record is already loaded works", function() {
+  customAdapter(env, DS.Adapter.extend({
+    shouldBackgroundReloadRecord: () => false
+  }));
   Person.reopen({
     name: DS.attr('string'),
     upperName: Ember.computed(function() {
@@ -514,7 +522,8 @@ test("it is possible to filter loaded records by dirtiness", function() {
   customAdapter(env, DS.Adapter.extend({
     updateRecord: function() {
       return Ember.RSVP.resolve();
-    }
+    },
+    shouldBackgroundReloadRecord: () => false
   }));
 
   var filter = store.filter('person', function(person) {
@@ -555,7 +564,8 @@ test("it is possible to filter created records by dirtiness", function() {
     customAdapter(env, DS.Adapter.extend({
       createRecord: function() {
         return Ember.RSVP.resolve();
-      }
+      },
+      shouldBackgroundReloadRecord: () => false
     }));
   });
 
@@ -662,7 +672,8 @@ test("a Record Array can update its filter after server-side updates one record"
   setup({
     updateRecord: function(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Scumbag Server-side Dale" });
-    }
+    },
+    shouldBackgroundReloadRecord: () => false
   });
 
   clientEdits([1]);
@@ -681,7 +692,8 @@ test("a Record Array can update its filter after server-side updates multiple re
         case "2":
           return Ember.RSVP.resolve({ id: 2, name: "Scumbag Server-side Katz" });
       }
-    }
+    },
+    shouldBackgroundReloadRecord: () => false
   });
 
   clientEdits([1,2]);
@@ -745,6 +757,9 @@ test("a Record Array can update its filter after server-side creates multiple re
 
 test("destroying filteredRecordArray unregisters models from being filtered", function() {
   var filterFn = tapFn(function() { return true; });
+  customAdapter(env, DS.Adapter.extend({
+    shouldBackgroundReloadRecord: () => false
+  }));
   run(function () {
     store.push({
       data: [{

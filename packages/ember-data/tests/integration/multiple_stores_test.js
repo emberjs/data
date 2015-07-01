@@ -41,6 +41,10 @@ module("integration/multiple_stores - Multiple Stores Tests", {
 });
 
 test("should be able to push into multiple stores", function() {
+  env.registry.register('adapter:home-planet', DS.RESTAdapter.extend({
+    shouldBackgroundReloadRecord: () => false
+  }));
+
   var home_planet_main = { id: '1', name: 'Earth' };
   var home_planet_a = { id: '1', name: 'Mars' };
   var home_planet_b = { id: '1', name: 'Saturn' };
@@ -51,15 +55,15 @@ test("should be able to push into multiple stores", function() {
     env.store_b.push(env.store_b.normalize('home-planet', home_planet_b));
   });
 
-  run(env.store, 'find', 'home-planet', 1).then(async(function(homePlanet) {
+  run(env.store, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Earth");
   }));
 
-  run(env.store_a, 'find', 'home-planet', 1).then(async(function(homePlanet) {
+  run(env.store_a, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Mars");
   }));
 
-  run(env.store_b, 'find', 'home-planet', 1).then(async(function(homePlanet) {
+  run(env.store_b, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
     equal(homePlanet.get('name'), "Saturn");
   }));
 

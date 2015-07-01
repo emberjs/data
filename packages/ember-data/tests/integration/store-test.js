@@ -112,6 +112,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
 
 test("destroying the store correctly cleans everything up", function() {
   var car, person;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
       data: [{
@@ -305,8 +306,8 @@ test("Using store#findAll with no records triggers a query", function() {
   });
 });
 
-test("Using store#findAll with existing records performs a query, updating existing records and returning new ones", function() {
-  expect(3);
+test("Using store#findAll with existing records performs a query in the background, updating existing records and returning new ones", function() {
+  expect(4);
 
   run(function() {
     store.push({
@@ -339,15 +340,20 @@ test("Using store#findAll with existing records performs a query, updating exist
 
   run(function() {
     store.findAll('car').then(function(cars) {
-      equal(cars.get('length'), 2, 'There is 2 cars in the store now');
-      var mini = cars.findBy('id', '1');
-      equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+      equal(cars.get('length'), 1, 'Store resolves with the existing records');
     });
+  });
+
+  run(function() {
+    var cars = store.peekAll('car');
+    equal(cars.get('length'), 2, 'There is 2 cars in the store now');
+    var mini = cars.findBy('id', '1');
+    equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
   });
 });
 
-test("store#findAll should return all known records even if they are not in the adapter response", function() {
-  expect(4);
+test("store#findAll should eventually return all known records even if they are not in the adapter response", function() {
+  expect(5);
 
   run(function() {
     store.push({
@@ -383,14 +389,22 @@ test("store#findAll should return all known records even if they are not in the 
   run(function() {
     store.findAll('car').then(function(cars) {
       equal(cars.get('length'), 2, 'It returns all cars');
-      var mini = cars.findBy('id', '1');
-      equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
 
       var carsInStore = store.peekAll('car');
       equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
     });
   });
+
+  run(function() {
+    var cars = store.peekAll('car');
+    var mini = cars.findBy('id', '1');
+    equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+
+    var carsInStore = store.peekAll('car');
+    equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
+  });
 });
+
 
 test("Using store#fetch on an empty record calls find", function() {
   expect(2);
