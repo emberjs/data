@@ -163,10 +163,10 @@ var Adapter = Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      query: function(store, type, query) {
+      query: function(store, type, options) {
         var url = type;
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, query).then(function(data) {
+          jQuery.getJSON(url, options.query).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
@@ -201,11 +201,11 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      queryRecord: function(store, typeClass, query) {
+      queryRecord: function(store, typeClass, options) {
         var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, query).then(function(data) {
+          jQuery.getJSON(url, options.query).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
