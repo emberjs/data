@@ -534,7 +534,8 @@ var JSONSerializer = Serializer.extend({
 
     http://jsonapi.org/format/#document-resource-object-attributes
 
-    @method extractId
+    @method extractAttributes
+    @param {Object} modelClass
     @param {Object} resourceHash
     @return {Object}
   */
