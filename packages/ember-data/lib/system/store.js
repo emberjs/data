@@ -959,7 +959,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   query: function(modelName, options) {
-    Ember.assert("You need to pass a namespaced query hash to the store's query method", options && options.query);
+    Ember.assert("You need to pass a query hash in the options hash of the store's query method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var array = this.recordArrayManager
@@ -992,7 +992,7 @@ Store = Service.extend({
   queryRecord: function(modelName, options) {
     options = options || {};
     Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
-    Ember.assert("You need to pass a namespaced query hash to the store's queryRecord method", options && options.query);
+    Ember.assert("You need to pass a query hash in the options hash of the store's queryRecord method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var typeClass = this.modelFor(modelName);

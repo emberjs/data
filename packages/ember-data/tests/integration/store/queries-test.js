@@ -2,7 +2,7 @@ var get = Ember.get;
 var Person, env, store, adapter;
 var run = Ember.run;
 
-module("integration/adapter/queries - Queries", {
+module("integration/store/queries - Queries", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),

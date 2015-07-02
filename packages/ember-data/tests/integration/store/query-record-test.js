@@ -30,7 +30,7 @@ test("It raises an assertion when no type is passed", function() {
 test("It raises an assertion when the query is not namespaced in a hash", function() {
   expectAssertion(function() {
     store.queryRecord('person', { withRelated: 'posts' });
-  }, "You need to pass a namespaced query hash to the store's queryRecord method");
+  }, "You need to pass a query hash in the options hash of the store's queryRecord method");
 });
 
 test("When a record is requested, the adapter's queryRecord method should be called.", function() {
