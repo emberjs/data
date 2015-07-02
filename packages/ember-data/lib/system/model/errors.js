@@ -45,8 +45,10 @@ import {
 
   ```javascript
   {
-    "username": ["This username is already taken!"],
-    "email": ["Doesn't look like a valid email."]
+    "errors": {
+      "username": ["This username is already taken!"],
+      "email": ["Doesn't look like a valid email."]
+    }
   }
   ```
 
