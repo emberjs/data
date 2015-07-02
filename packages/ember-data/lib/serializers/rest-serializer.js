@@ -8,10 +8,15 @@ import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 import { pushPayload } from "ember-data/system/store/serializer-response";
 
+import {
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
 var get = Ember.get;
+
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -254,7 +259,7 @@ var RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    var keys = Ember.keys(payload);
+    var keys = keysFunc(payload);
 
     for (let i = 0, length = keys.length; i < length; i++) {
       let prop = keys[i];

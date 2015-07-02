@@ -1,3 +1,5 @@
+const keysFunc = Object.keys || Ember.keys;
+
 var get = Ember.get;
 var set = Ember.set;
 var run = Ember.run;
@@ -210,7 +212,7 @@ test("changedAttributes() return correct values", function() {
     mascot = store.push('mascot', { id: 1, likes: 'JavaScript', isMascot: true });
   });
 
-  equal(Ember.keys(mascot.changedAttributes()).length, 0, 'there are no initial changes');
+  equal(keysFunc(mascot.changedAttributes()).length, 0, 'there are no initial changes');
   run(function() {
     mascot.set('name', 'Tomster');   // new value
     mascot.set('likes', 'Ember.js'); // changed value
@@ -223,7 +225,7 @@ test("changedAttributes() return correct values", function() {
   run(function() {
     mascot.rollbackAttributes();
   });
-  equal(Ember.keys(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
+  equal(keysFunc(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
 });
 
 test("a DS.Model does not require an attribute type", function() {

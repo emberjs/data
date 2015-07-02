@@ -1,3 +1,8 @@
+import {
+  create,
+  keysFunc
+} from 'ember-data/system/object-polyfills';
+
 /**
   @module ember-data
 */
@@ -246,7 +251,7 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(internalModel, name) {
-      var length = Ember.keys(internalModel._attributes).length;
+      var length = keysFunc(internalModel._attributes).length;
       var stillDirty = length > 0;
 
       if (!stillDirty) { internalModel.send('rolledBack'); }
@@ -354,7 +359,7 @@ var DirtyState = {
     },
 
     exit: function(internalModel) {
-      internalModel._inFlightAttributes = Ember.create(null);
+      internalModel._inFlightAttributes = create(null);
     }
   }
 };
@@ -546,7 +551,7 @@ var RootState = {
     saved: {
       setup: function(internalModel) {
         var attrs = internalModel._attributes;
-        var isDirty = Ember.keys(attrs).length > 0;
+        var isDirty = keysFunc(attrs).length > 0;
 
         if (isDirty) {
           internalModel.adapterDidDirty();
@@ -740,7 +745,7 @@ var RootState = {
 function wireState(object, parent, name) {
   /*jshint proto:true*/
   // TODO: Use Object.create and copy instead
-  object = mixin(parent ? Ember.create(parent) : {}, object);
+  object = mixin(parent ? create(parent) : {}, object);
   object.parentState = parent;
   object.stateName = name;
 

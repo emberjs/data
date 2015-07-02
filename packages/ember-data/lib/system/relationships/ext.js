@@ -8,6 +8,10 @@ import {
   MapWithDefault
 } from "ember-data/system/map";
 
+import {
+  create
+} from 'ember-data/system/object-polyfills';
+
 var get = Ember.get;
 var filter = Ember.ArrayPolyfills.filter;
 
@@ -186,7 +190,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return Ember.create(null);
+    return create(null);
   }),
 
   /**

@@ -1,3 +1,5 @@
+const keysFunc = Object.keys || Ember.keys;
+
 var env, store, adapter, Post, Comment, SuperUser;
 var passedUrl, passedVerb, passedHash;
 var run = Ember.run;
@@ -956,7 +958,7 @@ test("findQuery - if `sortQueryParams` option is not provided, query params are 
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
+    deepEqual(keysFunc(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -988,7 +990,7 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
+    deepEqual(keysFunc(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -1006,13 +1008,13 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
+    deepEqual(keysFunc(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
 
   adapter.sortQueryParams = function(obj) {
-    var sortedKeys = Object.keys(obj).sort().reverse();
+    var sortedKeys = keysFunc(obj).sort().reverse();
     var len = sortedKeys.length;
     var newQueryParams = {};
 

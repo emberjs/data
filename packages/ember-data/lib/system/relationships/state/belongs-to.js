@@ -6,6 +6,10 @@ import { assertPolymorphicType } from "ember-data/utils";
 
 import Relationship from "ember-data/system/relationships/state/relationship";
 
+import {
+  create
+} from 'ember-data/system/object-polyfills';
+
 var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.record = record;
@@ -14,7 +18,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
   this.canonicalState = null;
 };
 
-BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
+BelongsToRelationship.prototype = create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 BelongsToRelationship.prototype._super$constructor = Relationship;
 
