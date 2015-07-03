@@ -32,15 +32,3 @@ test("peekRecord should return null if the record is not in the store ", functio
     equal(null, store.peekRecord('person', 1), 'peekRecord returns null if the corresponding record is not in the store');
   });
 });
-
-test("getById is deprecated", function() {
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.push('person', { id: 1 });
-        store.getById('person', 1);
-      });
-    },
-    'Using store.getById() has been deprecated. Use store.peekRecord to get a record by a given type and ID without triggering a fetch.'
-  );
-});

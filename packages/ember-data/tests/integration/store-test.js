@@ -179,30 +179,6 @@ test("destroying the store correctly cleans everything up", function() {
   equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
 });
 
-module("integration/store - findById() [deprecated]", {
-  setup: function() {
-    initializeStore(DS.RESTAdapter.extend());
-  }
-});
-
-test("store.findById() is deprecated", function() {
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.push('person', { id: 1, name: "Tomster" });
-        store.findById('person', 1);
-      });
-    },
-    'Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.'
-  );
-});
-
-module("integration/store - fetch", {
-  setup: function() {
-    initializeStore(DS.RESTAdapter.extend());
-  }
-});
-
 function ajaxResponse(value) {
   var passedUrl, passedVerb, passedHash;
   env.adapter.ajax = function(url, verb, hash) {
@@ -214,22 +190,7 @@ function ajaxResponse(value) {
   };
 }
 
-test("Using store#fetch is deprecated", function() {
-  ajaxResponse({
-    cars: [
-      { id: 1, make: 'BMW', model: 'Mini' }
-    ]
-  });
 
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.fetch('car', 1);
-      });
-    },
-    'Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections'
-  );
-});
 
 module("integration/store - findRecord { reload: true }", {
   setup: function() {
@@ -292,21 +253,6 @@ module("integration/store - findAll", {
   setup: function() {
     initializeStore(DS.RESTAdapter.extend());
   }
-});
-
-test("store#fetchAll() is deprecated", function() {
-  ajaxResponse({
-    cars: []
-  });
-
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.fetchAll('car');
-      });
-    },
-    'Using store.fetchAll(type) has been deprecated. Use store.findAll(type, { reload: true }) to retrieve all records for a given type.'
-  );
 });
 
 test("Using store#findAll with no records triggers a query", function() {

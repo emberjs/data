@@ -399,8 +399,9 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     Called by the store in order to fetch a JSON array for
     the records that match a particular query.
 
-    The `findQuery` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
+    The `query` method makes an Ajax (HTTP GET) request to a URL
+    computed by `buildURL`, and returns a promise for the resulting
+    payload.
 
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.

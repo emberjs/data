@@ -3,7 +3,7 @@ var run = Ember.run;
 
 var Person, store, array, moreArray;
 
-module("integration/peek_all - DS.Store#peekAll()", {
+module("integration/peek-all - DS.Store#peekAll()", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }];
     moreArray = [{ id: 3, name: "Scumbag Bryn" }];
@@ -52,15 +52,4 @@ test("Calling store.peekAll() after creating a record should return correct data
     store.createRecord('person', { name: "Tomster" });
     equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });
-});
-
-test("store.all() is deprecated", function() {
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.all('person');
-      });
-    },
-    'Using store.all() has been deprecated. Use store.peekAll() to get all records by a given type without triggering a fetch.'
-  );
 });
