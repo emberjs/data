@@ -481,89 +481,27 @@ Store = Service.extend({
     @param {Object} options
     @return {Promise} promise
   */
-  find: function(modelName, id, preload) {
+  find: function(modelName, id, options) {
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (arguments.length === 1) {
-      Ember.deprecate('Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.');
-      return this.findAll(modelName);
+      Ember.assert('Using store.find(type) has been removed. Use store.findAll(type) to retrieve all records for a given type.');
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      Ember.deprecate('Calling store.find() with a query object is deprecated. Use store.query() instead.');
-      return this.query(modelName, id);
+      Ember.assert('Calling store.find() with a query object is no longer supported. Use store.query() instead.');
     }
-    var options = deprecatePreload(preload, this.modelFor(modelName), 'find');
+
+    if (options) {
+      Ember.assert('Calling store.find(type, id, preload) with a preload object is no longer supported. Use store.findRecord(type, id, { preload: preload }) instead.');
+    }
+
     return this.findRecord(modelName, coerceId(id), options);
   },
 
-  /**
-    This method returns a fresh record for a given type and id combination.
-
-    @method fetchById
-    @deprecated Use [findRecord](#method_findRecord) instead
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @param {Object} options
-    @return {Promise} promise
-  */
-  fetchById: function(modelName, id, preload) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var options = deprecatePreload(preload, this.modelFor(modelName), 'fetchById');
-    Ember.deprecate('Using store.fetchById(type, id) has been deprecated. Use store.findRecord(type, id, { reload: true }) to reload a record for a given type.');
-    if (this.hasRecordForId(modelName, id)) {
-      return this.peekRecord(modelName, id).reload();
-    } else {
-      return this.findRecord(modelName, id, options);
-    }
-  },
-
-  /**
-    This method returns a fresh collection from the server, regardless of if there is already records
-    in the store or not.
-
-    @method fetchAll
-    @deprecated Use [findAll](#method_findAll) instead
-    @param {String} modelName
-    @return {Promise} promise
-  */
-  fetchAll: function(modelName) {
-    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type, { reload: true }) to retrieve all records for a given type.');
-    return this.findAll(modelName, { reload: true });
-  },
-
-  /**
-    @method fetch
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
-    @return {Promise} promise
-    @deprecated Use [findRecord](#method_findRecord) instead
-  */
-  fetch: function(modelName, id, preload) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections');
-    return this.findRecord(modelName, id, { reload: true, preload: preload });
-  },
-
-  /**
-    This method returns a record for a given type and id combination.
-
-    @method findById
-    @private
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @param {Object} options
-    @return {Promise} promise
-  */
-  findById: function(modelName, id, preload) {
-    Ember.deprecate('Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.');
-    var options = deprecatePreload(preload, this.modelFor(modelName), 'findById');
-    return this.findRecord(modelName, id, options);
-  },
 
   /**
     This method returns a record for a given type and id combination.
@@ -838,31 +776,6 @@ Store = Service.extend({
     _Note: This is an synchronous method and does not return a promise._
 
     ```js
-    var post = store.getById('post', 1);
-
-    post.get('id'); // 1
-    ```
-
-    @method getById
-    @param {String} modelName
-    @param {String|Integer} id
-    @return {DS.Model|null} record
-  */
-  getById: function(modelName, id) {
-    Ember.deprecate('Using store.getById() has been deprecated. Use store.peekRecord to get a record by a given type and ID without triggering a fetch.');
-    return this.peekRecord(modelName, id);
-  },
-
-  /**
-    Get a record by a given type and ID without triggering a fetch.
-
-    This method will synchronously return the record if it is available in the store,
-    otherwise it will return `null`. A record is available if it has been fetched earlier, or
-    pushed manually into the store.
-
-    _Note: This is an synchronous method and does not return a promise._
-
-    ```js
     var post = store.peekRecord('post', 1);
 
     post.get('id'); // 1
@@ -1090,28 +1003,6 @@ Store = Service.extend({
   },
 
   /**
-    This method delegates a query to the adapter. This is the one place where
-    adapter-level semantics are exposed to the application.
-
-    Exposing queries this way seems preferable to creating an abstract query
-    language for all server-side queries, and then require all adapters to
-    implement them.
-
-    This method returns a promise, which is resolved with a `RecordArray`
-    once the server returns.
-
-    @method query
-    @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
-    @return {Promise} promise
-    @deprecated Use `store.query instead`
-  */
-  findQuery: function(modelName, query) {
-    Ember.deprecate('store#findQuery is deprecated. You should use store#query instead.');
-    return this.query(modelName, query);
-  },
-
-  /**
     `findAll` ask the adapter's `findAll` method to find the records
     for the given type, and return a promise that will be resolved
     once the server returns the values. The promise will resolve into
@@ -1177,34 +1068,6 @@ Store = Service.extend({
   didUpdateAll: function(typeClass) {
     var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
     set(liveRecordArray, 'isUpdating', false);
-  },
-
-  /**
-    This method returns a filtered array that contains all of the
-    known records for a given type in the store.
-
-    Note that because it's just a filter, the result will contain any
-    locally created records of the type, however, it will not make a
-    request to the backend to retrieve additional records. If you
-    would like to request all the records from the backend please use
-    [store.find](#method_find).
-
-    Also note that multiple calls to `all` for a given type will always
-    return the same `RecordArray`.
-
-    Example
-
-    ```javascript
-    var localPosts = store.all('post');
-    ```
-
-    @method all
-    @param {String} modelName
-    @return {DS.RecordArray}
-  */
-  all: function(modelName) {
-    Ember.deprecate('Using store.all() has been deprecated. Use store.peekAll() to get all records by a given type without triggering a fetch.');
-    return this.peekAll(modelName);
   },
 
   /**
@@ -2358,32 +2221,6 @@ function setupRelationships(store, record, data) {
       }
     }
   });
-}
-
-function deprecatePreload(preloadOrOptions, type, methodName) {
-  if (preloadOrOptions) {
-    var modelProperties = [];
-    var fields = Ember.get(type, 'fields');
-    fields.forEach((fieldType, key) =>  modelProperties.push(key));
-    var preloadDetected = false;
-
-    for (let i = 0, length = modelProperties.length; i < length; i++) {
-      let key = modelProperties[i];
-      if (typeof preloadOrOptions[key] !== 'undefined') {
-        preloadDetected = true;
-        break;
-      }
-    }
-
-    if (preloadDetected) {
-      Ember.deprecate(`Passing a preload argument to \`store.${methodName}\` is deprecated. Please move it to the preload key on the ${methodName} \`options\` argument.`);
-      var preload = preloadOrOptions;
-      return {
-        preload: preload
-      };
-    }
-  }
-  return preloadOrOptions;
 }
 
 export { Store };
