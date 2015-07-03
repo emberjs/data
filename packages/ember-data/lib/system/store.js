@@ -238,7 +238,7 @@ Store = Service.extend({
     @default DS.RESTAdapter
     @type {(DS.Adapter|String)}
   */
-  adapter: '-rest',
+  adapter: '-json-api',
 
   /**
     Returns a JSON representation of the record using a custom
@@ -2212,7 +2212,7 @@ Store = Service.extend({
 
   _adapterFallbacks: Ember.computed('adapter', function() {
     var adapter = this.get('adapter');
-    return ['application', adapter, '-rest'];
+    return ['application', adapter, '-json-api'];
   }),
 
   lookupSerializer: function(name, fallbacks) {
