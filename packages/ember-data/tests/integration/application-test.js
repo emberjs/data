@@ -52,30 +52,6 @@ test("If a store is instantiated, it should be made available to each controller
   ok(isCustom, "the custom store was injected");
 });
 
-test("registering App.Store is deprecated but functional", function() {
-  run(app, 'destroy');
-
-  expectDeprecation(function() {
-    run(function() {
-      app = Application.create({
-        Store: DS.Store.extend({ isCustomButDeprecated: true }),
-        FooController: Controller.extend()
-      });
-    });
-    container = app.__container__;
-  }, 'Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
-     'has been deprecated. Please use `App.ApplicationStore` instead.');
-
-  run(function() {
-    ok(lookup('service:store').get('isCustomButDeprecated'), "the custom store was instantiated");
-  });
-
-  var fooController = lookup('controller:foo');
-  run(function() {
-    ok(fooController.get('store.isCustomButDeprecated'), "the custom store was injected");
-  });
-});
-
 test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function() {
   run(function() {
     var store = getStore();
@@ -85,7 +61,6 @@ test("The JSONAPIAdapter is the default adapter when no custom adapter is provid
     ok(adapter instanceof DS.JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
   });
 });
-
 
 module("integration/application - Injecting the Default Store", {
   setup: function() {
