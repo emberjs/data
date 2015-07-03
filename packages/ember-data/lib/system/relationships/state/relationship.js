@@ -1,13 +1,14 @@
 import OrderedSet from "ember-data/system/ordered-set";
 
 export default function Relationship(store, record, inverseKey, relationshipMeta) {
+  var async = relationshipMeta.options.async;
   this.members = new OrderedSet();
   this.canonicalMembers = new OrderedSet();
   this.store = store;
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
   this.record = record;
-  this.isAsync = relationshipMeta.options.async;
+  this.isAsync = typeof async === 'undefined' ? true : async;
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible modelNames

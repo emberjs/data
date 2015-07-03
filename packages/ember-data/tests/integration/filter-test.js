@@ -43,7 +43,7 @@ module("integration/filter - DS.Model updating", {
         name: 'Scumbag Bryn'
       }
     }];
-    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null }) });
+    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null, async: false }) });
 
     env = setupStore({ person: Person });
     store = env.store;

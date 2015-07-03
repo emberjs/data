@@ -468,13 +468,7 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
   equal(tags.objectAt(2), tag3);
 });
 
-module("unit/model/relationships - DS.hasMany async by default deprecations", {
-  setup: function() {
-    env = setupStore();
-  }
-});
-
-test("setting DS.hasMany without async false triggers deprecation", function() {
+test("DS.hasMany is async by default", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person')
@@ -488,12 +482,8 @@ test("setting DS.hasMany without async false triggers deprecation", function() {
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
 
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.createRecord('tag').get('people');
-      });
-    },
-    /In Ember Data 2.0, relationships will be asynchronous by default. You must set `people: DS.hasMany\('person', { async: false }\)/
-  );
+  run(function() {
+    var tag = store.createRecord('tag');
+    ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
+  });
 });
