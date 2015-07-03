@@ -76,6 +76,17 @@ test("registering App.Store is deprecated but functional", function() {
   });
 });
 
+test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function() {
+  run(function() {
+    var store = getStore();
+
+    var adapter = store.adapterFor('application');
+
+    ok(adapter instanceof DS.JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
+  });
+});
+
+
 module("integration/application - Injecting the Default Store", {
   setup: function() {
     run(function() {
