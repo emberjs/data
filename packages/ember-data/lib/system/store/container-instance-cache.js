@@ -52,10 +52,6 @@ Ember.merge(ContainerInstanceCache.prototype, {
   },
 
   instanceFor: function(key) {
-    if (key === 'adapter:-rest') {
-      Ember.deprecate('You are currently using the default DS.RESTAdapter adapter. For Ember 2.0 the default adapter will be DS.JSONAPIAdapter. If you would like to continue using DS.RESTAdapter please create an application adapter that extends DS.RESTAdapter.');
-    }
-
     let cache = this._cache;
     if (!cache[key]) {
       let instance = this._container.lookup(key);

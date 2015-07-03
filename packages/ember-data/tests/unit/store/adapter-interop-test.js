@@ -27,14 +27,6 @@ test('Adapter can be set as a name', function() {
   ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
 });
 
-test('Default RESTAdapter has been deprecated', function() {
-  expectDeprecation(function() {
-    run(function() {
-      store = createStore({ adapter: '-rest' });
-    });
-  }, /You are currently using the default DS.RESTAdapter adapter. For Ember 2.0 the default adapter will be DS.JSONAPIAdapter. If you would like to continue using DS.RESTAdapter please create an application adapter that extends DS.RESTAdapter./);
-});
-
 test('Adapter can not be set as an instance', function() {
   expect(1);
 
