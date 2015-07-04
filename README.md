@@ -146,16 +146,6 @@ promise will be rejected.
 For much more detail on how to use Ember Data, see the [Ember.js Guides
 on models](http://emberjs.com/guides/models/).
 
-## API Stability
-
-Ember Data is still under active development and is currently beta
-quality. That being said, the API has largely stabilized and many
-companies are using it in production.
-
-For details on anticipated changes before the 1.0 release, see the blog
-post [The Road to Ember Data
-1.0](http://emberjs.com/blog/2014/03/18/the-road-to-ember-data-1-0.html).
-
 # Building Ember Data
 
 1. Ensure that [Node.js](http://nodejs.org/) is installed.
