@@ -578,11 +578,11 @@ test('extractErrors respects custom key mappings', function() {
     errors: [
       {
         source: { pointer: 'data/attributes/le_title' },
-        details: "title errors"
+        detail: "title errors"
       },
       {
         source: { pointer: 'data/attributes/my_comments' },
-        details: "comments errors"
+        detail: "comments errors"
       }
     ]
   };
@@ -603,7 +603,7 @@ test('extractErrors expects error information located on the errors property of 
     errors: [
       {
         source: { pointer: 'data/attributes/title' },
-        details: "title errors"
+        detail: "title errors"
       }
     ]
   };

@@ -20,7 +20,7 @@ export function AdapterError(errors, message) {
   this.errors = errors || [
     {
       title: "Adapter Error",
-      details: message
+      detail: message
     }
   ];
 }
@@ -64,11 +64,11 @@ AdapterError.prototype = create(EmberError.prototype);
       // Fictional adapter that always rejects
       return Ember.RSVP.reject(new DS.InvalidError([
         {
-          details: 'Must be unique',
+          detail: 'Must be unique',
           source: { pointer: 'data/attributes/title' }
         },
         {
-          details: 'Must not be blank',
+          detail: 'Must not be blank',
           source: { pointer: 'data/attributes/content'}
         }
       ]));
@@ -127,7 +127,7 @@ export function errorsHashToArray(errors) {
       for (let i = 0; i < messages.length; i++) {
         out.push({
           title: 'Invalid Attribute',
-          details: messages[i],
+          detail: messages[i],
           source: {
             pointer: `data/attributes/${key}`
           }
@@ -150,7 +150,7 @@ export function errorsArrayToHash(errors) {
         if (key) {
           key = key[2];
           out[key] = out[key] || [];
-          out[key].push(error.details || error.title);
+          out[key].push(error.detail || error.title);
         }
       }
     });

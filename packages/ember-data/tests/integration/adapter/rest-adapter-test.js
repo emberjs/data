@@ -1887,7 +1887,7 @@ test('on error wraps the error string in an DS.AdapterError object', function() 
   try {
     run(function() {
       store.find('post', '1').catch(function(err) {
-        equal(err.errors[0].details, errorThrown);
+        equal(err.errors[0].detail, errorThrown);
         ok(err, 'promise rejected');
       });
     });
