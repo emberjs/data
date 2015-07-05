@@ -414,13 +414,13 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query: function(store, type, options) {
-    var url = this.buildURL(type.modelName, null, null, 'query', options.query);
+    var url = this.buildURL(type.modelName, null, null, 'query', options);
 
     if (this.sortQueryParams) {
       options.query = this.sortQueryParams(options.query);
     }
 
-    return this.ajax(url, 'GET', { data: options });
+    return this.ajax(url, 'GET', { data: options.query });
   },
 
   /**

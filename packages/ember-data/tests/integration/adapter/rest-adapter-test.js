@@ -956,7 +956,7 @@ test("query - if `sortQueryParams` option is not provided, query params are sort
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data.query), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
+    deepEqual(Object.keys(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -988,7 +988,7 @@ test("query - if `sortQueryParams` is falsey, query params are not sorted at all
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data.query), ["params", "in", "wrong", "order"], 'query params are received in their original order');
+    deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -1006,7 +1006,7 @@ test("query - if `sortQueryParams` is a custom function, query params passed thr
     passedVerb = verb;
     passedHash = hash;
 
-    deepEqual(Object.keys(hash.data.query), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
+    deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -1023,7 +1023,7 @@ test("query - if `sortQueryParams` is a custom function, query params passed thr
   };
 
   store.query('post', { query: { "params": 1, "in": 2, "wrong": 3, "order": 4 } }).then(async(function() {
-    // Noop
+    // Noopf
   }));
 });
 
@@ -1076,7 +1076,7 @@ test("query - returning an array populates the array", function() {
   store.query('post', { query: { page: 1 } }).then(async(function(posts) {
     equal(passedUrl, '/posts');
     equal(passedVerb, 'GET');
-    deepEqual(passedHash.data, { query: { page: 1 } });
+    deepEqual(passedHash, { data: { page: 1 } });
 
     var post1 = store.peekRecord('post', 1);
     var post2 = store.peekRecord('post', 2);

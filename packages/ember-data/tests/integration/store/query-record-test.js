@@ -27,9 +27,17 @@ test("It raises an assertion when no type is passed", function() {
   }, "You need to pass a type to the store's queryRecord method");
 });
 
-test("It raises an assertion when the query is not namespaced in a hash", function() {
-  expectAssertion(function() {
-    store.queryRecord('person', { withRelated: 'posts' });
+test("It raises a deprecation when the query is not namespaced in a hash", function() {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    queryRecord: function() {
+      return Ember.RSVP.resolve({ id: 1 });
+    }
+  }));
+
+  expectDeprecation(function() {
+    run(function() {
+      store.queryRecord('person', { withRelated: 'posts' });
+    });
   }, "You need to pass a query hash in the options hash of the store's queryRecord method");
 });
 
