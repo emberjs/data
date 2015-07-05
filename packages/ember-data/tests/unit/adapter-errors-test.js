@@ -32,17 +32,17 @@ var errorsHash = {
 var errorsArray = [
   {
     title: 'Invalid Attribute',
-    details: 'is invalid',
+    detail: 'is invalid',
     source: { pointer: 'data/attributes/name' }
   },
   {
     title: 'Invalid Attribute',
-    details: 'must be a string',
+    detail: 'must be a string',
     source: { pointer: 'data/attributes/name' }
   },
   {
     title: 'Invalid Attribute',
-    details: 'must be a number',
+    detail: 'must be a number',
     source: { pointer: 'data/attributes/age' }
   }
 ];
@@ -67,7 +67,7 @@ test("DS.InvalidError will normalize errors hash with deprecation", function() {
   deepEqual(error.errors, [
     {
       title: 'Invalid Attribute',
-      details: 'is invalid',
+      detail: 'is invalid',
       source: { pointer: 'data/attributes/name' }
     }
   ]);

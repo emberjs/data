@@ -889,7 +889,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
         {
           status: `${status}`,
           title: "The backend responded with an error",
-          details: `${payload}`
+          detail: `${payload}`
         }
       ];
     }
