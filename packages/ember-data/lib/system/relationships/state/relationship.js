@@ -13,7 +13,7 @@ function Relationship(store, record, inverseKey, relationshipMeta) {
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible modelNames
-  this.inverseKeyForImplicit = this.record.constructor.modelName + this.key;
+  this.inverseKeyForImplicit = this.record.modelName + this.key;
   this.linkPromise = null;
   this.meta = null;
   this.hasData = false;
