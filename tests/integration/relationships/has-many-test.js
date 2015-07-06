@@ -1528,6 +1528,25 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   assert.equal(get(email, 'posts.length'), 1, "The inverse has many is set up correctly on the email side.");
 });
 
+test("Can push a polymorphic belongsTo, the relationship is set up correctly on both sides", function(assert) {
+  assert.expect(2);
+
+  Comment.reopen({
+    message: DS.belongsTo('message', { polymorphic: true, async: false })
+  });
+  var post, comment;
+
+  run(function () {
+    post = env.store.push({ data: { type: 'post', id: 1 } });
+    comment = env.store.push({ data: { type: 'comment', id: 1 } });
+    let comments = post.get('comments');
+    comments.pushObject(comment);
+  });
+
+  assert.equal(comment.get('message'), post, 'The polymorphic belongsTo is set up correctly');
+  assert.equal(get(post, 'comments.length'), 1, 'The inverse has many is set up correctly on the post side.');
+});
+
 testInDebug("A record can't be created from a polymorphic hasMany relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
