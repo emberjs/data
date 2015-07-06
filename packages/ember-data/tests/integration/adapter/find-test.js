@@ -37,23 +37,6 @@ test("It raises an assertion when `undefined` is passed as id (#1705)", function
   }, "You may not pass `null` as id to the store's find method");
 });
 
-test("store.find(type) is deprecated", function() {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findAll: function(store, typeClass) {
-      return [];
-    }
-  }));
-
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.find('person');
-      });
-    },
-    'Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.'
-  );
-});
-
 test("store.findAll should trigger a deprecation warning about store.shouldReloadAll", function() {
   env.adapter.findAll = function() {
     return Ember.RSVP.resolve([]);

@@ -16,13 +16,7 @@ var Promise = Ember.RSVP.Promise;
 
 export function _find(adapter, store, typeClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
-  var promise;
-  if (!adapter.findRecord) {
-    Ember.deprecate('Adapter#find has been deprecated and renamed to `findRecord`.');
-    promise = adapter.find(store, typeClass, id, snapshot);
-  } else {
-    promise = adapter.findRecord(store, typeClass, id, snapshot);
-  }
+  var promise = adapter.findRecord(store, typeClass, id, snapshot);
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
 
@@ -145,14 +139,7 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
 
 export function _query(adapter, store, typeClass, query, recordArray) {
   var modelName = typeClass.modelName;
-  var promise;
-
-  if (!adapter.query) {
-    Ember.deprecate('Adapter#findQuery has been deprecated and renamed to `query`.');
-    promise = adapter.findQuery(store, typeClass, query, recordArray);
-  } else {
-    promise = adapter.query(store, typeClass, query, recordArray);
-  }
+  var promise = adapter.query(store, typeClass, query, recordArray);
 
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
