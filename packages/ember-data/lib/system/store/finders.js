@@ -139,7 +139,7 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
 
 export function _query(adapter, store, typeClass, options, recordArray) {
   var modelName = typeClass.modelName;
-  var promise = adapter.query(store, typeClass, query, recordArray);
+  var promise = adapter.query(store, typeClass, options, recordArray);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 

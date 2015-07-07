@@ -991,8 +991,8 @@ Store = Service.extend({
   */
   queryRecord: function(modelName, options) {
     options = options || {};
-    Ember.deprecate("You need to pass a query object in the options object of the store's queryRecord method", options && options.query);
     Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
+    Ember.deprecate("You need to pass a query object in the options object of the store's queryRecord method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var typeClass = this.modelFor(modelName);
