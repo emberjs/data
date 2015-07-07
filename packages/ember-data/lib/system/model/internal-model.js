@@ -691,8 +691,6 @@ InternalModel.prototype = {
   },
 
   /**
-    @method _changedKeys
-
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
 
     `_data` holds all of the attributes that have been acknowledged by
@@ -730,6 +728,7 @@ InternalModel.prototype = {
     has updated the value and the key is added to the list of changed
     keys.
 
+    @method _changedKeys
     @private
   */
   _changedKeys: function(updates) {
