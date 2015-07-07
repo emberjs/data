@@ -83,7 +83,7 @@
       registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
     }
 
-    registry.register('store:main', DS.Store.extend({
+    registry.register('service:store', DS.Store.extend({
       adapter: adapter
     }));
 
@@ -100,12 +100,10 @@
     registry.register('adapter:-json-api', DS.JSONAPIAdapter);
     registry.register('serializer:-json-api', DS.JSONAPISerializer);
 
-    registry.injection('serializer', 'store', 'store:main');
-
-    env.serializer = container.lookup('serializer:-default');
     env.restSerializer = container.lookup('serializer:-rest');
     env.restNewSerializer = container.lookup('serializer:-rest-new');
-    env.store = container.lookup('store:main');
+    env.store = container.lookup('service:store');
+    env.serializer = env.store.serializerFor('-default');
     env.adapter = env.store.get('defaultAdapter');
 
     return env;

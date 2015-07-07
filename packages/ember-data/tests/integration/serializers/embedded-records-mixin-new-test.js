@@ -80,7 +80,7 @@ test("normalizeSingleResponse with embedded objects", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -141,7 +141,7 @@ test("normalizeSingleResponse with embedded objects inside embedded objects", fu
   }));
   env.registry.register('serializer:evil-minion', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -211,7 +211,7 @@ test("normalizeSingleResponse with embedded objects of same type", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
   var json_hash = {
     comment: {
       id: "1",
@@ -279,7 +279,7 @@ test("normalizeSingleResponse with embedded objects inside embedded objects of s
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
   var json_hash = {
     comment: {
       id: "1",
@@ -372,7 +372,7 @@ test("normalizeSingleResponse with embedded objects of same type, but from separ
   }));
   env.registry.register('serializer:super-villain', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -461,7 +461,7 @@ test("normalizeArrayResponse with embedded objects", function() {
   }));
   env.registry.register('serializer:super-villain', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -519,7 +519,7 @@ test("normalizeArrayResponse with embedded objects with custom primary key", fun
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -579,7 +579,7 @@ test("normalizeArrayResponse with embedded objects with identical relationship a
   }));
   env.registry.register('serializer:super-villain', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -632,7 +632,7 @@ test("normalizeArrayResponse with embedded objects of same type as primary type"
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
 
   var json_hash = {
     comments: [{
@@ -708,7 +708,7 @@ test("normalizeArrayResponse with embedded objects of same type, but from separa
   }));
   env.registry.register('serializer:super-villain', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanets: [{
       id: "1",
@@ -863,7 +863,7 @@ test("normalizeSingleResponse with embedded object (belongsTo relationship)", fu
   }));
   //env.registry.register('serializer:secret-lab', TestSerializer);
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     superVillain: {
@@ -938,7 +938,7 @@ test("normalizeSingleResponse with multiply-nested belongsTo", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:evil-minion");
+  var serializer = env.store.serializerFor("evil-minion");
   var json_hash = {
     evilMinion: {
       id: "1",
@@ -1020,7 +1020,7 @@ test("normalizeSingleResponse with polymorphic hasMany", function() {
       secretWeapons: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     superVillain: {
@@ -1095,7 +1095,7 @@ test("normalizeSingleResponse with polymorphic belongsTo", function() {
       secretLab: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     superVillain: {
@@ -1152,7 +1152,7 @@ test("normalize with custom belongsTo primary key", function() {
     primaryKey: 'custom'
   }));
 
-  var serializer = env.container.lookup("serializer:evil-minion");
+  var serializer = env.store.serializerFor("evil-minion");
   var json_hash = {
     evil_minion: {
       id: "1",
