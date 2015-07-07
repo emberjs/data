@@ -27,7 +27,7 @@ var get = Ember.get;
   @return {Object} JSON-API Document
 */
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
-  if (serializer.get('isNewSerializerAPI')) {
+  if (get(serializer, 'isNewSerializerAPI')) {
     let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
     // TODO: Remove after metadata refactor
     if (normalizedResponse.meta) {

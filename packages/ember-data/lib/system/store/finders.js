@@ -92,7 +92,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
       //TODO Use a non record creating push
       var records = pushPayload(store, payload);
       var recordArray = map.call(records, function(record) { return record._internalModel; });
-      if (serializer.get('isNewSerializerAPI')) {
+      if (get(serializer, 'isNewSerializerAPI')) {
         recordArray.meta = payload.meta;
       }
       return recordArray;

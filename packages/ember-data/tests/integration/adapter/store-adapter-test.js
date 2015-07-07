@@ -1018,3 +1018,18 @@ test("findAll should pass adapterOptions to the findAll method", function() {
     store.findAll('person', { adapterOptions: { query: { embed: true } } });
   });
 });
+
+test("Store does not error when the serializer is null", function() {
+  adapter.findRecord = function(store, type, query, recordArray) {
+    return {
+      id: 1,
+      name: "Mickael Ramírez"
+    };
+  };
+
+  adapter.serializer = null;
+
+  run(store, 'findRecord', 'person', 1).then(async(function(person) {
+    equal(person.get('id'), 1);
+  }));
+});
