@@ -42,7 +42,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     });
 
     store = env.store;
-    serializer = env.container.lookup('serializer:-json-api');
+    serializer = store.serializerFor('-json-api');
   },
 
   teardown: function() {
