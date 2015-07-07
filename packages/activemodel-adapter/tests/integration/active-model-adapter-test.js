@@ -31,7 +31,7 @@ test('handleResponse - returns invalid error if 422 response', function() {
 
   var error = adapter.handleResponse(jqXHR.status, {}, json).errors[0];
 
-  equal(error.details, "can't be blank");
+  equal(error.detail, "can't be blank");
   equal(error.source.pointer, "data/attributes/name");
 });
 

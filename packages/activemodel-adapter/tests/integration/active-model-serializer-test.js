@@ -333,7 +333,7 @@ test("extractErrors camelizes keys", function() {
         source: {
           pointer: 'data/attributes/first_name'
         },
-        details: "firstName not evil enough"
+        detail: "firstName not evil enough"
       }
     ]
   };
