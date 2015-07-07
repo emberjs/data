@@ -803,7 +803,8 @@ var JSONSerializer = Serializer.extend({
     @return {boolean} true if the hasMany relationship should be serialized
   */
   _shouldSerializeHasMany: function (snapshot, key, relationship) {
-    var relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
+    var store = snapshot.record.store;
+    var relationshipType = snapshot.type.determineRelationshipType(relationship, store);
     if (this._mustSerialize(key)) {
       return true;
     }
