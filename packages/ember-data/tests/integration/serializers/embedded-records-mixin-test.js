@@ -80,7 +80,7 @@ test("normalizeResponse with embedded objects", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -139,7 +139,7 @@ test("normalizeResponse with embedded objects inside embedded objects", function
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -208,7 +208,8 @@ test("normalizeResponse with embedded objects of same type", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
+
   var json_hash = {
     comment: {
       id: "1",
@@ -274,7 +275,7 @@ test("normalizeResponse with embedded objects inside embedded objects of same ty
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
   var json_hash = {
     comment: {
       id: "1",
@@ -364,7 +365,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanet: {
       id: "1",
@@ -451,7 +452,7 @@ test("normalizeResponse with embedded objects", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -508,7 +509,7 @@ test("normalizeResponse with embedded objects with custom primary key", function
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -566,7 +567,7 @@ test("normalizeResponse with embedded objects with identical relationship and at
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
 
   var json_hash = {
     homePlanets: [{
@@ -619,7 +620,7 @@ test("normalizeResponse with embedded objects of same type as primary type", fun
     }
   }));
 
-  var serializer = env.container.lookup("serializer:comment");
+  var serializer = env.store.serializerFor("comment");
 
   var json_hash = {
     comments: [{
@@ -692,7 +693,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
     }
   }));
 
-  var serializer = env.container.lookup("serializer:home-planet");
+  var serializer = env.store.serializerFor("home-planet");
   var json_hash = {
     homePlanets: [{
       id: "1",
@@ -851,7 +852,7 @@ test("serialize supports serialize:false on non-relationship properties", functi
   }));
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup("serializer:super-villain");
+    serializer = env.store.serializerFor("super-villain");
     json = serializer.serialize(tom._createSnapshot());
   });
 
@@ -877,7 +878,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
 
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup("serializer:home-planet");
+    serializer = env.store.serializerFor("home-planet");
 
     json = serializer.serialize(league._createSnapshot());
   });
@@ -909,7 +910,7 @@ test("serialize with embedded objects (unknown hasMany relationship)", function(
   var serializer, json;
   warns(function() {
     run(function() {
-      serializer = env.container.lookup("serializer:home-planet");
+      serializer = env.store.serializerFor("home-planet");
       json = serializer.serialize(league._createSnapshot());
     });
   }, /The embedded relationship 'villains' is undefined for 'home-planet' with id '123'. Please include it in your original payload./);
@@ -933,7 +934,7 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
   }));
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup("serializer:home-planet");
+    serializer = env.store.serializerFor("home-planet");
 
     json = serializer.serialize(league._createSnapshot());
   });
@@ -956,7 +957,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
   }));
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup("serializer:home-planet");
+    serializer = env.store.serializerFor("home-planet");
 
     json = serializer.serialize(league._createSnapshot());
   });
@@ -1013,7 +1014,7 @@ test("normalizeResponse with embedded object (belongsTo relationship)", function
     }
   }));
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     super_villain: {
@@ -1083,7 +1084,7 @@ test("serialize with embedded object (belongsTo relationship)", function() {
   }));
   var serializer, json, tom;
   run(function() {
-    serializer = env.container.lookup("serializer:super-villain");
+    serializer = env.store.serializerFor("super-villain");
 
     // records with an id, persisted
 
@@ -1123,7 +1124,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
     primaryKey: 'crazy_id'
   }));
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records with an id, persisted
   var tom, json;
@@ -1161,7 +1162,7 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
     }
   }));
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records without ids, new
   var tom, json;
@@ -1197,7 +1198,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
       secretLab: { serialize: 'ids' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records with an id, persisted
   var tom, json;
@@ -1231,7 +1232,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     }
   }));
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records with an id, persisted
   var tom, json;
@@ -1265,7 +1266,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     }
   }));
 
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records with an id, persisted
   var tom, json;
@@ -1298,7 +1299,8 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
       secretLab: { serialize: false }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
+
 
   // records with an id, persisted
   var tom, json;
@@ -1325,7 +1327,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 
 test("serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified", function() {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   // records with an id, persisted
 
@@ -1359,7 +1361,7 @@ test("when related record is not present, serialize embedded record (with a belo
       secretLab: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
   var tom, json;
 
   run(function() {
@@ -1395,7 +1397,7 @@ test("normalizeResponse with multiply-nested belongsTo", function() {
     }
   }));
 
-  var serializer = env.container.lookup("serializer:evil-minion");
+  var serializer = env.store.serializerFor("evil-minion");
   var json_hash = {
     evilMinion: {
       id: "1",
@@ -1476,7 +1478,7 @@ test("normalizeResponse with polymorphic hasMany", function() {
       secretWeapons: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     super_villain: {
@@ -1553,7 +1555,7 @@ test("normalizeResponse with polymorphic hasMany and custom primary key", functi
       secretWeapons: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     super_villain: {
@@ -1630,7 +1632,7 @@ test("normalizeResponse with polymorphic belongsTo", function() {
       secretLab: { embedded: 'always' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     super_villain: {
@@ -1691,7 +1693,7 @@ test("normalizeResponse with polymorphic belongsTo and custom primary key", func
   env.registry.register('serializer:bat-cave', DS.RESTSerializer.extend({
     primaryKey: 'custom'
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json_hash = {
     superVillain: {
@@ -1761,7 +1763,7 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
       evilMinions: { serialize: 'records', deserialize: 'records' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
   var json;
 
   run(function() {
@@ -1793,7 +1795,7 @@ test("normalize with custom belongsTo primary key", function() {
     primaryKey: 'custom'
   }));
 
-  var serializer = env.container.lookup("serializer:evil-minion");
+  var serializer = env.store.serializerFor("evil-minion");
   var json_hash = {
     evilMinion: {
       id: "1",
@@ -1878,7 +1880,7 @@ test("serializing relationships with an embedded and without calls super when no
       // e.g. secretWeapons: { serialize: 'ids' }
     }
   }));
-  var serializer = env.container.lookup("serializer:super-villain");
+  var serializer = env.store.serializerFor("super-villain");
 
   var json;
   run(function() {
@@ -1922,7 +1924,7 @@ test("serializing belongsTo correctly removes embedded foreign key", function() 
     }
   }));
 
-  var serializer = env.container.lookup("serializer:evil-minion");
+  var serializer = env.store.serializerFor("evil-minion");
   var json;
 
   run(function() {

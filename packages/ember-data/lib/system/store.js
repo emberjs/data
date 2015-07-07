@@ -1811,7 +1811,7 @@ Store = Service.extend({
     var payload;
     if (!inputPayload) {
       payload = modelName;
-      serializer = defaultSerializer(this.container);
+      serializer = defaultSerializer(this);
       Ember.assert("You cannot use `store#pushPayload` without a modelName unless your default serializer defines `pushPayload`", typeof serializer.pushPayload === 'function');
     } else {
       payload = inputPayload;
@@ -2151,9 +2151,8 @@ function deserializeRecordIds(store, key, relationship, ids) {
 
 
 
-function defaultSerializer(container) {
-  return container.lookup('serializer:application') ||
-         container.lookup('serializer:-default');
+function defaultSerializer(store) {
+  return store.serializerFor('application');
 }
 
 function _commit(adapter, store, operation, snapshot) {
