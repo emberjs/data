@@ -190,7 +190,7 @@ export default JSONSerializer.extend({
     this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
 
     let data = {
-      id:            this.extractId(resourceHash),
+      id:            this.extractId(modelClass, resourceHash),
       type:          this._extractType(modelClass, resourceHash),
       attributes:    this.extractAttributes(modelClass, resourceHash),
       relationships: this.extractRelationships(modelClass, resourceHash)
