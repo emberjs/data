@@ -8,6 +8,7 @@ import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 
 var camelize = Ember.String.camelize;
+var get = Ember.get;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -147,6 +148,8 @@ var RESTSerializer = JSONSerializer.extend({
 
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${serializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(serializer, 'isNewSerializerAPI'));
 
     arrayHash.forEach((hash) => {
       let { data, included } = serializer.normalize(modelClass, hash, prop);
@@ -339,6 +342,8 @@ var RESTSerializer = JSONSerializer.extend({
       }
       var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type.modelName);
+
+      Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${typeSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(typeSerializer, 'isNewSerializerAPI'));
 
       /*jshint loopfunc:true*/
       Ember.makeArray(payload[prop]).forEach((hash) => {
