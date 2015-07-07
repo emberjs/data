@@ -99,7 +99,7 @@
     registry.register('adapter:-json-api', DS.JSONAPIAdapter);
     registry.register('serializer:-json-api', DS.JSONAPISerializer);
 
-    registry.register('service:store', DS.Store);
+    registry.injection('serializer', 'store', 'store:main');
 
     env.serializer = container.lookup('serializer:-default');
     env.restSerializer = container.lookup('serializer:-rest');
