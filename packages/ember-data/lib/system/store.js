@@ -252,7 +252,7 @@ Store = Service.extend({
     @method serialize
     @private
     @param {DS.Model} record the record to serialize
-    @param {Object} options an options hash
+    @param {Object} options an options object
   */
   serialize: function(record, options) {
     var snapshot = record._internalModel.createSnapshot();
@@ -312,7 +312,7 @@ Store = Service.extend({
 
     @method createRecord
     @param {String} modelName
-    @param {Object} inputProperties a hash of properties to set on the
+    @param {Object} inputProperties a object of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
@@ -955,11 +955,11 @@ Store = Service.extend({
 
     @method query
     @param {String} modelName
-    @param {Hash} options, query an opaque query of the form {query: { any }} to be used by the adapter
+    @param {Object} options, query an opaque query of the form {query: { any }} to be used by the adapter
     @return {Promise} promise
   */
   query: function(modelName, options) {
-    Ember.deprecate("You need to pass a query hash in the options hash of the store's query method", options && options.query);
+    Ember.deprecate("You need to pass a query object in the options object of the store's query method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var array = this.recordArrayManager
@@ -986,12 +986,12 @@ Store = Service.extend({
 
     @method queryRecord
     @param {String} modelName
-    @param {Hash} options, query an opaque query of the form {query: { any }} to be used by the adapter
+    @param {Object} options, query an opaque query of the form {query: { any }} to be used by the adapter
     @return {Promise} promise
   */
   queryRecord: function(modelName, options) {
     options = options || {};
-    Ember.deprecate("You need to pass a query hash in the options hash of the store's queryRecord method", options && options.query);
+    Ember.deprecate("You need to pass a query object in the options object of the store's queryRecord method", options && options.query);
     Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
