@@ -475,6 +475,8 @@ var RESTSerializer = JSONSerializer.extend({
         var type = store.modelFor(typeName);
         var typeSerializer = store.serializerFor(type.modelName);
 
+        Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${typeSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(typeSerializer, 'isNewSerializerAPI'));
+
         hash = typeSerializer.normalize(type, hash, prop);
 
         var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord;
@@ -620,6 +622,9 @@ var RESTSerializer = JSONSerializer.extend({
       }
       var type = store.modelFor(typeName);
       var typeSerializer = store.serializerFor(type.modelName);
+
+      Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${typeSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(typeSerializer, 'isNewSerializerAPI'));
+
       var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryTypeClass));
 
       /*jshint loopfunc:true*/
@@ -690,6 +695,8 @@ var RESTSerializer = JSONSerializer.extend({
       }
       var typeClass = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(modelName);
+
+      Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${typeSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(typeSerializer, 'isNewSerializerAPI'));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
@@ -1079,6 +1086,8 @@ function _newPushPayload(store, rawPayload) {
     }
     var type = store.modelFor(modelName);
     var typeSerializer = store.serializerFor(type.modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${typeSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(typeSerializer, 'isNewSerializerAPI'));
 
     /*jshint loopfunc:true*/
     forEach.call(Ember.makeArray(payload[prop]), (hash) => {
