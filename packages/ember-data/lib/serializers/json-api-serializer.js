@@ -21,16 +21,16 @@ export default JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeDocumentHelper: function(store, documentHash) {
+  _normalizeDocumentHelper: function(documentHash) {
 
     if (Ember.typeOf(documentHash.data) === 'object') {
-      documentHash.data = this._normalizeResourceHelper(store, documentHash.data);
+      documentHash.data = this._normalizeResourceHelper(documentHash.data);
     } else if (Ember.typeOf(documentHash.data) === 'array') {
-      documentHash.data = documentHash.data.map((resourceHash) => this._normalizeResourceHelper(store, resourceHash));
+      documentHash.data = documentHash.data.map(this._normalizeResourceHelper, this);
     }
 
     if (Ember.typeOf(documentHash.included) === 'array') {
-      documentHash.included = documentHash.included.map((resourceHash) => this._normalizeResourceHelper(store, resourceHash));
+      documentHash.included = documentHash.included.map(this._normalizeResourceHelper, this);
     }
 
     return documentHash;
@@ -54,10 +54,10 @@ export default JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeResourceHelper: function(store, resourceHash) {
+  _normalizeResourceHelper: function(resourceHash) {
     let modelName = this.modelNameFromPayloadKey(resourceHash.type);
-    let modelClass = store.modelFor(modelName);
-    let serializer = store.serializerFor(modelName);
+    let modelClass = this.store.modelFor(modelName);
+    let serializer = this.store.serializerFor(modelName);
     let { data } = serializer.normalize(modelClass, resourceHash);
     return data;
   },
@@ -68,7 +68,7 @@ export default JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload: function(store, payload) {
-    let normalizedPayload = this._normalizeDocumentHelper(store, payload);
+    let normalizedPayload = this._normalizeDocumentHelper(payload);
     store.push(normalizedPayload);
   },
 
@@ -84,7 +84,7 @@ export default JSONSerializer.extend({
     @private
   */
   _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
-    let normalizedPayload = this._normalizeDocumentHelper(store, payload);
+    let normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
   },
 

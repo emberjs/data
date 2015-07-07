@@ -94,7 +94,6 @@ var camelize = Ember.String.camelize;
 */
 var EmbeddedRecordsMixin = Ember.Mixin.create({
 
-  _store: Ember.inject.service('store'),
   /**
     Normalize the record and recursively normalize/extract all the embedded records
     while pushing them into the store as they are encountered
@@ -123,9 +122,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @return {Object} the normalized hash
   **/
   normalize: function(typeClass, hash, prop) {
-    var normalizedHash = this._super(typeClass, hash);
-    var store = this.get('_store');
-    return this._extractEmbeddedRecords(this, store, typeClass, normalizedHash);
+    var normalizedHash = this._super(typeClass, hash, prop);
+    return this._extractEmbeddedRecords(this, this.store, typeClass, normalizedHash);
   },
 
   keyForRelationship: function(key, typeClass, method) {
@@ -347,14 +345,13 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     @param {Object} json
   */
   removeEmbeddedForeignKey: function (snapshot, embeddedSnapshot, relationship, json) {
-    var store = this.get('_store');
     if (relationship.kind === 'hasMany') {
       return;
     } else if (relationship.kind === 'belongsTo') {
-      var parentRecord = snapshot.type.inverseFor(relationship.key, store);
+      var parentRecord = snapshot.type.inverseFor(relationship.key, this.store);
       if (parentRecord) {
         var name = parentRecord.name;
-        var embeddedSerializer = store.serializerFor(embeddedSnapshot.modelName);
+        var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
         var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
@@ -480,7 +477,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    return serializer.normalize(modelClass, relationshipHash);
+    return serializer.normalize(modelClass, relationshipHash, null);
   }
 });
 
