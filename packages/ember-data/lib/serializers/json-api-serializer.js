@@ -7,6 +7,7 @@ import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector/lib/system/string';
 
 var dasherize = Ember.String.dasherize;
+var get = Ember.get;
 var map = Ember.ArrayPolyfills.map;
 
 /**
@@ -69,6 +70,9 @@ export default JSONSerializer.extend({
     let modelName = this.modelNameFromPayloadKey(resourceHash.type);
     let modelClass = this.store.modelFor(modelName);
     let serializer = this.store.serializerFor(modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${serializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(serializer, 'isNewSerializerAPI'));
+
     let { data } = serializer.normalize(modelClass, resourceHash);
     return data;
   },

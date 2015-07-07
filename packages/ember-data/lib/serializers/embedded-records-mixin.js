@@ -350,6 +350,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       if (parentRecord) {
         var name = parentRecord.name;
         var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
+
+        Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${embeddedSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(embeddedSerializer, 'isNewSerializerAPI'));
+
         var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
@@ -445,6 +448,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var ids = [];
 
     var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${embeddedSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(embeddedSerializer, 'isNewSerializerAPI'));
+
     forEach.call(hash[key], function(data) {
       var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
       store.push(embeddedTypeClass.modelName, embeddedRecord);
@@ -466,9 +472,12 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     var ids = [];
 
-    forEach.call(hash[key], function(data) {
+    forEach.call(hash[key], (data) => {
       var modelName = data.type;
       var embeddedSerializer = store.serializerFor(modelName);
+
+      Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${embeddedSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(embeddedSerializer, 'isNewSerializerAPI'));
+
       var embeddedTypeClass = store.modelFor(modelName);
       // var primaryKey = embeddedSerializer.get('primaryKey');
 
@@ -495,6 +504,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }
 
     var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${embeddedSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(embeddedSerializer, 'isNewSerializerAPI'));
+
     var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, hash[key], null);
     store.push(embeddedTypeClass.modelName, embeddedRecord);
 
@@ -514,6 +526,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var data = hash[key];
     var modelName = data.type;
     var embeddedSerializer = store.serializerFor(modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${embeddedSerializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(embeddedSerializer, 'isNewSerializerAPI'));
+
     var embeddedTypeClass = store.modelFor(modelName);
     // var primaryKey = embeddedSerializer.get('primaryKey');
 
@@ -536,6 +551,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
+
+    Ember.assert(`${this.toString()} is using the ${get(this, 'isNewSerializerAPI') ? 'new' : 'old'} serializer API and expects ${serializer.toString()} it collaborates with to do the same. Make sure to set \`isNewSerializerAPI: true\` in your custom serializers if you want to use the new Serializer API.`, get(this, 'isNewSerializerAPI') === get(serializer, 'isNewSerializerAPI'));
 
     return serializer.normalize(modelClass, relationshipHash, null);
   }
