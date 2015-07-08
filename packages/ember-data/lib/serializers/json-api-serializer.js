@@ -282,17 +282,63 @@ export default JSONSerializer.extend({
           payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
         }
 
-        let data = null;
+        let payload = { data: null };
         if (belongsTo) {
-          data = {
-            type: this.payloadKeyFromModelName(belongsTo.modelName),
-            id: belongsTo.id
+          payload.inverse = this.inverseBelongsToKey(snapshot, relationship);
+          payload.data = {
+            type:    this.payloadKeyFromModelName(belongsTo.modelName),
+            id:      belongsTo.id
           };
         }
 
-        json.relationships[payloadKey] = { data };
+        json.relationships[payloadKey] = payload;
       }
     }
+  },
+
+  /**
+     @method inverseBelongsToKey
+     @param {DS.Snapshot} snapshot
+     @param {Object} relationship
+  */
+  inverseBelongsToKey: function (snapshot, relationship) {
+    if (relationship.options.inverse) {
+      return this.keyForAttribute(relationship.options.inverse);
+    }
+
+    var _this       = this;
+    var modelName   = snapshot.modelName;
+    var defaultKey  = this.payloadKeyFromModelName(modelName);
+    var matches     = [];
+    let belongsTo   = snapshot.belongsTo(relationship.key);
+
+    belongsTo.record.eachRelationship(function(attrName, relationship) {
+      let key = _this.keyForAttribute(attrName);
+      if (key === defaultKey) {
+        matches = [key];
+      } else if (relationship.type === modelName && matches.indexOf(defaultKey) === -1) {
+        // Didn't use default and found a relationship that uses that model.
+        matches.push(
+          _this.keyForAttribute(relationship.key)
+        );
+      }
+
+    });
+
+    if (matches.length > 1) {
+      Ember.Logger.warn('More than one relationship to '+modelName+' was found on the '+relationship.type+' model. '+
+                        'Assuming inverse relationship name of `'+matches[0]+'`. '+
+                        'Please specify the inverse for the `' + relationship.key + '` relationship on the `' + modelName +
+                        '` model.', matches);
+      return matches[0];
+
+    } else if (matches.length === 1) {
+      return matches[0];
+
+    } else {
+      return defaultKey;
+    }
+
   },
 
   /**
@@ -327,4 +373,3 @@ export default JSONSerializer.extend({
     }
   }
 });
-

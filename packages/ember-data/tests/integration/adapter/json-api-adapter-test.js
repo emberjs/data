@@ -3,7 +3,7 @@ var passedUrl, passedVerb, passedHash;
 
 var run = Ember.run;
 
-var User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
+var User, Post, Comment, PingBack, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
   setup: function() {
@@ -18,12 +18,18 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
     Post = DS.Model.extend({
       title: DS.attr('string'),
       author: DS.belongsTo('user', { async: true }),
-      comments: DS.hasMany('comment', { async: true })
+      comments: DS.hasMany('comment', { async: true }),
+      incomingLinks: DS.hasMany('ping-back', { async: true })
     });
 
     Comment = DS.Model.extend({
       text: DS.attr('string'),
       post: DS.belongsTo('post', { async: true })
+    });
+
+    PingBack = DS.Model.extend({
+      post: DS.belongsTo('post', { async: true }),
+      url:  DS.attr('string')
     });
 
     Handle = DS.Model.extend({
@@ -57,6 +63,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
       'user': User,
       'post': Post,
       'comment': Comment,
+      'ping-back': PingBack,
       'handle': Handle,
       'github-handle': GithubHandle,
       'twitter-handle': TwitterHandle,
@@ -720,6 +727,7 @@ test('create record', function() {
               },
               relationships: {
                 company: {
+                  inverse: 'employees',
                   data: { type: 'companies', id: '1' }
                 }
               }
@@ -730,6 +738,54 @@ test('create record', function() {
     });
   });
 });
+
+test('create record with belongsTo', function() {
+  expect(3);
+
+  ajaxResponse([{
+    data: {
+      type: 'ping-backs',
+      id: '3'
+    }
+  }]);
+
+  run(function() {
+    var post = store.push({ data: {
+      type: 'post',
+      id: '1',
+      attributes: {
+        title: 'First posting ever!'
+      }
+    } });
+
+    var pingBack = store.createRecord('ping-back', {
+      url: 'http://www.example.com/first-postings',
+      post: post
+    });
+
+    pingBack.save().then(function() {
+      equal(passedUrl[0], '/ping-backs');
+      equal(passedVerb[0], 'POST');
+      deepEqual(passedHash[0], {
+        data: {
+          data : {
+            type: 'ping-backs',
+            attributes: {
+              url: "http://www.example.com/first-postings"
+            },
+            relationships: {
+              post: {
+                inverse: 'incoming-links',
+                data: { type: 'posts', id: '1' }
+              }
+            }
+          }
+        }
+      });
+    });// end save
+  });
+});
+
 
 test('update record', function() {
   expect(3);
@@ -787,6 +843,7 @@ test('update record', function() {
               },
               relationships: {
                 company: {
+                  inverse: 'employees',
                   data: { type: 'companies', id: '2' }
                 }
               }
