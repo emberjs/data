@@ -893,23 +893,3 @@ test('accessing attributes in the initializer should not throw an error', functi
 
   run(() => store.createRecord('person'));
 });
-
-
-test('isDirty should log a deprecation warning', function() {
-  expect(1);
-  var Person = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var env = setupStore({
-    person: Person
-  });
-  var store = env.store;
-
-  run(function() {
-    var person = store.createRecord('person');
-    expectDeprecation(function() {
-      person.get('isDirty');
-    }, /DS.Model#isDirty has been deprecated/);
-  });
-});

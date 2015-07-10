@@ -103,34 +103,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     ```javascript
     var record = store.createRecord('model');
-    record.get('isDirty'); // true
-
-    store.find('model', 1).then(function(model) {
-      model.get('isDirty'); // false
-      model.set('foo', 'some value');
-      model.get('isDirty'); // true
-    });
-    ```
-
-    @property isDirty
-    @type {Boolean}
-    @readOnly
-    @deprecated
-  */
-  isDirty: Ember.computed('currentState.isDirty', function() {
-    Ember.deprecate('DS.Model#isDirty has been deprecated please use hasDirtyAttributes instead');
-    return this.get('currentState.isDirty');
-  }),
-  /**
-    If this property is `true` the record is in the `dirty` state. The
-    record has local changes that have not yet been saved by the
-    adapter. This includes records that have been created (but not yet
-    saved) or deleted.
-
-    Example
-
-    ```javascript
-    var record = store.createRecord('model');
     record.get('hasDirtyAttributes'); // true
 
     store.find('model', 1).then(function(model) {
@@ -660,28 +632,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.updateRecordArraysLater();
   },
   */
-
-  /**
-    If the model `isDirty` this function will discard any unsaved
-    changes. If the model `isNew` it will be removed from the store.
-
-    Example
-
-    ```javascript
-    record.get('name'); // 'Untitled Document'
-    record.set('name', 'Doc 1');
-    record.get('name'); // 'Doc 1'
-    record.rollback();
-    record.get('name'); // 'Untitled Document'
-    ```
-
-    @method rollback
-    @deprecated Use `rollbackAttributes()` instead
-  */
-  rollback: function() {
-    Ember.deprecate('Using model.rollback() has been deprecated. Use model.rollbackAttributes() to discard any unsaved changes to a model.');
-    this.rollbackAttributes();
-  },
 
   /**
     If the model `isDirty` this function will discard any unsaved
