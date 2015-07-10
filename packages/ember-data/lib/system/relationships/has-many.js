@@ -121,11 +121,6 @@ function hasMany(type, options) {
 
   options = options || {};
 
-  var shouldWarnAsync = false;
-  if (typeof options.async === 'undefined') {
-    shouldWarnAsync = true;
-  }
-
   if (typeof type === 'string') {
     type = normalizeModelName(type);
   }
@@ -139,16 +134,11 @@ function hasMany(type, options) {
     isRelationship: true,
     options: options,
     kind: 'hasMany',
-    key: null,
-    shouldWarnAsync: shouldWarnAsync
+    key: null
   };
 
   return Ember.computed({
     get: function(key) {
-      if (meta.shouldWarnAsync) {
-        Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.hasMany('${type}', { async: false })\` if you wish for a relationship remain synchronous.`);
-        meta.shouldWarnAsync = false;
-      }
       var relationship = this._internalModel._relationships.get(key);
       return relationship.getRecords();
     },

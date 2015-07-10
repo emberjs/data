@@ -312,13 +312,7 @@ test("belongsTo gives a warning when provided with an embedded option", function
   }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
 });
 
-module("unit/model/relationships - DS.belongsTo async by default deprecations", {
-  setup: function() {
-    setupStore();
-  }
-});
-
-test("setting DS.belongsTo without async false triggers deprecation", function() {
+test("DS.belongsTo should be async by default", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person', { async: false })
@@ -332,12 +326,10 @@ test("setting DS.belongsTo without async false triggers deprecation", function()
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
 
-  expectDeprecation(
-    function() {
-      run(function() {
-        store.createRecord('person').get('tag');
-      });
-    },
-    /In Ember Data 2.0, relationships will be asynchronous by default. You must set `tag: DS.belongsTo\('tag', { async: false }\)`/
-  );
+
+  run(function() {
+    var person = store.createRecord('person');
+
+    ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
+  });
 });
