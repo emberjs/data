@@ -339,10 +339,11 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
 
 test("if a deleted record errors, it enters the error state", function() {
   var count = 0;
+  var error = new DS.AdapterError();
 
   adapter.deleteRecord = function(store, type, snapshot) {
     if (count++ === 0) {
-      return Ember.RSVP.reject();
+      return Ember.RSVP.reject(error);
     } else {
       return Ember.RSVP.resolve();
     }
@@ -361,11 +362,13 @@ test("if a deleted record errors, it enters the error state", function() {
       return person.save();
     })).then(null, async(function() {
       equal(tom.get('isError'), true, "Tom is now errored");
+      equal(tom.get('adapterError'), error, "error object is exposed");
 
       // this time it succeeds
       return tom.save();
     })).then(async(function() {
       equal(tom.get('isError'), false, "Tom is not errored anymore");
+      equal(tom.get('adapterError'), null, "error object is discarded");
     }));
   });
 });
@@ -500,8 +503,10 @@ test("if a created record is marked as invalid by the server, you can attempt th
 });
 
 test("if a created record is marked as erred by the server, it enters an error state", function() {
+  var error = new DS.AdapterError();
+
   adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return Ember.RSVP.reject(error);
   };
 
   Ember.run(function() {
@@ -509,6 +514,7 @@ test("if a created record is marked as erred by the server, it enters an error s
 
     person.save().then(null, async(function() {
       ok(get(person, 'isError'), "the record is in the error state");
+      equal(get(person, 'adapterError'), error, "error object is exposed");
     }));
   });
 });
@@ -659,8 +665,10 @@ test("if an updated record is marked as invalid by the server, you can attempt t
 
 
 test("if a updated record is marked as erred by the server, it enters an error state", function() {
+  var error = new DS.AdapterError();
+
   adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return Ember.RSVP.reject(error);
   };
 
   var person = run(function() {
@@ -673,6 +681,7 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return person.save();
   })).then(null, async(function(reason) {
     ok(get(person, 'isError'), "the record is in the error state");
+    equal(get(person, 'adapterError'), error, "error object is exposed");
   }));
 });
 
