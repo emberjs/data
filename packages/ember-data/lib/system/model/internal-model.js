@@ -113,7 +113,7 @@ InternalModel.prototype = {
       _internalModel: this,
       currentState: get(this, 'currentState'),
       isError: this.isError,
-      error: this.error
+      adapterError: this.error
     });
     this._triggerDeferredTriggers();
   },
@@ -568,17 +568,19 @@ InternalModel.prototype = {
     if (this.record) {
       this.record.setProperties({
         isError: true,
-        error: error
+        adapterError: error
       });
     }
   },
 
   didCleanError: function() {
+    this.error = null;
     this.isError = false;
+
     if (this.record) {
       this.record.setProperties({
         isError: false,
-        error: null
+        adapterError: null
       });
     }
   },
