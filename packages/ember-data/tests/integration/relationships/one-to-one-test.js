@@ -107,7 +107,6 @@ test("Relationship is available from both sides even if only loaded from one sid
       }
     });
   });
-  console.log(user);
   equal(job.get('user'), user, 'User relationship was set up correctly');
 });
 
