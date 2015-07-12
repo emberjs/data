@@ -401,6 +401,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
   }).readOnly(),
 
   /**
+    This property holds the `DS.AdapterError` object with which
+    last adapter operation was rejected.
+
+    @property adapterError
+    @type {DS.AdapterError}
+  */
+  adapterError: null,
+
+  /**
     Create a JSON representation of the record, using the serialization
     strategy of the store's adapter.
 
