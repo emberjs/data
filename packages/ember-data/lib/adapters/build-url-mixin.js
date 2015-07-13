@@ -120,7 +120,7 @@ var BuildURLMixin = Ember.Mixin.create({
   urlForFind: urlForFind,
 
   /**
-   * @method urlForFind
+   * @method urlForFindRecord
    * @param {String} id
    * @param {String} modelName
    * @param {DS.Snapshot} snapshot
