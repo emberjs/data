@@ -1858,10 +1858,15 @@ Store = Service.extend({
     return internalModel.getRecord();
   },
 
+  _hasModelFor: function(type) {
+    return this.container.lookupFactory(`model:${type}`);
+  },
+
   _pushInternalModel: function(data) {
     var modelName = data.type;
-    Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + Ember.typeOf(data), Ember.typeOf(data) === 'object');
-    Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
+    Ember.assert(`Expected an object as 'data' in a call to 'push' for ${modelName}, but was ${Ember.typeOf(data)}`, Ember.typeOf(data) === 'object');
+    Ember.assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id != null && data.id !== '');
+    Ember.assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
     var type = this.modelFor(modelName);
     var filter = Ember.ArrayPolyfills.filter;
