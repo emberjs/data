@@ -25,7 +25,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
 
     env = setupStore({
       user: User,
-      job: Job
+      job: Job,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -861,8 +864,8 @@ test("When deleting a record that has a belongsTo relationship, the record is re
     });
 
   });
+  run(stanley, 'destroyRecord');
   run(function() {
-    stanley.deleteRecord();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Stanley got removed');
     });
@@ -904,7 +907,7 @@ test("When deleting a record that has a belongsTo relationship, the record is re
 
   });
   run(function() {
-    job.deleteRecord();
+    job.destroyRecord();
   });
   equal(user.get('job'), null, 'Job got removed from the user');
   equal(job.get('user'), user, 'Job still has the user');

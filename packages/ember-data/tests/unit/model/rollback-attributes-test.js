@@ -124,8 +124,8 @@ test("a deleted record's attributes can be rollbacked if it fails to save, recor
   run(function() {
     person.deleteRecord();
   });
-  equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
-  equal(people.objectAt(0), null, "a deleted record does not appear in record array anymore");
+  equal(people.get('length'), 1, "a deleted record appears in record array until it is saved");
+  equal(people.objectAt(0), person, "a deleted record appears in record array until it is saved");
 
   run(function() {
     person.save().then(null, function() {
@@ -213,8 +213,8 @@ test("deleted record's attributes can be rollbacked", function() {
     person.deleteRecord();
   });
 
-  equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
-  equal(people.objectAt(0), null, "a deleted record does not appear in record array anymore");
+  equal(people.get('length'), 1, "a deleted record appears in the record array until it is saved");
+  equal(people.objectAt(0), person, "a deleted record appears in the record array until it is saved");
 
   equal(person.get('isDeleted'), true, "must be deleted");
 

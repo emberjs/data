@@ -57,14 +57,12 @@ export default Ember.Object.extend({
     @method updateRecordArrays
   */
   updateRecordArrays: function() {
-    this.changedRecords.forEach((record) => {
-      if (record.isDeleted()) {
-      // TODO: it can be refactored after #2862 && #2859 are closed
-      // if (get(record, 'isDestroyed') || get(record, 'isDestroying') ||
-      //     (get(record, 'isDeleted') && !get(record, 'isDirty'))) {
-        this._recordWasDeleted(record);
+    this.changedRecords.forEach((internalModel) => {
+      if (get(internalModel, 'record.isDestroyed') || get(internalModel, 'record.isDestroying') ||
+           (get(internalModel, 'currentState.stateName') === 'root.deleted.saved')) {
+        this._recordWasDeleted(internalModel);
       } else {
-        this._recordWasChanged(record);
+        this._recordWasChanged(internalModel);
       }
     });
 

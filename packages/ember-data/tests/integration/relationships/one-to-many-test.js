@@ -34,7 +34,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
     env = setupStore({
       user: User,
       message: Message,
-      account: Account
+      account: Account,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -1197,7 +1200,7 @@ test("When deleting a record that has a belongsTo it is removed from the hasMany
       }
     });
   });
-  run(message, 'deleteRecord');
+  run(message, 'destroyRecord');
   run(function() {
     message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'Message still has the user');
@@ -1238,7 +1241,7 @@ test("When deleting a record that has a belongsTo it is removed from the hasMany
         }
       }
     });
-    account.deleteRecord();
+    account.destroyRecord();
   });
   equal(user.get('accounts.length'), 0, "User was removed from the accounts");
   equal(account.get('user'), user, 'Account still has the user');
@@ -1274,7 +1277,7 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
       }
     });
   });
-  run(user, 'deleteRecord');
+  run(user, 'destroyRecord');
   run(function() {
     message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Message does not have the user anymore');
@@ -1316,7 +1319,7 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
     });
   });
   run(function() {
-    user.deleteRecord();
+    user.destroyRecord();
   });
   equal(user.get('accounts.length'), 1, "User still has the accounts");
   equal(account.get('user'), null, 'Account no longer has the user');
