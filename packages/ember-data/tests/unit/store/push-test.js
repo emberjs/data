@@ -476,6 +476,20 @@ test('Calling push with a link for a non async relationship should warn', functi
   }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
 });
 
+test('Calling push with an unknown model name throws an assertion error', function() {
+
+  expectAssertion(function() {
+    run(function() {
+      store.push({
+        data: {
+          id: '1',
+          type: 'unknown'
+        }
+      });
+    });
+  }, /You tried to push data with a type 'unknown' but no model could be found with that name/);
+});
+
 test('Calling push with a link containing an object throws an assertion error', function() {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: true })
