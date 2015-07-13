@@ -29,11 +29,13 @@ test("records should not be removed from record arrays just after deleting, but 
     return Ember.RSVP.Promise.resolve();
   };
 
+  var all;
   run(function() {
     adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
     dave = env.store.push('person', { id: 2, name: "Dave Sunderland" });
+    all  = env.store.peekAll('person');
   });
-  var all  = env.store.all('person');
+
 
   // pre-condition
   equal(all.get('length'), 2, 'expected 2 records');

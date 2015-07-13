@@ -80,7 +80,7 @@ test("stops updating when destroyed", function() {
 
 
 test("a loaded record is removed from a record array when it is deleted", function() {
-  expect(4);
+  expect(5);
 
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
@@ -92,7 +92,10 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
   var env = setupStore({
     tag: Tag,
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      deleteRecord: () => Ember.RSVP.resolve()
+    })
   });
   var store = env.store;
 
@@ -123,7 +126,11 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
       scumbag.deleteRecord();
 
-      equal(get(recordArray, 'length'), 0, "record is removed from the record array");
+      equal(get(recordArray, 'length'), 1, "record is still in the record array until it is saved");
+
+      Ember.run(scumbag, 'save');
+
+      equal(get(recordArray, 'length'), 0, "record is removed from the array when it is saved");
     });
   });
 });
@@ -135,7 +142,10 @@ test("a loaded record is removed from a record array when it is deleted even if 
 
   var env = setupStore({
     tag: Tag,
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      deleteRecord: () => Ember.RSVP.resolve()
+    })
   });
   var store = env.store;
   var scumbag, tag;
@@ -143,7 +153,7 @@ test("a loaded record is removed from a record array when it is deleted even if 
   run(function() {
     scumbag = store.push('person', { id: 1, name: 'Scumbag Tom' });
     tag = store.push('tag', { id: 1, people: [1] });
-    scumbag.deleteRecord();
+    scumbag.destroyRecord();
   });
 
   equal(tag.get('people.length'), 0, "record is removed from the record array");
@@ -161,7 +171,10 @@ test("a loaded record is removed both from the record array and from the belongs
   var env = setupStore({
     tag: Tag,
     person: Person,
-    tool: Tool
+    tool: Tool,
+    adapter: DS.Adapter.extend({
+      deleteRecord: () => Ember.RSVP.resolve()
+    })
   });
   var store = env.store;
   var scumbag, tag, tool;
@@ -176,7 +189,7 @@ test("a loaded record is removed both from the record array and from the belongs
   equal(tool.get('person'), scumbag, "the tool belongs to the record");
 
   run(function() {
-    scumbag.deleteRecord();
+    scumbag.destroyRecord();
   });
 
   equal(tag.get('people.length'), 0, "record is removed from the record array");

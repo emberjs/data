@@ -35,7 +35,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     env = setupStore({
       user: User,
       topic: Topic,
-      account: Account
+      account: Account,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -415,7 +418,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
     });
   });
 
-  run(topic, 'deleteRecord');
+  run(topic, 'destroyRecord');
   run(function() {
     topic.get('users').then(async(function(fetchedUsers) {
       equal(fetchedUsers.get('length'), 1, 'Users are still there');
@@ -458,7 +461,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
     });
   });
 
-  run(account, 'deleteRecord');
+  run(account, 'destroyRecord');
   equal(account.get('users.length'), 1, 'Users are still there');
   equal(user.get('accounts.length'), 0, 'Acocount got removed from the user');
 });
