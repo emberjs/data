@@ -38,15 +38,15 @@ test("records should not be removed from record arrays just after deleting, but 
 
 
   // pre-condition
-  equal(all.get('length'), 2, 'expected 2 records');
+  equal(all.get('length'), 2, 'pre-condition: 2 records in array');
 
   Ember.run(adam, 'deleteRecord');
 
-  equal(all.get('length'), 2, 'expected 2 record');
+  equal(all.get('length'), 2, '2 records in array after deleteRecord');
 
   Ember.run(adam, 'save');
 
-  equal(all.get('length'), 1, 'expected 1 record');
+  equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
 });
 
 test("records can be deleted during record array enumeration", function () {

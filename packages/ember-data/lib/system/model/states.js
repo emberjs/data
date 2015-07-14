@@ -398,11 +398,9 @@ var createdState = dirtyState({
 });
 
 createdState.invalid.rolledBack = function(internalModel) {
-  internalModel.disconnectRelationships();
   internalModel.transitionTo('deleted.saved');
 };
 createdState.uncommitted.rolledBack = function(internalModel) {
-  internalModel.disconnectRelationships();
   internalModel.transitionTo('deleted.saved');
 };
 
@@ -411,14 +409,12 @@ var updatedState = dirtyState({
 });
 
 createdState.uncommitted.deleteRecord = function(internalModel) {
-  internalModel.disconnectRelationships();
   internalModel.transitionTo('deleted.saved');
   internalModel.send('invokeLifecycleCallbacks');
 };
 
 createdState.uncommitted.rollback = function(internalModel) {
   DirtyState.uncommitted.rollback.apply(this, arguments);
-  internalModel.disconnectRelationships();
   internalModel.transitionTo('deleted.saved');
 };
 
@@ -661,7 +657,6 @@ var RootState = {
       // TODO: More robust semantics around save-while-in-flight
       willCommit: Ember.K,
       didCommit: function(internalModel) {
-        internalModel.disconnectRelationships();
         internalModel.transitionTo('saved');
 
         internalModel.send('invokeLifecycleCallbacks');
@@ -686,6 +681,7 @@ var RootState = {
       isDirty: false,
 
       setup: function(internalModel) {
+        internalModel.clearRelationships();
         var store = internalModel.store;
         store._dematerializeRecord(internalModel);
       },

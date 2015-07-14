@@ -135,7 +135,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
   });
 });
 
-test("a loaded record is removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
+test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -153,13 +153,14 @@ test("a loaded record is removed from a record array when it is deleted even if 
   run(function() {
     scumbag = store.push('person', { id: 1, name: 'Scumbag Tom' });
     tag = store.push('tag', { id: 1, people: [1] });
-    scumbag.destroyRecord();
+    scumbag.deleteRecord();
   });
 
-  equal(tag.get('people.length'), 0, "record is removed from the record array");
+  equal(tag.get('people.length'), 1, 'record is not removed from the record array');
+  equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
 });
 
-test("a loaded record is removed both from the record array and from the belongs to, even if the belongsTo side isn't defined", function() {
+test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function() {
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -189,11 +190,11 @@ test("a loaded record is removed both from the record array and from the belongs
   equal(tool.get('person'), scumbag, "the tool belongs to the record");
 
   run(function() {
-    scumbag.destroyRecord();
+    scumbag.deleteRecord();
   });
 
-  equal(tag.get('people.length'), 0, "record is removed from the record array");
-  equal(tool.get('person'), null, "the tool is now orphan");
+  equal(tag.get('people.length'), 1, "record is stil in the record array");
+  equal(tool.get('person'), scumbag, "the tool still belongs to the record");
 });
 
 // GitHub Issue #168
@@ -220,19 +221,13 @@ test("a newly created record is removed from a record array when it is deleted",
   });
 
   equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
-  equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
+  equal(recordArray.objectAt(0), scumbag, "item at index 0 is record with id 1");
 
   run(function() {
     scumbag.deleteRecord();
   });
 
-  equal(get(recordArray, 'length'), 3, "record is removed from the record array");
-
-  run(function() {
-    recordArray.objectAt(0).set('name', 'toto');
-  });
-
-  equal(get(recordArray, 'length'), 3, "record is still removed from the record array");
+  equal(get(recordArray, 'length'), 3, "record array still has the created item");
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {

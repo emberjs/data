@@ -339,7 +339,6 @@ InternalModel.prototype = {
     if (this.isDeleted()) {
       //TODO: Should probably move this to the state machine somehow
       this.becameReady();
-      this.reconnectRelationships();
     }
 
     if (this.isNew()) {
@@ -449,7 +448,6 @@ InternalModel.prototype = {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         var rel = this._relationships.get(name);
-        //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
       }
@@ -459,23 +457,6 @@ InternalModel.prototype = {
       this._implicitRelationships[key].destroy();
     });
   },
-
-  disconnectRelationships: function() {
-    this.eachRelationship((name, relationship) => {
-      this._relationships.get(name).disconnect();
-    });
-    Object.keys(this._implicitRelationships).forEach((key) => {
-      this._implicitRelationships[key].disconnect();
-    });
-  },
-
-  reconnectRelationships: function() {
-    this.eachRelationship((name, relationship) => {
-      this._relationships.get(name).reconnect();
-    });
-    Object.keys(this._implicitRelationships).forEach((key) => this._implicitRelationships[key].reconnect());
-  },
-
 
   /**
     When a find request is triggered on the store, the user can optionally pass in
