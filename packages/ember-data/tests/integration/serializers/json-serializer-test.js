@@ -624,3 +624,103 @@ test('extractErrors leaves payload untouched if it has no errors property', func
 
   deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
 });
+
+test('normalizeResponse should extract meta using extractMeta', function() {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    isNewSerializerAPI: true,
+    extractMeta: function(store, modelClass, payload) {
+      let meta = this._super(...arguments);
+      meta.authors.push('Tomhuda');
+      return meta;
+    }
+  }));
+
+  var jsonHash = {
+    id: "1",
+    title_payload_key: "Rails is omakase",
+    my_comments: [1, 2],
+    meta: {
+      authors: ['Tomster']
+    }
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
+});
+
+test('normalizeResponse returns empty `included` payload by default', function() {
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({ isNewSerializerAPI: true }));
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    isNewSerializerAPI: true
+  }));
+
+  var jsonHash = {
+    id: "1",
+    title: "Rails is omakase"
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  deepEqual(post.included, []);
+});
+
+test('normalizeResponse respects `included` items (single response)', function() {
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({ isNewSerializerAPI: true }));
+  env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    isNewSerializerAPI: true,
+    attrs: {
+      comments: { embedded: 'always' }
+    }
+  }));
+
+  var jsonHash = {
+    id: "1",
+    title: "Rails is omakase",
+    comments: [
+      { id: "1", body: "comment 1" },
+      { id: "2", body: "comment 2" }
+    ]
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  deepEqual(post.included, [
+    { id: "1", type: "comment", attributes: { body: "comment 1" }, relationships: {} },
+    { id: "2", type: "comment", attributes: { body: "comment 2" }, relationships: {} }
+  ]);
+});
+
+test('normalizeResponse respects `included` items (array response)', function() {
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({ isNewSerializerAPI: true }));
+  env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    isNewSerializerAPI: true,
+    attrs: {
+      comments: { embedded: 'always' }
+    }
+  }));
+
+  var payload = [{
+    id: "1",
+    title: "Rails is omakase",
+    comments: [
+      { id: "1", body: "comment 1" }
+    ]
+  },
+  {
+    id: "2",
+    title: "Post 2",
+    comments: [
+      { id: "2", body: "comment 2" },
+      { id: "3", body: "comment 3" }
+    ]
+  }];
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, payload, '1', 'findAll');
+
+  deepEqual(post.included, [
+    { id: "1", type: "comment", attributes: { body: "comment 1" }, relationships: {} },
+    { id: "2", type: "comment", attributes: { body: "comment 2" }, relationships: {} },
+    { id: "3", type: "comment", attributes: { body: "comment 3" }, relationships: {} }
+  ]);
+});
