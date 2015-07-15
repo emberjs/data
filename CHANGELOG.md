@@ -2,6 +2,8 @@
 
 ### Master
 
+- [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
+
 ### Release 1.13.5 (July 8, 2015)
 
 - [#3437](https://github.com/emberjs/data/pull/3437) Deprecate normalizePayload and normalizeHash [@wecc](https://github.com/wecc)
@@ -122,9 +124,9 @@
 
 ##### Store Service moved to an Instance Initializer
 
-In order to fix deprecations warning induced by Ember 1.12, the store service 
-is now injected as an instanceInitializer. As a consequence, if you had initializers 
-depending on the store, you should move them to an instance initializer as well, 
+In order to fix deprecations warning induced by Ember 1.12, the store service
+is now injected as an instanceInitializer. As a consequence, if you had initializers
+depending on the store, you should move them to an instance initializer as well,
 and mark it as after: 'ember-data'.
 
 - Removed support for DS.FixtureAdapter. You can use it as an addon, or
