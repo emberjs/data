@@ -341,6 +341,7 @@ var DirtyState = {
 
     rolledBack: function(internalModel) {
       internalModel.clearErrorMessages();
+      internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('ready');
     },
 
