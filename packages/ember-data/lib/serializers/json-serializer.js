@@ -449,11 +449,17 @@ var JSONSerializer = Serializer.extend({
     }
 
     if (isSingle) {
-      let { data } = this.normalize(primaryModelClass, payload);
+      let { data, included } = this.normalize(primaryModelClass, payload);
       documentHash.data = data;
+      if (included) {
+        documentHash.included = included;
+      }
     } else {
       documentHash.data = payload.map((item) => {
-        let { data } = this.normalize(primaryModelClass, item);
+        let { data, included } = this.normalize(primaryModelClass, item);
+        if (included) {
+          documentHash.included.push(...included);
+        }
         return data;
       });
     }
