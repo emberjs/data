@@ -4,6 +4,7 @@
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
+import { _objectIsAlive } from "ember-data/-private/system/store/common";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -82,7 +83,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     toSet = toSet.concat(newRecords);
     var oldLength = this.length;
     this.arrayContentWillChange(0, this.length, toSet.length);
-    this.set('length', toSet.length);
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (_objectIsAlive(this)) {
+      this.set('length', toSet.length);
+    }
     this.currentState = toSet;
     this.arrayContentDidChange(0, oldLength, this.length);
     //TODO Figure out to notify only on additions and maybe only if unloaded
