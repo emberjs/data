@@ -108,6 +108,7 @@ export function AbortError() {
 AbortError.prototype = Object.create(AdapterError.prototype);
 
 /**
+  @method errorsHashToArray
   @private
 */
 export function errorsHashToArray(errors) {
@@ -131,6 +132,10 @@ export function errorsHashToArray(errors) {
   return out;
 }
 
+/**
+  @method errorsArrayToHash
+  @private
+*/
 export function errorsArrayToHash(errors) {
   let out = {};
 
