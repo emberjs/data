@@ -184,7 +184,7 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test("Calling push with a normalized hash containing related records returns a record", function() {
+test("DEPRECATED - Calling push with a normalized hash containing related records returns a record", function() {
   var number1, number2, person;
   run(function() {
     number1 = store.push('phone-number', {
@@ -198,15 +198,18 @@ test("Calling push with a normalized hash containing related records returns a r
       number: '5552121',
       person: 'wat'
     });
-
-    person = store.push('person', {
-      id: 'wat',
-      firstName: 'John',
-      lastName: 'Smith',
-      phoneNumbers: [number1, number2]
-    });
   });
 
+  run(function() {
+    expectDeprecation(function() {
+      person = store.push('person', {
+        id: 'wat',
+        firstName: 'John',
+        lastName: 'Smith',
+        phoneNumbers: [number1, number2]
+      });
+    });
+  });
 
   deepEqual(person.get('phoneNumbers').toArray(), [number1, number2], "phoneNumbers array is correct");
 });

@@ -483,7 +483,9 @@ var Adapter = Ember.Object.extend({
   */
   shouldReloadAll: function(store, snapshotRecordArray) {
     var modelName = snapshotRecordArray.type.modelName;
-    Ember.deprecate(`The default behavior of shouldReloadAll will change in Ember Data 2.0 to always return false when there is at least one "${modelName}" record in the store. If you would like to preserve the current behavior please override shouldReloadAll in your adapter:application and return true.`);
+    Ember.deprecate(`The default behavior of shouldReloadAll will change in Ember Data 2.0 to always return false when there is at least one "${modelName}" record in the store. If you would like to preserve the current behavior please override shouldReloadAll in your adapter:application and return true.`, false, {
+      id: 'ember-data-shouldReloadAll'
+    });
     return true;
   },
 
@@ -504,7 +506,9 @@ var Adapter = Ember.Object.extend({
     @return {Boolean}
   */
   shouldBackgroundReloadRecord: function(store, snapshot) {
-    Ember.deprecate('The default behavior of `shouldBackgroundReloadRecord` will change in Ember Data 2.0 to always return true. If you would like to preserve the current behavior please override `shouldBackgroundReloadRecord` in your adapter:application and return false.');
+    Ember.deprecate('The default behavior of `shouldBackgroundReloadRecord` will change in Ember Data 2.0 to always return true. If you would like to preserve the current behavior please override `shouldBackgroundReloadRecord` in your adapter:application and return false.', false, {
+      id: 'ember-data-shouldBackgroundReloadRecord'
+    });
     return false;
   },
 

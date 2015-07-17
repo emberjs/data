@@ -1284,7 +1284,9 @@ Store = Service.extend({
     @deprecated
   */
   metadataFor: function(modelName) {
-    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.");
+    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.", false, {
+      id: 'ember-data-metadataFor'
+    });
     return this._metadataFor(modelName);
   },
 
@@ -1310,7 +1312,9 @@ Store = Service.extend({
     @deprecated
   */
   setMetadataFor: function(modelName, metadata) {
-    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.");
+    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.", false, {
+      id: 'ember-data-setMetadataFor'
+    });
     this._setMetadataFor(modelName, metadata);
   },
 
@@ -1690,7 +1694,9 @@ Store = Service.extend({
     if (Ember.typeOf(modelNameArg) === 'object' && Ember.typeOf(dataArg) === 'undefined') {
       data = modelNameArg;
     } else {
-      Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
+      Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.', false, {
+        id: 'ember-data-store#push(type, data)'
+      });
       Ember.assert("Expected an object as `data` in a call to `push` for " + modelNameArg + " , but was " + Ember.typeOf(dataArg), Ember.typeOf(dataArg) === 'object');
       Ember.assert("You must include an `id` for " + modelNameArg + " in an object passed to `push`", dataArg.id != null && dataArg.id !== '');
       data = _normalizeSerializerPayload(this.modelFor(modelNameArg), dataArg);
@@ -1888,7 +1894,10 @@ Store = Service.extend({
   */
   pushMany: function(modelName, datas) {
     Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
-    Ember.deprecate('Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
+    Ember.deprecate('Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.', false, {
+      id: "ember-data-pushMany"
+    });
+
     var length = datas.length;
     var result = new Array(length);
 
