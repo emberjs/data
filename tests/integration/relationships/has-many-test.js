@@ -2700,3 +2700,65 @@ test("PromiseArray proxies createRecord to its ManyArray before the hasMany is l
     });
   });
 });
+
+test("unloading and reloading a record with hasMany relationship - #3084", function(assert) {
+  var user;
+  var message;
+
+  run(function() {
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: 'user-1',
+        attributes: {
+          name: 'Adolfo Builes'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'message', id: 'message-1' }
+            ]
+          }
+        }
+      }, {
+        type: 'message',
+        id: 'message-1'
+      }]
+    });
+
+    user = env.store.peekRecord('user', 'user-1');
+    message = env.store.peekRecord('message', 'message-1');
+
+    assert.equal(get(user, 'messages.firstObject.id'), 'message-1');
+    assert.equal(get(message, 'user.id'), 'user-1');
+  });
+
+  run(function() {
+    env.store.unloadRecord(user);
+  });
+
+  run(function() {
+    // The record is resurrected for some reason.
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: 'user-1',
+        attributes: {
+          name: 'Adolfo Builes'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'message', id: 'message-1' }
+            ]
+          }
+        }
+      }]
+    });
+
+    user = env.store.peekRecord('user', 'user-1');
+
+    assert.equal(get(user, 'messages.firstObject.id'), 'message-1');
+    assert.equal(get(message, 'user.id'), 'user-1');
+  });
+});
