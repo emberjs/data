@@ -938,18 +938,28 @@ Store = Service.extend({
     language for all server-side queries, and then require all adapters to
     implement them.
 
+    ---
+
+    If you do something like this:
+
+    ```javascript
+    store.query('person', { page: 1 });
+    ```
+
     The call made to the server, using a Rails backend, will look something like this:
 
     ```
     Started GET "/api/v1/person?page=1"
     Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"page"=>"1"}
+    Parameters: { "page"=>"1" }
     ```
+
+    ---
 
     If you do something like this:
 
     ```javascript
-    store.query('person', {ids: [1, 2, 3]});
+    store.query('person', { ids: [1, 2, 3] });
     ```
 
     The call to the server, using a Rails backend, will look something like this:
@@ -957,7 +967,7 @@ Store = Service.extend({
     ```
     Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
     Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"ids"=>["1", "2", "3"]}
+    Parameters: { "ids" => ["1", "2", "3"] }
     ```
 
     This method returns a promise, which is resolved with a `RecordArray`
