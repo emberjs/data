@@ -33,17 +33,17 @@ var errorsArray = [
   {
     title: 'Invalid Attribute',
     detail: 'is invalid',
-    source: { pointer: 'data/attributes/name' }
+    source: { pointer: '/data/attributes/name' }
   },
   {
     title: 'Invalid Attribute',
     detail: 'must be a string',
-    source: { pointer: 'data/attributes/name' }
+    source: { pointer: '/data/attributes/name' }
   },
   {
     title: 'Invalid Attribute',
     detail: 'must be a number',
-    source: { pointer: 'data/attributes/age' }
+    source: { pointer: '/data/attributes/age' }
   }
 ];
 
@@ -57,6 +57,16 @@ test("errorsArrayToHash", function() {
   deepEqual(result, errorsHash);
 });
 
+test("errorsArrayToHash without trailing slash", function() {
+  var result = DS.errorsArrayToHash([
+    {
+      detail: 'error message',
+      source: { pointer: 'data/attributes/name' }
+    }
+  ]);
+  deepEqual(result, { name: ['error message'] });
+});
+
 test("DS.InvalidError will normalize errors hash with deprecation", function() {
   var error;
 
@@ -68,7 +78,7 @@ test("DS.InvalidError will normalize errors hash with deprecation", function() {
     {
       title: 'Invalid Attribute',
       detail: 'is invalid',
-      source: { pointer: 'data/attributes/name' }
+      source: { pointer: '/data/attributes/name' }
     }
   ]);
 });

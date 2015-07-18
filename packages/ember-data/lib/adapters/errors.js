@@ -1,6 +1,6 @@
 const EmberError = Ember.Error;
 
-const SOURCE_POINTER_REGEXP = /data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 
 /**
   @class AdapterError
@@ -122,7 +122,7 @@ export function errorsHashToArray(errors) {
           title: 'Invalid Attribute',
           detail: messages[i],
           source: {
-            pointer: `data/attributes/${key}`
+            pointer: `/data/attributes/${key}`
           }
         });
       }
