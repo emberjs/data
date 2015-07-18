@@ -465,14 +465,14 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
   var filter;
 
   run(function() {
-    filter = store.filter('person', { foo: 1 }, function(person) {
+    filter = store.filter('person', { query: { foo: 1 } }, function(person) {
       return true;
     });
   });
 
   Ember.run(function() {
     filter.then(function(array) {
-      deepEqual(get(array, 'query'), { foo: 1 }, 'has expected query');
+      deepEqual(get(array, 'query'), { query: { foo: 1 } }, 'has expected query');
     });
   });
 });

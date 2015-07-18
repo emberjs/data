@@ -137,10 +137,9 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
   }, null, "DS: Extract payload of findAll " + typeClass);
 }
 
-export function _query(adapter, store, typeClass, query, recordArray) {
+export function _query(adapter, store, typeClass, options, recordArray) {
   var modelName = typeClass.modelName;
-  var promise = adapter.query(store, typeClass, query, recordArray);
-
+  var promise = adapter.query(store, typeClass, options, recordArray);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 
@@ -161,9 +160,9 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   }, null, "DS: Extract payload of findQuery " + typeClass);
 }
 
-export function _queryRecord(adapter, store, typeClass, query) {
+export function _queryRecord(adapter, store, typeClass, options) {
   var modelName = typeClass.modelName;
-  var promise = adapter.queryRecord(store, typeClass, query);
+  var promise = adapter.queryRecord(store, typeClass, options);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#queryRecord of " + typeClass;
 

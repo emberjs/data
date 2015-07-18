@@ -252,7 +252,7 @@ Store = Service.extend({
     @method serialize
     @private
     @param {DS.Model} record the record to serialize
-    @param {Object} options an options hash
+    @param {Object} options an options object
   */
   serialize: function(record, options) {
     var snapshot = record._internalModel.createSnapshot();
@@ -312,7 +312,7 @@ Store = Service.extend({
 
     @method createRecord
     @param {String} modelName
-    @param {Object} inputProperties a hash of properties to set on the
+    @param {Object} inputProperties a object of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
@@ -975,21 +975,22 @@ Store = Service.extend({
 
     @method query
     @param {String} modelName
-    @param {any} query an opaque query to be used by the adapter
+    @param {Object} options, query an opaque query of the form {query: { any }} to be used by the adapter
     @return {Promise} promise
   */
-  query: function(modelName, query) {
+  query: function(modelName, options) {
+    Ember.deprecate("You need to pass a query object in the options object of the store's query method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var array = this.recordArrayManager
-      .createAdapterPopulatedRecordArray(typeClass, query);
+      .createAdapterPopulatedRecordArray(typeClass, options);
 
     var adapter = this.adapterFor(modelName);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function' || typeof adapter.findQuery === 'function');
 
-    return promiseArray(_query(adapter, this, typeClass, query, array));
+    return promiseArray(_query(adapter, this, typeClass, options, array));
   },
 
   /**
@@ -1004,13 +1005,14 @@ Store = Service.extend({
     once the server returns.
 
     @method queryRecord
-    @param {String or subclass of DS.Model} type
-    @param {any} query an opaque query to be used by the adapter
+    @param {String} modelName
+    @param {Object} options, query an opaque query of the form {query: { any }} to be used by the adapter
     @return {Promise} promise
   */
-  queryRecord: function(modelName, query) {
+  queryRecord: function(modelName, options) {
+    options = options || {};
     Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
-    Ember.assert("You need to pass a query hash to the store's queryRecord method", query);
+    Ember.deprecate("You need to pass a query object in the options object of the store's queryRecord method", options && options.query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var typeClass = this.modelFor(modelName);
@@ -1019,7 +1021,7 @@ Store = Service.extend({
     Ember.assert("You tried to make a query but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to make a query but your adapter does not implement `queryRecord`", typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, typeClass, query));
+    return promiseObject(_queryRecord(adapter, this, typeClass, options));
   },
 
   /**
