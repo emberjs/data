@@ -1,7 +1,6 @@
 const EmberError = Ember.Error;
-
 const forEach = Ember.ArrayPolyfills.forEach;
-const SOURCE_POINTER_REGEXP = /data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 
 import {
   keysFunc,
@@ -129,7 +128,7 @@ export function errorsHashToArray(errors) {
           title: 'Invalid Attribute',
           detail: messages[i],
           source: {
-            pointer: `data/attributes/${key}`
+            pointer: `/data/attributes/${key}`
           }
         });
       }
