@@ -1,6 +1,8 @@
 var get = Ember.get;
+var set = Ember.set;
 var isEmpty = Ember.isEmpty;
 var map = Ember.ArrayPolyfills.map;
+var makeArray = Ember.makeArray;
 
 import {
   MapWithDefault
@@ -92,7 +94,7 @@ import {
   @uses Ember.Enumerable
   @uses Ember.Evented
  */
-export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
+export default Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     Register with target handler
 
@@ -178,21 +180,12 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   },
 
   /**
-    @method nextObject
-    @private
-  */
-  nextObject: function(index, previousObject, context) {
-    return get(this, 'content').objectAt(index);
-  },
-
-  /**
     Total number of errors.
 
     @property length
     @type {Number}
     @readOnly
   */
-  length: Ember.computed.oneWay('content.length').readOnly(),
 
   /**
     @property isEmpty
@@ -221,11 +214,10 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     var wasEmpty = get(this, 'isEmpty');
 
     messages = this._findOrCreateMessages(attribute, messages);
-    get(this, 'content').addObjects(messages);
+    this.addObjects(messages);
     get(this, 'errorsByAttributeName').get(attribute).addObjects(messages);
 
     this.notifyPropertyChange(attribute);
-    this.enumerableContentDidChange();
 
     if (wasEmpty && !get(this, 'isEmpty')) {
       this.trigger('becameInvalid');
@@ -239,7 +231,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   _findOrCreateMessages: function(attribute, messages) {
     var errors = this.errorsFor(attribute);
 
-    return map.call(Ember.makeArray(messages), function(message) {
+    return map.call(makeArray(messages), function(message) {
       return errors.findBy('message', message) || {
         attribute: attribute,
         message: message
@@ -284,12 +276,11 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   remove: function(attribute) {
     if (get(this, 'isEmpty')) { return; }
 
-    var content = get(this, 'content').rejectBy('attribute', attribute);
-    get(this, 'content').setObjects(content);
+    let content = this.rejectBy('attribute', attribute);
+    set(this, 'content', content);
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
-    this.enumerableContentDidChange();
 
     if (get(this, 'isEmpty')) {
       this.trigger('becameValid');
@@ -320,9 +311,19 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   clear: function() {
     if (get(this, 'isEmpty')) { return; }
 
-    get(this, 'content').clear();
-    get(this, 'errorsByAttributeName').clear();
-    this.enumerableContentDidChange();
+    let errorsByAttributeName = get(this, 'errorsByAttributeName');
+    let attributes = Ember.A();
+
+    errorsByAttributeName.forEach(function(_, attribute) {
+      attributes.push(attribute);
+    });
+
+    errorsByAttributeName.clear();
+    attributes.forEach(function(attribute) {
+      this.notifyPropertyChange(attribute);
+    }, this);
+
+    this._super();
 
     this.trigger('becameValid');
   },
