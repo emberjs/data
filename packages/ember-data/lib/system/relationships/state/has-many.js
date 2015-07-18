@@ -156,8 +156,10 @@ ManyRelationship.prototype.findRecords = function() {
   //TODO CLEANUP
   return this.store.findMany(this.manyArray.toArray().map((rec) => rec._internalModel)).
     then(() => {
-      //Goes away after the manyArray refactor
-      this.manyArray.set('isLoaded', true);
+      if (!this.manyArray.get('isDestroyed')) {
+        //Goes away after the manyArray refactor
+        this.manyArray.set('isLoaded', true);
+      }
       return this.manyArray;
     });
 };

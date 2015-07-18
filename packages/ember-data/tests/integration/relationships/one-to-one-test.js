@@ -25,7 +25,10 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
 
     env = setupStore({
       user: User,
-      job: Job
+      job: Job,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -814,100 +817,6 @@ test("Setting a belongsTo to a different record, sets the old relationship to nu
   equal(user.get('job'), newBetterJob, 'Job updated correctly');
   equal(job.get('user'), null, 'Old relationship nulled out correctly');
   equal(newBetterJob.get('user'), user, 'New job setup correctly');
-});
-
-/*
-Deleting tests
-*/
-
-test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - async", function () {
-  // This observer is here to make sure that inverseRecord gets cleared, when
-  // the record is deleted, before notifyRecordRelationshipRemoved() and in turn
-  // notifyPropertyChange() gets called. If not properly cleared observers will
-  // trigger with the old value of the relationship.
-  User.reopen({
-    bestFriendObserver: Ember.observer('bestFriend', function() {
-      this.get('bestFriend');
-    })
-  });
-  var stanleysFriend, stanley;
-
-  run(function() {
-    stanleysFriend = store.push({
-      data: {
-        id: 2,
-        type: 'user',
-        attributes: {
-          name: "Stanley's friend"
-        }
-      }
-    });
-    stanley = store.push({
-      data: {
-        id: 1,
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          bestFriend: {
-            data: {
-              id: 2,
-              type: 'user'
-            }
-          }
-        }
-      }
-    });
-
-  });
-  run(function() {
-    stanley.deleteRecord();
-    stanleysFriend.get('bestFriend').then(function(fetchedUser) {
-      equal(fetchedUser, null, 'Stanley got removed');
-    });
-    stanley.get('bestFriend').then(function(fetchedUser) {
-      equal(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
-    });
-  });
-});
-
-test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - sync", function () {
-  var job, user;
-  run(function() {
-    job = store.push({
-      data: {
-        id: 2,
-        type: 'job',
-        attributes: {
-          isGood: true
-        }
-      }
-    });
-    user = store.push({
-      data: {
-        id: 1,
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          job: {
-            data: {
-              id: 2,
-              type: 'job'
-            }
-          }
-        }
-      }
-    });
-
-  });
-  run(function() {
-    job.deleteRecord();
-  });
-  equal(user.get('job'), null, 'Job got removed from the user');
-  equal(job.get('user'), user, 'Job still has the user');
 });
 
 /*

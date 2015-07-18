@@ -35,7 +35,10 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     env = setupStore({
       user: User,
       topic: Topic,
-      account: Account
+      account: Account,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -378,89 +381,6 @@ test("Removing a record from a hasMany reflects on the other hasMany side - sync
   });
   equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
   equal(account.get('users.length'), 0, 'Users were removed correctly');
-});
-
-/*
-Deleting tests
-*/
-
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - async", function () {
-  var user, topic;
-  run(function() {
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          topics: {
-            data: [{
-              id: '2',
-              type: 'topic'
-            }]
-          }
-        }
-      }
-    });
-    topic = store.push({
-      data: {
-        id: '2',
-        type: 'topic',
-        attributes: {
-          title: 'EmberFest was great'
-        }
-      }
-    });
-  });
-
-  run(topic, 'deleteRecord');
-  run(function() {
-    topic.get('users').then(async(function(fetchedUsers) {
-      equal(fetchedUsers.get('length'), 1, 'Users are still there');
-    }));
-    user.get('topics').then(async(function(fetchedTopics) {
-      equal(fetchedTopics.get('length'), 0, 'Topic got removed from the user');
-      equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
-    }));
-  });
-});
-
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
-  var account, user;
-  run(function() {
-    account = store.push({
-      data: {
-        id: '2',
-        type: 'account',
-        attributes: {
-          state: 'lonely'
-        }
-      }
-    });
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          accounts: {
-            data: [{
-              id: '2',
-              type: 'account'
-            }]
-          }
-        }
-      }
-    });
-  });
-
-  run(account, 'deleteRecord');
-  equal(account.get('users.length'), 1, 'Users are still there');
-  equal(user.get('accounts.length'), 0, 'Acocount got removed from the user');
 });
 
 /*

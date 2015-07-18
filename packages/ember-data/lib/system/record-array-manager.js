@@ -57,11 +57,12 @@ export default Ember.Object.extend({
     @method updateRecordArrays
   */
   updateRecordArrays: function() {
-    this.changedRecords.forEach((record) => {
-      if (record.isDeleted()) {
-        this._recordWasDeleted(record);
+    this.changedRecords.forEach((internalModel) => {
+      if (get(internalModel, 'record.isDestroyed') || get(internalModel, 'record.isDestroying') ||
+           (get(internalModel, 'currentState.stateName') === 'root.deleted.saved')) {
+        this._recordWasDeleted(internalModel);
       } else {
-        this._recordWasChanged(record);
+        this._recordWasChanged(internalModel);
       }
     });
 

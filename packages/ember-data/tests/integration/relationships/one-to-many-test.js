@@ -34,7 +34,10 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
     env = setupStore({
       user: User,
       message: Message,
-      account: Account
+      account: Account,
+      adapter: DS.Adapter.extend({
+        deleteRecord: () => Ember.RSVP.resolve()
+      })
     });
 
     store = env.store;
@@ -1161,165 +1164,6 @@ test("Setting the belongsTo side to null removes the record from the hasMany sid
   equal(account.get('user'), null, 'user got set to null correctly');
 
   equal(user.get('accounts.length'), 0, 'the account got removed correctly');
-});
-
-/*
-Deleting
-*/
-
-test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- async", function () {
-  var user, message;
-  run(function () {
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          messages: {
-            data: [{
-              id: '2',
-              type: 'message'
-            }]
-          }
-        }
-      }
-    });
-    message = store.push({
-      data: {
-        id: '2',
-        type: 'message',
-        attributes: {
-          title: 'EmberFest was great'
-        }
-      }
-    });
-  });
-  run(message, 'deleteRecord');
-  run(function() {
-    message.get('user').then(function(fetchedUser) {
-      equal(fetchedUser, user, 'Message still has the user');
-    });
-    user.get('messages').then(function(fetchedMessages) {
-      equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
-      equal(fetchedMessages.get('firstObject'), null, "Message can't be accessed");
-    });
-  });
-});
-
-test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- sync", function () {
-  var account, user;
-  run(function () {
-    account = store.push({
-      data: {
-        id: '2',
-        type: 'account',
-        attributes: {
-          state: 'lonely'
-        }
-      }
-    });
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          accounts: {
-            data: [{
-              id: '2',
-              type: 'account'
-            }]
-          }
-        }
-      }
-    });
-    account.deleteRecord();
-  });
-  equal(user.get('accounts.length'), 0, "User was removed from the accounts");
-  equal(account.get('user'), user, 'Account still has the user');
-});
-
-test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side- async", function () {
-  var user, message;
-  run(function () {
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          messages: {
-            data: [{
-              id: '2',
-              type: 'message'
-            }]
-          }
-        }
-      }
-    });
-    message = store.push({
-      data: {
-        id: '2',
-        type: 'message',
-        attributes: {
-          title: 'EmberFest was great'
-        }
-      }
-    });
-  });
-  run(user, 'deleteRecord');
-  run(function() {
-    message.get('user').then(function(fetchedUser) {
-      equal(fetchedUser, null, 'Message does not have the user anymore');
-    });
-    user.get('messages').then(function(fetchedMessages) {
-      equal(fetchedMessages.get('length'), 1, 'User still has the messages');
-    });
-  });
-});
-
-test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side - sync", function () {
-  var account, user;
-  run(function () {
-    account = store.push({
-      data: {
-        id: '2',
-        type: 'account',
-        attributes: {
-          state: 'lonely'
-        }
-      }
-    });
-    user = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Stanley'
-        },
-        relationships: {
-          accounts: {
-            data: [{
-              id: '2',
-              type: 'account'
-            }]
-          }
-        }
-      }
-    });
-  });
-  run(function() {
-    user.deleteRecord();
-  });
-  equal(user.get('accounts.length'), 1, "User still has the accounts");
-  equal(account.get('user'), null, 'Account no longer has the user');
 });
 
 /*

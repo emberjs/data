@@ -37,14 +37,6 @@ Relationship.prototype = {
     }
   },
 
-  disconnect: function() {
-    this.members.forEach((member) => this.removeRecordFromInverse(member));
-  },
-
-  reconnect: function() {
-    this.members.forEach((member) => this.addRecordToInverse(member));
-  },
-
   removeRecords: function(records) {
     records.forEach((record) => this.removeRecord(record));
   },
@@ -135,12 +127,6 @@ Relationship.prototype = {
           record._implicitRelationships[this.inverseKeyForImplicit].removeRecord(this.record);
         }
       }
-    }
-  },
-
-  addRecordToInverse: function(record) {
-    if (this.inverseKey) {
-      record._relationships.get(this.inverseKey).addRecord(this.record);
     }
   },
 
