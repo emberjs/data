@@ -228,6 +228,7 @@ test("deleted record's attributes can be rollbacked", function() {
 });
 
 test("invalid record's attributes can be rollbacked", function() {
+  expect(10);
   Dog = DS.Model.extend({
     name: DS.attr()
   });
@@ -263,17 +264,32 @@ test("invalid record's attributes can be rollbacked", function() {
   });
 
   run(function() {
+    Ember.addObserver(dog, 'errors.name', function() {
+      ok(true, 'errors.name did change');
+    });
+
+    dog.get('errors').addArrayObserver({}, {
+      willChange: function() {
+        ok(true, 'errors will change');
+      },
+      didChange: function() {
+        ok(true, 'errors did change');
+      }
+    });
+
     dog.save().then(null, async(function() {
       dog.rollbackAttributes();
 
       equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
       equal(dog.get('name'), "Pluto");
+      ok(Ember.isEmpty(dog.get('errors.name')));
       ok(dog.get('isValid'));
     }));
   });
 });
 
 test("invalid record's attributes rolled back to correct state after set", function() {
+  expect(13);
   Dog = DS.Model.extend({
     name: DS.attr(),
     breed: DS.attr()
@@ -311,6 +327,10 @@ test("invalid record's attributes rolled back to correct state after set", funct
   });
 
   run(function() {
+    Ember.addObserver(dog, 'errors.name', function() {
+      ok(true, 'errors.name did change');
+    });
+
     dog.save().then(null, async(function() {
       equal(dog.get('name'), "is a dwarf planet");
       equal(dog.get('breed'), "planet");
