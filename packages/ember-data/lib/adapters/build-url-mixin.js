@@ -120,6 +120,9 @@ var BuildURLMixin = Ember.Mixin.create({
   urlForFind: urlForFind,
 
   /**
+   * ```javascript
+   * let url = this.urlForFindRecord(42, "post"); // "http://www.example.com/posts/42"
+   * ```
    * @method urlForFindRecord
    * @param {String} id
    * @param {String} modelName
@@ -135,6 +138,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForFindAll("post"); // "http://www.example.com/posts"
+   * ```
    * @method urlForFindAll
    * @param {String} modelName
    * @return {String} url
@@ -153,6 +159,9 @@ var BuildURLMixin = Ember.Mixin.create({
   urlForFindQuery: urlForFindQuery,
 
   /**
+   * ```javascript
+   * let url = this.urlForQuery({ author: "Igor Terzic" }, "post"); // "http://www.example.com/posts"
+   * ```
    * @method urlForQuery
    * @param {Object} query
    * @param {String} modelName
@@ -167,6 +176,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForFindMany([42, 43, 44], "post"); // "http://www.example.com/posts"
+   * ```
    * @method urlForFindMany
    * @param {Array} ids
    * @param {String} modelName
@@ -178,6 +190,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForFindHasMany(42, "post"); // "http://www.example.com/posts/42"
+   * ```
    * @method urlForFindHasMany
    * @param {String} id
    * @param {String} modelName
@@ -188,6 +203,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForFindBelongsTo(42, "post"); // "http://www.example.com/posts/42"
+   * ```
    * @method urlForFindBelongTo
    * @param {String} id
    * @param {String} modelName
@@ -198,6 +216,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForCreateRecord("post"); // "http://www.example.com/posts"
+   * ```
    * @method urlForCreateRecord
    * @param {String} modelName
    * @param {DS.Snapshot} snapshot
@@ -208,6 +229,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForUpdateRecord(42, "post"); // "http://www.example.com/posts/42"
+   * ```
    * @method urlForUpdateRecord
    * @param {String} id
    * @param {String} modelName
@@ -219,6 +243,9 @@ var BuildURLMixin = Ember.Mixin.create({
   },
 
   /**
+   * ```javascript
+   * let url = this.urlForDeleteRecord(42, "post"); // "http://www.example.com/posts/42"
+   * ```
    * @method urlForDeleteRecord
    * @param {String} id
    * @param {String} modelName
