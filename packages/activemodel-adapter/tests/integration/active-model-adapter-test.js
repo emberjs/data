@@ -1,3 +1,5 @@
+const {ActiveModelAdapter} = DS;
+
 var env, store, adapter, SuperUser;
 var passedUrl, passedVerb, passedHash;
 module("integration/active_model_adapter - AMS Adapter", {
@@ -6,7 +8,7 @@ module("integration/active_model_adapter - AMS Adapter", {
 
     env = setupStore({
       superUser: SuperUser,
-      adapter: DS.ActiveModelAdapter
+      adapter: ActiveModelAdapter
     });
 
     store = env.store;
@@ -16,11 +18,11 @@ module("integration/active_model_adapter - AMS Adapter", {
   }
 });
 
-test('buildURL - decamelizes names', function() {
-  equal(adapter.buildURL('superUser', 1), "/super_users/1");
+test('buildURL - decamelizes names', function(assert) {
+  assert.equal(adapter.buildURL('superUser', 1), "/super_users/1");
 });
 
-test('handleResponse - returns invalid error if 422 response', function() {
+test('handleResponse - returns invalid error if 422 response', function(assert) {
 
   var jqXHR = {
     status: 422,
@@ -31,11 +33,11 @@ test('handleResponse - returns invalid error if 422 response', function() {
 
   var error = adapter.handleResponse(jqXHR.status, {}, json).errors[0];
 
-  equal(error.detail, "can't be blank");
-  equal(error.source.pointer, "data/attributes/name");
+  assert.equal(error.detail, "can't be blank");
+  assert.equal(error.source.pointer, "data/attributes/name");
 });
 
-test('handleResponse - returns ajax response if not 422 response', function() {
+test('handleResponse - returns ajax response if not 422 response', function(assert) {
   var jqXHR = {
     status: 500,
     responseText: "Something went wrong"
@@ -43,5 +45,5 @@ test('handleResponse - returns ajax response if not 422 response', function() {
 
   var json = adapter.parseErrorResponse(jqXHR.responseText);
 
-  ok(adapter.handleResponse(jqXHR.status, {}, json) instanceof DS.AdapterError, 'must be a DS.AdapterError');
+  assert.ok(adapter.handleResponse(jqXHR.status, {}, json) instanceof DS.AdapterError, 'must be a DS.AdapterError');
 });

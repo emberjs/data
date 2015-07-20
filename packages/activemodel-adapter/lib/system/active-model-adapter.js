@@ -1,16 +1,20 @@
-import {RESTAdapter} from "ember-data/adapters";
-import {pluralize} from "ember-inflector";
+import Ember from 'ember';
 import {
   InvalidError,
   errorsHashToArray
-} from "ember-data/adapters/errors";
+} from 'ember-data/adapters/errors';
+import RESTAdapter from 'ember-data/adapters/rest-adapter';
+
+import { pluralize } from 'ember-inflector';
+
+const {
+  decamelize,
+  underscore
+} = Ember.String;
 
 /**
   @module ember-data
 */
-
-var decamelize = Ember.String.decamelize;
-var underscore = Ember.String.underscore;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -103,7 +107,7 @@ var underscore = Ember.String.underscore;
   @extends DS.RESTAdapter
 **/
 
-var ActiveModelAdapter = RESTAdapter.extend({
+const ActiveModelAdapter = RESTAdapter.extend({
   defaultSerializer: '-active-model',
   /**
     The ActiveModelAdapter overrides the `pathForType` method to build

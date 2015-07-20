@@ -1,3 +1,5 @@
+const {ActiveModelSerializer} = DS;
+
 var SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, TestSerializer, env;
 var run = Ember.run;
 
@@ -22,7 +24,7 @@ module("integration/active_model - AMS-namespaced-model-names (new API)", {
       name:         DS.attr('string'),
       evilMinions:  DS.hasMany('evilMinion', { polymorphic: true })
     });
-    TestSerializer = DS.ActiveModelSerializer.extend({
+    TestSerializer = ActiveModelSerializer.extend({
       isNewSerializerAPI: true
     });
     env = setupStore({
@@ -49,74 +51,78 @@ module("integration/active_model - AMS-namespaced-model-names (new API)", {
   }
 });
 
-test("extractPolymorphic hasMany", function() {
-  var json_hash = {
-    mediocre_villain: { id: 1, name: "Dr Horrible", evil_minion_ids: [{ type: "EvilMinions::YellowMinion", id: 12 }] },
-    "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
-  };
-  var json;
+if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
 
-  run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'findRecord');
-  });
+  test("extractPolymorphic hasMany", function(assert) {
+    var json_hash = {
+      mediocre_villain: { id: 1, name: "Dr Horrible", evil_minion_ids: [{ type: "EvilMinions::YellowMinion", id: 12 }] },
+      "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    };
+    var json;
 
-  deepEqual(json, {
-    "data": {
-      "id": "1",
-      "type": "mediocre-villain",
-      "attributes": {
-        "name": "Dr Horrible"
-      },
-      "relationships": {
-        "evilMinions": {
-          "data": [
-            { "id": "12", "type": "evil-minions/yellow-minion" }
-          ]
+    run(function() {
+      json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
+    });
+
+    assert.deepEqual(json, {
+      "data": {
+        "id": "1",
+        "type": "mediocre-villain",
+        "attributes": {
+          "name": "Dr Horrible"
+        },
+        "relationships": {
+          "evilMinions": {
+            "data": [
+              { "id": "12", "type": "evil-minions/yellow-minion" }
+            ]
+          }
         }
-      }
-    },
-    "included": [{
-      "id": "12",
-      "type": "evil-minions/yellow-minion",
-      "attributes": {
-        "name": "Alex"
       },
-      "relationships": {}
-    }]
-  });
-});
-
-test("extractPolymorphic belongsTo", function() {
-  var json_hash = {
-    doomsday_device: { id: 1, name: "DeathRay", evil_minion_id: { type: "EvilMinions::YellowMinion", id: 12 } },
-    "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
-  };
-  var json;
-
-  run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
+      "included": [{
+        "id": "12",
+        "type": "evil-minions/yellow-minion",
+        "attributes": {
+          "name": "Alex"
+        },
+        "relationships": {}
+      }]
+    });
   });
 
-  deepEqual(json, {
-    "data": {
-      "id": "1",
-      "type": "doomsday-device",
-      "attributes": {
-        "name": "DeathRay"
-      },
-      "relationships": {
-        "evilMinion": {
-          "data": { "id": "12", "type": "evil-minions/yellow-minion" }
+  test("extractPolymorphic belongsTo", function(assert) {
+    var json_hash = {
+      doomsday_device: { id: 1, name: "DeathRay", evil_minion_id: { type: "EvilMinions::YellowMinion", id: 12 } },
+      "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    };
+    var json;
+
+    run(function() {
+      json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
+    });
+
+    assert.deepEqual(json, {
+      "data": {
+        "id": "1",
+        "type": "doomsday-device",
+        "attributes": {
+          "name": "DeathRay"
+        },
+        "relationships": {
+          "evilMinion": {
+            "data": { "id": "12", "type": "evil-minions/yellow-minion" }
+          }
         }
-      }
-    },
-    "included": [{
-      "id": "12",
-      "type": "evil-minions/yellow-minion",
-      "attributes": {
-        "name": "Alex"
       },
-      "relationships": {}
-    }]
+      "included": [{
+        "id": "12",
+        "type": "evil-minions/yellow-minion",
+        "attributes": {
+          "name": "Alex"
+        },
+        "relationships": {}
+      }]
+    });
   });
-});
+
+}

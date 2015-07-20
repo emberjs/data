@@ -1,5 +1,7 @@
 var env, store, adapter, User;
+
 var originalAjax;
+const {ActiveModelAdapter} = DS;
 
 module("integration/active_model_adapter_serializer - AMS Adapter and Serializer", {
   setup: function() {
@@ -11,7 +13,7 @@ module("integration/active_model_adapter_serializer - AMS Adapter and Serializer
 
     env = setupStore({
       user: User,
-      adapter: DS.ActiveModelAdapter
+      adapter: ActiveModelAdapter
     });
 
     store = env.store;
@@ -25,7 +27,7 @@ module("integration/active_model_adapter_serializer - AMS Adapter and Serializer
   }
 });
 
-test('errors are camelCased and are expected under the `errors` property of the payload', function() {
+test('errors are camelCased and are expected under the `errors` property of the payload', function(assert) {
   var jqXHR = {
     status: 422,
     getAllResponseHeaders: function() { return ''; },
@@ -48,8 +50,8 @@ test('errors are camelCased and are expected under the `errors` property of the 
   Ember.run(function() {
     user.save().then(null, function() {
       var errors = user.get('errors');
-      ok(errors.has('firstName'), "there are errors for the firstName attribute");
-      deepEqual(errors.errorsFor('firstName').getEach('message'), ['firstName error']);
+      assert.ok(errors.has('firstName'), "there are errors for the firstName attribute");
+      assert.deepEqual(errors.errorsFor('firstName').getEach('message'), ['firstName error']);
     });
   });
 });
