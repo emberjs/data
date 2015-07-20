@@ -38,9 +38,27 @@ test("assertPolymorphicType works for subclasses", function() {
   var user, post, person;
 
   Ember.run(function() {
-    user = env.store.push('user', { id: 1, messages: [] });
-    post = env.store.push('post', { id: 1 });
-    person = env.store.push('person', { id: 1 });
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }, {
+        type: 'post',
+        id: '1'
+      }, {
+        type: 'person',
+        id: '1'
+      }]
+    });
+
+    user = env.store.peekRecord('user', 1);
+    post = env.store.peekRecord('post', 1);
+    person = env.store.peekRecord('person', 1);
   });
 
   // TODO un-comment once we test the assertPolymorphicType directly
@@ -74,9 +92,21 @@ test("assertPolymorphicType works for mixins", function() {
   var post, video, person;
 
   Ember.run(function() {
-    post = env.store.push('post', { id: 1 });
-    video = env.store.push('video', { id: 1 });
-    person = env.store.push('person', { id: 1 });
+    env.store.push({
+      data: [{
+        type: 'post',
+        id: '1'
+      }, {
+        type: 'video',
+        id: '1'
+      }, {
+        type: 'person',
+        id: '1'
+      }]
+    });
+    post = env.store.peekRecord('post', 1);
+    video = env.store.peekRecord('video', 1);
+    person = env.store.peekRecord('person', 1);
   });
 
   // TODO un-comment once we test the assertPolymorphicType directly

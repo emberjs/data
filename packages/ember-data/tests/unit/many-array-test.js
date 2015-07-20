@@ -49,10 +49,37 @@ test("manyArray.save() calls save() on all records", function() {
       }
     });
 
-    store.push('tag', { id: 1, name: 'Ember.js' });
-    store.push('tag', { id: 2, name: 'Tomster' });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '1',
+        attributes: {
+          name: 'Ember.js'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'Tomster'
+        }
+      }, {
+        type: 'post',
+        id: '3',
+        attributes: {
+          title: 'A framework for creating ambitious web applications'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' },
+              { type: 'tag', id: '2' }
+            ]
+          }
+        }
+      }]
+    });
+    var post = store.peekRecord('post', 3);
 
-    var post = store.push('post', { id: 3, title: 'A framework for creating ambitious web applications', tags: [1, 2] });
     post.get('tags').save().then(function() {
       ok(true, 'manyArray.save() promise resolved');
     });
@@ -81,10 +108,55 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
     }
   });
   run(function() {
-    store.push('tag', { id: 1, name: 'Ember.js' });
-    store.push('tag', { id: 2, name: 'Ember Data' });
-    var post = store.push('post', { id: 2, title: 'A framework for creating ambitious web applications', tags: [1] });
-    post = store.push('post', { id: 2, title: 'A framework for creating ambitious web applications', tags: [1, 2] });
+    store.push({
+      data: [{
+        type: 'tag',
+        id: '1',
+        attributes: {
+          name: 'Ember.js'
+        }
+      }, {
+        type: 'tag',
+        id: '2',
+        attributes: {
+          name: 'Tomster'
+        }
+      }, {
+        type: 'post',
+        id: '3',
+        attributes: {
+          title: 'A framework for creating ambitious web applications'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' }
+            ]
+          }
+        }
+      }]
+    });
+    var post = store.peekRecord('post', 3);
+
+    store.push({
+      data: {
+        type: 'post',
+        id: '3',
+        attributes: {
+          title: 'A framework for creating ambitious web applications'
+        },
+        relationships: {
+          tags: {
+            data: [
+              { type: 'tag', id: '1' },
+              { type: 'tag', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+
+    post = store.peekRecord('post', 3);
   });
   DS.ManyArray.reopen({
     arrayContentWillChange: originalArrayContentWillChange,

@@ -97,8 +97,23 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   };
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [1] });
-    env.store.push('comment', { id: 1 });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'comment',
+        id: '1'
+      }]
+    });
     env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments');
     });
@@ -119,7 +134,21 @@ test("adapter.findMany only gets unique IDs even if duplicate IDs are present in
   };
 
   run(function() {
-    env.store.push('book', { id: 1, chapters: [2, 3, 3] });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          chapters: {
+            data: [
+              { type: 'chapter', id: '2' },
+              { type: 'chapter', id: '3' },
+              { type: 'chapter', id: '3' }
+            ]
+          }
+        }
+      }
+    });
     env.store.findRecord('book', 1).then(function(book) {
       return book.get('chapters');
     });
@@ -182,7 +211,20 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   var post;
 
   run(function() {
-    post = env.store.push('post', { id: 1, links: { comments: '/posts/1/comments' } });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments'
+            }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
@@ -206,7 +248,17 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   run(function() {
     promise1 = post.get('comments');
     //Invalidate the post.comments CP
-    env.store.push('comment', { id: 1, message: 1 });
+    env.store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        relationships: {
+          message: {
+            data: { type: 'post', id: '1' }
+          }
+        }
+      }
+    });
     promise2 = post.get('comments');
   });
   Ember.RSVP.all([promise1, promise2]).then(function() {
@@ -233,12 +285,35 @@ test("A hasMany backed by a link remains a promise after a record has been added
   };
   var post;
   run(function() {
-    post = env.store.push('post', { id: 1, links: { comments: '/posts/1/comments' } });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments'
+            }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   run(function() {
     post.get('comments').then(function() {
-      env.store.push('comment', { id: 3, message: 1 });
+      env.store.push({
+        data: {
+          type: 'comment',
+          id: '3',
+          relationships: {
+            message: {
+              data: { type: 'post', id: '1' }
+            }
+          }
+        }
+      });
       post.get('comments').then(function() {
         ok(true, 'Promise was called');
       });
@@ -389,7 +464,21 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
   };
 
   run(function() {
-    env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]);
+    env.store.push({
+      data: [{
+        type: 'comment',
+        id: '1',
+        attributes: {
+          body: 'First'
+        }
+      }, {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          body: 'Second'
+        }
+      }]
+    });
 
     env.store.findRecord('post', '1').then(function(post) {
       var comments = post.get('comments');
@@ -496,7 +585,20 @@ test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loa
   var post;
 
   run(function() {
-    post = env.store.push('post', { id: 1, links: { comments: 'someLink' } });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'someLink'
+            }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   run(function() {
@@ -527,7 +629,20 @@ test("PromiseArray proxies evented methods to its ManyArray", function() {
   var post, comments;
 
   run(function() {
-    post = env.store.push('post', { id: 1, links: { comments: 'someLink' } });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'someLink'
+            }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
     comments = post.get('comments');
   });
 
@@ -588,7 +703,20 @@ test("An updated `links` value should invalidate a relationship cache", function
   var post;
 
   run(function() {
-    post = env.store.push('post', { id: 1, links: { comments: '/first' } });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: '/first'
+            }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   run(function() {
@@ -596,7 +724,19 @@ test("An updated `links` value should invalidate a relationship cache", function
       equal(comments.get('isLoaded'), true, "comments are loaded");
       equal(comments.get('length'), 2, "comments have 2 length");
       equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
-      env.store.push('post', { id: 1, links: { comments: '/second' } });
+      env.store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              links: {
+                related: '/second'
+              }
+            }
+          }
+        }
+      });
       post.get('comments').then(function(newComments) {
         equal(comments, newComments, "hasMany array was kept the same");
         equal(newComments.get('length'), 3, "comments updated successfully");
@@ -614,9 +754,27 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   };
 
   run(function() {
-    env.store.push('user', { id: 1, messages: [{ id: 1, type: 'post' }, { id: 3, type: 'comment' }] });
-    env.store.push('post', { id: 1 });
-    env.store.push('comment', { id: 3 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: [
+              { type: 'post', id: '1' },
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'post',
+        id: '1'
+      }, {
+        type: 'comment',
+        id: '3'
+      }]
+    });
   });
 
   run(function() {
@@ -641,7 +799,20 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   };
 
   run(function() {
-    env.store.push('user', { id: 1, messages: [{ id: 1, type: 'post' }, { id: 3, type: 'comment' }] });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: [
+              { type: 'post', id: '1' },
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      }
+    });
   });
 
   run(function() {
@@ -678,8 +849,23 @@ test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_IN
 test("Type can be inferred from the key of a hasMany relationship", function() {
   expect(1);
   run(function() {
-    env.store.push('user', { id: 1, contacts: [1] });
-    env.store.push('contact', { id: 1 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          contacts: {
+            data: [
+              { type: 'contact', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'contact',
+        id: '1'
+      }]
+    });
   });
   run(function() {
     env.store.findRecord('user', 1).then(function(user) {
@@ -697,8 +883,23 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
 
   expect(1);
   run(function() {
-    env.store.push('user', { id: 1, contacts: [1] });
-    env.store.push('contact', { id: 1 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          contacts: {
+            data: [
+              { type: 'contact', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'contact',
+        id: '1'
+      }]
+    });
   });
   run(function() {
     env.store.findRecord('user', 1).then(function(user) {
@@ -716,9 +917,27 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
 
   expect(1);
   run(function() {
-    env.store.push('user', { id: 1, contacts: [{ id: 1, type: 'email' }, { id: 2, type: 'phone' }] });
-    env.store.push('email', { id: 1 });
-    env.store.push('phone', { id: 2 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          contacts: {
+            data: [
+              { type: 'email', id: '1' },
+              { type: 'phone', id: '2' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'email',
+        id: '1'
+      }, {
+        type: 'phone',
+        id: '2'
+      }]
+    });
   });
   run(function() {
     env.store.findRecord('user', 1).then(function(user) {
@@ -754,7 +973,17 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
 
 test("A record can't be created from a polymorphic hasMany relationship", function() {
   run(function() {
-    env.store.push('user', { id: 1, messages: [] });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }
+    });
   });
 
   run(function() {
@@ -771,8 +1000,20 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
 test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
   expect(1);
   run(function() {
-    env.store.push('post', { id: 1, comments: [] });
-    env.store.push('post', { id: 2 });
+    env.store.push({
+      data: [{
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: []
+          }
+        }
+      }, {
+        type: 'post',
+        id: '2'
+      }]
+    });
   });
 
   run(function() {
@@ -790,10 +1031,37 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
 test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
   expect(2);
   run(function() {
-    env.store.push('user', { id: 1, messages: [] });
-    env.store.push('user', { id: 2, messages: [] });
-    env.store.push('post', { id: 1, comments: [] });
-    env.store.push('comment', { id: 3 });
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }, {
+        type: 'user',
+        id: '2',
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }],
+      included: [{
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: []
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '3'
+      }]
+    });
   });
   var asyncRecords;
 
@@ -824,8 +1092,23 @@ test("A record can be removed from a polymorphic association", function() {
   expect(4);
 
   run(function() {
-    env.store.push('user', { id: 1 , messages: [{ id: 3, type: 'comment' }] });
-    env.store.push('comment', { id: 3 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          messages: {
+            data: [
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'comment',
+        id: '3'
+      }]
+    });
   });
   var asyncRecords;
 
@@ -898,7 +1181,22 @@ test("we can set records SYNC HM relationship", function() {
     return env.store.createRecord('post');
   });
   run(function() {
-    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+    env.store.push({
+      data: [{
+        type: 'comment',
+        id: '1',
+        attributes: {
+          body: 'First'
+        }
+      }, {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          body: 'Second'
+        }
+      }]
+    });
+    post.set('comments', env.store.peekAll('comment'));
   });
   equal(get(post, 'comments.length'), 2, "we can set HM relationship");
 });
@@ -914,7 +1212,22 @@ test("We can set records ASYNC HM relationship", function() {
     return env.store.createRecord('post');
   });
   run(function() {
-    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+    env.store.push({
+      data: [{
+        type: 'comment',
+        id: '1',
+        attributes: {
+          body: 'First'
+        }
+      }, {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          body: 'Second'
+        }
+      }]
+    });
+    post.set('comments', env.store.peekAll('comment'));
   });
 
   post.get('comments').then(async(function(comments) {
@@ -958,8 +1271,32 @@ test("dual non-async HM <-> BT", function() {
   var post, firstComment;
 
   run(function() {
-    post = env.store.push('post', { id: 1, comments: [1] });
-    firstComment = env.store.push('comment', { id: 1, post: 1 });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      }
+    });
+    env.store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        relationships: {
+          comments: {
+            post: { type: 'post', id: '1' }
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
+    firstComment = env.store.peekRecord('comment', 1);
 
     env.store.createRecord('comment', {
       post: post
@@ -992,14 +1329,42 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   var post;
 
   run(function() {
-    post = env.store.push('post', { id: 1, comments: [1, 2] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   run(function() {
     post.get('comments').then(async(function(fetchedComments) {
       equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
       equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
-      env.store.push('post', { id: 1, comments: [1, 2, 3] });
+      env.store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' }
+              ]
+            }
+          }
+        }
+      });
       post.get('comments').then(async(function(newlyFetchedComments) {
         equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
         equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
@@ -1011,7 +1376,21 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
 test("A sync hasMany errors out if there are unlaoded records in it", function() {
   var post;
   run(function() {
-    post = env.store.push('post', { id: 1, comments: [1, 2] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
 
   expectAssertion(function() {
@@ -1023,39 +1402,137 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
   var comment1, comment2, comment3, comment4;
   var post;
   run(function() {
-    comment1 = env.store.push('comment', { id: 1 });
-    comment2 = env.store.push('comment', { id: 2 });
-    comment3 = env.store.push('comment', { id: 3 });
-    comment4 = env.store.push('comment', { id: 4 });
+    env.store.push({
+      data: [{
+        type: 'comment',
+        id: '1'
+      }, {
+        type: 'comment',
+        id: '2'
+      }, {
+        type: 'comment',
+        id: '3'
+      }, {
+        type: 'comment',
+        id: '4'
+      }]
+    });
+
+    comment1 = env.store.peekRecord('comment', 1);
+    comment2 = env.store.peekRecord('comment', 2);
+    comment3 = env.store.peekRecord('comment', 3);
+    comment4 = env.store.peekRecord('comment', 4);
   });
 
   run(function() {
-    post = env.store.push('post', { id: 1, comments: [1, 2] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+    post = env.store.peekRecord('post', 1);
   });
   deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [2, 1] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      }
+    });
   });
   deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [2] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }
+    });
   });
   deepEqual(post.get('comments').toArray(), [comment2], 'Updated ordering is correct');
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [1,2,3,4] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '4' }
+            ]
+          }
+        }
+      }
+    });
   });
   deepEqual(post.get('comments').toArray(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [4,3] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      }
+    });
   });
   deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
 
   run(function() {
-    env.store.push('post', { id: 1, comments: [4,2,3,1] });
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '4' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' },
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      }
+    });
   });
   deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
 });
@@ -1063,8 +1540,31 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
 test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function () {
   var book, chapter;
   run(function() {
-    book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
-    chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: "Stanley's Amazing Adventures"
+        },
+        relationships: {
+          chapters: {
+            data: [
+              { type: 'chapter', id: '2' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        }
+      }]
+    });
+    book = env.store.peekRecord('book', 1);
+    chapter = env.store.peekRecord('chapter', 2);
   });
   run(function() {
     chapter.deleteRecord();
@@ -1080,8 +1580,31 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
 test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function () {
   var book, chapter;
   run(function() {
-    book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
-    chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: "Stanley's Amazing Adventures"
+        },
+        relationships: {
+          chapters: {
+            data: [
+              { type: 'chapter', id: '2' }
+            ]
+          }
+        }
+      },
+      included: [{
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        }
+      }]
+    });
+    book = env.store.peekRecord('book', 1);
+    chapter = env.store.peekRecord('chapter', 2);
   });
   run(function() {
     chapter.deleteRecord();
@@ -1098,8 +1621,29 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
   });
   var chapter, page;
   run(function() {
-    chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
-    page = env.store.push('page', { id: 3, number: 1, chapter: 2 });
+    env.store.push({
+      data: {
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        }
+      },
+      included: [{
+        type: 'page',
+        id: '3',
+        attributes: {
+          number: 1
+        },
+        relationships: {
+          chapter: {
+            data: { type: 'chapter', id: '2' }
+          }
+        }
+      }]
+    });
+    chapter = env.store.peekRecord('chapter', 2);
+    page = env.store.peekRecord('page', 3);
   });
   run(function() {
     chapter.deleteRecord();
@@ -1115,8 +1659,29 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
 test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function () {
   var chapter, page;
   run(function() {
-    chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
-    page = env.store.push('page', { id: 3, number: 1, chapter: 2 });
+    env.store.push({
+      data: {
+        type: 'chapter',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        }
+      },
+      included: [{
+        type: 'page',
+        id: '3',
+        attributes: {
+          number: 1
+        },
+        relationships: {
+          chapter: {
+            data: { type: 'chapter', id: '2' }
+          }
+        }
+      }]
+    });
+    chapter = env.store.peekRecord('chapter', 2);
+    page = env.store.peekRecord('page', 3);
   });
   run(function() {
     chapter.deleteRecord();
@@ -1133,9 +1698,39 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
   var observe = false;
 
   run(function() {
-    page = env.store.push('page', { id: 1, number: 1 });
-    page2 = env.store.push('page', { id: 2, number: 2 });
-    chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1, 2] });
+    env.store.push({
+      data: [{
+        type: 'page',
+        id: '1',
+        attributes: {
+          number: 1
+        }
+      }, {
+        type: 'page',
+        id: '2',
+        attributes: {
+          number: 2
+        }
+      }, {
+        type: 'chapter',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          pages: {
+            data: [
+              { type: 'page', id: '1' },
+              { type: 'page', id: '2' }
+            ]
+          }
+        }
+      }]
+    });
+    page = env.store.peekRecord('page', 1);
+    page2 = env.store.peekRecord('page', 2);
+    chapter = env.store.peekRecord('chapter', 1);
+
     chapter.get('pages').addEnumerableObserver(this, {
       willChange: function(pages, removing, addCount) {
         if (observe) {
@@ -1162,9 +1757,38 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
   var observe = false;
 
   run(function() {
-    page = env.store.push('page', { id: 1, number: 1 });
-    page2 = env.store.push('page', { id: 2, number: 2 });
-    chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1] });
+    env.store.push({
+      data: [{
+        type: 'page',
+        id: '1',
+        attributes: {
+          number: 1
+        }
+      }, {
+        type: 'page',
+        id: '2',
+        attributes: {
+          number: 2
+        }
+      }, {
+        type: 'chapter',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          pages: {
+            data: [
+              { type: 'page', id: '1' }
+            ]
+          }
+        }
+      }]
+    });
+    page = env.store.peekRecord('page', 1);
+    page2 = env.store.peekRecord('page', 2);
+    chapter = env.store.peekRecord('chapter', 1);
+
     chapter.get('pages').addEnumerableObserver(this, {
       willChange: function(pages, removing, addCount) {
         if (observe) {
@@ -1209,12 +1833,48 @@ test("Relationship.clear removes all records correctly", function() {
   });
 
   run(function() {
-    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1, 2] });
-    env.store.pushMany('comment', [
-      { id: 1, post: 2 },
-      { id: 2, post: 2 },
-      { id: 3, post: 2 }
-    ]);
+    env.store.push({
+      data: [{
+        type: 'post',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '1',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '2' }
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '2',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '2' }
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '3',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '2' }
+          }
+        }
+      }]
+    });
+    post = env.store.peekRecord('post', 2);
   });
 
   run(function() {
@@ -1238,11 +1898,40 @@ test('unloading a record with associated records does not prevent the store from
   });
 
   run(function() {
-    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
-    env.store.pushMany('comment', [
-      { id: 1, post: 2 },
-      { id: 2, post: 2 }
-    ]);
+    env.store.push({
+      data: [{
+        type: 'post',
+        id: '2',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '1',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '2' }
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '2',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '2' }
+          }
+        }
+      }]
+    });
+    post = env.store.peekRecord('post', 2);
 
     // This line triggers the original bug that gets manifested
     // in teardown for apps, e.g. store.destroy that is caused by
@@ -1268,19 +1957,10 @@ test("adding and removing records from hasMany relationship #2666", function() {
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
   });
-  var POST_FIXTURES = [
-    { id: 1, comments: [1, 2, 3] }
-  ];
 
   var Comment = DS.Model.extend({
     post: DS.belongsTo('post', { async: false })
   });
-
-  var COMMENT_FIXTURES = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 }
-  ];
 
   env = setupStore({
     post: Post,
@@ -1301,8 +1981,30 @@ test("adding and removing records from hasMany relationship #2666", function() {
   }));
 
   run(function() {
-    env.store.pushMany('post', POST_FIXTURES);
-    env.store.pushMany('comment', COMMENT_FIXTURES);
+    env.store.push({
+      data: [{
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      }, {
+        type: 'comment',
+        id: '1'
+      }, {
+        type: 'comment',
+        id: '2'
+      }, {
+        type: 'comment',
+        id: '3'
+      }]
+    });
   });
 
   run(function() {
@@ -1432,7 +2134,13 @@ test("hasMany hasData sync created", function () {
 test("Model's hasMany relationship should not be created during model creation", function () {
   var user;
   run(function () {
-    user = env.store.push('user', { id: 1 });
+    env.store.push({
+      data: {
+        type: 'user',
+        id: '1'
+      }
+    });
+    user = env.store.peekRecord('user', 1);
     ok(!user._internalModel._relationships.has('messages'), 'Newly created record should not have relationships');
   });
 });
@@ -1454,11 +2162,30 @@ test("metadata is accessible when pushed as a meta property for a relationship",
   };
 
   run(function() {
-    book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', meta: { chapters: 'the lefkada sea' }, links: { chapters: '/chapters' } });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          chapters: {
+            meta: {
+              where: 'the lefkada sea'
+            },
+            links: {
+              related: '/chapters'
+            }
+          }
+        }
+      }
+    });
+    book = env.store.peekRecord('book', 1);
   });
 
   run(function() {
-    equal(book._internalModel._relationships.get('chapters').meta, 'the lefkada sea', 'meta is there');
+    equal(book._internalModel._relationships.get('chapters').meta.where, 'the lefkada sea', 'meta is there');
   });
 });
 
@@ -1481,7 +2208,23 @@ test("metadata is accessible when return from a fetchLink", function() {
   var book;
 
   run(function() {
-    book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: '/chapters' } });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          chapters: {
+            links: {
+              related: '/chapters'
+            }
+          }
+        }
+      }
+    });
+    book = env.store.peekRecord('book', 1);
   });
 
   run(function() {
@@ -1521,8 +2264,37 @@ test("metadata should be reset between requests", function() {
   var book1, book2;
 
   run(function() {
-    book1 = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: 'chapters' } });
-    book2 = env.store.push('book', { id: 2, title: 'Another book title', links: { chapters: 'chapters' } });
+    env.store.push({
+      data: [{
+        type: 'book',
+        id: '1',
+        attributes: {
+          title: 'Sailing the Seven Seas'
+        },
+        relationships: {
+          chapters: {
+            links: {
+              related: 'chapters'
+            }
+          }
+        }
+      }, {
+        type: 'book',
+        id: '2',
+        attributes: {
+          title: 'Another book title'
+        },
+        relationships: {
+          chapters: {
+            links: {
+              related: 'chapters'
+            }
+          }
+        }
+      }]
+    });
+    book1 = env.store.peekRecord('book', 1);
+    book2 = env.store.peekRecord('book', 2);
   });
 
   run(function() {

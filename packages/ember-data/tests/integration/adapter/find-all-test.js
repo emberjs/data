@@ -98,7 +98,15 @@ test("When all records for a type are requested, records that are already loaded
 
   run(function() {
     // Load a record from the server
-    store.push('person', { id: 1, name: "Jeremy Ashkenas" });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Jeremy Ashkenas'
+        }
+      }
+    });
     // Create a new, unsaved record in the store
     store.createRecord('person', { name: "Alex MacCaw" });
   });

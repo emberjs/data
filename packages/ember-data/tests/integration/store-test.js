@@ -113,18 +113,36 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
 test("destroying the store correctly cleans everything up", function() {
   var car, person;
   run(function() {
-    car = store.push('car', {
-      id: 1,
-      make: 'BMC',
-      model: 'Mini',
-      person: 1
+    store.push({
+      data: [{
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }, {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          cars: {
+            data: [
+              { type: 'car', id: '1' }
+            ]
+          }
+        }
+      }]
     });
-
-    person = store.push('person', {
-      id: 1,
-      name: 'Tom Dale',
-      cars: [1]
-    });
+    car = store.peekRecord('car', 1);
+    person = store.peekRecord('person', 1);
   });
 
   var personWillDestroy = tap(person, 'willDestroy');
@@ -225,13 +243,19 @@ test("Using store#findRecord on existing record reloads it", function() {
   var car;
 
   run(function() {
-    car = store.push('car', {
-      id: 1,
-      make: 'BMC',
-      model: 'Mini'
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
     });
-
+    car = store.peekRecord('car', 1);
   });
+
   ajaxResponse({
     cars: [{
       id: 1,
@@ -285,10 +309,15 @@ test("Using store#findAll with existing records performs a query, updating exist
   expect(3);
 
   run(function() {
-    store.push('car', {
-      id: 1,
-      make: 'BMC',
-      model: 'Mini'
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
     });
   });
 
@@ -321,8 +350,23 @@ test("store#findAll should return all known records even if they are not in the 
   expect(4);
 
   run(function() {
-    store.push('car', { id: 1, make: 'BMC', model: 'Mini' });
-    store.push('car', { id: 2, make: 'BMCW', model: 'Isetta' });
+    store.push({
+      data: [{
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }, {
+        type: 'car',
+        id: '2',
+        attributes: {
+          make: 'BMCW',
+          model: 'Isetta'
+        }
+      }]
+    });
   });
 
   ajaxResponse({
@@ -360,10 +404,21 @@ test("Using store#fetch on an empty record calls find", function() {
   });
 
   run(function() {
-    store.push('person', {
-      id: 1,
-      name: 'Tom Dale',
-      cars: [20]
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          cars: {
+            data: [
+              { type: 'car', id: '20' }
+            ]
+          }
+        }
+      }
     });
   });
 
@@ -407,10 +462,16 @@ test("Using store#deleteRecord should mark the model for removal", function() {
   var person;
 
   run(function() {
-    person = store.push('person', {
-      id: 1,
-      name: 'Tom Dale'
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }
     });
+    person = store.peekRecord('person', 1);
   });
 
   ok(store.hasRecordForId('person', 1), 'expected the record to be in the store');

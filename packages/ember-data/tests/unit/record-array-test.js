@@ -20,7 +20,27 @@ test("a record array is backed by records", function() {
     person: Person
   });
   run(function() {
-    store.pushMany('person', array);
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }]
+    });
   });
 
   run(function() {
@@ -39,12 +59,28 @@ test("acts as a live query", function() {
   });
   var recordArray = store.peekAll('person');
   run(function() {
-    store.push('person', { id: 1, name: 'wycats' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'wycats'
+        }
+      }
+    });
   });
   equal(get(recordArray, 'lastObject.name'), 'wycats');
 
   run(function() {
-    store.push('person', { id: 2, name: 'brohuda' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'brohuda'
+        }
+      }
+    });
   });
   equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
@@ -62,7 +98,15 @@ test("stops updating when destroyed", function() {
 
   var recordArray = store.peekAll('person');
   run(function() {
-    store.push('person', { id: 1, name: 'wycats' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'wycats'
+        }
+      }
+    });
   });
 
   run(function() {
@@ -71,7 +115,15 @@ test("stops updating when destroyed", function() {
 
   run(function() {
     equal(recordArray.get('length'), emptyLength, "Has no more records");
-    store.push('person', { id: 2, name: 'brohuda' });
+    store.push({
+      data: {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'brohuda'
+        }
+      }
+    });
   });
 
   equal(recordArray.get('length'), emptyLength, "Has not been updated");
@@ -100,8 +152,30 @@ test("a loaded record is removed from a record array when it is deleted", functi
   var store = env.store;
 
   run(function() {
-    store.pushMany('person', array);
-    store.push('tag', { id: 1 });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }, {
+        type: 'tag',
+        id: '1'
+      }]
+    });
   });
 
   run(function() {
@@ -151,8 +225,27 @@ test("a loaded record is not removed from a record array when it is deleted even
   var scumbag, tag;
 
   run(function() {
-    scumbag = store.push('person', { id: 1, name: 'Scumbag Tom' });
-    tag = store.push('tag', { id: 1, people: [1] });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Tom'
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        relationships: {
+          people: {
+            data: [
+              { type: 'person', id: '1' }
+            ]
+          }
+        }
+      }]
+    });
+    scumbag = store.peekRecord('person', 1);
+    tag = store.peekRecord('tag', 1);
     scumbag.deleteRecord();
   });
 
@@ -181,9 +274,36 @@ test("a loaded record is not removed from both the record array and from the bel
   var scumbag, tag, tool;
 
   run(function() {
-    scumbag = store.push('person', { id: 1, name: 'Scumbag Tom' });
-    tag = store.push('tag', { id: 1, people: [1] });
-    tool = store.push('tool', { id:  1, person: 1 });
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Tom'
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        relationships: {
+          people: {
+            data: [
+              { type: 'person', id: '1' }
+            ]
+          }
+        }
+      }, {
+        type: 'tool',
+        id: '1',
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }]
+    });
+    scumbag = store.peekRecord('person', 1);
+    tag = store.peekRecord('tag', 1);
+    tool = store.peekRecord('tool', 1);
   });
 
   equal(tag.get('people.length'), 1, "record is in the record array");
@@ -236,7 +356,27 @@ test("a record array returns undefined when asking for a member outside of its c
   });
 
   run(function() {
-    store.pushMany('person', array);
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }]
+    });
   });
 
   var recordArray = store.peekAll('person');
@@ -250,7 +390,27 @@ test("a record array should be able to be enumerated in any order", function() {
     person: Person
   });
   run(function() {
-    store.pushMany('person', array);
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }]
+    });
   });
 
   var recordArray = store.peekAll('person');

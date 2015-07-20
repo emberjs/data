@@ -53,8 +53,30 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
 test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - async", function () {
   var user, video;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley', messages: [{ id: 2, type: 'video' }] });
-    video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'video', id: '2' }
+            ]
+          }
+        }
+      }, {
+        type: 'video',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
   });
   run(function() {
     user.get('messages').then(function(messages) {
@@ -72,8 +94,28 @@ test("Relationship is available from the belongsTo side even if only loaded from
 test("Pushing to the hasMany reflects the change on the belongsTo side - async", function () {
   var user, video;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-    video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        },
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }, {
+        type: 'video',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
   });
 
   run(function() {
@@ -92,8 +134,28 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - async",
 test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out", function () {
   var user,notMessage;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-    notMessage = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        },
+        relationships: {
+          messages: {
+            data: []
+          }
+        }
+      }, {
+        type: 'not-message',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    notMessage = store.peekRecord('not-message', 2);
   });
 
   run(function() {
@@ -112,8 +174,28 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
   try {
     var user, video;
     run(function() {
-      user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-      video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+      store.push({
+        data: [{
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley'
+          },
+          relationships: {
+            messages: {
+              data: []
+            }
+          }
+        }, {
+          type: 'video',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube'
+          }
+        }]
+      });
+      user = store.peekRecord('user', 1);
+      video = store.peekRecord('video', 2);
     });
 
     run(function() {
@@ -139,8 +221,28 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
   try {
     var user,notMessage;
     run(function() {
-      user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-      notMessage = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
+      store.push({
+        data: [{
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley'
+          },
+          relationships: {
+            messages: {
+              data: []
+            }
+          }
+        }, {
+          type: 'not-message',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube'
+          }
+        }]
+      });
+      user = store.peekRecord('user', 1);
+      notMessage = store.peekRecord('not-message', 2);
     });
 
     run(function() {

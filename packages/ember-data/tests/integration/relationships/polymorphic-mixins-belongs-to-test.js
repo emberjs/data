@@ -52,8 +52,28 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
 test("Relationship is available from the belongsTo side even if only loaded from the inverse side - async", function () {
   var user, video;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley', bestMessage: 2, bestMessageType: 'video' });
-    video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        },
+        relationships: {
+          bestMessage: {
+            data: { type: 'video', id: '2' }
+          }
+        }
+      }, {
+        type: 'video',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
   });
   run(function() {
     user.get('bestMessage').then(function(message) {
@@ -71,8 +91,23 @@ test("Relationship is available from the belongsTo side even if only loaded from
 test("Setting the polymorphic belongsTo gets propagated to the inverse side - async", function () {
   var user, video;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley' });
-    video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        }
+      }, {
+        type: 'video',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
   });
 
   run(function() {
@@ -89,8 +124,23 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - as
 test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out", function () {
   var user, video;
   run(function() {
-    user = store.push('user', { id: 1, name: 'Stanley' });
-    video = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
+    store.push({
+      data: [{
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: 'Stanley'
+        }
+      }, {
+        type: 'not-message',
+        id: '2',
+        attributes: {
+          video: 'Here comes Youtube'
+        }
+      }]
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('not-message', 2);
   });
 
   run(function() {
@@ -109,8 +159,23 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - mo
   try {
     var user, video;
     run(function() {
-      user = store.push('user', { id: 1, name: 'Stanley' });
-      video = store.push('video', { id: 2, video: 'Here comes Youtube' });
+      store.push({
+        data: [{
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley'
+          }
+        }, {
+          type: 'video',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube'
+          }
+        }]
+      });
+      user = store.peekRecord('user', 1);
+      video = store.peekRecord('video', 2);
     });
 
     run(function() {
@@ -134,8 +199,23 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
   try {
     var user, video;
     run(function() {
-      user = store.push('user', { id: 1, name: 'Stanley' });
-      video = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
+      store.push({
+        data: [{
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley'
+          }
+        }, {
+          type: 'not-message',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube'
+          }
+        }]
+      });
+      user = store.peekRecord('user', 1);
+      video = store.peekRecord('not-message', 2);
     });
 
     run(function() {

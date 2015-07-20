@@ -54,7 +54,16 @@ test("When a single record is requested, the adapter's find method should be cal
 test("When a record is reloaded and fails, it can try again", function() {
   var tom;
   run(function() {
-    tom = env.store.push('person', { id: 1, name: "Tom Dale" });
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }
+    });
+    tom = env.store.peekRecord('person', 1);
   });
 
   var count = 0;
@@ -83,7 +92,15 @@ test("When a record is reloaded and fails, it can try again", function() {
 
 test("When a record is loaded a second time, isLoaded stays true", function() {
   run(function() {
-    env.store.push('person', { id: 1, name: "Tom Dale" });
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale'
+        }
+      }
+    });
   });
 
   run(function() {
@@ -92,7 +109,16 @@ test("When a record is loaded a second time, isLoaded stays true", function() {
       person.addObserver('isLoaded', isLoadedDidChange);
 
       // Reload the record
-      env.store.push('person', { id: 1, name: "Tom Dale" });
+      env.store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale'
+          }
+        }
+      });
+
       equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
 
       person.removeObserver('isLoaded', isLoadedDidChange);

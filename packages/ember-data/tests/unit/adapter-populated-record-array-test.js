@@ -1,4 +1,4 @@
-var Person, array, store;
+var Person, store;
 var run = Ember.run;
 
 var adapter = DS.Adapter.extend({
@@ -17,10 +17,6 @@ module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
       adapter: adapter,
       person: Person
     });
-    array = [{ id: '1', name: "Scumbag Dale" },
-             { id: '2', name: "Scumbag Katz" },
-             { id: '3', name: "Scumbag Bryn" }];
-
   }
 });
 
@@ -29,7 +25,28 @@ test("when a record is deleted in an adapter populated record array, it should b
     .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
 
   run(function() {
-    recordArray.load(array);
+    var records = store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }]
+    });
+    recordArray.loadRecords(records);
   });
 
   equal(recordArray.get('length'), 3, "expected recordArray to contain exactly 3 records");
