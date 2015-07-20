@@ -110,7 +110,7 @@ test("a record's changes can be made if it fails to save", function() {
 });
 
 test("a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly", function() {
-  expect(7);
+  expect(8);
   env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
@@ -136,6 +136,7 @@ test("a deleted record's attributes can be rollbacked if it fails to save, recor
       });
       equal(person.get('isDeleted'), false);
       equal(person.get('isError'), false);
+      equal(person.get('hasDirtyAttributes'), false, "must be not dirty");
     }).then(function() {
       equal(people.get('length'), 1, "the underlying record array is updated accordingly in an asynchronous way");
     });
@@ -161,10 +162,14 @@ test("new record's attributes can be rollbacked", function() {
 
 test("invalid new record's attributes can be rollbacked", function() {
   var person;
+  var error = new DS.InvalidError([
+    {
+      detail: 'is invalid',
+      source: { pointer: 'data/attributes/name' }
+    }
+  ]);
   var adapter = DS.RESTAdapter.extend({
     ajax: function(url, type, hash) {
-      var adapter = this;
-
       return new Ember.RSVP.Promise(function(resolve, reject) {
         /* If InvalidError is passed back in the reject it will throw the
            exception which will bubble up the call stack (crashing the test)
@@ -173,13 +178,9 @@ test("invalid new record's attributes can be rollbacked", function() {
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
         Ember.run.next(function() {
-          reject(adapter.ajaxError({ name: 'is invalid' }));
+          reject(error);
         });
       });
-    },
-
-    ajaxError: function(jqXHR) {
-      return new DS.InvalidError(jqXHR);
     }
   });
 
@@ -227,14 +228,20 @@ test("deleted record's attributes can be rollbacked", function() {
 });
 
 test("invalid record's attributes can be rollbacked", function() {
+  expect(10);
   Dog = DS.Model.extend({
     name: DS.attr()
   });
 
+  var error = new DS.InvalidError([
+    {
+      detail: 'is invalid',
+      source: { pointer: 'data/attributes/name' }
+    }
+  ]);
+
   var adapter = DS.RESTAdapter.extend({
     ajax: function(url, type, hash) {
-      var adapter = this;
-
       return new Ember.RSVP.Promise(function(resolve, reject) {
         /* If InvalidError is passed back in the reject it will throw the
            exception which will bubble up the call stack (crashing the test)
@@ -243,13 +250,9 @@ test("invalid record's attributes can be rollbacked", function() {
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
         Ember.run.next(function() {
-          reject(adapter.ajaxError({ name: 'is invalid' }));
+          reject(error);
         });
       });
-    },
-
-    ajaxError: function(jqXHR) {
-      return new DS.InvalidError(jqXHR);
     }
   });
 
@@ -261,25 +264,46 @@ test("invalid record's attributes can be rollbacked", function() {
   });
 
   run(function() {
+    Ember.addObserver(dog, 'errors.name', function() {
+      ok(true, 'errors.name did change');
+    });
+
+    dog.get('errors').addArrayObserver({}, {
+      willChange: function() {
+        ok(true, 'errors will change');
+      },
+      didChange: function() {
+        ok(true, 'errors did change');
+      }
+    });
+
     dog.save().then(null, async(function() {
       dog.rollbackAttributes();
 
+      equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
       equal(dog.get('name'), "Pluto");
+      ok(Ember.isEmpty(dog.get('errors.name')));
       ok(dog.get('isValid'));
     }));
   });
 });
 
 test("invalid record's attributes rolled back to correct state after set", function() {
+  expect(13);
   Dog = DS.Model.extend({
     name: DS.attr(),
     breed: DS.attr()
   });
 
+  var error = new DS.InvalidError([
+    {
+      detail: 'is invalid',
+      source: { pointer: 'data/attributes/name' }
+    }
+  ]);
+
   var adapter = DS.RESTAdapter.extend({
     ajax: function(url, type, hash) {
-      var adapter = this;
-
       return new Ember.RSVP.Promise(function(resolve, reject) {
         /* If InvalidError is passed back in the reject it will throw the
            exception which will bubble up the call stack (crashing the test)
@@ -288,13 +312,9 @@ test("invalid record's attributes rolled back to correct state after set", funct
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
         Ember.run.next(function() {
-          reject(adapter.ajaxError({ name: 'is invalid' }));
+          reject(error);
         });
       });
-    },
-
-    ajaxError: function(jqXHR) {
-      return new Error(jqXHR);
     }
   });
 
@@ -307,9 +327,15 @@ test("invalid record's attributes rolled back to correct state after set", funct
   });
 
   run(function() {
+    Ember.addObserver(dog, 'errors.name', function() {
+      ok(true, 'errors.name did change');
+    });
+
     dog.save().then(null, async(function() {
       equal(dog.get('name'), "is a dwarf planet");
       equal(dog.get('breed'), "planet");
+      ok(Ember.isPresent(dog.get('errors.name')));
+      equal(dog.get('errors.name.length'), 1);
 
       run(function() {
         dog.set('name', 'Seymour Asses');
@@ -324,6 +350,8 @@ test("invalid record's attributes rolled back to correct state after set", funct
 
       equal(dog.get('name'), "Pluto");
       equal(dog.get('breed'), "Disney");
+      equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
+      ok(Ember.isEmpty(dog.get('errors.name')));
       ok(dog.get('isValid'));
     }));
   });
@@ -334,19 +362,20 @@ test("when destroying a record setup the record state to invalid, the record's a
     name: DS.attr()
   });
 
+  var error = new DS.InvalidError([
+    {
+      detail: 'is invalid',
+      source: { pointer: 'data/attributes/name' }
+    }
+  ]);
+
   var adapter = DS.RESTAdapter.extend({
     ajax: function(url, type, hash) {
-      var adapter = this;
-
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
-          reject(adapter.ajaxError({ name: 'is invalid' }));
+          reject(error);
         });
       });
-    },
-
-    ajaxError: function(jqXHR) {
-      return new DS.InvalidError(jqXHR);
     }
   });
 
