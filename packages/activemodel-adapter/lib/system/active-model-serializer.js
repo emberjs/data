@@ -1,15 +1,18 @@
-import { singularize } from "ember-inflector";
-import RESTSerializer from "ember-data/serializers/rest-serializer";
-import normalizeModelName from "ember-data/system/normalize-model-name";
+import Ember from 'ember';
+import RESTSerializer from 'ember-data/serializers/rest-serializer';
+import normalizeModelName from 'ember-data/system/normalize-model-name';
+
 /**
   @module ember-data
-*/
+ */
 
-var forEach = Ember.ArrayPolyfills.forEach;
-var camelize =   Ember.String.camelize;
-var classify = Ember.String.classify;
-var decamelize = Ember.String.decamelize;
-var underscore = Ember.String.underscore;
+const {
+  singularize,
+  classify,
+  decamelize,
+  camelize,
+  underscore
+} = Ember.String;
 
 /**
   The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
@@ -177,9 +180,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = classify(belongsTo.modelName).replace(/(\/)([a-z])/g, function(match, separator, chr) {
-        return match.toUpperCase();
-      }).replace('/', '::');
+      json[jsonKey] = classify(belongsTo.modelName).replace('/', '::');
     }
   },
 
@@ -279,10 +280,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
           if (payload && payload.type) {
             payload.type = this.modelNameFromPayloadKey(payload.type);
           } else if (payload && relationship.kind === "hasMany") {
-            var self = this;
-            forEach.call(payload, function(single) {
-              single.type = self.modelNameFromPayloadKey(single.type);
-            });
+            payload.forEach((single) => single.type = this.modelNameFromPayloadKey(single.type));
           }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind, "deserialize");
@@ -298,12 +296,62 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }, this);
     }
   },
+
+  extractRelationships: function(modelClass, resourceHash) {
+    modelClass.eachRelationship(function (key, relationshipMeta) {
+      var relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, "deserialize");
+
+      // prefer the format the AMS gem expects, e.g.:
+      // relationship: {id: id, type: type}
+      if (relationshipMeta.options.polymorphic) {
+        extractPolymorphicRelationships(key, relationshipMeta, resourceHash, relationshipKey);
+      }
+      // If the preferred format is not found, use {relationship_name_id, relationship_name_type}
+      if (resourceHash.hasOwnProperty(relationshipKey) && typeof resourceHash[relationshipKey] !== 'object') {
+        var polymorphicTypeKey = this.keyForRelationship(key) + '_type';
+        if (resourceHash[polymorphicTypeKey] && relationshipMeta.options.polymorphic) {
+          let id = resourceHash[relationshipKey];
+          let type = resourceHash[polymorphicTypeKey];
+          delete resourceHash[polymorphicTypeKey];
+          delete resourceHash[relationshipKey];
+          resourceHash[relationshipKey] = { id: id, type: type };
+        }
+      }
+    }, this);
+    return this._super.apply(this, arguments);
+  },
+
   modelNameFromPayloadKey: function(key) {
-    var convertedFromRubyModule = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
-      return match.toLowerCase();
-    }).replace('::', '/');
+    var convertedFromRubyModule = singularize(key.replace('::', '/'));
     return normalizeModelName(convertedFromRubyModule);
   }
 });
+
+function extractPolymorphicRelationships(key, relationshipMeta, resourceHash, relationshipKey) {
+  let polymorphicKey = decamelize(key);
+  if (polymorphicKey in resourceHash && typeof resourceHash[polymorphicKey] === 'object') {
+    if (relationshipMeta.kind === 'belongsTo') {
+      let hash = resourceHash[polymorphicKey];
+      let {id, type} = hash;
+      resourceHash[relationshipKey] = { id, type };
+    // otherwise hasMany
+    } else {
+      let hashes = resourceHash[polymorphicKey];
+
+      if (!hashes) {
+        return;
+      }
+
+      // TODO: replace this with map when ActiveModelAdapter branches for Ember Data 2.0
+      var array = [];
+      for (let i = 0, length = hashes.length; i < length; i++) {
+        let hash = hashes[i];
+        let {id, type} = hash;
+        array.push({ id, type });
+      }
+      resourceHash[relationshipKey] = array;
+    }
+  }
+}
 
 export default ActiveModelSerializer;
