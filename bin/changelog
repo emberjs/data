@@ -24,7 +24,7 @@ compareCommits({
   user: 'emberjs',
   repo: 'data',
   base: currentVersion,
-  head: 'master'
+  head: 'release'
 })
 .then(processPages)
 .then(console.log)
