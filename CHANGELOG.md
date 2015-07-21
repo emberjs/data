@@ -4,6 +4,11 @@
 
 - [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
 
+### Release 1.13.6 (July 21, 2015)
+
+- [#3564](https://github.com/emberjs/data/pull/3564) [BUGFIX release] backport ActiveModelAdapter changes [@fivetanley](https://github.com/fivetanley)
+- [#3569](https://github.com/emberjs/data/pull/3569) [BUGFIX release] squash normalizePayload deprecations [@fivetanley](https://github.com/fivetanley)
+
 ### Release 1.13.5 (July 8, 2015)
 
 - [#3437](https://github.com/emberjs/data/pull/3437) Deprecate normalizePayload and normalizeHash [@wecc](https://github.com/wecc)
