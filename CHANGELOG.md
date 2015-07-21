@@ -8,6 +8,7 @@
 
 - [#3564](https://github.com/emberjs/data/pull/3564) [BUGFIX release] backport ActiveModelAdapter changes [@fivetanley](https://github.com/fivetanley)
 - [#3569](https://github.com/emberjs/data/pull/3569) [BUGFIX release] squash normalizePayload deprecations [@fivetanley](https://github.com/fivetanley)
+- [BUGFIX release] fix some code for IE8 compat in ActiveModelSerializer
 
 ### Release 1.13.5 (July 8, 2015)
 
