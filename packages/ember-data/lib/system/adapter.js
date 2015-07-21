@@ -101,7 +101,7 @@ var Adapter = Ember.Object.extend({
         var url = [type.modelName, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url).then(function(data) {
+          Ember.$.getJSON(url).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
@@ -134,7 +134,7 @@ var Adapter = Ember.Object.extend({
         var url = type;
         var query = { since: sinceToken };
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, query).then(function(data) {
+          Ember.$.getJSON(url, query).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
@@ -166,7 +166,7 @@ var Adapter = Ember.Object.extend({
       query: function(store, type, query) {
         var url = type;
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, query).then(function(data) {
+          Ember.$.getJSON(url, query).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
@@ -205,7 +205,7 @@ var Adapter = Ember.Object.extend({
         var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, query).then(function(data) {
+          Ember.$.getJSON(url, query).then(function(data) {
             Ember.run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
@@ -299,7 +299,7 @@ var Adapter = Ember.Object.extend({
         var url = type;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.ajax({
+          Ember.$.ajax({
             type: 'POST',
             url: url,
             dataType: 'json',
@@ -341,7 +341,7 @@ var Adapter = Ember.Object.extend({
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.ajax({
+          Ember.$.ajax({
             type: 'PUT',
             url: url,
             dataType: 'json',
@@ -383,7 +383,7 @@ var Adapter = Ember.Object.extend({
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.ajax({
+          Ember.$.ajax({
             type: 'DELETE',
             url: url,
             dataType: 'json',
