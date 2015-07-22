@@ -662,7 +662,9 @@ Store = Service.extend({
         resolvedRecords = Ember.A(resolvedRecords);
         var missingRecords = requestedRecords.reject((record) => resolvedRecords.contains(record));
         if (missingRecords.length) {
-          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false);
+          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false, {
+            id: 'ds.store.missing-records-from-adapter'
+          });
         }
         rejectRecords(missingRecords);
       };
@@ -1168,7 +1170,9 @@ Store = Service.extend({
 
     if (!Ember.ENV.ENABLE_DS_FILTER) {
       Ember.deprecate('The filter API will be moved into a plugin soon. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page', false, {
-        url: 'https://github.com/ember-data/ember-data-filter'
+        url: 'https://github.com/ember-data/ember-data-filter',
+        id: 'ds.store.filter-deprecated',
+        until: '2.0.0'
       });
     }
 
@@ -1584,8 +1588,6 @@ Store = Service.extend({
       updated.
   */
   push: function(data) {
-    Ember.assert("Expected an object as `data` in a call to `push` but was " + Ember.typeOf(data), Ember.typeOf(data) === 'object');
-
     if (data.included) {
       data.included.forEach((recordData) => this._pushInternalModel(recordData));
     }
@@ -1622,7 +1624,8 @@ Store = Service.extend({
         })) + ". Make sure they've been defined in your model.",
         Object.keys(data).filter((key) => {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
-        }).length === 0
+        }).length === 0,
+        { id: 'ds.store.unknown-keys-in-payload' }
       );
     }
 
@@ -1839,12 +1842,11 @@ Store = Service.extend({
   adapterFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelOrClass === 'string');
-
-    if (typeof modelOrClass !== 'string') {
-      modelName = modelOrClass.modelName;
-    } else {
+    if (typeof modelOrClass === 'string') {
       modelName = modelOrClass;
+    } else {
+      Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, false, { id: 'ds.store.passing-classes-deprecated', until: '2.0.0' });
+      modelName = modelOrClass.modelName;
     }
 
     return this.lookupAdapter(modelName);
@@ -1882,11 +1884,11 @@ Store = Service.extend({
   serializerFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelOrClass)}`, typeof modelOrClass === 'string');
-    if (typeof modelOrClass !== 'string') {
-      modelName = modelOrClass.modelName;
-    } else {
+    if (typeof modelOrClass === 'string') {
       modelName = modelOrClass;
+    } else {
+      Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, false, { id: 'ds.store.passing-classes-deprecated', until: '2.0.0' });
+      modelName = modelOrClass.modelName;
     }
 
     var fallbacks = [
