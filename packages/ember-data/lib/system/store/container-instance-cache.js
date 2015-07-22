@@ -58,7 +58,10 @@ Ember.merge(ContainerInstanceCache.prototype, {
 
   instanceFor: function(key) {
     if (key === 'adapter:-rest') {
-      Ember.deprecate('You are currently using the default DS.RESTAdapter adapter. For Ember 2.0 the default adapter will be DS.JSONAPIAdapter. If you would like to continue using DS.RESTAdapter please create an application adapter that extends DS.RESTAdapter.');
+      Ember.deprecate('You are currently using the default DS.RESTAdapter adapter. For Ember 2.0 the default adapter will be DS.JSONAPIAdapter. If you would like to continue using DS.RESTAdapter please create an application adapter that extends DS.RESTAdapter.', false, {
+        id: 'ds.adapter.default-adapter-changing-to-json-api',
+        until: '2.0.0'
+      });
     }
 
     let cache = this._cache;

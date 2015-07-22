@@ -151,7 +151,9 @@ if (Ember.platform.hasPropertyAccessors) {
     get: function() {
       if (_ActiveModelSerializer === ActiveModelAdapter) {
         Ember.deprecate('The ActiveModelAdapter has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-          url: 'https://github.com/ember-data/active-model-adapter'
+          url: 'https://github.com/ember-data/active-model-adapter',
+          id: 'ds.adapter.active-model-adapter-deprecated',
+          until: '2.0.0'
         });
       }
       return _ActiveModelAdapter;
@@ -164,7 +166,9 @@ if (Ember.platform.hasPropertyAccessors) {
     get: function() {
       if (_ActiveModelSerializer === ActiveModelSerializer) {
         Ember.deprecate('The ActiveModelSerializer has been moved into a plugin. It will not be bundled with Ember Data in 2.0', false, {
-          url: 'https://github.com/ember-data/active-model-adapter'
+          url: 'https://github.com/ember-data/active-model-adapter',
+          id: 'ds.serializer.active-model-serializer-deprecated',
+          until: '2.0.0'
         });
       }
       return _ActiveModelSerializer;
@@ -201,7 +205,10 @@ if (Ember.platform.hasPropertyAccessors) {
   Ember.defineProperty(DS, 'FixtureAdapter', {
     get: function() {
       if (_FixtureAdapter === FixtureAdapter) {
-        Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
+        Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master', false, {
+          id: 'ds.adapter.fixture-adapter-deprecated',
+          until: '2.0.0'
+        });
       }
       return _FixtureAdapter;
     },

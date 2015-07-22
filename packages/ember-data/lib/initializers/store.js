@@ -13,7 +13,8 @@ import ContainerProxy from "ember-data/system/container-proxy";
 */
 export default function initializeStore(registry, application) {
   Ember.deprecate('Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
-                  'has been deprecated. Please use `App.ApplicationStore` instead.', !(application && application.Store));
+                  'has been deprecated. Please use `App.ApplicationStore` instead.', !(application && application.Store),
+                   { id: 'ds.initializer.specifying-custom-store-on-global-namespace-deprecated', until: '2.0.0' });
 
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
@@ -37,7 +38,10 @@ export default function initializeStore(registry, application) {
 
   var store;
   if (registry.has('store:main')) {
-    Ember.deprecate('Registering a custom store as `store:main` or defining a store in app/store.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`');
+    Ember.deprecate('Registering a custom store as `store:main` or defining a store in app/store.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`', false, {
+      id: 'ds.initializer.custom-store-as-store-main-deprecated',
+      until: '2.0.0'
+    });
     store = registry.lookup('store:main');
   } else {
     var storeMainProxy = new ContainerProxy(registry);
@@ -47,7 +51,10 @@ export default function initializeStore(registry, application) {
   }
 
   if (registry.has('store:application')) {
-    Ember.deprecate('Registering a custom store as `store:application` or defining a store in app/stores/application.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`');
+    Ember.deprecate('Registering a custom store as `store:main` or defining a store in app/store.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`', false, {
+      id: 'ds.initializer.custom-store-as-store-main-deprecated',
+      until: '2.0.0'
+    });
     store = registry.lookup('store:application');
   } else {
     var storeApplicationProxy = new ContainerProxy(registry);

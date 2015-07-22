@@ -291,7 +291,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @deprecated Use `addObject()` instead
   */
   addRecord: function(record) {
-    Ember.deprecate('Using manyArray.addRecord() has been deprecated. You should use manyArray.addObject() instead.');
+    Ember.deprecate('Using manyArray.addRecord() has been deprecated. You should use manyArray.addObject() instead.', false, {
+      id: 'ds.many-array.add-record-deprecated',
+      until: '2.0.0'
+    });
     this.addObject(record);
   },
 
@@ -301,7 +304,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @deprecated Use `removeObject()` instead
   */
   removeRecord: function(record) {
-    Ember.deprecate('Using manyArray.removeRecord() has been deprecated. You should use manyArray.removeObject() instead.');
+    Ember.deprecate('Using manyArray.removeRecord() has been deprecated. You should use manyArray.removeObject() instead.', false, {
+      id: 'ds.many-array.remove-record-deprecated',
+      until: '2.0.0'
+    });
     this.removeObject(record);
   }
 });

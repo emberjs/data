@@ -495,13 +495,19 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (arguments.length === 1) {
-      Ember.deprecate('Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.');
+      Ember.deprecate('Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.', false, {
+        id: 'ds.store.find-with-type-deprecated',
+        until: '2.0.0'
+      });
       return this.findAll(modelName);
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      Ember.deprecate('Calling store.find() with a query object is deprecated. Use store.query() instead.');
+      Ember.deprecate('Calling store.find() with a query object is deprecated. Use store.query() instead.', false, {
+        id: 'ds.store.find-with-type-deprecated',
+        until: '2.0.0'
+      });
       return this.query(modelName, id);
     }
     var options = deprecatePreload(preload, this.modelFor(modelName), 'find');
@@ -521,7 +527,10 @@ Store = Service.extend({
   fetchById: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var options = deprecatePreload(preload, this.modelFor(modelName), 'fetchById');
-    Ember.deprecate('Using store.fetchById(type, id) has been deprecated. Use store.findRecord(type, id, { reload: true }) to reload a record for a given type.');
+    Ember.deprecate('Using store.fetchById(type, id) has been deprecated. Use store.findRecord(type, id, { reload: true }) to reload a record for a given type.', false, {
+      id: 'ds.store.fetch-by-id-deprecated',
+      until: '2.0.0'
+    });
     if (this.hasRecordForId(modelName, id)) {
       return this.peekRecord(modelName, id).reload();
     } else {
@@ -539,7 +548,10 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchAll: function(modelName) {
-    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type, { reload: true }) to retrieve all records for a given type.');
+    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type, { reload: true }) to retrieve all records for a given type.', false, {
+      id: 'ds.store.fetch-all-deprecated',
+      until: '2.0.0'
+    });
     return this.findAll(modelName, { reload: true });
   },
 
@@ -553,7 +565,10 @@ Store = Service.extend({
   */
   fetch: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections');
+    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections', false, {
+      id: 'ds.store.fetch-deprecated',
+      until: '2.0.0'
+    });
     return this.findRecord(modelName, id, { reload: true, preload: preload });
   },
 
@@ -568,7 +583,10 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findById: function(modelName, id, preload) {
-    Ember.deprecate('Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.');
+    Ember.deprecate('Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.', false, {
+      id: 'ds.store.find-by-id-deprecated',
+      until: '2.0.0'
+    });
     var options = deprecatePreload(preload, this.modelFor(modelName), 'findById');
     return this.findRecord(modelName, id, options);
   },
@@ -788,7 +806,9 @@ Store = Service.extend({
           return resolvedRecords.contains(record);
         });
         if (missingRecords.length) {
-          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false);
+          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false, {
+            id: 'ds.store.missing-records-from-adapter'
+          });
         }
         rejectRecords(missingRecords);
       };
@@ -869,7 +889,10 @@ Store = Service.extend({
     @return {DS.Model|null} record
   */
   getById: function(modelName, id) {
-    Ember.deprecate('Using store.getById() has been deprecated. Use store.peekRecord to get a record by a given type and ID without triggering a fetch.');
+    Ember.deprecate('Using store.getById() has been deprecated. Use store.peekRecord to get a record by a given type and ID without triggering a fetch.', false, {
+      id: 'ds.store.get-by-id-deprecated',
+      until: '2.0.0'
+    });
     return this.peekRecord(modelName, id);
   },
 
@@ -1140,7 +1163,10 @@ Store = Service.extend({
     @deprecated Use `store.query instead`
   */
   findQuery: function(modelName, query) {
-    Ember.deprecate('store#findQuery is deprecated. You should use store#query instead.');
+    Ember.deprecate('store#findQuery is deprecated. You should use store#query instead.', false, {
+      id: 'ds.store.find-query-deprecated',
+      until: '2.0.0'
+    });
     return this.query(modelName, query);
   },
 
@@ -1236,7 +1262,10 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   all: function(modelName) {
-    Ember.deprecate('Using store.all() has been deprecated. Use store.peekAll() to get all records by a given type without triggering a fetch.');
+    Ember.deprecate('Using store.all() has been deprecated. Use store.peekAll() to get all records by a given type without triggering a fetch.', false, {
+      id: 'ds.store.all-renamed-deprecated',
+      until: '2.0.0'
+    });
     return this.peekAll(modelName);
   },
 
@@ -1372,7 +1401,9 @@ Store = Service.extend({
 
     if (!Ember.ENV.ENABLE_DS_FILTER) {
       Ember.deprecate('The filter API will be moved into a plugin soon. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page', false, {
-        url: 'https://github.com/ember-data/ember-data-filter'
+        url: 'https://github.com/ember-data/ember-data-filter',
+        id: 'ds.store.filter-deprecated',
+        until: '2.0.0'
       });
     }
 
@@ -1436,7 +1467,10 @@ Store = Service.extend({
     @deprecated
   */
   metadataFor: function(modelName) {
-    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.");
+    Ember.deprecate("`store.metadataFor()` has been deprecated. You can use `.get('meta')` on relationships and arrays returned from `store.query()`.", false, {
+      id: 'ds.store.metadata-for-deprecated',
+      until: '2.0.0'
+    });
     return this._metadataFor(modelName);
   },
 
@@ -1462,7 +1496,10 @@ Store = Service.extend({
     @deprecated
   */
   setMetadataFor: function(modelName, metadata) {
-    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.");
+    Ember.deprecate("`store.setMetadataFor()` has been deprecated. Please return meta from your serializer's `extractMeta` hook.", false, {
+      id: 'ds.store.set-metadata-for-deprecated',
+      until: '2.0.0'
+    });
     this._setMetadataFor(modelName, metadata);
   },
 
@@ -1745,7 +1782,10 @@ Store = Service.extend({
         enumerable: true,
         configurable: false,
         get: function() {
-          Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
+          Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 2.0. It has been replaced by `modelName` on the model class.', false, {
+            id: 'ds.model.type-key-replace-by-model-name',
+            until: '2.0.0'
+          });
           var typeKey = this.modelName;
           if (typeKey) {
             typeKey =  Ember.String.camelize(this.modelName);
@@ -1842,7 +1882,10 @@ Store = Service.extend({
     if (Ember.typeOf(modelNameArg) === 'object' && Ember.typeOf(dataArg) === 'undefined') {
       data = modelNameArg;
     } else {
-      Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
+      Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.', false, {
+        id: 'ds.store.push-with-type-and-data-deprecated',
+        until: '2.0.0'
+      });
       Ember.assert("Expected an object as `data` in a call to `push` for " + modelNameArg + " , but was " + Ember.typeOf(dataArg), Ember.typeOf(dataArg) === 'object');
       Ember.assert("You must include an `id` for " + modelNameArg + " in an object passed to `push`", dataArg.id != null && dataArg.id !== '');
       data = _normalizeSerializerPayload(this.modelFor(modelNameArg), dataArg);
@@ -1891,7 +1934,8 @@ Store = Service.extend({
         })) + ". Make sure they've been defined in your model.",
         filter.call(keysFunc(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
-        }).length === 0
+        }).length === 0,
+        { id: 'ds.store.unknown-keys-in-payload' }
       );
     }
 
@@ -2033,7 +2077,10 @@ Store = Service.extend({
   */
   update: function(modelName, data) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.update() has been deprecated since store.push() now handles partial updates. You should use store.push() instead.');
+    Ember.deprecate('Using store.update() has been deprecated since store.push() now handles partial updates. You should use store.push() instead.', false, {
+      id: 'ds.store.update-deprecated',
+      until: '2.0.0'
+    });
     return this.push(modelName, data);
   },
 
@@ -2049,7 +2096,10 @@ Store = Service.extend({
   */
   pushMany: function(modelName, datas) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
+    Ember.deprecate('Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.', false, {
+      id: 'ds.store.push-many-deprecated',
+      until: '2.0.0'
+    });
     var length = datas.length;
     var result = new Array(length);
 
@@ -2068,7 +2118,10 @@ Store = Service.extend({
   */
   metaForType: function(modelName, metadata) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.metaForType() has been deprecated. Use store.setMetadataFor() to set metadata for a specific type.');
+    Ember.deprecate('Using store.metaForType() has been deprecated. Use store.setMetadataFor() to set metadata for a specific type.', false, {
+      id: 'ds.store.meta-for-type-deprecated',
+      until: '2.0.0'
+    });
     this.setMetadataFor(modelName, metadata);
   },
 
@@ -2121,7 +2174,10 @@ Store = Service.extend({
     @deprecated Use [unloadRecord](#method_unloadRecord) instead
   */
   dematerializeRecord: function(record) {
-    Ember.deprecate('Using store.dematerializeRecord() has been deprecated since it was intended for private use only. You should use store.unloadRecord() instead.');
+    Ember.deprecate('Using store.dematerializeRecord() has been deprecated since it was intended for private use only. You should use store.unloadRecord() instead.', false, {
+      id: 'ds.store.dematerialize-record-deprecated',
+      until: '2.0.0'
+    });
     this._dematerializeRecord(record);
   },
 
@@ -2172,12 +2228,11 @@ Store = Service.extend({
   adapterFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelOrClass === 'string');
-
-    if (typeof modelOrClass !== 'string') {
-      modelName = modelOrClass.modelName;
-    } else {
+    if (typeof modelOrClass === 'string') {
       modelName = modelOrClass;
+    } else {
+      Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, false, { id: 'ds.store.passing-classes-deprecated', until: '2.0.0' });
+      modelName = modelOrClass.modelName;
     }
 
     return this.lookupAdapter(modelName);
@@ -2215,11 +2270,11 @@ Store = Service.extend({
   serializerFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelOrClass), typeof modelOrClass === 'string');
-    if (typeof modelOrClass !== 'string') {
-      modelName = modelOrClass.modelName;
-    } else {
+    if (typeof modelOrClass === 'string') {
       modelName = modelOrClass;
+    } else {
+      Ember.deprecate(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, false, { id: 'ds.store.passing-classes-deprecated', until: '2.0.0' });
+      modelName = modelOrClass.modelName;
     }
 
     var fallbacks = [
@@ -2425,7 +2480,10 @@ function deprecatePreload(preloadOrOptions, type, methodName) {
     }
 
     if (preloadDetected) {
-      Ember.deprecate(`Passing a preload argument to \`store.${methodName}\` is deprecated. Please move it to the preload key on the ${methodName} \`options\` argument.`);
+      Ember.deprecate(`Passing a preload argument to \`store.${methodName}\` is deprecated. Please move it to the preload key on the ${methodName} \`options\` argument.`, false, {
+        id: 'ds.store.preload-outside-options',
+        until: '2.0.0'
+      });
       var preload = preloadOrOptions;
       return {
         preload: preload

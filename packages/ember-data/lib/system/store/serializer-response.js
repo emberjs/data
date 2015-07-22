@@ -35,7 +35,10 @@ export function normalizeResponseHelper(serializer, store, modelClass, payload, 
     }
     return normalizedResponse;
   } else {
-    Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.');
+    Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.', false, {
+      id: 'ds.serializer.extract-hooks-deprecated',
+      until: '2.0.0'
+    });
     let serializerPayload = serializer.extract(store, modelClass, payload, id, requestType);
     return _normalizeSerializerPayload(modelClass, serializerPayload);
   }
