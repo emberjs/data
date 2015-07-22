@@ -79,7 +79,7 @@ AdapterError.prototype = Object.create(EmberError.prototype);
 */
 export function InvalidError(errors) {
   if (!Ember.isArray(errors)) {
-    Ember.deprecate('`InvalidError` expects json-api formatted errors.');
+    Ember.deprecate('`InvalidError` expects json-api formatted errors.', false, { id: 'ds.errors.invalid-error-expects-json-api-format', until: '2.0.0' });
     errors = errorsHashToArray(errors);
   }
   AdapterError.call(this, errors, 'The adapter rejected the commit because it was invalid');

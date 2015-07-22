@@ -243,8 +243,6 @@ Model.reopenClass({
 
     var inverseName, inverseKind, inverse;
 
-    Ember.warn("Detected a reflexive relationship by the name of '" + name + "' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.", options.inverse || propertyMeta.type !== propertyMeta.parentType.modelName);
-
     //If inverse is specified manually, return the inverse
     if (options.inverse) {
       inverseName = options.inverse;
@@ -256,6 +254,12 @@ Model.reopenClass({
       inverseKind = inverse.kind;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
+      if (propertyMeta.type === propertyMeta.parentType.modelName) {
+        Ember.warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
+          id: 'ds.model.reflexive-relationship-without-inverse'
+        });
+      }
+
       var possibleRelationships = findPossibleInverses(this, inverseType);
 
       if (possibleRelationships.length === 0) { return null; }

@@ -315,10 +315,11 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForAttribute(attr, 'serialize');
       hasMany = snapshot.hasMany(attr);
 
-      Ember.warn("The embedded relationship '" + key + "' is undefined for '" +
-                 snapshot.modelName +
-                 "' with id '" + snapshot.id +
-                 "'. Please include it in your original payload.", Ember.typeOf(hasMany) !== 'undefined');
+      Ember.warn(
+        `The embedded relationship '${key}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
+        Ember.typeOf(hasMany) !== 'undefined',
+        { id: 'ds.serializer.embedded-relationship-undefined' }
+      );
 
       json[key] = Ember.A(hasMany).map((embeddedSnapshot) => {
         var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
