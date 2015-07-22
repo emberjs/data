@@ -424,6 +424,34 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
   },
 
   /**
+    Called by the store in order to fetch a JSON object for
+    the record that matches a particular query.
+
+    The `queryRecord` method makes an Ajax (HTTP GET) request to a URL
+    computed by `buildURL`, and returns a promise for the resulting
+    payload.
+
+    The `query` argument is a simple JavaScript object that will be passed directly
+    to the server as parameters.
+
+    @private
+    @method queryRecord
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {Object} query
+    @return {Promise} promise
+  */
+  queryRecord: function(store, type, query) {
+    var url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
+
+    if (this.sortQueryParams) {
+      query = this.sortQueryParams(query);
+    }
+
+    return this.ajax(url, 'GET', { data: query });
+  },
+
+  /**
     Called by the store in order to fetch several records together if `coalesceFindRequests` is true
 
     For example, if the original payload looks like:

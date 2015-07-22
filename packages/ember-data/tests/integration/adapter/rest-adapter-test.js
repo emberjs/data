@@ -1266,6 +1266,65 @@ test("findQuery - data is normalized through custom serializers", function() {
   }));
 });
 
+test("queryRecord - returns a single record in an object", function() {
+  ajaxResponse({
+    post: {
+      id: '1',
+      name: 'Ember.js rocks'
+    }
+  });
+
+  store.queryRecord('post', { slug: 'ember-js-rocks' }).then(async(function(post) {
+    deepEqual(post.get('name'), "Ember.js rocks");
+  }));
+});
+
+test("queryRecord - returning sideloaded data loads the data", function() {
+  ajaxResponse({
+    post: { id: 1, name: "Rails is omakase" },
+    comments: [{ id: 1, name: "FIRST" }]
+  });
+
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+    var comment = store.peekRecord('comment', 1);
+
+    deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+  }));
+});
+
+test("queryRecord - returning an array picks the first one but saves all records to the store", function() {
+  ajaxResponse({
+    post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
+  });
+
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+    var post2 = store.peekRecord('post', 2);
+
+    deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
+    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
+  }));
+});
+
+test("queryRecord - data is normalized through custom serializers", function() {
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
+    primaryKey: '_ID_',
+    attrs: { name: '_NAME_' }
+  }));
+
+  ajaxResponse({
+    post: { _ID_: 1, _NAME_: "Rails is omakase" }
+  });
+
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+
+    deepEqual(
+      post.getProperties('id', 'name'),
+      { id: "1", name: "Rails is omakase" },
+      "Post 1 is loaded with correct data"
+    );
+  }));
+});
+
 test("findMany - findMany uses a correct URL to access the records", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
