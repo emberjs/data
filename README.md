@@ -61,7 +61,7 @@ ES6 modules (via ember-cli):
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  title: DS.attr(),
+  title: DS.attr('string'),
   createdAt: DS.attr('date'),
 
   comments: DS.hasMany('comment')
@@ -71,10 +71,10 @@ export default DS.Model.extend({
 import DS from 'ember-data';
 
 export default DS.Model.extend({
-  body: DS.attr(),
-  username: DS.attr(),
+  body: DS.attr('string'),
+  username: DS.attr('string'),
 
-  post: DS.belongsTo('blogPost')
+  post: DS.belongsTo('blog-post')
 });
 ```
 
@@ -87,17 +87,17 @@ var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 
 App.BlogPost = DS.Model.extend({
-  title: attr(),
+  title: attr('string'),
   createdAt: attr('date'),
 
   comments: hasMany('comment')
 });
 
 App.Comment = DS.Model.extend({
-  body: attr(),
-  username: attr(),
+  body: attr('string'),
+  username: attr('string'),
 
-  post: belongsTo('blogPost')
+  post: belongsTo('blog-post')
 });
 ```
 
@@ -126,7 +126,7 @@ Server](http://emberjs.com/guides/models/connecting-to-an-http-server/).
 From your route or controller:
 
 ```js
-this.store.findAll('blogPost');
+this.store.findAll('blog-post');
 ```
 
 This returns a promise that resolves to the collection of records.
@@ -134,7 +134,7 @@ This returns a promise that resolves to the collection of records.
 ### Fetching a Single Model
 
 ```js
-this.store.find('blogPost', 123);
+this.store.findRecord('blog-post', 123);
 ```
 
 This returns a promise that resolves to the requested record. If the
