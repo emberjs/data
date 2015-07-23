@@ -230,7 +230,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     /*jshint loopfunc:true*/
     forEach.call(arrayHash, (hash) => {
-      let { data, included } = serializer.normalize(modelClass, hash, prop);
+      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
@@ -240,7 +240,20 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  /**
+  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
+    let serializer, modelClass;
+    // Support polymorphic records in async relationships
+    if (hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
+      serializer = store.serializerFor(hash.type);
+      modelClass = store.modelFor(hash.type);
+    } else {
+      serializer = primarySerializer;
+      modelClass = primaryModelClass;
+    }
+    return serializer.normalize(modelClass, hash, prop);
+  },
+
+  /*
     @method _normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -322,7 +335,7 @@ var RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && Ember.typeOf(value) !== 'array') {
-        let {data, included} = this.normalize(primaryModelClass, value, prop);
+        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
           documentHash.included.push(...included);
