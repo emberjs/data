@@ -8,8 +8,10 @@ module("DS.DebugAdapter", {
       App = Ember.Application.create();
       App.toString = function() { return 'App'; };
 
-      App.StoreService = DS.Store.extend({
-        adapter: DS.Adapter.extend()
+      App.StoreService = DS.Store.extend({});
+
+      App.ApplicationAdapter = DS.Adapter.extend({
+        shouldBackgroundReloadRecord: () => false
       });
 
       App.Post = DS.Model.extend({

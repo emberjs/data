@@ -38,6 +38,7 @@ test("hasMany handles pre-loaded relationships", function() {
       ok(false, "findRecord() should not be called with these values");
     }
   };
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var store = env.store;
 
@@ -235,6 +236,7 @@ test("hasMany lazily loads async relationships", function() {
       ok(false, "findRecord() should not be called with these values");
     }
   };
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var store = env.store;
 
@@ -411,6 +413,7 @@ test("relationships work when declared with a string path", function() {
     person: Person,
     tag: Tag
   });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     env.store.push({
@@ -525,6 +528,7 @@ test("it is possible to add a new item to a relationship", function() {
     tag: Tag,
     person: Person
   });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var store = env.store;
 
@@ -656,6 +660,7 @@ test("it is possible to remove an item from a relationship", function() {
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({

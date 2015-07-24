@@ -17,7 +17,10 @@ test("a record array is backed by records", function() {
   expect(3);
 
   var store = createStore({
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
   });
   run(function() {
     store.push({
@@ -146,7 +149,8 @@ test("a loaded record is removed from a record array when it is deleted", functi
     tag: Tag,
     person: Person,
     adapter: DS.Adapter.extend({
-      deleteRecord: () => Ember.RSVP.resolve()
+      deleteRecord: () => Ember.RSVP.resolve(),
+      shouldBackgroundReloadRecord: () => false
     })
   });
   var store = env.store;

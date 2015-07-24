@@ -91,6 +91,9 @@ test("When a record is reloaded and fails, it can try again", function() {
 });
 
 test("When a record is loaded a second time, isLoaded stays true", function() {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    return { id: 1, name: "Tom Dale" };
+  };
   run(function() {
     env.store.push({
       data: {

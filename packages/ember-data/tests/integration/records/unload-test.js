@@ -226,6 +226,10 @@ test("unloading all records also updates record array from peekAll()", function(
 
 test("unloading a record also clears its relationship", function() {
   var adam, bob;
+
+  // disable background reloading so we do not re-create the relationship.
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
   run(function() {
     env.store.push({
       data: {
@@ -266,7 +270,7 @@ test("unloading a record also clears its relationship", function() {
   });
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
       run(function() {
@@ -280,6 +284,9 @@ test("unloading a record also clears its relationship", function() {
 
 test("unloading a record also clears the implicit inverse relationships", function() {
   var adam, bob;
+  // disable background reloading so we do not re-create the relationship.
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
   run(function() {
     env.store.push({
       data: {
@@ -311,7 +318,7 @@ test("unloading a record also clears the implicit inverse relationships", functi
   });
 
   run(function() {
-    env.store.find('group', 1).then(function(group) {
+    env.store.findRecord('group', 1).then(function(group) {
       equal(group.get('people.length'), 1, 'The inital length of people is correct');
       var person = env.store.peekRecord('person', 1);
       run(function() {

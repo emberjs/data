@@ -31,18 +31,6 @@ test("It raises an assertion when `undefined` is passed as id (#1705)", function
   }, "You cannot pass `null` as id to the store's find method");
 });
 
-test("store.findAll should trigger a deprecation warning about store.shouldReloadAll", function() {
-  env.adapter.findAll = function() {
-    return Ember.RSVP.resolve([]);
-  };
-
-  run(function() {
-    expectDeprecation(function() {
-      store.findAll('person');
-    }, 'The default behavior of shouldReloadAll will change in Ember Data 2.0 to always return false when there is at least one "person" record in the store. If you would like to preserve the current behavior please override shouldReloadAll in your adapter:application and return true.');
-  });
-});
-
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {
   expect(2);
 

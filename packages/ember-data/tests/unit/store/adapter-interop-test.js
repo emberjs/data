@@ -4,7 +4,7 @@ var resolve = Ember.RSVP.resolve;
 var TestAdapter, store, person;
 var run = Ember.run;
 
-module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
+module("unit/store/adapter-interop - DS.Store working with a DS.Adapter", {
   setup: function() {
     TestAdapter = DS.Adapter.extend();
   },
@@ -108,7 +108,7 @@ test("Returning a promise from `findRecord` asynchronously loads data", function
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
-  expect(4);
+  expect(5);
 
   var adapter = TestAdapter.extend({
     findRecord: function(store, type, id, snapshot) {
@@ -152,7 +152,10 @@ test("can load data for the same record if it is not dirty", function() {
   });
 
   var store = createStore({
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
   });
 
   run(function() {
@@ -379,7 +382,10 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
     name: DS.attr('string')
   });
   var store = createStore({
-    person: Person
+    person: Person,
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
   });
   var person;
 
@@ -893,6 +899,7 @@ test("store should not reload record when shouldReloadRecord returns false", fun
       ok(true, 'shouldReloadRecord should be called when the record is in the store');
       return false;
     },
+    shouldBackgroundReloadRecord: () => false,
     findRecord: function() {
       ok(false, 'find should not be called when shouldReloadRecord returns false');
     }

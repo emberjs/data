@@ -50,6 +50,7 @@ module("unit/store/push - DS.Store#push", {
 
 test("Calling push with a normalized hash returns a record", function() {
   expect(2);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     var person = store.push({
@@ -75,6 +76,7 @@ test("Calling push with a normalized hash returns a record", function() {
 
 test("Supplying a model class for `push` is the same as supplying a string", function () {
   expect(1);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var Programmer = Person.extend();
   env.registry.register('model:programmer', Programmer);
@@ -126,6 +128,7 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
 
 test("Calling push with partial records updates just those attributes", function() {
   expect(2);
+  env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
     store.push({
