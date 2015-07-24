@@ -30,8 +30,10 @@ ContainerProxy.prototype.registerAlias = function(source, dest, preLookup) {
 
 ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
   var preLookupCallback = function() {
-    Ember.deprecate("You tried to look up '" + deprecated + "', " +
-                    "but this has been deprecated in favor of '" + valid + "'.", false);
+    Ember.deprecate(`You tried to look up '${deprecated}', but this has been deprecated in favor of '${valid}'.`, false, {
+      id: 'ds.store.deprecated-lookup',
+      until: '2.0.0'
+    });
   };
 
   return this.registerAlias(deprecated, valid, preLookupCallback);

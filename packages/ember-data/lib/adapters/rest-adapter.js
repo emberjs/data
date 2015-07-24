@@ -366,7 +366,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @deprecated Use [findRecord](#method_findRecord) instead
   */
   find: function(store, type, id, snapshot) {
-    Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
+    Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.', false, {
+      id: 'ds.adapter.find-renamed-to-find-record',
+      until: '2.0.0'
+    });
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'find'), 'GET');
   },
 
@@ -389,7 +392,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
   findRecord: function(store, type, id, snapshot) {
     var find = RestAdapter.prototype.find;
     if (find !== this.find) {
-      Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
+      Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.', false, {
+        id: 'ds.adapter.find-renamed-to-find-record',
+        until: '2.0.0'
+      });
       return this.find(store, type, id, snapshot);
     }
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'findRecord'), 'GET');
@@ -440,7 +446,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @deprecated Use [query](#method_query) instead
   */
   findQuery: function(store, type, query) {
-    Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
+    Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.', false, {
+      id: 'ds.adapter.find-query-renamed-to-query',
+      until: '2.0.0'
+    });
     var url = this.buildURL(type.modelName, null, null, 'findQuery', query);
 
     if (this.sortQueryParams) {
@@ -470,7 +479,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
   query: function(store, type, query) {
     var findQuery = RestAdapter.prototype.findQuery;
     if (findQuery !== this.findQuery) {
-      Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
+      Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.', false, {
+        id: 'ds.adapter.find-query-renamed-to-query',
+        until: '2.0.0'
+      });
       return this.findQuery(store, type, query);
     }
 
@@ -900,7 +912,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
         let response;
 
         if (adapter.ajaxSuccess) {
-          Ember.deprecate("`ajaxSuccess` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
+          Ember.deprecate("`ajaxSuccess` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.", false, {
+            id: 'ds.adapter.ajax-success-deprecated',
+            until: '2.0.0'
+          });
           response = adapter.ajaxSuccess(jqXHR, payload);
         }
 
@@ -923,7 +938,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
         let error;
 
         if (adapter.ajaxError) {
-          Ember.deprecate("`ajaxError` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
+          Ember.deprecate("`ajaxError` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.", false, {
+            id: 'ds.adapter.ajax-error-deprecated',
+            until: '2.0.0'
+          });
           error = adapter.ajaxError(jqXHR, textStatus, errorThrown);
         }
 
@@ -1054,12 +1072,18 @@ if (Ember.platform.hasPropertyAccessors) {
   Ember.defineProperty(RestAdapter.prototype, 'maxUrlLength', {
     enumerable: false,
     get: function() {
-      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.', false, {
+        id: 'ds.adapter.max-url-length-deprecated-case',
+        until: '2.0.0'
+      });
       return this.maxURLLength;
     },
 
     set: function(value) {
-      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.', false, {
+        id: 'ds.adapter.max-url-length-deprecated-case',
+        until: '2.0.0'
+      });
       set(this, 'maxURLLength', value);
     }
   });

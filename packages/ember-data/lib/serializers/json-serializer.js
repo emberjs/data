@@ -1470,7 +1470,10 @@ var JSONSerializer = Serializer.extend({
   extractSingle: function(store, typeClass, payload, id, requestType) {
     if (!this.get('didDeprecateNormalizePayload')) {
       this.set('didDeprecateNormalizePayload', true);
-      Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+      Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+        id: 'ds.serializer.normalize-payload-deprecated',
+        until: '2.0.0'
+      });
     }
     var normalizedPayload = this.normalizePayload(payload);
     return this.normalize(typeClass, normalizedPayload);
@@ -1505,7 +1508,10 @@ var JSONSerializer = Serializer.extend({
   extractArray: function(store, typeClass, arrayPayload, id, requestType) {
     if (!this.get('didDeprecateNormalizePayload')) {
       this.set('didDeprecateNormalizePayload', true);
-      Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+      Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+        id: 'ds.serializer.normalize-payload-deprecated',
+        until: '2.0.0'
+      });
     }
     var normalizedPayload = this.normalizePayload(arrayPayload);
     var serializer = this;

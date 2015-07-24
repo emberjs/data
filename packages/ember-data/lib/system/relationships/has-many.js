@@ -147,7 +147,10 @@ function hasMany(type, options) {
   return computedPolyfill({
     get: function(key) {
       if (meta.shouldWarnAsync) {
-        Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.hasMany('${type}', { async: false })\` if you wish for a relationship remain synchronous.`);
+        Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.hasMany('${type}', { async: false })\` if you wish for a relationship remain synchronous.`, false, {
+          id: 'ds.model.relationship-changing-to-asynchrounous-by-default',
+          until: '2.0.0'
+        });
         meta.shouldWarnAsync = false;
       }
       var relationship = this._internalModel._relationships.get(key);

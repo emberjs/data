@@ -21,7 +21,10 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
   var promise;
   if (!adapter.findRecord) {
-    Ember.deprecate('Adapter#find has been deprecated and renamed to `findRecord`.');
+    Ember.deprecate('Adapter#find has been deprecated and renamed to `findRecord`.', false, {
+      id: 'ds.adapter.find-renamed-to-find-record',
+      until: '2.0.0'
+    });
     promise = adapter.find(store, typeClass, id, snapshot);
   } else {
     promise = adapter.findRecord(store, typeClass, id, snapshot);
@@ -154,7 +157,10 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   var promise;
 
   if (!adapter.query) {
-    Ember.deprecate('Adapter#findQuery has been deprecated and renamed to `query`.');
+    Ember.deprecate('Adapter#findQuery has been deprecated and renamed to `query`.', false, {
+      id: 'ds.adapter.find-query-renamed-to-query',
+      until: '2.0.0'
+    });
     promise = adapter.findQuery(store, typeClass, query, recordArray);
   } else {
     promise = adapter.query(store, typeClass, query, recordArray);

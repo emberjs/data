@@ -52,7 +52,10 @@ function Snapshot(internalModel) {
         // again.
         if (callDeprecate) {
           callDeprecate = false;
-          Ember.deprecate('Usage of `snapshot.constructor` is deprecated, use `snapshot.type` instead.');
+          Ember.deprecate('Usage of `snapshot.constructor` is deprecated, use `snapshot.type` instead.', false, {
+            id: 'ds.snapshot.constructor-deprecator',
+            until: '2.0.0'
+          });
           callDeprecate = true;
         }
 
@@ -376,7 +379,10 @@ Snapshot.prototype = {
     @deprecated Use [attr](#method_attr), [belongsTo](#method_belongsTo) or [hasMany](#method_hasMany) instead
   */
   get: function(keyName) {
-    Ember.deprecate('Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
+    Ember.deprecate('Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.', false, {
+      id: 'ds.snapshot.get-deprecated',
+      until: '2.0.0'
+    });
 
     if (keyName === 'id') {
       return this.id;
@@ -422,7 +428,10 @@ Snapshot.prototype = {
     @private
   */
   _createSnapshot: function() {
-    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
+    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.", false, {
+      id: 'ds.snapshot.create-snapshot-on-snapshot',
+      until: '2.0.0'
+    });
     return this;
   }
 };
@@ -430,7 +439,10 @@ Snapshot.prototype = {
 Ember.defineProperty(Snapshot.prototype, 'typeKey', {
   enumerable: false,
   get: function() {
-    Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.');
+    Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.', false, {
+      id: 'ds.snapshot.type-key-deprecated',
+      until: '2.0.0'
+    });
     return this.modelName;
   },
   set: function() {

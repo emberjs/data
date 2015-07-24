@@ -194,7 +194,10 @@ var RESTSerializer = JSONSerializer.extend({
     this.normalizeUsingDeclaredMapping(typeClass, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
-      Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.');
+      Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.', false, {
+        id: 'ds.serializer.normalize-hash-deprecated',
+        until: '2.0.0'
+      });
       this.normalizeHash[prop](hash);
     }
 
@@ -293,7 +296,9 @@ var RESTSerializer = JSONSerializer.extend({
 
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false);
+        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
 
@@ -445,7 +450,10 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object} the primary response to the original request
   */
   extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
-    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+      id: 'ds.serializer.normalize-payload-deprecated',
+      until: '2.0.0'
+    });
     var payload = this.normalizePayload(rawPayload);
     var primaryRecord;
 
@@ -453,7 +461,9 @@ var RESTSerializer = JSONSerializer.extend({
       var modelName = this.modelNameFromPayloadKey(prop);
 
       if (!store.modelFactoryFor(modelName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
       var isPrimary = this.isPrimaryType(store, modelName, primaryTypeClass);
@@ -602,7 +612,10 @@ var RESTSerializer = JSONSerializer.extend({
       to the original query.
   */
   extractArray: function(store, primaryTypeClass, rawPayload) {
-    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+      id: 'ds.serializer.normalize-payload-deprecated',
+      until: '2.0.0'
+    });
     var payload = this.normalizePayload(rawPayload);
     var primaryArray;
 
@@ -617,7 +630,9 @@ var RESTSerializer = JSONSerializer.extend({
 
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
       var type = store.modelFor(typeName);
@@ -684,13 +699,18 @@ var RESTSerializer = JSONSerializer.extend({
       return;
     }
 
-    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+    Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+      id: 'ds.serializer.normalize-payload-deprecated',
+      until: '2.0.0'
+    });
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
       var typeClass = store.modelFor(modelName);
@@ -1013,7 +1033,10 @@ var RESTSerializer = JSONSerializer.extend({
     @deprecated
   */
   typeForRoot: function(modelName) {
-    Ember.deprecate("typeForRoot is deprecated. Use modelNameFromPayloadKey instead.");
+    Ember.deprecate("typeForRoot is deprecated. Use modelNameFromPayloadKey instead.", false, {
+      id: 'ds.serializer.type-for-root-deprecated',
+      until: '2.0.0'
+    });
     return this.modelNameFromPayloadKey(modelName);
   },
 
@@ -1059,7 +1082,10 @@ export default RESTSerializer;
 */
 function _newNormalize(modelClass, resourceHash, prop) {
   if (this.normalizeHash && this.normalizeHash[prop]) {
-    Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.');
+    Ember.deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.', false, {
+      id: 'ds.serializer.normalize-hash-deprecated',
+      until: '2.0.0'
+    });
     this.normalizeHash[prop](resourceHash);
   }
 }
@@ -1075,13 +1101,18 @@ function _newPushPayload(store, rawPayload) {
     included: []
   };
 
-  Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload);
+  Ember.deprecate('`serializer.normalizePayload` has been deprecated. Please use `serializer.normalizeResponse` with the new Serializer API to modify the payload.', this.normalizePayload === JSONSerializer.prototype.normalizePayload, {
+    id: 'ds.serializer.normalize-payload-deprecated',
+    until: '2.0.0'
+  });
   let payload = this.normalizePayload(rawPayload);
 
   for (var prop in payload) {
     var modelName = this.modelNameFromPayloadKey(prop);
     if (!store.modelFactoryFor(modelName)) {
-      Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
+      Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+        id: 'ds.serializer.model-for-key-missing'
+      });
       continue;
     }
     var type = store.modelFor(modelName);

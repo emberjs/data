@@ -128,7 +128,10 @@ var BuildURLMixin = Ember.Mixin.create({
    */
   urlForFindRecord: function(id, modelName, snapshot) {
     if (this.urlForFind !== urlForFind) {
-      Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
+      Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.', false, {
+        id: 'ds.adapter.url-for-find-deprecated',
+        until: '2.0.0'
+      });
       return this.urlForFind(id, modelName, snapshot);
     }
     return this._buildURL(modelName, id);
@@ -160,7 +163,10 @@ var BuildURLMixin = Ember.Mixin.create({
    */
   urlForQuery: function(query, modelName) {
     if (this.urlForFindQuery !== urlForFindQuery) {
-      Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
+      Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.', false, {
+        id: 'ds.adapter.url-for-find-query-deprecated',
+        until: '2.0.0'
+      });
       return this.urlForFindQuery(query, modelName);
     }
     return this._buildURL(modelName);
@@ -305,12 +311,19 @@ var BuildURLMixin = Ember.Mixin.create({
 });
 
 function urlForFind(id, modelName, snapshot) {
-  Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
+  Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.', false, {
+    id: 'ds.adapter.url-for-find-deprecated',
+    until: '2.0.0'
+  });
+
   return this._buildURL(modelName, id);
 }
 
 function urlForFindQuery(query, modelName) {
-  Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
+  Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.', false, {
+    id: 'ds.adapter.url-for-find-query-deprecated',
+    until: '2.0.0'
+  });
   return this._buildURL(modelName);
 }
 
