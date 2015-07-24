@@ -6,6 +6,8 @@ import Errors from "ember-data/system/model/errors";
 */
 
 var get = Ember.get;
+var merge = Ember.merge;
+var copy = Ember.copy;
 
 function intersection (array1, array2) {
   var result = [];
@@ -611,7 +613,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   changedAttributes: function() {
     var oldData = get(this._internalModel, '_data');
-    var newData = get(this._internalModel, '_attributes');
+    var currentData = get(this._internalModel, '_attributes');
+    var inFlightData = get(this._internalModel, '_inFlightAttributes');
+    var newData = merge(copy(inFlightData), currentData);
     var diffData = Object.create(null);
 
     var newDataKeys = Object.keys(newData);
