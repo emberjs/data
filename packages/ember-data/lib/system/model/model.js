@@ -6,6 +6,9 @@ import {
   keysFunc
 } from 'ember-data/system/object-polyfills';
 
+import computedPolyfill from "ember-new-computed";
+var errorDeprecationShown = false;
+
 /**
   @module ember-data
 */
@@ -131,6 +134,22 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     return this.get('currentState.isDirty');
   }),
+
+  /**
+    @property error
+    @type {Boolean}
+    @deprecated
+  */
+  error: computedPolyfill('adapterError', {
+    get() {
+      if (!errorDeprecationShown) {
+        Ember.deprecate('DS.Model#error has been deprecated please use adapterError instead');
+        errorDeprecationShown = true;
+      }
+      return Ember.get(this, 'adapterError');
+    }
+  }),
+
   /**
     If this property is `true` the record is in the `dirty` state. The
     record has local changes that have not yet been saved by the
