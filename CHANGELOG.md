@@ -4,6 +4,31 @@
 
 - [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
 
+### Release 1.13.7 (July 27, 2015)
+
+- [#3554](https://github.com/emberjs/data/pull/3554) Add queryRecord method to the RESTAdapter
+- [#3553](https://github.com/emberjs/data/pull/3553) Reversed args in Ember.Observer
+- [#3531](https://github.com/emberjs/data/pull/3531) Adds some documentation for JSONApiSerializer
+- [#3555](https://github.com/emberjs/data/pull/3555) [BUGFIX release] Transition to loaded.saved state after rollback
+- [#3558](https://github.com/emberjs/data/pull/3558) [BUGFIX release] Follow JSON-API error object spec
+- [#3560](https://github.com/emberjs/data/pull/3560) Deprecate error property
+- [#3562](https://github.com/emberjs/data/pull/3562) remove babel warnings around parameters
+- [#3563](https://github.com/emberjs/data/pull/3563) [DOC release] Adding documentation for SnapshotRecordArray
+- [#3571](https://github.com/emberjs/data/pull/3571) [DOC release] Update README examples
+- [#3575](https://github.com/emberjs/data/pull/3575) [BUGFIX release] Update `Ember.deprecate` and `Ember.warn` calls to include required information
+- [#3582](https://github.com/emberjs/data/pull/3582) [BUGFIX release] Fix unconsistent behavior in Model.changedAttributes
+- [#3590](https://github.com/emberjs/data/pull/3590) Update bin/changelog to deal with cherry-picked commits
+
+### Release 1.13.6 (July 21, 2015)
+
+- [#3564](https://github.com/emberjs/data/pull/3564) [BUGFIX release] backport ActiveModelAdapter changes [@fivetanley](https://github.com/fivetanley)
+- [#3569](https://github.com/emberjs/data/pull/3569) [BUGFIX release] squash normalizePayload deprecations [@fivetanley](https://github.com/fivetanley)
+- [BUGFIX release] fix some code for IE8 compat in ActiveModelSerializer
+- [#3544](https://github.com/emberjs/data/pull/3544)[BUGFIX release] Add error message in _pushInternalMessage when unknown type [@serabe](https://github.com/Serabe)
+- [#3550](https://github.com/emberjs/data/pull/3550)[BUGFIX release] JSONSerializer pass through `payload.included`[@tstirrat](https://github.com/tstirrat)
+- [#3534](https://github.com/emberjs/data/pull/3534)[DOC release] Rename `error` to `adapterError` [@tchak](https://github.com/tchak)
+- [#3550](https://github.com/emberjs/data/pull/3550)[BUGFIX release] JSONSerializer pass through `payload.included` [@tstirrat](https://github.com/tstirrat)
+
 ### Release 1.13.5 (July 8, 2015)
 
 - [#3437](https://github.com/emberjs/data/pull/3437) Deprecate normalizePayload and normalizeHash [@wecc](https://github.com/wecc)
