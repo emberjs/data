@@ -158,7 +158,10 @@ var _FixtureAdapter = FixtureAdapter;
 Object.defineProperty(DS, 'FixtureAdapter', {
   get: function() {
     if (_FixtureAdapter === FixtureAdapter) {
-      Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
+      Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master', false, {
+        id: 'ds.adapter.fixture-adapter-deprecated',
+        until: '2.0.0'
+      });
     }
     return _FixtureAdapter;
   },

@@ -216,7 +216,9 @@ var RESTSerializer = JSONSerializer.extend({
 
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false);
+        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
 
@@ -334,7 +336,9 @@ var RESTSerializer = JSONSerializer.extend({
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+          id: 'ds.serializer.model-for-key-missing'
+        });
         continue;
       }
       var type = store.modelFor(modelName);
