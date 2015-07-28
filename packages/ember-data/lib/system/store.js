@@ -1156,7 +1156,7 @@ Store = Service.extend({
     This method returns a promise, which is resolved with a `RecordArray`
     once the server returns.
 
-    @method query
+    @method findQuery
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
