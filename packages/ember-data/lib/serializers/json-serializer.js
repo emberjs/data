@@ -8,7 +8,7 @@ var get = Ember.get;
 var isNone = Ember.isNone;
 var merge = Ember.merge;
 
-/*
+/**
   Ember Data 2.0 Serializer:
 
   In Ember Data a Serializer is used to serialize and deserialize
@@ -30,8 +30,10 @@ var merge = Ember.merge;
       house: DS.belongsTo('location'),
     });
   ```
+
   ```js
-    { id: 1,
+    {
+      id: 1,
       name: 'Sebastian',
       friends: [3, 4],
       links: {
@@ -39,6 +41,7 @@ var merge = Ember.merge;
       }
     }
   ```
+
   to JSONApi format that the Ember Data store expects.
 
   You can customize how JSONSerializer processes it's payload by passing options in
@@ -61,23 +64,6 @@ var merge = Ember.merge;
       calls it once. This is the method you most likely want to subclass
     - `extractId` | `extractAttributes` | `extractRelationships` - normalize delegates to these methods to
       turn the record payload into the JSONApi format
-
-  @class JSONSerializer
-  @namespace DS
-  @extends DS.Serializer
-*/
-
-/**
-  In Ember Data a Serializer is used to serialize and deserialize
-  records when they are transferred in and out of an external source.
-  This process involves normalizing property names, transforming
-  attribute values and serializing relationships.
-
-  For maximum performance Ember Data recommends you use the
-  [RESTSerializer](DS.RESTSerializer.html) or one of its subclasses.
-
-  `JSONSerializer` is useful for simpler or legacy backends that may
-  not support the http://jsonapi.org/ spec.
 
   @class JSONSerializer
   @namespace DS
@@ -197,7 +183,7 @@ var JSONSerializer = Serializer.extend({
     return data;
   },
 
-  /*
+  /**
     The `normalizeResponse` method is used to normalize a payload from the
     server to a JSON-API Document.
 
@@ -256,7 +242,7 @@ var JSONSerializer = Serializer.extend({
     }
   },
 
-  /*
+  /**
     @method normalizeFindRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -269,7 +255,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSingleResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeQueryRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -282,7 +268,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSingleResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeFindAllResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -295,7 +281,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeArrayResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeFindBelongsToResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -308,7 +294,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSingleResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeFindHasManyResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -321,7 +307,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeArrayResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeFindManyResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -334,7 +320,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeArrayResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeQueryResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -347,7 +333,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeArrayResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeCreateRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -360,7 +346,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSaveResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeDeleteRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -373,7 +359,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSaveResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeUpdateRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -386,7 +372,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSaveResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeSaveResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -399,7 +385,7 @@ var JSONSerializer = Serializer.extend({
     return this.normalizeSingleResponse(...arguments);
   },
 
-  /*
+  /**
     @method normalizeSingleResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -412,7 +398,7 @@ var JSONSerializer = Serializer.extend({
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, true);
   },
 
-  /*
+  /**
     @method normalizeArrayResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -425,7 +411,7 @@ var JSONSerializer = Serializer.extend({
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, false);
   },
 
-  /*
+  /**
     @method _normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -524,7 +510,7 @@ var JSONSerializer = Serializer.extend({
     return { data };
   },
 
-  /*
+  /**
     Returns the resource's ID.
 
     @method extractId
@@ -538,7 +524,7 @@ var JSONSerializer = Serializer.extend({
     return coerceId(id);
   },
 
-  /*
+  /**
     Returns the resource's attributes formatted as a JSON-API "attributes object".
 
     http://jsonapi.org/format/#document-resource-object-attributes
@@ -562,7 +548,7 @@ var JSONSerializer = Serializer.extend({
     return attributes;
   },
 
-  /*
+  /**
     Returns a relationship formatted as a JSON-API "relationship object".
 
     http://jsonapi.org/format/#document-resource-object-relationships
@@ -591,7 +577,7 @@ var JSONSerializer = Serializer.extend({
     return { id: coerceId(relationshipHash), type: relationshipModelName };
   },
 
-  /*
+  /**
     Returns the resource's relationships formatted as a JSON-API "relationships object".
 
     http://jsonapi.org/format/#document-resource-object-relationships
