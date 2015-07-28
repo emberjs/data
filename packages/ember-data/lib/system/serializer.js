@@ -35,7 +35,7 @@ export default Ember.Object.extend({
     @public
   */
 
-  /*
+  /**
     The `normalizeResponse` method is used to normalize a payload from the
     server to a JSON-API Document.
 
