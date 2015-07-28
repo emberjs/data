@@ -96,7 +96,7 @@ var dasherize = Ember.String.dasherize;
 */
 export default JSONSerializer.extend({
 
-  /*
+  /**
     @method _normalizeDocumentHelper
     @param {Object} documentHash
     @return {Object}
@@ -117,7 +117,7 @@ export default JSONSerializer.extend({
     return documentHash;
   },
 
-  /*
+  /**
     @method _normalizeRelationshipDataHelper
     @param {Object} relationshipDataHash
     @return {Object}
@@ -129,7 +129,7 @@ export default JSONSerializer.extend({
     return relationshipDataHash;
   },
 
-  /*
+  /**
     @method _normalizeResourceHelper
     @param {Object} resourceHash
     @return {Object}
@@ -169,7 +169,7 @@ export default JSONSerializer.extend({
     return normalizedPayload;
   },
 
-  /*
+  /**
     @method extractAttributes
     @param {DS.Model} modelClass
     @param {Object} resourceHash
@@ -190,7 +190,7 @@ export default JSONSerializer.extend({
     return attributes;
   },
 
-  /*
+  /**
     @method extractRelationship
     @param {Object} relationshipHash
     @return {Object}
@@ -208,7 +208,7 @@ export default JSONSerializer.extend({
     return relationshipHash;
   },
 
-  /*
+  /**
     @method extractRelationships
     @param {Object} modelClass
     @param {Object} resourceHash
@@ -232,8 +232,8 @@ export default JSONSerializer.extend({
     return relationships;
   },
 
-  /*
-    @method extractType
+  /**
+    @method _extractType
     @param {DS.Model} modelClass
     @param {Object} resourceHash
     @return {String}
@@ -261,7 +261,7 @@ export default JSONSerializer.extend({
     return pluralize(modelName);
   },
 
-  /*
+  /**
     @method normalize
     @param {DS.Model} modelClass
     @param {Object} resourceHash
