@@ -205,7 +205,7 @@ var RESTSerializer = JSONSerializer.extend({
     return hash;
   },
 
-  /*
+  /**
     Normalizes an array of resource payloads and returns a JSON-API Document
     with primary data and, if any, included data as `{ data, included }`.
 
@@ -239,7 +239,7 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  /*
+  /**
     @method _normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
