@@ -63,6 +63,8 @@ var BuildURLMixin = Ember.Mixin.create({
         return this.urlForFindQuery(query, modelName);
       case 'query':
         return this.urlForQuery(query, modelName);
+      case 'queryRecord':
+        return this.urlForQueryRecord(query, modelName);
       case 'findMany':
         return this.urlForFindMany(id, modelName, snapshot);
       case 'findHasMany':
@@ -169,6 +171,16 @@ var BuildURLMixin = Ember.Mixin.create({
       });
       return this.urlForFindQuery(query, modelName);
     }
+    return this._buildURL(modelName);
+  },
+
+  /**
+   * @method urlForQueryRecord
+   * @param {Object} query
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForQueryRecord: function(query, modelName) {
     return this._buildURL(modelName);
   },
 
