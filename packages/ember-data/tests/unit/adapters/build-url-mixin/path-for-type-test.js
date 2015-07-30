@@ -72,6 +72,18 @@ test('buildURL - query requestType delegates to urlForQuery', function() {
   equal(adapter.buildURL('super-user', null, null, 'query', queryStub), '/superUsers');
 });
 
+test('buildURL - queryRecord requestType delegates to urlForQueryRecord', function() {
+  expect(3);
+  var originalMethod = adapter.urlForQueryRecord;
+  var queryStub = { companyId: 10 };
+  adapter.urlForQueryRecord = function(query, type) {
+    equal(query, queryStub);
+    equal(type, 'super-user');
+    return originalMethod.apply(this, arguments);
+  };
+  equal(adapter.buildURL('super-user', null, null, 'queryRecord', queryStub), '/superUsers');
+});
+
 test('buildURL - findMany requestType delegates to urlForFindMany', function() {
   expect(3);
   var originalMethod = adapter.urlForFindMany;
