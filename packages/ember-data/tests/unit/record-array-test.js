@@ -463,24 +463,42 @@ test('filterBy - returns a filtered subset', function() {
   });
 
   run(function() {
-    store.pushMany('person', [{ id: '1', name: "Tom" }, { id: '2', name: "Yehuda" }, { id: '3', name: "Alex" }]);
+    store.push({ data: [{
+      id: '1',
+      type: 'person',
+      attributes: {
+        name: "Tom"
+      }
+    }, {
+      id: '2',
+      type: 'person',
+      attributes: {
+        name: "Yehuda"
+      }
+    }, {
+      id: '2',
+      type: 'person',
+      attributes: {
+        name: "Yehuda"
+      }
+    }] });
   });
 
-  var all = store.all('person');
+  var all = store.peekAll('person');
   var toms = all.filterBy('name', 'Tom');
   equal(toms.get('length'), 1);
   deepEqual(toms.getEach('id'), ['1']);
 
   // a new record is added if filter matches
   run(function() {
-    store.push('person', { id: '4', name: "Tom" });
+    store.push({ data: { type: 'person', id: '4', attributes: { name: "Tom" } } });
   });
   equal(toms.get('length'), 2);
   deepEqual(toms.getEach('id'), ['1', '4']);
 
   // a new record is not added if filter doesn't match
   run(function() {
-    store.push('person', { id: '5', name: "Igor" });
+    store.push({ data: { type: 'person', id: '5', attributes: { name: "Igor" } } });
   });
   equal(toms.get('length'), 2);
   deepEqual(toms.getEach('id'), ['1', '4']);
@@ -507,24 +525,33 @@ test('filterBy - value is optional', function() {
   });
 
   run(function() {
-    store.pushMany('person', [{ id: '1', name: "Tom" }, { id: '2' }]);
+    store.push({ data: [{
+      id: '1',
+      type: 'person',
+      attributes: {
+        name: "Tom"
+      }
+    }, {
+      id: '2',
+      type: 'person'
+    }] });
   });
 
-  var all = store.all('person');
+  var all = store.peekAll('person');
   var allWithNames = all.filterBy('name');
   equal(allWithNames.get('length'), 1);
   deepEqual(allWithNames.getEach('id'), ['1']);
 
   // a new record is added if filter matches
   run(function() {
-    store.push('person', { id: '3', name: "Igor" });
+    store.push({ data: { type: 'person', id: '3', attributes: { name: "Igor" } } });
   });
   equal(allWithNames.get('length'), 2);
   deepEqual(allWithNames.getEach('id'), ['1', '3']);
 
   // a new record is not added if filter doesn't match
   run(function() {
-    store.push('person', { id: '4' });
+    store.push({ data: { type: 'person', id: '4' } });
   });
   equal(allWithNames.get('length'), 2);
   deepEqual(allWithNames.getEach('id'), ['1', '3']);
