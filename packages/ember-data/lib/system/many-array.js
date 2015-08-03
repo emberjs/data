@@ -2,6 +2,7 @@
   @module ember-data
 */
 import { PromiseArray } from "ember-data/system/promise-proxies";
+import FilteredSubset from "ember-data/system/record-arrays/filtered-subset";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -277,5 +278,37 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.pushObject(record);
 
     return record;
+  },
+
+  /**
+    Get a filtered subset of the underlying `ManyArray`.
+    The subset updates when a record would match or mismatch the
+    specified filter parameters.
+
+    Example
+
+    ```javascript
+    var post = store.peekRecord('post', 1)
+    // All the comments that are deleted locally but not yet saved to the server.
+    var deletedComments = post.get('comments').filterBy('isDeleted');
+    ```
+
+    @method filterBy
+    @param {String} key property path
+    @param {*} value optional
+
+  */
+  filterBy: function(key, value) {
+    // only pass value to the arguments if it is present; this mimics the same
+    // behavior for `filterBy`: http://git.io/vIurH
+    var filterByArgs = [key];
+    if (arguments.length === 2) {
+      filterByArgs.push(value);
+    }
+
+    return FilteredSubset.create({
+      filterByArgs,
+      recordArray: this
+    });
   }
 });
