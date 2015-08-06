@@ -4,6 +4,20 @@
 
 - [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
 
+### Release 1.13.8 (August 5, 2015)
+
+- [#3608](https://github.com/emberjs/data/pull/3608) [BUGFIX release] Validate JSON API docs returned by normalizeResponse
+- [#3591](https://github.com/emberjs/data/pull/3591) `DS.Store#findQuery` overrides `DS.Store#query` docs
+- [#3263](https://github.com/emberjs/data/pull/3263) Add `RecordArray#filterBy` which contains a live, filtered subset
+- [#3593](https://github.com/emberjs/data/pull/3593) Update bin/changelog with customizations for Ember Data
+- [#3601](https://github.com/emberjs/data/pull/3601) [DOC release] Fix missing docs due to /* instead of /**
+- [#3610](https://github.com/emberjs/data/pull/3610) [BUGFIX release] Add missing urlForFindQueryRecord to BuildUrlMixin
+- [#3615](https://github.com/emberjs/data/pull/3615) [DOC release] Update misleading example for Adapter.queryRecord()
+- [#3619](https://github.com/emberjs/data/pull/3619) [DOC release] fix urlForFindRecord documentation
+- [#3622](https://github.com/emberjs/data/pull/3622) Fix failing tests from merging PR #3263
+- [#3623](https://github.com/emberjs/data/pull/3623) [BUGFIX release] Update ember-inflector to 1.9.0
+- [#3624](https://github.com/emberjs/data/pull/3624) Implement filterBy on DS.ManyArray
+
 ### Release 1.13.7 (July 27, 2015)
 
 - [#3554](https://github.com/emberjs/data/pull/3554) Add queryRecord method to the RESTAdapter
