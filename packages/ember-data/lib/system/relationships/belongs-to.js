@@ -113,7 +113,7 @@ function belongsTo(modelName, options) {
 
       if (meta.shouldWarnAsync) {
         Ember.deprecate(`In Ember Data 2.0, relationships will be asynchronous by default. You must set \`${key}: DS.belongsTo('${modelName}', { async: false })\` if you wish for a relationship remain synchronous.`);
-        meta.shouldWarnAsycn = false;
+        meta.shouldWarnAsync = false;
       }
 
       return this._internalModel._relationships.get(key).getRecord();
