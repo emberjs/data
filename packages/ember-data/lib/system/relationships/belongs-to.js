@@ -125,7 +125,7 @@ function belongsTo(modelName, options) {
           id: 'ds.model.relationship-changing-to-asynchrounous-by-default',
           until: '2.0.0'
         });
-        meta.shouldWarnAsycn = false;
+        meta.shouldWarnAsync = false;
       }
 
       return this._internalModel._relationships.get(key).getRecord();
