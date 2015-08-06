@@ -2,7 +2,89 @@
 
 ### Master
 
-- [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
+### Release 2.0.0-beta.1 (August 6, 2015)
+
+#### Breaking Changes
+
+##### Usaved deleted records are no longer removed from hasMany relationships and RecordArrays returned by the store
+
+In Ember Data 1.13 once a record was marked as deleted it was removed
+from all of the RecordArrays and hasMany arrays it belongTo. This made
+it difficult to create UIs where a user could flag a record for
+deletion but still allow the user the ability to unflag the record
+until the save request was made.
+
+In Ember Data 2.0 a record will no longer be removed from hasMany
+relationships or RecordArrays until the delete has been acknowledged
+by the adapter. Although deleted records will be visable in hasMany
+relationships they will not be serialized when saving these
+relationships to the backend.
+
+To make the transition easier RecordsArrays and hasMany relationships
+implement (since Ember Data 1.13.8) a `filterBy` method that returns a
+live filtered subset of the original array. This can be used to filter
+out deleted but unsaved records.
+
+```js
+App.PostController = Ember.Controller.extend({
+  allPosts: function() {
+    return this.store.peekAll('post');
+  }.property()
+  allUndeletedPosts: function() {
+    return this.store.peekAll('post').filterBy('isDeleted', false);
+  }.property()
+});
+```
+
+#### Changes
+
+- [#3375](https://github.com/emberjs/data/pull/3375) JSONAPISerializer only supports the new Serializer API
+- [#3251](https://github.com/emberjs/data/pull/3251) Convert unload test to json api format for `store.push`.. #3223
+- [#3345](https://github.com/emberjs/data/pull/3345) [CLEANUP] drop IE8 support
+- [#3487](https://github.com/emberjs/data/pull/3487) Default to using the JSONAPIAdapter
+- [#3389](https://github.com/emberjs/data/pull/3389) Re-enable beta and canary tests
+- [#3383](https://github.com/emberjs/data/pull/3383) update ember-inflector to 1.6.2
+- [#3384](https://github.com/emberjs/data/pull/3384) Assert if the RESTSerializers when using the new format calls another
+- [#3379](https://github.com/emberjs/data/pull/3379) store.push should support arrays in the JSONAPI data property
+- [#3388](https://github.com/emberjs/data/pull/3388) Have looked up ActiveModelSerializer opt into the new Serializer API
+- [#3489](https://github.com/emberjs/data/pull/3489) Remove deprecated code from the Ember Data initializer
+- [#3396](https://github.com/emberjs/data/pull/3396) make sure deprecate error doesnt get swallowed when using store.push(type, data)
+- [#3392](https://github.com/emberjs/data/pull/3392) AMS modelNameFromPayloadKey and serializePolymorphicType cleanup
+- [#3394](https://github.com/emberjs/data/pull/3394) [DOC] Deprecate store.pushMany in documentation
+- [#3408](https://github.com/emberjs/data/pull/3408) Fix Typos in Documentation for DS.Adapter
+- [#3433](https://github.com/emberjs/data/pull/3433) Fix deprecation warnings
+- [#3430](https://github.com/emberjs/data/pull/3430) [CLEANUP beta] Remove old Serializer API
+- [#3432](https://github.com/emberjs/data/pull/3432) [CLEANUP beta] Use Object.keys/Object.create instead of Ember.keys/Ember.create
+- [#3420](https://github.com/emberjs/data/pull/3420) [CLEANUP] Remove ember-new-computed dependency
+- [#3410](https://github.com/emberjs/data/pull/3410) Fix minor typo in deprecation warning
+- [#3488](https://github.com/emberjs/data/pull/3488) Relationships are async by default in 2.0
+- [#3462](https://github.com/emberjs/data/pull/3462) Fix documentation typos in Adapter
+- [#3441](https://github.com/emberjs/data/pull/3441) [CLEANUP beta] Remove ManyArray deprecations
+- [#3440](https://github.com/emberjs/data/pull/3440) [CLEANUP beta] Remove RESTSerializer deprecations
+- [#3439](https://github.com/emberjs/data/pull/3439) [CLEANUP beta] Remove RESTAdapter deprecations
+- [#3438](https://github.com/emberjs/data/pull/3438) [CLEANUP beta] Remove BuildURLMixin deprecations
+- [#3442](https://github.com/emberjs/data/pull/3442) [CLEANUP beta] Remove Model deprecations
+- [#3443](https://github.com/emberjs/data/pull/3443) [CLEANUP beta] Remove Snapshot deprecations
+- [#3436](https://github.com/emberjs/data/pull/3436) Fix Ember Data build with fresh install
+- [#3457](https://github.com/emberjs/data/pull/3457) [CLEANUP beta] Remove ActiveModelAdapter/Serializer
+- [#3458](https://github.com/emberjs/data/pull/3458) [DOC] createRecord relationships close #3421
+- [#3490](https://github.com/emberjs/data/pull/3490) Remove deprecated finder methods on the store.
+- [#3469](https://github.com/emberjs/data/pull/3469) Update shouldReload* flags for 2.0
+- [#3470](https://github.com/emberjs/data/pull/3470) Fix broken link
+- [#3473](https://github.com/emberjs/data/pull/3473) [DOC] Fill @property of DS.Model.modelName
+- [#3481](https://github.com/emberjs/data/pull/3481) update errors.js docs to mirror new json api error specs
+- [#3477](https://github.com/emberjs/data/pull/3477) Add modelClass argument to JSONSerializer.extractId
+- [#3539](https://github.com/emberjs/data/pull/3539) Only remove deleted records form record arrays when saved
+- [#3496](https://github.com/emberjs/data/pull/3496) Update README.md
+- [#3497](https://github.com/emberjs/data/pull/3497) Use `detail` instead of `details` for JSON API error objects
+- [#3532](https://github.com/emberjs/data/pull/3532) [CLEANUP beta] Remove Store deprecations
+- [#3550](https://github.com/emberjs/data/pull/3550) Fix JSONSerializer to pass through `payload.included`
+- [#3534](https://github.com/emberjs/data/pull/3534) Rename error attribute
+- [#3544](https://github.com/emberjs/data/pull/3544) Add error message in _pushInternalMessage when unknown type
+- [#3531](https://github.com/emberjs/data/pull/3531) Adds some documentation for JSONApiSerializer
+- [#3533](https://github.com/emberjs/data/pull/3533) [CLEANUP beta] Remove console.log() call
+- [#3567](https://github.com/emberjs/data/pull/3567) Use Ember.$ instead of jQuery for AJAX requests
+- [#3570](https://github.com/emberjs/data/pull/3570) Update `Ember.deprecate` and `Ember.warn` calls to include required information
 
 ### Release 1.13.8 (August 5, 2015)
 
