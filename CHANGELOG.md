@@ -8,22 +8,12 @@
 
 ##### Usaved deleted records are no longer removed from hasMany relationships and RecordArrays returned by the store
 
-In Ember Data 1.13 once a record was marked as deleted it was removed
-from all of the RecordArrays and hasMany arrays it belongTo. This made
-it difficult to create UIs where a user could flag a record for
-deletion but still allow the user the ability to unflag the record
-until the save request was made.
+In Ember Data 1.13 once a record was marked as deleted it was removed from all of the RecordArrays and hasMany arrays it belongTo. This made it difficult to create UIs where a user could flag a record for deletion but still allow the user the ability to un-flag the record until the save request was made.
 
-In Ember Data 2.0 a record will no longer be removed from hasMany
-relationships or RecordArrays until the delete has been acknowledged
-by the adapter. Although deleted records will be visable in hasMany
-relationships they will not be serialized when saving these
-relationships to the backend.
+In Ember Data 2.0 a record will no longer be removed from hasMany relationships or RecordArrays until the delete has been acknowledged by the adapter. Although deleted records will be visible in hasMany relationships they will not be serialized when saving these relationships to the backend.
 
-To make the transition easier RecordsArrays and hasMany relationships
-implement (since Ember Data 1.13.8) a `filterBy` method that returns a
-live filtered subset of the original array. This can be used to filter
-out deleted but unsaved records.
+To make the transition easier RecordsArrays and hasMany relationships implement (since Ember Data 1.13.8) a `filterBy` method that returns a live filtered subset of the original array. This can be used to filter out deleted but unsaved records.
+
 
 ```js
 App.PostController = Ember.Controller.extend({
