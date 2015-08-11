@@ -1277,8 +1277,6 @@ var JSONSerializer = Serializer.extend({
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
-    TODO: remove this in a couple of days
-
     `extractQueryRecord` is a hook into the extract method used when a
     call is made to `DS.Store#queryRecord`. By default this method is an
     alias for [extractSingle](#method_extractSingle).
