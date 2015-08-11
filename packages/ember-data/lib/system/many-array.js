@@ -281,33 +281,23 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   /**
-    Get a filtered subset of the underlying `ManyArray`.
-    The subset updates when a record would match or mismatch the
-    specified filter parameters.
+    Get a filtered subset of the underlying `ManyArray` with all the
+    deleted records removed. The subset updates when a new record is
+    added or removed from the original ManyArray.
 
     Example
 
     ```javascript
     var post = store.peekRecord('post', 1)
-    // All the comments that are deleted locally but not yet saved to the server.
-    var deletedComments = post.get('comments').filterBy('isDeleted');
+    var undeletedComments = post.get('comments').maintainedRecords();
     ```
 
-    @method filterBy
-    @param {String} key property path
-    @param {*} value optional
-
+    @method maintainedRecords
+    @record {DS.FilteredSubset}
   */
-  filterBy: function(key, value) {
-    // only pass value to the arguments if it is present; this mimics the same
-    // behavior for `filterBy`: http://git.io/vIurH
-    var filterByArgs = [key];
-    if (arguments.length === 2) {
-      filterByArgs.push(value);
-    }
-
+  maintainedRecords: function() {
     return FilteredSubset.create({
-      filterByArgs,
+      filterByArgs: ['isDeleted', false],
       recordArray: this
     });
   }
