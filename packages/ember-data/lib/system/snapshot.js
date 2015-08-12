@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import EmptyObject from "ember-data/system/empty-object";
 var get = Ember.get;
 
 /**

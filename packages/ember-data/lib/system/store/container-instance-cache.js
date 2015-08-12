@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import EmptyObject from "ember-data/system/empty-object";
 
 /**
  * The `ContainerInstanceCache` serves as a lazy cache for looking up

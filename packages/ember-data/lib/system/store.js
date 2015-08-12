@@ -51,6 +51,8 @@ import ContainerInstanceCache from 'ember-data/system/store/container-instance-c
 
 import InternalModel from "ember-data/system/model/internal-model";
 
+import EmptyObject from "ember-data/system/empty-object";
+
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join

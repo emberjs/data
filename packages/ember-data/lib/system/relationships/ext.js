@@ -7,6 +7,7 @@ import {
   Map,
   MapWithDefault
 } from "ember-data/system/map";
+import EmptyObject from "ember-data/system/empty-object";
 
 var get = Ember.get;
 
