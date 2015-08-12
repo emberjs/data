@@ -177,7 +177,6 @@ var Adapter = Ember.Object.extend({
     });
     ```
 
-    @private
     @method query
     @param {DS.Store} store
     @param {DS.Model} type
