@@ -1,5 +1,6 @@
 import ManyRelationship from "ember-data/system/relationships/state/has-many";
 import BelongsToRelationship from "ember-data/system/relationships/state/belongs-to";
+import EmptyObject from "ember-data/system/empty-object";
 
 var get = Ember.get;
 

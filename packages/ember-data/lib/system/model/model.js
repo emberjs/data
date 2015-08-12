@@ -1,5 +1,6 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
+import EmptyObject from "ember-data/system/empty-object";
 
 /**
   @module ember-data

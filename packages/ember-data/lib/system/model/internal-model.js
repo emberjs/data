@@ -2,6 +2,7 @@ import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
+import EmptyObject from "ember-data/system/empty-object";
 
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
