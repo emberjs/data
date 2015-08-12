@@ -20,10 +20,10 @@ import Ember from 'ember';
 */
 export default function ContainerInstanceCache(container) {
   this._container = container;
-  this._cache     = Object.create(null);
+  this._cache     = new EmptyObject();
 }
 
-ContainerInstanceCache.prototype = Object.create(null);
+ContainerInstanceCache.prototype = new EmptyObject();
 
 Ember.merge(ContainerInstanceCache.prototype, {
   get: function(type, preferredKey, fallbacks) {

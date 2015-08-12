@@ -354,7 +354,7 @@ var DirtyState = {
     },
 
     exit: function(internalModel) {
-      internalModel._inFlightAttributes = Object.create(null);
+      internalModel._inFlightAttributes = new EmptyObject();
     }
   }
 };
