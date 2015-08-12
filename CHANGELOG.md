@@ -831,7 +831,7 @@ correctly will need a shim for Object.create.
 * Refactor JSON serializer to use _getMappedKey
 * Don't normalize the key if not present in the hash
 * Add serializeIntoHash to the JSON Serializer
-* prefer Object.create(null) for typeMap backing stores. Cache misses are faster, and won’t collide with prototype pollution
+* prefer new EmptyObject() for typeMap backing stores. Cache misses are faster, and won’t collide with prototype pollution
 * since the recordArrayManager already maintains the uniq index, we can use that to simply push the record onto the record array without needing the safety of addRecords dupe guard. This prevents another O(n) operation
 * the string splitting in transitionTo is wasteful and for large payloads can be surprisingly costly. As they never actually change, we should simply cache and forget about them.
 * Coalesce find requests, add support for preloading data

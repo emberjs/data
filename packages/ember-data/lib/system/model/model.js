@@ -616,7 +616,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var currentData = get(this._internalModel, '_attributes');
     var inFlightData = get(this._internalModel, '_inFlightAttributes');
     var newData = merge(copy(inFlightData), currentData);
-    var diffData = Object.create(null);
+    var diffData = new EmptyObject();
 
     var newDataKeys = Object.keys(newData);
 

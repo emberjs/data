@@ -7,8 +7,8 @@ var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
 
-var _extractPivotNameCache = Object.create(null);
-var _splitOnDotCache = Object.create(null);
+var _extractPivotNameCache = new EmptyObject();
+var _splitOnDotCache = new EmptyObject();
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -48,13 +48,13 @@ export default function InternalModel(type, id, store, container, data) {
   this.id = id;
   this.store = store;
   this.container = container;
-  this._data = data || Object.create(null);
+  this._data = data || new EmptyObject();
   this.modelName = type.modelName;
   this.dataHasInitialized = false;
   //Look into making this lazy
   this._deferredTriggers = [];
-  this._attributes = Object.create(null);
-  this._inFlightAttributes = Object.create(null);
+  this._attributes = new EmptyObject();
+  this._inFlightAttributes = new EmptyObject();
   this._relationships = new Relationships(this);
   this.currentState = RootState.empty;
   this.isReloading = false;
@@ -87,7 +87,7 @@ export default function InternalModel(type, id, store, container, data) {
     would have a implicit post relationship in order to be do things like remove ourselves from the post
     when we are deleted
   */
-  this._implicitRelationships = Object.create(null);
+  this._implicitRelationships = new EmptyObject();
 }
 
 InternalModel.prototype = {
@@ -263,7 +263,7 @@ InternalModel.prototype = {
 
   flushChangedAttributes: function() {
     this._inFlightAttributes = this._attributes;
-    this._attributes = Object.create(null);
+    this._attributes = new EmptyObject();
   },
 
   /**
@@ -326,10 +326,10 @@ InternalModel.prototype = {
   rollbackAttributes: function() {
     var dirtyKeys = Object.keys(this._attributes);
 
-    this._attributes = Object.create(null);
+    this._attributes = new EmptyObject();
 
     if (get(this, 'isError')) {
-      this._inFlightAttributes = Object.create(null);
+      this._inFlightAttributes = new EmptyObject();
       this.didCleanError();
     }
 
@@ -346,7 +346,7 @@ InternalModel.prototype = {
     }
 
     if (this.isValid()) {
-      this._inFlightAttributes = Object.create(null);
+      this._inFlightAttributes = new EmptyObject();
     }
 
     this.send('rolledBack');
@@ -585,7 +585,7 @@ InternalModel.prototype = {
       merge(this._data, data);
     }
 
-    this._inFlightAttributes = Object.create(null);
+    this._inFlightAttributes = new EmptyObject();
 
     this.send('didCommit');
     this.updateRecordArraysLater();
@@ -656,7 +656,7 @@ InternalModel.prototype = {
         this._attributes[keys[i]] = this._inFlightAttributes[keys[i]];
       }
     }
-    this._inFlightAttributes = Object.create(null);
+    this._inFlightAttributes = new EmptyObject();
   },
 
   /**
@@ -708,7 +708,7 @@ InternalModel.prototype = {
       var keys = Object.keys(updates);
       var length = keys.length;
 
-      original = merge(Object.create(null), this._data);
+      original = merge(new EmptyObject(), this._data);
       original = merge(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {

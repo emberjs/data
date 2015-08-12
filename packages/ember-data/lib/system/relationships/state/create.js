@@ -20,7 +20,7 @@ function createRelationshipFor(record, relationshipMeta, store) {
 
 export default function Relationships(record) {
   this.record = record;
-  this.initializedRelationships = Object.create(null);
+  this.initializedRelationships = new EmptyObject();
 }
 
 Relationships.prototype.has = function(key) {

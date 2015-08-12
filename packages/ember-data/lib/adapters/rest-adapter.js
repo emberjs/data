@@ -926,7 +926,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
 });
 
 function parseResponseHeaders(headerStr) {
-  var headers = Object.create(null);
+  var headers = new EmptyObject();
   if (!headerStr) { return headers; }
 
   var headerPairs = headerStr.split('\u000d\u000a');
