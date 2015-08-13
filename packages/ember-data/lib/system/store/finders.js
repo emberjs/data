@@ -12,9 +12,10 @@ import {
 import {
   serializerForAdapter
 } from "ember-data/system/store/serializers";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 var Promise = Ember.RSVP.Promise;
-var map = Ember.ArrayPolyfills.map;
+var map = ArrayPolyfills.map;
 var get = Ember.get;
 
 export function _find(adapter, store, typeClass, id, internalModel, options) {

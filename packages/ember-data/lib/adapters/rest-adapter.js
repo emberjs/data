@@ -12,9 +12,11 @@ import {
 import {
   MapWithDefault
 } from "ember-data/system/map";
+import ArrayPolyfills  from 'ember-data/ext/ember/array';
+
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
+var forEach = ArrayPolyfills.forEach;
 
 import {
   create,

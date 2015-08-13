@@ -11,9 +11,11 @@ import {
   MapWithDefault
 } from "ember-data/system/map";
 import OrderedSet from "ember-data/system/ordered-set";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
+
 var get = Ember.get;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
+var forEach = ArrayPolyfills.forEach;
+var indexOf = ArrayPolyfills.indexOf;
 
 /**
   @class RecordArrayManager

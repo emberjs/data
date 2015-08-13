@@ -2,6 +2,7 @@ import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
   create,
@@ -11,8 +12,9 @@ import {
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
-var map = Ember.ArrayPolyfills.map;
+
+var forEach = ArrayPolyfills.forEach;
+var map = ArrayPolyfills.map;
 
 var _extractPivotNameCache = create(null);
 var _splitOnDotCache = create(null);

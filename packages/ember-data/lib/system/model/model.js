@@ -1,5 +1,6 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
   create,
@@ -14,10 +15,10 @@ var errorDeprecationShown = false;
 */
 
 var get = Ember.get;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
 var merge = Ember.merge;
 var copy = Ember.copy;
+var forEach = ArrayPolyfills.forEach;
+var indexOf = ArrayPolyfills.indexOf;
 
 function intersection (array1, array2) {
   var result = [];

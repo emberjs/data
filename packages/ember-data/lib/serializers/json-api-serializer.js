@@ -5,10 +5,9 @@
 import JSONSerializer from 'ember-data/serializers/json-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector/lib/system/string';
+import { map } from "ember-data/ext/ember/enumerable-utils";
 
 var dasherize = Ember.String.dasherize;
-var get = Ember.get;
-var map = Ember.ArrayPolyfills.map;
 
 /**
   Ember Data 2.0 Serializer:

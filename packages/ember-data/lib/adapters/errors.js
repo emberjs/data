@@ -1,5 +1,6 @@
+import { forEach } from 'ember-data/ext/ember/array';
+
 const EmberError = Ember.Error;
-const forEach = Ember.ArrayPolyfills.forEach;
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 
 import {

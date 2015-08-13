@@ -7,13 +7,14 @@ import {
   Map,
   MapWithDefault
 } from "ember-data/system/map";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
   create
 } from 'ember-data/system/object-polyfills';
 
 var get = Ember.get;
-var filter = Ember.ArrayPolyfills.filter;
+var filter = ArrayPolyfills.filter;
 
 var relationshipsDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
