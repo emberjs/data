@@ -98,39 +98,30 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   /**
-    Get a filtered subset of the underlying `RecordArray`.
-    The subset updates when a record would match or mismatch the
-    specified filter parameters.
+    Get a filtered subset of the underlying `ManyArray` with all the
+    deleted records removed. The subset updates when a new record is
+    added or removed from the original ManyArray.
 
     Example
 
     ```javascript
-    var allToms = store.all('person').filterBy('name', 'Tom');
+    var undeletedPeople = store.all('person').maintainedRecords();
 
-    allToms.get('length'); // 0, since no toms yet in store
+    undeletedPeople.get('length'); // 0, no records in the store
 
     var tom = store.push('person', { id: 1, name: 'Tom' });
-    allToms.get('length'); // Tom is added
+    undeletedPeople.get('length'); // 1, record is added
 
-    tom.set('name', 'Thomas');
-    allToms.get('length'); // 0, since no more records with name === 'Tom'
+    tom.deleteRecord();
+    undeletedPeople.get('length'); // 0, since Tom is now deleted locally
     ```
 
-    @method filterBy
-    @param {String} key property path
-    @param {*} value optional
-
+    @method maintainedRecords
+    @record {DS.FilteredSubset}
   */
-  filterBy: function(key, value) {
-    // only pass value to the arguments if it is present; this mimics the same
-    // behavior for `filterBy`: http://git.io/vIurH
-    var filterByArgs = [key];
-    if (arguments.length === 2) {
-      filterByArgs.push(value);
-    }
-
+  maintainedRecords: function() {
     return FilteredSubset.create({
-      filterByArgs,
+      filterByArgs: ['isDeleted', false],
       recordArray: this
     });
   },

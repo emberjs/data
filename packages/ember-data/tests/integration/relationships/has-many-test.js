@@ -2341,44 +2341,7 @@ test("metadata should be reset between requests", function() {
   });
 });
 
-
-test("filterBy - returns a filtered subset", function () {
-  var chapter, page;
-  run(function() {
-    env.store.push({
-      data: {
-        type: 'chapter',
-        id: '1',
-        relationships: {
-          pages: {
-            data: [
-              { type: 'page', id: '2' },
-              { type: 'page', id: '3' }
-            ]
-          }
-        }
-      },
-      included: [{
-        type: 'page',
-        id: '2'
-      }, {
-        type: 'page',
-        id: '3'
-      }]
-    });
-    chapter = env.store.peekRecord('chapter', 1);
-    page = env.store.peekRecord('page', 2);
-  });
-  run(function() {
-    page.deleteRecord();
-  });
-  run(function() {
-    equal(chapter.get('pages').filterBy('isDeleted').get('length'), 1, "Can filter by deleted records");
-  });
-});
-
-
-test("filterBy - returns a filtered subset", function () {
+test("maintainedRecords - returns a filtered subset", function () {
   var chapter;
   run(function() {
     env.store.push({
@@ -2405,10 +2368,11 @@ test("filterBy - returns a filtered subset", function () {
     chapter = env.store.peekRecord('chapter', 1);
   });
   run(function() {
-    env.store.peekRecord('page', 2).deleteRecord();
-    var deletedChapters = chapter.get('pages').filterBy('isDeleted');
-    equal(deletedChapters.get('length'), 1);
+    var undeletedChapters = chapter.get('pages').maintainedRecords();
+    equal(undeletedChapters.get('length'), 2);
     env.store.peekRecord('page', 3).deleteRecord();
-    equal(deletedChapters.get('length'), 2);
+    equal(undeletedChapters.get('length'), 1);
+    env.store.peekRecord('page', 2).deleteRecord();
+    equal(undeletedChapters.get('length'), 0);
   });
 });
