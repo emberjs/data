@@ -4,6 +4,21 @@
 
 - [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
 
+### Release 1.13.9 (August 13, 2015)
+
+#### Breaking Changes
+
+The live updating `filterBy` on RecordArrays and ManyArrays has been
+reverted because it broke existing applications. See
+[#3263](https://github.com/emberjs/data/pull/3263).
+
+#### Changes
+
+- [#3633](https://github.com/emberjs/data/pull/3633) Fixed typo.
+- [#3639](https://github.com/emberjs/data/pull/3639) Remove todo in API doc
+- [#3648](https://github.com/emberjs/data/pull/3648) Revert filter by
+- [#3623](https://github.com/emberjs/data/pull/3623) [BUGFIX release] Update ember-inflector to 1.9.0 (This commit was included in 1.13.8 but 1.13.8 was built with an old ember-inflector dependency by mistake.)
+
 ### Release 1.13.8 (August 5, 2015)
 
 - [#3608](https://github.com/emberjs/data/pull/3608) [BUGFIX release] Validate JSON API docs returned by normalizeResponse
