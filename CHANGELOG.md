@@ -76,6 +76,21 @@ App.PostController = Ember.Controller.extend({
 - [#3567](https://github.com/emberjs/data/pull/3567) Use Ember.$ instead of jQuery for AJAX requests
 - [#3570](https://github.com/emberjs/data/pull/3570) Update `Ember.deprecate` and `Ember.warn` calls to include required information
 
+### Release 1.13.9 (August 13, 2015)
+
+#### Breaking Changes
+
+The live updating `filterBy` on RecordArrays and ManyArrays has been
+reverted because it broke existing applications. See
+[#3263](https://github.com/emberjs/data/pull/3263).
+
+#### Changes
+
+- [#3633](https://github.com/emberjs/data/pull/3633) Fixed typo.
+- [#3639](https://github.com/emberjs/data/pull/3639) Remove todo in API doc
+- [#3648](https://github.com/emberjs/data/pull/3648) Revert filter by
+- [#3623](https://github.com/emberjs/data/pull/3623) [BUGFIX release] Update ember-inflector to 1.9.0 (This commit was included in 1.13.8 but 1.13.8 was built with an old ember-inflector dependency by mistake.)
+
 ### Release 1.13.8 (August 5, 2015)
 
 - [#3608](https://github.com/emberjs/data/pull/3608) [BUGFIX release] Validate JSON API docs returned by normalizeResponse
