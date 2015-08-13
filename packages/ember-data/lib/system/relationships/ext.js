@@ -7,6 +7,7 @@ import {
   Map,
   MapWithDefault
 } from "ember-data/system/map";
+import EmptyObject from "ember-data/system/empty-object";
 
 var get = Ember.get;
 
@@ -185,7 +186,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return Object.create(null);
+    return new EmptyObject();
   }),
 
   /**

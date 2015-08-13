@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import EmptyObject from "ember-data/system/empty-object";
 var get = Ember.get;
 
 /**
@@ -12,11 +13,11 @@ var get = Ember.get;
   @param {DS.Model} internalModel The model to create a snapshot from
 */
 export default function Snapshot(internalModel) {
-  this._attributes = Object.create(null);
-  this._belongsToRelationships = Object.create(null);
-  this._belongsToIds = Object.create(null);
-  this._hasManyRelationships = Object.create(null);
-  this._hasManyIds = Object.create(null);
+  this._attributes = new EmptyObject();
+  this._belongsToRelationships = new EmptyObject();
+  this._belongsToIds = new EmptyObject();
+  this._hasManyRelationships = new EmptyObject();
+  this._hasManyIds = new EmptyObject();
 
   var record = internalModel.getRecord();
   this.record = record;
@@ -135,7 +136,7 @@ Snapshot.prototype = {
     @return {Object} All changed attributes of the current snapshot
   */
   changedAttributes: function() {
-    let changedAttributes = Object.create(null);
+    let changedAttributes = new EmptyObject();
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {

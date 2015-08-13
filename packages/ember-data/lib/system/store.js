@@ -51,6 +51,8 @@ import ContainerInstanceCache from 'ember-data/system/store/container-instance-c
 
 import InternalModel from "ember-data/system/model/internal-model";
 
+import EmptyObject from "ember-data/system/empty-object";
+
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join
@@ -319,7 +321,7 @@ Store = Service.extend({
   createRecord: function(modelName, inputProperties) {
     Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
-    var properties = copy(inputProperties) || Object.create(null);
+    var properties = copy(inputProperties) || new EmptyObject();
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -1105,7 +1107,7 @@ Store = Service.extend({
         record.destroy(); // maybe within unloadRecord
       }
 
-      typeMap.metadata = Object.create(null);
+      typeMap.metadata = new EmptyObject();
     }
 
     function byType(entry) {
@@ -1421,9 +1423,9 @@ Store = Service.extend({
     if (typeMap) { return typeMap; }
 
     typeMap = {
-      idToRecord: Object.create(null),
+      idToRecord: new EmptyObject(),
       records: [],
-      metadata: Object.create(null),
+      metadata: new EmptyObject(),
       type: typeClass
     };
 

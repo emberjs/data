@@ -12,6 +12,7 @@ import {
 import {
   MapWithDefault
 } from "ember-data/system/map";
+import EmptyObject from "ember-data/system/empty-object";
 var get = Ember.get;
 
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
@@ -926,7 +927,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
 });
 
 function parseResponseHeaders(headerStr) {
-  var headers = Object.create(null);
+  var headers = new EmptyObject();
   if (!headerStr) { return headers; }
 
   var headerPairs = headerStr.split('\u000d\u000a');
