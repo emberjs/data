@@ -1,9 +1,10 @@
 import customAdapter from 'ember-data/tests/helpers/custom-adapter';
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
+var forEach = ArrayPolyfills.forEach;
+var indexOf = ArrayPolyfills.indexOf;
 var run = Ember.run;
 
 var Person, store, env, array, recordArray;

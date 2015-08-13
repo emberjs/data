@@ -50,6 +50,7 @@ import RecordArrayManager from "ember-data/system/record-array-manager";
 import ContainerInstanceCache from 'ember-data/system/store/container-instance-cache';
 
 import InternalModel from "ember-data/system/model/internal-model";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
@@ -106,9 +107,10 @@ var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
-var map = Ember.ArrayPolyfills.map;
+var forEach = ArrayPolyfills.forEach;
+var indexOf = ArrayPolyfills.indexOf;
+var map = ArrayPolyfills.map;
+var filter = ArrayPolyfills.filter;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
@@ -1806,7 +1808,6 @@ Store = Service.extend({
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
 
     var type = this.modelFor(modelName);
-    var filter = Ember.ArrayPolyfills.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.

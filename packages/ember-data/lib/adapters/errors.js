@@ -1,7 +1,9 @@
-const EmberError = Ember.Error;
-const create = Ember.create;
+import { forEach } from 'ember-data/ext/ember/array';
 
-const forEach = Ember.ArrayPolyfills.forEach;
+const EmberError = Ember.Error;
+const create = Object.create || Ember.create;
+
+
 const SOURCE_POINTER_REGEXP = /data\/(attributes|relationships)\/(.*)/;
 
 /**

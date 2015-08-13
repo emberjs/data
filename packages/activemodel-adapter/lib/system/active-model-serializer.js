@@ -1,11 +1,11 @@
 import { singularize } from "ember-inflector";
 import RESTSerializer from "ember-data/serializers/rest-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
+import { forEach } from "ember-data/ext/ember/enumerable-utils";
+
 /**
   @module ember-data
 */
-
-var forEach = Ember.EnumerableUtils.forEach;
 var camelize =   Ember.String.camelize;
 var classify = Ember.String.classify;
 var decamelize = Ember.String.decamelize;

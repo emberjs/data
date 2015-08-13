@@ -2,10 +2,11 @@
   @module ember-data
 */
 import { PromiseArray } from "ember-data/system/promise-proxies";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 var get = Ember.get;
 var set = Ember.set;
-var filter = Ember.ArrayPolyfills.filter;
+var filter = ArrayPolyfills.filter;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -192,7 +193,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       records = this.currentState.slice(idx, idx+amt);
       this.get('relationship').removeRecords(records);
     }
-    var map = objects.map || Ember.ArrayPolyfills.map;
+    var map = objects.map || ArrayPolyfills.map;
     if (objects) {
       this.get('relationship').addRecords(map.call(objects, function(obj) { return obj._internalModel; }), idx);
     }
