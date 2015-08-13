@@ -1,7 +1,7 @@
 /**
   @module ember-data
 */
-
+import EmptyObject from "ember-data/system/empty-object";
 var get = Ember.get;
 /*
   This file encapsulates the various states that a record can transition
@@ -354,7 +354,7 @@ var DirtyState = {
     },
 
     exit: function(internalModel) {
-      internalModel._inFlightAttributes = Object.create(null);
+      internalModel._inFlightAttributes = new EmptyObject();
     }
   }
 };
