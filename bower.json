@@ -2,7 +2,7 @@
   "name": "ember-data",
   "private": true,
   "dependencies": {
-    "ember": "~1.13.1"
+    "ember": "~2.0.0"
   },
   "devDependencies": {
     "qunit": "~1.17.0",
