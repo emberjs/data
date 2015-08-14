@@ -3,7 +3,7 @@
   "version": "VERSION_STRING_PLACEHOLDER",
   "main": "ember-data.js",
   "dependencies": {
-    "ember": ">= 1.8.1 < 2.0.0"
+    "ember": "^2.0.0"
   },
   "ignore": [
     "**/*_configuration.js",
