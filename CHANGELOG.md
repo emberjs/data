@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.0.0-beta.2 (August 14, 2015)
+- [#3651](https://github.com/emberjs/data/pull/3651) [DOC release] Update changelog for 1.13.9
+- [#3653](https://github.com/emberjs/data/pull/3653) [BUGFIX beta] Update the dependencies for Ember 2.0
+- [#3654](https://github.com/emberjs/data/pull/3654) Revert the live filterBy changes in Ember Data beta.1
+
 ### Release 2.0.0-beta.1 (August 6, 2015)
 
 #### Breaking Changes
