@@ -8,21 +8,6 @@ import SnapshotRecordArray from "ember-data/system/snapshot-record-array";
 var get = Ember.get;
 var set = Ember.set;
 
-var FilteredSubset = Ember.ArrayProxy.extend({
-  init: function() {
-    this._super(...arguments);
-
-    var { filterByArgs, recordArray } = this.getProperties('filterByArgs', 'recordArray');
-    var [key] = filterByArgs;
-
-    var path = `recordArray.@each.${key}`;
-    Ember.defineProperty(this, 'content', Ember.computed(path, function() {
-      return this.filterBy.apply(recordArray, filterByArgs);
-    }));
-  }
-});
-
-
 /**
   A record array is an array that contains records of a certain type. The record
   array materializes records as needed when they are retrieved for the first
