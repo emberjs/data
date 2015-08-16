@@ -38,8 +38,12 @@ export default Transform.extend({
   },
 
   serialize: function(date) {
+    var type = typeof date;
+
     if (date instanceof Date) {
       return date.toISOString();
+    } else if (type === "string") {
+      return new Date(Ember.Date.parse(date)).toISOString();
     } else {
       return null;
     }

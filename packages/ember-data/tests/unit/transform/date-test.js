@@ -11,6 +11,7 @@ test("#serialize", function() {
   equal(transform.serialize(undefined), null);
 
   equal(transform.serialize(date), dateString);
+  equal(transform.serialize(dateString), dateString);
 });
 
 test("#deserialize", function() {
