@@ -3,13 +3,9 @@ import initializeTransforms from 'ember-data/initializers/transforms';
 import initializeStoreInjections from 'ember-data/initializers/store-injections';
 import initializeDataAdapter from 'ember-data/initializers/data-adapter';
 
-export default function setupContainer(registry, application) {
-  // application is not a required argument. This ensures
-  // testing setups can setup a container without booting an
-  // entire ember application.
-
-  initializeDataAdapter(registry, application);
-  initializeTransforms(registry, application);
-  initializeStoreInjections(registry, application);
-  initializeStore(registry, application);
+export default function setupContainer(application) {
+  initializeDataAdapter(application);
+  initializeTransforms(application);
+  initializeStoreInjections(application);
+  initializeStore(application);
 }
