@@ -40,6 +40,24 @@ export default RESTAdapter.extend({
   },
 
   /**
+    Endpoint paths can be prefixed with a `namespace` by setting the namespace
+    property on the adapter:
+
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONAPIAdapter.extend({
+      namespace: 'api/1'
+    });
+    ```
+
+    Requests for `App.Post` would now target `/api/1/post/`.
+
+    @property namespace
+    @type {String}
+  */
+
+  /**
     @method findMany
     @param {DS.Store} store
     @param {DS.Model} type
