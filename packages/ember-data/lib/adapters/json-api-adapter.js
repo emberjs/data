@@ -39,6 +39,29 @@ export default RESTAdapter.extend({
     return hash;
   },
 
+
+  /**
+    Some APIs require HTTP headers, e.g. to provide an API
+    key. Arbitrary headers can be set as key/value pairs on the
+    `JSONAPIAdapter`'s `headers` object and Ember Data will send them
+    along with each ajax request.
+
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONAPIAdapter.extend({
+      headers: {
+        "API_KEY": "secret key",
+        "ANOTHER_HEADER": "Some header value"
+      }
+    });
+    ```
+
+    @property headers
+    @type {Object}
+   */
+
+
   /**
     @method findMany
     @param {DS.Store} store
