@@ -40,6 +40,23 @@ export default RESTAdapter.extend({
   },
 
   /**
+    An adapter can target other hosts by setting the `host` property.
+
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONAPIAdapter.extend({
+      host: 'https://api.example.com'
+    });
+    ```
+
+    Requests for `App.Post` would now target `https://api.example.com/post/`.
+
+    @property host
+    @type {String}
+  */
+
+  /**
     @method findMany
     @param {DS.Store} store
     @param {DS.Model} type
