@@ -6,7 +6,7 @@
  @param {Ember.ApplicationInstance} applicationOrRegistry
  */
 export default function initializeStoreService(application) {
-  var container = application.container;
+  var container = application.lookup ? application : application.container;
   // Eagerly generate the store so defaultStore is populated.
   container.lookup('service:store');
 }
