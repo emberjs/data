@@ -103,13 +103,13 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
       willChangeStartIdx = startIdx;
       willChangeRemoveAmt = removeAmt;
       willChangeAddAmt = addAmt;
-      return this._super.apply(arguments);
+      return this._super.apply(this, arguments);
     },
     arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
       equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
       equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
       equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
-      return this._super.apply(arguments);
+      return this._super.apply(this, arguments);
     }
   });
   run(function() {
