@@ -578,6 +578,7 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
+    The hash property should be modified by reference (possibly using something like _.extend)
     By default the REST Serializer sends the modelName of a model, which is a camelized
     version of the name.
 
