@@ -235,7 +235,7 @@ Store = Service.extend({
     ```
 
     @property adapter
-    @default DS.RESTAdapter
+    @default DS.JSONAPIAdapter
     @type {(DS.Adapter|String)}
   */
   adapter: '-json-api',
