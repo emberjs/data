@@ -7,9 +7,10 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 import { pushPayload } from "ember-data/system/store/serializer-response";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
-var forEach = Ember.ArrayPolyfills.forEach;
-var map = Ember.ArrayPolyfills.map;
+var forEach = ArrayPolyfills.forEach;
+var map = ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
 
 /**

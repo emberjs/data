@@ -3,10 +3,11 @@ import coerceId from "ember-data/system/coerce-id";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
 import { errorsArrayToHash } from "ember-data/adapters/errors";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 var get = Ember.get;
 var isNone = Ember.isNone;
-var map = Ember.ArrayPolyfills.map;
+var map = ArrayPolyfills.map;
 var merge = Ember.merge;
 
 /*

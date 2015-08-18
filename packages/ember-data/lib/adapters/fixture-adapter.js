@@ -1,9 +1,11 @@
+import ArrayPolyfills  from 'ember-data/ext/ember/array';
 /**
   @module ember-data
 */
 var get = Ember.get;
 var fmt = Ember.String.fmt;
-var indexOf = Ember.ArrayPolyfills.indexOf;
+
+var indexOf = ArrayPolyfills.indexOf;
 
 var counter = 0;
 

@@ -1,7 +1,8 @@
 import Model from 'ember-data/system/model/model';
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
-var forEach = Ember.ArrayPolyfills.forEach;
-var map = Ember.ArrayPolyfills.map;
+var forEach = ArrayPolyfills.forEach;
+var map = ArrayPolyfills.map;
 var get = Ember.get;
 
 /**

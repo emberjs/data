@@ -1,6 +1,7 @@
 var get = Ember.get;
 var isEmpty = Ember.isEmpty;
-var map = Ember.ArrayPolyfills.map;
+import ArrayPolyfills from 'ember-data/ext/ember/array';
+var map = ArrayPolyfills.map;
 
 import {
   MapWithDefault

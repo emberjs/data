@@ -2,10 +2,11 @@ import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
 import ManyArray from "ember-data/system/many-array";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import { assertPolymorphicType } from "ember-data/utils";
 
-var map = Ember.ArrayPolyfills.map;
+var map = ArrayPolyfills.map;
 
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {

@@ -1,6 +1,8 @@
+import ArrayPolyfills from 'ember-data/ext/ember/array';
+
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
+var forEach = ArrayPolyfills.forEach;
 var camelize = Ember.String.camelize;
 
 /**
