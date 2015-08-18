@@ -1,7 +1,8 @@
 import { singularize } from "ember-inflector";
 import RESTSerializer from "ember-data/serializers/rest-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
-import { forEach } from "ember-data/ext/ember/enumerable-utils";
+import ArrayPolyfills  from 'ember-data/ext/ember/array';
+var forEach = ArrayPolyfills.forEach;
 
 /**
   @module ember-data
