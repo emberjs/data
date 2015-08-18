@@ -110,7 +110,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
     namespace: 'api/1'
   });
   ```
-  Requests for `App.Person` would now target `/api/1/people/1`.
+  Requests for the `Person` model would now target `/api/1/people/1`.
 
   ### Host customization
 
@@ -305,7 +305,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     });
     ```
 
-    Requests for `App.Post` would now target `/api/1/post/`.
+    Requests for the `Post` model would now target `/api/1/post/`.
 
     @property namespace
     @type {String}
@@ -322,7 +322,7 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     });
     ```
 
-    Requests for `App.Post` would now target `https://api.example.com/post/`.
+    Requests for the `Post` model would now target `https://api.example.com/post/`.
 
     @property host
     @type {String}
