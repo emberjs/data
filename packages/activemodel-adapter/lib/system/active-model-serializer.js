@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import RESTSerializer from 'ember-data/serializers/rest-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
-
 /**
   @module ember-data
  */

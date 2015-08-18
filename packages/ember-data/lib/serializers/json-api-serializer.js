@@ -5,7 +5,8 @@
 import JSONSerializer from 'ember-data/serializers/json-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector/lib/system/string';
-import { map } from "ember-data/ext/ember/enumerable-utils";
+import ArrayPolyfills  from 'ember-data/ext/ember/array';
+var map = ArrayPolyfills.map;
 
 var dasherize = Ember.String.dasherize;
 
@@ -462,4 +463,3 @@ export default JSONSerializer.extend({
     }
   }
 });
-
