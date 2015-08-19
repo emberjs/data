@@ -180,7 +180,6 @@ export default JSONSerializer.extend({
     @private
   */
   _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
-
     let normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
   },
