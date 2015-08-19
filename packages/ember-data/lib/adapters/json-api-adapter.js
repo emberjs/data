@@ -14,6 +14,16 @@ export default RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
   /**
+    Regarding to the JSON API (and HTTP) spec, changes should be sent to the
+    server using the `PATCH` method. Since IE11 is still not supporting `PATCH`
+    it is necessary to use `PUT` to make an app work with the IE.
+
+    This property enables the user to change this incorrect behavior if an
+    IE compatibility is not necessary.
+  */
+  patchMethod: 'PUT',
+
+  /**
     @method ajaxOptions
     @private
     @param {String} url
@@ -79,6 +89,6 @@ export default RESTAdapter.extend({
     var id = snapshot.id;
     var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, 'PATCH', { data: data });
+    return this.ajax(url, this.get('patchMethod'), { data: data });
   }
 });
