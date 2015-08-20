@@ -2,12 +2,7 @@
 
 ### Master
 
-### Release 2.0.0-beta.2 (August 14, 2015)
-- [#3651](https://github.com/emberjs/data/pull/3651) [DOC release] Update changelog for 1.13.9
-- [#3653](https://github.com/emberjs/data/pull/3653) [BUGFIX beta] Update the dependencies for Ember 2.0
-- [#3654](https://github.com/emberjs/data/pull/3654) Revert the live filterBy changes in Ember Data beta.1
-
-### Release 2.0.0-beta.1 (August 6, 2015)
+### Release 2.0.0 (August 20, 2015)
 
 #### Breaking Changes
 
@@ -17,22 +12,28 @@ In Ember Data 1.13 once a record was marked as deleted it was removed from all o
 
 In Ember Data 2.0 a record will no longer be removed from hasMany relationships or RecordArrays until the delete has been acknowledged by the adapter. Although deleted records will be visible in hasMany relationships they will not be serialized when saving these relationships to the backend.
 
-To make the transition easier RecordsArrays and hasMany relationships implement (since Ember Data 1.13.8) a `filterBy` method that returns a live filtered subset of the original array. This can be used to filter out deleted but unsaved records.
-
-
-```js
-App.PostController = Ember.Controller.extend({
-  allPosts: function() {
-    return this.store.peekAll('post');
-  }.property()
-  allUndeletedPosts: function() {
-    return this.store.peekAll('post').filterBy('isDeleted', false);
-  }.property()
-});
-```
-
 #### Changes
 
+- [#3665](https://github.com/emberjs/data/pull/3665) [BUGFIX beta] Fix usage of registry for 2.1.0+.
+- [#3577](https://github.com/emberjs/data/pull/3577) Use the correct modelClass and serializer to extract a polymorphic ty…
+- [#3669](https://github.com/emberjs/data/pull/3669) [DOC beta] Changed references to App.Person & App.Post in RESTAdapter API docs
+- [#3636](https://github.com/emberjs/data/pull/3636) Add ember-cli-dependency-checker.
+- [#3670](https://github.com/emberjs/data/pull/3670) [DOC beta] Change to decorator-style CPs in RESTAdapter API doc samples
+- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
+- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
+- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
+- [#3651](https://github.com/emberjs/data/pull/3651) [DOC release] Update changelog for 1.13.9
+- [#3653](https://github.com/emberjs/data/pull/3653) [BUGFIX beta] Update the dependencies for Ember 2.0
+- [#3654](https://github.com/emberjs/data/pull/3654) Revert the live filterBy changes in Ember Data beta.1
+- [#3656](https://github.com/emberjs/data/pull/3656) Update the changelog for 2.0.0-beta.2
+- [#3661](https://github.com/emberjs/data/pull/3661) [DOC beta] Changed @default adapter from RESTAdapter to JSONAPIAdapter
+- [#3666](https://github.com/emberjs/data/pull/3666) [BUGFIX beta] Initializer/Instance Initializer Deprecations.
+- [#3672](https://github.com/emberjs/data/pull/3672) [DOC beta] Changed remaining CPs to decorator-style in RESTAdapter apidocs sample
+- [#3680](https://github.com/emberjs/data/pull/3680) [BUGFIX beta] Prefer the new injection methods.
+- [#3681](https://github.com/emberjs/data/pull/3681) [BUGFIX beta] Update required methods for the Serializer class
+- [#3651](https://github.com/emberjs/data/pull/3651) [DOC release] Update changelog for 1.13.9
+- [#3653](https://github.com/emberjs/data/pull/3653) [BUGFIX beta] Update the dependencies for Ember 2.0
+- [#3654](https://github.com/emberjs/data/pull/3654) Revert the live filterBy changes in Ember Data beta.1
 - [#3375](https://github.com/emberjs/data/pull/3375) JSONAPISerializer only supports the new Serializer API
 - [#3251](https://github.com/emberjs/data/pull/3251) Convert unload test to json api format for `store.push`.. #3223
 - [#3345](https://github.com/emberjs/data/pull/3345) [CLEANUP] drop IE8 support
