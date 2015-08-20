@@ -50,6 +50,7 @@ import RecordArrayManager from "ember-data/system/record-array-manager";
 import ContainerInstanceCache from 'ember-data/system/store/container-instance-cache';
 
 import InternalModel from "ember-data/system/model/internal-model";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
   create,
@@ -112,9 +113,10 @@ var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
-var map = Ember.ArrayPolyfills.map;
+var forEach = ArrayPolyfills.forEach;
+var indexOf = ArrayPolyfills.indexOf;
+var map = ArrayPolyfills.map;
+var filter = ArrayPolyfills.filter;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
@@ -1922,7 +1924,6 @@ Store = Service.extend({
     Ember.assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
     var type = this.modelFor(modelName);
-    var filter = Ember.ArrayPolyfills.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.

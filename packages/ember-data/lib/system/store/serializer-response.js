@@ -1,11 +1,12 @@
 import Model from 'ember-data/system/model/model';
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
   keysFunc
 } from 'ember-data/system/object-polyfills';
 
-var forEach = Ember.ArrayPolyfills.forEach;
-var map = Ember.ArrayPolyfills.map;
+var forEach = ArrayPolyfills.forEach;
+var map = ArrayPolyfills.map;
 var get = Ember.get;
 
 /**

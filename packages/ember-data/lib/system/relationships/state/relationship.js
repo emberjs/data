@@ -1,6 +1,7 @@
 import OrderedSet from "ember-data/system/ordered-set";
+import ArrayPolyfills from 'ember-data/ext/ember/array';
 
-var forEach = Ember.ArrayPolyfills.forEach;
+var forEach = ArrayPolyfills.forEach;
 
 function Relationship(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();

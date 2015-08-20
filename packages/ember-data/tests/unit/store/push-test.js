@@ -3,7 +3,7 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 var run = Ember.run;
-var forEach = Ember.ArrayPolyfills.forEach;
+var forEach = (Ember.ArrayPolyfills || Array.prototype).forEach;
 
 module("unit/store/push - DS.Store#push", {
   setup: function() {
