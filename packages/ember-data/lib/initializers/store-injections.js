@@ -6,7 +6,10 @@
   @param {Ember.Registry} registry
 */
 export default function initializeStoreInjections(registry) {
-  registry.injection('controller', 'store', 'service:store');
-  registry.injection('route', 'store', 'service:store');
-  registry.injection('data-adapter', 'store', 'service:store');
+  // registry.injection for Ember < 2.1.0
+  // application.inject for Ember 2.1.0+
+  var inject = registry.injection || registry.inject;
+  inject.call(registry, 'controller', 'store', 'service:store');
+  inject.call(registry, 'route', 'store', 'service:store');
+  inject.call(registry, 'data-adapter', 'store', 'service:store');
 }
