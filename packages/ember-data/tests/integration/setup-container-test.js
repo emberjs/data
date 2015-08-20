@@ -1,11 +1,9 @@
 var run = Ember.run;
-var Container = Ember.Container;
-var Registry = Ember.Registry;
 var Store = DS.Store;
 var EmberObject = Ember.Object;
 var setupContainer = DS._setupContainer;
 
-var container, registry;
+var container, registry, application;
 
 /*
   These tests ensure that Ember Data works with Ember.js' container
@@ -14,18 +12,28 @@ var container, registry;
 
 module("integration/setup-container - Setting up a container", {
   setup: function() {
-    if (Registry) {
-      registry = new Registry();
-      container = registry.container();
+    run(function() {
+      application = Ember.Application.create();
+    });
+
+    container = application.__container__;
+    registry = application.__registry__;
+
+    var setupContainerArgument;
+    if (registry) {
+      setupContainerArgument = application;
     } else {
-      container = new Container();
-      registry = container;
+      // In Ember < 2.1.0 application.__registry__ is undefined so we
+      // pass in the registry to mimic the setup behavior.
+      registry = setupContainerArgument = application.registry;
     }
-    setupContainer(registry);
+    setupContainer(setupContainerArgument);
   },
 
   teardown: function() {
-    run(container, container.destroy);
+    run(function() {
+      application.destroy();
+    });
   }
 });
 
