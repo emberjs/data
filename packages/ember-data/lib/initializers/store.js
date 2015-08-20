@@ -20,8 +20,11 @@ function has(applicationOrRegistry, fullName) {
   @param {Ember.Registry} registry
 */
 export default function initializeStore(registry) {
-  registry.optionsForType('serializer', { singleton: false });
-  registry.optionsForType('adapter', { singleton: false });
+  // registry.optionsForType for Ember < 2.1.0
+  // application.registerOptionsForType for Ember 2.1.0+
+  var registerOptionsForType = registry.optionsForType || registry.registerOptionsForType;
+  registerOptionsForType.call(registry, 'serializer', { singleton: false });
+  registerOptionsForType.call(registry, 'adapter', { singleton: false });
 
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
@@ -31,7 +34,7 @@ export default function initializeStore(registry) {
   registry.register('serializer:-json-api', JSONAPISerializer);
 
 
-  if (has(registry, 'service:store')) {
+  if (!has(registry, 'service:store')) {
     registry.register('service:store', Store);
   }
 }
