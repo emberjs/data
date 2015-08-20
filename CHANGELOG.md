@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.1.0-beta.1 (August 20, 2015)
+
+None
+
 ### Release 2.0.0 (August 20, 2015)
 
 #### Breaking Changes
