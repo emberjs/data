@@ -22,7 +22,7 @@ function has(applicationOrRegistry, fullName) {
 export default function initializeStore(registry) {
   // registry.optionsForType for Ember < 2.1.0
   // application.registerOptionsForType for Ember 2.1.0+
-  var registerOptionsForType = registry.optionsForType || registry.registerOptionsForType;
+  var registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
   registerOptionsForType.call(registry, 'serializer', { singleton: false });
   registerOptionsForType.call(registry, 'adapter', { singleton: false });
 
