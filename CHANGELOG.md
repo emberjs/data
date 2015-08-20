@@ -4,6 +4,11 @@
 
 - [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
 
+### Release 1.13.10 (August 20, 2015)
+
+- [#3577](https://github.com/emberjs/data/pull/3577) Use the correct modelClass and serializer to extract a polymorphic
+- [#3667](https://github.com/emberjs/data/pull/3667) Don’t crash \w Ember 2.0
+
 ### Release 1.13.9 (August 13, 2015)
 
 #### Breaking Changes
