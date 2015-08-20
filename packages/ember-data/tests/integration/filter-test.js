@@ -1,6 +1,6 @@
 import customAdapter from 'ember-data/tests/helpers/custom-adapter';
-import ArrayPolyfills from 'ember-data/ext/ember/array';
 
+var ArrayPolyfills = Ember.ArrayPolyfills || Array.prototpe;
 var get = Ember.get;
 var set = Ember.set;
 var forEach = ArrayPolyfills.forEach;
