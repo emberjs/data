@@ -7,7 +7,7 @@
   application to customize it for your backend. The minimum set of methods
   that you should implement is:
 
-    * `extract()`
+    * `normalizeResponse()`
     * `serialize()`
 
   And you can optionally override the following methods:
