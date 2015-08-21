@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.1.0-beta.1 (August 20, 2015)
+- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
+- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
+- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
+
 ### Release 2.0.0 (August 20, 2015)
 
 #### Breaking Changes
@@ -19,9 +24,6 @@ In Ember Data 2.0 a record will no longer be removed from hasMany relationships 
 - [#3669](https://github.com/emberjs/data/pull/3669) [DOC beta] Changed references to App.Person & App.Post in RESTAdapter API docs
 - [#3636](https://github.com/emberjs/data/pull/3636) Add ember-cli-dependency-checker.
 - [#3670](https://github.com/emberjs/data/pull/3670) [DOC beta] Change to decorator-style CPs in RESTAdapter API doc samples
-- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
-- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
-- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
 - [#3651](https://github.com/emberjs/data/pull/3651) [DOC release] Update changelog for 1.13.9
 - [#3653](https://github.com/emberjs/data/pull/3653) [BUGFIX beta] Update the dependencies for Ember 2.0
 - [#3654](https://github.com/emberjs/data/pull/3654) Revert the live filterBy changes in Ember Data beta.1
