@@ -459,7 +459,11 @@ test('normalizeResponse with async polymorphic hasMany', function() {
   });
 });
 
+
 test("normalizeResponse can load secondary records of the same type without affecting the query count", function() {
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
+    isNewSerializerAPI: true
+  }));
   var jsonHash = {
     comments: [{ id: "1", body: "Parent Comment", root: true, children: [2, 3] }],
     _comments: [
@@ -471,5 +475,41 @@ test("normalizeResponse can load secondary records of the same type without affe
 
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
+  });
+
+  deepEqual(array, {
+    "data": {
+      "id": "1",
+      "type": "comment",
+      "attributes": {
+        "body": "Parent Comment",
+        "root": true
+      },
+      "relationships": {
+        "children": {
+          "data": [
+            { "id": "2", "type": "comment" },
+            { "id": "3", "type": "comment" }
+          ]
+        }
+      }
+    },
+    "included": [{
+      "id": "2",
+      "type": "comment",
+      "attributes": {
+        "body": "Child Comment 1",
+        "root": false
+      },
+      "relationships": {}
+    }, {
+      "id": "3",
+      "type": "comment",
+      "attributes": {
+        "body": "Child Comment 2",
+        "root": false
+      },
+      "relationships": {}
+    }]
   });
 });

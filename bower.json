@@ -7,7 +7,7 @@
   "devDependencies": {
     "qunit": "~1.17.0",
     "jquery": "~1.10.x",
-    "loader.js": "~3.3.0",
+    "loader.js": "~1.0.0",
     "es5-shim": "~4.0.3"
   }
 }
