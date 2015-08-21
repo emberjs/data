@@ -2,7 +2,10 @@
 
 ### Master
 
-- [#3550](https://github.com/emberjs/data/pull/3550) JSONSerializer now works with EmbeddedRecordsMixin by respecting the `included` property in normalizeResponse [@tstirrat](https://github.com/tstirrat)
+### Release 1.13.11 (August 21, 2015)
+
+- [#3685](https://github.com/emberjs/data/pull/3685) Fixing typo that causes Ember-Data v1.13.10 to crash with Ember v2.0.
+- [#3686](https://github.com/emberjs/data/pull/3686) Fix broken rest-serializer test.
 
 ### Release 1.13.10 (August 20, 2015)
 
