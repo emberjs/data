@@ -1,2 +1,2 @@
 import Ember from 'ember';
-export default (Array.prorotype || Ember.ArrayPolyfills);
+export default (Array.prototype || Ember.ArrayPolyfills);
