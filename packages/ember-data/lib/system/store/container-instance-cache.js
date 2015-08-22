@@ -1,9 +1,10 @@
 import Ember from 'ember';
 
 import {
-  create,
   keysFunc
 } from 'ember-data/system/object-polyfills';
+
+import EmptyObject from "ember-data/system/empty-object";
 
 /**
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
@@ -25,10 +26,10 @@ import {
 */
 function ContainerInstanceCache(container) {
   this._container  = container;
-  this._cache      = create(null);
+  this._cache      = new EmptyObject();
 }
 
-ContainerInstanceCache.prototype = create(null);
+ContainerInstanceCache.prototype = new EmptyObject();
 
 Ember.merge(ContainerInstanceCache.prototype, {
   get: function(type, preferredKey, fallbacks) {

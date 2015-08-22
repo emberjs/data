@@ -149,8 +149,8 @@ test("destroying the store correctly cleans everything up", function() {
     filterdPeople = store.filter('person', function() { return true; });
   });
 
-  var filterdPeopleWillDestroy =  tap(filterdPeople.content, 'willDestroy');
-  var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
+  var filterdPeopleWillDestroy = tap(filterdPeople.get('content'), 'willDestroy');
+  var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.get('content'), 'willDestroy');
 
   run(function() {
     store.findRecord('person', 2);

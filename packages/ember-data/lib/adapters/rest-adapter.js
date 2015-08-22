@@ -12,6 +12,7 @@ import {
 import {
   MapWithDefault
 } from "ember-data/system/map";
+import EmptyObject from "ember-data/system/empty-object";
 import ArrayPolyfills  from 'ember-data/ext/ember/array';
 
 var get = Ember.get;
@@ -19,7 +20,6 @@ var set = Ember.set;
 var forEach = ArrayPolyfills.forEach;
 
 import {
-  create,
   keysFunc
 } from 'ember-data/system/object-polyfills';
 
@@ -1042,7 +1042,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 });
 
 function parseResponseHeaders(headerStr) {
-  var headers = create(null);
+  var headers = new EmptyObject();
   if (!headerStr) { return headers; }
 
   var headerPairs = headerStr.split('\u000d\u000a');
