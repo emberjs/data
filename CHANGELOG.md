@@ -11,7 +11,7 @@
 
 #### Breaking Changes
 
-##### Usaved deleted records are no longer removed from hasMany relationships and RecordArrays returned by the store
+##### Unsaved deleted records are no longer removed from hasMany relationships and RecordArrays returned by the store
 
 In Ember Data 1.13 once a record was marked as deleted it was removed from all of the RecordArrays and hasMany arrays it belongTo. This made it difficult to create UIs where a user could flag a record for deletion but still allow the user the ability to un-flag the record until the save request was made.
 
