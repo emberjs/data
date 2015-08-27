@@ -140,7 +140,7 @@ if (!Service) {
 
   Define your application's store like this:
 
-  ```app/stores/application.js
+  ```app/services/store.js
   import DS from 'ember-data';
 
   export default DS.Store.extend({
