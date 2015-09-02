@@ -2,6 +2,8 @@ import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
+import EmptyObject from "ember-data/system/empty-object";
+
 import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
@@ -16,8 +18,8 @@ var set = Ember.set;
 var forEach = ArrayPolyfills.forEach;
 var map = ArrayPolyfills.map;
 
-var _extractPivotNameCache = create(null);
-var _splitOnDotCache = create(null);
+var _extractPivotNameCache = new EmptyObject();
+var _splitOnDotCache = new EmptyObject();
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (

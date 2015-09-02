@@ -1,9 +1,9 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
+import EmptyObject from "ember-data/system/empty-object";
 import ArrayPolyfills from 'ember-data/ext/ember/array';
 
 import {
-  create,
   keysFunc
 } from 'ember-data/system/object-polyfills';
 
@@ -674,7 +674,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var currentData = get(this._internalModel, '_attributes');
     var inFlightData = get(this._internalModel, '_inFlightAttributes');
     var newData = merge(copy(inFlightData), currentData);
-    var diffData = create(null);
+    var diffData = new EmptyObject();
 
     var newDataKeys = keysFunc(newData);
 

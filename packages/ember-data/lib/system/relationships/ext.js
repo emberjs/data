@@ -7,11 +7,8 @@ import {
   Map,
   MapWithDefault
 } from "ember-data/system/map";
+import EmptyObject from "ember-data/system/empty-object";
 import ArrayPolyfills from 'ember-data/ext/ember/array';
-
-import {
-  create
-} from 'ember-data/system/object-polyfills';
 
 var get = Ember.get;
 var filter = ArrayPolyfills.filter;
@@ -191,7 +188,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return create(null);
+    return new EmptyObject();
   }),
 
   /**

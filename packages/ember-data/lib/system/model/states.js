@@ -1,3 +1,5 @@
+import EmptyObject from "ember-data/system/empty-object";
+
 import {
   create,
   keysFunc
@@ -360,7 +362,7 @@ var DirtyState = {
     },
 
     exit: function(internalModel) {
-      internalModel._inFlightAttributes = create(null);
+      internalModel._inFlightAttributes = new EmptyObject();
     }
   }
 };
