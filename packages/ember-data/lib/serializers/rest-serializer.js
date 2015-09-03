@@ -228,9 +228,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     Ember.assert(`${this.toString()} has opted into the new serializer API and expects the ${serializer.toString()} it collaborates with to also support the new serializer API by setting its \`isNewSerializerAPI\` property to true.`, get(serializer, 'isNewSerializerAPI'));
 
+    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type');
     /*jshint loopfunc:true*/
     forEach.call(arrayHash, (hash) => {
-      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer, primaryHasTypeAttribute);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
@@ -240,10 +241,10 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
+  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer, primaryHasTypeAttribute) {
     let serializer, modelClass;
     // Support polymorphic records in async relationships
-    if (hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
+    if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
       serializer = store.serializerFor(hash.type);
       modelClass = store.modelFor(hash.type);
     } else {
