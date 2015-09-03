@@ -59,6 +59,7 @@ export default function InternalModel(type, id, store, container, data) {
   this._attributes = new EmptyObject();
   this._inFlightAttributes = new EmptyObject();
   this._relationships = new Relationships(this);
+  this._recordArrays = undefined;
   this.currentState = RootState.empty;
   this.isReloading = false;
   this.isError = false;

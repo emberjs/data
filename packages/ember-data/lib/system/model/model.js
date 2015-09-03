@@ -43,10 +43,7 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
   @uses Ember.Evented
 */
 var Model = Ember.Object.extend(Ember.Evented, {
-  _recordArrays: undefined,
-  _relationships: undefined,
   _internalModel: null,
-
   store: null,
 
   /**
