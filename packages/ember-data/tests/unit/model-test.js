@@ -1116,3 +1116,25 @@ test('accessing attributes in the initializer should not throw an error', functi
 
   run(() => store.createRecord('person'));
 });
+
+test('setting the id after model creation should correctly update the id', function () {
+  expect(2);
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var env = setupStore({
+    person: Person
+  });
+  var store = env.store;
+
+  run(function () {
+    var person = store.createRecord('person');
+
+    equal(person.get('id'), null, 'initial created model id should be null');
+
+    person.set('id', 'john');
+
+    equal(person.get('id'), 'john', 'new id should be correctly set.');
+  });
+});

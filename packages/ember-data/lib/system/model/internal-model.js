@@ -112,7 +112,6 @@ InternalModel.prototype = {
     // lookupFactory should really return an object that creates
     // instances with the injections applied
     this.record = this.type._create({
-      id: this.id,
       store: this.store,
       container: this.container,
       _internalModel: this,
@@ -542,9 +541,9 @@ InternalModel.prototype = {
   },
 
   setId: function(id) {
+    var oldId = this.id;
+    Ember.assert('A record\'s id cannot be changed once it is in the loaded state', oldId === null || oldId === id || this.isNew());
     this.id = id;
-    //TODO figure out whether maybe we should proxy
-    set(this.record, 'id', id);
   },
 
   didError: function(error) {

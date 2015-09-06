@@ -292,7 +292,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @property id
     @type {String}
   */
-  id: null,
 
   /**
     @property currentState
@@ -769,6 +768,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   willMergeMixin: function(props) {
     var constructor = this.constructor;
     Ember.assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
+    Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
   },
 
   attr: function() {
@@ -838,6 +838,21 @@ Model.reopenClass({
    @readonly
   */
   modelName: null
+});
+
+Object.defineProperty(Model.prototype, 'id', {
+  configurable: true,
+  enumerable: false,
+  set(id) {
+    if (this._internalModel) {
+      this._internalModel.setId(id);
+    }
+  },
+  get() {
+    if (this._internalModel) {
+      return this._internalModel.id;
+    }
+  }
 });
 
 export default Model;
