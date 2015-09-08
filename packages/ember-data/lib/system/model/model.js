@@ -849,9 +849,7 @@ Object.defineProperty(Model.prototype, 'id', {
     }
   },
   get() {
-    if (this._internalModel) {
-      return this._internalModel.id;
-    }
+    return this._internalModel.id;
   }
 });
 
