@@ -2,6 +2,15 @@
 
 ### Master
 
+### Release 2.1.0-beta.2 (September 08, 2015)
+
+- [#3701](https://github.com/emberjs/data/pull/3701) [BUGFIX release] fix regression where dynamically set id is not serialized in a create…
+- [#3714](https://github.com/emberjs/data/pull/3714) Update the location of the custom store in the API doc example
+- [#3717](https://github.com/emberjs/data/pull/3717) Remove Fixture Adapter
+- [#3722](https://github.com/emberjs/data/pull/3722) Shape and cleanup
+- [#3732](https://github.com/emberjs/data/pull/3732) follow up fixes for #3701
+
+
 ### Release 2.1.0-beta.1 (August 20, 2015)
 
 None
