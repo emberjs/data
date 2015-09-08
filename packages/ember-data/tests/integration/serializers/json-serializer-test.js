@@ -29,6 +29,36 @@ module("integration/serializer/json - JSONSerializer", {
   }
 });
 
+test("serialize doesn't include ID when includeId is false", function() {
+  run(function() {
+    post = env.store.createRecord('post', { title: 'Rails is omakase' });
+  });
+  var json = {};
+
+  json = env.serializer.serialize(post._createSnapshot(), { includeId: false });
+
+  deepEqual(json, {
+    title: "Rails is omakase",
+    comments: []
+  });
+});
+
+test("serialize includes id when includeId is true", function() {
+  run(function() {
+    post = env.store.createRecord('post', { title: 'Rails is omakase' });
+    post.set('id', 'test');
+  });
+  var json = {};
+
+  json = env.serializer.serialize(post._createSnapshot(), { includeId: true });
+
+  deepEqual(json, {
+    id: 'test',
+    title: 'Rails is omakase',
+    comments: []
+  });
+});
+
 test("serializeAttribute", function() {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
