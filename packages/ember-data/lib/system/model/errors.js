@@ -276,13 +276,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     if (get(this, 'isEmpty')) { return; }
 
     let content = this.rejectBy('attribute', attribute);
-    let length = get(content, 'length');
     set(this, 'content', content);
-    // Explicitly set length after setting a new content property as
-    // a work around for https://github.com/emberjs/ember.js/pull/12218
-    if (this.get('length') !== length) {
-      this.set('length', length);
-    }
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
