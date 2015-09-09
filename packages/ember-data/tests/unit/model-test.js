@@ -1138,3 +1138,28 @@ test('setting the id after model creation should correctly update the id', funct
     equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
 });
+
+
+test('updating the id with store.updateId should correctly when the id property is watched', function () {
+  expect(2);
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    idComputed: Ember.computed('id', function() {})
+  });
+
+  var env = setupStore({
+    person: Person
+  });
+  var store = env.store;
+
+  run(function () {
+    var person = store.createRecord('person');
+    person.get('idComputed');
+
+    equal(person.get('id'), null, 'initial created model id should be null');
+
+    store.updateId(person._internalModel, { id: 'john' });
+
+    equal(person.get('id'), 'john', 'new id should be correctly set.');
+  });
+});
