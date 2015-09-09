@@ -151,10 +151,10 @@ if (!Service) {
   automatically created by their `Ember.Application`.
 
   You can retrieve models from the store in several ways. To retrieve a record
-  for a specific id, use `DS.Store`'s `find()` method:
+  for a specific id, use `DS.Store`'s `findRecord()` method:
 
   ```javascript
-  store.find('person', 123).then(function (person) {
+  store.findRecord('person', 123).then(function (person) {
   });
   ```
 
