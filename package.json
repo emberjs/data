@@ -56,7 +56,7 @@
     "ejs": "^1.0.0",
     "ember-cli": "^0.1.15",
     "ember-cli-dependency-checker": "^1.0.1",
-    "ember-inflector": "^1.9.0",
+    "ember-inflector": "^1.9.2",
     "ember-publisher": "0.0.7",
     "es6-module-transpiler": "^0.9.5",
     "es6-module-transpiler-amd-formatter": "^0.2.4",
