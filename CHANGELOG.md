@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 1.13.12 (September 10, 2015)
+- [#3689](https://github.com/emberjs/data/pull/3689) Backport empty-object performance improvements from 2.1.0-beta1
+- [#3690](https://github.com/emberjs/data/pull/3690) [BUGFIX release-1-13] Ensure that `service:store` is cleared before regsitering.
+- [#3725](https://github.com/emberjs/data/pull/3725) [BUGFIX release-1-13] Disable polymorphic deserialization when a mode…
+- [#3753](https://github.com/emberjs/data/pull/3753) Bumped the ember-inflector version to 1.9.2.
+- [#3754](https://github.com/emberjs/data/pull/3754) Do not run tests with Ember 2.0 in the Ember Data 1.13 appveyor builds
+
+
 ### Release 1.13.11 (August 21, 2015)
 
 - [#3685](https://github.com/emberjs/data/pull/3685) Fixing typo that causes Ember-Data v1.13.10 to crash with Ember v2.0.

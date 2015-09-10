@@ -20,13 +20,13 @@ var execSync  = require('child_process').execSync;
 var github         = new GitHubApi({version: '3.0.0'});
 var compareCommits = RSVP.denodeify(github.repos.compareCommits);
 var currentVersion = process.env.PRIOR_VERSION;
-var head = process.env.HEAD || 'master';
+var head = process.env.HEAD || 'release-1-13';
 
 compareCommits({
   user: 'emberjs',
   repo: 'data',
   base: currentVersion,
-  head: 'v1.13'
+  head: head
 })
 .then(processPages)
 .then(console.log)
