@@ -64,8 +64,10 @@ export default function initializeStore(registry, application) {
   }
 
   if (store) {
+    registry.unregister('service:store');
     registry.register('service:store', store, { instantiate: false });
   } else if (!registry.has('service:store')) {
+    registry.unregister('service:store');
     registry.register('service:store', application && application.Store || Store);
   }
 }
