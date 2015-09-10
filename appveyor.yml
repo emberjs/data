@@ -32,8 +32,6 @@ test_script:
   - npm version
   - npm run build
   - cmd: npm run test
-  - cmd: npm run test:beta
-  - cmd: npm run test:canary
 
 # Don't actually build.
 build: off
