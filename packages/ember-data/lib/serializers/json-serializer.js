@@ -599,7 +599,7 @@ var JSONSerializer = Serializer.extend({
         if (relationshipMeta.kind === 'belongsTo') {
           data = this.extractRelationship(relationshipMeta.type, relationshipHash);
         } else if (relationshipMeta.kind === 'hasMany') {
-          data = relationshipHash.map((item) => this.extractRelationship(relationshipMeta.type, item));
+          data = Ember.isNone(relationshipHash) ? null : relationshipHash.map((item) => this.extractRelationship(relationshipMeta.type, item));
         }
         relationship = { data };
       }
