@@ -211,37 +211,35 @@ function ajaxResponse(value) {
 
 
 
-module("integration/store - findRecord { reload: true }", {
-  setup: function() {
-    initializeStore(DS.RESTAdapter.extend());
-  }
+module("integration/store - findRecord", {
 });
 
-test("Using store#findRecord on non existing record fetches it from the server", function() {
+test("store#findRecord fetches record from server when cached record is not present", function() {
   expect(2);
+
+  initializeStore(DS.RESTAdapter.extend());
 
   env.registry.register('serializer:application', DS.RESTSerializer);
   ajaxResponse({
     cars: [{
       id: 20,
-      make: 'BMCW',
+      make: 'BMC',
       model: 'Mini'
     }]
   });
 
-  var car = store.hasRecordForId('car', 20);
-  ok(!car, 'Car with id=20 should not exist');
+  let cachedRecordIsPresent = store.hasRecordForId('car', 20);
+  ok(!cachedRecordIsPresent, 'Car with id=20 should not exist');
 
   run(function() {
-    store.findRecord('car', 20, { reload: true }).then(function (car) {
-      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    store.findRecord('car', 20).then(function(car) {
+      equal(car.get('make'), 'BMC', 'Car with id=20 is now loaded');
     });
   });
 });
 
-test("Using store#findRecord on existing record reloads it", function() {
+test("store#findRecord returns cached record immediately and reloads record in the background", function() {
   expect(2);
-  var car;
 
   run(function() {
     store.push({
@@ -254,22 +252,66 @@ test("Using store#findRecord on existing record reloads it", function() {
         }
       }
     });
-    car = store.peekRecord('car', 1);
   });
 
   ajaxResponse({
     cars: [{
       id: 1,
-      make: 'BMCW',
-      model: 'Mini'
+      make: 'BMC',
+      model: 'Princess'
     }]
   });
 
-  equal(car.get('make'), 'BMC');
+  run(function() {
+    store.findRecord('car', 1).then(function(car) {
+      equal(car.get('model'), 'Mini', 'cached car record is returned');
+    });
+  });
+
+  run(function() {
+    let car = store.peekRecord('car', 1);
+    equal(car.get('model'), 'Princess', 'car record was reloaded');
+  });
+});
+
+test("store#findRecord { reload: true } ignores cached record and reloads record from server", function() {
+  expect(2);
+
+  const testAdapter = DS.RESTAdapter.extend({
+    shouldReloadRecord(store, type, id, snapshot) {
+      ok(false, 'shouldReloadRecord should not be called when { reload: true }');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'Princess'
+    }]
+  });
+
+  let cachedCar = store.peekRecord('car', 1);
+  equal(cachedCar.get('model'), 'Mini', 'cached car has expected model');
 
   run(function() {
     store.findRecord('car', 1, { reload: true }).then(function(car) {
-      equal(car.get('make'), 'BMCW');
+      equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
     });
   });
 });
