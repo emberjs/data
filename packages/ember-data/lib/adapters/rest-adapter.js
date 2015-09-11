@@ -66,6 +66,12 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   }
   ```
 
+  Note that the object root can be pluralized for both a single-object response
+  and an array response: the REST adapter is not strict on this. Further, if the
+  HTTP server responds to a `GET` request to `/posts/1` (e.g. the response to a
+  `findRecord` query) with more than one object in the array, Ember Data will
+  only display the object with the matching ID.
+
   ### Conventional Names
 
   Attribute names in your JSON payload should be the camelCased versions of
