@@ -18,6 +18,7 @@ function Relationship(store, record, inverseKey, relationshipMeta) {
   this.linkPromise = null;
   this.meta = null;
   this.hasData = false;
+  this.hasLoaded = false;
 }
 
 Relationship.prototype = {
@@ -217,6 +218,7 @@ Relationship.prototype = {
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;
+      this.setHasLoaded(false);
       this.record.notifyPropertyChange(this.key);
     }
   },
@@ -235,17 +237,41 @@ Relationship.prototype = {
 
   updateRecordsFromAdapter: function(records) {
     //TODO(Igor) move this to a proper place
-    var self = this;
     //TODO Once we have adapter support, we need to handle updated and canonical changes
-    self.computeChanges(records);
-    self.setHasData(true);
+    this.computeChanges(records);
+    this.setHasData(true);
+    this.setHasLoaded(true);
   },
 
   notifyRecordRelationshipAdded: Ember.K,
   notifyRecordRelationshipRemoved: Ember.K,
 
+  /*
+    `hasData` for a relationship is a flag to indicate if we consider the
+    content of this relationship "known". Snapshots uses this to tell the
+    difference between unknown (`undefined`) or empty (`null`). The reason for
+    this is that we wouldn't want to serialize unknown relationships as `null`
+    as that might overwrite remote state.
+
+    All relationships for a newly created (`store.createRecord()`) are
+    considered known (`hasData === true`).
+   */
   setHasData: function(value) {
     this.hasData = value;
+  },
+
+  /*
+    `hasLoaded` is a flag to indicate if we have gotten data from the adapter or
+    not when the relationship has a link.
+
+    This is used to be able to tell when to fetch the link and when to return
+    the local data in scenarios where the local state is considered known
+    (`hasData === true`).
+
+    Updating the link will automatically set `hasLoaded` to `false`.
+   */
+  setHasLoaded: function(value) {
+    this.hasLoaded = value;
   }
 };
 

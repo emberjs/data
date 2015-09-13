@@ -1537,3 +1537,133 @@ test("metadata should be reset between requests", function() {
     });
   });
 });
+
+test("Related link should be fetched when no local data is present", function() {
+  expect(3);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    equal(url, 'comments', 'url is correct');
+    ok(true, "The adapter's findHasMany method should be called");
+    return Ember.RSVP.resolve([
+      { id: 1, body: 'This is comment' }
+    ]);
+  };
+
+  run(function() {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments'
+            }
+          }
+        }
+      }
+    });
+    post.get('comments').then((comments) => {
+      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+    });
+  });
+});
+
+test("Local data should take precedence over related link", function() {
+  expect(1);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    ok(false, "The adapter's findHasMany method should not be called");
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, body: 'This is comment' });
+  };
+
+  run(function() {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments'
+            },
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      }
+    });
+    post.get('comments').then((comments) => {
+      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+    });
+  });
+});
+
+test("Updated related link should take precedence over local data", function() {
+  expect(3);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    equal(url, 'comments-updated-link', 'url is correct');
+    ok(true, "The adapter's findHasMany method should be called");
+    return Ember.RSVP.resolve([
+      { id: 1, body: 'This is comment' }
+    ]);
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments'
+            },
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      }
+    });
+
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'comments-updated-link'
+            }
+          }
+        }
+      }
+    });
+
+    post.get('comments').then((comments) => {
+      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+    });
+  });
+});
