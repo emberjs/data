@@ -469,23 +469,26 @@ test('Calling push with an unknown model name throws an assertion error', functi
   }, /You tried to push data with a type 'unknown' but no model could be found with that name/);
 });
 
-test('Calling push with a link containing an object throws an assertion error', function() {
+test('Calling push with a link containing an object', function() {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: true })
   });
 
-  expectAssertion(function() {
-    run(function() {
-      store.push(store.normalize('person', {
-        id: '1',
-        links: {
-          phoneNumbers: {
-            href: '/api/people/1/phone-numbers'
-          }
+  run(function() {
+    store.push(store.normalize('person', {
+      id: '1',
+      firstName: 'Tan',
+      links: {
+        phoneNumbers: {
+          href: '/api/people/1/phone-numbers'
         }
-      }));
-    });
-  }, "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
+      }
+    }));
+  });
+
+  var person = store.peekRecord('person', 1);
+
+  equal(person.get('firstName'), "Tan", "you can use links containing an object");
 });
 
 test('Calling push with a link containing the value null', function() {
