@@ -94,7 +94,7 @@ var dasherize = Ember.String.dasherize;
   @namespace DS
   @extends DS.JSONSerializer
 */
-export default JSONSerializer.extend({
+const JSONAPISerializer = JSONSerializer.extend({
 
   /**
     @method _normalizeDocumentHelper
@@ -137,6 +137,14 @@ export default JSONSerializer.extend({
   */
   _normalizeResourceHelper: function(resourceHash) {
     let modelName = this.modelNameFromPayloadKey(resourceHash.type);
+
+    if (!this.store._hasModelFor(modelName)) {
+      Ember.warn(this.warnMessageNoModelForType(modelName, resourceHash.type), false, {
+        id: 'ds.serializer.model-for-type-missing'
+      });
+      return null;
+    }
+
     let modelClass = this.store.modelFor(modelName);
     let serializer = this.store.serializerFor(modelName);
     let { data } = serializer.normalize(modelClass, resourceHash);
@@ -448,3 +456,12 @@ export default JSONSerializer.extend({
   }
 });
 
+Ember.runInDebug(function() {
+  JSONAPISerializer.reopen({
+    warnMessageNoModelForType: function(modelName, originalType) {
+      return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + originalType + '"))';
+    }
+  });
+});
+
+export default JSONAPISerializer;
