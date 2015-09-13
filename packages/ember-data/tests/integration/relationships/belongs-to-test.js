@@ -984,3 +984,129 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
+
+test("Related link should be fetched when no local data is present", function() {
+  expect(3);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    equal(url, 'author', 'url is correct');
+    ok(true, "The adapter's findBelongsTo method should be called");
+    return Ember.RSVP.resolve(
+      { id: 1, name: 'This is author' }
+    );
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            }
+          }
+        }
+      }
+    });
+    book.get('author').then((author) => {
+      equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});
+
+test("Local data should take precedence over related link", function() {
+  expect(1);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    ok(false, "The adapter's findBelongsTo method should not be called");
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, name: 'This is author' });
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            },
+            data: { type: 'author', id: '1' }
+          }
+        }
+      }
+    });
+    book.get('author').then((author) => {
+      equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});
+
+test("Updated related link should take precedence over local data", function() {
+  expect(3);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    equal(url, 'author-updated-link', 'url is correct');
+    ok(true, "The adapter's findBelongsTo method should be called");
+    return Ember.RSVP.resolve(
+      { id: 1, name: 'This is author' }
+    );
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            },
+            data: { type: 'author', id: '1' }
+          }
+        }
+      }
+    });
+
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author-updated-link'
+            }
+          }
+        }
+      }
+    });
+
+    book.get('author').then((author) => {
+      equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});

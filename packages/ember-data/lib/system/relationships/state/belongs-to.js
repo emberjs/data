@@ -25,6 +25,7 @@ BelongsToRelationship.prototype.setRecord = function(newRecord) {
     this.removeRecord(this.inverseRecord);
   }
   this.setHasData(true);
+  this.setHasLoaded(true);
 };
 
 BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
@@ -34,6 +35,7 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
     this.removeCanonicalRecord(this.inverseRecord);
   }
   this.setHasData(true);
+  this.setHasLoaded(true);
 };
 
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
@@ -118,9 +120,11 @@ BelongsToRelationship.prototype.getRecord = function() {
   if (this.isAsync) {
     var promise;
     if (this.link) {
-      promise = this.findLink().then(() => {
-        return this.findRecord();
-      });
+      if (this.hasLoaded) {
+        promise = this.findRecord();
+      } else {
+        promise = this.findLink().then(() => this.findRecord());
+      }
     } else {
       promise = this.findRecord();
     }
