@@ -2,7 +2,7 @@ import Model from 'ember-data/system/model/model';
 
 const get = Ember.get;
 
-/**
+/*
   This is a helper method that validates a JSON API top-level document
 
   The format of a document is described here:
@@ -61,7 +61,7 @@ export function validateDocumentStructure(doc) {
   return errors;
 }
 
-/**
+/*
   This is a helper method that always returns a JSON-API Document.
 
   @method normalizeResponseHelper
@@ -88,7 +88,7 @@ export function normalizeResponseHelper(serializer, store, modelClass, payload, 
   return normalizedResponse;
 }
 
-/**
+/*
   Convert the payload from `serializer.extract` to a JSON-API Document.
 
   @method _normalizeSerializerPayload
@@ -111,7 +111,7 @@ export function _normalizeSerializerPayload(modelClass, payload) {
   return { data };
 }
 
-/**
+/*
   Convert the payload representing a single record from `serializer.extract` to
   a JSON-API Resource Object.
 
@@ -194,7 +194,7 @@ function normalizeRelationshipData(key, value, relationshipMeta) {
   return { id: `${value}`, type: relationshipMeta.type };
 }
 
-/**
+/*
   This method converts a JSON-API Resource Object to a format that DS.Store
   understands.
 
