@@ -171,6 +171,25 @@ test("serializeHasMany respects keyForRelationship", function() {
   });
 });
 
+test("serializeHasMany omits unknown relationships on pushed record", function() {
+
+  run(function() {
+    post = env.store.push({
+      id: "1",
+      type: "post",
+      attributes: {
+        title: "Rails is omakase"
+      }
+    });
+  });
+
+  var json = {};
+
+  env.store.serializerFor("post").serializeHasMany(post._createSnapshot(), json, { key: "comments", options: {} });
+
+  ok(!json.hasOwnProperty("comments"), "Does not add the relationship key to json");
+});
+
 test("serializeIntoHash", function() {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
