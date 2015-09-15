@@ -62,8 +62,8 @@ export default RESTAdapter.extend({
     return Ember.String.pluralize(dasherized);
   },
 
-/**
-    By default the RESTAdapter will send each find request coming from a `store.find`
+  /**
+    By default the JSONAPIAdapter will send each find request coming from a `store.find`
     or from accessing a relationship separately to the server. If your server supports passing
     ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
     within a single runloop.
@@ -90,7 +90,7 @@ export default RESTAdapter.extend({
     If you set coalesceFindRequests to `true` it will instead trigger the following request:
 
     ```
-    GET /comments?ids[]=1&ids[]=2
+    GET /comments?filter[id]=1,2
     ```
 
     Setting coalesceFindRequests to `true` also works for `store.find` requests and `belongsTo`
@@ -101,7 +101,7 @@ export default RESTAdapter.extend({
     store.findRecord('comment', 2);
     ```
 
-    will also send a request to: `GET /comments?ids[]=1&ids[]=2`
+    will also send a request to: `GET /comments?filter[id]=1,2`
 
     Note: Requests coalescing rely on URL building strategy. So if you override `buildURL` in your app
     `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
