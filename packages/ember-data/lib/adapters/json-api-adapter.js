@@ -67,9 +67,15 @@ export default RESTAdapter.extend({
     or from accessing a relationship separately to the server. If your server supports passing
     ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
     within a single runloop.
+<<<<<<< HEAD
 
     For example, if you have an initial payload of:
 
+=======
+    
+    For example, if you have an initial payload of:
+    
+>>>>>>> origin/master
     ```javascript
     {
       post: {
@@ -78,14 +84,22 @@ export default RESTAdapter.extend({
       }
     }
     ```
+<<<<<<< HEAD
 
     By default calling `post.get('comments')` will trigger the following requests(assuming the
     comments haven't been loaded before):
 
+=======
+    
+    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    comments haven't been loaded before):
+    
+>>>>>>> origin/master
     ```
     GET /comments/1
     GET /comments/2
     ```
+<<<<<<< HEAD
 
     If you set coalesceFindRequests to `true` it will instead trigger the following request:
 
@@ -96,16 +110,37 @@ export default RESTAdapter.extend({
     Setting coalesceFindRequests to `true` also works for `store.find` requests and `belongsTo`
     relationships accessed within the same runloop. If you set `coalesceFindRequests: true`
 
+=======
+    
+    If you set coalesceFindRequests to `true` it will instead trigger the following request:
+    
+    ```
+    GET /comments?filter[id]=1,2
+    ```
+    
+    Setting coalesceFindRequests to `true` also works for `store.find` requests and `belongsTo`
+    relationships accessed within the same runloop. If you set `coalesceFindRequests: true`
+    
+>>>>>>> origin/master
     ```javascript
     store.findRecord('comment', 1);
     store.findRecord('comment', 2);
     ```
+<<<<<<< HEAD
 
     will also send a request to: `GET /comments?filter[id]=1,2`
 
     Note: Requests coalescing rely on URL building strategy. So if you override `buildURL` in your app
     `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
 
+=======
+    
+    will also send a request to: `GET /comments?filter[id]=1,2`
+    
+    Note: Requests coalescing rely on URL building strategy. So if you override `buildURL` in your app
+    `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
+    
+>>>>>>> origin/master
     @property coalesceFindRequests
     @type {boolean}
   */
