@@ -1,4 +1,4 @@
-module("unit/adapter/errors - DS.AdapterError");
+module("unit/adapter-errors - DS.AdapterError");
 
 test("DS.AdapterError", function() {
   var error = new DS.AdapterError();
@@ -67,18 +67,10 @@ test("errorsArrayToHash without trailing slash", function() {
   deepEqual(result, { name: ['error message'] });
 });
 
-test("DS.InvalidError will normalize errors hash with deprecation", function() {
+test("DS.InvalidError will normalize errors hash will assert", function() {
   var error;
 
-  expectDeprecation(function() {
+  expectAssertion(function() {
     error = new DS.InvalidError({ name: ['is invalid'] });
   }, /expects json-api formatted errors/);
-
-  deepEqual(error.errors, [
-    {
-      title: 'Invalid Attribute',
-      detail: 'is invalid',
-      source: { pointer: '/data/attributes/name' }
-    }
-  ]);
 });
