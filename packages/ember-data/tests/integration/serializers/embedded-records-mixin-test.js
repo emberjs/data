@@ -895,6 +895,41 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   });
 });
 
+test("serialize with embedded objects and a custom keyForAttribute (hasMany relationship)", function() {
+  var tom, league;
+  run(function() {
+    league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    tom = env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
+  });
+
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    keyForAttribute: function(key) {
+      return key + '-custom';
+    },
+    attrs: {
+      villains: { embedded: 'always' }
+    }
+  }));
+
+  var serializer, json;
+  run(function() {
+    serializer = env.store.serializerFor("home-planet");
+
+    json = serializer.serialize(league._createSnapshot());
+  });
+
+  deepEqual(json, {
+    "name-custom": "Villain League",
+    "villains-custom": [{
+      id: get(tom, "id"),
+      firstName: "Tom",
+      lastName: "Dale",
+      homePlanet: get(league, "id"),
+      secretLab: null
+    }]
+  });
+});
+
 test("serialize with embedded objects (unknown hasMany relationship)", function() {
   var league;
   run(function() {
