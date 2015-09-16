@@ -5,6 +5,7 @@
   @module ember-data
 */
 
+import _normalizeLink from "ember-data/system/normalize-link";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
   InvalidError
@@ -2057,8 +2058,11 @@ function setupRelationships(store, record, data) {
     var relationship;
 
     if (data.relationships[key].links && data.relationships[key].links.related) {
-      relationship = record._relationships.get(key);
-      relationship.updateLink(data.relationships[key].links.related);
+      let relatedLink = _normalizeLink(data.relationships[key].links.related);
+      if (relatedLink && relatedLink.href) {
+        relationship = record._relationships.get(key);
+        relationship.updateLink(relatedLink.href);
+      }
     }
 
     if (data.relationships[key].meta) {
