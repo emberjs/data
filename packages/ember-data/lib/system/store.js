@@ -1172,11 +1172,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (!Ember.ENV.ENABLE_DS_FILTER) {
-      Ember.deprecate('The filter API will be moved into a plugin soon. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page', false, {
-        url: 'https://github.com/ember-data/ember-data-filter',
-        id: 'ds.store.filter-deprecated',
-        until: '2.0.0'
-      });
+      Ember.assert('The filter API has been moved to a plugin. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page. https://github.com/ember-data/ember-data-filter', false);
     }
 
     var promise;
