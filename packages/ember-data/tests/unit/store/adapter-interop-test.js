@@ -1233,6 +1233,20 @@ test("store should reload all records in the background when `shouldBackgroundRe
   equal(store.peekRecord('person', 1).get('name'), 'Tom');
 });
 
+test("Calling adapterFor with a model class should assert", function() {
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  store = createStore({
+    person: Person
+  });
+
+  expectAssertion(function() {
+    store.adapterFor(Person);
+  }, /Passing classes to store.adapterFor has been removed/);
+});
+
 
 module("unit/store/adapter_interop - find preload deprecations", {
   setup: function() {
