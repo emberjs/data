@@ -1246,29 +1246,3 @@ test("Calling adapterFor with a model class should assert", function() {
     store.adapterFor(Person);
   }, /Passing classes to store.adapterFor has been removed/);
 });
-
-
-module("unit/store/adapter_interop - find preload deprecations", {
-  setup: function() {
-    var Person = DS.Model.extend({
-      name: DS.attr('string')
-    });
-
-    var TestAdapter = DS.Adapter.extend({
-      findRecord: function(store, type, id, snapshot) {
-        equal(snapshot.attr('name'), 'Tom');
-        return Ember.RSVP.resolve({ id: id });
-      }
-    });
-
-    store = createStore({
-      adapter: TestAdapter,
-      person: Person
-    });
-  },
-  teardown: function() {
-    run(function() {
-      if (store) { store.destroy(); }
-    });
-  }
-});
