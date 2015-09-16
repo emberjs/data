@@ -688,6 +688,20 @@ test('normalizeResponse returns empty `included` payload by default', function()
   deepEqual(post.included, []);
 });
 
+test('normalizeResponse returns empty `included` payload when relationship is undefined', function() {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend());
+
+  var jsonHash = {
+    id: "1",
+    title: "Rails is omakase",
+    comments: null
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  deepEqual(post.included, []);
+});
+
 test('normalizeResponse respects `included` items (single response)', function() {
   env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
