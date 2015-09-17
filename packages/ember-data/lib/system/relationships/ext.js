@@ -3,13 +3,11 @@ import {
   relationshipFromMeta
 } from "ember-data/system/relationship-meta";
 import Model from "ember-data/system/model";
-import {
-  Map,
-  MapWithDefault
-} from "ember-data/system/map";
 import EmptyObject from "ember-data/system/empty-object";
 
 var get = Ember.get;
+var Map = Ember.Map;
+var MapWithDefault = Ember.MapWithDefault;
 
 var relationshipsDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {

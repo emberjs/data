@@ -7,9 +7,7 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "ember-data/system/record-arrays";
-import {
-  MapWithDefault
-} from "ember-data/system/map";
+var  MapWithDefault = Ember.MapWithDefault;
 import OrderedSet from "ember-data/system/ordered-set";
 var get = Ember.get;
 
