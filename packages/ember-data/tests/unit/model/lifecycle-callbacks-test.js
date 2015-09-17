@@ -263,7 +263,15 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     updateRecord: function(store, type, snapshot) {
       equal(callCount, 0, "becameInvalid callback was not called until recordWasInvalid is called");
 
-      return Ember.RSVP.reject(new DS.InvalidError({ bar: 'error' }));
+      return Ember.RSVP.reject(new DS.InvalidError([
+        {
+          title: "Invalid Attribute",
+          detail: "error",
+          source: {
+            pointer: "/data/attributes/bar"
+          }
+        }
+      ]));
     }
   });
 
