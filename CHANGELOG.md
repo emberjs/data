@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 1.13.13 (September 17, 2015)
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release]
+  Improve links vs. local data for relationships
+
 ### Release 1.13.12 (September 10, 2015)
 - [#3689](https://github.com/emberjs/data/pull/3689) Backport empty-object performance improvements from 2.1.0-beta1
 - [#3690](https://github.com/emberjs/data/pull/3690) [BUGFIX release-1-13] Ensure that `service:store` is cleared before regsitering.
