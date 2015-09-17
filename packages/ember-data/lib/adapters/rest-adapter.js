@@ -383,7 +383,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     The `findAll` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
-    @private
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type
@@ -413,7 +412,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.
 
-    @private
     @method query
     @param {DS.Store} store
     @param {DS.Model} type
@@ -441,7 +439,6 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.
 
-    @private
     @method queryRecord
     @param {DS.Store} store
     @param {DS.Model} type
