@@ -172,7 +172,11 @@ ManyRelationship.prototype.getRecords = function() {
   if (this.isAsync) {
     var promise;
     if (this.link) {
-      promise = this.findLink().then(() => this.findRecords());
+      if (this.hasLoaded) {
+        promise = this.findRecords();
+      } else {
+        promise = this.findLink().then(() => this.findRecords());
+      }
     } else {
       promise = this.findRecords();
     }
