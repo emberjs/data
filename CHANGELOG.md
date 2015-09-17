@@ -2,6 +2,24 @@
 
 ### Master
 
+### Release 2.1.0-beta.3 (September 17, 2015)
+- [#3764](https://github.com/emberjs/data/pull/3764) [BUGFIX beta] Support JSON API links object
+- [15d4360c](https://github.com/emberjs/data/commit/15d4360c1be0906f594718d55660151cd5f26af3) [BUGFIX release] Improve links vs. local data for relationships
+- [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
+- [#3749](https://github.com/emberjs/data/pull/3749) [DOC beta] Update Object Root docs re: plurals
+- [#3763](https://github.com/emberjs/data/pull/3763) [BUGFIX beta] JSONAPISerializer warns for unknown type
+- [#3767](https://github.com/emberjs/data/pull/3767) [BUGFIX release] Do not export jsdoc information for store helper fun…
+- [#3771](https://github.com/emberjs/data/pull/3771) update coalesceFindRequests doc for JSONAPIAdapter
+- [#3739](https://github.com/emberjs/data/pull/3739) store example should use findRecord()
+- [#3747](https://github.com/emberjs/data/pull/3747) [BUGFIX beta] JSONSerializer.extractRelationships() issue #3736
+- [#3779](https://github.com/emberjs/data/pull/3779) [BUGFIX release] Remove store method deprecations
+- [#3778](https://github.com/emberjs/data/pull/3778) [BUGFIX release] Remove deprecation on store.filter
+- [#3776](https://github.com/emberjs/data/pull/3776) [BUGFIX release] Remove deprecation for old InvalidErrors format
+- [#3765](https://github.com/emberjs/data/pull/3765) [BUGFIX beta] Fix JSONSerializer.serializeHasMany() issue #3760
+- [#3782](https://github.com/emberjs/data/pull/3782) [DOC release] Remove private label for findAll, query, queryRecord
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release] Improve links vs. local data for relationships
+
+
 ### Release 2.1.0-beta.2 (September 08, 2015)
 
 - [#3701](https://github.com/emberjs/data/pull/3701) [BUGFIX release] fix regression where dynamically set id is not serialized in a create…
@@ -12,8 +30,9 @@
 
 
 ### Release 2.1.0-beta.1 (August 20, 2015)
-
-None
+- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
+- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
+- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
 
 ### Release 2.0.0 (August 20, 2015)
 
