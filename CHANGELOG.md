@@ -2,6 +2,22 @@
 
 ### Master
 
+### Release 2.0.1 (September 17, 2015)
+
+- [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release] Improve links vs. local data for relationships
+- [#3767](https://github.com/emberjs/data/pull/3767) [BUGFIX release] Do not export jsdoc information for store helper fun…
+- [#3771](https://github.com/emberjs/data/pull/3771) update coalesceFindRequests doc for JSONAPIAdapter
+- [#3776](https://github.com/emberjs/data/pull/3776) [BUGFIX release] Remove deprecation for old InvalidErrors format
+- [#3778](https://github.com/emberjs/data/pull/3778) [BUGFIX release] Remove deprecation on store.filter
+- [#3779](https://github.com/emberjs/data/pull/3779) [BUGFIX release] Remove store method deprecations
+- [#3782](https://github.com/emberjs/data/pull/3782) [DOC release] Remove private label for findAll, query, queryRecord
+
+### Release 2.1.0-beta.1 (August 20, 2015)
+- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
+- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
+- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
+
 ### Release 2.0.0 (August 20, 2015)
 
 #### Breaking Changes
