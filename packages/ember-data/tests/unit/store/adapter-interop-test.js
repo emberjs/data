@@ -1,16 +1,19 @@
 var get = Ember.get;
 var set = Ember.set;
 var resolve = Ember.RSVP.resolve;
-var TestAdapter, store, person;
+var TestAdapter, store, person, oldFilterEnabled;
 var run = Ember.run;
 
 module("unit/store/adapter-interop - DS.Store working with a DS.Adapter", {
   setup: function() {
     TestAdapter = DS.Adapter.extend();
+    oldFilterEnabled = Ember.ENV.ENABLE_DS_FILTER;
+    Ember.ENV.ENABLE_DS_FILTER = false;
   },
   teardown: function() {
     run(function() {
       if (store) { store.destroy(); }
+      Ember.ENV.ENABLE_DS_FILTER = oldFilterEnabled;
     });
   }
 });
@@ -1232,6 +1235,25 @@ test("store should reload all records in the background when `shouldBackgroundRe
 
   equal(store.peekRecord('person', 1).get('name'), 'Tom');
 });
+
+test("store should assert of the user tries to call store.filter", function() {
+  expect(1);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  store = createStore({
+    person: Person
+  });
+
+  expectAssertion(function() {
+    run(function() {
+      store.filter('person', {});
+    });
+  }, /The filter API has been moved to a plugin/);
+});
+
 
 test("Calling adapterFor with a model class should assert", function() {
   var Person = DS.Model.extend({
