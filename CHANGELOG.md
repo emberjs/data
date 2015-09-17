@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 1.13.13 (September 17, 2015)
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release]
+  Improve links vs. local data for relationships
+
 ### Release 2.0.1 (September 17, 2015)
 
 - [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
@@ -12,6 +16,36 @@
 - [#3778](https://github.com/emberjs/data/pull/3778) [BUGFIX release] Remove deprecation on store.filter
 - [#3779](https://github.com/emberjs/data/pull/3779) [BUGFIX release] Remove store method deprecations
 - [#3782](https://github.com/emberjs/data/pull/3782) [DOC release] Remove private label for findAll, query, queryRecord
+
+### Release 1.13.12 (September 10, 2015)
+- [#3689](https://github.com/emberjs/data/pull/3689) Backport
+  empty-object performance improvements from 2.1.0-beta1
+- [#3690](https://github.com/emberjs/data/pull/3690)
+  [BUGFIX release-1-13] Ensure that `service:store` is cleared before
+  regsitering.
+- [#3725](https://github.com/emberjs/data/pull/3725)
+  [BUGFIX release-1-13] Disable polymorphic deserialization when a
+  mode…
+- [#3753](https://github.com/emberjs/data/pull/3753) Bumped the
+  ember-inflector version to 1.9.2.
+- [#3754](https://github.com/emberjs/data/pull/3754) Do not run tests
+  with Ember 2.0 in the Ember Data 1.13 appveyor builds
+
+
+### Release 1.13.11 (August 21, 2015)
+
+- [#3685](https://github.com/emberjs/data/pull/3685) Fixing typo that
+  causes Ember-Data v1.13.10 to crash with Ember v2.0.
+- [#3686](https://github.com/emberjs/data/pull/3686) Fix broken
+  rest-serializer test.
+
+### Release 1.13.10 (August 20, 2015)
+
+- [#3577](https://github.com/emberjs/data/pull/3577) Use the correct
+  modelClass and serializer to extract a polymorphic
+- [#3667](https://github.com/emberjs/data/pull/3667) Don’t crash \w
+  Ember 2.0
+
 
 ### Release 2.1.0-beta.1 (August 20, 2015)
 - [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
