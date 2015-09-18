@@ -776,3 +776,19 @@ test('normalizeResponse respects `included` items (array response)', function() 
     { id: "3", type: "comment", attributes: { body: "comment 3" }, relationships: {} }
   ]);
 });
+
+test('extractRelationships parses HATEOAS links', function() {
+  var payload = { links: [ { rel: 'post', href: '/foo/bar' } ] };
+
+  var relationships = env.serializer.extractRelationships(Favorite, payload);
+
+  deepEqual(relationships, { post: { links: { related: '/foo/bar' } } });
+});
+
+test('extractRelationships parses links object', function() {
+  var payload = { links: { post: '/foo/bar' } };
+
+  var relationships = env.serializer.extractRelationships(Favorite, payload);
+
+  deepEqual(relationships, { post: { links: { related: '/foo/bar' } } });
+});
