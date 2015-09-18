@@ -8,6 +8,7 @@ import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 
 var camelize = Ember.String.camelize;
+var get = Ember.get;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -148,8 +149,10 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
+    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type');
+    /*jshint loopfunc:true*/
     arrayHash.forEach((hash) => {
-      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer, primaryHasTypeAttribute);
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
@@ -159,10 +162,10 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
+  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer, primaryHasTypeAttribute) {
     let serializer, modelClass;
     // Support polymorphic records in async relationships
-    if (hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
+    if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
       serializer = store.serializerFor(hash.type);
       modelClass = store.modelFor(hash.type);
     } else {
