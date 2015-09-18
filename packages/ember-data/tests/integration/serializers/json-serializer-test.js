@@ -778,7 +778,7 @@ test('normalizeResponse respects `included` items (array response)', function() 
 });
 
 test('extractRelationships parses HATEOAS links', function() {
-  var payload = { links: [ { rel: 'post', href: '/foo/bar' } ] };
+  var payload = { links: [{ rel: 'post', href: '/foo/bar' }] };
 
   var relationships = env.serializer.extractRelationships(Favorite, payload);
 
