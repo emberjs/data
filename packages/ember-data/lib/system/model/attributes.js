@@ -314,30 +314,56 @@ export default function attr(type, options) {
   return Ember.computed({
     get: function(key) {
       var internalModel = this._internalModel;
+      var ret;
+
       if (hasValue(internalModel, key)) {
-        return getValue(internalModel, key);
+        ret = getValue(internalModel, key);
       } else {
-        return getDefaultValue(this, options, key);
+        ret = getDefaultValue(this, options, key);
       }
+
+      if (options.get) {
+        Ember.assert("You may not set a custom `get` with a value that is not a function. Please update your attribute definition to make it a function at Model " + this.constructor.toString() + ", property " + key, typeof options.get === 'function');
+        ret = options.get(ret);
+      }
+
+      return ret;
     },
     set: function(key, value) {
+      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       var internalModel = this._internalModel;
       var oldValue = getValue(internalModel, key);
+      var newValue;
+      var ret;
 
-      if (value !== oldValue) {
+      if (options.set) {
+        Ember.assert("You may not set a custom `set` with a value that is not a function. Please update your attribute definition to make it a function at Model " + this.constructor.toString() + ", property " + key, typeof options.set === 'function');
+        newValue = options.set(value);
+      } else {
+        newValue = value;
+      }
+
+      if (newValue !== oldValue) {
         // Add the new value to the changed attributes hash; it will get deleted by
         // the 'didSetProperty' handler if it is no different from the original value
-        internalModel._attributes[key] = value;
+        internalModel._attributes[key] = newValue;
 
         this._internalModel.send('didSetProperty', {
           name: key,
           oldValue: oldValue,
           originalValue: internalModel._data[key],
-          value: value
+          value: newValue
         });
       }
 
-      return value;
+      if (options.get) {
+        Ember.assert("You may not set a custom `get` with a value that is not a function. Please update your attribute definition to make it a function at Model " + this.constructor.toString() + ", property " + key, typeof options.get === 'function');
+        ret = options.get(newValue);
+      } else {
+        ret = newValue;
+      }
+
+      return ret;
     }
   }).meta(meta);
 }
