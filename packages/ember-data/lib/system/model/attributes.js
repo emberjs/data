@@ -35,7 +35,7 @@ Model.reopenClass({
 
     var attributes = Ember.get(Person, 'attributes')
 
-    attributes.forEach(function(name, meta) {
+    attributes.forEach(function(meta, name) {
       console.log(name, meta);
     });
 
