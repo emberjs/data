@@ -1524,15 +1524,64 @@ Store = Service.extend({
   /**
     Push some data for a given type into the store.
 
-    This method expects normalized data:
+    This method expects normalized [JSON API](http://jsonapi.org/) document. This means you have to follow [JSON API specification](http://jsonapi.org/format/) with few minor adjustments:
+    - record's `type` should always be in singular, dasherized form
+    - members (properties) should be camelCased
 
-    * The ID is a key named `id` (an ID is mandatory)
-    * The names of attributes are the ones you used in
-      your model's `DS.attr`s.
-    * Your relationships must be:
-      * represented as IDs or Arrays of IDs
-      * represented as model instances
-      * represented as URLs, under the `links` key
+    [Your primary data should be wrapped inside `data` property](http://jsonapi.org/format/#document-top-level):
+
+    ```js
+    store.push({
+      data: {
+        // primary data for single record of type `Person`
+        id: '1',
+        type: 'person',
+        attributes: {
+          firstName: 'Daniel',
+          lastName: 'Kmak'
+        }
+      }
+    });
+    ```
+
+    [Demo.](http://ember-twiddle.com/fb99f18cd3b4d3e2a4c7)
+
+    `data` property can also hold an array (of records):
+
+    ```js
+    store.push({
+      data: [
+        // an array of records
+        {
+          id: '1',
+          type: 'person',
+          attributes: {
+            firstName: 'Daniel',
+            lastName: 'Kmak'
+          }
+        },
+        {
+          id: '2',
+          type: 'person',
+          attributes: {
+            firstName: 'Tom',
+            lastName: 'Dale'
+          }
+        }
+      ]
+    });
+    ```
+
+    [Demo.](http://ember-twiddle.com/69cdbeaa3702159dc355)
+
+    There are some typical properties for `JSONAPI` payload:
+    * `id` - mandatory, unique record's key
+    * `type` - mandatory string which matches `model`'s dasherized name in singular form
+    * `attributes` - object which holds data for record attributes - `DS.attr`'s declared in model
+    * `relationships` - object which must contain any of the following properties under each relationships' respective key (example path is `relationships.achievements.data`):
+      - [`links`](http://jsonapi.org/format/#document-links)
+      - [`data`](http://jsonapi.org/format/#document-resource-object-linkage) - place for primary data
+      - [`meta`](http://jsonapi.org/format/#document-meta) - object which contains meta-information about relationship
 
     For this model:
 
@@ -1540,8 +1589,8 @@ Store = Service.extend({
     import DS from 'ember-data';
 
     export default DS.Model.extend({
-      firstName: DS.attr(),
-      lastName: DS.attr(),
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
 
       children: DS.hasMany('person')
     });
@@ -1551,22 +1600,55 @@ Store = Service.extend({
 
     ```js
     {
-      id: 1,
-      firstName: "Tom",
-      lastName: "Dale",
-      children: [1, 2, 3]
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          firstName: 'Tom',
+          lastName: 'Dale'
+        },
+        relationships: {
+          children: {
+            data: [
+              {
+                id: '2',
+                type: 'person'
+              },
+              {
+                id: '3',
+                type: 'person'
+              },
+              {
+                id: '4',
+                type: 'person'
+              }
+            ]
+          }
+        }
+      }
     }
     ```
+
+    [Demo.](http://ember-twiddle.com/343e1735e034091f5bde)
 
     To represent the children relationship as a URL:
 
     ```js
     {
-      id: 1,
-      firstName: "Tom",
-      lastName: "Dale",
-      links: {
-        children: "/people/1/children"
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          firstName: 'Tom',
+          lastName: 'Dale'
+        },
+        relationships: {
+          children: {
+            links: {
+              related: '/people/1/children'
+            }
+          }
+        }
       }
     }
     ```
@@ -1578,7 +1660,7 @@ Store = Service.extend({
     expects.
 
     ```js
-    store.push('person', store.normalize('person', data));
+    store.push(store.normalize('person', data));
     ```
 
     This method can be used both to push in brand new
