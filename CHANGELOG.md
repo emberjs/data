@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 2.1.0-beta.4 (September 24, 2015)
+- [#3783](https://github.com/emberjs/data/pull/3783) Update changelog for 2.0.1 release
+- [#3788](https://github.com/emberjs/data/pull/3788) Port pr #3725 to the release 2.0 branch
+- [#3793](https://github.com/emberjs/data/pull/3793) Map iteration has `value, key` params 'backwards'
+- [#3794](https://github.com/emberjs/data/pull/3794) [DOC release] Update documentation for store
+- [#3796](https://github.com/emberjs/data/pull/3796) [DOC release] Update documentation for EmbeddedRecordsMixin.
+
 ### Release 2.1.0-beta.3 (September 17, 2015)
 - [#3764](https://github.com/emberjs/data/pull/3764) [BUGFIX beta] Support JSON API links object
 - [15d4360c](https://github.com/emberjs/data/commit/15d4360c1be0906f594718d55660151cd5f26af3) [BUGFIX release] Improve links vs. local data for relationships
