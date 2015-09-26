@@ -781,6 +781,25 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   hasMany: function() {
     Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+  },
+
+  // handlers for the id property
+  unknownProperty: function (key) {
+    if (key === 'id') {
+      return this._internalModel.id;
+    } else {
+      return this[key];
+    }
+  },
+
+  setUnknownProperty: function (key, value) {
+    if (key === 'id') {
+      this.propertyWillChange('id');
+      this._internalModel.setId(value);
+      this.propertyDidChange('id');
+    } else {
+      this[key] = value;
+    }
   }
 });
 
@@ -838,19 +857,6 @@ Model.reopenClass({
    @readonly
   */
   modelName: null
-});
-
-Object.defineProperty(Model.prototype, 'id', {
-  configurable: true,
-  enumerable: false,
-  set(id) {
-    if (this._internalModel) {
-      this._internalModel.setId(id);
-    }
-  },
-  get() {
-    return this._internalModel.id;
-  }
 });
 
 export default Model;
