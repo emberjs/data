@@ -176,6 +176,44 @@ test("trying to set an `id` attribute should raise", function() {
   }, /You may not set `id`/);
 });
 
+test("trying to set a custom `get` method to attribute", function() {
+  var Mascot = DS.Model.extend({
+    age: DS.attr('number', {
+      get: function(value) {
+        return value + 1;
+      }
+    })
+  });
+
+  var store = createStore({
+    mascot: Mascot
+  });
+
+  run(function() {
+    var mascot = store.createRecord('mascot', { age: 10 });
+    equal(mascot.get('age'), 11);
+  });
+});
+
+test("trying to set a custom `set` method to attribute", function() {
+  var Mascot = DS.Model.extend({
+    age: DS.attr('number', {
+      set: function(value) {
+        return value + 1;
+      }
+    })
+  });
+
+  var store = createStore({
+    mascot: Mascot
+  });
+
+  run(function() {
+    var mascot = store.createRecord('mascot', { age: 10 });
+    equal(mascot.get('age'), 11);
+  });
+});
+
 test("a collision of a record's id with object function's name", function() {
   expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
