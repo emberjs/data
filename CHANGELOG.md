@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.1.0-beta.5 (September 28, 2015)
+- [#3781](https://github.com/emberjs/data/pull/3781) [BUGFIX beta] Fix id property in DS.Model once and for all
+
 ### Release 2.1.0-beta.4 (September 24, 2015)
 - [#3783](https://github.com/emberjs/data/pull/3783) Update changelog for 2.0.1 release
 - [#3788](https://github.com/emberjs/data/pull/3788) Port pr #3725 to the release 2.0 branch
