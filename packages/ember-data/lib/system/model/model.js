@@ -292,6 +292,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @property id
     @type {String}
   */
+  id: null,
 
   /**
     @property currentState
@@ -781,7 +782,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   hasMany: function() {
     Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
-  }
+  },
+
+  setId: Ember.observer('id', function () {
+    this._internalModel.setId(this.get('id'));
+  })
 });
 
 Model.reopenClass({
@@ -838,19 +843,6 @@ Model.reopenClass({
    @readonly
   */
   modelName: null
-});
-
-Object.defineProperty(Model.prototype, 'id', {
-  configurable: true,
-  enumerable: false,
-  set(id) {
-    if (this._internalModel) {
-      this._internalModel.setId(id);
-    }
-  },
-  get() {
-    return this._internalModel.id;
-  }
 });
 
 export default Model;
