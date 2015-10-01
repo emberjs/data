@@ -64,6 +64,7 @@ export default function InternalModel(type, id, store, container, data) {
   this.isReloading = false;
   this.isError = false;
   this.error = null;
+  this.__ember_meta__ = null;
   this[Ember.GUID_KEY] = guid++ + 'internal-model';
   /*
     implicit relationships are relationship which have not been declared but the inverse side exists on
