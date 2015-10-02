@@ -47,15 +47,16 @@ var merge = Ember.merge;
   You can customize how JSONSerializer processes it's payload by passing options in
   the attrs hash or by subclassing the JSONSerializer and overriding hooks:
 
-    -To customize how a single record is normalized, use the `normalize` hook
-    -To customize how JSONSerializer normalizes the whole server response, use the
+    - To customize how a single record is normalized, use the `normalize` hook
+    - To customize how JSONSerializer normalizes the whole server response, use the
       normalizeResponse hook
-    -To customize how JSONSerializer normalizes a specific response from the server,
+    - To customize how JSONSerializer normalizes a specific response from the server,
       use one of the many specific normalizeResponse hooks
-    -To customize how JSONSerializer normalizes your id, attributes or relationships,
+    - To customize how JSONSerializer normalizes your id, attributes or relationships,
       use the extractId, extractAttributes and extractRelationships hooks.
 
   JSONSerializer normalization process follows these steps:
+
     - `normalizeResponse` - entry method to the Serializer
     - `normalizeCreateRecordResponse` - a normalizeResponse for a specific operation is called
     - `normalizeSingleResponse`|`normalizeArrayResponse` - for methods like `createRecord` we expect
