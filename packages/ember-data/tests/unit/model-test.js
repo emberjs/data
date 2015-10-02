@@ -467,7 +467,6 @@ test("currentState is accessible when the record is created", function() {
   });
 });
 
-
 module("unit/model - DS.Model updating", {
   setup: function() {
     Person = DS.Model.extend({ name: DS.attr('string') });

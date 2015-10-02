@@ -211,8 +211,7 @@ function ajaxResponse(value) {
 
 
 
-module("integration/store - findRecord", {
-});
+module("integration/store - findRecord");
 
 test("store#findRecord fetches record from server when cached record is not present", function() {
   expect(2);
@@ -312,6 +311,21 @@ test("store#findRecord { reload: true } ignores cached record and reloads record
   run(function() {
     store.findRecord('car', 1, { reload: true }).then(function(car) {
       equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
+    });
+  });
+});
+
+test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', assert => {
+  const badValues = ['', undefined, null, NaN, false];
+  assert.expect(badValues.length);
+
+  initializeStore(DS.RESTAdapter.extend());
+
+  run(function() {
+    badValues.map(item => {
+      expectAssertion(function() {
+        store.findRecord('car', item);
+      }, '`id` has to be non-empty string or number');
     });
   });
 });

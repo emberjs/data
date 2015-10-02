@@ -51,6 +51,8 @@ import InternalModel from "ember-data/system/model/internal-model";
 
 import EmptyObject from "ember-data/system/empty-object";
 
+export let badIdFormatAssertion = '`id` has to be non-empty string or number';
+
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 var Map = Ember.Map;
 
@@ -495,6 +497,8 @@ Store = Service.extend({
   */
   findRecord: function(modelName, id, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    Ember.assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
+
     var internalModel = this._internalModelForId(modelName, id);
     options = options || {};
 
