@@ -1,6 +1,8 @@
 /* jshint node: true */
 'use strict';
 
+var path = require('path');
+
 module.exports = {
   name: 'ember-data',
 
@@ -35,6 +37,10 @@ module.exports = {
     if (!dep.satisfies('>= 0.1.0')) {
       this._warn('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3+. Please update ember-cli-shims from ' + dep.version + ' to 0.1.0.');
     }
+  },
+
+  blueprintsPath: function() {
+    return path.join(__dirname, 'blueprints');
   },
 
   treeForAddon: function(dir) {
