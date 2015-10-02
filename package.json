@@ -7,10 +7,6 @@
   "keywords": [
     "ember-addon"
   ],
-  "main": "lib/ember-addon/index.js",
-  "ember-addon": {
-    "main": "lib/ember-addon/index.js"
-  },
   "files": [
     "lib/ember-addon"
   ],
@@ -48,7 +44,7 @@
     "broccoli-replace": "~0.2.0",
     "broccoli-sourcemap-concat": "^0.4.4",
     "broccoli-static-compiler": "^0.2.1",
-    "broccoli-stew": "^0.2.1",
+    "broccoli-stew": "^0.3.5",
     "broccoli-uglify-js": "^0.1.3",
     "broccoli-wrap": "0.0.2",
     "broccoli-yuidoc": "^1.3.0",
@@ -68,6 +64,7 @@
     "yuidocjs": "~0.3.46"
   },
   "dependencies": {
+    "broccoli-funnel": "^0.2.8",
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",
     "inflection": "^1.7.1",
