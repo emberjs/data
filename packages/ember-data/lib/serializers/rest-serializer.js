@@ -149,7 +149,7 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type');
+    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type') || get(modelClass, 'relationshipsByName').get('type');
     /*jshint loopfunc:true*/
     arrayHash.forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer, primaryHasTypeAttribute);
@@ -162,7 +162,7 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer, primaryHasTypeAttribute) {
+  _normalizePolymorphicRecord: function(store, hash, prop, primaryModelClass, primarySerializer, primaryHasTypeAttribute) {
     let serializer, modelClass;
     // Support polymorphic records in async relationships
     if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
