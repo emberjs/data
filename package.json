@@ -68,6 +68,9 @@
     "yuidocjs": "~0.3.46"
   },
   "dependencies": {
+    "ember-cli-string-utils": "^1.0.0",
+    "ember-cli-test-info": "^1.0.0",
+    "inflection": "^1.7.1",
     "rsvp": "^3.0.18"
   }
 }
