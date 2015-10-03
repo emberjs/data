@@ -1,49 +1,35 @@
 ;(function() {
+  'use strict';
 
-  function defineModule(name, values) {
+  function defineModule(name, value) {
     define(name, [], function() {
-      'use strict';
 
-      return values;
+      return { default: value };
     });
   }
 
-  var shims = {
-    'ember-data':                          '',
-    'ember-data/model':                    'Model',
-    'ember-data/serializers/rest':         'RESTSerializer',
-    'ember-data/serializers/active-model': 'ActiveModelSerializer',
-    'ember-data/serializers/json':         'JSONSerializer',
-    'ember-data/serializers/json-api':     'JSONAPISerializer',
-    'ember-data/adapters/json-api':        'JSONAPIAdapter',
-    'ember-data/adapters/rest':            'RESTAdapter',
-    'ember-data/adapter':                  'Adapter',
-    'ember-data/adapters/active-model':    'ActiveModelAdapter',
-    'ember-data/store':                    'Store',
-    'ember-data/transform':                'Transform',
-    'ember-data/attr':                     'attr',
-    'ember-data/relationships':            ['hasMany', 'belongsTo']
-  };
-
-  for (var moduleName in shims) {
-    defineModule(moduleName, shims[moduleName]);
-  }
+  defineModule('ember-data', DS);
+  defineModule('ember-data/model', DS.Model);
+  defineModule('ember-data/serializers/rest',         DS.RESTSerializer);
+  defineModule('ember-data/serializers/active-model', DS.ActiveModelSerializer);
+  defineModule('ember-data/serializers/json',         DS.JSONSerializer);
+  defineModule('ember-data/serializers/json-api',     DS.JSONAPISerializer);
+  defineModule('ember-data/adapters/json-api',        DS.JSONAPIAdapter);
+  defineModule('ember-data/adapters/rest',            DS.RESTAdapter);
+  defineModule('ember-data/adapter',                  DS.Adapter);
+  defineModule('ember-data/adapters/active-model',    DS.ActiveModelAdapter);
+  defineModule('ember-data/store',                    DS.Store);
+  defineModule('ember-data/transform',                DS.Transform);
+  defineModule('ember-data/attr',                     DS.attr);
+  define('ember-data/relationships', [], function() {
+    return {
+      hasMany: DS.hasMany,
+      belongsTo: DS.belongsTo
+    };
+  });
 
   if (Ember.Test) {
-    var testShims = {
-      'ember-test': {
-        'default': Ember.Test
-      },
-      'ember-test/adapter': {
-        'default': Ember.Test.Adapter
-      },
-      'ember-test/qunit-adapter': {
-        'default': Ember.Test.QUnitAdapter
-      }
-    };
-
-    for (var moduleName in testShims) {
-      defineModule(moduleName, testShims[moduleName]);
-    }
+    defineModule('ember-test/adapter', Ember.Test.Adapter);
+    defineModule('ember-test/qunit-adapter', Ember.Test.QUnitAdapter);
   }
 }());
