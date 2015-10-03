@@ -1,5 +1,6 @@
 ;(function() {
-  function generateModule(name, values) {
+
+  function defineModule(name, values) {
     define(name, [], function() {
       'use strict';
 
@@ -7,23 +8,6 @@
     });
   }
 
-  function generateLazyModule(namespace, name, globalName) {
-    define(name, [], function() {
-      'use strict';
-
-      var exportObject = {};
-
-      if (typeof globalName === 'object') {
-        for (var i = 0, l = globalName.length; i < l; i++) {
-          exportObject[globalName[i]] = window[namespace][globalName[i]];
-        }
-      } else {
-        exportObject['default'] = (globalName !== '') ? window[namespace][globalName] : window[namespace];
-      }
-
-      return exportObject;
-    });
-  }
   var shims = {
     'ember-data':                          '',
     'ember-data/model':                    'Model',
@@ -42,7 +26,7 @@
   };
 
   for (var moduleName in shims) {
-    generateLazyModule('DS', moduleName, shims[moduleName]);
+    defineModule(moduleName, shims[moduleName]);
   }
 
   if (Ember.Test) {
@@ -59,7 +43,7 @@
     };
 
     for (var moduleName in testShims) {
-      generateModule(moduleName, testShims[moduleName]);
+      defineModule(moduleName, testShims[moduleName]);
     }
   }
 }());
