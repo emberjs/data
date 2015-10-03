@@ -13,14 +13,14 @@ module.exports = {
 
   treeFor: function(type) {
     if (type === 'vendor') {
-      return new Funnel(new UnwatchedTree(__dirname), {
-        srcDir: 'dist',
+      return new Funnel(new UnwatchedTree(__dirname + '/dist'), {
         destDir: 'ember-data',
         files: [
           'ember-data.js',
           'ember-data.js.map',
           'ember-data.min.js',
-          'ember-data.prod.js'
+          'ember-data.prod.js',
+          'shims/shims.js'
         ]
       });
     }
