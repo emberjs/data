@@ -181,5 +181,6 @@ if (env === 'production') {
 }
 
 trees.push(globalBuild);
+trees.push(stew.find('shims/{shims.js}'));
 
 module.exports = merge(trees, { overwrite: true });

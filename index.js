@@ -29,21 +29,15 @@ module.exports = {
   included: function(app) {
     this._super.included(app);
 
-    var options = {
-      exports: {
-        'ember-data': [
-          'default'
-        ]
-      }
-    };
-
     this.app.import({
       development: 'vendor/ember-data/ember-data.js',
-      production: 'vendor/ember-data/ember-data.prod.js'
-    }, options);
-    // Source maps
+      production:  'vendor/ember-data/ember-data.prod.js'
+    });
+
     this.app.import({
       development: 'vendor/ember-data/ember-data.js.map'
     }, {destDir: 'assets'});
+
+    this.app.import('vendor/ember-data/shims/shims.js');
   }
 };
