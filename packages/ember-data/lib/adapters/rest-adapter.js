@@ -875,7 +875,10 @@ var RESTAdapter =  Adapter.extend(BuildURLMixin, {
 
     if (hash.data && type !== 'GET') {
       hash.contentType = 'application/json; charset=utf-8';
-      hash.data = JSON.stringify(hash.data);
+      hash.data = JSON.stringify(hash.data, (key, val) => {
+        if (val === undefined) { return null; }
+        return val;
+      });
     }
 
     var headers = get(this, 'headers');
