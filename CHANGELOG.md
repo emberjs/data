@@ -2,19 +2,45 @@
 
 ### Master
 
-### Release 2.1.0-beta.5 (September 28, 2015)
+### Release 2.1.0 (October 5, 2015)
+- [#3811](https://github.com/emberjs/data/pull/3811) Format lists in JSONSerializer docs for rendering
+- [#3814](https://github.com/emberjs/data/pull/3814) [BUGFIX] Do not deserialize when a relationship named `type` exists
 - [#3781](https://github.com/emberjs/data/pull/3781) [BUGFIX beta] Fix id property in DS.Model once and for all
-
-### Release 2.1.0-beta.4 (September 24, 2015)
 - [#3783](https://github.com/emberjs/data/pull/3783) Update changelog for 2.0.1 release
 - [#3788](https://github.com/emberjs/data/pull/3788) Port pr #3725 to the release 2.0 branch
 - [#3793](https://github.com/emberjs/data/pull/3793) Map iteration has `value, key` params 'backwards'
 - [#3794](https://github.com/emberjs/data/pull/3794) [DOC release] Update documentation for store
 - [#3796](https://github.com/emberjs/data/pull/3796) [DOC release] Update documentation for EmbeddedRecordsMixin.
-
-### Release 2.1.0-beta.3 (September 17, 2015)
 - [#3764](https://github.com/emberjs/data/pull/3764) [BUGFIX beta] Support JSON API links object
 - [15d4360c](https://github.com/emberjs/data/commit/15d4360c1be0906f594718d55660151cd5f26af3) [BUGFIX release] Improve links vs. local data for relationships
+- [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
+- [#3749](https://github.com/emberjs/data/pull/3749) [DOC beta] Update Object Root docs re: plurals
+- [#3763](https://github.com/emberjs/data/pull/3763) [BUGFIX beta] JSONAPISerializer warns for unknown type
+- [#3767](https://github.com/emberjs/data/pull/3767) [BUGFIX release] Do not export jsdoc information for store helper fun…
+- [#3771](https://github.com/emberjs/data/pull/3771) update coalesceFindRequests doc for JSONAPIAdapter
+- [#3739](https://github.com/emberjs/data/pull/3739) store example should use findRecord()
+- [#3747](https://github.com/emberjs/data/pull/3747) [BUGFIX beta] JSONSerializer.extractRelationships() issue #3736
+- [#3779](https://github.com/emberjs/data/pull/3779) [BUGFIX release] Remove store method deprecations
+- [#3778](https://github.com/emberjs/data/pull/3778) [BUGFIX release] Remove deprecation on store.filter
+- [#3776](https://github.com/emberjs/data/pull/3776) [BUGFIX release] Remove deprecation for old InvalidErrors format
+- [#3765](https://github.com/emberjs/data/pull/3765) [BUGFIX beta] Fix JSONSerializer.serializeHasMany() issue #3760
+- [#3782](https://github.com/emberjs/data/pull/3782) [DOC release] Remove private label for findAll, query, queryRecord
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release] Improve links vs. local data for relationships
+- [#3701](https://github.com/emberjs/data/pull/3701) [BUGFIX release] fix regression where dynamically set id is not serialized in a create…
+- [#3714](https://github.com/emberjs/data/pull/3714) Update the location of the custom store in the API doc example
+- [#3717](https://github.com/emberjs/data/pull/3717) Remove Fixture Adapter
+- [#3722](https://github.com/emberjs/data/pull/3722) Shape and cleanup
+- [#3732](https://github.com/emberjs/data/pull/3732) follow up fixes for #3701
+- [#3641](https://github.com/emberjs/data/pull/3641) Improve InternalModel (2x - 3x faster)
+- [#3649](https://github.com/emberjs/data/pull/3649) Empty object
+- [#3647](https://github.com/emberjs/data/pull/3647) Adapter.query should be part of the public overrideable interface.
+
+### Release 1.13.13 (September 17, 2015)
+- [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release]
+  Improve links vs. local data for relationships
+
+### Release 2.0.1 (September 17, 2015)
+
 - [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
 - [#3749](https://github.com/emberjs/data/pull/3749) [DOC beta] Update Object Root docs re: plurals
 - [#3763](https://github.com/emberjs/data/pull/3763) [BUGFIX beta] JSONAPISerializer warns for unknown type
