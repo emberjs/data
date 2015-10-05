@@ -2,6 +2,31 @@
 
 ### Master
 
+### Release 2.2.0-beta.1 (October 5, 2015)
+- [#3697](https://github.com/emberjs/data/pull/3697) Fix typo in CHANGELOG
+- [#3215](https://github.com/emberjs/data/pull/3215) remove Map/MapWithDefault polyfills, use Ember's ones
+- [#3711](https://github.com/emberjs/data/pull/3711) Explicitly set length after setting a new content property
+- [#3714](https://github.com/emberjs/data/pull/3714) Update the location of the custom store in the API doc example
+- [#3699](https://github.com/emberjs/data/pull/3699) [refactor] add some tests asserting polymorphic relationships can be …
+- [#3751](https://github.com/emberjs/data/pull/3751) Remove normalizePayload, associated docs, and mention of functionality.
+- [#3732](https://github.com/emberjs/data/pull/3732) follow up fixes for #3701
+- [#3746](https://github.com/emberjs/data/pull/3746) Improve test coverage for store#findRecord()
+- [#3722](https://github.com/emberjs/data/pull/3722) Shape and cleanup
+- [#3739](https://github.com/emberjs/data/pull/3739) store example should use findRecord()
+- [#3734](https://github.com/emberjs/data/pull/3734) Revert "Explicitly set length after setting a new content property"
+- [#3783](https://github.com/emberjs/data/pull/3783) Update changelog for 2.0.1 release
+- [#3771](https://github.com/emberjs/data/pull/3771) update coalesceFindRequests doc for JSONAPIAdapter
+- [#3774](https://github.com/emberjs/data/pull/3774) Fix embedded key serialization bug and refactor key serialization
+- [#3773](https://github.com/emberjs/data/pull/3773) Break apart embedded serialize methods in EmbeddedRecordsMixin
+- [#3777](https://github.com/emberjs/data/pull/3777) Remove unused test module
+- [#3788](https://github.com/emberjs/data/pull/3788) Port pr #3725 to the release 2.0 branch
+- [#3795](https://github.com/emberjs/data/pull/3795) Trigger an assertion when calling `findRecord` with falsy (except 0) id
+- [#3808](https://github.com/emberjs/data/pull/3808) Update internal-model.js
+- [#3814](https://github.com/emberjs/data/pull/3814) [BUGFIX] Do not deserialize when a relationship named `type` exists
+- [#3816](https://github.com/emberjs/data/pull/3816) run optional feature tests on AppVeyor
+- [#3817](https://github.com/emberjs/data/pull/3817) Update the changelog for Ember Data 2.1.0
+
+
 ### Release 2.1.0 (October 5, 2015)
 - [#3811](https://github.com/emberjs/data/pull/3811) Format lists in JSONSerializer docs for rendering
 - [#3814](https://github.com/emberjs/data/pull/3814) [BUGFIX] Do not deserialize when a relationship named `type` exists
