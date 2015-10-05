@@ -34,6 +34,7 @@ test_script:
   - cmd: npm run test
   - cmd: npm run test:beta
   - cmd: npm run test:canary
+  - cmd: npm run test:optional-features
 
 # Don't actually build.
 build: off
