@@ -66,39 +66,6 @@ module("unit/store/createRecord - Store with models by dash", {
     container = env.container;
   }
 });
-test("creating a record by camel-case string finds the model", function() {
-  var attributes = { foo: 'bar' };
-  var record;
-
-  run(function() {
-    record = store.createRecord('some-thing', attributes);
-  });
-
-  equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').modelName, 'some-thing');
-});
-
-test("creating a record by dasherize string finds the model", function() {
-  var attributes = { foo: 'bar' };
-  var record;
-
-  run(function() {
-    record = store.createRecord('some-thing', attributes);
-  });
-
-  equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').modelName, 'some-thing');
-});
-
-module("unit/store/createRecord - Store with models by camelCase", {
-  setup: function() {
-    var env = setupStore({
-      someThing: DS.Model.extend({ foo: DS.attr('string') })
-    });
-    store = env.store;
-    container = env.container;
-  }
-});
 
 test("creating a record by camel-case string finds the model", function() {
   var attributes = { foo: 'bar' };
