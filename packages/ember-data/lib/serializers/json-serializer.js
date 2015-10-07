@@ -74,7 +74,7 @@ var merge = Ember.merge;
   @namespace DS
   @extends DS.Serializer
 */
-var JSONSerializer = Serializer.extend({
+export default Serializer.extend({
 
   /**
     The `primaryKey` is used when serializing and deserializing
@@ -1337,5 +1337,3 @@ var JSONSerializer = Serializer.extend({
     return transform;
   }
 });
-
-export default JSONSerializer;

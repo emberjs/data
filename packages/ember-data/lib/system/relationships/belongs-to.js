@@ -73,7 +73,7 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function belongsTo(modelName, options) {
+export default function belongsTo(modelName, options) {
   var opts, userEnteredModelName;
   if (typeof modelName === 'object') {
     opts = modelName;
@@ -141,5 +141,3 @@ Model.reopen({
     this.notifyPropertyChange(key);
   }
 });
-
-export default belongsTo;

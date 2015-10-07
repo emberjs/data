@@ -60,7 +60,7 @@ var get = Ember.get;
   @extends Ember.Object
 */
 
-var Adapter = Ember.Object.extend({
+export default Ember.Object.extend({
 
   /**
     If you would like your adapter to use a custom serializer you can
@@ -526,5 +526,3 @@ var Adapter = Ember.Object.extend({
     return true;
   }
 });
-
-export default Adapter;
