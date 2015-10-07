@@ -16,55 +16,59 @@ var merge = Ember.merge;
   This process involves normalizing property names, transforming
   attribute values and serializing relationships.
 
-  By default Ember Data recommends using the JSONApiSerializer.
+  By default, Ember Data uses and recommends the `JSONAPISerializer`.
 
   `JSONSerializer` is useful for simpler or legacy backends that may
   not support the http://jsonapi.org/ spec.
 
-  `JSONSerializer` normalizes a JSON payload that looks like:
+  For example, given the following `User` model and JSON payload:
 
-  ```js
-    App.User = DS.Model.extend({
-      name: DS.attr(),
-      friends: DS.hasMany('user'),
-      house: DS.belongsTo('location'),
-    });
+  ```app/models/user.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    friends: DS.hasMany('user'),
+    house: DS.belongsTo('location'),
+
+    name: DS.attr('string')
+  });
   ```
 
   ```js
-    {
-      id: 1,
-      name: 'Sebastian',
-      friends: [3, 4],
-      links: {
-        house: '/houses/lefkada'
-      }
+  {
+    id: 1,
+    name: 'Sebastian',
+    friends: [3, 4],
+    links: {
+      house: '/houses/lefkada'
     }
+  }
   ```
 
-  to JSONApi format that the Ember Data store expects.
+  `JSONSerializer` will normalize the JSON payload to the JSON API format that the
+  Ember Data store expects.
 
-  You can customize how JSONSerializer processes it's payload by passing options in
-  the attrs hash or by subclassing the JSONSerializer and overriding hooks:
+  You can customize how JSONSerializer processes its payload by passing options in
+  the `attrs` hash or by subclassing the `JSONSerializer` and overriding hooks:
 
-    - To customize how a single record is normalized, use the `normalize` hook
-    - To customize how JSONSerializer normalizes the whole server response, use the
-      normalizeResponse hook
-    - To customize how JSONSerializer normalizes a specific response from the server,
-      use one of the many specific normalizeResponse hooks
-    - To customize how JSONSerializer normalizes your id, attributes or relationships,
-      use the extractId, extractAttributes and extractRelationships hooks.
+    - To customize how a single record is normalized, use the `normalize` hook.
+    - To customize how `JSONSerializer` normalizes the whole server response, use the
+      `normalizeResponse` hook.
+    - To customize how `JSONSerializer` normalizes a specific response from the server,
+      use one of the many specific `normalizeResponse` hooks.
+    - To customize how `JSONSerializer` normalizes your id, attributes or relationships,
+      use the `extractId`, `extractAttributes` and `extractRelationships` hooks.
 
-  JSONSerializer normalization process follows these steps:
+  The `JSONSerializer` normalization process follows these steps:
 
-    - `normalizeResponse` - entry method to the Serializer
-    - `normalizeCreateRecordResponse` - a normalizeResponse for a specific operation is called
+    - `normalizeResponse` - entry method to the serializer.
+    - `normalizeCreateRecordResponse` - a `normalizeResponse` for a specific operation is called.
     - `normalizeSingleResponse`|`normalizeArrayResponse` - for methods like `createRecord` we expect
-      a single record back, while for methods like `findAll` we expect multiple methods back
-    - `normalize` - normalizeArray iterates and calls normalize for each of it's records while normalizeSingle
-      calls it once. This is the method you most likely want to subclass
-    - `extractId` | `extractAttributes` | `extractRelationships` - normalize delegates to these methods to
-      turn the record payload into the JSONApi format
+      a single record back, while for methods like `findAll` we expect multiple methods back.
+    - `normalize` - `normalizeArray` iterates and calls `normalize` for each of its records while `normalizeSingle`
+      calls it once. This is the method you most likely want to subclass.
+    - `extractId` | `extractAttributes` | `extractRelationships` - `normalize` delegates to these methods to
+      turn the record payload into the JSON API format.
 
   @class JSONSerializer
   @namespace DS
@@ -73,11 +77,11 @@ var merge = Ember.merge;
 var JSONSerializer = Serializer.extend({
 
   /**
-    The primaryKey is used when serializing and deserializing
+    The `primaryKey` is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
     the record. The external source may not always follow this
     convention. In these cases it is useful to override the
-    primaryKey property to match the primaryKey of your external
+    `primaryKey` property to match the `primaryKey` of your external
     store.
 
     Example
@@ -128,7 +132,7 @@ var JSONSerializer = Serializer.extend({
     ```
 
     You can also remove attributes by setting the `serialize` key to
-    false in your mapping object.
+    `false` in your mapping object.
 
     Example
 
@@ -137,7 +141,7 @@ var JSONSerializer = Serializer.extend({
 
     export default DS.JSONSerializer.extend({
       attrs: {
-        admin: {serialize: false},
+        admin: { serialize: false },
         occupation: { key: 'career' }
       }
     });
