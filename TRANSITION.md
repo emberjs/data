@@ -456,7 +456,7 @@ resulting payload is sent through the following hooks:
 1. The payload is sent to `extractSingle` if the original request was
    for a single record (like `find`/`save`) or `extractArray` if the
    original request was for an Array of records (like
-   `findAll`/`findQuery`)
+   `findAll`/`query`)
 2. The default behavior of those methods is to pull apart the top-level
    of the payload into multiple smaller records.
 3. Each of those smaller records is sent to `normalize`, which can do
@@ -587,7 +587,7 @@ of `"id"`:
     "_id": "1",
     "author_name": "DHH",
     "title": "Rails is omakase",
-    "comments": [ "1", "2" ]  
+    "comments": [ "1", "2" ]
   },
   "comments": [{
     "_id": "1",
