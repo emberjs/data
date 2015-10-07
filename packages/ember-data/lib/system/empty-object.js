@@ -1,9 +1,9 @@
-// This exists because `Object.create(null)` is absurdly slow compared
+// This exists because `Ember.create(null)` is absurdly slow compared
 // to `new EmptyObject()`. In either case, you want a null prototype
 // when you're treating the object instances as arbitrary dictionaries
 // and don't want your keys colliding with build-in methods on the
 // default object prototype.
-var proto = Object.create(null, {
+var proto = Ember.create(null, {
   // without this, we will always still end up with (new
   // EmptyObject()).constructor === Object
   constructor: {
