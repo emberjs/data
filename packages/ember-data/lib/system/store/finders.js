@@ -142,7 +142,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   var promise = adapter.query(store, typeClass, query, recordArray);
 
   var serializer = serializerForAdapter(store, adapter, modelName);
-  var label = "DS: Handle Adapter#findQuery of " + typeClass;
+  var label = "DS: Handle Adapter#query of " + typeClass;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -158,7 +158,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
     recordArray.loadRecords(records);
     return recordArray;
 
-  }, null, "DS: Extract payload of findQuery " + typeClass);
+  }, null, "DS: Extract payload of query " + typeClass);
 }
 
 export function _queryRecord(adapter, store, typeClass, query) {

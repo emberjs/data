@@ -1074,7 +1074,7 @@ test("findAll - data is normalized through custom serializers", function() {
   }));
 });
 
-test("findQuery - if `sortQueryParams` option is not provided, query params are sorted alphabetically", function() {
+test("query - if `sortQueryParams` option is not provided, query params are sorted alphabetically", function() {
   adapter.ajax = function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
@@ -1090,7 +1090,7 @@ test("findQuery - if `sortQueryParams` option is not provided, query params are 
   }));
 });
 
-test("findQuery - passes buildURL the requestType", function() {
+test("query - passes buildURL the requestType", function() {
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/" + requestType + "/posts";
   };
@@ -1106,7 +1106,7 @@ test("findQuery - passes buildURL the requestType", function() {
   }));
 });
 
-test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at all", function() {
+test("query - if `sortQueryParams` is falsey, query params are not sorted at all", function() {
   adapter.ajax = function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
@@ -1124,7 +1124,7 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
   }));
 });
 
-test("findQuery - if `sortQueryParams` is a custom function, query params passed through that function", function() {
+test("query - if `sortQueryParams` is a custom function, query params passed through that function", function() {
   adapter.ajax = function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
@@ -1151,7 +1151,7 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
   }));
 });
 
-test("findQuery - payload 'meta' is accessible on the record array", function() {
+test("query - payload 'meta' is accessible on the record array", function() {
   ajaxResponse({
     meta: { offset: 5 },
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
@@ -1166,7 +1166,7 @@ test("findQuery - payload 'meta' is accessible on the record array", function() 
   }));
 });
 
-test("findQuery - each record array can have it's own meta object", function() {
+test("query - each record array can have it's own meta object", function() {
   ajaxResponse({
     meta: { offset: 5 },
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
@@ -1190,7 +1190,7 @@ test("findQuery - each record array can have it's own meta object", function() {
 });
 
 
-test("findQuery - returning an array populates the array", function() {
+test("query - returning an array populates the array", function() {
   ajaxResponse({
     posts: [
       { id: 1, name: "Rails is omakase" },
@@ -1226,7 +1226,7 @@ test("findQuery - returning an array populates the array", function() {
   }));
 });
 
-test("findQuery - returning sideloaded data loads the data", function() {
+test("query - returning sideloaded data loads the data", function() {
   ajaxResponse({
     posts: [
       { id: 1, name: "Rails is omakase" },
@@ -1242,7 +1242,7 @@ test("findQuery - returning sideloaded data loads the data", function() {
   }));
 });
 
-test("findQuery - data is normalized through custom serializers", function() {
+test("query - data is normalized through custom serializers", function() {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
