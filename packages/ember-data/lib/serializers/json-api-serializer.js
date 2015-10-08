@@ -272,8 +272,8 @@ const JSONAPISerializer = JSONSerializer.extend({
   /**
     @method normalize
     @param {DS.Model} modelClass
-    @param {Object} resourceHash
-    @return {String}
+    @param {Object} resourceHash the resource hash from the adapter
+    @return {Object} the normalized resource hash
   */
   normalize: function(modelClass, resourceHash) {
     this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
