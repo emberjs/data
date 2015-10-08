@@ -120,3 +120,70 @@ test('Warns when normalizing an unknown type', function() {
     });
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
+
+test('Serializer should respect the attrs hash when extracting attributes and relationships', function() {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      'first-name': "first_name_attribute_key",
+      company: { key: 'company_relationship_key' }
+    }
+  }));
+
+  var jsonHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first_name_attribute_key': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        'company_relationship_key': {
+          data: { type: 'companies', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'companies',
+      id: '2',
+      attributes: {
+        name: 'Tilde Inc.'
+      }
+    }]
+  };
+
+  var user = env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+
+  equal(user.data.attributes.firstName, "Yehuda");
+  deepEqual(user.data.relationships.company.data, { id: "2", type: "company" });
+});
+
+test('Serializer should respect the attrs hash when serializing attributes and relationships', function() {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      'first-name': "first_name_attribute_key",
+      company: { key: 'company_relationship_key' }
+    }
+  }));
+  var company, user;
+
+  run(function() {
+    env.store.push({
+      data: {
+        type: 'company',
+        id: '1',
+        attributes: {
+          name: "Tilde Inc."
+        }
+      }
+    });
+    company = env.store.peekRecord('company', 1);
+    user = env.store.createRecord('user', { firstName: "Yehuda", company: company });
+  });
+
+  debugger;
+  var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
+
+  equal(payload.data.attributes['first-name'], "Yehuda");
+  equal(payload.data.relationships.company.data.id, "1");
+});
