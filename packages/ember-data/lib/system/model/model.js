@@ -145,9 +145,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   /**
     If this property is `true` the record is in the `deleted` state
     and has been marked for deletion. When `isDeleted` is true and
-    `isDirty` is true, the record is deleted locally but the deletion
+    `hasDirtyAttributes` is true, the record is deleted locally but the deletion
     was not yet persisted. When `isSaving` is true, the change is
-    in-flight. When both `isDirty` and `isSaving` are false, the
+    in-flight. When both `hasDirtyAttributes` and `isSaving` are false, the
     change has persisted.
 
     Example
@@ -158,9 +158,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     record.deleteRecord();
 
     // Locally deleted
-    record.get('isDeleted');    // true
-    record.get('isDirty');      // true
-    record.get('isSaving');     // false
+    record.get('isDeleted');           // true
+    record.get('hasDirtyAttributes');  // true
+    record.get('isSaving');            // false
 
     // Persisting the deletion
     var promise = record.save();
@@ -169,9 +169,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     // Deletion Persisted
     promise.then(function() {
-      record.get('isDeleted');  // true
-      record.get('isSaving');   // false
-      record.get('isDirty');    // false
+      record.get('isDeleted');          // true
+      record.get('isSaving');           // false
+      record.get('hasDirtyAttributes'); // false
     });
     ```
 
@@ -645,7 +645,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
 
   /**
-    If the model `isDirty` this function will discard any unsaved
+    If the model `hasDirtyAttributes` this function will discard any unsaved
     changes. If the model `isNew` it will be removed from the store.
 
     Example
@@ -704,9 +704,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   /**
     Reload the record from the adapter.
 
-    This will only work if the record has already finished loading
-    and has not yet been modified (`isLoaded` but not `isDirty`,
-    or `isSaving`).
+    This will only work if the record has already finished loading.
 
     Example
 

@@ -940,7 +940,7 @@ Store = Service.extend({
     var adapter = this.adapterFor(modelName);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + typeClass + ")", adapter);
-    Ember.assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function' || typeof adapter.findQuery === 'function');
+    Ember.assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function');
 
     return promiseArray(_query(adapter, this, typeClass, query, array));
   },
