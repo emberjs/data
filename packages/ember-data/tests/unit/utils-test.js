@@ -1,5 +1,6 @@
 // TODO enable import once this is possible
 // import { assertPolymorphicType } from "ember-data/utils";
+// import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";
 
 var env, User, Message, Post, Person, Video, Medium;
 
@@ -135,3 +136,22 @@ test("assertPolymorphicType works for mixins", function() {
     // assertPolymorphicType(post, relationship, person);
   }, "You cannot add a record of type 'person' to the 'post.medias' relationship (only 'medium' allowed)");
 });
+
+// TODO enable once we can `import x from y;` in tests
+// test("modelHasAttributeOrRelationshipNamedType", function() {
+//   var ModelWithTypeAttribute = DS.Model.extend({
+//     type: DS.attr()
+//   });
+//   var ModelWithTypeBelongsTo = DS.Model.extend({
+//     type: DS.belongsTo()
+//   });
+//   var ModelWithTypeHasMany = DS.Model.extend({
+//     type: DS.hasMany()
+//   });
+//
+//   equal(modelHasAttributeOrRelationshipNamedType(DS.Model), false);
+//
+//   equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeAttribute), true);
+//   equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeBelongsTo), true);
+//   equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany), true);
+// });
