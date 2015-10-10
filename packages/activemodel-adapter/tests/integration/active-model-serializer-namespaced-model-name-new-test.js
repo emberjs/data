@@ -61,7 +61,8 @@ if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     var json;
 
     run(function() {
-      json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
+      var amsSerializer = env.store.serializerFor('application');
+      json = amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
     });
 
     assert.deepEqual(json, {
@@ -98,7 +99,8 @@ if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     var json;
 
     run(function() {
-      json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
+      var amsSerializer = env.store.serializerFor('application');
+      json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
     });
 
     assert.deepEqual(json, {

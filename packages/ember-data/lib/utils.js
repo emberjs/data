@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+const get = Ember.get;
+
 /**
   Assert that `addedRecord` has a valid type so it can be added to the
   relationship of the `record`.
@@ -42,6 +44,17 @@ function checkPolymorphic(typeClass, addedRecord) {
   return typeClass.detect(addedRecord.type);
 }
 
+/**
+  Check if the passed model has a `type` attribute or a relationship named `type`.
+
+  @method modelHasAttributeOrRelationshipNamedType
+  @param modelClass
+ */
+function modelHasAttributeOrRelationshipNamedType(modelClass) {
+  return get(modelClass, 'attributes').has('type') || get(modelClass, 'relationshipsByName').has('type');
+}
+
 export {
-  assertPolymorphicType
+  assertPolymorphicType,
+  modelHasAttributeOrRelationshipNamedType
 };

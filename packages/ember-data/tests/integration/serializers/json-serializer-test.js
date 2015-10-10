@@ -260,6 +260,94 @@ test('Serializer should respect the attrs hash when serializing records', functi
   equal(payload.my_parent, '2');
 });
 
+test('Serializer respects if embedded model has an attribute named "type" - #3726', function() {
+  env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    isNewSerializerAPI: true,
+    attrs: {
+      child: { embedded: 'always' }
+    }
+  }));
+  env.registry.register("serializer:child", DS.JSONSerializer.extend({
+    isNewSerializerAPI: true
+  }));
+  env.registry.register("model:parent", DS.Model.extend({
+    child: DS.belongsTo('child')
+  }));
+  env.registry.register("model:child", DS.Model.extend({
+    type: DS.attr()
+  }));
+
+  var jsonHash = {
+    id: 1,
+    child: {
+      id: 1,
+      type: 'first_type'
+    }
+  };
+
+  Ember.run(function() {
+    var Parent = env.store.modelFor('parent');
+    var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
+    deepEqual(payload.included, [
+      {
+        id: '1',
+        type: 'child',
+        attributes: {
+          type: 'first_type'
+        },
+        relationships: {}
+      }
+    ]);
+  });
+});
+
+test('Serializer respects if embedded model has a relationship named "type" - #3726', function() {
+  env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    isNewSerializerAPI: true,
+    attrs: {
+      child: { embedded: 'always' }
+    }
+  }));
+  env.registry.register("serializer:child", DS.JSONSerializer.extend({
+    isNewSerializerAPI: true
+  }));
+  env.registry.register("model:parent", DS.Model.extend({
+    child: DS.belongsTo('child')
+  }));
+  env.registry.register("model:child", DS.Model.extend({
+    type: DS.belongsTo('le-type')
+  }));
+  env.registry.register("model:le-type", DS.Model.extend());
+
+  var jsonHash = {
+    id: 1,
+    child: {
+      id: 1,
+      type: "my_type_id"
+    }
+  };
+
+  Ember.run(function() {
+    var Parent = env.store.modelFor('parent');
+    var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
+    deepEqual(payload.included, [
+      {
+        id: '1',
+        type: 'child',
+        attributes: {},
+        relationships: {
+          type: {
+            data: {
+              id: 'my_type_id',
+              type: 'le-type'
+            }
+          }
+        }
+      }
+    ]);
+  });
+});
+
 test('Serializer respects `serialize: false` on the attrs hash', function() {
   expect(2);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({

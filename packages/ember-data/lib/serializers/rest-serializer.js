@@ -8,6 +8,7 @@ import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
 import { pushPayload } from "ember-data/system/store/serializer-response";
 import ArrayPolyfills from 'ember-data/ext/ember/array';
+import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";
 
 import {
   keysFunc
@@ -228,7 +229,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     Ember.assert(`${this.toString()} has opted into the new serializer API and expects the ${serializer.toString()} it collaborates with to also support the new serializer API by setting its \`isNewSerializerAPI\` property to true.`, get(serializer, 'isNewSerializerAPI'));
 
-    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type');
+    const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(modelClass);
     /*jshint loopfunc:true*/
     forEach.call(arrayHash, (hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer, primaryHasTypeAttribute);

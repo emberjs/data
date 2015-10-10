@@ -297,7 +297,8 @@ test("extractPolymorphic hasMany", function(assert) {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -338,7 +339,8 @@ test("extractPolymorphic belongsTo", function(assert) {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -382,7 +384,8 @@ test("extractPolymorphic belongsTo (weird format)", function(assert) {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -431,7 +434,8 @@ test("belongsTo (weird format) does not screw if there is a relationshipType att
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -466,7 +470,8 @@ test("extractPolymorphic when the related data is not specified", function(asser
   };
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -495,7 +500,8 @@ test("extractPolymorphic hasMany when the related data is not specified", functi
   };
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -517,7 +523,8 @@ test("extractPolymorphic does not break hasMany relationships", function(assert)
   };
 
   run(function () {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
   });
 
   assert.deepEqual(json, {
@@ -581,7 +588,8 @@ test('supports the default format for polymorphic belongsTo', function(assert) {
   var json, minion;
 
   run(() => {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, payload, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, DoomsdayDevice, payload, '1', 'findRecord');
     env.store.push(json);
     minion = env.store.findRecord('doomsday-device', 1);
   });
@@ -609,7 +617,8 @@ test('supports the default format for polymorphic hasMany', function(assert) {
   var json, villain;
 
   run(() => {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, payload, '1', 'findRecord');
+    var amsSerializer = env.store.serializerFor('application');
+    json = amsSerializer.normalizeResponse(env.store, MediocreVillain, payload, '1', 'findRecord');
     env.store.push(json);
     villain = env.store.findRecord('mediocre-villain', '1');
   });

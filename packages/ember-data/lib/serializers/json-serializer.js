@@ -1,6 +1,7 @@
 import Serializer from "ember-data/system/serializer";
 import coerceId from "ember-data/system/coerce-id";
 import normalizeModelName from "ember-data/system/normalize-model-name";
+import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";
 
 import { errorsArrayToHash } from "ember-data/adapters/errors";
 import ArrayPolyfills from 'ember-data/ext/ember/array';
@@ -568,7 +569,9 @@ var JSONSerializer = Serializer.extend({
       if (relationshipHash.id) {
         relationshipHash.id = coerceId(relationshipHash.id);
       }
-      if (relationshipHash.type) {
+
+      const modelClass = this.store.modelFor(relationshipModelName);
+      if (relationshipHash.type && !modelHasAttributeOrRelationshipNamedType(modelClass)) {
         relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
       return relationshipHash;
