@@ -6,9 +6,9 @@ import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
+import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";
 
 var camelize = Ember.String.camelize;
-var get = Ember.get;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -149,7 +149,7 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    const primaryHasTypeAttribute = get(modelClass, 'attributes').get('type') || get(modelClass, 'relationshipsByName').get('type');
+    const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(modelClass);
     /*jshint loopfunc:true*/
     arrayHash.forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer, primaryHasTypeAttribute);
