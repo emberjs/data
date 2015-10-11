@@ -1811,6 +1811,76 @@ Store = Service.extend({
   },
 
   /**
+    Normalize raw data.
+
+    This method can be used to normalize a payload into JSON API format Ember
+    Data expects for `push`. If the primary model of the payload is specified
+    as first parameter, the normalized payload will contain the data of this
+    model as primary data of the normalized hash:
+
+    ```js
+    var payload = {
+      posts: [
+        { id: 1, post_title: "Great post", comment_ids: [2] }
+      ],
+      comments: [
+        { id: 2, comment_body: "Insightful comment" }
+      ]
+    }
+
+    var normalizedPayload = store.normalizePayload('post', pushData);
+
+    normalizedPayload == {
+      data: [
+        { id: 1, type: 'post', ... }
+      ],
+      included: [
+        { id: 2, type: 'comment', ... }
+      ]
+    };
+    ```
+
+    If the primary model is omitted, then all data is added to the primary data
+    of the resulting hash:
+
+    ```js
+    var payload = {
+      posts: [
+        { id: 1, post_title: "Great post", comment_ids: [2] }
+      ],
+      comments: [
+        { id: 2, comment_body: "Insightful comment" }
+      ]
+    }
+
+    var normalizedPayload = store.normalizePayload(pushData);
+
+    normalizedPayload == {
+      data: [
+        { id: 1, type: 'post', ... },
+        { id: 2, type: 'comment', ... }
+      ],
+      included: []
+    };
+    ```
+   */
+  normalizePayload: function(modelName, inputPayload) {
+    var serializer;
+    var payload;
+    if (!inputPayload) {
+      payload = modelName;
+      serializer = defaultSerializer(this);
+    } else {
+      payload = inputPayload;
+      Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
+      serializer = this.serializerFor(modelName);
+    }
+
+    Ember.assert("You cannot use `store#normalizePayload` without your serializer defining `normalizePayload`", typeof serializer.normalizePayload === 'function');
+    return serializer.normalizePayload(modelName, inputPayload);
+  },
+
+  /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
 
