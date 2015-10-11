@@ -12,7 +12,7 @@ var get = Ember.get;
   @constructor
   @param {DS.Model} internalModel The model to create a snapshot from
 */
-function Snapshot(internalModel) {
+export default function Snapshot(internalModel) {
   this._attributes = new EmptyObject();
   this._belongsToRelationships = new EmptyObject();
   this._belongsToIds = new EmptyObject();
@@ -345,5 +345,3 @@ Snapshot.prototype = {
     return this.record.store.serializerFor(this.modelName).serialize(this, options);
   }
 };
-
-export default Snapshot;

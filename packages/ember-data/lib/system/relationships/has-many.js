@@ -112,7 +112,7 @@ import isArrayLike from "ember-data/system/is-array-like";
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function hasMany(type, options) {
+export default function hasMany(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -163,6 +163,3 @@ Model.reopen({
     this.notifyPropertyChange(key);
   }
 });
-
-
-export default hasMany;

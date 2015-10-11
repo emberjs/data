@@ -92,7 +92,7 @@ var camelize = Ember.String.camelize;
   @class EmbeddedRecordsMixin
   @namespace DS
 */
-var EmbeddedRecordsMixin = Ember.Mixin.create({
+export default Ember.Mixin.create({
 
   /**
     Normalize the record and recursively normalize/extract all the embedded records
@@ -496,5 +496,3 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return serializer.normalize(modelClass, relationshipHash, null);
   }
 });
-
-export default EmbeddedRecordsMixin;
