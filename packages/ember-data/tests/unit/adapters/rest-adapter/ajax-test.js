@@ -102,3 +102,18 @@ test("ajaxOptions() empty data", function() {
     url: 'example.com'
   });
 });
+
+test("ajaxOptions() converts undefined data values to null", function() {
+  var url = 'example.com';
+  var type = 'POST';
+  var ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: undefined } });
+
+  deepEqual(ajaxOptions, {
+    contentType: "application/json; charset=utf-8",
+    context: adapter,
+    data: '{"key":null}',
+    dataType: 'json',
+    type: 'POST',
+    url: 'example.com'
+  });
+});
