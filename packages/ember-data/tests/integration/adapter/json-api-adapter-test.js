@@ -775,7 +775,7 @@ test('update record', function() {
 
       user.save().then(function() {
         equal(passedUrl[0], '/users/1');
-        equal(passedVerb[0], 'PATCH');
+        equal(passedVerb[0], 'PUT');
         deepEqual(passedHash[0], {
           data: {
             data : {
@@ -849,7 +849,7 @@ test('update record - serialize hasMany', function() {
 
       user.save().then(function() {
         equal(passedUrl[0], '/users/1');
-        equal(passedVerb[0], 'PATCH');
+        equal(passedVerb[0], 'PUT');
         deepEqual(passedHash[0], {
           data: {
             data : {
