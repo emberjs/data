@@ -7,7 +7,7 @@ before_install:
   - "npm config set spin false"
   - "npm install -g npm@^2"
 install:
-- "npm install"
+  - npm install --no-optional
 script:
   - ./bin/lint-features
   - npm run-script test
