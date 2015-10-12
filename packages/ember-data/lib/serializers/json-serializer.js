@@ -610,10 +610,21 @@ export default Serializer.extend({
       }
 
       let linkKey = this.keyForLink(key, relationshipMeta.kind);
-      if (resourceHash.links && resourceHash.links.hasOwnProperty(linkKey)) {
-        let related = resourceHash.links[linkKey];
-        relationship = relationship || {};
-        relationship.links = { related };
+      if (resourceHash.links) {
+        var related;
+        if (Ember.isArray(resourceHash.links)) {
+          let links = resourceHash.links.filter(link => link.rel === linkKey);
+          if (links && links[0]) {
+            related = links[0].href;
+          }
+        } else if (resourceHash.links.hasOwnProperty(linkKey)) {
+          related = resourceHash.links[linkKey];
+        }
+
+        if (related) {
+          relationship = relationship || {};
+          relationship.links = { related };
+        }
       }
 
       if (relationship) {
