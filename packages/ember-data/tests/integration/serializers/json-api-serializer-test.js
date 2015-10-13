@@ -120,3 +120,51 @@ test('Warns when normalizing an unknown type', function() {
     });
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
+
+test('normalizePayload(modelName, payload)', function() {
+  var payload = {
+    data: {
+      type: 'user',
+      id: '1',
+      relationships: {
+        company: {
+          data: { type: 'company', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'company',
+      id: '2',
+      attributes: {
+        name: 'Tilde Inc.'
+      }
+    }]
+  };
+
+  var normalizedPayload = env.store.normalizePayload('user', payload);
+  deepEqual(normalizedPayload, payload);
+});
+
+test('normalizePayload(payload)', function() {
+  var payload = {
+    data: {
+      type: 'user',
+      id: '1',
+      relationships: {
+        company: {
+          data: { type: 'company', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'company',
+      id: '2',
+      attributes: {
+        name: 'Tilde Inc.'
+      }
+    }]
+  };
+
+  var normalizedPayload = env.store.normalizePayload('user', payload);
+  deepEqual(normalizedPayload, payload);
+});

@@ -161,6 +161,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     store.push(normalizedPayload);
   },
 
+  normalizePayload: function(primaryModelName, payload) {
+    return this._normalizeDocumentHelper(payload);
+  },
+
   /**
     @method _normalizeResponse
     @param {DS.Store} store

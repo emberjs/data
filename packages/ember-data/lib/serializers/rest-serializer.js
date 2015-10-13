@@ -344,6 +344,16 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload: function(store, payload) {
+    let documentHash = this.normalizePayload(payload);
+    store.push(documentHash);
+  },
+
+  normalizePayload: function(primaryModelName, payload) {
+    if (!payload) {
+      payload = primaryModelName;
+      primaryModelName = null;
+    }
+
     let documentHash = {
       data: [],
       included: []
@@ -351,26 +361,41 @@ var RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
-      if (!store.modelFactoryFor(modelName)) {
+      if (!this.store.modelFactoryFor(modelName)) {
         Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type.modelName);
+      var type = this.store.modelFor(modelName);
+      var typeSerializer = this.store.serializerFor(type.modelName);
 
       /*jshint loopfunc:true*/
       Ember.makeArray(payload[prop]).forEach((hash) => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
-        documentHash.data.push(data);
+
+        if (primaryModelName) {
+          // if a primary model is specified, set the data as primary data of
+          // the normalized payload, otherwise the data is included
+          if (primaryModelName === modelName) {
+            documentHash.data = data;
+          } else {
+            documentHash.included.push(data);
+          }
+        } else {
+          // no primary model specified means, that the primary data of each
+          // included resource is added to the primary data of the normalized
+          // payload
+          documentHash.data.push(data);
+        }
+
         if (included) {
           documentHash.included.push(...included);
         }
       });
     }
 
-    store.push(documentHash);
+    return documentHash;
   },
 
   /**
