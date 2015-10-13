@@ -4,10 +4,11 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
-var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, BatCave, Comment,
-  league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
+var HomePlanet, SuperVillain, CommanderVillain, NormalMinion, EvilMinion, YellowMinion, RedMinion, SecretLab, SecretWeapon, BatCave, Comment,
+  league, superVillain, commanderVillain, evilMinion, yellowMinion, redMinion, secretWeapon, homePlanet, secretLab, env;
 var run = Ember.run;
 var LightSaber;
 
@@ -44,22 +45,36 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       superVillain:    DS.belongsTo('super-villain', { async: false }),
       name:            DS.attr('string')
     });
+    NormalMinion = DS.Model.extend({
+      name: DS.attr('string')
+    });
+    YellowMinion = NormalMinion.extend();
+    RedMinion = NormalMinion.extend();
+    CommanderVillain = DS.Model.extend({
+      name: DS.attr('string'),
+      minions: DS.hasMany('normal-minion', { polymorphic: true })
+    });
     Comment = DS.Model.extend({
       body:            DS.attr('string'),
       root:            DS.attr('boolean'),
       children:        DS.hasMany('comment', { inverse: null, async: false })
     });
     env = setupStore({
-      superVillain:    SuperVillain,
-      homePlanet:      HomePlanet,
-      secretLab:       SecretLab,
-      batCave:         BatCave,
-      secretWeapon:    SecretWeapon,
-      lightSaber:      LightSaber,
-      evilMinion:      EvilMinion,
-      comment:         Comment
+      superVillain:     SuperVillain,
+      commanderVillain: CommanderVillain,
+      homePlanet:       HomePlanet,
+      secretLab:        SecretLab,
+      batCave:          BatCave,
+      secretWeapon:     SecretWeapon,
+      lightSaber:       LightSaber,
+      evilMinion:       EvilMinion,
+      normalMinion:     NormalMinion,
+      yellowMinion:     YellowMinion,
+      redMinion:        RedMinion,
+      comment:          Comment
     });
     env.store.modelFor('super-villain');
+    env.store.modelFor('commander-villain');
     env.store.modelFor('home-planet');
     env.store.modelFor('secret-lab');
     env.store.modelFor('bat-cave');
@@ -1058,6 +1073,39 @@ test("serialize with embedded objects (hasMany relationships, including related 
   });
 });
 
+if (isEnabled("ds-serialize-ids-and-types")) {
+  test("serialize has many relationship using the `ids-and-types` strategy", function(assert) {
+    run(function() {
+      yellowMinion = env.store.createRecord('yellow-minion', { id: 1, name: "Yellowy" });
+      redMinion = env.store.createRecord('red-minion', { id: 1, name: "Reddy" });
+      commanderVillain = env.store.createRecord('commander-villain', { id: 1, name: "Jeff", minions: [yellowMinion, redMinion] });
+    });
+
+    env.registry.register('serializer:commander-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+      attrs: {
+        minions: { serialize: 'ids-and-types' }
+      }
+    }));
+    var serializer, json;
+    run(function() {
+      serializer = env.container.lookup("serializer:commander-villain");
+      var snapshot = commanderVillain._createSnapshot();
+      json = serializer.serialize(snapshot);
+    });
+
+    assert.deepEqual(json, {
+      name: 'Jeff',
+      minions: [{
+        id: '1',
+        type: 'yellow-minion'
+      }, {
+        id: '1',
+        type: 'red-minion'
+      }]
+    });
+  });
+}
+
 test("normalizeResponse with embedded object (belongsTo relationship)", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
@@ -1949,7 +1997,6 @@ test("normalizeResponse with polymorphic belongsTo and custom primary key", func
       }
     ]
   }, "Custom primary key is correctly normalized");
-
 });
 
 test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function(assert) {
