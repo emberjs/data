@@ -1028,7 +1028,7 @@ Store = Service.extend({
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
     if (adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
-      promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+      _findAll(adapter, this, typeClass, sinceToken, options);
     }
     return promiseArray(Promise.resolve(array));
   },
