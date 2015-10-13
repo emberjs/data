@@ -607,12 +607,12 @@ test("don't polymorphically deserialize base on the type key in payload when a t
   }));
 
   run(function() {
-    env.restSerializer.normalizeArrayResponse(env.store, Basket, {
+    env.store.push(env.restSerializer.normalizeArrayResponse(env.store, Basket, {
       basket: [
-        env.store.createRecord('Basket', { type: 'bamboo', size: 10, id: '1' }),
-        env.store.createRecord('Basket', { type: 'yellowMinion', size: 10, id: '65536' })
+        { type: 'bamboo', size: 10, id: '1' },
+        { type: 'yellowMinion', size: 10, id: '65536' }
       ]
-    });
+    }));
   });
 
   const normalRecord = env.store.peekRecord('basket', '1');
@@ -625,6 +625,24 @@ test("don't polymorphically deserialize base on the type key in payload when a t
   strictEqual(clashingRecord.get('type'), 'yellowMinion');
   strictEqual(clashingRecord.get('size'), 10);
 });
+
+test("don't polymorphically deserialize base on the type key in payload when a type attribute exist on a singular response", function() {
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
+    isNewSerializerAPI: true
+  }));
+
+  run(function() {
+    env.store.push(env.restSerializer.normalizeSingleResponse(env.store, Basket, {
+      basket: { type: 'yellowMinion', size: 10, id: '65536' }
+    }, '65536'));
+  });
+
+  const clashingRecord = env.store.peekRecord('basket', '65536');
+  ok(clashingRecord, 'payload with type that matches another model name');
+  strictEqual(clashingRecord.get('type'), 'yellowMinion');
+  strictEqual(clashingRecord.get('size'), 10);
+});
+
 
 test("don't polymorphically deserialize based on the type key in payload when a relationship exists named type", function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
