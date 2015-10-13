@@ -10,6 +10,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
+      title: DS.attr('string'),
       handles: DS.hasMany('handle', { async: true, polymorphic: true }),
       company: DS.belongsTo('company', { async: true })
     });
@@ -124,7 +125,7 @@ test('Warns when normalizing an unknown type', function() {
 test('Serializer should respect the attrs hash when extracting attributes and relationships', function() {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
-      'firstName': "first_name_attribute_key",
+      title: "title_attribute_key",
       company: { key: 'company_relationship_key' }
     }
   }));
@@ -134,8 +135,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
       type: 'users',
       id: '1',
       attributes: {
-        'first_name_attribute_key': 'Yehuda',
-        'last-name': 'Katz'
+        'title_attribute_key': 'director'
       },
       relationships: {
         'company_relationship_key': {
@@ -154,14 +154,14 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 
   var user = env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
-  equal(user.data.attributes.firstName, "Yehuda");
+  equal(user.data.attributes.title, "director");
   deepEqual(user.data.relationships.company.data, { id: "2", type: "company" });
 });
 
 test('Serializer should respect the attrs hash when serializing attributes and relationships', function() {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
-      'firstName': "first_name_attribute_key",
+      title: "title_attribute_key",
       company: { key: 'company_relationship_key' }
     }
   }));
@@ -178,11 +178,11 @@ test('Serializer should respect the attrs hash when serializing attributes and r
       }
     });
     company = env.store.peekRecord('company', 1);
-    user = env.store.createRecord('user', { firstName: "Yehuda", company: company });
+    user = env.store.createRecord('user', { firstName: "Yehuda", title: "director", company: company });
   });
 
   var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
 
   equal(payload.data.relationships['company_relationship_key'].data.id, "1");
-  equal(payload.data.attributes['first_name_attribute_key'], "Yehuda");
+  equal(payload.data.attributes['title_attribute_key'], "director");
 });
