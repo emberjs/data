@@ -60,7 +60,7 @@ var get = Ember.get;
   @extends Ember.Object
 */
 
-var Adapter = Ember.Object.extend({
+export default Ember.Object.extend({
 
   /**
     If you would like your adapter to use a custom serializer you can
@@ -330,6 +330,14 @@ var Adapter = Ember.Object.extend({
 
     Serializes the record update and sends it to the server.
 
+    The updateRecord method is expected to return a promise that will
+    resolve with the serialized record. This allows the backend to
+    inform the Ember Data store the current state of this record after
+    the update. If it is not possible to return a serialized record
+    the updateRecord promise can also resolve with `undefined` and the
+    Ember Data store will assume all of the updates were successfully
+    applied on the backend.
+
     Example
 
     ```app/adapters/application.js
@@ -526,5 +534,3 @@ var Adapter = Ember.Object.extend({
     return true;
   }
 });
-
-export default Adapter;

@@ -24,10 +24,12 @@ this bug already.
 
 3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
 demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better. A preconfigured [JSBin][1] |
+demonstrate. The more pared down, the better. A preconfigured [JSBin (RESTAdapter)][rest] | [JSBIN (JSONAPIAdapter)][json-api] |
 [JSFiddle][2] with mocked requests is available.
 
-[1]: http://emberjs.jsbin.com/lavacavige/edit?html,js,output
+
+[rest]: http://emberjs.jsbin.com/nunico/1/edit?html,js,output
+[json-api]: http://emberjs.jsbin.com/sarobu/1/edit?html,js,output
 [2]: http://jsfiddle.net/842xesgc/
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take

@@ -189,7 +189,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   @extends DS.Adapter
   @uses DS.BuildURLMixin
 */
-var RESTAdapter =  Adapter.extend(BuildURLMixin, {
+export default Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   /**
@@ -955,5 +955,3 @@ function endsWith(string, suffix) {
     return string.endsWith(suffix);
   }
 }
-
-export default RESTAdapter;

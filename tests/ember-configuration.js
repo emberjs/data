@@ -15,6 +15,7 @@
 
   // Handle testing feature flags
   ENV['ENABLE_OPTIONAL_FEATURES'] = !!QUnit.urlParams.enableoptionalfeatures;
+  ENV['RAISE_ON_DEPRECATION'] = true;
 
   window.async = function(callback, timeout) {
     var timer;
