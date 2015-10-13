@@ -124,7 +124,7 @@ test('Warns when normalizing an unknown type', function() {
 test('Serializer should respect the attrs hash when extracting attributes and relationships', function() {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
-      'first-name': "first_name_attribute_key",
+      'firstName': "first_name_attribute_key",
       company: { key: 'company_relationship_key' }
     }
   }));
@@ -161,7 +161,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 test('Serializer should respect the attrs hash when serializing attributes and relationships', function() {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
-      'first-name': "first_name_attribute_key",
+      'firstName': "first_name_attribute_key",
       company: { key: 'company_relationship_key' }
     }
   }));
@@ -181,9 +181,8 @@ test('Serializer should respect the attrs hash when serializing attributes and r
     user = env.store.createRecord('user', { firstName: "Yehuda", company: company });
   });
 
-  debugger;
   var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
 
-  equal(payload.data.attributes['first-name'], "Yehuda");
-  equal(payload.data.relationships.company.data.id, "1");
+  equal(payload.data.relationships['company_relationship_key'].data.id, "1");
+  equal(payload.data.attributes['first_name_attribute_key'], "Yehuda");
 });
