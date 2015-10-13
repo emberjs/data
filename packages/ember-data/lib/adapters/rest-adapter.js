@@ -815,15 +815,12 @@ export default Adapter.extend(BuildURLMixin, {
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(payload, textStatus, jqXHR) {
-        let response;
 
-        if (!(response instanceof AdapterError)) {
-          response = adapter.handleResponse(
-            jqXHR.status,
-            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-            response || payload
-          );
-        }
+        let response = adapter.handleResponse(
+          jqXHR.status,
+          parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+          payload
+        );
 
         if (response instanceof AdapterError) {
           Ember.run(null, reject, response);
