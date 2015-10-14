@@ -202,10 +202,6 @@ function didSetProperty(internalModel, context) {
 //   but the deletion was not yet persisted. When `isSaving` is
 //   true, the change is in-flight. When both `isDirty` and
 //   `isSaving` are false, the change has persisted.
-// * isError: The adapter reported that it was unable to save
-//   local changes to the backend. This may also result in the
-//   record having its `isValid` property become false if the
-//   adapter reported that server-side validations failed.
 // * isNew: The record was created on the client and the adapter
 //   did not yet report that it was successfully saved.
 // * isValid: The adapter did not report any server-side validation
