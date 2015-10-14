@@ -333,6 +333,7 @@ var DirtyState = {
     becomeDirty: Ember.K,
 
     pushedData: Ember.K,
+    becameError: Ember.K,
 
     willCommit: function(internalModel) {
       internalModel.clearErrorMessages();
