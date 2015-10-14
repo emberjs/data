@@ -676,17 +676,24 @@ InternalModel.prototype = {
 
   addErrorMessageToAttribute: function(attribute, message) {
     var record = this.getRecord();
-    get(record, 'errors').add(attribute, message);
+    get(record, 'errors')._add(attribute, message);
   },
 
   removeErrorMessageFromAttribute: function(attribute) {
     var record = this.getRecord();
-    get(record, 'errors').remove(attribute);
+    get(record, 'errors')._remove(attribute);
   },
 
   clearErrorMessages: function() {
     var record = this.getRecord();
-    get(record, 'errors').clear();
+    get(record, 'errors')._clear();
+  },
+
+  hasErrors: function() {
+    var record = this.getRecord();
+    var errors = get(record, 'errors');
+
+    return !Ember.isEmpty(errors);
   },
 
   // FOR USE DURING COMMIT PROCESS

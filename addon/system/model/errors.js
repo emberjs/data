@@ -107,11 +107,30 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {Object} target
     @param {Function} becameInvalid
     @param {Function} becameValid
+    @deprecated
   */
   registerHandlers: function(target, becameInvalid, becameValid) {
+    Ember.deprecate(
+      `Record errors will no longer be evented.`, false, {
+        id: 'ds.errors.registerHandlers',
+        until: '3.0.0'
+      });
+
+    this._registerHandlers(target, becameInvalid, becameValid);
+  },
+
+
+  /**
+    Register with target handler
+
+    @method _registerHandlers
+    @private
+  */
+  _registerHandlers: function(target, becameInvalid, becameValid) {
     this.on('becameInvalid', target, becameInvalid);
     this.on('becameValid', target, becameValid);
   },
+
 
   /**
     @property errorsByAttributeName
@@ -214,19 +233,35 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method add
     @param {String} attribute
     @param {(Array|String)} messages
+    @deprecated
   */
   add: function(attribute, messages) {
+    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+      id: 'ds.errors.add'
+    });
+
     var wasEmpty = get(this, 'isEmpty');
 
+    this._add(attribute, messages);
+
+    if (wasEmpty && !get(this, 'isEmpty')) {
+      this.trigger('becameInvalid');
+    }
+  },
+
+
+  /**
+    Adds error messages to a given attribute without sending event.
+
+    @method _add
+    @private
+  */
+  _add: function(attribute, messages) {
     messages = this._findOrCreateMessages(attribute, messages);
     this.addObjects(messages);
     get(this, 'errorsByAttributeName').get(attribute).addObjects(messages);
 
     this.notifyPropertyChange(attribute);
-
-    if (wasEmpty && !get(this, 'isEmpty')) {
-      this.trigger('becameInvalid');
-    }
   },
 
   /**
@@ -277,8 +312,29 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     @method remove
     @param {String} attribute
+    @deprecated
   */
   remove: function(attribute) {
+    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+      id: 'ds.errors.remove'
+    });
+
+    if (get(this, 'isEmpty')) { return; }
+
+    this._remove(attribute);
+
+    if (get(this, 'isEmpty')) {
+      this.trigger('becameValid');
+    }
+  },
+
+  /**
+    Removes all error messages from the given attribute without sending event.
+
+    @method _remove
+    @private
+  */
+  _remove: function(attribute) {
     if (get(this, 'isEmpty')) { return; }
 
     let content = this.rejectBy('attribute', attribute);
@@ -286,10 +342,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
-
-    if (get(this, 'isEmpty')) {
-      this.trigger('becameValid');
-    }
   },
 
   /**
@@ -312,8 +364,28 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     ```
 
     @method clear
+    @deprecated
   */
   clear: function() {
+    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+      id: 'ds.errors.clear'
+    });
+
+    if (get(this, 'isEmpty')) { return; }
+
+    this._clear();
+    this.trigger('becameValid');
+  },
+
+
+  /**
+    Removes all error messages.
+    to the record.
+
+    @method _clear
+    @private
+  */
+  _clear: function() {
     if (get(this, 'isEmpty')) { return; }
 
     let errorsByAttributeName = get(this, 'errorsByAttributeName');
@@ -328,10 +400,9 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
       this.notifyPropertyChange(attribute);
     }, this);
 
-    this._super();
-
-    this.trigger('becameValid');
+    Ember.ArrayProxy.prototype.clear.call(this);
   },
+
 
   /**
     Checks if there is error messages for the given attribute.
