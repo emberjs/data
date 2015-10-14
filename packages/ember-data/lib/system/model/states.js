@@ -1,7 +1,6 @@
 /**
   @module ember-data
 */
-import EmptyObject from "ember-data/system/empty-object";
 var get = Ember.get;
 /*
   This file encapsulates the various states that a record can transition
@@ -351,10 +350,6 @@ var DirtyState = {
 
     invokeLifecycleCallbacks: function(internalModel) {
       internalModel.triggerLater('becameInvalid', internalModel);
-    },
-
-    exit: function(internalModel) {
-      internalModel._inFlightAttributes = new EmptyObject();
     }
   }
 };
