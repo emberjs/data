@@ -35,6 +35,7 @@
         "jQuery",
         "expectAssertion",
         "expectDeprecation",
+        "expectNoDeprecation",
         "warns",
         "noWarns",
         "throws",
