@@ -244,6 +244,49 @@ test("invalid new record's attributes can be rollbacked", function() {
   });
 });
 
+test("invalid record's attributes can be rollbacked after multiple failed calls - #3677", function() {
+  var person;
+
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var error = new DS.InvalidError();
+      return Ember.RSVP.reject(error);
+    }
+  });
+
+  env = setupStore({ person: Person, adapter: adapter });
+
+  run(function() {
+    person = env.store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'original name'
+        }
+      }
+    });
+
+    person.set('firstName', 'updated name');
+  });
+
+  run(function() {
+    equal(person.get('firstName'), 'updated name', "precondition: firstName is changed");
+
+    person.save().then(null, async(function() {
+      equal(person.get('hasDirtyAttributes'), true, "has dirty attributes");
+      equal(person.get('firstName'), 'updated name', "firstName is still changed");
+
+      return person.save();
+    })).then(null, async(function() {
+      person.rollbackAttributes();
+
+      equal(person.get('hasDirtyAttributes'), false, "has no dirty attributes");
+      equal(person.get('firstName'), 'original name', "after rollbackAttributes() firstName has the original value");
+    }));
+  });
+});
+
 test("deleted record's attributes can be rollbacked", function() {
   var person, people;
 
