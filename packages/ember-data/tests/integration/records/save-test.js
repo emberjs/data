@@ -87,7 +87,7 @@ test("Retry is allowed in a failure handler", function() {
 });
 
 test("Repeated failed saves keeps the record in uncommited state", function() {
-  expect(2);
+  expect(4);
   var post;
 
   run(function() {
@@ -100,10 +100,67 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
 
   run(function() {
     post.save().then(null, function() {
+      ok(post.get('isError'));
       equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
 
       post.save().then(null, function() {
+        ok(post.get('isError'));
         equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+      });
+    });
+  });
+});
+
+test("Repeated failed saves with invalid error marks the record as invalid", function() {
+  expect(2);
+  var post;
+
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
+  });
+
+  env.adapter.createRecord = function(store, type, snapshot) {
+    var error = new DS.InvalidError([
+      {
+        detail: 'is invalid',
+        source: { pointer: 'data/attributes/title' }
+      }
+    ]);
+
+    return Ember.RSVP.reject(error);
+  };
+
+  run(function() {
+    post.save().then(null, function() {
+      equal(post.get('isValid'), false);
+
+      post.save().then(null, function() {
+        equal(post.get('isValid'), false);
+      });
+    });
+  });
+});
+
+test("Repeated failed saves with invalid error without payload marks the record as invalid", function() {
+  expect(2);
+  var post;
+
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
+  });
+
+  env.adapter.createRecord = function(store, type, snapshot) {
+    var error = new DS.InvalidError();
+
+    return Ember.RSVP.reject(error);
+  };
+
+  run(function() {
+    post.save().then(null, function() {
+      equal(post.get('isValid'), false);
+
+      post.save().then(null, function() {
+        equal(post.get('isValid'), false);
       });
     });
   });
