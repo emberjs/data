@@ -644,6 +644,7 @@ InternalModel.prototype = {
       }
     }
 
+    this.send('becameError');
     this._saveWasRejected();
   },
 
