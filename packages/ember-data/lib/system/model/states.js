@@ -338,8 +338,8 @@ var DirtyState = {
       didSetProperty(internalModel, context);
     },
 
+    becameInvalid: Ember.K,
     becomeDirty: Ember.K,
-
     pushedData: Ember.K,
 
     willCommit: function(internalModel) {
@@ -716,8 +716,9 @@ var RootState = {
         didSetProperty(internalModel, context);
       },
 
-      deleteRecord: Ember.K,
+      becameInvalid: Ember.K,
       becomeDirty: Ember.K,
+      deleteRecord: Ember.K,
       willCommit: Ember.K,
 
 
