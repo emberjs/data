@@ -95,7 +95,9 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    var error = new DS.InvalidError([{ title: 'not valid' }]);
+
+    return Ember.RSVP.reject(error);
   };
 
   run(function() {
