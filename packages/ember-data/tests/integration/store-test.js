@@ -555,3 +555,14 @@ test("Using store#deleteRecord should mark the model for removal", function() {
   equal(personDeleteRecord.called.length, 1, 'expected person.deleteRecord to have been called');
   ok(person.get('isDeleted'), 'expect person to be isDeleted');
 });
+
+
+test("Store should accept a null value for `data`", function() {
+  expect(0);
+
+  run(function() {
+    store.push({
+      data: null
+    });
+  });
+});
