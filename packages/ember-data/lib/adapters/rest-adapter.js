@@ -743,9 +743,10 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
+    @param  {String} errorMessage
     @return {Object | DS.AdapterError} response
   */
-  handleResponse: function(status, headers, payload) {
+  handleResponse: function(status, headers, payload, errorMessage) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
@@ -754,7 +755,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     let errors = this.normalizeErrorResponse(status, headers, payload);
 
-    return new AdapterError(errors);
+    return new AdapterError(errors, errorMessage);
   },
 
   /**
@@ -822,7 +823,8 @@ export default Adapter.extend(BuildURLMixin, {
           response = adapter.handleResponse(
             jqXHR.status,
             parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-            response || payload
+            response || payload,
+            jqXHR.statustext
           );
         }
 
@@ -847,7 +849,8 @@ export default Adapter.extend(BuildURLMixin, {
             error = adapter.handleResponse(
               jqXHR.status,
               parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown
+              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
+              `Adapter operation failed  ${type} ${url} ${jqXHR.status} (${jqXHR.statusText})`
             );
           }
         }

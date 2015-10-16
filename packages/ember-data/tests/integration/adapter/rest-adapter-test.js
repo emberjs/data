@@ -2188,11 +2188,12 @@ test("calls adapter.handleResponse with the jqXHR and json", function() {
 });
 
 test('calls handleResponse with jqXHR, jqXHR.responseText', function() {
-  expect(3);
+  expect(4);
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     status: 400,
     responseText: 'Nope lol',
+    statusText: 'Bad request',
     getAllResponseHeaders: function() { return ''; }
   };
 
@@ -2200,9 +2201,10 @@ test('calls handleResponse with jqXHR, jqXHR.responseText', function() {
     hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
   };
 
-  adapter.handleResponse = function(status, headers, json) {
+  adapter.handleResponse = function(status, headers, json, errorMessage) {
     deepEqual(status, 400);
     deepEqual(json, jqXHR.responseText);
+    equal(errorMessage, 'Adapter operation failed  GET /posts/1 400 (Bad request)');
     return new DS.AdapterError('nope!');
   };
 
