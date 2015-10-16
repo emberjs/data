@@ -15,6 +15,10 @@ In particular, Ember Data uses Promises/A+-compatible promises from the
 ground up to manage loading and saving records, so integrating with
 other JavaScript APIs is easy.
 
+Igor Terzic is currently the lead maintainer of Ember Data, while the rest
+of the core team include Yehuda Katz, Tom Dale, Brendan McLoughlin, 
+Christoffer Persson and Stanley Stuart.
+
 ## Using Ember Data
 
 ### Getting Ember Data
