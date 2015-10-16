@@ -1742,8 +1742,11 @@ Store = Service.extend({
 
   _modelForMixin: function(modelName) {
     var normalizedModelName = normalizeModelName(modelName);
-    var registry = this.container._registry ? this.container._registry : this.container;
-    var mixin = registry.resolve('mixin:' + normalizedModelName);
+    // container.registry = 2.1
+    // container._registry = 1.11 - 2.0
+    // container = < 1.11
+    var registry = this.container.registry || this.container._registry || this.container;
+    var mixin = this.container.lookupFactory('mixin:' + normalizedModelName);
     if (mixin) {
       //Cache the class as a model
       registry.register('model:' + normalizedModelName, DS.Model.extend(mixin));
