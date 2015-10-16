@@ -155,6 +155,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
       records = store.push(payload);
     });
 
+    Ember.assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Ember.isArray(records));
     recordArray.loadRecords(records);
     return recordArray;
 
