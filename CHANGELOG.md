@@ -2,6 +2,16 @@
 
 ### Master
 
+### Release 1.13.14 (October 18, 2015)
+- [#3665](https://github.com/emberjs/data/pull/3665) [BUGFIX beta] Fix usage of registry for 2.1.0+.
+- [#3825](https://github.com/emberjs/data/pull/3825) [BUGFIX] Restore IE8 compatibility by using Ember.create
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3840](https://github.com/emberjs/data/pull/3840) Backport Fix usage of registry for 2.1.0+ from pr #3665
+- [#3846](https://github.com/emberjs/data/pull/3846) [BUGFIX beta] Attribute/relationship named "type" of primary record i…
+- [#3847](https://github.com/emberjs/data/pull/3847) [BUGFIX beta] JSONAPI serializer not respecting 'attrs' hash
+- [#3857](https://github.com/emberjs/data/pull/3857) [BUGFIX beta] rollbackAttributes() works after multiple failed saves
+- [#3859](https://github.com/emberjs/data/pull/3859) [BUGFIX beta] Correctly handle invalid errors without payload or pointer
+
 ### Release 1.13.13 (September 17, 2015)
 - [#3762](https://github.com/emberjs/data/pull/3762) [BUGFIX release]
   Improve links vs. local data for relationships
