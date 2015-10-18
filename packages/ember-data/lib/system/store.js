@@ -23,9 +23,7 @@ import {
 } from "ember-data/system/store/common";
 
 import {
-  convertResourceObject,
-  normalizeResponseHelper,
-  _normalizeSerializerPayload
+  normalizeResponseHelper
 } from "ember-data/system/store/serializer-response";
 
 import {
@@ -2093,9 +2091,9 @@ function _commit(adapter, store, operation, snapshot) {
         if (payload.included) {
           store.push({ data: payload.included });
         }
-        data = convertResourceObject(payload.data);
+        data = payload.data;
       }
-      store.didSaveRecord(internalModel, _normalizeSerializerPayload(internalModel.type, data));
+      store.didSaveRecord(internalModel, { data });
     });
 
     return internalModel;
