@@ -48,6 +48,50 @@ module("unit/store/push - DS.Store#push", {
   }
 });
 
+test('Changed attributes are reset when matching data is pushed', function(assert) {
+  var person;
+
+  run(function() {
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'original first name'
+        }
+      }
+    });
+  });
+
+  assert.equal(person.get('firstName'), 'original first name');
+  assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
+
+  run(function() {
+    person.set('firstName', 'updated first name');
+  });
+
+  assert.equal(person.get('firstName'), 'updated first name');
+  assert.equal(person.get('lastName'), undefined);
+  assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
+  deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'updated first name'
+        }
+      }
+    });
+  });
+
+  assert.equal(person.get('firstName'), 'updated first name');
+  assert.equal(person.get('currentState.stateName'), 'root.loaded.saved');
+  assert.ok(!person.changedAttributes().firstName);
+});
+
 test("Calling push with a normalized hash returns a record", function() {
   expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
