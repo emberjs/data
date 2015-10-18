@@ -767,3 +767,53 @@ test("DS.hasMany is async by default", function() {
     ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
   });
 });
+
+test("throws assertion if of not set with an array", function() {
+  var Person = DS.Model.extend();
+  var Tag = DS.Model.extend({
+    people: DS.hasMany('person')
+  });
+
+  var env = setupStore({ tag: Tag, person: Person });
+  var tag, person;
+
+  run(function() {
+    tag = env.store.createRecord('tag');
+    person = env.store.createRecord('person');
+  });
+
+  run(function() {
+    expectAssertion(function() {
+      tag.set('people', person);
+    }, /You must pass an array of records to set a hasMany relationship/);
+  });
+});
+
+test("checks if passed array only contains instances of DS.Model", function() {
+  var Person = DS.Model.extend();
+  var Tag = DS.Model.extend({
+    people: DS.hasMany('person')
+  });
+
+  var env = setupStore({ tag: Tag, person: Person });
+
+  env.adapter.findRecord = function() {
+    return {
+      type: 'person',
+      id: 1
+    };
+  };
+
+  var tag, person;
+
+  run(function() {
+    tag = env.store.createRecord('tag');
+    person = env.store.findRecord('person', 1);
+  });
+
+  run(function() {
+    expectAssertion(function() {
+      tag.set('people', [person]);
+    }, /All elements of a hasMany relationship must be instances of DS.Model/);
+  });
+});
