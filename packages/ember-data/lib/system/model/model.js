@@ -1,14 +1,11 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
-import EmptyObject from "ember-data/system/empty-object";
 
 /**
   @module ember-data
 */
 
 var get = Ember.get;
-var merge = Ember.merge;
-var copy = Ember.copy;
 
 function intersection (array1, array2) {
   var result = [];
@@ -610,20 +607,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes: function() {
-    var oldData = get(this._internalModel, '_data');
-    var currentData = get(this._internalModel, '_attributes');
-    var inFlightData = get(this._internalModel, '_inFlightAttributes');
-    var newData = merge(copy(inFlightData), currentData);
-    var diffData = new EmptyObject();
-
-    var newDataKeys = Object.keys(newData);
-
-    for (let i = 0, length = newDataKeys.length; i < length; i++) {
-      let key = newDataKeys[i];
-      diffData[key] = [oldData[key], newData[key]];
-    }
-
-    return diffData;
+    return this._internalModel.changedAttributes();
   },
 
   //TODO discuss with tomhuda about events/hooks
