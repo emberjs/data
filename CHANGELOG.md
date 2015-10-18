@@ -2,6 +2,16 @@
 
 ### Master
 
+### Release 2.2.0-beta.2 (October 18, 2015)
+- [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3846](https://github.com/emberjs/data/pull/3846) [BUGFIX beta] Attribute/relationship named "type" of primary record i…
+- [#3847](https://github.com/emberjs/data/pull/3847) [BUGFIX beta] JSONAPI serializer not respecting 'attrs' hash
+- [#3857](https://github.com/emberjs/data/pull/3857) [BUGFIX beta] rollbackAttributes() works after multiple failed saves
+- [#3859](https://github.com/emberjs/data/pull/3859) [BUGFIX beta] Correctly handle invalid errors without payload or pointer
+- [#3861](https://github.com/emberjs/data/pull/3861) [BUGFIX beta] Assert that an array is returned from the normalized re…
+- [#3867](https://github.com/emberjs/data/pull/3867) Allow serializers to normalize response, remove old internal serializers code
+
 ### Release 2.2.0-beta.1 (October 5, 2015)
 - [#3697](https://github.com/emberjs/data/pull/3697) Fix typo in CHANGELOG
 - [#3215](https://github.com/emberjs/data/pull/3215) remove Map/MapWithDefault polyfills, use Ember's ones
