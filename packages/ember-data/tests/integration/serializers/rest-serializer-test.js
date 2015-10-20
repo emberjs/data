@@ -455,6 +455,41 @@ test('serializeBelongsTo with async polymorphic', function() {
   deepEqual(json, expected, 'returned JSON is correct');
 });
 
+test('keyForPolymorphicType can be used to overwrite how the type of a polymorphic record is looked up for normalization', function() {
+  var json = {
+    doomsdayDevice: {
+      id: '1',
+      evilMinion: '2',
+      typeForEvilMinion: 'evilMinion'
+    }
+  };
+
+  var expected = {
+    data: {
+      type: 'doomsday-device',
+      id: '1',
+      attributes: {},
+      relationships: {
+        evilMinion: {
+          data: {
+            type: 'evil-minion',
+            id: '2'
+          }
+        }
+      }
+    },
+    included: []
+  };
+
+  env.restSerializer.keyForPolymorphicType = function() {
+    return 'typeForEvilMinion';
+  };
+
+  var normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, json, null, 'findRecord');
+
+  deepEqual(normalized, expected, 'normalized JSON is correct');
+});
+
 test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload root key', function() {
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
@@ -472,6 +507,42 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
     'home-planet': {
       name: "Umber"
     }
+  });
+});
+
+test('normalizeResponse with async polymorphic belongsTo, using <relationshipName>Type', function() {
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
+  var store = env.store;
+  env.adapter.findRecord = (store, type) => {
+    if (type.modelName === 'doomsday-device') {
+      return {
+        doomsdayDevice: {
+          id: 1,
+          name: "DeathRay",
+          evilMinion: 1,
+          evilMinionType: 'yellowMinion'
+        }
+      };
+    }
+
+    equal(type.modelName, 'yellow-minion');
+
+    return {
+      yellowMinion: {
+        id: 1,
+        type: 'yellowMinion',
+        name: 'Alex',
+        eyes: 3
+      }
+    };
+  };
+
+  run(function() {
+    store.findRecord('doomsday-device', 1).then((deathRay) => {
+      return deathRay.get('evilMinion');
+    }).then((evilMinion) => {
+      equal(evilMinion.get('eyes'), 3);
+    });
   });
 });
 
