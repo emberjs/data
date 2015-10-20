@@ -586,6 +586,29 @@ export default Serializer.extend({
   },
 
   /**
+    Returns a polymorphic relationship formatted as a JSON-API "relationship object".
+
+    http://jsonapi.org/format/#document-resource-object-relationships
+
+    `relationshipOptions` is a hash which contains more information about the
+    polymorphic relationship which should be extracted:
+      - `resourceHash` complete hash of the resource the relationship should be
+        extracted from
+      - `relationshipKey` key under which the value for the relationship is
+        extracted from the resourceHash
+      - `relationshipMeta` meta information about the relationship
+
+    @method extractPolymorphicRelationship
+    @param {Object} relationshipModelName
+    @param {Object} relationshipHash
+    @param {Object} relationshipOptions
+    @return {Object}
+  */
+  extractPolymorphicRelationship: function(relationshipModelName, relationshipHash, relationshipOptions) {
+    return this.extractRelationship(relationshipModelName, relationshipHash);
+  },
+
+  /**
     Returns the resource's relationships formatted as a JSON-API "relationships object".
 
     http://jsonapi.org/format/#document-resource-object-relationships
@@ -605,7 +628,15 @@ export default Serializer.extend({
         let data = null;
         let relationshipHash = resourceHash[relationshipKey];
         if (relationshipMeta.kind === 'belongsTo') {
-          data = this.extractRelationship(relationshipMeta.type, relationshipHash);
+          if (relationshipMeta.options.polymorphic) {
+            // extracting a polymorphic belongsTo may need more information
+            // than the type and the hash (which might only be an id) for the
+            // relationship, hence we pass the key, resource and
+            // relationshipMeta too
+            data = this.extractPolymorphicRelationship(relationshipMeta.type, relationshipHash, { key, resourceHash, relationshipMeta });
+          } else {
+            data = this.extractRelationship(relationshipMeta.type, relationshipHash);
+          }
         } else if (relationshipMeta.kind === 'hasMany') {
           data = Ember.isNone(relationshipHash) ? null : relationshipHash.map((item) => this.extractRelationship(relationshipMeta.type, item));
         }

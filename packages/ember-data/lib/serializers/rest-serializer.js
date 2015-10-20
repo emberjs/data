@@ -56,6 +56,37 @@ var camelize = Ember.String.camelize;
 var RESTSerializer = JSONSerializer.extend({
 
   /**
+   `keyForPolymorphicType` can be used to define a custom key when
+   serializing and deserializing a polymorphic type. By default, the
+   returned key is `${key}Type`.
+
+   Example
+
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
+      keyForPolymorphicType: function(key, relationship) {
+        var relationshipKey = this.keyForRelationship(key);
+
+        return 'type-' + relationshipKey;
+      }
+    });
+    ```
+
+   @method keyForPolymorphicType
+   @param {String} key
+   @param {String} typeClass
+   @param {String} method
+   @return {String} normalized key
+  */
+  keyForPolymorphicType: function(key, typeClass, method) {
+    var relationshipKey = this.keyForRelationship(key);
+
+    return `${relationshipKey}Type`;
+  },
+
+  /**
     Normalizes a part of the JSON payload returned by
     the server. You should override this method, munge the hash
     and call super if you have generic normalization to do.
@@ -672,7 +703,7 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `Type` to
+    By default the REST Serializer creates the key by appending `Type` to
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
@@ -683,12 +714,75 @@ var RESTSerializer = JSONSerializer.extend({
   serializePolymorphicType: function(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
+    var typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
+
+    // old way of getting the key for the polymorphic type
     key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
-    if (Ember.isNone(belongsTo)) {
-      json[key + "Type"] = null;
-    } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.modelName);
+    key = `${key}Type`;
+
+    // The old way of serializing the type of a polymorphic record used
+    // `keyForAttribute`, which is not correct. The next code checks if the old
+    // way is used and if it differs from the new way of using
+    // `keyForPolymorphicType`. If this is the case, a deprecation warning is
+    // logged and the old way is restored (so nothing breaks).
+    if (key !== typeKey && this.keyForPolymorphicType === RESTSerializer.prototype.keyForPolymorphicType) {
+      Ember.deprecate("The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.", false, {
+        id: 'ds.rest-serializer.deprecated-key-for-polymorphic-type',
+        until: '3.0.0'
+      });
+
+      typeKey = key;
     }
+
+    if (Ember.isNone(belongsTo)) {
+      json[typeKey] = null;
+    } else {
+      json[typeKey] = camelize(belongsTo.modelName);
+    }
+  },
+
+  /**
+    You can use this method to customize how a polymorphic relationship should
+    be extracted.
+
+    @method extractPolymorphicRelationship
+    @param {Object} relationshipType
+    @param {Object} relationshipHash
+    @param {Object} relationshipOptions
+    @return {Object}
+   */
+  extractPolymorphicRelationship: function(relationshipType, relationshipHash, relationshipOptions) {
+    var { key, resourceHash, relationshipMeta } = relationshipOptions;
+
+    // A polymorphic belongsTo relationship can be present in the payload
+    // either in the form where the `id` and the `type` are given:
+    //
+    //   {
+    //     message: { id: 1, type: 'post' }
+    //   }
+    //
+    // or by the `id` and a `<relationship>Type` attribute:
+    //
+    //   {
+    //     message: 1,
+    //     messageType: 'post'
+    //   }
+    //
+    // The next code checks if the latter case is present and returns the
+    // corresponding JSON-API representation. The former case is handled within
+    // the base class JSONSerializer.
+    var isPolymorphic = relationshipMeta.options.polymorphic;
+    var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
+
+    if (isPolymorphic && resourceHash.hasOwnProperty(typeProperty) && typeof relationshipHash !== 'object') {
+      let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
+      return {
+        id: relationshipHash,
+        type: type
+      };
+    }
+
+    return this._super(...arguments);
   }
 });
 
