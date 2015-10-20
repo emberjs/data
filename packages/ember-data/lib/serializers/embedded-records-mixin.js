@@ -205,6 +205,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
         json[key] = null;
       } else {
         json[key] = embeddedSnapshot.id;
+
+        if (relationship.options.polymorphic) {
+          this.serializePolymorphicType(snapshot, json, relationship);
+        }
       }
     } else if (includeRecords) {
       key = this.keyForAttribute(attr, 'serialize');
@@ -213,6 +217,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       } else {
         json[key] = embeddedSnapshot.record.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json[key]);
+
+        if (relationship.options.polymorphic) {
+          this.serializePolymorphicType(snapshot, json, relationship);
+        }
       }
     }
   },
