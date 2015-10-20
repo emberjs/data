@@ -703,7 +703,7 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `Type` to
+    By default the REST Serializer creates the key by appending `Type` to
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
@@ -714,11 +714,30 @@ var RESTSerializer = JSONSerializer.extend({
   serializePolymorphicType: function(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
+    var typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
+
+    // old way of getting the key for the polymorphic type
     key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
+    key = `${key}Type`;
+
+    // The old way of serializing the type of a polymorphic record used
+    // `keyForAttribute`, which is not correct. The next code checks if the old
+    // way is used and if it differs from the new way of using
+    // `keyForPolymorphicType`. If this is the case, a deprecation warning is
+    // logged and the old way is restored (so nothing breaks).
+    if (key !== typeKey && this.keyForPolymorphicType === RESTSerializer.prototype.keyForPolymorphicType) {
+      Ember.deprecate("The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.", false, {
+        id: 'ds.rest-serializer.deprecated-key-for-polymorphic-type',
+        until: '3.0.0'
+      });
+
+      typeKey = key;
+    }
+
     if (Ember.isNone(belongsTo)) {
-      json[key + "Type"] = null;
+      json[typeKey] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.modelName);
+      json[typeKey] = camelize(belongsTo.modelName);
     }
   },
 
