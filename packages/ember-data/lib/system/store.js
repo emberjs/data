@@ -53,6 +53,7 @@ export let badIdFormatAssertion = '`id` has to be non-empty string or number';
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 var Map = Ember.Map;
+var isArray = Array.isArray || Ember.isArray;
 
 //Shim Backburner.join
 if (!Backburner.prototype.join) {
@@ -1672,13 +1673,21 @@ Store = Service.extend({
       updated.
   */
   push: function(data) {
-    if (data.included) {
-      data.included.forEach((recordData) => this._pushInternalModel(recordData));
+    var included = data.included;
+    var i, length;
+    if (included) {
+      for (i = 0, length = included.length; i < length; i++) {
+        this._pushInternalModel(included[i]);
+      }
     }
 
-    if (Ember.typeOf(data.data) === 'array') {
-      var internalModels = data.data.map((recordData) => this._pushInternalModel(recordData));
-      return internalModels.map((internalModel) => internalModel.getRecord());
+    if (isArray(data.data)) {
+      length = data.data.length;
+      var internalModels = new Array(length);
+      for (i = 0; i < length; i++) {
+        internalModels[i] = this._pushInternalModel(data.data[i]).getRecord();
+      }
+      return internalModels;
     }
 
     var internalModel = this._pushInternalModel(data.data || data);
@@ -2046,7 +2055,7 @@ function deserializeRecordId(store, key, relationship, id) {
     return;
   }
 
-  Ember.assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Ember.isArray(id));
+  Ember.assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !isArray(id));
 
   //TODO:Better asserts
   return store._internalModelForId(id.type, id.id);
@@ -2057,7 +2066,7 @@ function deserializeRecordIds(store, key, relationship, ids) {
     return;
   }
 
-  Ember.assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Ember.isArray(ids));
+  Ember.assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, isArray(ids));
   return ids.map((id) => deserializeRecordId(store, key, relationship, id));
 }
 
