@@ -1445,8 +1445,7 @@ Store = Service.extend({
     @param {Object} data
   */
   _load: function(data) {
-    var id = coerceId(data.id);
-    var internalModel = this._internalModelForId(data.type, id);
+    var internalModel = this._internalModelForId(data.type, data.id);
 
     internalModel.setupData(data);
 
