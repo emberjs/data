@@ -1,4 +1,4 @@
-import {singularize} from 'ember-inflector/lib/system/string';
+import {singularize} from 'ember-inflector';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
 
 export function typeForRelationshipMeta(meta) {
