@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.2.0-beta.3 (October 27, 2015)
+- [#3835](https://github.com/emberjs/data/pull/3835) [BUGFIX] extract polymorphic belongsTo in RESTSerializer
+- [#3887](https://github.com/emberjs/data/pull/3887) [BUGFIX release] update ember-inflector to resolve default Inflector …
+- [#3888](https://github.com/emberjs/data/pull/3888) [BUGFIX release] import from ember-inflector to use the default instance
+
 ### Release 2.2.0-beta.2 (October 18, 2015)
 - [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
 - [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
