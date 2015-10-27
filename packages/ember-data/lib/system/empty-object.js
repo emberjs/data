@@ -3,7 +3,8 @@
 // when you're treating the object instances as arbitrary dictionaries
 // and don't want your keys colliding with build-in methods on the
 // default object prototype.
-var proto = Ember.create(null, {
+var create = Object.create || Ember.create;
+var proto = create(null, {
   // without this, we will always still end up with (new
   // EmptyObject()).constructor === Object
   constructor: {
