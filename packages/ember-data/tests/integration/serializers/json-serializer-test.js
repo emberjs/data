@@ -175,10 +175,12 @@ test("serializeHasMany omits unknown relationships on pushed record", function()
 
   run(function() {
     post = env.store.push({
-      id: "1",
-      type: "post",
-      attributes: {
-        title: "Rails is omakase"
+      data: {
+        id: "1",
+        type: "post",
+        attributes: {
+          title: "Rails is omakase"
+        }
       }
     });
   });
