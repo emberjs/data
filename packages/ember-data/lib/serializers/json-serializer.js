@@ -1001,6 +1001,7 @@ export default Serializer.extend({
     the payload and just sends the raw serialized JSON object.
     If your server expects namespaced keys, you should consider using the RESTSerializer.
     Otherwise you can override this method to customize how the record is added to the hash.
+    The hash property should be modified by reference (possibly using something like _.extend)
 
     For example, your server may expect underscored root objects.
 
