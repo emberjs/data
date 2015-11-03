@@ -4,7 +4,7 @@
     "type": "component",
     "license": "MIT",
     "require": {
-        "components/ember": "~1.8.1"
+        "components/ember": ">= 2.0.0 < 3.0.0"
     },
     "extra": {
         "component": {
