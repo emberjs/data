@@ -10,7 +10,7 @@
     "ember-data.prod.js"
   ],
   "dependencies": {
-    "components/ember": ">= 1.8.1 < 2.0.0"
+    "components/ember": ">= 2.0.0 < 3.0.0"
   },
   "license": "MIT"
 }
