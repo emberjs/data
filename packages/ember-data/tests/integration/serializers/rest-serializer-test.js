@@ -409,6 +409,30 @@ test('normalize should allow for different levels of normalization', function() 
   equal(array.data[0].relationships.superVillain.data.id, 1);
 });
 
+test('Serializer should respect the attrs hash in links', function() {
+  env.registry.register("serializer:super-villain", DS.RESTSerializer.extend({
+    attrs: {
+      evilMinions: { key: 'my_minions' }
+    }
+  }));
+
+  var jsonHash = {
+    "super-villains": [
+      {
+        firstName: 'Tom',
+        lastName: 'Dale',
+        links: {
+          my_minions: 'me/minions'
+        }
+      }
+    ]
+  };
+
+  var me = env.container.lookup("serializer:super-villain").extractSingle(env.store, SuperVillain, jsonHash);
+
+  equal(me.links.evilMinions, 'me/minions');
+});
+
 test("serializeIntoHash", function() {
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
