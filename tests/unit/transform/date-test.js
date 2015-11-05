@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 module("unit/transform - DS.DateTransform");
 
 var dateString = "2015-01-01T00:00:00.000Z";

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env;
 var SuperVillain, HomePlanet, EvilMinion;
 var run = Ember.run;

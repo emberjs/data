@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var store, env, applicationAdapter, applicationSerializer, Person;
 const run = Ember.run;
 

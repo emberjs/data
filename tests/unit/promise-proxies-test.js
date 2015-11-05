@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 module('PromiseManyArray');
 
 test('.reload should NOT leak the internal promise, rather return another promiseArray', function() {

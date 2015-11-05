@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 /* jshint -W053 */
 
 module("unit/transform - DS.NumberTransform");

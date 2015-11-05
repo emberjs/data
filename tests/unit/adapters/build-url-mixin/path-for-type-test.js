@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, adapter;
 
 module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var get = Ember.get;
 var attr = DS.attr;
 var Person, env;

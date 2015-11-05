@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, User, Message, Account;
 var get = Ember.get;
 var run = Ember.run;

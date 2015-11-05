@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 
 export default function(env, adapterDefinition) {
   var adapter = adapterDefinition;

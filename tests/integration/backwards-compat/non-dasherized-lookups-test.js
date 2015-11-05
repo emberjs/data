@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 const get = Ember.get;
 const { run } = Ember;
 

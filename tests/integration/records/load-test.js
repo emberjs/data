@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var hasMany = DS.hasMany;
 var Post, Comment, env;
 var run = Ember.run;

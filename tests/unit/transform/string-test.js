@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 module("unit/transform - DS.StringTransform");
 
 test("#serialize", function() {

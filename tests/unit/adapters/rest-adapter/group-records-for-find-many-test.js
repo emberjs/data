@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var GroupsAdapter, Store;
 var maxLength = -1;
 var lengths = Ember.A([]);

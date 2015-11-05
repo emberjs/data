@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 module("unit/adapter-errors - DS.AdapterError");
 
 test("DS.AdapterError", function() {

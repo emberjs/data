@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var get = Ember.get;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, BatCave, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var container, store, registry;
 
 var camelize  = Ember.String.camelize;

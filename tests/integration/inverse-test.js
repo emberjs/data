@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, User, Job, ReflexiveModel;
 
 var attr = DS.attr;

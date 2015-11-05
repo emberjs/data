@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var run = Ember.run;
 var Application = Ember.Application;
 var Controller = Ember.Controller;

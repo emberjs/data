@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, adapter, Post, Comment, SuperUser;
 var passedUrl, passedVerb, passedHash;
 var run = Ember.run;

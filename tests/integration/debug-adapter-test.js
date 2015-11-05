@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var App, store, debugAdapter;
 var get = Ember.get;
 var run = Ember.run;

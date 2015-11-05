@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 /* globals ENV, QUnit */
 
 (function () {

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 const {attr, belongsTo} = DS;
 const {run} = Ember;
 

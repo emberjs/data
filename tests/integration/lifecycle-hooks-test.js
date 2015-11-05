@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var Person, env;
 var attr = DS.attr;
 var resolve = Ember.RSVP.resolve;

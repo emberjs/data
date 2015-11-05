@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, User, Contact, Email, Phone, Message, Post, Comment;
 var Book, Chapter, Page;
 var get = Ember.get;

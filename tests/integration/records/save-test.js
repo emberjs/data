@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var Post, env;
 var run = Ember.run;
 

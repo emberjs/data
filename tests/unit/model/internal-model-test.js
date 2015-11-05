@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 module("unit/model/internal-model - Internal Model");
 
 var mockModelFactory = {

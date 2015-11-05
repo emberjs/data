@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var store, env;
 
 var Person = DS.Model.extend({

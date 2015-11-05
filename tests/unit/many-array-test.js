@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store;
 var attr = DS.attr;
 var hasMany = DS.hasMany;

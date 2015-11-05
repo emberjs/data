@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var get = Ember.get;
 var set = Ember.set;
 var attr = DS.attr;

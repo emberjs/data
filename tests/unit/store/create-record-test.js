@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var store, container, Record, Storage;
 var run = Ember.run;
 

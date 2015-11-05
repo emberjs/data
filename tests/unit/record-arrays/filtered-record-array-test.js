@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var filteredArray;
 
 module("unit/record-arrays/filtered-record-array - DS.FilteredRecordArray", {

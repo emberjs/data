@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var Account, Topic, User, store, env;
 var run = Ember.run;
 

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, Person, PhoneNumber;
 var attr = DS.attr;
 var hasMany = DS.hasMany;

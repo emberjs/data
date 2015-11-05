@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 // TODO enable import once this is possible
 // import { assertPolymorphicType } from "ember-data/utils";
 // import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";

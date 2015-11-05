@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, User, Message, NotMessage, Video;
 var run = Ember.run;
 

@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var errors;
 
 module("unit/model/errors", {

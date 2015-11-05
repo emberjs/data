@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 var env, store, serializer;
 
 var get = Ember.get;

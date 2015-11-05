@@ -1,3 +1,5 @@
+import DS from 'ember-data';
+
 ;(function() {
 
   Ember.RSVP.configure('onerror', function(reason) {
