@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 import DS from 'ember-data';
 
 import customAdapter from 'ember-data/tests/helpers/custom-adapter';

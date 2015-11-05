@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 import DS from 'ember-data';
 
 var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;

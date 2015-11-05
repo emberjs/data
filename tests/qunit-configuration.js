@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 (function() {
   /*global namespace: true */
 

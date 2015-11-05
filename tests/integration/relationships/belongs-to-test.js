@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 import DS from 'ember-data';
 
 var env, store, User, Message, Post, Contact, Comment, Book, Chapter, Author, NewMessage;
