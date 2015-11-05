@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -33,7 +34,7 @@ test("When loading a record fails, the isLoading is set to false", function(asse
   };
 
   run(function() {
-    env.store.findRecord('post', 1).then(null, async(function() {
+    env.store.findRecord('post', 1).then(null, assert.wait(function() {
       // store.recordForId is private, but there is currently no other way to
       // get the specific record instance, since it is not passed to this
       // rejection handler

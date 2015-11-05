@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -64,14 +65,14 @@ test("belongsTo lazily loads relationships as needed", function(assert) {
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       assert.equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
       assert.equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
       assert.strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-      asyncEqual(get(person, 'tag'), store.findRecord('tag', 5), "relationship object is the same as object retrieved directly");
+      assert.asyncEqual(get(person, 'tag'), store.findRecord('tag', 5), "relationship object is the same as object retrieved directly");
     }));
   });
 });
@@ -104,13 +105,13 @@ test("async belongsTo relationships work when the data hash has not been loaded"
   };
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
       return run(function() {
         return get(person, 'tag');
       });
-    })).then(async(function(tag) {
+    })).then(assert.wait(function(tag) {
       assert.equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
       assert.equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
     }));
@@ -160,7 +161,7 @@ test("async belongsTo relationships work when the data hash has already been loa
     assert.equal(get(person, 'name'), "Tom Dale", "The person is now populated");
     return run(function() {
       return get(person, 'tag');
-    }).then(async(function(tag) {
+    }).then(assert.wait(function(tag) {
       assert.equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
       assert.equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
     }));
@@ -189,7 +190,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.strictEqual(person.get('tag'), null, "undefined values should return null relationships");
     }));
   });
@@ -242,12 +243,12 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(get(person, 'isLoaded'), true, "isLoaded should be true");
       assert.equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
 
       return get(person, 'occupations');
-    })).then(async(function(occupations) {
+    })).then(assert.wait(function(occupations) {
       assert.equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
 
       assert.equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
@@ -358,14 +359,14 @@ test("belongsTo supports relationships to models with id 0", function(assert) {
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       assert.equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
       assert.equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
       assert.strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-      asyncEqual(get(person, 'tag'), store.findRecord('tag', 0), "relationship object is the same as object retrieved directly");
+      assert.asyncEqual(get(person, 'tag'), store.findRecord('tag', 0), "relationship object is the same as object retrieved directly");
     }));
   });
 });
@@ -415,13 +416,13 @@ test("belongsTo gives a warning when provided with a serialize option", function
     });
   });
 
-  warns(function() {
     run(function() {
-      store.find('person', 1).then(async(function(person) {
-        get(person, 'hobby');
+      store.find('person', 1).then(assert.wait(function(person) {
+        assert.warns(function() {
+          get(person, 'hobby');
+        }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
       }));
     });
-  }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
 });
 
 test("belongsTo gives a warning when provided with an embedded option", function(assert) {
@@ -469,13 +470,13 @@ test("belongsTo gives a warning when provided with an embedded option", function
     });
   });
 
-  warns(function() {
     run(function() {
-      store.find('person', 1).then(async(function(person) {
+      store.find('person', 1).then(assert.wait(function(person) {
+        assert.warns(function() {
         get(person, 'hobby');
+        }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
       }));
     });
-  }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
 });
 
 test("DS.belongsTo should be async by default", function(assert) {

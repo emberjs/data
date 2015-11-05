@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -958,7 +959,7 @@ test("serialize with embedded objects (unknown hasMany relationship)", function(
   }));
 
   var serializer, json;
-  warns(function() {
+  assert.warns(function() {
     run(function() {
       serializer = env.store.serializerFor("home-planet");
       json = serializer.serialize(league._createSnapshot());

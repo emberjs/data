@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -52,7 +53,7 @@ function ajaxResponse(value) {
 test("find - basic payload", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -71,7 +72,7 @@ test("findRecord - passes buildURL a requestType", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
 
-  run(store, 'findRecord', 'post', 1).then(async(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/findRecord/post/1");
   }));
 });
@@ -79,7 +80,7 @@ test("findRecord - passes buildURL a requestType", function(assert) {
 test("find - basic payload (with legacy singular name)", function(assert) {
   ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -97,7 +98,7 @@ test("find - payload with sideloaded records of the same type", function(assert)
     ]
   });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -117,7 +118,7 @@ test("find - payload with sideloaded records of a different type", function(asse
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -139,7 +140,7 @@ test("find - payload with an serializer-specified primary key", function(assert)
 
   ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -163,7 +164,7 @@ test("find - payload with a serializer-specified attribute mapping", function(as
 
   ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -180,7 +181,7 @@ test("create - an empty payload is a basic success if an id was specified", func
 
   run(function() {
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, "/posts");
       assert.equal(passedVerb, "POST");
       assert.deepEqual(passedHash.data, { post: { id: "some-uuid", name: "The Parley Letter" } });
@@ -201,7 +202,7 @@ test("create - passes buildURL the requestType", function(assert) {
 
   run(function() {
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, "/post/createRecord");
     }));
   });
@@ -212,7 +213,7 @@ test("create - a payload with a new ID and data applies the updates", function(a
   run(function() {
     var post = store.createRecord('post', { name: "The Parley Letter" });
 
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, "/posts");
       assert.equal(passedVerb, "POST");
       assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -231,7 +232,7 @@ test("create - a payload with a new ID and data applies the updates (with legacy
     post = store.createRecord('post', { name: "The Parley Letter" });
   });
 
-  run(post, 'save').then(async(function(post) {
+  run(post, 'save').then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts");
     assert.equal(passedVerb, "POST");
     assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -275,7 +276,7 @@ test("create - findMany doesn't overwrite owner", function(assert) {
   assert.equal(comment.get('post'), post, "the post has been set correctly");
 
   run(function() {
-    comment.save().then(async(function(comment) {
+    comment.save().then(assert.wait(function(comment) {
       assert.equal(comment.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
       assert.equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
       assert.equal(comment.get('post'), post, "the post is still set");
@@ -299,7 +300,7 @@ test("create - a serializer's primary key and attributes are consulted when buil
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
   });
 
-  run(post, 'save').then(async(function(post) {
+  run(post, 'save').then(assert.wait(function(post) {
     assert.deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
   }));
 });
@@ -319,7 +320,7 @@ test("create - a serializer's attributes are consulted when building the payload
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
 
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
     }));
   });
@@ -341,7 +342,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
   run(function() {
     var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
 
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.deepEqual(passedHash.data, { post: { 'given_name': "The Parley Letter", id: "some-uuid" } });
     }));
   });
@@ -366,7 +367,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
     var post = store.createRecord('post', { id: "a-post-id", name: "The Parley Letter" });
     var comment = store.createRecord('comment', { id: "some-uuid", name: "Letters are fun", post: post });
 
-    comment.save().then(async(function(post) {
+    comment.save().then(assert.wait(function(post) {
       assert.deepEqual(passedHash.data, { comment: { article: "a-post-id", id: "some-uuid", name: "Letters are fun" } });
     }));
   });
@@ -391,7 +392,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
     var comment = store.createRecord('comment', { id: "a-comment-id", name: "First!" });
     var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter", comments: [comment] });
 
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.deepEqual(passedHash.data, { post: { opinions: ["a-comment-id"], id: "some-uuid", name: "The Parley Letter" } });
     }));
   });
@@ -467,11 +468,11 @@ test("create - a record on the many side of a hasMany relationship should update
   run(function() {
     var comment = store.createRecord('comment', { name: "Another Comment", post: post });
 
-    comment.save().then(async(function(comment) {
+    comment.save().then(assert.wait(function(comment) {
       assert.equal(comment.get('post'), post, "the comment is related to the post");
     }));
 
-    post.reload().then(async(function(post) {
+    post.reload().then(assert.wait(function(post) {
       assert.equal(post.get('comments.length'), 2, "Post comment count has been updated");
     }));
   });
@@ -494,7 +495,7 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
   });
 
   run(function() {
-    post.save().then(async(function(record) {
+    post.save().then(assert.wait(function(record) {
       assert.equal(store.peekRecord('post', 1).get('comment.isLoaded'), true, "post's comment isLoaded (via store)");
       assert.equal(store.peekRecord('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
       assert.equal(record.get('comment.isLoaded'), true, "post's comment isLoaded (via record)");
@@ -528,7 +529,7 @@ test("create - response can contain relationships the client doesn't yet know ab
   });
 
   run(function() {
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
       assert.equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
 
@@ -553,7 +554,7 @@ test("create - relationships are not duplicated", function(assert) {
 
   ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
 
-  run(post, 'save').then(async(function(post) {
+  run(post, 'save').then(assert.wait(function(post) {
     assert.equal(post.get('comments.length'), 0, "post has 0 comments");
     post.get('comments').pushObject(comment);
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
@@ -564,7 +565,7 @@ test("create - relationships are not duplicated", function(assert) {
     });
 
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
   }));
 });
@@ -587,7 +588,7 @@ test("update - an empty payload is a basic success", function(assert) {
     ajaxResponse();
 
     post.set('name', "The Parley Letter");
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, "/posts/1");
       assert.equal(passedVerb, "PUT");
       assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -617,12 +618,12 @@ test("update - passes the requestType to buildURL", function(assert) {
   });
 
   run(function() {
-    store.findRecord('post', 1).then(async(function(post) {
+    store.findRecord('post', 1).then(assert.wait(function(post) {
       ajaxResponse();
 
       post.set('name', "The Parley Letter");
       return post.save();
-    })).then(async(function(post) {
+    })).then(assert.wait(function(post) {
       assert.equal(passedUrl, "/posts/1/updateRecord");
     }));
   });
@@ -642,12 +643,12 @@ test("update - a payload with updates applies the updates", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }] });
 
     post.set('name', "The Parley Letter");
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "PUT");
     assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -671,12 +672,12 @@ test("update - a payload with updates applies the updates (with legacy singular 
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({ post: { id: 1, name: "Dat Parley Letter" } });
 
     post.set('name', "The Parley Letter");
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "PUT");
     assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -694,7 +695,7 @@ test("update - a payload with sideloaded updates pushes the updates", function(a
   });
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, "/posts");
       assert.equal(passedVerb, "POST");
       assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -723,7 +724,7 @@ test("update - a payload with sideloaded updates pushes the updates", function(a
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       posts: [{ id: 1, name: "Dat Parley Letter" }],
       comments: [{ id: 1, name: "FIRST" }]
@@ -731,7 +732,7 @@ test("update - a payload with sideloaded updates pushes the updates", function(a
 
     post.set('name', "The Parley Letter");
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "PUT");
     assert.deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
@@ -765,10 +766,10 @@ test("update - a serializer's primary key and attributes are consulted when buil
   });
   ajaxResponse();
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     post.set('name', "The Parley Letter");
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
   }));
 });
@@ -814,9 +815,9 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
     posts: { id: 1, name: "Not everyone uses Rails", comments: [2] }
   });
 
-  store.findRecord('comment', 2).then(async(function() {
+  store.findRecord('comment', 2).then(assert.wait(function() {
     return store.findRecord('post', 1);
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     var newComment = store.peekRecord('comment', 2);
     var comments = post.get('comments');
 
@@ -825,7 +826,7 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
     comments.pushObject(newComment);
 
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(post.get('comments.length'), 1, "the post has the correct number of comments");
     assert.equal(post.get('comments.firstObject.name'), "Yes. Yes it is.", "the post has the correct comment");
   }));
@@ -845,12 +846,12 @@ test("delete - an empty payload is a basic success", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse();
 
     post.deleteRecord();
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
     assert.equal(passedHash, undefined);
@@ -878,12 +879,12 @@ test("delete - passes the requestType to buildURL", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse();
 
     post.deleteRecord();
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1/deleteRecord");
   }));
 });
@@ -902,12 +903,12 @@ test("delete - a payload with sideloaded updates pushes the updates", function(a
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({ comments: [{ id: 1, name: "FIRST" }] });
 
     post.deleteRecord();
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
     assert.equal(passedHash, undefined);
@@ -934,12 +935,12 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({ posts: [{ id: 2, name: "The Parley Letter" }] });
 
     post.deleteRecord();
     return post.save();
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
     assert.equal(passedHash, undefined);
@@ -960,7 +961,7 @@ test("delete - deleting a newly created record should not throw an error", funct
 
   run(function() {
     post.deleteRecord();
-    post.save().then(async(function(post) {
+    post.save().then(assert.wait(function(post) {
       assert.equal(passedUrl, null, "There is no ajax call to delete a record that has never been saved.");
       assert.equal(passedVerb, null, "There is no ajax call to delete a record that has never been saved.");
       assert.equal(passedHash, null, "There is no ajax call to delete a record that has never been saved.");
@@ -979,7 +980,7 @@ test("findAll - returning an array populates the array", function(assert) {
     ]
   });
 
-  store.findAll('post').then(async(function(posts) {
+  store.findAll('post').then(assert.wait(function(posts) {
     assert.equal(passedUrl, "/posts");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash.data, undefined);
@@ -1022,7 +1023,7 @@ test("findAll - passes buildURL the requestType", function(assert) {
     ]
   });
 
-  store.findAll('post').then(async(function(posts) {
+  store.findAll('post').then(assert.wait(function(posts) {
     assert.equal(passedUrl, "/findAll/posts");
   }));
 });
@@ -1035,7 +1036,7 @@ test("findAll - returning sideloaded data loads the data", function(assert) {
     ],
     comments: [{ id: 1, name: "FIRST" }] });
 
-  store.findAll('post').then(async(function(posts) {
+  store.findAll('post').then(assert.wait(function(posts) {
     var comment = store.peekRecord('comment', 1);
 
     assert.deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
@@ -1055,7 +1056,7 @@ test("findAll - data is normalized through custom serializers", function(assert)
     ]
   });
 
-  store.findAll('post').then(async(function(posts) {
+  store.findAll('post').then(assert.wait(function(posts) {
     var post1 = store.peekRecord('post', 1);
     var post2 = store.peekRecord('post', 2);
 
@@ -1091,7 +1092,7 @@ test("query - if `sortQueryParams` option is not provided, query params are sort
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
 
-  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
     // Noop
   }));
 });
@@ -1107,7 +1108,7 @@ test("query - passes buildURL the requestType", function(assert) {
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
 
-  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
     // NOOP
   }));
 });
@@ -1125,7 +1126,7 @@ test("query - if `sortQueryParams` is falsey, query params are not sorted at all
 
   adapter.sortQueryParams = null;
 
-  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
     // Noop
   }));
 });
@@ -1152,7 +1153,7 @@ test("query - if `sortQueryParams` is a custom function, query params passed thr
     return newQueryParams;
   };
 
-  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
     // Noop
   }));
 });
@@ -1163,7 +1164,7 @@ test("query - payload 'meta' is accessible on the record array", function(assert
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
   });
 
-  store.query('post', { page: 2 }).then(async(function(posts) {
+  store.query('post', { page: 2 }).then(assert.wait(function(posts) {
     assert.equal(
       posts.get('meta.offset'),
       5,
@@ -1178,7 +1179,7 @@ test("query - each record array can have it's own meta object", function(assert)
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
   });
 
-  store.query('post', { page: 2 }).then(async(function(posts) {
+  store.query('post', { page: 2 }).then(assert.wait(function(posts) {
     assert.equal(
       posts.get('meta.offset'),
       5,
@@ -1188,7 +1189,7 @@ test("query - each record array can have it's own meta object", function(assert)
       meta: { offset: 1 },
       posts: [{ id: 1, name: "Rails is very expensive sushi" }]
     });
-    store.query('post', { page: 1 }).then(async(function(newPosts) {
+    store.query('post', { page: 1 }).then(assert.wait(function(newPosts) {
       assert.equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
       assert.equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
     }));
@@ -1203,7 +1204,7 @@ test("query - returning an array populates the array", function(assert) {
       { id: 2, name: "The Parley Letter" }]
   });
 
-  store.query('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(assert.wait(function(posts) {
     assert.equal(passedUrl, '/posts');
     assert.equal(passedVerb, 'GET');
     assert.deepEqual(passedHash.data, { page: 1 });
@@ -1241,7 +1242,7 @@ test("query - returning sideloaded data loads the data", function(assert) {
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  store.query('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(assert.wait(function(posts) {
     var comment = store.peekRecord('comment', 1);
 
     assert.deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
@@ -1259,7 +1260,7 @@ test("query - data is normalized through custom serializers", function(assert) {
             { _ID_: 2, _NAME_: "The Parley Letter" }]
   });
 
-  store.query('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(assert.wait(function(posts) {
     var post1 = store.peekRecord('post', 1);
     var post2 = store.peekRecord('post', 2);
 
@@ -1293,7 +1294,7 @@ test("queryRecord - returns a single record in an object", function(assert) {
     }
   });
 
-  store.queryRecord('post', { slug: 'ember-js-rocks' }).then(async(function(post) {
+  store.queryRecord('post', { slug: 'ember-js-rocks' }).then(assert.wait(function(post) {
     assert.deepEqual(post.get('name'), "Ember.js rocks");
   }));
 });
@@ -1304,7 +1305,7 @@ test("queryRecord - returning sideloaded data loads the data", function(assert) 
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
     var comment = store.peekRecord('comment', 1);
 
     assert.deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
@@ -1316,7 +1317,7 @@ test("queryRecord - returning an array picks the first one but saves all records
     post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
   });
 
-  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
     var post2 = store.peekRecord('post', 2);
 
     assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
@@ -1334,7 +1335,7 @@ test("queryRecord - data is normalized through custom serializers", function(ass
     post: { _ID_: 1, _NAME_: "Rails is omakase" }
   });
 
-  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(async(function(post) {
+  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
 
     assert.deepEqual(
       post.getProperties('id', 'name'),
@@ -1377,7 +1378,7 @@ test("findMany - findMany uses a correct URL to access the records", function(as
       { id: 3, name: "What is omakase?" }
     ]
   });
-  run(post, 'get', 'comments').then(async(function(comments) {
+  run(post, 'get', 'comments').then(assert.wait(function(comments) {
     assert.equal(passedUrl, "/comments");
     assert.deepEqual(passedHash, { data: { ids: ["1", "2", "3"] } });
   }));
@@ -1420,7 +1421,7 @@ test("findMany - passes buildURL the requestType", function(assert) {
       { id: 3, name: "What is omakase?" }
     ]
   });
-  run(post, 'get', 'comments').then(async(function(comments) {
+  run(post, 'get', 'comments').then(assert.wait(function(comments) {
     assert.equal(passedUrl, "/findMany/comment");
   }));
 });
@@ -1458,7 +1459,7 @@ test("findMany - findMany does not coalesce by default", function(assert) {
       { id: 3, name: "What is omakase?" }
     ]
   });
-  run(post, 'get', 'comments').then(async(function(comments) {
+  run(post, 'get', 'comments').then(assert.wait(function(comments) {
     assert.equal(passedUrl, "/comments/3");
     assert.equal(passedHash, null);
   }));
@@ -1490,7 +1491,7 @@ test("findMany - returning an array populates the array", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1500,7 +1501,7 @@ test("findMany - returning an array populates the array", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     var comment1 = store.peekRecord('comment', 1);
     var comment2 = store.peekRecord('comment', 2);
     var comment3 = store.peekRecord('comment', 3);
@@ -1543,7 +1544,7 @@ test("findMany - returning sideloaded data loads the data", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1555,7 +1556,7 @@ test("findMany - returning sideloaded data loads the data", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     var comment1 = store.peekRecord('comment', 1);
     var comment2 = store.peekRecord('comment', 2);
     var comment3 = store.peekRecord('comment', 3);
@@ -1609,7 +1610,7 @@ test("findMany - a custom serializer is used if present", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { _ID_: 1, _NAME_: "FIRST" },
@@ -1618,7 +1619,7 @@ test("findMany - a custom serializer is used if present", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     var comment1 = store.peekRecord('comment', 1);
     var comment2 = store.peekRecord('comment', 2);
     var comment3 = store.peekRecord('comment', 3);
@@ -1654,7 +1655,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     });
   });
 
-  run(store, 'findRecord', 'post', '1').then(async(function(post) {
+  run(store, 'findRecord', 'post', '1').then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1664,7 +1665,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     assert.equal(passedUrl, '/posts/1/comments');
     assert.equal(passedVerb, 'GET');
     assert.equal(passedHash, undefined);
@@ -1708,7 +1709,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
   });
 
-  run(store, 'findRecord', 'post', '1').then(async(function(post) {
+  run(store, 'findRecord', 'post', '1').then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1718,7 +1719,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     // NOOP
   }));
 });
@@ -1749,7 +1750,7 @@ test("findMany - returning sideloaded data loads the data", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1760,7 +1761,7 @@ test("findMany - returning sideloaded data loads the data", function(assert) {
     });
 
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     var comment1 = store.peekRecord('comment', 1);
     var comment2 = store.peekRecord('comment', 2);
     var comment3 = store.peekRecord('comment', 3);
@@ -1805,7 +1806,7 @@ test("findMany - a custom serializer is used if present", function(assert) {
     });
   });
 
-  store.findRecord('post', 1).then(async(function(post) {
+  store.findRecord('post', 1).then(assert.wait(function(post) {
     ajaxResponse({
       comments: [
         { _ID_: 1, _NAME_: "FIRST" },
@@ -1814,7 +1815,7 @@ test("findMany - a custom serializer is used if present", function(assert) {
       ]
     });
     return post.get('comments');
-  })).then(async(function(comments) {
+  })).then(assert.wait(function(comments) {
     var comment1 = store.peekRecord('comment', 1);
     var comment2 = store.peekRecord('comment', 2);
     var comment3 = store.peekRecord('comment', 3);
@@ -1854,15 +1855,15 @@ test('findBelongsTo - passes buildURL the requestType', function(assert) {
     });
   });
 
-  run(store, 'findRecord', 'comment', 1).then(async(function(comment) {
+  run(store, 'findRecord', 'comment', 1).then(assert.wait(function(comment) {
     ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
     return comment.get('post');
-  })).then(async(function(post) {
+  })).then(assert.wait(function(post) {
     // NOOP
   }));
 });
 
-test('coalesceFindRequests warns if the expected records are not returned in the coalesced request', function(assert) {
+test('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
@@ -1871,7 +1872,7 @@ test('coalesceFindRequests warns if the expected records are not returned in the
   ajaxResponse({ comments: [{ id: 1 }] });
   var post;
 
-  warns(function() {
+  assert.warns(function() {
     run(function() {
       store.push({
         data: {
@@ -2051,7 +2052,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
   });
 
   run(function() {
-    store.find('post', 1).then(async(function(post) {
+    store.find('post', 1).then(assert.wait(function(post) {
       assert.equal(post.get('authorName'), "@d2h");
       assert.equal(post.get('author.name'), "D2H");
       assert.deepEqual(post.get('comments').mapBy('body'), ["Rails is unagi", "What is omakase?"]);
@@ -2311,7 +2312,7 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
   }
 });
 
-test('findAll resolves with a collection of DS.Models, not DS.InternalModels', () => {
+test('findAll resolves with a collection of DS.Models, not DS.InternalModels', (assert) => {
   assert.expect(4);
 
   ajaxResponse({
@@ -2332,9 +2333,9 @@ test('findAll resolves with a collection of DS.Models, not DS.InternalModels', (
   });
 
   run(() => {
-    store.findAll('post').then(async((posts) => {
+    store.findAll('post').then(assert.wait((posts) => {
       assert.equal(get(posts, 'length'), 3);
-      posts.forEach((post) => ok(post instanceof DS.Model));
+      posts.forEach((post) => assert.ok(post instanceof DS.Model));
     }));
   });
 

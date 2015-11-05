@@ -1,3 +1,5 @@
+import {createStore} from 'dummy/tests/helpers/store';
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -42,11 +44,12 @@ test('Adapter can not be set as an instance', function(assert) {
   store = DS.Store.create({
     adapter: DS.Adapter.create()
   });
-  expectAssertion(() => store.get('defaultAdapter'));
+  assert.expectAssertion(() => store.get('defaultAdapter'));
 });
 
 test("Calling Store#find invokes its adapter#find", function(assert) {
   assert.expect(5);
+  let done = assert.async();
 
   var adapter = TestAdapter.extend({
     findRecord: function(store, type, id, snapshot) {
@@ -65,19 +68,19 @@ test("Calling Store#find invokes its adapter#find", function(assert) {
 
 
   run(function() {
-    currentStore.findRecord('test', 1);
+    currentStore.findRecord('test', 1).finally(done);
   });
 });
 
 test("Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call", function(assert) {
   assert.expect(2);
+  let done = assert.async();
 
   var adapter = TestAdapter.extend({
     findRecord: function(store, type, id, snapshot) {
       assert.ok(false, "Adapter#findRecord was not called");
     },
     findMany: function(store, type, ids, snapshots) {
-      start();
       assert.ok(true, "Adapter#findMany was called");
       assert.deepEqual(ids, ["1","2"], 'Correct ids were passed in to findMany');
       return Ember.RSVP.resolve([{ id: 1 }, { id: 2 }]);
@@ -88,10 +91,12 @@ test("Calling Store#findRecord multiple times coalesces the calls into a adapter
   var currentType = DS.Model.extend();
   var currentStore = createStore({ adapter: adapter, test: currentType });
 
-  stop();
   run(function() {
-    currentStore.findRecord('test', 1);
-    currentStore.findRecord('test', 2);
+    let promises = [
+      currentStore.findRecord('test', 1),
+      currentStore.findRecord('test', 2)
+    ];
+    Ember.RSVP.all(promises).finally(done);
   });
 });
 
@@ -110,7 +115,7 @@ test("Returning a promise from `findRecord` asynchronously loads data", function
   var currentStore = createStore({ adapter: adapter, test: currentType });
 
   run(function() {
-    currentStore.findRecord('test', 1).then(async(function(object) {
+    currentStore.findRecord('test', 1).then(assert.wait(function(object) {
       assert.strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
     }));
   });
@@ -132,7 +137,7 @@ test("IDs provided as numbers are coerced to strings", function(assert) {
   var currentStore = createStore({ adapter: adapter, test: currentType });
 
   run(function() {
-    currentStore.findRecord('test', 1).then(async(function(object) {
+    currentStore.findRecord('test', 1).then(assert.wait(function(object) {
       assert.equal(typeof object.get('id'), 'string', "id was coerced to a string");
       run(function() {
         currentStore.push({
@@ -146,7 +151,7 @@ test("IDs provided as numbers are coerced to strings", function(assert) {
         });
       });
       return currentStore.findRecord('test', 2);
-    })).then(async(function(object) {
+    })).then(assert.wait(function(object) {
       assert.ok(object, "object was found");
       assert.equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
     }));
@@ -178,7 +183,7 @@ test("can load data for the same record if it is not dirty", function(assert) {
       }
     });
 
-    store.findRecord('person', 1).then(async(function(tom) {
+    store.findRecord('person', 1).then(assert.wait(function(tom) {
       assert.equal(get(tom, 'hasDirtyAttributes'), false, "precond - record is not dirty");
       assert.equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
@@ -357,7 +362,7 @@ test("a new record with a specific id can't be created if this id is already use
     store.createRecord('person', { id: 5 });
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.createRecord('person', { id: 5 });
     });
@@ -400,7 +405,7 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 
   run(function() {
     person = store.createRecord('person', { id: 1, name: "Brohuda Katz" });
-    store.findRecord('person', 1).then(async(function(again) {
+    store.findRecord('person', 1).then(assert.wait(function(again) {
       assert.strictEqual(person, again, "the store returns the loaded object");
     }));
   });
@@ -489,8 +494,8 @@ test("initial values of belongsTo can be passed in as the third argument to find
   env.registry.register('model:person', Person);
 
   run(function() {
-    store.findRecord('person', 1, { preload: { friend: 2 } }).then(async(function() {
-      store.peekRecord('person', 1).get('friend').then(async(function(friend) {
+    store.findRecord('person', 1, { preload: { friend: 2 } }).then(assert.wait(function() {
+      store.peekRecord('person', 1).get('friend').then(assert.wait(function(friend) {
         assert.equal(friend.get('id'), '2', 'Preloaded belongsTo set');
       }));
     }));
@@ -589,7 +594,7 @@ test("records should have their ids updated when the adapter returns the id data
   });
 
   run(function() {
-    Ember.RSVP.all([tom.save(), yehuda.save()]).then(async(function() {
+    Ember.RSVP.all([tom.save(), yehuda.save()]).then(assert.wait(function() {
       people.forEach(function(person, index) {
         assert.equal(person.get('id'), index + 1, "The record's id should be correct.");
       });
@@ -617,7 +622,7 @@ test("store.fetchMany should always return a promise", function(assert) {
   assert.ok(results, "A call to store.scheduleFetchMany() should return a result");
   assert.ok(results.then, "A call to store.scheduleFetchMany() should return a promise");
 
-  results.then(async(function(returnedRecords) {
+  results.then(assert.wait(function(returnedRecords) {
     assert.deepEqual(returnedRecords, [], "The correct records are returned");
   }));
 });
@@ -673,7 +678,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
   ]);
 
   run(function() {
-    store.scheduleFetchMany(records).then(async(function() {
+    store.scheduleFetchMany(records).then(assert.wait(function() {
       var unloadedRecords = records.filterBy('isEmpty');
       assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
     }));
@@ -723,7 +728,7 @@ test("the store calls adapter.findMany according to groupings returned by adapte
   ]);
 
   run(function() {
-    store.scheduleFetchMany(records).then(async(function() {
+    store.scheduleFetchMany(records).then(assert.wait(function() {
       var ids = records.mapBy('id');
       assert.deepEqual(ids, ["10", "20", "21"], "The promise fulfills with the records");
     }));
@@ -769,11 +774,11 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
     var davidPromise = store.findRecord('test', 'david');
     var igorPromise = store.findRecord('test', 'igor');
 
-    igorPromise.then(async(function () {
+    igorPromise.then(assert.wait(function () {
       assert.equal(davidResolved, false, "Igor did not need to wait for David");
     }));
 
-    davidPromise.then(async(function () {
+    davidPromise.then(assert.wait(function () {
       assert.equal(davidResolved, true, "David resolved");
     }));
   });
@@ -818,11 +823,11 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
     var davidPromise = store.findRecord('test', 'david');
     var igorPromise = store.findRecord('test', 'igor');
 
-    igorPromise.then(null, async(function () {
+    igorPromise.then(null, assert.wait(function () {
       assert.equal(davidResolved, false, "Igor did not need to wait for David");
     }));
 
-    davidPromise.then(async(function () {
+    davidPromise.then(assert.wait(function () {
       assert.equal(davidResolved, true, "David resolved");
     }));
   });
@@ -852,20 +857,22 @@ test("store.fetchRecord reject records that were not found, even when those requ
     test: Person
   });
 
-  warns(function() {
+  let done = assert.async();
+  assert.warns(function() {
     run(function () {
       var davidPromise = store.findRecord('test', 'david');
       var igorPromise = store.findRecord('test', 'igor');
 
-      davidPromise.then(async(function () {
+      davidPromise.then(assert.wait(function () {
         assert.ok(true, "David resolved");
       }));
 
-      igorPromise.then(null, async(function () {
+      igorPromise.then(null, assert.wait(function () {
         assert.ok(true, "Igor rejected");
       }));
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
+  done();
 });
 
 test("store should not call shouldReloadRecord when the record is not in the store", function(assert) {
@@ -1253,7 +1260,7 @@ test("store should assert of the user tries to call store.filter", function(asse
     person: Person
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.filter('person', {});
     });
@@ -1270,7 +1277,7 @@ test("Calling adapterFor with a model class should assert", function(assert) {
     person: Person
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     store.adapterFor(Person);
   }, /Passing classes to store.adapterFor has been removed/);
 });

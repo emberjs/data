@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -28,11 +29,11 @@ module("integration/adapter/find - Finding Records", {
 });
 
 test("It raises an assertion when `undefined` is passed as id (#1705)", function(assert) {
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     store.find('person', undefined);
   }, "You cannot pass `undefined` as id to the store's find method");
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     store.find('person', null);
   }, "You cannot pass `null` as id to the store's find method");
 });
@@ -68,33 +69,33 @@ test("When a single record is requested multiple times, all .find() calls are re
   }));
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(person.get('id'), "1");
       assert.equal(person.get('name'), "Braaaahm Dale");
 
-      stop();
+      let done = assert.async();
       deferred.promise.then(function(value) {
-        start();
         assert.ok(true, 'expected deferred.promise to fulfill');
+        done();
       }, function(reason) {
-        start();
         assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
+        done();
       });
     }));
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(post) {
+    store.findRecord('person', 1).then(assert.wait(function(post) {
       assert.equal(post.get('id'), "1");
       assert.equal(post.get('name'), "Braaaahm Dale");
 
-      stop();
+      let done = assert.async();
       deferred.promise.then(function(value) {
-        start();
         assert.ok(true, 'expected deferred.promise to fulfill');
+        done();
       }, function(reason) {
-        start();
         assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
+        done();
       });
 
     }));
@@ -113,7 +114,7 @@ test("When a single record is requested, and the promise is rejected, .find() is
   }));
 
   run(function() {
-    store.findRecord('person', 1).then(null, async(function(reason) {
+    store.findRecord('person', 1).then(null, assert.wait(function(reason) {
       assert.ok(true, "The rejection handler was called");
     }));
   });
@@ -129,10 +130,10 @@ test("When a single record is requested, and the promise is rejected, the record
   }));
 
   run(function() {
-    store.findRecord('person', 1).then(null, async(function(reason) {
+    store.findRecord('person', 1).then(null, assert.wait(function(reason) {
       assert.ok(true, "The rejection handler was called");
+      assert.ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
     }));
   });
 
-  assert.ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
 });

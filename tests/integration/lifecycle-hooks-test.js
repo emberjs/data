@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -25,7 +26,8 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
   }
 });
 
-asyncTest("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
+test("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function(assert) {
+  let done = assert.async();
   assert.expect(3);
 
   env.adapter.createRecord = function(store, type, snapshot) {
@@ -41,7 +43,7 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
     assert.equal(this, person, "this is bound to the record");
     assert.equal(this.get('id'), "99", "the ID has been assigned");
     assert.equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
-    start();
+    done();
   });
 
   run(person, 'save');

@@ -1,4 +1,6 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -44,7 +46,7 @@ module("integration/multiple_stores - Multiple Stores Tests", {
   }
 });
 
-test("should be able to push into multiple stores", function() {
+test("should be able to push into multiple stores", function(assert) {
   env.registry.register('adapter:home-planet', DS.RESTAdapter.extend({
     shouldBackgroundReloadRecord: () => false
   }));
@@ -59,21 +61,21 @@ test("should be able to push into multiple stores", function() {
     env.store_b.push(env.store_b.normalize('home-planet', home_planet_b));
   });
 
-  run(env.store, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
-    equal(homePlanet.get('name'), "Earth");
+  run(env.store, 'findRecord', 'home-planet', 1).then(assert.wait(function(homePlanet) {
+    assert.equal(homePlanet.get('name'), "Earth");
   }));
 
-  run(env.store_a, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
-    equal(homePlanet.get('name'), "Mars");
+  run(env.store_a, 'findRecord', 'home-planet', 1).then(assert.wait(function(homePlanet) {
+    assert.equal(homePlanet.get('name'), "Mars");
   }));
 
-  run(env.store_b, 'findRecord', 'home-planet', 1).then(async(function(homePlanet) {
-    equal(homePlanet.get('name'), "Saturn");
+  run(env.store_b, 'findRecord', 'home-planet', 1).then(assert.wait(function(homePlanet) {
+    assert.equal(homePlanet.get('name'), "Saturn");
   }));
 
 });
 
-test("embedded records should be created in multiple stores", function() {
+test("embedded records should be created in multiple stores", function(assert) {
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
@@ -122,19 +124,19 @@ test("embedded records should be created in multiple stores", function() {
   run(function() {
     json_main = serializer_main.normalizeResponse(env.store, env.store.modelFor('home-planet'), json_hash_main, 1, 'findRecord');
     env.store.push(json_main);
-    equal(env.store.hasRecordForId('super-villain', "1"), true, "superVillain should exist in service:store");
+    assert.equal(env.store.hasRecordForId('super-villain', "1"), true, "superVillain should exist in service:store");
   });
 
   run(function() {
     json_a = serializer_a.normalizeResponse(env.store_a, env.store_a.modelFor('home-planet'), json_hash_a, 1, 'findRecord');
     env.store_a.push(json_a);
-    equal(env.store_a.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-a");
+    assert.equal(env.store_a.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-a");
   });
 
   run(function() {
     json_b = serializer_b.normalizeResponse(env.store_b, env.store_a.modelFor('home-planet'), json_hash_b, 1, 'findRecord');
     env.store_b.push(json_b);
-    equal(env.store_b.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-b");
+    assert.equal(env.store_b.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-b");
   });
 
 });

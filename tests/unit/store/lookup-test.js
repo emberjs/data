@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -57,26 +58,26 @@ module('unit/store/lookup - Managed Instance lookups', {
   }
 });
 
-test('when the adapter does not exist for a type, the fallback is returned', () => {
+test('when the adapter does not exist for a type, the fallback is returned', (assert) => {
   let personAdapter = lookupAdapter('person');
 
   assert.strictEqual(personAdapter, applicationAdapter);
 });
 
-test('when the adapter for a type exists, returns that instead of the fallback', () => {
+test('when the adapter for a type exists, returns that instead of the fallback', (assert) => {
   registerAdapter('person', DS.Adapter.extend());
   let personAdapter = lookupAdapter('person');
 
   assert.ok(personAdapter !== applicationAdapter);
 });
 
-test('when the serializer does not exist for a type, the fallback is returned', () => {
+test('when the serializer does not exist for a type, the fallback is returned', (assert) => {
   let personSerializer = lookupSerializer('person');
 
   assert.strictEqual(personSerializer, applicationSerializer);
 });
 
-test('when the serializer does exist for a type, the serializer is returned', () => {
+test('when the serializer does exist for a type, the serializer is returned', (assert) => {
   registerSerializer('person', DS.Serializer.extend());
 
   let personSerializer = lookupSerializer('person');
@@ -84,7 +85,7 @@ test('when the serializer does exist for a type, the serializer is returned', ()
   assert.ok(personSerializer !== applicationSerializer);
 });
 
-test('adapter lookup order', () => {
+test('adapter lookup order', (assert) => {
   assert.expect(3);
 
   resetStore();
@@ -107,7 +108,7 @@ test('adapter lookup order', () => {
   assert.ok(lookupAdapter('person').get('customThingy'), 'looks up type serializer before application');
 });
 
-test('serializer lookup order', () => {
+test('serializer lookup order', (assert) => {
   resetStore();
 
   let personSerializer = lookupSerializer('person');

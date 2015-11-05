@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -15,6 +16,7 @@ module("unit/model/relationships - DS.hasMany", {
 });
 
 test("hasMany handles pre-loaded relationships", function(assert) {
+  let done = assert.async();
   assert.expect(13);
 
   var Tag = DS.Model.extend({
@@ -142,7 +144,7 @@ test("hasMany handles pre-loaded relationships", function(assert) {
       assert.equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
 
       assert.strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-      asyncEqual(get(person, 'tags').objectAt(0), store.findRecord('tag', 5), "relationship objects are the same as objects retrieved directly");
+      assert.asyncEqual(get(person, 'tags').objectAt(0), store.findRecord('tag', 5), "relationship objects are the same as objects retrieved directly");
 
       run(function() {
         store.push({
@@ -208,6 +210,7 @@ test("hasMany handles pre-loaded relationships", function(assert) {
 
       assert.equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
       assert.equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
+      done();
     });
   });
 });
@@ -325,7 +328,7 @@ test("hasMany lazily loads async relationships", function(assert) {
       assert.equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
       assert.strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
-      asyncEqual(records.tags.objectAt(0), store.findRecord('tag', 12), "relationship objects are the same as objects retrieved directly");
+      assert.asyncEqual(records.tags.objectAt(0), store.findRecord('tag', 12), "relationship objects are the same as objects retrieved directly");
 
       return get(wycats, 'tags');
     }).then(function(tags) {
@@ -694,7 +697,7 @@ test("it is possible to remove an item from a relationship", function(assert) {
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       var tag = get(person, 'tags').objectAt(0);
 
       assert.equal(get(tag, 'name'), "ember", "precond - relationships work");
@@ -789,7 +792,7 @@ test("throws assertion if of not set with an array", function(assert) {
   });
 
   run(function() {
-    expectAssertion(function() {
+    assert.expectAssertion(function() {
       tag.set('people', person);
     }, /You must pass an array of records to set a hasMany relationship/);
   });
@@ -818,7 +821,7 @@ test("checks if passed array only contains instances of DS.Model", function(asse
   });
 
   run(function() {
-    expectAssertion(function() {
+    assert.expectAssertion(function() {
       tag.set('people', [person]);
     }, /All elements of a hasMany relationship must be instances of DS.Model/);
   });

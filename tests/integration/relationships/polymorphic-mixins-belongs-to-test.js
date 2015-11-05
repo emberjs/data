@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -150,7 +151,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
   });
 
   run(function() {
-    expectAssertion(function() {
+    assert.expectAssertion(function() {
       user.set('bestMessage', video);
     }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
   });
@@ -225,7 +226,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
     });
 
     run(function() {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         user.set('bestMessage', video);
       }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
     });

@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -111,7 +112,7 @@ test("changes to attributes made after a record is in-flight only rolls back the
     assert.equal(person.get('lastName'), "Dale");
     assert.equal(person.get('isSaving'), true);
 
-    saving.then(async(function() {
+    saving.then(assert.wait(function() {
       assert.equal(person.get('hasDirtyAttributes'), false, "The person is now clean");
     }));
   });
@@ -239,7 +240,7 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
   assert.equal(person.get('hasDirtyAttributes'), true, "must be dirty");
 
   run(function() {
-    person.save().then(null, async(function() {
+    person.save().then(null, assert.wait(function() {
       assert.equal(person.get('isValid'), false);
       person.rollbackAttributes();
 
@@ -279,12 +280,12 @@ test("invalid record's attributes can be rollbacked after multiple failed calls 
   run(function() {
     assert.equal(person.get('firstName'), 'updated name', "precondition: firstName is changed");
 
-    person.save().then(null, async(function() {
+    person.save().then(null, assert.wait(function() {
       assert.equal(person.get('hasDirtyAttributes'), true, "has dirty attributes");
       assert.equal(person.get('firstName'), 'updated name', "firstName is still changed");
 
       return person.save();
-    })).then(null, async(function() {
+    })).then(null, assert.wait(function() {
       person.rollbackAttributes();
 
       assert.equal(person.get('hasDirtyAttributes'), false, "has no dirty attributes");
@@ -370,7 +371,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
       }
     });
 
-    dog.save().then(null, async(function() {
+    dog.save().then(null, assert.wait(function() {
       dog.rollbackAttributes();
 
       assert.equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
@@ -424,7 +425,7 @@ test("invalid record's attributes rolled back to correct state after set", funct
       assert.ok(true, 'errors.name did change');
     });
 
-    dog.save().then(null, async(function() {
+    dog.save().then(null, assert.wait(function() {
       assert.equal(dog.get('name'), "is a dwarf planet");
       assert.equal(dog.get('breed'), "planet");
       assert.ok(Ember.isPresent(dog.get('errors.name')));
@@ -484,7 +485,7 @@ test("when destroying a record setup the record state to invalid, the record's a
   });
 
   run(function() {
-    dog.destroyRecord().then(null, async(function() {
+    dog.destroyRecord().then(null, assert.wait(function() {
 
 
       assert.equal(dog.get('isError'), false, "must not be error");

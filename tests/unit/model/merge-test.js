@@ -1,3 +1,4 @@
+import {createStore} from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -85,7 +86,7 @@ test("Make sure snapshot is created at save time not at flush time", function(as
 
     assert.equal(person.get('name'), "Tomasz Dale", "the local changes applied on top");
 
-    promise.then(async(function(person) {
+    promise.then(assert.wait(function(person) {
       assert.equal(person.get('hasDirtyAttributes'), true, "The person is still dirty");
       assert.equal(person.get('name'), "Tomasz Dale", "The local changes apply");
     }));
@@ -144,7 +145,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     assert.equal(person.get('name'), "Tomasz Dale", "the local changes applied on top");
     assert.equal(person.get('city'), "PDX", "the pushed change is available");
 
-    promise.then(async(function(person) {
+    promise.then(assert.wait(function(person) {
       assert.equal(person.get('hasDirtyAttributes'), true, "The person is still dirty");
       assert.equal(person.get('name'), "Tomasz Dale", "The local changes apply");
       assert.equal(person.get('city'), "Portland", "The updates from the server apply on top of the previous pushes");

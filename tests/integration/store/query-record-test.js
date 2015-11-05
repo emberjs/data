@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -28,13 +29,13 @@ module("integration/store/query-record - Query one record with a query hash", {
 });
 
 test("It raises an assertion when no type is passed", function(assert) {
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     store.queryRecord();
   }, "You need to pass a type to the store's queryRecord method");
 });
 
 test("It raises an assertion when no query hash is passed", function(assert) {
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     store.queryRecord('person');
   }, "You need to pass a query hash to the store's queryRecord method");
 });

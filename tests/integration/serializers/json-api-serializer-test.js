@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -121,7 +122,7 @@ test('Warns when normalizing an unknown type', function(assert) {
     }
   };
 
-  warns(function() {
+  assert.warns(function() {
     run(function() {
       env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
     });

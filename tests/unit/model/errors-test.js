@@ -1,6 +1,7 @@
 import DS from 'ember-data';
+import QUnit, {module, test} from 'qunit';
 
-import {module, test} from 'qunit';
+const AssertPrototype = QUnit.assert;
 
 var errors;
 
@@ -13,31 +14,31 @@ module("unit/model/errors", {
   }
 });
 
-function becameInvalid(eventName) {
+AssertPrototype.becameInvalid = function becameInvalid(eventName) {
   if (eventName === 'becameInvalid') {
-    assert.ok(true, 'becameInvalid send');
+    this.ok(true, 'becameInvalid send');
   } else {
-    assert.ok(false, eventName + ' is send instead of becameInvalid');
+    this.ok(false, eventName + ' is send instead of becameInvalid');
   }
-}
+}.bind(AssertPrototype);
 
-function becameValid(eventName) {
+AssertPrototype.becameValid = function becameValid(eventName) {
   if (eventName === 'becameValid') {
-    assert.ok(true, 'becameValid send');
+    this.ok(true, 'becameValid send');
   } else {
-    assert.ok(false, eventName + ' is send instead of becameValid');
+    this.ok(false, eventName + ' is send instead of becameValid');
   }
-}
+}.bind(AssertPrototype);
 
-function unexpectedSend(eventName) {
-  assert.ok(false, 'unexpected send : ' + eventName);
-}
+AssertPrototype.unexpectedSend = function unexpectedSend(eventName) {
+  this.ok(false, 'unexpected send : ' + eventName);
+}.bind(AssertPrototype);
 
 test("add error", function(assert) {
   assert.expect(6);
-  errors.trigger = becameInvalid;
+  errors.trigger = assert.becameInvalid;
   errors.add('firstName', 'error');
-  errors.trigger = unexpectedSend;
+  errors.trigger = assert.unexpectedSend;
   assert.ok(errors.has('firstName'), 'it has firstName errors');
   assert.equal(errors.get('length'), 1, 'it has 1 error');
   errors.add('firstName', ['error1', 'error2']);
@@ -51,9 +52,9 @@ test("add error", function(assert) {
 test("get error", function(assert) {
   assert.expect(8);
   assert.ok(errors.get('firstObject') === undefined, 'returns undefined');
-  errors.trigger = becameInvalid;
+  errors.trigger = assert.becameInvalid;
   errors.add('firstName', 'error');
-  errors.trigger = unexpectedSend;
+  errors.trigger = assert.unexpectedSend;
   assert.ok(errors.get('firstName').length === 1, 'returns errors');
   assert.deepEqual(errors.get('firstObject'), { attribute: 'firstName', message: 'error' });
   errors.add('firstName', 'error2');
@@ -73,11 +74,11 @@ test("get error", function(assert) {
 
 test("remove error", function(assert) {
   assert.expect(5);
-  errors.trigger = becameInvalid;
+  errors.trigger = assert.becameInvalid;
   errors.add('firstName', 'error');
-  errors.trigger = becameValid;
+  errors.trigger = assert.becameValid;
   errors.remove('firstName');
-  errors.trigger = unexpectedSend;
+  errors.trigger = assert.unexpectedSend;
   assert.ok(!errors.has('firstName'), 'it has no firstName errors');
   assert.equal(errors.get('length'), 0, 'it has 0 error');
   assert.ok(errors.get('isEmpty'), 'it is empty');
@@ -86,26 +87,26 @@ test("remove error", function(assert) {
 
 test("remove same errors from different attributes", function(assert) {
   assert.expect(5);
-  errors.trigger = becameInvalid;
+  errors.trigger = assert.becameInvalid;
   errors.add('firstName', 'error');
   errors.add('lastName', 'error');
-  errors.trigger = unexpectedSend;
+  errors.trigger = assert.unexpectedSend;
   assert.equal(errors.get('length'), 2, 'it has 2 error');
   errors.remove('firstName');
   assert.equal(errors.get('length'), 1, 'it has 1 error');
-  errors.trigger = becameValid;
+  errors.trigger = assert.becameValid;
   errors.remove('lastName');
   assert.ok(errors.get('isEmpty'), 'it is empty');
 });
 
 test("clear errors", function(assert) {
   assert.expect(5);
-  errors.trigger = becameInvalid;
+  errors.trigger = assert.becameInvalid;
   errors.add('firstName', ['error', 'error1']);
   assert.equal(errors.get('length'), 2, 'it has 2 errors');
-  errors.trigger = becameValid;
+  errors.trigger = assert.becameValid;
   errors.clear();
-  errors.trigger = unexpectedSend;
+  errors.trigger = assert.unexpectedSend;
   assert.ok(!errors.has('firstName'), 'it has no firstName errors');
   assert.equal(errors.get('length'), 0, 'it has 0 error');
   errors.clear();

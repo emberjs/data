@@ -1,3 +1,4 @@
+import {createStore} from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -51,7 +52,7 @@ test("unload a dirty record", function(assert) {
 
       assert.equal(get(record, 'hasDirtyAttributes'), true, "record is dirty");
 
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         record.unloadRecord();
       }, "You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", "can not unload dirty record");
 

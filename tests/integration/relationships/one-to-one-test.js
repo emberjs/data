@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -534,7 +535,7 @@ test("Setting a BelongsTo to a promise that didn't come from a relationship erro
     });
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       stanley.set('bestFriend', Ember.RSVP.resolve(igor));
     });
@@ -594,10 +595,10 @@ test("Setting a BelongsTo to a promise multiple times is resistant to race condi
     if (id === '5') {
       return Ember.RSVP.resolve({ id: 5, name: "Igor's friend" });
     } else if (id === '2') {
-      stop();
+      let done = assert.async();
       return new Ember.RSVP.Promise(function(resolve, reject) {
         setTimeout(function() {
-          start();
+          done();
           resolve({ id: 2, name: "Stanley's friend" });
         }, 1);
       });

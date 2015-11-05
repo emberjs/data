@@ -1,3 +1,4 @@
+import {createStore} from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';

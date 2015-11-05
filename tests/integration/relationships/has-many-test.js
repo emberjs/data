@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -202,9 +203,9 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   };
 
   run(function() {
-    env.store.findRecord('post', 1).then(async(function(post) {
+    env.store.findRecord('post', 1).then(assert.wait(function(post) {
       return post.get('comments');
-    })).then(async(function(comments) {
+    })).then(assert.wait(function(comments) {
       assert.equal(comments.get('isLoaded'), true, "comments are loaded");
       assert.equal(comments.get('length'), 2, "comments have 2 length");
       assert.equal(comments.objectAt(0).get('body'), 'First', "comment loaded successfully");
@@ -214,6 +215,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
 test("Accessing a hasMany backed by a link multiple times triggers only one request", function(assert) {
   assert.expect(2);
+  let done = assert.async();
   var count = 0;
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -242,10 +244,8 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    start();
     count++;
     assert.equal(count, 1, "findHasMany has only been called once");
-    stop();
     return new Ember.RSVP.Promise(function(resolve, reject) {
       setTimeout(function() {
         var value = [
@@ -257,7 +257,6 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
     });
   };
 
-  stop();
   var promise1, promise2;
   run(function() {
     promise1 = post.get('comments');
@@ -276,9 +275,9 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
     promise2 = post.get('comments');
   });
   Ember.RSVP.all([promise1, promise2]).then(function() {
-    start();
+    assert.equal(promise1.promise, promise2.promise, "Same promise is returned both times");
+    done();
   });
-  assert.equal(promise1.promise, promise2.promise, "Same promise is returned both times");
 });
 
 test("A hasMany backed by a link remains a promise after a record has been added to it", function(assert) {
@@ -1023,7 +1022,7 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
     env.store.findRecord('user', 1).then(function(user) {
       return user.get('messages');
     }).then(function(messages) {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         messages.createRecord();
       }, /You cannot add 'message' records to this polymorphic relationship/);
     });
@@ -1055,7 +1054,7 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
       env.store.findRecord('post', 1),
       env.store.findRecord('post', 2)
     ]).then(function(records) {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
       }, /You cannot add a record of type 'post' to the 'post.comments' relationship \(only 'comment' allowed\)/);
     });
@@ -1116,7 +1115,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
       records.messages.pushObject(records.comment);
       assert.equal(records.messages.get('length'), 2, "The messages are correctly added");
 
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         records.messages.pushObject(records.anotherUser);
       }, /You cannot add a record of type 'user' to the 'user.messages' relationship \(only 'message' allowed\)/);
     });
@@ -1265,7 +1264,7 @@ test("We can set records ASYNC HM relationship", function(assert) {
     post.set('comments', env.store.peekAll('comment'));
   });
 
-  post.get('comments').then(async(function(comments) {
+  post.get('comments').then(assert.wait(function(comments) {
     assert.equal(comments.get('length')  , 2, "we can set async HM relationship");
   }));
 });
@@ -1382,7 +1381,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 
   run(function() {
-    post.get('comments').then(async(function(fetchedComments) {
+    post.get('comments').then(assert.wait(function(fetchedComments) {
       assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
       assert.equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
       env.store.push({
@@ -1400,7 +1399,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
           }
         }
       });
-      post.get('comments').then(async(function(newlyFetchedComments) {
+      post.get('comments').then(assert.wait(function(newlyFetchedComments) {
         assert.equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
         assert.equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
       }));
@@ -1428,7 +1427,7 @@ test("A sync hasMany errors out if there are unlaoded records in it", function(a
     post = env.store.peekRecord('post', 1);
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(post, 'get', 'comments');
   }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
 });
@@ -1847,7 +1846,7 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
 test("Passing a model as type to hasMany should not work", function(assert) {
   assert.expect(1);
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     User = DS.Model.extend();
 
     Contact = DS.Model.extend({
@@ -1988,6 +1987,7 @@ test('unloading a record with associated records does not prevent the store from
 
 test("adding and removing records from hasMany relationship #2666", function(assert) {
   assert.expect(4);
+  let done = assert.async();
 
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
@@ -2045,7 +2045,6 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   });
 
   run(function() {
-    stop();
     env.store.findRecord('post', 1).then(function (post) {
       var comments = post.get('comments');
       assert.equal(comments.get('length'), 3, "Initial comments count");
@@ -2070,7 +2069,7 @@ test("adding and removing records from hasMany relationship #2666", function(ass
       }).then(function() {
         var comments = post.get('comments');
         assert.equal(comments.get('length'), 4, "Comments count after second add");
-        start();
+        done();
       });
     });
   });

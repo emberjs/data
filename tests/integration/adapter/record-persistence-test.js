@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -12,14 +13,6 @@ var run = Ember.run;
 
 var all = Ember.RSVP.all;
 var hash = Ember.RSVP.hash;
-
-function assertClean(promise) {
-  return promise.then(async(function(record) {
-    assert.equal(record.get('hasDirtyAttributes'), false, "The record is now clean");
-    return record;
-  }));
-}
-
 
 module("integration/adapter/record_persistence - Persisting Records", {
   beforeEach: function() {
@@ -70,7 +63,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
   var tom;
 
   run(function() {
-    env.store.findRecord('person', 1).then(async(function(person) {
+    env.store.findRecord('person', 1).then(assert.wait(function(person) {
       tom = person;
       set(tom, "name", "Tom Dale");
       tom.save();
@@ -108,7 +101,7 @@ test("After a created record has been assigned an ID, finding a record by that I
     tom.save();
   });
 
-  asyncEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
+  assert.asyncEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function(assert) {
@@ -132,11 +125,11 @@ test("when a store is committed, the adapter's `commit` method should be called 
       }
     });
   });
-  env.store.find('person', 1).then(async(function(person) {
+  env.store.find('person', 1).then(assert.wait(function(person) {
     tom = person;
     tom.deleteRecord();
     return tom.save();
-  })).then(async(function(tom) {
+  })).then(assert.wait(function(tom) {
     assert.equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
   }));
 });
@@ -163,7 +156,7 @@ test("An adapter can notify the store that records were updated by calling `didS
   });
 
   all([env.store.find('person', 1), env.store.find('person', 2)])
-    .then(async(function(array) {
+    .then(assert.wait(function(array) {
       tom = array[0];
       yehuda = array[1];
 
@@ -173,11 +166,11 @@ test("An adapter can notify the store that records were updated by calling `didS
       assert.ok(tom.get('hasDirtyAttributes'), "tom is dirty");
       assert.ok(yehuda.get('hasDirtyAttributes'), "yehuda is dirty");
 
-      assertClean(tom.save()).then(async(function(record) {
+      assert.assertClean(tom.save()).then(assert.wait(function(record) {
         assert.equal(record, tom, "The record is correct");
       }));
 
-      assertClean(yehuda.save()).then(async(function(record) {
+      assert.assertClean(yehuda.save()).then(assert.wait(function(record) {
         assert.equal(record, yehuda, "The record is correct");
       }));
     }));
@@ -210,12 +203,12 @@ test("An adapter can notify the store that records were updated and provide new 
     });
   });
 
-  hash({ tom: env.store.find('person', 1), yehuda: env.store.find('person', 2) }).then(async(function(people) {
+  hash({ tom: env.store.find('person', 1), yehuda: env.store.find('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
     people.yehuda.set('name', "Goy Katz");
 
     return hash({ tom: people.tom.save(), yehuda: people.yehuda.save() });
-  })).then(async(function(people) {
+  })).then(assert.wait(function(people) {
     assert.equal(people.tom.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
     assert.equal(people.tom.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
     assert.equal(people.yehuda.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
@@ -240,15 +233,15 @@ test("An adapter can notify the store that a record was updated by calling `didS
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Tom Dale");
     people.yehuda.set('name', "Yehuda Katz");
 
     assert.ok(people.tom.get('hasDirtyAttributes'), "tom is dirty");
     assert.ok(people.yehuda.get('hasDirtyAttributes'), "yehuda is dirty");
 
-    assertClean(people.tom.save());
-    assertClean(people.yehuda.save());
+    assert.assertClean(people.tom.save());
+    assert.assertClean(people.yehuda.save());
   }));
 
 });
@@ -281,12 +274,12 @@ test("An adapter can notify the store that a record was updated and provide new 
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
     people.yehuda.set('name', "Goy Katz");
 
     return hash({ tom: people.tom.save(), yehuda: people.yehuda.save() });
-  })).then(async(function(people) {
+  })).then(assert.wait(function(people) {
     assert.equal(people.tom.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
     assert.equal(people.tom.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
     assert.equal(people.yehuda.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
@@ -318,11 +311,11 @@ test("An adapter can notify the store that records were deleted by calling `didS
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
     people.tom.deleteRecord();
     people.yehuda.deleteRecord();
 
-    assertClean(people.tom.save());
-    assertClean(people.yehuda.save());
+    assert.assertClean(people.tom.save());
+    assert.assertClean(people.yehuda.save());
   }));
 });

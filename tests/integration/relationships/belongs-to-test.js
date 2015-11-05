@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -167,7 +168,7 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
       post: store.findRecord('post', 1),
       comment: store.findRecord('comment', 2)
     }).then(function(records) {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         records.post.set('user', records.comment);
       }, /You cannot add a record of type 'comment' to the 'post.user' relationship/);
     });
@@ -218,7 +219,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
       comment.set('message', records.post);
       comment.set('message', null);
 
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         comment.set('message', records.user);
       }, /You cannot add a record of type 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
     });
@@ -300,6 +301,7 @@ test("The store can serialize a polymorphic belongsTo association", function(ass
 });
 
 test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function(assert) {
+  let done = assert.async();
   env.adapter.shouldBackgroundReloadRecord = () => false;
   var Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
@@ -332,7 +334,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
     assert.equal(relationship.type, 'group');
     assert.equal(relationship.key, 'group');
     assert.equal(link, "/people/1/group");
@@ -346,11 +348,13 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     }).then(function(group) {
       assert.ok(group instanceof Group, "A group object is loaded");
       assert.ok(group.get('id') === '1', 'It is the group we are expecting');
+      done();
     });
   });
 });
 
 test('A record with an async belongsTo relationship always returns a promise for that relationship', function(assert) {
+  let done = assert.async();
   env.adapter.shouldBackgroundReloadRecord = () => false;
   var Seat = DS.Model.extend({
     person: DS.belongsTo('person', { async: false })
@@ -383,7 +387,7 @@ test('A record with an async belongsTo relationship always returns a promise for
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({ id: 1 });
   });
 
@@ -394,6 +398,7 @@ test('A record with an async belongsTo relationship always returns a promise for
         // ok(seat.get('person') === person, 'parent relationship should be populated');
         seat.set('person', person);
         assert.ok(person.get('seat').then, 'seat should be a PromiseObject');
+        done();
       });
     });
   });
@@ -434,13 +439,13 @@ test("A record with an async belongsTo relationship returning null should resolv
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve(null);
   });
 
-  env.store.findRecord('person', '1').then(async(function(person) {
+  env.store.findRecord('person', '1').then(assert.wait(function(person) {
     return person.get('group');
-  })).then(async(function(group) {
+  })).then(assert.wait(function(group) {
     assert.ok(group === null, "group should be null");
   }));
 });
@@ -471,7 +476,7 @@ test("A record can be created with a resolved belongsTo promise", function(asser
   });
 
   var groupPromise = store.findRecord('group', 1);
-  groupPromise.then(async(function(group) {
+  groupPromise.then(assert.wait(function(group) {
     var person = env.store.createRecord('person', {
       group: groupPromise
     });
@@ -756,7 +761,7 @@ test("A sync belongsTo errors out if the record is unlaoded", function(assert) {
 
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     message.get('user');
   }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
 });
@@ -845,7 +850,7 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
 test("Passing a model as type to belongsTo should not work", function(assert) {
   assert.expect(1);
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     User = DS.Model.extend();
 
     Contact = DS.Model.extend({

@@ -1,8 +1,10 @@
+import {createStore} from 'dummy/tests/helpers/store';
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
+import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
+
+const AssertionPrototype = QUnit.assert;
 
 var get = Ember.get;
 var set = Ember.set;
@@ -166,7 +168,7 @@ test("trying to set an `id` attribute should raise", function(assert) {
     person: Person
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.push({
         data: {
@@ -630,7 +632,7 @@ test("a complex object defaultValue is deprecated ", function(assert) {
   run(function() {
     tag = store.createRecord('tag');
   });
-  expectDeprecation(function() {
+  assert.expectDeprecation(function() {
     get(tag, 'tagInfo');
   }, /Non primitive defaultValues are deprecated/);
 });
@@ -648,7 +650,7 @@ test("a null defaultValue is not deprecated", function(assert) {
   run(function() {
     tag = store.createRecord('tag');
   });
-  expectNoDeprecation();
+  assert.expectNoDeprecation();
   assert.equal(get(tag, 'tagInfo'), null);
 });
 
@@ -809,7 +811,7 @@ test("when a method is invoked from an event with the same name the arguments ar
   assert.equal(eventMethodArgs[1], 2);
 });
 
-var converts = function(type, provided, expected) {
+AssertionPrototype.converts = function converts(type, provided, expected) {
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
@@ -824,11 +826,11 @@ var converts = function(type, provided, expected) {
   }
   var testStore = createStore({ model: Model });
 
-  run(function() {
+  run(() => {
     testStore.push(testStore.normalize('model', { id: 1, name: provided }));
     testStore.push(testStore.normalize('model', { id: 2 }));
     var record = testStore.peekRecord('model', 1);
-    assert.deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+    this.deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
   });
 
   // See: Github issue #421
@@ -837,7 +839,7 @@ var converts = function(type, provided, expected) {
   // deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
 };
 
-var convertsFromServer = function(type, provided, expected) {
+AssertionPrototype.convertsFromServer = function convertsFromServer(type, provided, expected) {
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
@@ -857,15 +859,15 @@ var convertsFromServer = function(type, provided, expected) {
     })
   });
 
-  run(function() {
+  run(() => {
     testStore.push(testStore.normalize('model', { id: "1", name: provided }));
-    testStore.findRecord('model', 1).then(function(record) {
-      assert.deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+    testStore.findRecord('model', 1).then((record) => {
+      this.deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
   });
 };
 
-var convertsWhenSet = function(type, provided, expected) {
+AssertionPrototype.convertsWhenSet = function(type, provided, expected) {
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
@@ -877,16 +879,16 @@ var convertsWhenSet = function(type, provided, expected) {
     })
   });
 
-  run(function() {
+  run(() => {
     testStore.push({
       data: {
         type: 'model',
         id: '2'
       }
     });
-    testStore.findRecord('model', 2).then(function(record) {
+    testStore.findRecord('model', 2).then((record) => {
       set(record, 'name', provided);
-      assert.deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+      this.deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
     });
   });
 };
@@ -894,45 +896,45 @@ var convertsWhenSet = function(type, provided, expected) {
 test("a DS.Model can describe String attributes", function(assert) {
   assert.expect(6);
 
-  converts('string', "Scumbag Tom", "Scumbag Tom");
-  converts('string', 1, "1");
-  converts('string', "", "");
-  converts('string', null, null);
-  converts('string', undefined, null);
-  convertsFromServer('string', undefined, null);
+  assert.converts('string', "Scumbag Tom", "Scumbag Tom");
+  assert.converts('string', 1, "1");
+  assert.converts('string', "", "");
+  assert.converts('string', null, null);
+  assert.converts('string', undefined, null);
+  assert.convertsFromServer('string', undefined, null);
 });
 
 test("a DS.Model can describe Number attributes", function(assert) {
   assert.expect(9);
 
-  converts('number', "1", 1);
-  converts('number', "0", 0);
-  converts('number', 1, 1);
-  converts('number', 0, 0);
-  converts('number', "", null);
-  converts('number', null, null);
-  converts('number', undefined, null);
-  converts('number', true, 1);
-  converts('number', false, 0);
+  assert.converts('number', "1", 1);
+  assert.converts('number', "0", 0);
+  assert.converts('number', 1, 1);
+  assert.converts('number', 0, 0);
+  assert.converts('number', "", null);
+  assert.converts('number', null, null);
+  assert.converts('number', undefined, null);
+  assert.converts('number', true, 1);
+  assert.converts('number', false, 0);
 });
 
 test("a DS.Model can describe Boolean attributes", function(assert) {
   assert.expect(7);
 
-  converts('boolean', "1", true);
-  converts('boolean', "", false);
-  converts('boolean', 1, true);
-  converts('boolean', 0, false);
-  converts('boolean', null, false);
-  converts('boolean', true, true);
-  converts('boolean', false, false);
+  assert.converts('boolean', "1", true);
+  assert.converts('boolean', "", false);
+  assert.converts('boolean', 1, true);
+  assert.converts('boolean', 0, false);
+  assert.converts('boolean', null, false);
+  assert.converts('boolean', true, true);
+  assert.converts('boolean', false, false);
 });
 
 test("a DS.Model can describe Date attributes", function(assert) {
   assert.expect(5);
 
-  converts('date', null, null);
-  converts('date', undefined, undefined);
+  assert.converts('date', null, null);
+  assert.converts('date', undefined, undefined);
 
   var dateString = "2011-12-31T00:08:16.000Z";
   var date = new Date(Ember.Date.parse(dateString));
@@ -963,8 +965,8 @@ test("a DS.Model can describe Date attributes", function(assert) {
       assert.deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
     });
   });
-  convertsFromServer('date', dateString, date);
-  convertsWhenSet('date', date, dateString);
+  assert.convertsFromServer('date', dateString, date);
+  assert.convertsWhenSet('date', date, dateString);
 });
 
 test("don't allow setting", function(assert) {
@@ -979,7 +981,7 @@ test("don't allow setting", function(assert) {
     record = store.createRecord('person');
   });
 
-  raises(function() {
+  assert.throws(function() {
     run(function() {
       record.set('isLoaded', true);
     });
@@ -1028,7 +1030,7 @@ test("A subclass of DS.Model can not use the `data` property", function(assert) 
 
   var store = createStore({ person: Person });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.createRecord('person', { name: "TomHuda" });
     });
@@ -1043,7 +1045,7 @@ test("A subclass of DS.Model can not use the `store` property", function(assert)
 
   var store = createStore({ retailer: Retailer });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.createRecord('retailer', { name: "Buy n Large" });
     });
@@ -1061,7 +1063,7 @@ test("A subclass of DS.Model can not use reserved properties", function(assert) 
 
     var store = createStore({ post: Post });
 
-    expectAssertion(function() {
+    assert.expectAssertion(function() {
       run(function() {
         store.createRecord('post', {});
       });

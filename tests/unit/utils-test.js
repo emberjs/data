@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -85,7 +86,7 @@ test("assertPolymorphicType works for subclasses", function(assert) {
     assert.ok(false, "should not throw an error");
   }
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     Ember.run(function() {
       user.get('messages').addObject(person);
     });
@@ -151,7 +152,7 @@ test("assertPolymorphicType works for mixins", function(assert) {
     assert.ok(false, "should not throw an error");
   }
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     Ember.run(function() {
       post.get('medias').addObject(person);
     });

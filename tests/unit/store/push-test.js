@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -113,7 +114,7 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
   assert.expect(1);
 
   Person.reopen({
-    didLoad: async(function() {
+    didLoad: assert.wait(function() {
       assert.ok(true, "The didLoad callback was called");
     })
   });
@@ -449,7 +450,7 @@ test('Calling push with a link for a non async relationship should warn', functi
     phoneNumbers: hasMany('phone-number', { async: false })
   });
 
-  warns(function() {
+  assert.warns(function() {
     run(function() {
       store.push(store.normalize('person', {
         id: '1',
@@ -463,7 +464,7 @@ test('Calling push with a link for a non async relationship should warn', functi
 
 test('Calling push with an unknown model name throws an assertion error', function(assert) {
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       store.push({
         data: {
@@ -586,7 +587,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-      warns(function() {
+      assert.warns(function() {
         store.push({
           data: {
             type: 'person',
@@ -606,7 +607,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
 });
 
 test("Calling push with unknown keys should not warn by default", function(assert) {
-  noWarns(function() {
+  assert.noWarns(function() {
     run(function() {
       store.push({
         data: {

@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -39,7 +40,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
 });
 
 
-test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', () => {
+test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', (assert) => {
   let payload = {
     data: {
       type: 'book',
@@ -87,7 +88,7 @@ test('using store.push with a null value for a payload in relationships sets the
   assert.equal(book.get('author'), null);
 });
 
-test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', () => {
+test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', (assert) => {
   let payload = {
     data: {
       type: 'async-book',
@@ -129,13 +130,13 @@ test('using store.push with a null value for a payload in relationships sets the
     }
   };
 
-  stop();
+  let done = assert.async();
   book.get('author').then((author) => {
     assert.equal(author.get('id'), 1);
     run(() => store.push(payloadThatResetsBelongToRelationship));
     return book.get('author');
   }).then((author) => {
-    start();
     assert.equal(author, null);
+    done();
   });
 });

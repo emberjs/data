@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -37,7 +38,7 @@ test("Collection will resolve save on success", function(assert) {
   };
 
   run(function() {
-    posts.save().then(async(function() {
+    posts.save().then(assert.wait(function() {
       assert.ok(true, 'save operation was resolved');
     }));
   });
@@ -56,7 +57,7 @@ test("Collection will reject save on error", function(assert) {
   };
 
   run(function() {
-    posts.save().then(function() {}, async(function() {
+    posts.save().then(function() {}, assert.wait(function() {
       assert.ok(true, 'save operation was rejected');
     }));
   });
@@ -85,9 +86,9 @@ test("Retry is allowed in a failure handler", function(assert) {
   };
 
   run(function() {
-    posts.save().then(function() {}, async(function() {
+    posts.save().then(function() {}, assert.wait(function() {
       return posts.save();
-    })).then(async(function(post) {
+    })).then(assert.wait(function(post) {
       assert.equal(posts.get('firstObject.id'), '123', "The post ID made it through");
     }));
   });

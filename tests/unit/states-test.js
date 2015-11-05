@@ -1,8 +1,8 @@
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
+import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
+
+const {assert} = QUnit;
 
 var get = Ember.get;
 
@@ -14,82 +14,82 @@ module("unit/states - Flags for record states", {
   }
 });
 
-var isTrue = function(flag) {
-  assert.equal(get(rootState, stateName + "." + flag), true, stateName + "." + flag + " should be true");
+assert.flagIsTrue = function flagIsTrue(flag) {
+  this.equal(get(rootState, stateName + "." + flag), true, stateName + "." + flag + " should be true");
 };
 
-var isFalse = function(flag) {
-  assert.equal(get(rootState, stateName + "." + flag), false, stateName + "." + flag + " should be false");
+assert.flagIsFalse = function flagIsFalse(flag) {
+  this.equal(get(rootState, stateName + "." + flag), false, stateName + "." + flag + " should be false");
 };
 
 test("the empty state", function(assert) {
   stateName = "empty";
-  isFalse("isLoading");
-  isFalse("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsFalse("isLoaded");
+  assert.flagIsFalse("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsFalse("isDeleted");
 });
 
 test("the loading state", function(assert) {
   stateName = "loading";
-  isTrue("isLoading");
-  isFalse("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
+  assert.flagIsTrue("isLoading");
+  assert.flagIsFalse("isLoaded");
+  assert.flagIsFalse("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsFalse("isDeleted");
 });
 
 test("the loaded state", function(assert) {
   stateName = "loaded";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsFalse("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsFalse("isDeleted");
 });
 
 test("the updated state", function(assert) {
   stateName = "loaded.updated";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isTrue("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsTrue("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsFalse("isDeleted");
 });
 
 test("the saving state", function(assert) {
   stateName = "loaded.updated.inFlight";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isTrue("isDirty");
-  isTrue("isSaving");
-  isFalse("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsTrue("isDirty");
+  assert.flagIsTrue("isSaving");
+  assert.flagIsFalse("isDeleted");
 });
 
 test("the deleted state", function(assert) {
   stateName = "deleted";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isTrue("isDirty");
-  isFalse("isSaving");
-  isTrue("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsTrue("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsTrue("isDeleted");
 });
 
 test("the deleted.saving state", function(assert) {
   stateName = "deleted.inFlight";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isTrue("isDirty");
-  isTrue("isSaving");
-  isTrue("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsTrue("isDirty");
+  assert.flagIsTrue("isSaving");
+  assert.flagIsTrue("isDeleted");
 });
 
 test("the deleted.saved state", function(assert) {
   stateName = "deleted.saved";
-  isFalse("isLoading");
-  isTrue("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isTrue("isDeleted");
+  assert.flagIsFalse("isLoading");
+  assert.flagIsTrue("isLoaded");
+  assert.flagIsFalse("isDirty");
+  assert.flagIsFalse("isSaving");
+  assert.flagIsTrue("isDeleted");
 });

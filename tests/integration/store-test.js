@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -56,8 +57,9 @@ function tap(obj, methodName, callback) {
   return summary;
 }
 
-asyncTest("destroying record during find doesn't cause error", function() {
+test("destroying record during find doesn't cause error", function(assert) {
   assert.expect(0);
+  let done = assert.async();
 
   var TestAdapter = DS.Adapter.extend({
     findRecord: function(store, type, id, snapshot) {
@@ -75,17 +77,14 @@ asyncTest("destroying record during find doesn't cause error", function() {
   var type = "car";
   var id = 1;
 
-  function done() {
-    start();
-  }
-
   run(function() {
     store.findRecord(type, id).then(done, done);
   });
 });
 
-asyncTest("find calls do not resolve when the store is destroyed", function() {
+test("find calls do not resolve when the store is destroyed", function(assert) {
   assert.expect(0);
+  let done = assert.async();
 
   var TestAdapter = DS.Adapter.extend({
     findRecord: function(store, type, id, snapshot) {
@@ -111,7 +110,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   });
 
   setTimeout(function() {
-    start();
+    done();
   }, 500);
 });
 
@@ -329,7 +328,7 @@ test('store#findRecord call with `id` of type different than non-empty string or
 
   run(function() {
     badValues.map(item => {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         store.findRecord('car', item);
       }, '`id` has to be non-empty string or number');
     });

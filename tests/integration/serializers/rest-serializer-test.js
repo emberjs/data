@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -154,7 +155,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  warns(Ember.run.bind(null, function() {
+  assert.warns(Ember.run.bind(null, function() {
     run(function() {
       env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
@@ -166,7 +167,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  noWarns(function() {
+  assert.noWarns(function() {
     run(function() {
 
       homePlanet = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
@@ -188,7 +189,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  warns(function() {
+  assert.warns(function() {
     env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
   }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
@@ -201,7 +202,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  noWarns(function() {
+  assert.noWarns(function() {
     run(function() {
       homePlanets = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
     });
@@ -475,7 +476,7 @@ test('serializeBelongsTo logs deprecation when old behavior for getting polymorp
     doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
   });
 
-  expectDeprecation(function() {
+  assert.expectDeprecation(function() {
     env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
   }, "The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.");
 

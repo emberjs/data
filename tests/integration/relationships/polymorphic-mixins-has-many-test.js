@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -166,7 +167,7 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
 
   run(function() {
     user.get('messages').then(function(fetchedMessages) {
-      expectAssertion(function() {
+      assert.expectAssertion(function() {
         fetchedMessages.pushObject(notMessage);
       }, /You cannot add a record of type 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
     });
@@ -253,7 +254,7 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
 
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        expectAssertion(function() {
+        assert.expectAssertion(function() {
           fetchedMessages.pushObject(notMessage);
         }, /You cannot add a record of type 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
       });

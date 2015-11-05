@@ -1,19 +1,19 @@
 import Ember from 'ember';
 
-export default function warns(callback, regex) {
+export function warns(callback, regex) {
   var warnWasCalled = false;
   var oldWarn = Ember.warn;
-  Ember.warn = function Ember_assertWarning(message, test) {
+  Ember.warn = (message, test) => {
     if (!test) {
       warnWasCalled = true;
       if (regex) {
-        ok(regex.test(message), 'the call to Ember.warn got an unexpected message: ' + message);
+        this.ok(regex.test(message), 'the call to Ember.warn got an unexpected message: ' + message);
       }
     }
   };
   try {
     callback();
-    ok(warnWasCalled, 'expected Ember.warn to warn, but was not called');
+    this.ok(warnWasCalled, 'expected Ember.warn to warn, but was not called');
   } finally {
     Ember.warn = oldWarn;
   }
@@ -28,7 +28,7 @@ export function noWarns(callback) {
   try {
     callback();
   } finally {
-    ok(!warnWasCalled, 'Ember.warn warned when it should not have warned');
+    this.ok(!warnWasCalled, 'Ember.warn warned when it should not have warned');
     Ember.warn = oldWarn;
   }
 }

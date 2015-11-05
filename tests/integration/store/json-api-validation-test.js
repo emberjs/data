@@ -1,7 +1,6 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
+import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
 
 var Person, store, env;
@@ -109,7 +108,7 @@ test("when normalizeResponse returns a document with both data and errors, throw
   }, /cannot both be present/);
 });
 
-function testPayloadError(payload, expectedError) {
+QUnit.assert.payloadError = function payloadError(payload, expectedError) {
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse(store, type, pld) {
       return pld;
@@ -120,71 +119,71 @@ function testPayloadError(payload, expectedError) {
       return Ember.RSVP.resolve(payload);
     }
   }));
-  assert.throws(function () {
+  this.throws(function () {
     run(function() {
       store.find('person', 1);
     });
   }, expectedError, `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`);
   env.registry.unregister('serializer:person');
   env.registry.unregister('adapter:person');
-}
+};
 
 test("normalizeResponse 'data' cannot be undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ data: undefined }, /data must be/);
-  testPayloadError({ data: 1 }, /data must be/);
-  testPayloadError({ data: 'lollerskates' }, /data must be/);
-  testPayloadError({ data: true }, /data must be/);
+  assert.payloadError({ data: undefined }, /data must be/);
+  assert.payloadError({ data: 1 }, /data must be/);
+  assert.payloadError({ data: 'lollerskates' }, /data must be/);
+  assert.payloadError({ data: true }, /data must be/);
 
 });
 
 test("normalizeResponse 'meta' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ meta: undefined }, /meta must be an object/);
-  testPayloadError({ meta: [] }, /meta must be an object/);
-  testPayloadError({ meta: 1 }, /meta must be an object/);
-  testPayloadError({ meta: 'lollerskates' }, /meta must be an object/);
-  testPayloadError({ meta: true }, /meta must be an object/);
+  assert.payloadError({ meta: undefined }, /meta must be an object/);
+  assert.payloadError({ meta: [] }, /meta must be an object/);
+  assert.payloadError({ meta: 1 }, /meta must be an object/);
+  assert.payloadError({ meta: 'lollerskates' }, /meta must be an object/);
+  assert.payloadError({ meta: true }, /meta must be an object/);
 
 });
 
 test("normalizeResponse 'links' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ data: [], links: undefined }, /links must be an object/);
-  testPayloadError({ data: [], links: [] }, /links must be an object/);
-  testPayloadError({ data: [], links: 1 }, /links must be an object/);
-  testPayloadError({ data: [], links: 'lollerskates' }, /links must be an object/);
-  testPayloadError({ data: [], links: true }, /links must be an object/);
+  assert.payloadError({ data: [], links: undefined }, /links must be an object/);
+  assert.payloadError({ data: [], links: [] }, /links must be an object/);
+  assert.payloadError({ data: [], links: 1 }, /links must be an object/);
+  assert.payloadError({ data: [], links: 'lollerskates' }, /links must be an object/);
+  assert.payloadError({ data: [], links: true }, /links must be an object/);
 
 });
 
 test("normalizeResponse 'jsonapi' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ data: [], jsonapi: undefined }, /jsonapi must be an object/);
-  testPayloadError({ data: [], jsonapi: [] }, /jsonapi must be an object/);
-  testPayloadError({ data: [], jsonapi: 1 }, /jsonapi must be an object/);
-  testPayloadError({ data: [], jsonapi: 'lollerskates' }, /jsonapi must be an object/);
-  testPayloadError({ data: [], jsonapi: true }, /jsonapi must be an object/);
+  assert.payloadError({ data: [], jsonapi: undefined }, /jsonapi must be an object/);
+  assert.payloadError({ data: [], jsonapi: [] }, /jsonapi must be an object/);
+  assert.payloadError({ data: [], jsonapi: 1 }, /jsonapi must be an object/);
+  assert.payloadError({ data: [], jsonapi: 'lollerskates' }, /jsonapi must be an object/);
+  assert.payloadError({ data: [], jsonapi: true }, /jsonapi must be an object/);
 
 });
 
 test("normalizeResponse 'included' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ included: undefined }, /included must be an array/);
-  testPayloadError({ included: {} }, /included must be an array/);
-  testPayloadError({ included: 1 }, /included must be an array/);
-  testPayloadError({ included: 'lollerskates' }, /included must be an array/);
-  testPayloadError({ included: true }, /included must be an array/);
+  assert.payloadError({ included: undefined }, /included must be an array/);
+  assert.payloadError({ included: {} }, /included must be an array/);
+  assert.payloadError({ included: 1 }, /included must be an array/);
+  assert.payloadError({ included: 'lollerskates' }, /included must be an array/);
+  assert.payloadError({ included: true }, /included must be an array/);
 
 });
 
 test("normalizeResponse 'errors' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
 
-  testPayloadError({ errors: undefined }, /errors must be an array/);
-  testPayloadError({ errors: {} }, /errors must be an array/);
-  testPayloadError({ errors: 1 }, /errors must be an array/);
-  testPayloadError({ errors: 'lollerskates' }, /errors must be an array/);
-  testPayloadError({ errors: true }, /errors must be an array/);
+  assert.payloadError({ errors: undefined }, /errors must be an array/);
+  assert.payloadError({ errors: {} }, /errors must be an array/);
+  assert.payloadError({ errors: 1 }, /errors must be an array/);
+  assert.payloadError({ errors: 'lollerskates' }, /errors must be an array/);
+  assert.payloadError({ errors: true }, /errors must be an array/);
 
 });
 

@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -34,7 +35,7 @@ test("When a query is made, the adapter should receive a record array it can pop
     return Ember.RSVP.resolve([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
   };
 
-  store.query('person', { page: 1 }).then(async(function(queryResults) {
+  store.query('person', { page: 1 }).then(assert.wait(function(queryResults) {
     assert.equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
     assert.equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
 
@@ -54,7 +55,7 @@ test("The store asserts when query is made and the adapter responses with a sing
     return Ember.RSVP.resolve({ people: { id: 1, name: "Peter Wagenet" } });
   };
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     Ember.run(function() {
       store.query('person', { page: 1 });
     });

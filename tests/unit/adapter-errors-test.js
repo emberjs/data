@@ -76,7 +76,7 @@ test("errorsArrayToHash without trailing slash", function(assert) {
 test("DS.InvalidError will normalize errors hash will assert", function(assert) {
   var error;
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     error = new DS.InvalidError({ name: ['is invalid'] });
   }, /expects json-api formatted errors/);
 });

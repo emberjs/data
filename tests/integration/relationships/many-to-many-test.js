@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -98,7 +99,7 @@ test("Loading from one hasMany side reflects on the other hasMany side - async",
   });
 
   run(function() {
-    topic.get('users').then(async(function(fetchedUsers) {
+    topic.get('users').then(assert.wait(function(fetchedUsers) {
       assert.equal(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
     }));
   });
@@ -176,10 +177,10 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
     });
   });
   run(function() {
-    user.get('topics').then(async(function(fetchedTopics) {
+    user.get('topics').then(assert.wait(function(fetchedTopics) {
       assert.equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
       assert.equal(fetchedTopics.objectAt(0), null, "Topics can't be fetched");
-      topic.get('users').then(async(function(fetchedUsers) {
+      topic.get('users').then(assert.wait(function(fetchedUsers) {
         assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
@@ -271,9 +272,9 @@ test("Pushing to a hasMany reflects on the other hasMany side - async", function
   });
 
   run(function() {
-    topic.get('users').then(async(function(fetchedUsers) {
+    topic.get('users').then(assert.wait(function(fetchedUsers) {
       fetchedUsers.pushObject(user);
-      user.get('topics').then(async(function(fetchedTopics) {
+      user.get('topics').then(assert.wait(function(fetchedTopics) {
         assert.equal(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
       }));
     }));
@@ -339,10 +340,10 @@ test("Removing a record from a hasMany reflects on the other hasMany side - asyn
   });
 
   run(function() {
-    user.get('topics').then(async(function(fetchedTopics) {
+    user.get('topics').then(assert.wait(function(fetchedTopics) {
       assert.equal(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
       fetchedTopics.removeObject(topic);
-      topic.get('users').then(async(function(fetchedUsers) {
+      topic.get('users').then(assert.wait(function(fetchedUsers) {
         assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
@@ -429,10 +430,10 @@ test("Rollbacking attributes for a deleted record that has a ManyToMany relation
     topic.rollbackAttributes();
   });
   run(function() {
-    topic.get('users').then(async(function(fetchedUsers) {
+    topic.get('users').then(assert.wait(function(fetchedUsers) {
       assert.equal(fetchedUsers.get('length'), 1, 'Users are still there');
     }));
-    user.get('topics').then(async(function(fetchedTopics) {
+    user.get('topics').then(assert.wait(function(fetchedTopics) {
       assert.equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
     }));
   });
@@ -493,14 +494,14 @@ test("Rollbacking attributes for a created record that has a ManyToMany relation
     topic = store.createRecord('topic');
   });
   run(function() {
-    user.get('topics').then(async(function(fetchedTopics) {
+    user.get('topics').then(assert.wait(function(fetchedTopics) {
       fetchedTopics.pushObject(topic);
       topic.rollbackAttributes();
-      topic.get('users').then(async(function(fetchedUsers) {
+      topic.get('users').then(assert.wait(function(fetchedUsers) {
         assert.equal(fetchedUsers.get('length'), 0, 'Users got removed');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
-      user.get('topics').then(async(function(fetchedTopics) {
+      user.get('topics').then(assert.wait(function(fetchedTopics) {
         assert.equal(fetchedTopics.get('length'), 0, 'Topics got removed');
         assert.equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
       }));

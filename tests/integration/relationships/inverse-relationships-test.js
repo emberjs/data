@@ -1,3 +1,5 @@
+import {createStore} from 'dummy/tests/helpers/store';
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -436,7 +438,7 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
     comment = env.store.createRecord('comment');
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       post = env.store.createRecord('post');
       post.get('comments');
@@ -458,7 +460,7 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
     user = env.store.createRecord('user');
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     run(function() {
       post = env.store.createRecord('post');
       post.get('user');

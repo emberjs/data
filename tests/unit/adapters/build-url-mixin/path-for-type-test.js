@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import DS from 'ember-data';
 
 import {module, test} from 'qunit';

@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -107,7 +108,7 @@ test("Errors out if you define 2 inverses to the same model", function(assert) {
     job: belongsTo('job', { async: false })
   });
 
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     User.inverseFor('job', store);
   }, "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
@@ -127,7 +128,7 @@ test("Caches findInverseFor return value", function(assert) {
 test("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
-  warns(function() {
+  assert.warns(function() {
     var reflexiveModel;
     run(function() {
       store.push({

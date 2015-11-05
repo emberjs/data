@@ -17,7 +17,7 @@ test("Materializing a model twice errors out", function(assert) {
   var internalModel = new DS.InternalModel(mockModelFactory, null, null, null);
 
   internalModel.materializeRecord();
-  expectAssertion(function() {
+  assert.expectAssertion(function() {
     internalModel.materializeRecord();
   }, /more than once/);
 });

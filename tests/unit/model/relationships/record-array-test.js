@@ -1,3 +1,4 @@
+import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -87,7 +88,7 @@ test("can create child record from a hasMany relationship", function(assert) {
   });
 
   run(function() {
-    store.findRecord('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(assert.wait(function(person) {
       person.get("tags").createRecord({ name: "cool" });
 
       assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
