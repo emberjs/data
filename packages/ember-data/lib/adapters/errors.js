@@ -1,6 +1,8 @@
 const EmberError = Ember.Error;
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
+const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
+const PRIMARY_ATTRIBUTE_KEY = 'base';
 
 /**
   @class AdapterError
@@ -115,11 +117,17 @@ export function errorsHashToArray(errors) {
     Object.keys(errors).forEach((key) => {
       let messages = Ember.makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
+        let title = 'Invalid Attribute';
+        let pointer = `/data/attributes/${key}`;
+        if (key === PRIMARY_ATTRIBUTE_KEY) {
+          title = 'Invalid Document';
+          pointer = `/data`;
+        }
         out.push({
-          title: 'Invalid Attribute',
+          title: title,
           detail: messages[i],
           source: {
-            pointer: `/data/attributes/${key}`
+            pointer: pointer
           }
         });
       }
@@ -143,6 +151,11 @@ export function errorsArrayToHash(errors) {
 
         if (key) {
           key = key[2];
+        } else if (error.source.pointer.search(SOURCE_POINTER_PRIMARY_REGEXP) !== -1) {
+          key = PRIMARY_ATTRIBUTE_KEY;
+        }
+
+        if (key) {
           out[key] = out[key] || [];
           out[key].push(error.detail || error.title);
         }
