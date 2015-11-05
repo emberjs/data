@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -8,7 +10,7 @@ var Person, array;
 var run = Ember.run;
 
 module("unit/record_array - DS.RecordArray", {
-  setup: function() {
+  beforeEach: function() {
     array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
 
     Person = DS.Model.extend({
@@ -17,8 +19,8 @@ module("unit/record_array - DS.RecordArray", {
   }
 });
 
-test("a record array is backed by records", function() {
-  expect(3);
+test("a record array is backed by records", function(assert) {
+  assert.expect(3);
 
   var store = createStore({
     person: Person,
@@ -53,13 +55,13 @@ test("a record array is backed by records", function() {
   run(function() {
     store.findByIds('person', [1,2,3]).then(function(records) {
       for (var i=0, l=get(array, 'length'); i<l; i++) {
-        deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
+        assert.deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
       }
     });
   });
 });
 
-test("acts as a live query", function() {
+test("acts as a live query", function(assert) {
 
   var store = createStore({
     person: Person
@@ -76,7 +78,7 @@ test("acts as a live query", function() {
       }
     });
   });
-  equal(get(recordArray, 'lastObject.name'), 'wycats');
+  assert.equal(get(recordArray, 'lastObject.name'), 'wycats');
 
   run(function() {
     store.push({
@@ -89,11 +91,11 @@ test("acts as a live query", function() {
       }
     });
   });
-  equal(get(recordArray, 'lastObject.name'), 'brohuda');
+  assert.equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
-test("stops updating when destroyed", function() {
-  expect(3);
+test("stops updating when destroyed", function(assert) {
+  assert.expect(3);
 
   var store = createStore({
     person: Person
@@ -121,7 +123,7 @@ test("stops updating when destroyed", function() {
   });
 
   run(function() {
-    equal(recordArray.get('length'), emptyLength, "Has no more records");
+    assert.equal(recordArray.get('length'), emptyLength, "Has no more records");
     store.push({
       data: {
         type: 'person',
@@ -133,13 +135,13 @@ test("stops updating when destroyed", function() {
     });
   });
 
-  equal(recordArray.get('length'), emptyLength, "Has not been updated");
-  equal(recordArray.get('content'), undefined, "Has not been updated");
+  assert.equal(recordArray.get('length'), emptyLength, "Has not been updated");
+  assert.equal(recordArray.get('content'), undefined, "Has not been updated");
 });
 
 
-test("a loaded record is removed from a record array when it is deleted", function() {
-  expect(5);
+test("a loaded record is removed from a record array when it is deleted", function(assert) {
+  assert.expect(5);
 
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
@@ -199,25 +201,25 @@ test("a loaded record is removed from a record array when it is deleted", functi
       run(function() {
         tag.get('people').addObject(scumbag);
       });
-      equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+      assert.equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
 
       var recordArray = tag.get('people');
 
-      equal(get(recordArray, 'length'), 1, "precond - record array has one item");
-      equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
+      assert.equal(get(recordArray, 'length'), 1, "precond - record array has one item");
+      assert.equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
 
       scumbag.deleteRecord();
 
-      equal(get(recordArray, 'length'), 1, "record is still in the record array until it is saved");
+      assert.equal(get(recordArray, 'length'), 1, "record is still in the record array until it is saved");
 
       Ember.run(scumbag, 'save');
 
-      equal(get(recordArray, 'length'), 0, "record is removed from the array when it is saved");
+      assert.equal(get(recordArray, 'length'), 0, "record is removed from the array when it is saved");
     });
   });
 });
 
-test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
+test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", function(assert) {
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -257,11 +259,11 @@ test("a loaded record is not removed from a record array when it is deleted even
     scumbag.deleteRecord();
   });
 
-  equal(tag.get('people.length'), 1, 'record is not removed from the record array');
-  equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
+  assert.equal(tag.get('people.length'), 1, 'record is not removed from the record array');
+  assert.equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
 });
 
-test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function() {
+test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function(assert) {
   var Tag = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
@@ -314,19 +316,19 @@ test("a loaded record is not removed from both the record array and from the bel
     tool = store.peekRecord('tool', 1);
   });
 
-  equal(tag.get('people.length'), 1, "record is in the record array");
-  equal(tool.get('person'), scumbag, "the tool belongs to the record");
+  assert.equal(tag.get('people.length'), 1, "record is in the record array");
+  assert.equal(tool.get('person'), scumbag, "the tool belongs to the record");
 
   run(function() {
     scumbag.deleteRecord();
   });
 
-  equal(tag.get('people.length'), 1, "record is stil in the record array");
-  equal(tool.get('person'), scumbag, "the tool still belongs to the record");
+  assert.equal(tag.get('people.length'), 1, "record is stil in the record array");
+  assert.equal(tool.get('person'), scumbag, "the tool still belongs to the record");
 });
 
 // GitHub Issue #168
-test("a newly created record is removed from a record array when it is deleted", function() {
+test("a newly created record is removed from a record array when it is deleted", function(assert) {
   var store = createStore({
     person: Person
   });
@@ -339,7 +341,7 @@ test("a newly created record is removed from a record array when it is deleted",
     });
   });
 
-  equal(get(recordArray, 'length'), 1, "precond - record array already has the first created item");
+  assert.equal(get(recordArray, 'length'), 1, "precond - record array already has the first created item");
 
   // guarantee coalescence
   Ember.run(function() {
@@ -348,17 +350,17 @@ test("a newly created record is removed from a record array when it is deleted",
     store.createRecord('person', { name: 'p3' });
   });
 
-  equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
-  equal(recordArray.objectAt(0), scumbag, "item at index 0 is record with id 1");
+  assert.equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
+  assert.equal(recordArray.objectAt(0), scumbag, "item at index 0 is record with id 1");
 
   run(function() {
     scumbag.deleteRecord();
   });
 
-  equal(get(recordArray, 'length'), 3, "record array still has the created item");
+  assert.equal(get(recordArray, 'length'), 3, "record array still has the created item");
 });
 
-test("a record array returns undefined when asking for a member outside of its content Array's range", function() {
+test("a record array returns undefined when asking for a member outside of its content Array's range", function(assert) {
   var store = createStore({
     person: Person
   });
@@ -389,11 +391,11 @@ test("a record array returns undefined when asking for a member outside of its c
 
   var recordArray = store.peekAll('person');
 
-  strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
+  assert.strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
 });
 
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
-test("a record array should be able to be enumerated in any order", function() {
+test("a record array should be able to be enumerated in any order", function(assert) {
   var store = createStore({
     person: Person
   });
@@ -423,13 +425,13 @@ test("a record array should be able to be enumerated in any order", function() {
 
   var recordArray = store.peekAll('person');
 
-  equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 2");
-  equal(get(recordArray.objectAt(1), 'id'), 2, "should retrieve correct record at index 1");
-  equal(get(recordArray.objectAt(0), 'id'), 1, "should retrieve correct record at index 0");
+  assert.equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 2");
+  assert.equal(get(recordArray.objectAt(1), 'id'), 2, "should retrieve correct record at index 1");
+  assert.equal(get(recordArray.objectAt(0), 'id'), 1, "should retrieve correct record at index 0");
 });
 
-test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
-  expect(1);
+test("an AdapterPopulatedRecordArray knows if it's loaded or not", function(assert) {
+  assert.expect(1);
 
   var env = setupStore({ person: Person });
   var store = env.store;
@@ -440,12 +442,12 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
 
   run(function() {
     store.query('person', { page: 1 }).then(function(people) {
-      equal(get(people, 'isLoaded'), true, "The array is now loaded");
+      assert.equal(get(people, 'isLoaded'), true, "The array is now loaded");
     });
   });
 });
 
-test("a record array should return a promise when updating", function() {
+test("a record array should return a promise when updating", function(assert) {
   var recordArray, promise;
   var env = setupStore({ person: Person });
   var store = env.store;
@@ -458,5 +460,5 @@ test("a record array should return a promise when updating", function() {
   run(function() {
     promise = recordArray.update();
   });
-  ok(promise.then && typeof promise.then === "function", "#update returns a promise");
+  assert.ok(promise.then && typeof promise.then === "function", "#update returns a promise");
 });

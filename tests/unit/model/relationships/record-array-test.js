@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -8,7 +10,7 @@ var run = Ember.run;
 
 module("unit/model/relationships - RecordArray");
 
-test("updating the content of a RecordArray updates its content", function() {
+test("updating the content of a RecordArray updates its content", function(assert) {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -45,18 +47,18 @@ test("updating the content of a RecordArray updates its content", function() {
   });
 
   var tag = tags.objectAt(0);
-  equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
+  assert.equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
   run(function() {
     set(tags, 'content', Ember.A(internalModel.slice(1, 3)));
   });
 
   tag = tags.objectAt(0);
-  equal(get(tag, 'name'), "smarmy", "the lookup was updated");
+  assert.equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });
 
-test("can create child record from a hasMany relationship", function() {
-  expect(3);
+test("can create child record from a hasMany relationship", function(assert) {
+  assert.expect(3);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
@@ -88,9 +90,9 @@ test("can create child record from a hasMany relationship", function() {
     store.findRecord('person', 1).then(async(function(person) {
       person.get("tags").createRecord({ name: "cool" });
 
-      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-      equal(get(person, 'tags.length'), 1, "tag is added to the parent record");
-      equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
+      assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+      assert.equal(get(person, 'tags.length'), 1, "tag is added to the parent record");
+      assert.equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
     }));
   });
 });

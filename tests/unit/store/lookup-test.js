@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var store, env, applicationAdapter, applicationSerializer, Person;
@@ -40,7 +42,7 @@ function registerSerializer(serializerName, serializer) {
 }
 
 module('unit/store/lookup - Managed Instance lookups', {
-  setup() {
+  beforeEach() {
     Person = DS.Model.extend();
     resetStore();
     env.registry.register('adapter:application', DS.Adapter.extend());
@@ -50,7 +52,7 @@ module('unit/store/lookup - Managed Instance lookups', {
     applicationSerializer = run(store, 'serializerFor', 'application');
   },
 
-  teardown() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
@@ -58,20 +60,20 @@ module('unit/store/lookup - Managed Instance lookups', {
 test('when the adapter does not exist for a type, the fallback is returned', () => {
   let personAdapter = lookupAdapter('person');
 
-  strictEqual(personAdapter, applicationAdapter);
+  assert.strictEqual(personAdapter, applicationAdapter);
 });
 
 test('when the adapter for a type exists, returns that instead of the fallback', () => {
   registerAdapter('person', DS.Adapter.extend());
   let personAdapter = lookupAdapter('person');
 
-  ok(personAdapter !== applicationAdapter);
+  assert.ok(personAdapter !== applicationAdapter);
 });
 
 test('when the serializer does not exist for a type, the fallback is returned', () => {
   let personSerializer = lookupSerializer('person');
 
-  strictEqual(personSerializer, applicationSerializer);
+  assert.strictEqual(personSerializer, applicationSerializer);
 });
 
 test('when the serializer does exist for a type, the serializer is returned', () => {
@@ -79,30 +81,30 @@ test('when the serializer does exist for a type, the serializer is returned', ()
 
   let personSerializer = lookupSerializer('person');
 
-  ok(personSerializer !== applicationSerializer);
+  assert.ok(personSerializer !== applicationSerializer);
 });
 
 test('adapter lookup order', () => {
-  expect(3);
+  assert.expect(3);
 
   resetStore();
 
   let personAdapter = lookupAdapter('person');
 
-  strictEqual(personAdapter, lookupAdapter('-rest'), 'looks up the RESTAdapter first');
+  assert.strictEqual(personAdapter, lookupAdapter('-rest'), 'looks up the RESTAdapter first');
   resetStore();
 
   registerAdapter('application', DS.RESTSerializer.extend());
   personAdapter = lookupAdapter('person');
 
-  strictEqual(personAdapter, lookupAdapter('application'), 'looks up application adapter before RESTAdapter if it exists');
+  assert.strictEqual(personAdapter, lookupAdapter('application'), 'looks up application adapter before RESTAdapter if it exists');
 
   resetStore();
 
   registerAdapter('application', DS.RESTSerializer.extend());
   registerAdapter('person', DS.RESTSerializer.extend({ customThingy: true }));
 
-  ok(lookupAdapter('person').get('customThingy'), 'looks up type serializer before application');
+  assert.ok(lookupAdapter('person').get('customThingy'), 'looks up type serializer before application');
 });
 
 test('serializer lookup order', () => {
@@ -110,13 +112,13 @@ test('serializer lookup order', () => {
 
   let personSerializer = lookupSerializer('person');
 
-  strictEqual(personSerializer, lookupSerializer('-rest'));
+  assert.strictEqual(personSerializer, lookupSerializer('-rest'));
 
   resetStore();
 
   registerSerializer('application', DS.RESTSerializer.extend());
   personSerializer = lookupSerializer('person');
-  strictEqual(personSerializer, lookupSerializer('application'), 'looks up application before default');
+  assert.strictEqual(personSerializer, lookupSerializer('application'), 'looks up application before default');
 
   resetStore();
   registerAdapter('person', DS.Adapter.extend({
@@ -124,7 +126,7 @@ test('serializer lookup order', () => {
   }));
   personSerializer = lookupSerializer('person');
 
-  strictEqual(personSerializer, lookupSerializer('-rest'), 'uses defaultSerializer on adapterFor("model") if application not defined');
+  assert.strictEqual(personSerializer, lookupSerializer('-rest'), 'uses defaultSerializer on adapterFor("model") if application not defined');
 
   resetStore();
   registerAdapter('person', DS.Adapter.extend({
@@ -134,6 +136,6 @@ test('serializer lookup order', () => {
   registerSerializer('person', DS.JSONSerializer.extend({ customThingy: true }));
   personSerializer = lookupSerializer('person');
 
-  ok(personSerializer.get('customThingy'), 'uses the person serializer before any fallbacks if it is defined');
+  assert.ok(personSerializer.get('customThingy'), 'uses the person serializer before any fallbacks if it is defined');
 });
 

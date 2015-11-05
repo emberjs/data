@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -7,7 +9,7 @@ var Post, Comment, Misc, env;
 var run = Ember.run;
 
 module("integration/client_id_generation - Client-side ID Generation", {
-  setup: function() {
+  beforeEach: function() {
     Comment = DS.Model.extend({
       post: DS.belongsTo('post', { async: false })
     });
@@ -27,28 +29,28 @@ module("integration/client_id_generation - Client-side ID Generation", {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("If an adapter implements the `generateIdForRecord` method, the store should be able to assign IDs without saving to the persistence layer.", function() {
-  expect(6);
+test("If an adapter implements the `generateIdForRecord` method, the store should be able to assign IDs without saving to the persistence layer.", function(assert) {
+  assert.expect(6);
 
   var idCount = 1;
 
   env.adapter.generateIdForRecord = function(passedStore, record) {
-    equal(env.store, passedStore, "store is the first parameter");
+    assert.equal(env.store, passedStore, "store is the first parameter");
 
     return "id-" + idCount++;
   };
 
   env.adapter.createRecord = function(store, type, snapshot) {
     if (type === Comment) {
-      equal(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
+      assert.equal(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
       return Ember.RSVP.resolve();
     } else {
-      equal(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
+      assert.equal(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
       return Ember.RSVP.resolve();
     }
   };
@@ -59,8 +61,8 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
     post = env.store.createRecord('post');
   });
 
-  equal(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
-  equal(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
+  assert.equal(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
+  assert.equal(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
@@ -70,19 +72,19 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
   });
 });
 
-test("empty string and undefined ids should coerce to null", function() {
-  expect(6);
+test("empty string and undefined ids should coerce to null", function(assert) {
+  assert.expect(6);
   var comment, post;
   var idCount = 0;
   var ids = [undefined, ''];
   env.adapter.generateIdForRecord = function(passedStore, record) {
-    equal(env.store, passedStore, "store is the first parameter");
+    assert.equal(env.store, passedStore, "store is the first parameter");
 
     return ids[idCount++];
   };
 
   env.adapter.createRecord = function(store, type, record) {
-    equal(typeof get(record, 'id'), 'object', 'correct type');
+    assert.equal(typeof get(record, 'id'), 'object', 'correct type');
     return Ember.RSVP.resolve();
   };
 
@@ -91,8 +93,8 @@ test("empty string and undefined ids should coerce to null", function() {
     post = env.store.createRecord('misc');
   });
 
-  equal(get(comment, 'id'), null, "comment is assigned id 'null'");
-  equal(get(post, 'id'), null, "post is assigned id 'null'");
+  assert.equal(get(comment, 'id'), null, "comment is assigned id 'null'");
+  assert.equal(get(post, 'id'), null, "post is assigned id 'null'");
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.

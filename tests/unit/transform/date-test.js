@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 module("unit/transform - DS.DateTransform");
@@ -8,28 +10,28 @@ var dateString = "2015-01-01T00:00:00.000Z";
 var dateInMillis = Ember.Date.parse(dateString);
 var date = new Date(dateInMillis);
 
-test("#serialize", function() {
+test("#serialize", function(assert) {
   var transform = new DS.DateTransform();
 
-  equal(transform.serialize(null), null);
-  equal(transform.serialize(undefined), null);
+  assert.equal(transform.serialize(null), null);
+  assert.equal(transform.serialize(undefined), null);
 
-  equal(transform.serialize(date), dateString);
+  assert.equal(transform.serialize(date), dateString);
 });
 
-test("#deserialize", function() {
+test("#deserialize", function(assert) {
   var transform = new DS.DateTransform();
 
   // from String
-  equal(transform.deserialize(dateString).toISOString(), dateString);
+  assert.equal(transform.deserialize(dateString).toISOString(), dateString);
 
   // from Number
-  equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
+  assert.equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
 
   // from other
-  equal(transform.deserialize({}), null);
+  assert.equal(transform.deserialize({}), null);
 
   // from none
-  equal(transform.deserialize(null), null);
-  equal(transform.deserialize(undefined), null);
+  assert.equal(transform.deserialize(null), null);
+  assert.equal(transform.deserialize(undefined), null);
 });

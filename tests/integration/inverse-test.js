@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, User, Job, ReflexiveModel;
@@ -13,7 +15,7 @@ function stringify(string) {
 }
 
 module('integration/inverse_test - inverseFor', {
-  setup: function() {
+  beforeEach: function() {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: null }),
@@ -48,20 +50,20 @@ module('integration/inverse_test - inverseFor', {
     ReflexiveModel = store.modelFor('reflexive-model');
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("Finds the inverse when there is only one possible available", function () {
-  deepEqual(Job.inverseFor('user', store), {
+test("Finds the inverse when there is only one possible available", function(assert) {
+  assert.deepEqual(Job.inverseFor('user', store), {
     type: User,
     name: 'job',
     kind: 'belongsTo'
   }, 'Gets correct type, name and kind');
 });
 
-test("Finds the inverse when only one side has defined it manually", function () {
+test("Finds the inverse when only one side has defined it manually", function(assert) {
   Job.reopen({
     owner: belongsTo('user', { inverse: 'previousJob', async: false })
   });
@@ -70,20 +72,20 @@ test("Finds the inverse when only one side has defined it manually", function ()
     previousJob: belongsTo('job', { async: false })
   });
 
-  deepEqual(Job.inverseFor('owner', store), {
+  assert.deepEqual(Job.inverseFor('owner', store), {
     type: User, //the model's type
     name: 'previousJob', //the models relationship key
     kind: 'belongsTo'
   }, 'Gets correct type, name and kind');
 
-  deepEqual(User.inverseFor('previousJob', store), {
+  assert.deepEqual(User.inverseFor('previousJob', store), {
     type: Job, //the model's type
     name: 'owner', //the models relationship key
     kind: 'belongsTo'
   }, 'Gets correct type, name and kind');
 });
 
-test("Returns null if inverse relationship it is manually set with a different relationship key", function () {
+test("Returns null if inverse relationship it is manually set with a different relationship key", function(assert) {
   Job.reopen({
     user: belongsTo('user', { inverse: 'previousJob', async: false })
   });
@@ -92,10 +94,10 @@ test("Returns null if inverse relationship it is manually set with a different r
     job: belongsTo('job', { async: false })
   });
 
-  equal(User.inverseFor('job', store), null, 'There is no inverse');
+  assert.equal(User.inverseFor('job', store), null, 'There is no inverse');
 });
 
-test("Errors out if you define 2 inverses to the same model", function () {
+test("Errors out if you define 2 inverses to the same model", function(assert) {
   Job.reopen({
     user: belongsTo('user', { inverse: 'job', async: false }),
     owner: belongsTo('user', { inverse: 'job', async: false })
@@ -111,18 +113,18 @@ test("Errors out if you define 2 inverses to the same model", function () {
 });
 
 
-test("Caches findInverseFor return value", function () {
-  expect(1);
+test("Caches findInverseFor return value", function(assert) {
+  assert.expect(1);
 
   var inverseForUser = Job.inverseFor('user', store);
   Job.findInverseFor = function() {
-    ok(false, 'Find is not called anymore');
+    assert.ok(false, 'Find is not called anymore');
   };
 
-  equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
+  assert.equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
 });
 
-test("Errors out if you do not define an inverse for a reflexive relationship", function () {
+test("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
   warns(function() {

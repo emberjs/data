@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
-  setup: function() {
+  beforeEach: function() {
     Post = DS.Model.extend({
       title: DS.attr('string'),
       comments: DS.hasMany('comment', { inverse: null, async: false })
@@ -28,12 +30,12 @@ module("integration/serializer/json - JSONSerializer", {
     env.store.modelFor('favorite');
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.store, 'destroy');
   }
 });
 
-test("serialize doesn't include ID when includeId is false", function() {
+test("serialize doesn't include ID when includeId is false", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: 'Rails is omakase' });
   });
@@ -41,13 +43,13 @@ test("serialize doesn't include ID when includeId is false", function() {
 
   json = env.serializer.serialize(post._createSnapshot(), { includeId: false });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     title: "Rails is omakase",
     comments: []
   });
 });
 
-test("serialize includes id when includeId is true", function() {
+test("serialize includes id when includeId is true", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: 'Rails is omakase' });
     post.set('id', 'test');
@@ -56,14 +58,14 @@ test("serialize includes id when includeId is true", function() {
 
   json = env.serializer.serialize(post._createSnapshot(), { includeId: true });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     id: 'test',
     title: 'Rails is omakase',
     comments: []
   });
 });
 
-test("serializeAttribute", function() {
+test("serializeAttribute", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
   });
@@ -71,12 +73,12 @@ test("serializeAttribute", function() {
 
   env.serializer.serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     title: "Rails is omakase"
   });
 });
 
-test("serializeAttribute respects keyForAttribute", function() {
+test("serializeAttribute respects keyForAttribute", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForAttribute: function(key) {
       return key.toUpperCase();
@@ -90,10 +92,10 @@ test("serializeAttribute respects keyForAttribute", function() {
 
   env.store.serializerFor("post").serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
 
-  deepEqual(json, { TITLE: "Rails is omakase" });
+  assert.deepEqual(json, { TITLE: "Rails is omakase" });
 });
 
-test("serializeBelongsTo", function() {
+test("serializeBelongsTo", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
     comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
@@ -103,10 +105,10 @@ test("serializeBelongsTo", function() {
 
   env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
-  deepEqual(json, { post: "1" });
+  assert.deepEqual(json, { post: "1" });
 });
 
-test("serializeBelongsTo with null", function() {
+test("serializeBelongsTo with null", function(assert) {
   run(function() {
     comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: null });
   });
@@ -114,12 +116,12 @@ test("serializeBelongsTo with null", function() {
 
   env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     post: null
   }, "Can set a belongsTo to a null value");
 });
 
-test("async serializeBelongsTo with null", function() {
+test("async serializeBelongsTo with null", function(assert) {
   Comment.reopen({
     post: DS.belongsTo('post', { async: true })
   });
@@ -130,12 +132,12 @@ test("async serializeBelongsTo with null", function() {
 
   env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     post: null
   }, "Can set a belongsTo to a null value");
 });
 
-test("serializeBelongsTo respects keyForRelationship", function() {
+test("serializeBelongsTo respects keyForRelationship", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
@@ -149,12 +151,12 @@ test("serializeBelongsTo respects keyForRelationship", function() {
 
   env.store.serializerFor("post").serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     POST: "1"
   });
 });
 
-test("serializeHasMany respects keyForRelationship", function() {
+test("serializeHasMany respects keyForRelationship", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
@@ -170,12 +172,12 @@ test("serializeHasMany respects keyForRelationship", function() {
 
   env.store.serializerFor("post").serializeHasMany(post._createSnapshot(), json, { key: "comments", options: {} });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     COMMENTS: ["1"]
   });
 });
 
-test("serializeHasMany omits unknown relationships on pushed record", function() {
+test("serializeHasMany omits unknown relationships on pushed record", function(assert) {
 
   run(function() {
     post = env.store.push({
@@ -193,10 +195,10 @@ test("serializeHasMany omits unknown relationships on pushed record", function()
 
   env.store.serializerFor("post").serializeHasMany(post._createSnapshot(), json, { key: "comments", options: {} });
 
-  ok(!json.hasOwnProperty("comments"), "Does not add the relationship key to json");
+  assert.ok(!json.hasOwnProperty("comments"), "Does not add the relationship key to json");
 });
 
-test("serializeIntoHash", function() {
+test("serializeIntoHash", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
   });
@@ -205,14 +207,14 @@ test("serializeIntoHash", function() {
 
   env.serializer.serializeIntoHash(json, Post, post._createSnapshot());
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     title: "Rails is omakase",
     comments: []
   });
 });
 
-test("serializePolymorphicType sync", function() {
-  expect(1);
+test("serializePolymorphicType sync", function(assert) {
+  assert.expect(1);
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
@@ -220,7 +222,7 @@ test("serializePolymorphicType sync", function() {
       var belongsTo = record.belongsTo(key);
       json[relationship.key + "TYPE"] = belongsTo.modelName;
 
-      ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
+      assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
   }));
 
@@ -232,8 +234,8 @@ test("serializePolymorphicType sync", function() {
   env.store.serializerFor('comment').serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { polymorphic: true } });
 });
 
-test("serializePolymorphicType async", function() {
-  expect(1);
+test("serializePolymorphicType async", function(assert) {
+  assert.expect(1);
 
   Comment.reopen({
     post: DS.belongsTo('post', { async: true })
@@ -241,7 +243,7 @@ test("serializePolymorphicType async", function() {
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
-      ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
+      assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
   }));
 
@@ -253,7 +255,7 @@ test("serializePolymorphicType async", function() {
   env.store.serializerFor('comment').serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
 });
 
-test("normalizeResponse normalizes each record in the array", function() {
+test("normalizeResponse normalizes each record in the array", function(assert) {
   var postNormalizeCount = 0;
   var posts = [
     { id: "1", title: "Rails is omakase" },
@@ -270,10 +272,10 @@ test("normalizeResponse normalizes each record in the array", function() {
   run(function() {
     env.store.serializerFor("post").normalizeResponse(env.store, Post, posts, null, 'findAll');
   });
-  equal(postNormalizeCount, 2, "two posts are normalized");
+  assert.equal(postNormalizeCount, 2, "two posts are normalized");
 });
 
-test('Serializer should respect the attrs hash when extracting records', function() {
+test('Serializer should respect the attrs hash when extracting records', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: "title_payload_key",
@@ -289,11 +291,11 @@ test('Serializer should respect the attrs hash when extracting records', functio
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  equal(post.data.attributes.title, "Rails is omakase");
-  deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }, { id: "2", type: "comment" }]);
+  assert.equal(post.data.attributes.title, "Rails is omakase");
+  assert.deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }, { id: "2", type: "comment" }]);
 });
 
-test('Serializer should respect the attrs hash when serializing records', function() {
+test('Serializer should respect the attrs hash when serializing records', function(assert) {
   Post.reopen({
     parentPost: DS.belongsTo('post', { inverse: null, async: true })
   });
@@ -321,11 +323,11 @@ test('Serializer should respect the attrs hash when serializing records', functi
 
   var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
-  equal(payload.title_payload_key, "Rails is omakase");
-  equal(payload.my_parent, '2');
+  assert.equal(payload.title_payload_key, "Rails is omakase");
+  assert.equal(payload.my_parent, '2');
 });
 
-test('Serializer respects if embedded model has an attribute named "type" - #3726', function() {
+test('Serializer respects if embedded model has an attribute named "type" - #3726', function(assert) {
   env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       child: { embedded: 'always' }
@@ -348,7 +350,7 @@ test('Serializer respects if embedded model has an attribute named "type" - #372
 
   var Parent = env.store.modelFor('parent');
   var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
-  deepEqual(payload.included, [
+  assert.deepEqual(payload.included, [
     {
       id: '1',
       type: 'child',
@@ -360,7 +362,7 @@ test('Serializer respects if embedded model has an attribute named "type" - #372
   ]);
 });
 
-test('Serializer respects if embedded model has a relationship named "type" - #3726', function() {
+test('Serializer respects if embedded model has a relationship named "type" - #3726', function(assert) {
   env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       child: { embedded: 'always' }
@@ -384,7 +386,7 @@ test('Serializer respects if embedded model has a relationship named "type" - #3
 
   var Parent = env.store.modelFor('parent');
   var payload = env.store.serializerFor('parent').normalizeResponse(env.store, Parent, jsonHash, '1', 'findRecord');
-  deepEqual(payload.included, [
+  assert.deepEqual(payload.included, [
     {
       id: '1',
       type: 'child',
@@ -401,8 +403,8 @@ test('Serializer respects if embedded model has a relationship named "type" - #3
   ]);
 });
 
-test('Serializer respects `serialize: false` on the attrs hash', function() {
-  expect(2);
+test('Serializer respects `serialize: false` on the attrs hash', function(assert) {
+  assert.expect(2);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: { serialize: false }
@@ -415,12 +417,12 @@ test('Serializer respects `serialize: false` on the attrs hash', function() {
 
   var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
-  ok(!payload.hasOwnProperty('title'), "Does not add the key to instance");
-  ok(!payload.hasOwnProperty('[object Object]'), "Does not add some random key like [object Object]");
+  assert.ok(!payload.hasOwnProperty('title'), "Does not add the key to instance");
+  assert.ok(!payload.hasOwnProperty('[object Object]'), "Does not add some random key like [object Object]");
 });
 
-test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function() {
-  expect(1);
+test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       comments: { serialize: false }
@@ -436,11 +438,11 @@ test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` p
   var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
   var payload = serializer.serialize(post._createSnapshot());
-  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+  assert.ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
-test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function() {
-  expect(1);
+test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:comment", DS.JSONSerializer.extend({
     attrs: {
       post: { serialize: false }
@@ -456,11 +458,11 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
   var payload = serializer.serialize(comment._createSnapshot());
-  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+  assert.ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
-test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function() {
-  expect(1);
+test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       comments: { serialize: false }
@@ -476,11 +478,11 @@ test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` p
   var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
   var payload = serializer.serialize(post._createSnapshot());
-  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+  assert.ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
-test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function() {
-  expect(1);
+test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:comment", DS.JSONSerializer.extend({
     attrs: {
       post: { serialize: false }
@@ -496,11 +498,11 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
   var payload = serializer.serialize(comment._createSnapshot());
-  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+  assert.ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
-test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function() {
-  expect(1);
+test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       comments: { serialize: true }
@@ -516,11 +518,11 @@ test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` pr
   var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
 
   var payload = serializer.serialize(post._createSnapshot());
-  ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
+  assert.ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
 });
 
-test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function() {
-  expect(1);
+test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function(assert) {
+  assert.expect(1);
   env.registry.register("serializer:comment", DS.JSONSerializer.extend({
     attrs: {
       post: { serialize: true }
@@ -536,11 +538,11 @@ test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` 
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
 
   var payload = serializer.serialize(comment._createSnapshot());
-  ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
+  assert.ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
 });
 
-test("Serializer should merge attrs from superclasses", function() {
-  expect(4);
+test("Serializer should merge attrs from superclasses", function(assert) {
+  assert.expect(4);
   Post.reopen({
     description: DS.attr('string'),
     anotherString: DS.attr('string')
@@ -564,13 +566,13 @@ test("Serializer should merge attrs from superclasses", function() {
 
   var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
-  equal(payload.title_payload_key, "Rails is omakase");
-  equal(payload.description_payload_key, "Omakase is delicious");
-  equal(payload.overwritten_another_string_key, "yet another string");
-  ok(!payload.base_another_string_key, "overwritten key is not added");
+  assert.equal(payload.title_payload_key, "Rails is omakase");
+  assert.equal(payload.description_payload_key, "Omakase is delicious");
+  assert.equal(payload.overwritten_another_string_key, "yet another string");
+  assert.ok(!payload.base_another_string_key, "overwritten key is not added");
 });
 
-test("Serializer should respect the primaryKey attribute when extracting records", function() {
+test("Serializer should respect the primaryKey attribute when extracting records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
   }));
@@ -581,11 +583,11 @@ test("Serializer should respect the primaryKey attribute when extracting records
     post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
   });
 
-  equal(post.data.id, "1");
-  equal(post.data.attributes.title, "Rails is omakase");
+  assert.equal(post.data.id, "1");
+  assert.equal(post.data.attributes.title, "Rails is omakase");
 });
 
-test("Serializer should respect the primaryKey attribute when serializing records", function() {
+test("Serializer should respect the primaryKey attribute when serializing records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
   }));
@@ -596,10 +598,10 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
   var payload = env.store.serializerFor("post").serialize(post._createSnapshot(), { includeId: true });
 
-  equal(payload._ID_, "1");
+  assert.equal(payload._ID_, "1");
 });
 
-test("Serializer should respect keyForAttribute when extracting records", function() {
+test("Serializer should respect keyForAttribute when extracting records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForAttribute: function(key) {
       return key.toUpperCase();
@@ -610,11 +612,11 @@ test("Serializer should respect keyForAttribute when extracting records", functi
 
   post = env.store.serializerFor("post").normalize(Post, jsonHash);
 
-  equal(post.data.id, "1");
-  equal(post.data.attributes.title, "Rails is omakase");
+  assert.equal(post.data.id, "1");
+  assert.equal(post.data.attributes.title, "Rails is omakase");
 });
 
-test("Serializer should respect keyForRelationship when extracting records", function() {
+test("Serializer should respect keyForRelationship when extracting records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
@@ -625,11 +627,11 @@ test("Serializer should respect keyForRelationship when extracting records", fun
 
   post = env.store.serializerFor("post").normalize(Post, jsonHash);
 
-  deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }]);
+  assert.deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }]);
 });
 
-test("Calling normalize should normalize the payload (only the passed keys)", function () {
-  expect(1);
+test("Calling normalize should normalize the payload (only the passed keys)", function(assert) {
+  assert.expect(1);
   var Person = DS.Model.extend({
     posts: DS.hasMany('post', { async: false })
   });
@@ -656,7 +658,7 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
     aCustomAttrInHash: 'blah'
   });
 
-  deepEqual(normalizedPayload, {
+  assert.deepEqual(normalizedPayload, {
     "data": {
       "id": "1",
       "type": "post",
@@ -673,7 +675,7 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
   });
 });
 
-test('serializeBelongsTo with async polymorphic', function() {
+test('serializeBelongsTo with async polymorphic', function(assert) {
   var json = {};
   var expected = { post: '1', postTYPE: 'post' };
 
@@ -691,10 +693,10 @@ test('serializeBelongsTo with async polymorphic', function() {
 
   env.store.serializerFor('favorite').serializeBelongsTo(favorite._createSnapshot(), json, { key: 'post', options: { polymorphic: true, async: true } });
 
-  deepEqual(json, expected, 'returned JSON is correct');
+  assert.deepEqual(json, expected, 'returned JSON is correct');
 });
 
-test('extractErrors respects custom key mappings', function() {
+test('extractErrors respects custom key mappings', function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     attrs: {
       title: 'le_title',
@@ -717,13 +719,13 @@ test('extractErrors respects custom key mappings', function() {
 
   var errors = env.store.serializerFor('post').extractErrors(env.store, Post, payload);
 
-  deepEqual(errors, {
+  assert.deepEqual(errors, {
     title: ["title errors"],
     comments: ["comments errors"]
   });
 });
 
-test('extractErrors expects error information located on the errors property of payload', function() {
+test('extractErrors expects error information located on the errors property of payload', function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend());
 
   var payload = {
@@ -738,10 +740,10 @@ test('extractErrors expects error information located on the errors property of 
 
   var errors = env.store.serializerFor('post').extractErrors(env.store, Post, payload);
 
-  deepEqual(errors, { title: ["title errors"] });
+  assert.deepEqual(errors, { title: ["title errors"] });
 });
 
-test('extractErrors leaves payload untouched if it has no errors property', function() {
+test('extractErrors leaves payload untouched if it has no errors property', function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend());
 
   var payload = {
@@ -750,10 +752,10 @@ test('extractErrors leaves payload untouched if it has no errors property', func
 
   var errors = env.store.serializerFor('post').extractErrors(env.store, Post, payload);
 
-  deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
+  assert.deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
 });
 
-test('normalizeResponse should extract meta using extractMeta', function() {
+test('normalizeResponse should extract meta using extractMeta', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     extractMeta: function(store, modelClass, payload) {
       let meta = this._super(...arguments);
@@ -773,10 +775,10 @@ test('normalizeResponse should extract meta using extractMeta', function() {
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
+  assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
 });
 
-test('normalizeResponse returns empty `included` payload by default', function() {
+test('normalizeResponse returns empty `included` payload by default', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend());
 
   var jsonHash = {
@@ -786,10 +788,10 @@ test('normalizeResponse returns empty `included` payload by default', function()
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  deepEqual(post.included, []);
+  assert.deepEqual(post.included, []);
 });
 
-test('normalizeResponse returns empty `included` payload when relationship is undefined', function() {
+test('normalizeResponse returns empty `included` payload when relationship is undefined', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend());
 
   var jsonHash = {
@@ -800,10 +802,10 @@ test('normalizeResponse returns empty `included` payload when relationship is un
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  deepEqual(post.included, []);
+  assert.deepEqual(post.included, []);
 });
 
-test('normalizeResponse respects `included` items (single response)', function() {
+test('normalizeResponse respects `included` items (single response)', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       comments: { embedded: 'always' }
@@ -821,13 +823,13 @@ test('normalizeResponse respects `included` items (single response)', function()
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
-  deepEqual(post.included, [
+  assert.deepEqual(post.included, [
     { id: "1", type: "comment", attributes: { body: "comment 1" }, relationships: {} },
     { id: "2", type: "comment", attributes: { body: "comment 2" }, relationships: {} }
   ]);
 });
 
-test('normalizeResponse respects `included` items (array response)', function() {
+test('normalizeResponse respects `included` items (array response)', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       comments: { embedded: 'always' }
@@ -852,7 +854,7 @@ test('normalizeResponse respects `included` items (array response)', function() 
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, payload, '1', 'findAll');
 
-  deepEqual(post.included, [
+  assert.deepEqual(post.included, [
     { id: "1", type: "comment", attributes: { body: "comment 1" }, relationships: {} },
     { id: "2", type: "comment", attributes: { body: "comment 2" }, relationships: {} },
     { id: "3", type: "comment", attributes: { body: "comment 3" }, relationships: {} }

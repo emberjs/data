@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, serializer;
@@ -10,7 +12,7 @@ var run = Ember.run;
 var User, Handle, GithubHandle, TwitterHandle, Company;
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', {
-  setup: function() {
+  beforeEach: function() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
@@ -50,12 +52,12 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     serializer = store.serializerFor('-json-api');
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.store, 'destroy');
   }
 });
 
-test('Calling pushPayload works', function() {
+test('Calling pushPayload works', function(assert) {
   run(function() {
     serializer.pushPayload(store, {
       data: {
@@ -100,15 +102,15 @@ test('Calling pushPayload works', function() {
 
     var user = store.peekRecord('user', 1);
 
-    equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
-    equal(get(user, 'lastName'), 'Katz', 'lastName is correct');
-    equal(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
-    equal(get(user, 'handles.firstObject.username'), 'wycats', 'handles.firstObject.username is correct');
-    equal(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
+    assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+    assert.equal(get(user, 'lastName'), 'Katz', 'lastName is correct');
+    assert.equal(get(user, 'company.name'), 'Tilde Inc.', 'company.name is correct');
+    assert.equal(get(user, 'handles.firstObject.username'), 'wycats', 'handles.firstObject.username is correct');
+    assert.equal(get(user, 'handles.lastObject.nickname'), '@wycats', 'handles.lastObject.nickname is correct');
   });
 });
 
-test('Warns when normalizing an unknown type', function() {
+test('Warns when normalizing an unknown type', function(assert) {
   var documentHash = {
     data: {
       type: 'UnknownType',
@@ -126,7 +128,7 @@ test('Warns when normalizing an unknown type', function() {
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
 
-test('Serializer should respect the attrs hash when extracting attributes and relationships', function() {
+test('Serializer should respect the attrs hash when extracting attributes and relationships', function(assert) {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
       title: "title_attribute_key",
@@ -158,11 +160,11 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 
   var user = env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
-  equal(user.data.attributes.title, "director");
-  deepEqual(user.data.relationships.company.data, { id: "2", type: "company" });
+  assert.equal(user.data.attributes.title, "director");
+  assert.deepEqual(user.data.relationships.company.data, { id: "2", type: "company" });
 });
 
-test('Serializer should respect the attrs hash when serializing attributes and relationships', function() {
+test('Serializer should respect the attrs hash when serializing attributes and relationships', function(assert) {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
       title: "title_attribute_key",
@@ -187,6 +189,6 @@ test('Serializer should respect the attrs hash when serializing attributes and r
 
   var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
 
-  equal(payload.data.relationships['company_relationship_key'].data.id, "1");
-  equal(payload.data.attributes['title_attribute_key'], "director");
+  assert.equal(payload.data.relationships['company_relationship_key'].data.id, "1");
+  assert.equal(payload.data.attributes['title_attribute_key'], "director");
 });

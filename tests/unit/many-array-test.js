@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store;
@@ -11,7 +13,7 @@ var run = Ember.run;
 var Post, Tag;
 
 module("unit/many_array - DS.ManyArray", {
-  setup: function() {
+  beforeEach: function() {
     Post = DS.Model.extend({
       title: attr('string'),
       tags: hasMany('tag', { async: false })
@@ -35,20 +37,20 @@ module("unit/many_array - DS.ManyArray", {
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(function() {
       store.destroy();
     });
   }
 });
 
-test("manyArray.save() calls save() on all records", function() {
-  expect(3);
+test("manyArray.save() calls save() on all records", function(assert) {
+  assert.expect(3);
 
   run(function() {
     Tag.reopen({
       save: function() {
-        ok(true, 'record.save() was called');
+        assert.ok(true, 'record.save() was called');
         return Ember.RSVP.resolve();
       }
     });
@@ -85,13 +87,13 @@ test("manyArray.save() calls save() on all records", function() {
     var post = store.peekRecord('post', 3);
 
     post.get('tags').save().then(function() {
-      ok(true, 'manyArray.save() promise resolved');
+      assert.ok(true, 'manyArray.save() promise resolved');
     });
   });
 });
 
-test("manyArray trigger arrayContentChange functions with the correct values", function() {
-  expect(12);
+test("manyArray trigger arrayContentChange functions with the correct values", function(assert) {
+  assert.expect(12);
   var willChangeStartIdx;
   var willChangeRemoveAmt;
   var willChangeAddAmt;
@@ -105,9 +107,9 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
       return this._super.apply(this, arguments);
     },
     arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
-      equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
-      equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
-      equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+      assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
+      assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
+      assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
       return this._super.apply(this, arguments);
     }
   });

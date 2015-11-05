@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Person, env;
@@ -8,7 +10,7 @@ var resolve = Ember.RSVP.resolve;
 var run = Ember.run;
 
 module("integration/lifecycle_hooks - Lifecycle Hooks", {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       name: attr('string')
     });
@@ -18,13 +20,13 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
 asyncTest("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
-  expect(3);
+  assert.expect(3);
 
   env.adapter.createRecord = function(store, type, snapshot) {
     return resolve({ id: 99, name: "Yehuda Katz" });
@@ -36,17 +38,17 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
   });
 
   person.on('didCreate', function() {
-    equal(this, person, "this is bound to the record");
-    equal(this.get('id'), "99", "the ID has been assigned");
-    equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
+    assert.equal(this, person, "this is bound to the record");
+    assert.equal(this.get('id'), "99", "the ID has been assigned");
+    assert.equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
     start();
   });
 
   run(person, 'save');
 });
 
-test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function() {
-  expect(3);
+test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function(assert) {
+  assert.expect(3);
 
   env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve();
@@ -58,9 +60,9 @@ test("When the adapter acknowledges that a record has been created without a new
   });
 
   person.on('didCreate', function() {
-    equal(this, person, "this is bound to the record");
-    equal(this.get('id'), "99", "the ID has been assigned");
-    equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
+    assert.equal(this, person, "this is bound to the record");
+    assert.equal(this.get('id'), "99", "the ID has been assigned");
+    assert.equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
   });
 
   run(person, 'save');

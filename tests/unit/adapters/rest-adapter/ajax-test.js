@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 var run = Ember.run;
 
 module("unit/adapters/rest-adapter/ajax - building requests", {
-  setup: function() {
+  beforeEach: function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
@@ -14,7 +16,7 @@ module("unit/adapters/rest-adapter/ajax - building requests", {
     adapter = env.adapter;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(function() {
       store.destroy();
       env.container.destroy();
@@ -22,12 +24,12 @@ module("unit/adapters/rest-adapter/ajax - building requests", {
   }
 });
 
-test("When an id is searched, the correct url should be generated", function() {
-  expect(2);
+test("When an id is searched, the correct url should be generated", function(assert) {
+  assert.expect(2);
   var count = 0;
   adapter.ajax = function(url, method) {
-    if (count === 0) { equal(url, '/people/1', "should create the correct url"); }
-    if (count === 1) { equal(url, '/places/1', "should create the correct url"); }
+    if (count === 0) { assert.equal(url, '/people/1', "should create the correct url"); }
+    if (count === 1) { assert.equal(url, '/places/1', "should create the correct url"); }
     count++;
     return Ember.RSVP.resolve();
   };
@@ -37,10 +39,10 @@ test("When an id is searched, the correct url should be generated", function() {
   });
 });
 
-test("id's should be sanatized", function() {
-  expect(1);
+test("id's should be sanatized", function(assert) {
+  assert.expect(1);
   adapter.ajax = function(url, method) {
-    equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
+    assert.equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
     return Ember.RSVP.resolve();
   };
   run(function() {
@@ -48,7 +50,7 @@ test("id's should be sanatized", function() {
   });
 });
 
-test("ajaxOptions() headers are set", function() {
+test("ajaxOptions() headers are set", function(assert) {
   adapter.headers = { 'Content-Type': 'application/json', 'Other-key': 'Other Value' };
   var url = 'example.com';
   var type = 'GET';
@@ -60,15 +62,15 @@ test("ajaxOptions() headers are set", function() {
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
-  deepEqual(receivedHeaders, [['Content-Type', 'application/json'], ['Other-key', 'Other Value']], 'headers assigned');
+  assert.deepEqual(receivedHeaders, [['Content-Type', 'application/json'], ['Other-key', 'Other Value']], 'headers assigned');
 });
 
-test("ajaxOptions() do not serializes data when GET", function() {
+test("ajaxOptions() do not serializes data when GET", function(assert) {
   var url = 'example.com';
   var type = 'GET';
   var ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
-  deepEqual(ajaxOptions, {
+  assert.deepEqual(ajaxOptions, {
     context: adapter,
     data: {
       key: 'value'
@@ -79,12 +81,12 @@ test("ajaxOptions() do not serializes data when GET", function() {
   });
 });
 
-test("ajaxOptions() serializes data when not GET", function() {
+test("ajaxOptions() serializes data when not GET", function(assert) {
   var url = 'example.com';
   var type = 'POST';
   var ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
-  deepEqual(ajaxOptions, {
+  assert.deepEqual(ajaxOptions, {
     contentType: "application/json; charset=utf-8",
     context: adapter,
     data: '{"key":"value"}',
@@ -94,12 +96,12 @@ test("ajaxOptions() serializes data when not GET", function() {
   });
 });
 
-test("ajaxOptions() empty data", function() {
+test("ajaxOptions() empty data", function(assert) {
   var url = 'example.com';
   var type = 'POST';
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
 
-  deepEqual(ajaxOptions, {
+  assert.deepEqual(ajaxOptions, {
     context: adapter,
     dataType: 'json',
     type: 'POST',

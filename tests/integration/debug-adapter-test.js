@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var App, store, debugAdapter;
@@ -7,7 +9,7 @@ var get = Ember.get;
 var run = Ember.run;
 
 module("DS.DebugAdapter", {
-  setup: function() {
+  beforeEach: function() {
     Ember.run(function() {
       App = Ember.Application.create();
       App.toString = function() { return 'App'; };
@@ -38,23 +40,23 @@ module("DS.DebugAdapter", {
       }
     });
   },
-  teardown: function() {
+  afterEach: function() {
     run(App, App.destroy);
   }
 });
 
-test("Watching Model Types", function() {
-  expect(5);
+test("Watching Model Types", function(assert) {
+  assert.expect(5);
 
   var added = function(types) {
-    equal(types.length, 1);
-    equal(types[0].name, 'post');
-    equal(types[0].count, 0);
-    strictEqual(types[0].object, store.modelFor('post'));
+    assert.equal(types.length, 1);
+    assert.equal(types[0].name, 'post');
+    assert.equal(types[0].count, 0);
+    assert.strictEqual(types[0].object, store.modelFor('post'));
   };
 
   var updated = function(types) {
-    equal(types[0].count, 1);
+    assert.equal(types[0].count, 1);
   };
 
   debugAdapter.watchModelTypes(added, updated);
@@ -72,7 +74,7 @@ test("Watching Model Types", function() {
   });
 });
 
-test("Watching Records", function() {
+test("Watching Records", function(assert) {
   var post, record, addedRecords, updatedRecords, removedIndex, removedCount;
 
   Ember.run(function() {
@@ -106,12 +108,12 @@ test("Watching Records", function() {
   }
   debugAdapter.watchRecords(modelClassOrName, recordsAdded, recordsUpdated, recordsRemoved);
 
-  equal(get(addedRecords, 'length'), 1);
+  assert.equal(get(addedRecords, 'length'), 1);
   record = addedRecords[0];
-  deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
-  deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
-  deepEqual(record.searchKeywords, ['1', 'Clean Post']);
-  deepEqual(record.color, 'black');
+  assert.deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
+  assert.deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
+  assert.deepEqual(record.searchKeywords, ['1', 'Clean Post']);
+  assert.deepEqual(record.color, 'black');
 
   Ember.run(function() {
     post = store.find('post', 1);
@@ -121,25 +123,25 @@ test("Watching Records", function() {
     post.set('title', 'Modified Post');
   });
 
-  equal(get(updatedRecords, 'length'), 1);
+  assert.equal(get(updatedRecords, 'length'), 1);
   record = updatedRecords[0];
-  deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
-  deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
-  deepEqual(record.searchKeywords, ['1', 'Modified Post']);
-  deepEqual(record.color, 'blue');
+  assert.deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
+  assert.deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
+  assert.deepEqual(record.searchKeywords, ['1', 'Modified Post']);
+  assert.deepEqual(record.color, 'blue');
 
   run(function() {
     post = store.createRecord('post', { id: '2', title: 'New Post' });
   });
-  equal(get(addedRecords, 'length'), 1);
+  assert.equal(get(addedRecords, 'length'), 1);
   record = addedRecords[0];
-  deepEqual(record.columnValues, { id: '2', title: 'New Post' });
-  deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
-  deepEqual(record.searchKeywords, ['2', 'New Post']);
-  deepEqual(record.color, 'green');
+  assert.deepEqual(record.columnValues, { id: '2', title: 'New Post' });
+  assert.deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
+  assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
+  assert.deepEqual(record.color, 'green');
 
   Ember.run(post, 'unloadRecord');
 
-  equal(removedIndex, 1);
-  equal(removedCount, 1);
+  assert.equal(removedIndex, 1);
+  assert.equal(removedCount, 1);
 });

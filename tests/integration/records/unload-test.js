@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var attr = DS.attr;
@@ -30,7 +32,7 @@ var Car = DS.Model.extend({
 Car.toString = function() { return "Car"; };
 
 module("integration/unload - Unloading Records", {
-  setup: function() {
+  beforeEach: function() {
     env = setupStore({
       person: Person,
       car: Car,
@@ -38,14 +40,14 @@ module("integration/unload - Unloading Records", {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(function() {
       env.container.destroy();
     });
   }
 });
 
-test("can unload a single record", function () {
+test("can unload a single record", function(assert) {
   var adam;
   run(function() {
     env.store.push({
@@ -64,11 +66,11 @@ test("can unload a single record", function () {
     adam.unloadRecord();
   });
 
-  equal(env.store.peekAll('person').get('length'), 0);
+  assert.equal(env.store.peekAll('person').get('length'), 0);
 });
 
-test("can unload all records for a given type", function () {
-  expect(2);
+test("can unload all records for a given type", function(assert) {
+  assert.expect(2);
 
   var adam, bob, dudu;
   run(function() {
@@ -112,12 +114,12 @@ test("can unload all records for a given type", function () {
     env.store.unloadAll('person');
   });
 
-  equal(env.store.peekAll('person').get('length'), 0);
-  equal(env.store.peekAll('car').get('length'), 1);
+  assert.equal(env.store.peekAll('person').get('length'), 0);
+  assert.equal(env.store.peekAll('car').get('length'), 1);
 });
 
-test("can unload all records", function () {
-  expect(2);
+test("can unload all records", function(assert) {
+  assert.expect(2);
 
   var adam, bob, dudu;
   run(function() {
@@ -161,11 +163,11 @@ test("can unload all records", function () {
     env.store.unloadAll();
   });
 
-  equal(env.store.peekAll('person').get('length'), 0);
-  equal(env.store.peekAll('car').get('length'), 0);
+  assert.equal(env.store.peekAll('person').get('length'), 0);
+  assert.equal(env.store.peekAll('car').get('length'), 0);
 });
 
-test("removes findAllCache after unloading all records", function () {
+test("removes findAllCache after unloading all records", function(assert) {
   var adam, bob;
   run(function() {
     env.store.push({
@@ -192,10 +194,10 @@ test("removes findAllCache after unloading all records", function () {
     env.store.unloadAll('person');
   });
 
-  equal(env.store.peekAll('person').get('length'), 0);
+  assert.equal(env.store.peekAll('person').get('length'), 0);
 });
 
-test("unloading all records also updates record array from peekAll()", function() {
+test("unloading all records also updates record array from peekAll()", function(assert) {
   var adam, bob;
   run(function() {
     env.store.push({
@@ -218,17 +220,17 @@ test("unloading all records also updates record array from peekAll()", function(
   });
   var all = env.store.peekAll('person');
 
-  equal(all.get('length'), 2);
+  assert.equal(all.get('length'), 2);
 
   Ember.run(function() {
     env.store.unloadAll('person');
   });
 
-  equal(all.get('length'), 0);
+  assert.equal(all.get('length'), 0);
 });
 
 
-test("unloading a record also clears its relationship", function() {
+test("unloading a record also clears its relationship", function(assert) {
   var adam, bob;
 
   // disable background reloading so we do not re-create the relationship.
@@ -275,18 +277,18 @@ test("unloading a record also clears its relationship", function() {
 
   run(function() {
     env.store.findRecord('person', 1).then(function(person) {
-      equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
+      assert.equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
       run(function() {
         person.unloadRecord();
       });
 
-      equal(person.get('cars.length'), undefined);
+      assert.equal(person.get('cars.length'), undefined);
     });
   });
 });
 
-test("unloading a record also clears the implicit inverse relationships", function() {
+test("unloading a record also clears the implicit inverse relationships", function(assert) {
   var adam, bob;
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
@@ -323,13 +325,13 @@ test("unloading a record also clears the implicit inverse relationships", functi
 
   run(function() {
     env.store.findRecord('group', 1).then(function(group) {
-      equal(group.get('people.length'), 1, 'The inital length of people is correct');
+      assert.equal(group.get('people.length'), 1, 'The inital length of people is correct');
       var person = env.store.peekRecord('person', 1);
       run(function() {
         person.unloadRecord();
       });
 
-      equal(group.get('people.length'), 0, 'Person was removed from the people array');
+      assert.equal(group.get('people.length'), 0, 'Person was removed from the people array');
     });
   });
 });

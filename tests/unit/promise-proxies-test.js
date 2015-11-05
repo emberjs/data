@@ -1,11 +1,13 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 module('PromiseManyArray');
 
-test('.reload should NOT leak the internal promise, rather return another promiseArray', function() {
-  expect(2);
+test('.reload should NOT leak the internal promise, rather return another promiseArray', function(assert) {
+  assert.expect(2);
 
   var content = Ember.A();
 
@@ -20,10 +22,10 @@ test('.reload should NOT leak the internal promise, rather return another promis
   Ember.run(function() {
     var reloaded = array.reload();
 
-    ok(reloaded instanceof DS.PromiseManyArray);
+    assert.ok(reloaded instanceof DS.PromiseManyArray);
 
     reloaded.then(function(value) {
-      equal(content, value);
+      assert.equal(content, value);
     });
   });
 });

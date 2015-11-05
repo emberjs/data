@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, User, Message, Video, NotMessage;
@@ -13,7 +15,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins', {
-  setup: function() {
+  beforeEach: function() {
     User = DS.Model.extend({
       name: attr('string'),
       bestMessage: belongsTo('message', { async: true, polymorphic: true })
@@ -44,7 +46,7 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
@@ -53,7 +55,7 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
   Server loading tests
 */
 
-test("Relationship is available from the belongsTo side even if only loaded from the inverse side - async", function () {
+test("Relationship is available from the belongsTo side even if only loaded from the inverse side - async", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -81,9 +83,9 @@ test("Relationship is available from the belongsTo side even if only loaded from
   });
   run(function() {
     user.get('bestMessage').then(function(message) {
-      equal(message, video, 'The message was loaded correctly');
+      assert.equal(message, video, 'The message was loaded correctly');
       message.get('user').then(function(fetchedUser) {
-        equal(fetchedUser, user, 'The inverse was setup correctly');
+        assert.equal(fetchedUser, user, 'The inverse was setup correctly');
       });
     });
   });
@@ -92,7 +94,7 @@ test("Relationship is available from the belongsTo side even if only loaded from
 /*
   Local edits
 */
-test("Setting the polymorphic belongsTo gets propagated to the inverse side - async", function () {
+test("Setting the polymorphic belongsTo gets propagated to the inverse side - async", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -117,15 +119,15 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - as
   run(function() {
     user.set('bestMessage', video);
     video.get('user').then(function(fetchedUser) {
-      equal(fetchedUser, user, "user got set correctly");
+      assert.equal(fetchedUser, user, "user got set correctly");
     });
     user.get('bestMessage').then(function(message) {
-      equal(message, video, 'The message was set correctly');
+      assert.equal(message, video, 'The message was set correctly');
     });
   });
 });
 
-test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out", function () {
+test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -155,8 +157,8 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
 });
 
 
-test("Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true", function () {
-  expect(2);
+test("Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true", function(assert) {
+  assert.expect(2);
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 
@@ -185,10 +187,10 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - mo
     run(function() {
       user.set('bestMessage', video);
       video.get('user').then(function(fetchedUser) {
-        equal(fetchedUser, user, "user got set correctly");
+        assert.equal(fetchedUser, user, "user got set correctly");
       });
       user.get('bestMessage').then(function(message) {
-        equal(message, video, 'The message was set correctly');
+        assert.equal(message, video, 'The message was set correctly');
       });
     });
   } finally {
@@ -196,7 +198,7 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - mo
   }
 });
 
-test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true", function () {
+test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true", function(assert) {
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 

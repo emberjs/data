@@ -1,31 +1,33 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 module("unit/adapter-errors - DS.AdapterError");
 
-test("DS.AdapterError", function() {
+test("DS.AdapterError", function(assert) {
   var error = new DS.AdapterError();
-  ok(error instanceof Error);
-  ok(error instanceof Ember.Error);
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof Ember.Error);
 });
 
-test("DS.InvalidError", function() {
+test("DS.InvalidError", function(assert) {
   var error = new DS.InvalidError();
-  ok(error instanceof Error);
-  ok(error instanceof DS.AdapterError);
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
 });
 
-test("DS.TimeoutError", function() {
+test("DS.TimeoutError", function(assert) {
   var error = new DS.TimeoutError();
-  ok(error instanceof Error);
-  ok(error instanceof DS.AdapterError);
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
 });
 
-test("DS.AbortError", function() {
+test("DS.AbortError", function(assert) {
   var error = new DS.AbortError();
-  ok(error instanceof Error);
-  ok(error instanceof DS.AdapterError);
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
 });
 
 var errorsHash = {
@@ -51,27 +53,27 @@ var errorsArray = [
   }
 ];
 
-test("errorsHashToArray", function() {
+test("errorsHashToArray", function(assert) {
   var result = DS.errorsHashToArray(errorsHash);
-  deepEqual(result, errorsArray);
+  assert.deepEqual(result, errorsArray);
 });
 
-test("errorsArrayToHash", function() {
+test("errorsArrayToHash", function(assert) {
   var result = DS.errorsArrayToHash(errorsArray);
-  deepEqual(result, errorsHash);
+  assert.deepEqual(result, errorsHash);
 });
 
-test("errorsArrayToHash without trailing slash", function() {
+test("errorsArrayToHash without trailing slash", function(assert) {
   var result = DS.errorsArrayToHash([
     {
       detail: 'error message',
       source: { pointer: 'data/attributes/name' }
     }
   ]);
-  deepEqual(result, { name: ['error message'] });
+  assert.deepEqual(result, { name: ['error message'] });
 });
 
-test("DS.InvalidError will normalize errors hash will assert", function() {
+test("DS.InvalidError will normalize errors hash will assert", function(assert) {
   var error;
 
   expectAssertion(function() {

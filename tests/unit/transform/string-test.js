@@ -1,23 +1,25 @@
 import DS from 'ember-data';
 
+import {module, test} from 'qunit';
+
 module("unit/transform - DS.StringTransform");
 
-test("#serialize", function() {
+test("#serialize", function(assert) {
   var transform = new DS.StringTransform();
 
-  equal(transform.serialize(null), null);
-  equal(transform.serialize(undefined), null);
+  assert.equal(transform.serialize(null), null);
+  assert.equal(transform.serialize(undefined), null);
 
-  equal(transform.serialize("foo"), "foo");
-  equal(transform.serialize(1), "1");
+  assert.equal(transform.serialize("foo"), "foo");
+  assert.equal(transform.serialize(1), "1");
 });
 
-test("#deserialize", function() {
+test("#deserialize", function(assert) {
   var transform = new DS.StringTransform();
 
-  equal(transform.deserialize(null), null);
-  equal(transform.deserialize(undefined), null);
+  assert.equal(transform.deserialize(null), null);
+  assert.equal(transform.deserialize(undefined), null);
 
-  equal(transform.deserialize("foo"), "foo");
-  equal(transform.deserialize(1), "1");
+  assert.equal(transform.deserialize("foo"), "foo");
+  assert.equal(transform.deserialize(1), "1");
 });

@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Post, env;
 var run = Ember.run;
 
 module("integration/records/save - Save Record", {
-  setup: function() {
+  beforeEach: function() {
     Post = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -16,13 +18,13 @@ module("integration/records/save - Save Record", {
     env = setupStore({ post: Post });
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("Will resolve save on success", function() {
-  expect(4);
+test("Will resolve save on success", function(assert) {
+  assert.expect(4);
   var post;
   run(function() {
     post = env.store.createRecord('post', { title: 'toto' });
@@ -37,18 +39,18 @@ test("Will resolve save on success", function() {
     var saved = post.save();
 
     // `save` returns a PromiseObject which allows to call get on it
-    equal(saved.get('id'), undefined);
+    assert.equal(saved.get('id'), undefined);
 
     deferred.resolve({ id: 123 });
     saved.then(function(model) {
-      ok(true, 'save operation was resolved');
-      equal(saved.get('id'), 123);
-      equal(model, post, "resolves with the model");
+      assert.ok(true, 'save operation was resolved');
+      assert.equal(saved.get('id'), 123);
+      assert.equal(model, post, "resolves with the model");
     });
   });
 });
 
-test("Will reject save on error", function() {
+test("Will reject save on error", function(assert) {
   var post;
   run(function() {
     post = env.store.createRecord('post', { title: 'toto' });
@@ -60,12 +62,12 @@ test("Will reject save on error", function() {
 
   run(function() {
     post.save().then(function() {}, function() {
-      ok(true, 'save operation was rejected');
+      assert.ok(true, 'save operation was rejected');
     });
   });
 });
 
-test("Retry is allowed in a failure handler", function() {
+test("Retry is allowed in a failure handler", function(assert) {
   var post;
   run(function() {
     post = env.store.createRecord('post', { title: 'toto' });
@@ -85,13 +87,13 @@ test("Retry is allowed in a failure handler", function() {
     post.save().then(function() {}, function() {
       return post.save();
     }).then(function(post) {
-      equal(post.get('id'), '123', "The post ID made it through");
+      assert.equal(post.get('id'), '123', "The post ID made it through");
     });
   });
 });
 
-test("Repeated failed saves keeps the record in uncommited state", function() {
-  expect(4);
+test("Repeated failed saves keeps the record in uncommited state", function(assert) {
+  assert.expect(4);
   var post;
 
   run(function() {
@@ -104,19 +106,19 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
 
   run(function() {
     post.save().then(null, function() {
-      ok(post.get('isError'));
-      equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+      assert.ok(post.get('isError'));
+      assert.equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
 
       post.save().then(null, function() {
-        ok(post.get('isError'));
-        equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+        assert.ok(post.get('isError'));
+        assert.equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
       });
     });
   });
 });
 
-test("Repeated failed saves with invalid error marks the record as invalid", function() {
-  expect(2);
+test("Repeated failed saves with invalid error marks the record as invalid", function(assert) {
+  assert.expect(2);
   var post;
 
   run(function() {
@@ -136,17 +138,17 @@ test("Repeated failed saves with invalid error marks the record as invalid", fun
 
   run(function() {
     post.save().then(null, function() {
-      equal(post.get('isValid'), false);
+      assert.equal(post.get('isValid'), false);
 
       post.save().then(null, function() {
-        equal(post.get('isValid'), false);
+        assert.equal(post.get('isValid'), false);
       });
     });
   });
 });
 
-test("Repeated failed saves with invalid error without payload marks the record as invalid", function() {
-  expect(2);
+test("Repeated failed saves with invalid error without payload marks the record as invalid", function(assert) {
+  assert.expect(2);
   var post;
 
   run(function() {
@@ -161,17 +163,17 @@ test("Repeated failed saves with invalid error without payload marks the record 
 
   run(function() {
     post.save().then(null, function() {
-      equal(post.get('isValid'), false);
+      assert.equal(post.get('isValid'), false);
 
       post.save().then(null, function() {
-        equal(post.get('isValid'), false);
+        assert.equal(post.get('isValid'), false);
       });
     });
   });
 });
 
-test("Will reject save on invalid", function() {
-  expect(1);
+test("Will reject save on invalid", function(assert) {
+  assert.expect(1);
   var post;
   run(function() {
     post = env.store.createRecord('post', { title: 'toto' });
@@ -183,7 +185,7 @@ test("Will reject save on invalid", function() {
 
   run(function() {
     post.save().then(function() {}, function() {
-      ok(true, 'save operation was rejected');
+      assert.ok(true, 'save operation was rejected');
     });
   });
 });

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, User, Contact, Email, Phone, Message, Post, Comment;
@@ -17,7 +19,7 @@ function stringify(string) {
 }
 
 module("integration/relationships/has_many - Has-Many Relationships", {
-  setup: function() {
+  beforeEach: function() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true, async: false }),
@@ -88,16 +90,16 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
-  expect(0);
+test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
+  assert.expect(0);
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    ok(false, "The adapter's find method should not be called");
+    assert.ok(false, "The adapter's find method should not be called");
   };
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
@@ -128,12 +130,12 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   });
 });
 
-test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function() {
-  expect(2);
+test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function(assert) {
+  assert.expect(2);
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    equal(type, Chapter, 'type passed to adapter.findMany is correct');
-    deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
+    assert.equal(type, Chapter, 'type passed to adapter.findMany is correct');
+    assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
 
     return Ember.RSVP.resolve([
       { id: 2, title: 'Chapter One' },
@@ -171,7 +173,7 @@ test("adapter.findMany only gets unique IDs even if duplicate IDs are present in
 // relationship as a internalModel that it can fetch lazily. The most
 // common use case of this is to provide a URL to a collection that
 // is loaded later.
-test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function() {
+test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -179,8 +181,8 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   // When the store asks the adapter for the record with ID 1,
   // provide some fake data.
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(type, Post, "find type was Post");
-    equal(id, "1", "find id was 1");
+    assert.equal(type, Post, "find type was Post");
+    assert.equal(id, "1", "find id was 1");
 
     return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
   };
@@ -190,8 +192,8 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   };
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-    equal(relationship.type, "comment", "relationship was passed correctly");
+    assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+    assert.equal(relationship.type, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -203,15 +205,15 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     env.store.findRecord('post', 1).then(async(function(post) {
       return post.get('comments');
     })).then(async(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
-      equal(comments.objectAt(0).get('body'), 'First', "comment loaded successfully");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
+      assert.equal(comments.objectAt(0).get('body'), 'First', "comment loaded successfully");
     }));
   });
 });
 
-test("Accessing a hasMany backed by a link multiple times triggers only one request", function() {
-  expect(2);
+test("Accessing a hasMany backed by a link multiple times triggers only one request", function(assert) {
+  assert.expect(2);
   var count = 0;
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -242,7 +244,7 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
     start();
     count++;
-    equal(count, 1, "findHasMany has only been called once");
+    assert.equal(count, 1, "findHasMany has only been called once");
     stop();
     return new Ember.RSVP.Promise(function(resolve, reject) {
       setTimeout(function() {
@@ -276,11 +278,11 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   Ember.RSVP.all([promise1, promise2]).then(function() {
     start();
   });
-  equal(promise1.promise, promise2.promise, "Same promise is returned both times");
+  assert.equal(promise1.promise, promise2.promise, "Same promise is returned both times");
 });
 
-test("A hasMany backed by a link remains a promise after a record has been added to it", function() {
-  expect(1);
+test("A hasMany backed by a link remains a promise after a record has been added to it", function(assert) {
+  assert.expect(1);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -327,13 +329,13 @@ test("A hasMany backed by a link remains a promise after a record has been added
         }
       });
       post.get('comments').then(function() {
-        ok(true, 'Promise was called');
+        assert.ok(true, 'Promise was called');
       });
     });
   });
 });
 
-test("A hasMany updated link should not remove new children", function() {
+test("A hasMany updated link should not remove new children", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -360,7 +362,7 @@ test("A hasMany updated link should not remove new children", function() {
 
     post.get('comments')
       .then(function(comments) {
-        equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1);
 
         return post.save();
       })
@@ -368,12 +370,12 @@ test("A hasMany updated link should not remove new children", function() {
         return post.get('comments');
       })
       .then(function(comments) {
-        equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1);
       });
   });
 });
 
-test("A hasMany updated link should not remove new children when the parent record has children already", function() {
+test("A hasMany updated link should not remove new children when the parent record has children already", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -400,7 +402,7 @@ test("A hasMany updated link should not remove new children when the parent reco
 
     post.get('comments')
       .then(function(comments) {
-        equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1);
 
         return post.save();
       })
@@ -408,28 +410,28 @@ test("A hasMany updated link should not remove new children when the parent reco
         return post.get('comments');
       })
       .then(function(comments) {
-        equal(comments.get('length'), 2);
+        assert.equal(comments.get('length'), 2);
       });
   });
 });
 
 
-test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
+test("A hasMany relationship can be reloaded if it was fetched via a link", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(type, Post, "find type was Post");
-    equal(id, "1", "find id was 1");
+    assert.equal(type, Post, "find type was Post");
+    assert.equal(id, "1", "find id was 1");
 
     return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
   };
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
-    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
-    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+    assert.equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
+    assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+    assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -441,13 +443,13 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
     run(env.store, 'findRecord', 'post', 1).then(function(post) {
       return post.get('comments');
     }).then(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
 
       env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-        equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
-        equal(relationship.key, 'comments', "findHasMany relationship key was comments");
-        equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+        assert.equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
+        assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+        assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
         return Ember.RSVP.resolve([
           { id: 1, body: "First" },
@@ -458,19 +460,19 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
 
       return comments.reload();
     }).then(function(newComments) {
-      equal(newComments.get('length'), 3, "reloaded comments have 3 length");
+      assert.equal(newComments.get('length'), 3, "reloaded comments have 3 length");
     });
   });
 });
 
-test("A sync hasMany relationship can be reloaded if it was fetched via ids", function() {
+test("A sync hasMany relationship can be reloaded if it was fetched via ids", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: false })
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(type, Post, "find type was Post");
-    equal(id, "1", "find id was 1");
+    assert.equal(type, Post, "find type was Post");
+    assert.equal(id, "1", "find id was 1");
 
     return Ember.RSVP.resolve({ id: 1, comments: [1, 2] });
   };
@@ -494,8 +496,8 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
 
     env.store.findRecord('post', '1').then(function(post) {
       var comments = post.get('comments');
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have a length of 2");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have a length of 2");
 
       env.adapter.findMany = function(store, type, ids, snapshots) {
         return Ember.RSVP.resolve([
@@ -506,19 +508,19 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
 
       return comments.reload();
     }).then(function(newComments) {
-      equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+      assert.equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
     });
   });
 });
 
-test("A hasMany relationship can be reloaded if it was fetched via ids", function() {
+test("A hasMany relationship can be reloaded if it was fetched via ids", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(type, Post, "find type was Post");
-    equal(id, "1", "find id was 1");
+    assert.equal(type, Post, "find type was Post");
+    assert.equal(id, "1", "find id was 1");
 
     return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
   };
@@ -534,8 +536,8 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
     env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments');
     }).then(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
 
       env.adapter.findMany = function(store, type, ids, snapshots) {
         return Ember.RSVP.resolve([
@@ -546,19 +548,19 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
 
       return comments.reload();
     }).then(function(newComments) {
-      equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+      assert.equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
     });
   });
 });
 
-test("A hasMany relationship can be directly reloaded if it was fetched via ids", function() {
+test("A hasMany relationship can be directly reloaded if it was fetched via ids", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(type, Post, "find type was Post");
-    equal(id, "1", "find id was 1");
+    assert.equal(type, Post, "find type was Post");
+    assert.equal(id, "1", "find id was 1");
 
     return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
   };
@@ -573,16 +575,16 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
   run(function() {
     env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments').reload().then(function(comments) {
-        equal(comments.get('isLoaded'), true, "comments are loaded");
-        equal(comments.get('length'), 2, "comments have 2 length");
-        equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
+        assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+        assert.equal(comments.get('length'), 2, "comments have 2 length");
+        assert.equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
       });
     });
   });
 });
 
-test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded", function() {
-  expect(4);
+test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded", function(assert) {
+  assert.expect(4);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -615,18 +617,18 @@ test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loa
 
   run(function() {
     post.get('comments').then(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
 
       var newComment = post.get('comments').createRecord({ body: 'Third' });
-      equal(newComment.get('body'), 'Third', "new comment is returned");
-      equal(comments.get('length'), 3, "comments have 3 length, including new record");
+      assert.equal(newComment.get('body'), 'Third', "new comment is returned");
+      assert.equal(comments.get('length'), 3, "comments have 3 length, including new record");
     });
   });
 });
 
-test("PromiseArray proxies evented methods to its ManyArray", function() {
-  expect(6);
+test("PromiseArray proxies evented methods to its ManyArray", function(assert) {
+  assert.expect(6);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -660,44 +662,44 @@ test("PromiseArray proxies evented methods to its ManyArray", function() {
 
 
   comments.on('on-event', function() {
-    ok(true);
+    assert.ok(true);
   });
 
   run(function() {
     comments.trigger('on-event');
   });
 
-  equal(comments.has('on-event'), true);
+  assert.equal(comments.has('on-event'), true);
 
   comments.on('off-event', function() {
-    ok(false);
+    assert.ok(false);
   });
 
   comments.off('off-event');
 
-  equal(comments.has('off-event'), false);
+  assert.equal(comments.has('off-event'), false);
 
   comments.one('one-event', function() {
-    ok(true);
+    assert.ok(true);
   });
 
-  equal(comments.has('one-event'), true);
+  assert.equal(comments.has('one-event'), true);
 
   run(function() {
     comments.trigger('one-event');
   });
 
-  equal(comments.has('one-event'), false);
+  assert.equal(comments.has('one-event'), false);
 });
 
-test("An updated `links` value should invalidate a relationship cache", function() {
-  expect(8);
+test("An updated `links` value should invalidate a relationship cache", function(assert) {
+  assert.expect(8);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type, "comment", "relationship was passed correctly");
+    assert.equal(relationship.type, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
       return Ember.RSVP.resolve([
@@ -733,9 +735,9 @@ test("An updated `links` value should invalidate a relationship cache", function
 
   run(function() {
     post.get('comments').then(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
-      equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
+      assert.equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
       env.store.push({
         data: {
           type: 'post',
@@ -750,19 +752,19 @@ test("An updated `links` value should invalidate a relationship cache", function
         }
       });
       post.get('comments').then(function(newComments) {
-        equal(comments, newComments, "hasMany array was kept the same");
-        equal(newComments.get('length'), 3, "comments updated successfully");
-        equal(newComments.objectAt(0).get('body'), 'Third', "third comment loaded successfully");
+        assert.equal(comments, newComments, "hasMany array was kept the same");
+        assert.equal(newComments.get('length'), 3, "comments updated successfully");
+        assert.equal(newComments.objectAt(0).get('body'), 'Third', "third comment loaded successfully");
       });
     });
   });
 });
 
-test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
-  expect(1);
+test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
+  assert.expect(1);
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    ok(false, "The adapter's find method should not be called");
+    assert.ok(false, "The adapter's find method should not be called");
   };
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
@@ -796,12 +798,12 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   run(function() {
     env.store.findRecord('user', 1).then(function(user) {
       var messages = user.get('messages');
-      equal(messages.get('length'), 2, "The messages are correctly loaded");
+      assert.equal(messages.get('length'), 2, "The messages are correctly loaded");
     });
   });
 });
 
-test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", function() {
+test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", function(assert) {
   User.reopen({
     messages: hasMany('message', { polymorphic: true, async: true })
   });
@@ -835,13 +837,13 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
     env.store.findRecord('user', 1).then(function(user) {
       return user.get('messages');
     }).then(function(messages) {
-      equal(messages.get('length'), 2, "The messages are correctly loaded");
+      assert.equal(messages.get('length'), 2, "The messages are correctly loaded");
     });
   });
 });
 
-test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
-  expect(1);
+test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
+  assert.expect(1);
 
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
@@ -853,7 +855,7 @@ test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_IN
 
       igor.get('messages').addObject(comment);
 
-      equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
+      assert.equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
     });
   } finally {
     Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
@@ -862,8 +864,8 @@ test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_IN
 
 
 
-test("Type can be inferred from the key of a hasMany relationship", function() {
-  expect(1);
+test("Type can be inferred from the key of a hasMany relationship", function(assert) {
+  assert.expect(1);
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
     return { id: 1, contacts: [1] };
@@ -892,13 +894,13 @@ test("Type can be inferred from the key of a hasMany relationship", function() {
     env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
-      equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+      assert.equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
     });
   });
 });
 
-test("Type can be inferred from the key of an async hasMany relationship", function() {
-  expect(1);
+test("Type can be inferred from the key of an async hasMany relationship", function(assert) {
+  assert.expect(1);
 
   User.reopen({
     contacts: DS.hasMany({ async: true })
@@ -931,12 +933,12 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
     env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
-      equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+      assert.equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
     });
   });
 });
 
-test("Polymorphic relationships work with a hasMany whose type is inferred", function() {
+test("Polymorphic relationships work with a hasMany whose type is inferred", function(assert) {
   User.reopen({
     contacts: DS.hasMany({ polymorphic: true, async: false })
   });
@@ -945,7 +947,7 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
     return { id: 1 };
   };
 
-  expect(1);
+  assert.expect(1);
   run(function() {
     env.store.push({
       data: {
@@ -973,13 +975,13 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
     env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
-      equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
+      assert.equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
     });
   });
 });
 
-test("Polymorphic relationships with a hasMany is set up correctly on both sides", function() {
-  expect(2);
+test("Polymorphic relationships with a hasMany is set up correctly on both sides", function(assert) {
+  assert.expect(2);
 
   Contact.reopen({
     posts: DS.hasMany('post', { async: false })
@@ -997,11 +999,11 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
     });
   });
 
-  equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
-  equal(get(email, 'posts.length'), 1, "The inverse has many is set up correctly on the email side.");
+  assert.equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
+  assert.equal(get(email, 'posts.length'), 1, "The inverse has many is set up correctly on the email side.");
 });
 
-test("A record can't be created from a polymorphic hasMany relationship", function() {
+test("A record can't be created from a polymorphic hasMany relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
@@ -1028,8 +1030,8 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   });
 });
 
-test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
-  expect(1);
+test("Only records of the same type can be added to a monomorphic hasMany relationship", function(assert) {
+  assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
@@ -1060,8 +1062,8 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   });
 });
 
-test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
-  expect(2);
+test("Only records of the same base type can be added to a polymorphic hasMany relationship", function(assert) {
+  assert.expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
@@ -1112,7 +1114,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
     }).then(function(records) {
       records.messages.pushObject(records.post);
       records.messages.pushObject(records.comment);
-      equal(records.messages.get('length'), 2, "The messages are correctly added");
+      assert.equal(records.messages.get('length'), 2, "The messages are correctly added");
 
       expectAssertion(function() {
         records.messages.pushObject(records.anotherUser);
@@ -1121,8 +1123,8 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
   });
 });
 
-test("A record can be removed from a polymorphic association", function() {
-  expect(4);
+test("A record can be removed from a polymorphic association", function(assert) {
+  assert.expect(4);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
@@ -1155,19 +1157,19 @@ test("A record can be removed from a polymorphic association", function() {
       records.messages = records.user.get('messages');
       return Ember.RSVP.hash(records);
     }).then(function(records) {
-      equal(records.messages.get('length'), 1, "The user has 1 message");
+      assert.equal(records.messages.get('length'), 1, "The user has 1 message");
 
       var removedObject = records.messages.popObject();
 
-      equal(removedObject, records.comment, "The message is correctly removed");
-      equal(records.messages.get('length'), 0, "The user does not have any messages");
-      equal(records.messages.objectAt(0), null, "No messages can't be fetched");
+      assert.equal(removedObject, records.comment, "The message is correctly removed");
+      assert.equal(records.messages.get('length'), 0, "The user does not have any messages");
+      assert.equal(records.messages.objectAt(0), null, "No messages can't be fetched");
     });
   });
 });
 
-test("When a record is created on the client, its hasMany arrays should be in a loaded state", function() {
-  expect(3);
+test("When a record is created on the client, its hasMany arrays should be in a loaded state", function(assert) {
+  assert.expect(3);
 
   var post;
 
@@ -1175,19 +1177,19 @@ test("When a record is created on the client, its hasMany arrays should be in a 
     post = env.store.createRecord('post');
   });
 
-  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+  assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
   var comments;
   run(function() {
     comments = get(post, 'comments');
   });
 
-  equal(get(comments, 'length'), 0, "The comments should be an empty array");
+  assert.equal(get(comments, 'length'), 0, "The comments should be an empty array");
 
-  ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+  assert.ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
 });
 
-test("When a record is created on the client, its async hasMany arrays should be in a loaded state", function() {
-  expect(4);
+test("When a record is created on the client, its async hasMany arrays should be in a loaded state", function(assert) {
+  assert.expect(4);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -1197,19 +1199,19 @@ test("When a record is created on the client, its async hasMany arrays should be
     return env.store.createRecord('post');
   });
 
-  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+  assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
 
   run(function() {
     get(post, 'comments').then(function(comments) {
-      ok(true, "Comments array successfully resolves");
-      equal(get(comments, 'length'), 0, "The comments should be an empty array");
-      ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+      assert.ok(true, "Comments array successfully resolves");
+      assert.equal(get(comments, 'length'), 0, "The comments should be an empty array");
+      assert.ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
     });
   });
 });
 
-test("we can set records SYNC HM relationship", function() {
-  expect(1);
+test("we can set records SYNC HM relationship", function(assert) {
+  assert.expect(1);
   var post = run(function() {
     return env.store.createRecord('post');
   });
@@ -1231,12 +1233,12 @@ test("we can set records SYNC HM relationship", function() {
     });
     post.set('comments', env.store.peekAll('comment'));
   });
-  equal(get(post, 'comments.length'), 2, "we can set HM relationship");
+  assert.equal(get(post, 'comments.length'), 2, "we can set HM relationship");
 });
 
 
-test("We can set records ASYNC HM relationship", function() {
-  expect(1);
+test("We can set records ASYNC HM relationship", function(assert) {
+  assert.expect(1);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -1264,12 +1266,12 @@ test("We can set records ASYNC HM relationship", function() {
   });
 
   post.get('comments').then(async(function(comments) {
-    equal(comments.get('length')  , 2, "we can set async HM relationship");
+    assert.equal(comments.get('length')  , 2, "we can set async HM relationship");
   }));
 });
 
-test("When a record is saved, its unsaved hasMany records should be kept", function () {
-  expect(1);
+test("When a record is saved, its unsaved hasMany records should be kept", function(assert) {
+  assert.expect(1);
 
   var post, comment;
 
@@ -1284,10 +1286,10 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
     post.save();
   });
 
-  equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
+  assert.equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
 });
 
-test("dual non-async HM <-> BT", function() {
+test("dual non-async HM <-> BT", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { inverse: 'post', async: false })
   });
@@ -1338,16 +1340,16 @@ test("dual non-async HM <-> BT", function() {
       var postComments = comment.get('post.comments');
       var postCommentsLength = comment.get('post.comments.length');
 
-      deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
-      ok(postComments, "comments should exist");
-      equal(postCommentsLength, 2, "comment's post should have a internalModel back to comment");
-      ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
-      ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
+      assert.deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
+      assert.ok(postComments, "comments should exist");
+      assert.equal(postCommentsLength, 2, "comment's post should have a internalModel back to comment");
+      assert.ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
+      assert.ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
     });
   });
 });
 
-test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function() {
+test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -1381,8 +1383,8 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
 
   run(function() {
     post.get('comments').then(async(function(fetchedComments) {
-      equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
-      equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
+      assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
+      assert.equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
       env.store.push({
         data: {
           type: 'post',
@@ -1399,14 +1401,14 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
         }
       });
       post.get('comments').then(async(function(newlyFetchedComments) {
-        equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
-        equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
+        assert.equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
+        assert.equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
       }));
     }));
   });
 });
 
-test("A sync hasMany errors out if there are unlaoded records in it", function() {
+test("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
   var post;
   run(function() {
     env.store.push({
@@ -1431,7 +1433,7 @@ test("A sync hasMany errors out if there are unlaoded records in it", function()
   }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
 });
 
-test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function() {
+test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
   var comment1, comment2, comment3, comment4;
   var post;
   run(function() {
@@ -1474,7 +1476,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
     });
     post = env.store.peekRecord('post', 1);
   });
-  deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
 
   run(function() {
     env.store.push({
@@ -1492,7 +1494,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
   });
-  deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
 
   run(function() {
     env.store.push({
@@ -1509,7 +1511,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
   });
-  deepEqual(post.get('comments').toArray(), [comment2], 'Updated ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment2], 'Updated ordering is correct');
 
   run(function() {
     env.store.push({
@@ -1529,7 +1531,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
   });
-  deepEqual(post.get('comments').toArray(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
 
   run(function() {
     env.store.push({
@@ -1547,7 +1549,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
   });
-  deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
 
   run(function() {
     env.store.push({
@@ -1567,10 +1569,10 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
   });
-  deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
+  assert.deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
 });
 
-test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function(assert) {
   var book, chapter;
   run(function() {
     env.store.push({
@@ -1605,12 +1607,12 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
   });
   run(function() {
     book.get('chapters').then(function(fetchedChapters) {
-      equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback attributes');
+      assert.equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback attributes');
     });
   });
 });
 
-test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function(assert) {
   var book, chapter;
   run(function() {
     env.store.push({
@@ -1644,11 +1646,11 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
     chapter.rollbackAttributes();
   });
   run(function() {
-    equal(book.get('chapters.firstObject'), chapter, "Book has a chapter after rollback attributes");
+    assert.equal(book.get('chapters.firstObject'), chapter, "Book has a chapter after rollback attributes");
   });
 });
 
-test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async", function(assert) {
   Page.reopen({
     chapter: DS.belongsTo('chapter', { async: true })
   });
@@ -1684,12 +1686,12 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
   });
   run(function() {
     page.get('chapter').then(function(fetchedChapter) {
-      equal(fetchedChapter, chapter, 'Page has a chapter after rollback attributes');
+      assert.equal(fetchedChapter, chapter, 'Page has a chapter after rollback attributes');
     });
   });
 });
 
-test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function(assert) {
   var chapter, page;
   run(function() {
     env.store.push({
@@ -1721,12 +1723,12 @@ test("Rollbacking attributes for deleted record restores implicit relationship c
     chapter.rollbackAttributes();
   });
   run(function() {
-    equal(page.get('chapter'), chapter, "Page has a chapter after rollback attributes");
+    assert.equal(page.get('chapter'), chapter, "Page has a chapter after rollback attributes");
   });
 });
 
-test("ManyArray notifies the array observers and flushes bindings when removing", function () {
-  expect(2);
+test("ManyArray notifies the array observers and flushes bindings when removing", function(assert) {
+  assert.expect(2);
   var chapter, page, page2;
   var observe = false;
 
@@ -1767,12 +1769,12 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
     chapter.get('pages').addEnumerableObserver(this, {
       willChange: function(pages, removing, addCount) {
         if (observe) {
-          equal(removing[0], page2, 'page2 is passed to willChange');
+          assert.equal(removing[0], page2, 'page2 is passed to willChange');
         }
       },
       didChange: function(pages, removeCount, adding) {
         if (observe) {
-          equal(removeCount, 1, 'removeCount is correct');
+          assert.equal(removeCount, 1, 'removeCount is correct');
         }
       }
     });
@@ -1784,8 +1786,8 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
   });
 });
 
-test("ManyArray notifies the array observers and flushes bindings when adding", function () {
-  expect(2);
+test("ManyArray notifies the array observers and flushes bindings when adding", function(assert) {
+  assert.expect(2);
   var chapter, page, page2;
   var observe = false;
 
@@ -1825,12 +1827,12 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
     chapter.get('pages').addEnumerableObserver(this, {
       willChange: function(pages, removing, addCount) {
         if (observe) {
-          equal(addCount, 1, 'addCount is correct');
+          assert.equal(addCount, 1, 'addCount is correct');
         }
       },
       didChange: function(pages, removeCount, adding) {
         if (observe) {
-          equal(adding[0], page2, 'page2 is passed to didChange');
+          assert.equal(adding[0], page2, 'page2 is passed to didChange');
         }
       }
     });
@@ -1842,8 +1844,8 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
   });
 });
 
-test("Passing a model as type to hasMany should not work", function () {
-  expect(1);
+test("Passing a model as type to hasMany should not work", function(assert) {
+  assert.expect(1);
 
   expectAssertion(function() {
     User = DS.Model.extend();
@@ -1854,7 +1856,7 @@ test("Passing a model as type to hasMany should not work", function () {
   }, /The first argument to DS.hasMany must be a string/);
 });
 
-test("Relationship.clear removes all records correctly", function() {
+test("Relationship.clear removes all records correctly", function(assert) {
   var post;
 
   Comment.reopen({
@@ -1913,13 +1915,13 @@ test("Relationship.clear removes all records correctly", function() {
   run(function() {
     post._internalModel._relationships.get('comments').clear();
     var comments = Ember.A(env.store.peekAll('comment'));
-    deepEqual(comments.mapBy('post'), [null, null, null]);
+    assert.deepEqual(comments.mapBy('post'), [null, null, null]);
   });
 
 });
 
 
-test('unloading a record with associated records does not prevent the store from tearing down', function() {
+test('unloading a record with associated records does not prevent the store from tearing down', function(assert) {
   var post;
 
   Comment.reopen({
@@ -1978,14 +1980,14 @@ test('unloading a record with associated records does not prevent the store from
     run(function() {
       env.store.destroy();
     });
-    ok(true, "store destroyed correctly");
+    assert.ok(true, "store destroyed correctly");
   } catch (error) {
-    ok(false, "store prevented from being destroyed");
+    assert.ok(false, "store prevented from being destroyed");
   }
 });
 
-test("adding and removing records from hasMany relationship #2666", function() {
-  expect(4);
+test("adding and removing records from hasMany relationship #2666", function(assert) {
+  assert.expect(4);
 
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
@@ -2046,20 +2048,20 @@ test("adding and removing records from hasMany relationship #2666", function() {
     stop();
     env.store.findRecord('post', 1).then(function (post) {
       var comments = post.get('comments');
-      equal(comments.get('length'), 3, "Initial comments count");
+      assert.equal(comments.get('length'), 3, "Initial comments count");
 
       // Add comment #4
       var comment = env.store.createRecord('comment');
       comments.addObject(comment);
       return comment.save().then(function() {
         var comments = post.get('comments');
-        equal(comments.get('length'), 4, "Comments count after first add");
+        assert.equal(comments.get('length'), 4, "Comments count after first add");
 
         // Delete comment #4
         return comments.get('lastObject').destroyRecord();
       }).then(function() {
         var comments = post.get('comments');
-        equal(comments.get('length'), 3, "Comments count after destroy");
+        assert.equal(comments.get('length'), 3, "Comments count after destroy");
 
         // Add another comment #4
         var comment = env.store.createRecord('comment');
@@ -2067,15 +2069,15 @@ test("adding and removing records from hasMany relationship #2666", function() {
         return comment.save();
       }).then(function() {
         var comments = post.get('comments');
-        equal(comments.get('length'), 4, "Comments count after second add");
+        assert.equal(comments.get('length'), 4, "Comments count after second add");
         start();
       });
     });
   });
 });
 
-test("hasMany hasData async loaded", function () {
-  expect(1);
+test("hasMany hasData async loaded", function(assert) {
+  assert.expect(1);
 
   Chapter.reopen({
     pages: hasMany('pages', { async: true })
@@ -2088,13 +2090,13 @@ test("hasMany hasData async loaded", function () {
   run(function() {
     store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
-      equal(relationship.hasData, true, 'relationship has data');
+      assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasData sync loaded", function () {
-  expect(1);
+test("hasMany hasData sync loaded", function(assert) {
+  assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
@@ -2103,13 +2105,13 @@ test("hasMany hasData sync loaded", function () {
   run(function() {
     store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
-      equal(relationship.hasData, true, 'relationship has data');
+      assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasData async not loaded", function () {
-  expect(1);
+test("hasMany hasData async not loaded", function(assert) {
+  assert.expect(1);
 
   Chapter.reopen({
     pages: hasMany('pages', { async: true })
@@ -2122,13 +2124,13 @@ test("hasMany hasData async not loaded", function () {
   run(function() {
     store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
-      equal(relationship.hasData, false, 'relationship does not have data');
+      assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasData sync not loaded", function () {
-  expect(1);
+test("hasMany hasData sync not loaded", function(assert) {
+  assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins' });
@@ -2137,13 +2139,13 @@ test("hasMany hasData sync not loaded", function () {
   run(function() {
     store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
-      equal(relationship.hasData, false, 'relationship does not have data');
+      assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasData async created", function () {
-  expect(1);
+test("hasMany hasData async created", function(assert) {
+  assert.expect(1);
 
   Chapter.reopen({
     pages: hasMany('pages', { async: true })
@@ -2152,21 +2154,21 @@ test("hasMany hasData async created", function () {
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     var relationship = chapter._internalModel._relationships.get('pages');
-    equal(relationship.hasData, true, 'relationship has data');
+    assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
 
-test("hasMany hasData sync created", function () {
-  expect(1);
+test("hasMany hasData sync created", function(assert) {
+  assert.expect(1);
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     var relationship = chapter._internalModel._relationships.get('pages');
-    equal(relationship.hasData, true, 'relationship has data');
+    assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
 
-test("Model's hasMany relationship should not be created during model creation", function () {
+test("Model's hasMany relationship should not be created during model creation", function(assert) {
   var user;
   run(function () {
     env.store.push({
@@ -2176,21 +2178,21 @@ test("Model's hasMany relationship should not be created during model creation",
       }
     });
     user = env.store.peekRecord('user', 1);
-    ok(!user._internalModel._relationships.has('messages'), 'Newly created record should not have relationships');
+    assert.ok(!user._internalModel._relationships.has('messages'), 'Newly created record should not have relationships');
   });
 });
 
-test("Model's belongsTo relationship should be created during 'get' method", function () {
+test("Model's belongsTo relationship should be created during 'get' method", function(assert) {
   var user;
   run(function () {
     user = env.store.createRecord('user');
     user.get('messages');
-    ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    assert.ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
 
-test("metadata is accessible when pushed as a meta property for a relationship", function() {
-  expect(1);
+test("metadata is accessible when pushed as a meta property for a relationship", function(assert) {
+  assert.expect(1);
   var book;
   env.adapter.findHasMany = function() {
     return resolve({});
@@ -2220,12 +2222,12 @@ test("metadata is accessible when pushed as a meta property for a relationship",
   });
 
   run(function() {
-    equal(book._internalModel._relationships.get('chapters').meta.where, 'the lefkada sea', 'meta is there');
+    assert.equal(book._internalModel._relationships.get('chapters').meta.where, 'the lefkada sea', 'meta is there');
   });
 });
 
-test("metadata is accessible when return from a fetchLink", function() {
-  expect(1);
+test("metadata is accessible when return from a fetchLink", function(assert) {
+  assert.expect(1);
   env.registry.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
@@ -2265,12 +2267,12 @@ test("metadata is accessible when return from a fetchLink", function() {
   run(function() {
     book.get('chapters').then(function(chapters) {
       var meta = chapters.get('meta');
-      equal(get(meta, 'foo'), 'bar', 'metadata is available');
+      assert.equal(get(meta, 'foo'), 'bar', 'metadata is available');
     });
   });
 });
 
-test("metadata should be reset between requests", function() {
+test("metadata should be reset between requests", function(assert) {
   var counter = 0;
   env.registry.register('serializer:application', DS.RESTSerializer);
 
@@ -2285,7 +2287,7 @@ test("metadata should be reset between requests", function() {
       ]
     };
 
-    ok(true, 'findHasMany should be called twice');
+    assert.ok(true, 'findHasMany should be called twice');
 
     if (counter === 1) {
       delete data.meta;
@@ -2335,26 +2337,26 @@ test("metadata should be reset between requests", function() {
   run(function() {
     book1.get('chapters').then(function(chapters) {
       var meta = chapters.get('meta');
-      equal(get(meta, 'foo'), 'bar', 'metadata should available');
+      assert.equal(get(meta, 'foo'), 'bar', 'metadata should available');
 
       book2.get('chapters').then(function(chapters) {
         var meta = chapters.get('meta');
-        equal(meta, undefined, 'metadata should not be available');
+        assert.equal(meta, undefined, 'metadata should not be available');
       });
     });
   });
 });
 
-test("Related link should be fetched when no local data is present", function() {
-  expect(3);
+test("Related link should be fetched when no local data is present", function(assert) {
+  assert.expect(3);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
-    equal(url, 'comments', 'url is correct');
-    ok(true, "The adapter's findHasMany method should be called");
+    assert.equal(url, 'comments', 'url is correct');
+    assert.ok(true, "The adapter's findHasMany method should be called");
     return Ember.RSVP.resolve([
       { id: 1, body: 'This is comment' }
     ]);
@@ -2375,20 +2377,20 @@ test("Related link should be fetched when no local data is present", function() 
       }
     });
     post.get('comments').then((comments) => {
-      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+      assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
     });
   });
 });
 
-test("Local data should take precedence over related link", function() {
-  expect(1);
+test("Local data should take precedence over related link", function(assert) {
+  assert.expect(1);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
-    ok(false, "The adapter's findHasMany method should not be called");
+    assert.ok(false, "The adapter's findHasMany method should not be called");
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2413,28 +2415,28 @@ test("Local data should take precedence over related link", function() {
       }
     });
     post.get('comments').then((comments) => {
-      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+      assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
     });
   });
 });
 
-test("Updated related link should take precedence over local data", function() {
-  expect(3);
+test("Updated related link should take precedence over local data", function(assert) {
+  assert.expect(3);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
-    equal(url, 'comments-updated-link', 'url is correct');
-    ok(true, "The adapter's findHasMany method should be called");
+    assert.equal(url, 'comments-updated-link', 'url is correct');
+    assert.ok(true, "The adapter's findHasMany method should be called");
     return Ember.RSVP.resolve([
       { id: 1, body: 'This is comment' }
     ]);
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    ok(false, "The adapter's findRecord method should not be called");
+    assert.ok(false, "The adapter's findRecord method should not be called");
   };
 
   run(function() {
@@ -2470,7 +2472,7 @@ test("Updated related link should take precedence over local data", function() {
     });
 
     post.get('comments').then((comments) => {
-      equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+      assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
     });
   });
 });

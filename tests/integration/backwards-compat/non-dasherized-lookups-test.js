@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 const get = Ember.get;
@@ -17,7 +19,7 @@ const {
 let store;
 
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders', {
-  setup: function() {
+  beforeEach: function() {
     const PostNote = Model.extend({
       name: attr('string')
     });
@@ -36,13 +38,13 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(store, 'destroy');
   }
 });
 
-test('can lookup records using camelCase strings', function() {
-  expect(1);
+test('can lookup records using camelCase strings', function(assert) {
+  assert.expect(1);
 
   run(() => {
     store.pushPayload('post-note', {
@@ -58,13 +60,13 @@ test('can lookup records using camelCase strings', function() {
 
   run(() => {
     store.findRecord('postNote', 1).then((postNote) => {
-      equal(get(postNote, 'name'), 'Ember Data', 'record found');
+      assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
     });
   });
 });
 
-test('can lookup records using under_scored strings', function() {
-  expect(1);
+test('can lookup records using under_scored strings', function(assert) {
+  assert.expect(1);
 
   run(() => {
     store.pushPayload('post-note', {
@@ -80,13 +82,13 @@ test('can lookup records using under_scored strings', function() {
 
   run(() => {
     store.findRecord('post_note', 1).then((postNote) => {
-      equal(get(postNote, 'name'), 'Ember Data', 'record found');
+      assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
     });
   });
 });
 
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros', {
-  setup: function() {
+  beforeEach: function() {
     const PostNote = Model.extend({
       notePost: belongsTo('note-post', { async: false }),
 
@@ -119,13 +121,13 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(store, 'destroy');
   }
 });
 
-test('looks up belongsTo using camelCase strings', function() {
-  expect(1);
+test('looks up belongsTo using camelCase strings', function(assert) {
+  assert.expect(1);
 
   run(() => {
     store.pushPayload('post-note', {
@@ -155,13 +157,13 @@ test('looks up belongsTo using camelCase strings', function() {
 
   run(() => {
     store.findRecord('post-note', 1).then((postNote) => {
-      equal(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
+      assert.equal(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
     });
   });
 });
 
-test('looks up belongsTo using under_scored strings', function() {
-  expect(1);
+test('looks up belongsTo using under_scored strings', function(assert) {
+  assert.expect(1);
 
   run(() => {
     store.pushPayload('long_model_name', {
@@ -193,7 +195,7 @@ test('looks up belongsTo using under_scored strings', function() {
     store.findRecord('long_model_name', 1).then((longModelName) => {
       const postNotes = get(longModelName, 'postNotes').toArray();
 
-      deepEqual(postNotes, [store.peekRecord('postNote', 1)],
+      assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)],
         'inverse records found');
     });
   });

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var hasMany = DS.hasMany;
@@ -7,7 +9,7 @@ var Post, Comment, env;
 var run = Ember.run;
 
 module("integration/load - Loading Records", {
-  setup: function() {
+  beforeEach: function() {
     Post = DS.Model.extend({
       comments: hasMany({ async: true })
     });
@@ -20,12 +22,12 @@ module("integration/load - Loading Records", {
     env = setupStore({ post: Post, comment: Comment });
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("When loading a record fails, the isLoading is set to false", function() {
+test("When loading a record fails, the isLoading is set to false", function(assert) {
   env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.reject();
   };
@@ -37,7 +39,7 @@ test("When loading a record fails, the isLoading is set to false", function() {
       // rejection handler
       var post = env.store.recordForId('post', 1);
 
-      equal(post.get("isLoading"), false, "post is not loading anymore");
+      assert.equal(post.get("isLoading"), false, "post is not loading anymore");
     }));
   });
 });

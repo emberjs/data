@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -7,8 +9,8 @@ var run = Ember.run;
 
 module("unit/model/relationships - DS.belongsTo");
 
-test("belongsTo lazily loads relationships as needed", function() {
-  expect(5);
+test("belongsTo lazily loads relationships as needed", function(assert) {
+  assert.expect(5);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
@@ -63,19 +65,19 @@ test("belongsTo lazily loads relationships as needed", function() {
 
   run(function() {
     store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+      assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-      equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-      equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
+      assert.equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+      assert.equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
-      strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+      assert.strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
       asyncEqual(get(person, 'tag'), store.findRecord('tag', 5), "relationship object is the same as object retrieved directly");
     }));
   });
 });
 
-test("async belongsTo relationships work when the data hash has not been loaded", function() {
-  expect(5);
+test("async belongsTo relationships work when the data hash has not been loaded", function(assert) {
+  assert.expect(5);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string')
@@ -91,11 +93,11 @@ test("async belongsTo relationships work when the data hash has not been loaded"
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Person) {
-      equal(id, 1, "id should be 1");
+      assert.equal(id, 1, "id should be 1");
 
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", tag: 2 });
     } else if (type === Tag) {
-      equal(id, 2, "id should be 2");
+      assert.equal(id, 2, "id should be 2");
 
       return Ember.RSVP.resolve({ id: 2, name: "friendly" });
     }
@@ -103,20 +105,20 @@ test("async belongsTo relationships work when the data hash has not been loaded"
 
   run(function() {
     store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+      assert.equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
       return run(function() {
         return get(person, 'tag');
       });
     })).then(async(function(tag) {
-      equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
-      equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+      assert.equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+      assert.equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
     }));
   });
 });
 
-test("async belongsTo relationships work when the data hash has already been loaded", function() {
-  expect(3);
+test("async belongsTo relationships work when the data hash has already been loaded", function(assert) {
+  assert.expect(3);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string')
@@ -155,18 +157,18 @@ test("async belongsTo relationships work when the data hash has already been loa
 
   run(function() {
     var person = store.peekRecord('person', 1);
-    equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+    assert.equal(get(person, 'name'), "Tom Dale", "The person is now populated");
     return run(function() {
       return get(person, 'tag');
     }).then(async(function(tag) {
-      equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
-      equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+      assert.equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+      assert.equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
     }));
   });
 });
 
-test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
-  expect(1);
+test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function(assert) {
+  assert.expect(1);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
@@ -188,12 +190,12 @@ test("calling createRecord and passing in an undefined value for a relationship 
 
   run(function() {
     store.findRecord('person', 1).then(async(function(person) {
-      strictEqual(person.get('tag'), null, "undefined values should return null relationships");
+      assert.strictEqual(person.get('tag'), null, "undefined values should return null relationships");
     }));
   });
 });
 
-test("When finding a hasMany relationship the inverse belongsTo relationship is available immediately", function() {
+test("When finding a hasMany relationship the inverse belongsTo relationship is available immediately", function(assert) {
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
     person: DS.belongsTo('person', { async: false })
@@ -213,7 +215,7 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    equal(snapshots[0].belongsTo('person').id, '1');
+    assert.equal(snapshots[0].belongsTo('person').id, '1');
     return Ember.RSVP.resolve([{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
   };
 
@@ -241,21 +243,21 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
 
   run(function() {
     store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'isLoaded'), true, "isLoaded should be true");
-      equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
+      assert.equal(get(person, 'isLoaded'), true, "isLoaded should be true");
+      assert.equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
 
       return get(person, 'occupations');
     })).then(async(function(occupations) {
-      equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
+      assert.equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
 
-      equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
-      equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
+      assert.equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
+      assert.equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
     }));
   });
 });
 
-test("When finding a belongsTo relationship the inverse belongsTo relationship is available immediately", function() {
-  expect(1);
+test("When finding a belongsTo relationship the inverse belongsTo relationship is available immediately", function(assert) {
+  assert.expect(1);
 
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
@@ -275,7 +277,7 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   var store = env.store;
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    equal(snapshot.belongsTo('person').id, '1');
+    assert.equal(snapshot.belongsTo('person').id, '1');
     return Ember.RSVP.resolve({ id: 5, description: "fifth" });
   };
 
@@ -301,8 +303,8 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   });
 });
 
-test("belongsTo supports relationships to models with id 0", function() {
-  expect(5);
+test("belongsTo supports relationships to models with id 0", function(assert) {
+  assert.expect(5);
 
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
@@ -357,18 +359,18 @@ test("belongsTo supports relationships to models with id 0", function() {
 
   run(function() {
     store.findRecord('person', 1).then(async(function(person) {
-      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+      assert.equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-      equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-      equal(get(person, 'tag.name'), "friendly", "the tag should have name");
+      assert.equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+      assert.equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
-      strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+      assert.strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
       asyncEqual(get(person, 'tag'), store.findRecord('tag', 0), "relationship object is the same as object retrieved directly");
     }));
   });
 });
 
-test("belongsTo gives a warning when provided with a serialize option", function() {
+test("belongsTo gives a warning when provided with a serialize option", function(assert) {
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -422,7 +424,7 @@ test("belongsTo gives a warning when provided with a serialize option", function
   }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
 });
 
-test("belongsTo gives a warning when provided with an embedded option", function() {
+test("belongsTo gives a warning when provided with an embedded option", function(assert) {
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -476,7 +478,7 @@ test("belongsTo gives a warning when provided with an embedded option", function
   }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
 });
 
-test("DS.belongsTo should be async by default", function() {
+test("DS.belongsTo should be async by default", function(assert) {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person', { async: false })
@@ -494,6 +496,6 @@ test("DS.belongsTo should be async by default", function() {
   run(function() {
     var person = store.createRecord('person');
 
-    ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
+    assert.ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
   });
 });

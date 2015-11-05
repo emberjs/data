@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -7,7 +9,7 @@ var run = Ember.run;
 var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
-  setup: function() {
+  beforeEach: function() {
 
     Record = DS.Model.extend({
       title: DS.attr('string'),
@@ -24,13 +26,13 @@ module("unit/store/unload - Store unloading records", {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(store, 'destroy');
   }
 });
 
-test("unload a dirty record", function() {
-  expect(2);
+test("unload a dirty record", function(assert) {
+  assert.expect(2);
 
   run(function() {
     store.push({
@@ -47,7 +49,7 @@ test("unload a dirty record", function() {
       record.set('title', 'toto2');
       record._internalModel.send('willCommit');
 
-      equal(get(record, 'hasDirtyAttributes'), true, "record is dirty");
+      assert.equal(get(record, 'hasDirtyAttributes'), true, "record is dirty");
 
       expectAssertion(function() {
         record.unloadRecord();
@@ -61,8 +63,8 @@ test("unload a dirty record", function() {
   });
 });
 
-test("unload a record", function() {
-  expect(5);
+test("unload a record", function(assert) {
+  assert.expect(5);
 
   run(function() {
     store.push({
@@ -75,19 +77,19 @@ test("unload a record", function() {
       }
     });
     store.findRecord('record', 1).then(function(record) {
-      equal(get(record, 'id'), 1, "found record with id 1");
-      equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
+      assert.equal(get(record, 'id'), 1, "found record with id 1");
+      assert.equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
 
       run(function() {
         store.unloadRecord(record);
       });
 
-      equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
-      equal(get(record, 'isDeleted'), true, "record is deleted");
+      assert.equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
+      assert.equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;
       return store.findRecord('record', 1).then(function() {
-        equal(tryToFind, true, "not found record with id 1");
+        assert.equal(tryToFind, true, "not found record with id 1");
       });
     });
   });
@@ -96,8 +98,8 @@ test("unload a record", function() {
 module("DS.Store - unload record with relationships");
 
 
-test("can commit store after unload record with relationships", function() {
-  expect(1);
+test("can commit store after unload record with relationships", function(assert) {
+  assert.expect(1);
 
   var like, product;
 
@@ -163,7 +165,7 @@ test("can commit store after unload record with relationships", function() {
       store.unloadRecord(records.product);
       return store.findRecord('product', 1);
     }).then(function(product) {
-      equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `findRecord` was called");
+      assert.equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `findRecord` was called");
       store.destroy();
     });
   });

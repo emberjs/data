@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -7,20 +9,20 @@ var get = Ember.get;
 var rootState, stateName;
 
 module("unit/states - Flags for record states", {
-  setup: function() {
+  beforeEach: function() {
     rootState = DS.RootState;
   }
 });
 
 var isTrue = function(flag) {
-  equal(get(rootState, stateName + "." + flag), true, stateName + "." + flag + " should be true");
+  assert.equal(get(rootState, stateName + "." + flag), true, stateName + "." + flag + " should be true");
 };
 
 var isFalse = function(flag) {
-  equal(get(rootState, stateName + "." + flag), false, stateName + "." + flag + " should be false");
+  assert.equal(get(rootState, stateName + "." + flag), false, stateName + "." + flag + " should be false");
 };
 
-test("the empty state", function() {
+test("the empty state", function(assert) {
   stateName = "empty";
   isFalse("isLoading");
   isFalse("isLoaded");
@@ -29,7 +31,7 @@ test("the empty state", function() {
   isFalse("isDeleted");
 });
 
-test("the loading state", function() {
+test("the loading state", function(assert) {
   stateName = "loading";
   isTrue("isLoading");
   isFalse("isLoaded");
@@ -38,7 +40,7 @@ test("the loading state", function() {
   isFalse("isDeleted");
 });
 
-test("the loaded state", function() {
+test("the loaded state", function(assert) {
   stateName = "loaded";
   isFalse("isLoading");
   isTrue("isLoaded");
@@ -47,7 +49,7 @@ test("the loaded state", function() {
   isFalse("isDeleted");
 });
 
-test("the updated state", function() {
+test("the updated state", function(assert) {
   stateName = "loaded.updated";
   isFalse("isLoading");
   isTrue("isLoaded");
@@ -56,7 +58,7 @@ test("the updated state", function() {
   isFalse("isDeleted");
 });
 
-test("the saving state", function() {
+test("the saving state", function(assert) {
   stateName = "loaded.updated.inFlight";
   isFalse("isLoading");
   isTrue("isLoaded");
@@ -65,7 +67,7 @@ test("the saving state", function() {
   isFalse("isDeleted");
 });
 
-test("the deleted state", function() {
+test("the deleted state", function(assert) {
   stateName = "deleted";
   isFalse("isLoading");
   isTrue("isLoaded");
@@ -74,7 +76,7 @@ test("the deleted state", function() {
   isTrue("isDeleted");
 });
 
-test("the deleted.saving state", function() {
+test("the deleted.saving state", function(assert) {
   stateName = "deleted.inFlight";
   isFalse("isLoading");
   isTrue("isLoaded");
@@ -83,7 +85,7 @@ test("the deleted.saving state", function() {
   isTrue("isDeleted");
 });
 
-test("the deleted.saved state", function() {
+test("the deleted.saved state", function(assert) {
   stateName = "deleted.saved";
   isFalse("isLoading");
   isTrue("isLoaded");

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var get = Ember.get;
@@ -9,7 +11,7 @@ var run = Ember.run;
 var LightSaber;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
-  setup: function() {
+  beforeEach: function() {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
@@ -72,12 +74,12 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     //env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.store, 'destroy');
   }
 });
 
-test("normalizeResponse with embedded objects", function() {
+test("normalizeResponse with embedded objects", function(assert) {
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
@@ -102,7 +104,7 @@ test("normalizeResponse with embedded objects", function() {
     json = serializer.normalizeResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "home-planet",
@@ -131,7 +133,7 @@ test("normalizeResponse with embedded objects", function() {
   });
 });
 
-test("normalizeResponse with embedded objects inside embedded objects", function() {
+test("normalizeResponse with embedded objects inside embedded objects", function(assert) {
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
@@ -165,7 +167,7 @@ test("normalizeResponse with embedded objects inside embedded objects", function
     json = serializer.normalizeResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "home-planet",
@@ -205,7 +207,7 @@ test("normalizeResponse with embedded objects inside embedded objects", function
   });
 });
 
-test("normalizeResponse with embedded objects of same type", function() {
+test("normalizeResponse with embedded objects of same type", function(assert) {
   env.registry.register('serializer:comment', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
@@ -235,7 +237,7 @@ test("normalizeResponse with embedded objects of same type", function() {
     json = serializer.normalizeResponse(env.store, Comment, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "comment",
@@ -272,7 +274,7 @@ test("normalizeResponse with embedded objects of same type", function() {
   }, "Primary record was correct");
 });
 
-test("normalizeResponse with embedded objects inside embedded objects of same type", function() {
+test("normalizeResponse with embedded objects inside embedded objects of same type", function(assert) {
   env.registry.register('serializer:comment', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
@@ -306,7 +308,7 @@ test("normalizeResponse with embedded objects inside embedded objects of same ty
     json = serializer.normalizeResponse(env.store, Comment, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "comment",
@@ -357,7 +359,7 @@ test("normalizeResponse with embedded objects inside embedded objects of same ty
   }, "Primary record was correct");
 });
 
-test("normalizeResponse with embedded objects of same type, but from separate attributes", function() {
+test("normalizeResponse with embedded objects of same type, but from separate attributes", function(assert) {
   HomePlanet.reopen({
     reformedVillains: DS.hasMany('superVillain', { inverse: null, async: false })
   });
@@ -395,7 +397,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
     json = serializer.normalizeResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "home-planet",
@@ -449,7 +451,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
   }, "Primary hash was correct");
 });
 
-test("normalizeResponse with embedded objects", function() {
+test("normalizeResponse with embedded objects", function(assert) {
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
@@ -475,7 +477,7 @@ test("normalizeResponse with embedded objects", function() {
     array = serializer.normalizeResponse(env.store, HomePlanet, json_hash, null, 'findAll');
   });
 
-  deepEqual(array, {
+  assert.deepEqual(array, {
     "data": [{
       "id": "1",
       "type": "home-planet",
@@ -502,8 +504,8 @@ test("normalizeResponse with embedded objects", function() {
   });
 });
 
-test("normalizeResponse with embedded objects with custom primary key", function() {
-  expect(1);
+test("normalizeResponse with embedded objects with custom primary key", function(assert) {
+  assert.expect(1);
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
     primaryKey: 'villain_id'
   }));
@@ -532,7 +534,7 @@ test("normalizeResponse with embedded objects with custom primary key", function
     array = serializer.normalizeResponse(env.store, HomePlanet, json_hash, null, 'findAll');
   });
 
-  deepEqual(array, {
+  assert.deepEqual(array, {
     "data": [{
       "id": "1",
       "type": "home-planet",
@@ -559,8 +561,8 @@ test("normalizeResponse with embedded objects with custom primary key", function
   });
 });
 
-test("normalizeResponse with embedded objects with identical relationship and attribute key ", function() {
-  expect(1);
+test("normalizeResponse with embedded objects with identical relationship and attribute key ", function(assert) {
+  assert.expect(1);
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
@@ -590,7 +592,7 @@ test("normalizeResponse with embedded objects with identical relationship and at
     array = serializer.normalizeResponse(env.store, HomePlanet, json_hash, null, 'findAll');
   });
 
-  deepEqual(array, {
+  assert.deepEqual(array, {
     "data": [{
       "id": "1",
       "type": "home-planet",
@@ -617,7 +619,7 @@ test("normalizeResponse with embedded objects with identical relationship and at
   });
 });
 
-test("normalizeResponse with embedded objects of same type as primary type", function() {
+test("normalizeResponse with embedded objects of same type as primary type", function(assert) {
   env.registry.register('serializer:comment', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
@@ -648,7 +650,7 @@ test("normalizeResponse with embedded objects of same type as primary type", fun
     array = serializer.normalizeResponse(env.store, Comment, json_hash, null, 'findAll');
   });
 
-  deepEqual(array, {
+  assert.deepEqual(array, {
     "data": [{
       "id": "1",
       "type": "comment",
@@ -685,7 +687,7 @@ test("normalizeResponse with embedded objects of same type as primary type", fun
   }, "Primary array is correct");
 });
 
-test("normalizeResponse with embedded objects of same type, but from separate attributes", function() {
+test("normalizeResponse with embedded objects of same type, but from separate attributes", function(assert) {
   HomePlanet.reopen({
     reformedVillains: DS.hasMany('superVillain', { async: false })
   });
@@ -741,7 +743,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
     json = serializer.normalizeResponse(env.store, HomePlanet, json_hash, null, 'findAll');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": [{
       "id": "1",
       "type": "home-planet",
@@ -843,7 +845,7 @@ test("normalizeResponse with embedded objects of same type, but from separate at
   }, "Primary array was correct");
 });
 
-test("serialize supports serialize:false on non-relationship properties", function() {
+test("serialize supports serialize:false on non-relationship properties", function(assert) {
   var tom;
   run(function() {
     tom = env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", id: '1' });
@@ -860,14 +862,14 @@ test("serialize supports serialize:false on non-relationship properties", functi
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     lastName: "Dale",
     homePlanet: null,
     secretLab: null
   });
 });
 
-test("serialize with embedded objects (hasMany relationship)", function() {
+test("serialize with embedded objects (hasMany relationship)", function(assert) {
   var tom, league;
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
@@ -887,7 +889,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
     json = serializer.serialize(league._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     name: "Villain League",
     villains: [{
       id: get(tom, "id"),
@@ -899,7 +901,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   });
 });
 
-test("serialize with embedded objects and a custom keyForAttribute (hasMany relationship)", function() {
+test("serialize with embedded objects and a custom keyForAttribute (hasMany relationship)", function(assert) {
   var tom, league;
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
@@ -922,7 +924,7 @@ test("serialize with embedded objects and a custom keyForAttribute (hasMany rela
     json = serializer.serialize(league._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "name-custom": "Villain League",
     "villains-custom": [{
       id: get(tom, "id"),
@@ -934,7 +936,7 @@ test("serialize with embedded objects and a custom keyForAttribute (hasMany rela
   });
 });
 
-test("serialize with embedded objects (unknown hasMany relationship)", function() {
+test("serialize with embedded objects (unknown hasMany relationship)", function(assert) {
   var league;
   run(function() {
     env.store.push({
@@ -963,13 +965,13 @@ test("serialize with embedded objects (unknown hasMany relationship)", function(
     });
   }, /The embedded relationship 'villains' is undefined for 'home-planet' with id '123'. Please include it in your original payload./);
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     name: "Villain League",
     villains: []
   });
 });
 
-test("serialize with embedded objects (hasMany relationship) supports serialize:false", function() {
+test("serialize with embedded objects (hasMany relationship) supports serialize:false", function(assert) {
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
     env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
@@ -987,12 +989,12 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
     json = serializer.serialize(league._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     name: "Villain League"
   });
 });
 
-test("serialize with (new) embedded objects (hasMany relationship)", function() {
+test("serialize with (new) embedded objects (hasMany relationship)", function(assert) {
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
     env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league });
@@ -1009,7 +1011,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
 
     json = serializer.serialize(league._createSnapshot());
   });
-  deepEqual(json, {
+  assert.deepEqual(json, {
     name: "Villain League",
     villains: [{
       firstName: "Tom",
@@ -1020,7 +1022,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
   });
 });
 
-test("serialize with embedded objects (hasMany relationships, including related objects not embedded)", function() {
+test("serialize with embedded objects (hasMany relationships, including related objects not embedded)", function(assert) {
   run(function() {
     superVillain = env.store.createRecord('super-villain', { id: 1, firstName: "Super", lastName: "Villian" });
     evilMinion = env.store.createRecord('evil-minion', { id: 1, name: "Evil Minion", superVillian: superVillain });
@@ -1041,7 +1043,7 @@ test("serialize with embedded objects (hasMany relationships, including related 
 
     json = serializer.serialize(superVillain._createSnapshot());
   });
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(superVillain, "firstName"),
     lastName: get(superVillain, "lastName"),
     homePlanet: null,
@@ -1055,7 +1057,7 @@ test("serialize with embedded objects (hasMany relationships, including related 
   });
 });
 
-test("normalizeResponse with embedded object (belongsTo relationship)", function() {
+test("normalizeResponse with embedded object (belongsTo relationship)", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
@@ -1085,7 +1087,7 @@ test("normalizeResponse with embedded object (belongsTo relationship)", function
     json = serializer.normalizeResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "super-villain",
@@ -1124,7 +1126,7 @@ test("normalizeResponse with embedded object (belongsTo relationship)", function
   });
 });
 
-test("serialize with embedded object (belongsTo relationship)", function() {
+test("serialize with embedded object (belongsTo relationship)", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
@@ -1149,7 +1151,7 @@ test("serialize with embedded object (belongsTo relationship)", function() {
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1161,7 +1163,7 @@ test("serialize with embedded object (belongsTo relationship)", function() {
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) works with different primaryKeys", function() {
+test("serialize with embedded object (belongsTo relationship) works with different primaryKeys", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     primaryKey: '_id',
     attrs: {
@@ -1191,7 +1193,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1203,7 +1205,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
   });
 });
 
-test("serialize with embedded object (belongsTo relationship, new no id)", function() {
+test("serialize with embedded object (belongsTo relationship, new no id)", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
@@ -1229,7 +1231,7 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1240,7 +1242,7 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) supports serialize:ids", function() {
+test("serialize with embedded object (belongsTo relationship) supports serialize:ids", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: 'ids' }
@@ -1265,7 +1267,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1273,7 +1275,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) supports serialize:id", function() {
+test("serialize with embedded object (belongsTo relationship) supports serialize:id", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: 'id' }
@@ -1299,7 +1301,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1307,7 +1309,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records", function() {
+test("serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: 'id', deserialize: 'records' }
@@ -1333,7 +1335,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1341,7 +1343,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) supports serialize:false", function() {
+test("serialize with embedded object (belongsTo relationship) supports serialize:false", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: false }
@@ -1366,14 +1368,14 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id")
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified", function() {
+test("serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
   var serializer = env.store.serializerFor("super-villain");
 
@@ -1395,7 +1397,7 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1403,7 +1405,7 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
   });
 });
 
-test("when related record is not present, serialize embedded record (with a belongsTo relationship) as null", function() {
+test("when related record is not present, serialize embedded record (with a belongsTo relationship) as null", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
@@ -1425,7 +1427,7 @@ test("when related record is not present, serialize embedded record (with a belo
     json = serializer.serialize(tom._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(tom, "firstName"),
     lastName: get(tom, "lastName"),
     homePlanet: get(tom, "homePlanet").get("id"),
@@ -1433,7 +1435,7 @@ test("when related record is not present, serialize embedded record (with a belo
   });
 });
 
-test("normalizeResponse with multiply-nested belongsTo", function() {
+test("normalizeResponse with multiply-nested belongsTo", function(assert) {
   env.registry.register('serializer:evil-minion', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       superVillain: { embedded: 'always' }
@@ -1469,7 +1471,7 @@ test("normalizeResponse with multiply-nested belongsTo", function() {
     json = serializer.normalizeResponse(env.store, EvilMinion, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "evil-minion",
@@ -1516,7 +1518,7 @@ test("normalizeResponse with multiply-nested belongsTo", function() {
   }, "Primary hash was correct");
 });
 
-test("normalizeResponse with polymorphic hasMany", function() {
+test("normalizeResponse with polymorphic hasMany", function(assert) {
   SuperVillain.reopen({
     secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true, async: false })
   });
@@ -1554,7 +1556,7 @@ test("normalizeResponse with polymorphic hasMany", function() {
     json = serializer.normalizeResponse(env.store, SuperVillain, json_hash, '1', 'findAll');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "super-villain",
@@ -1590,7 +1592,7 @@ test("normalizeResponse with polymorphic hasMany", function() {
   }, "Primary hash was correct");
 });
 
-test("normalizeResponse with polymorphic hasMany and custom primary key", function() {
+test("normalizeResponse with polymorphic hasMany and custom primary key", function(assert) {
   SuperVillain.reopen({
     secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true, async: false })
   });
@@ -1631,7 +1633,7 @@ test("normalizeResponse with polymorphic hasMany and custom primary key", functi
     json = serializer.normalizeResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "attributes": {
         "firstName": "Tom",
@@ -1670,7 +1672,7 @@ test("normalizeResponse with polymorphic hasMany and custom primary key", functi
   }, "Custom primary key of embedded hasMany is correctly normalized");
 });
 
-test("normalizeResponse with polymorphic belongsTo", function() {
+test("normalizeResponse with polymorphic belongsTo", function(assert) {
   SuperVillain.reopen({
     secretLab: DS.belongsTo("secretLab", { polymorphic: true, async: true })
   });
@@ -1701,7 +1703,7 @@ test("normalizeResponse with polymorphic belongsTo", function() {
     json = serializer.normalizeResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "super-villain",
@@ -1726,8 +1728,8 @@ test("normalizeResponse with polymorphic belongsTo", function() {
   }, "Primary has was correct");
 });
 
-test("normalizeResponse with polymorphic belongsTo and custom primary key", function() {
-  expect(1);
+test("normalizeResponse with polymorphic belongsTo and custom primary key", function(assert) {
+  assert.expect(1);
 
   SuperVillain.reopen({
     secretLab: DS.belongsTo("secretLab", { polymorphic: true, async: true })
@@ -1762,7 +1764,7 @@ test("normalizeResponse with polymorphic belongsTo and custom primary key", func
     json = serializer.normalizeResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "attributes": {
         "firstName": "Tom",
@@ -1793,7 +1795,7 @@ test("normalizeResponse with polymorphic belongsTo and custom primary key", func
 
 });
 
-test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function() {
+test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function(assert) {
   run(function() {
     homePlanet = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
     secretLab = env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
@@ -1818,7 +1820,7 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
     json = serializer.serialize(superVillain._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(superVillain, "firstName"),
     lastName: get(superVillain, "lastName"),
     homePlanet: "123",
@@ -1833,7 +1835,7 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
   });
 });
 
-test("normalize with custom belongsTo primary key", function() {
+test("normalize with custom belongsTo primary key", function(assert) {
   env.registry.register('serializer:evil-minion', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       superVillain: { embedded: 'always' }
@@ -1861,7 +1863,7 @@ test("normalize with custom belongsTo primary key", function() {
     json = serializer.normalizeResponse(env.store, EvilMinion, json_hash, '1', 'findRecord');
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     "data": {
       "id": "1",
       "type": "evil-minion",
@@ -1886,7 +1888,7 @@ test("normalize with custom belongsTo primary key", function() {
   }, "Primary hash was correct");
 });
 
-test("serializing relationships with an embedded and without calls super when not attr not present", function() {
+test("serializing relationships with an embedded and without calls super when not attr not present", function(assert) {
   run(function() {
     homePlanet = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
     secretLab = env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
@@ -1935,7 +1937,7 @@ test("serializing relationships with an embedded and without calls super when no
     json = serializer.serialize(superVillain._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     firstName: get(superVillain, "firstName"),
     lastName: get(superVillain, "lastName"),
     homePlanet: "123",
@@ -1948,11 +1950,11 @@ test("serializing relationships with an embedded and without calls super when no
     // customized serializeHasMany method to generate ids for "manyToOne" relation
     secretWeapons: ["1"]
   });
-  ok(calledSerializeBelongsTo);
-  ok(calledSerializeHasMany);
+  assert.ok(calledSerializeBelongsTo);
+  assert.ok(calledSerializeHasMany);
 });
 
-test("serializing belongsTo correctly removes embedded foreign key", function() {
+test("serializing belongsTo correctly removes embedded foreign key", function(assert) {
   SecretWeapon.reopen({
     superVillain: null
   });
@@ -1979,7 +1981,7 @@ test("serializing belongsTo correctly removes embedded foreign key", function() 
     json = serializer.serialize(evilMinion._createSnapshot());
   });
 
-  deepEqual(json, {
+  assert.deepEqual(json, {
     name: "Evil Minion",
     secretWeapon: {
       name: "Secret Weapon"

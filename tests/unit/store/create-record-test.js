@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var store, container, Record, Storage;
 var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
-  setup: function() {
+  beforeEach: function() {
     Record = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -24,17 +26,17 @@ module("unit/store/createRecord - Store creating records", {
   }
 });
 
-test("doesn't modify passed in properties hash", function() {
+test("doesn't modify passed in properties hash", function(assert) {
   var attributes = { foo: 'bar' };
   run(function() {
     store.createRecord('record', attributes);
     store.createRecord('record', attributes);
   });
 
-  deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
+  assert.deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });
 
-test("allow passing relationships as well as attributes", function() {
+test("allow passing relationships as well as attributes", function(assert) {
   var records, storage;
   run(function() {
     store.push({
@@ -56,13 +58,13 @@ test("allow passing relationships as well as attributes", function() {
     storage = store.createRecord('storage', { name: 'Great store', records: records });
   });
 
-  equal(storage.get('name'), 'Great store', "The attribute is well defined");
-  equal(storage.get('records').findBy('id', '1'), Ember.A(records).findBy('id', '1'), "Defined relationships are allowed in createRecord");
-  equal(storage.get('records').findBy('id', '2'), Ember.A(records).findBy('id', '2'), "Defined relationships are allowed in createRecord");
+  assert.equal(storage.get('name'), 'Great store', "The attribute is well defined");
+  assert.equal(storage.get('records').findBy('id', '1'), Ember.A(records).findBy('id', '1'), "Defined relationships are allowed in createRecord");
+  assert.equal(storage.get('records').findBy('id', '2'), Ember.A(records).findBy('id', '2'), "Defined relationships are allowed in createRecord");
 });
 
 module("unit/store/createRecord - Store with models by dash", {
-  setup: function() {
+  beforeEach: function() {
     var env = setupStore({
       someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
@@ -71,7 +73,7 @@ module("unit/store/createRecord - Store with models by dash", {
   }
 });
 
-test("creating a record by camel-case string finds the model", function() {
+test("creating a record by camel-case string finds the model", function(assert) {
   var attributes = { foo: 'bar' };
   var record;
 
@@ -79,11 +81,11 @@ test("creating a record by camel-case string finds the model", function() {
     record = store.createRecord('some-thing', attributes);
   });
 
-  equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').modelName, 'some-thing');
+  assert.equal(record.get('foo'), attributes.foo, "The record is created");
+  assert.equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
-test("creating a record by dasherize string finds the model", function() {
+test("creating a record by dasherize string finds the model", function(assert) {
   var attributes = { foo: 'bar' };
   var record;
 
@@ -91,6 +93,6 @@ test("creating a record by dasherize string finds the model", function() {
     record = store.createRecord('some-thing', attributes);
   });
 
-  equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').modelName, 'some-thing');
+  assert.equal(record.get('foo'), attributes.foo, "The record is created");
+  assert.equal(store.modelFor('some-thing').modelName, 'some-thing');
 });

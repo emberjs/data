@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var store, env;
@@ -23,7 +25,7 @@ Car.toString = function() { return "Car"; };
 var manager;
 
 module("integration/record_array_manager", {
-  setup: function() {
+  beforeEach: function() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend()
     });
@@ -53,7 +55,7 @@ function tap(obj, methodName, callback) {
   return summary;
 }
 
-test("destroying the store correctly cleans everything up", function() {
+test("destroying the store correctly cleans everything up", function(assert) {
   var query = { };
   var person;
 
@@ -105,32 +107,32 @@ test("destroying the store correctly cleans everything up", function() {
   var allSummary = tap(all, 'willDestroy');
   var adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
 
-  equal(filterdSummary.called.length, 0);
-  equal(filterd2Summary.called.length, 0);
-  equal(allSummary.called.length, 0);
-  equal(adapterPopulatedSummary.called.length, 0);
+  assert.equal(filterdSummary.called.length, 0);
+  assert.equal(filterd2Summary.called.length, 0);
+  assert.equal(allSummary.called.length, 0);
+  assert.equal(adapterPopulatedSummary.called.length, 0);
 
-  equal(person._internalModel._recordArrays.list.length, 3, 'expected the person to be a member of 3 recordArrays');
+  assert.equal(person._internalModel._recordArrays.list.length, 3, 'expected the person to be a member of 3 recordArrays');
 
   Ember.run(filterd2, filterd2.destroy);
-  equal(person._internalModel._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
-  equal(filterd2Summary.called.length, 1);
+  assert.equal(person._internalModel._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
+  assert.equal(filterd2Summary.called.length, 1);
 
-  equal(manager.liveRecordArrays.has(all.type), true);
+  assert.equal(manager.liveRecordArrays.has(all.type), true);
   Ember.run(all, all.destroy);
-  equal(person._internalModel._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
-  equal(allSummary.called.length, 1);
-  equal(manager.liveRecordArrays.has(all.type), false);
+  assert.equal(person._internalModel._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
+  assert.equal(allSummary.called.length, 1);
+  assert.equal(manager.liveRecordArrays.has(all.type), false);
 
   Ember.run(manager, manager.destroy);
-  equal(person._internalModel._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
-  equal(filterdSummary.called.length, 1);
-  equal(filterd2Summary.called.length, 1);
-  equal(allSummary.called.length, 1);
-  equal(adapterPopulatedSummary.called.length, 1);
+  assert.equal(person._internalModel._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
+  assert.equal(filterdSummary.called.length, 1);
+  assert.equal(filterd2Summary.called.length, 1);
+  assert.equal(allSummary.called.length, 1);
+  assert.equal(adapterPopulatedSummary.called.length, 1);
 });
 
-test("Should not filter a store.peekAll() array when a record property is changed", function() {
+test("Should not filter a store.peekAll() array when a record property is changed", function(assert) {
   var car;
 
   var populateLiveRecordArray = tap(store.recordArrayManager, 'populateLiveRecordArray');
@@ -157,14 +159,14 @@ test("Should not filter a store.peekAll() array when a record property is change
     car = store.peekRecord('car', 1);
   });
 
-  equal(populateLiveRecordArray.called.length, 1);
-  equal(updateFilterRecordArray.called.length, 0);
+  assert.equal(populateLiveRecordArray.called.length, 1);
+  assert.equal(updateFilterRecordArray.called.length, 0);
 
   run(function() {
     car.set('model', 'Mini');
   });
 
-  equal(populateLiveRecordArray.called.length, 1);
-  equal(updateFilterRecordArray.called.length, 0);
+  assert.equal(populateLiveRecordArray.called.length, 1);
+  assert.equal(updateFilterRecordArray.called.length, 0);
 
 });

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, Person, PhoneNumber;
@@ -9,7 +11,7 @@ var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 module("unit/store/hasRecordForId - Store hasRecordForId", {
-  setup: function() {
+  beforeEach: function() {
 
     Person = DS.Model.extend({
       firstName: attr('string'),
@@ -37,12 +39,12 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
 
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(store, 'destroy');
   }
 });
 
-test("hasRecordForId should return false for records in the empty state ", function() {
+test("hasRecordForId should return false for records in the empty state ", function(assert) {
 
   run(function() {
     store.push({
@@ -63,12 +65,12 @@ test("hasRecordForId should return false for records in the empty state ", funct
       }
     });
 
-    equal(false, store.hasRecordForId('phone-number', 1), 'hasRecordForId only returns true for loaded records');
+    assert.equal(false, store.hasRecordForId('phone-number', 1), 'hasRecordForId only returns true for loaded records');
 
   });
 });
 
-test("hasRecordForId should return true for records in the loaded state ", function() {
+test("hasRecordForId should return true for records in the loaded state ", function(assert) {
   run(function() {
     store.push({
       data: {
@@ -88,6 +90,6 @@ test("hasRecordForId should return true for records in the loaded state ", funct
       }
     });
 
-    equal(true, store.hasRecordForId('person', 1), 'hasRecordForId returns true for records loaded into the store');
+    assert.equal(true, store.hasRecordForId('person', 1), 'hasRecordForId returns true for records loaded into the store');
   });
 });

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, Person;
@@ -7,7 +9,7 @@ var attr = DS.attr;
 var run = Ember.run;
 
 module('integration/records/property-changes - Property changes', {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string')
@@ -20,15 +22,15 @@ module('integration/records/property-changes - Property changes', {
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(function() {
       env.container.destroy();
     });
   }
 });
 
-test('Calling push with partial records trigger observers for just those attributes that changed', function() {
-  expect(1);
+test('Calling push with partial records trigger observers for just those attributes that changed', function(assert) {
+  assert.expect(1);
   var person;
 
   run(function() {
@@ -46,11 +48,11 @@ test('Calling push with partial records trigger observers for just those attribu
   });
 
   person.addObserver('firstName', function() {
-    ok(false, 'firstName observer should not be triggered');
+    assert.ok(false, 'firstName observer should not be triggered');
   });
 
   person.addObserver('lastName', function() {
-    ok(true, 'lastName observer should be triggered');
+    assert.ok(true, 'lastName observer should be triggered');
   });
 
   run(function() {
@@ -67,8 +69,8 @@ test('Calling push with partial records trigger observers for just those attribu
   });
 });
 
-test('Calling push does not trigger observers for locally changed attributes with the same value', function() {
-  expect(0);
+test('Calling push does not trigger observers for locally changed attributes with the same value', function(assert) {
+  assert.expect(0);
   var person;
 
   run(function() {
@@ -87,11 +89,11 @@ test('Calling push does not trigger observers for locally changed attributes wit
   });
 
   person.addObserver('firstName', function() {
-    ok(false, 'firstName observer should not be triggered');
+    assert.ok(false, 'firstName observer should not be triggered');
   });
 
   person.addObserver('lastName', function() {
-    ok(false, 'lastName observer should not be triggered');
+    assert.ok(false, 'lastName observer should not be triggered');
   });
 
   run(function() {
@@ -108,8 +110,8 @@ test('Calling push does not trigger observers for locally changed attributes wit
   });
 });
 
-test('Saving a record trigger observers for locally changed attributes with the same canonical value', function() {
-  expect(1);
+test('Saving a record trigger observers for locally changed attributes with the same canonical value', function(assert) {
+  assert.expect(1);
   var person;
 
   env.adapter.updateRecord = function(store, type, snapshot) {
@@ -132,11 +134,11 @@ test('Saving a record trigger observers for locally changed attributes with the 
   });
 
   person.addObserver('firstName', function() {
-    ok(false, 'firstName observer should not be triggered');
+    assert.ok(false, 'firstName observer should not be triggered');
   });
 
   person.addObserver('lastName', function() {
-    ok(true, 'lastName observer should be triggered');
+    assert.ok(true, 'lastName observer should be triggered');
   });
 
   run(function() {
@@ -144,8 +146,8 @@ test('Saving a record trigger observers for locally changed attributes with the 
   });
 });
 
-test('store.push should not override a modified attribute', function() {
-  expect(1);
+test('store.push should not override a modified attribute', function(assert) {
+  assert.expect(1);
   var person;
 
   run(function() {
@@ -164,11 +166,11 @@ test('store.push should not override a modified attribute', function() {
   });
 
   person.addObserver('firstName', function() {
-    ok(true, 'firstName observer should be triggered');
+    assert.ok(true, 'firstName observer should be triggered');
   });
 
   person.addObserver('lastName', function() {
-    ok(false, 'lastName observer should not be triggered');
+    assert.ok(false, 'lastName observer should not be triggered');
   });
 
   run(function() {

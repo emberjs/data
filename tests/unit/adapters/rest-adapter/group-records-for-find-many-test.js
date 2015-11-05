@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var GroupsAdapter, Store;
@@ -7,7 +9,7 @@ var maxLength = -1;
 var lengths = Ember.A([]);
 
 module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany", {
-  setup: function() {
+  beforeEach: function() {
     GroupsAdapter = DS.RESTAdapter.extend({
 
       coalesceFindRequests: true,
@@ -41,7 +43,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
   }
 });
 
-test('groupRecordsForFindMany - findMany', function() {
+test('groupRecordsForFindMany - findMany', function(assert) {
 
   Ember.run(function() {
     for (var i = 1; i <= 1024; i++) {
@@ -49,7 +51,7 @@ test('groupRecordsForFindMany - findMany', function() {
     }
   });
 
-  ok(lengths.every(function(len) {
+  assert.ok(lengths.every(function(len) {
       return len <= maxLength;
     }), "Some URLs are longer than " + maxLength + " chars");
 

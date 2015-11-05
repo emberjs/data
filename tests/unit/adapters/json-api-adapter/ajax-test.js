@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 var run = Ember.run;
 
 module("unit/adapters/json-api-adapter/ajax - building requests", {
-  setup: function() {
+  beforeEach: function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.JSONAPIAdapter, person: Person, place: Place });
@@ -14,7 +16,7 @@ module("unit/adapters/json-api-adapter/ajax - building requests", {
     adapter = env.adapter;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(function() {
       store.destroy();
       env.container.destroy();
@@ -22,7 +24,7 @@ module("unit/adapters/json-api-adapter/ajax - building requests", {
   }
 });
 
-test("ajaxOptions() adds Accept when no other headers exist", function() {
+test("ajaxOptions() adds Accept when no other headers exist", function(assert) {
   var url = 'example.com';
   var type = 'GET';
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
@@ -33,10 +35,10 @@ test("ajaxOptions() adds Accept when no other headers exist", function() {
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
-  deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json']], 'headers assigned');
+  assert.deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json']], 'headers assigned');
 });
 
-test("ajaxOptions() adds Accept header to existing headers", function() {
+test("ajaxOptions() adds Accept header to existing headers", function(assert) {
   adapter.headers = { 'Other-key': 'Other Value' };
   var url = 'example.com';
   var type = 'GET';
@@ -48,10 +50,10 @@ test("ajaxOptions() adds Accept header to existing headers", function() {
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
-  deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']], 'headers assigned');
+  assert.deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']], 'headers assigned');
 });
 
-test("ajaxOptions() adds Accept header to existing computed properties headers", function() {
+test("ajaxOptions() adds Accept header to existing computed properties headers", function(assert) {
   adapter.headers = Ember.computed(function() {
     return { 'Other-key': 'Other Value' };
   });
@@ -65,5 +67,5 @@ test("ajaxOptions() adds Accept header to existing computed properties headers",
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
-  deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']], 'headers assigned');
+  assert.deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']], 'headers assigned');
 });

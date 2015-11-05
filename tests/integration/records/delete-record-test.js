@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var attr = DS.attr;
@@ -7,7 +9,7 @@ var Person, env;
 var run = Ember.run;
 
 module("integration/deletedRecord - Deleting Records", {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       name: attr('string')
     });
@@ -19,14 +21,14 @@ module("integration/deletedRecord - Deleting Records", {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(function() {
       env.container.destroy();
     });
   }
 });
 
-test("records should not be removed from record arrays just after deleting, but only after commiting them", function () {
+test("records should not be removed from record arrays just after deleting, but only after commiting them", function(assert) {
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
@@ -57,18 +59,18 @@ test("records should not be removed from record arrays just after deleting, but 
 
 
   // pre-condition
-  equal(all.get('length'), 2, 'pre-condition: 2 records in array');
+  assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
 
   Ember.run(adam, 'deleteRecord');
 
-  equal(all.get('length'), 2, '2 records in array after deleteRecord');
+  assert.equal(all.get('length'), 2, '2 records in array after deleteRecord');
 
   Ember.run(adam, 'save');
 
-  equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
+  assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
 });
 
-test("records can be deleted during record array enumeration", function () {
+test("records can be deleted during record array enumeration", function(assert) {
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
@@ -97,7 +99,7 @@ test("records can be deleted during record array enumeration", function () {
   var all = env.store.peekAll('person');
 
   // pre-condition
-  equal(all.get('length'), 2, 'expected 2 records');
+  assert.equal(all.get('length'), 2, 'expected 2 records');
 
   Ember.run(function() {
     all.forEach(function(record) {
@@ -105,11 +107,11 @@ test("records can be deleted during record array enumeration", function () {
     });
   });
 
-  equal(all.get('length'), 0, 'expected 0 records');
-  equal(all.objectAt(0), null, "can't get any records");
+  assert.equal(all.get('length'), 0, 'expected 0 records');
+  assert.equal(all.objectAt(0), null, "can't get any records");
 });
 
-test("when deleted records are rolled back, they are still in their previous record arrays", function () {
+test("when deleted records are rolled back, they are still in their previous record arrays", function(assert) {
   var jaime, cersei;
   run(function() {
     env.store.push({
@@ -138,13 +140,13 @@ test("when deleted records are rolled back, they are still in their previous rec
     });
   });
 
-  equal(all.get('length'), 2, 'precond - we start with two people');
-  equal(filtered.get('length'), 2, 'precond - we start with two people');
+  assert.equal(all.get('length'), 2, 'precond - we start with two people');
+  assert.equal(filtered.get('length'), 2, 'precond - we start with two people');
 
   run(function() {
     jaime.deleteRecord();
     jaime.rollbackAttributes();
   });
-  equal(all.get('length'), 2, 'record was not removed');
-  equal(filtered.get('length'), 2, 'record was not removed');
+  assert.equal(all.get('length'), 2, 'record was not removed');
+  assert.equal(filtered.get('length'), 2, 'record was not removed');
 });

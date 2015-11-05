@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Post, env;
 var run = Ember.run;
 
 module("integration/records/collection_save - Save Collection of Records", {
-  setup: function() {
+  beforeEach: function() {
     Post = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -16,13 +18,13 @@ module("integration/records/collection_save - Save Collection of Records", {
     env = setupStore({ post: Post });
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("Collection will resolve save on success", function() {
-  expect(1);
+test("Collection will resolve save on success", function(assert) {
+  assert.expect(1);
   run(function() {
     env.store.createRecord('post', { title: 'Hello' });
     env.store.createRecord('post', { title: 'World' });
@@ -36,12 +38,12 @@ test("Collection will resolve save on success", function() {
 
   run(function() {
     posts.save().then(async(function() {
-      ok(true, 'save operation was resolved');
+      assert.ok(true, 'save operation was resolved');
     }));
   });
 });
 
-test("Collection will reject save on error", function() {
+test("Collection will reject save on error", function(assert) {
   run(function() {
     env.store.createRecord('post', { title: 'Hello' });
     env.store.createRecord('post', { title: 'World' });
@@ -55,12 +57,12 @@ test("Collection will reject save on error", function() {
 
   run(function() {
     posts.save().then(function() {}, async(function() {
-      ok(true, 'save operation was rejected');
+      assert.ok(true, 'save operation was rejected');
     }));
   });
 });
 
-test("Retry is allowed in a failure handler", function() {
+test("Retry is allowed in a failure handler", function(assert) {
   run(function() {
     env.store.createRecord('post', { title: 'Hello' });
     env.store.createRecord('post', { title: 'World' });
@@ -86,13 +88,13 @@ test("Retry is allowed in a failure handler", function() {
     posts.save().then(function() {}, async(function() {
       return posts.save();
     })).then(async(function(post) {
-      equal(posts.get('firstObject.id'), '123', "The post ID made it through");
+      assert.equal(posts.get('firstObject.id'), '123', "The post ID made it through");
     }));
   });
 });
 
-test("Collection will reject save on invalid", function() {
-  expect(1);
+test("Collection will reject save on invalid", function(assert) {
+  assert.expect(1);
   run(function() {
     env.store.createRecord('post', { title: 'Hello' });
     env.store.createRecord('post', { title: 'World' });
@@ -106,7 +108,7 @@ test("Collection will reject save on invalid", function() {
 
   Ember.run(function() {
     posts.save().then(function() {}, function() {
-      ok(true, 'save operation was rejected');
+      assert.ok(true, 'save operation was rejected');
     });
   });
 });

@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var run = Ember.run;
@@ -24,7 +26,7 @@ function lookup(thing) {
 }
 
 module("integration/application - Injecting a Custom Store", {
-  setup: function() {
+  beforeEach: function() {
     run(function() {
       app = Application.create({
         StoreService: Store.extend({ isCustom: true }),
@@ -38,36 +40,36 @@ module("integration/application - Injecting a Custom Store", {
     container = app.__container__;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(app, app.destroy);
     Ember.BOOTED = false;
   }
 });
 
-test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
+test("If a Store property exists on an Ember.Application, it should be instantiated.", function(assert) {
   run(function() {
-    ok(getStore().get('isCustom'), "the custom store was instantiated");
+    assert.ok(getStore().get('isCustom'), "the custom store was instantiated");
   });
 });
 
-test("If a store is instantiated, it should be made available to each controller.", function() {
+test("If a store is instantiated, it should be made available to each controller.", function(assert) {
   var fooController = lookup('controller:foo');
   var isCustom = run(fooController, 'get', 'store.isCustom');
-  ok(isCustom, "the custom store was injected");
+  assert.ok(isCustom, "the custom store was injected");
 });
 
-test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function() {
+test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function(assert) {
   run(function() {
     var store = getStore();
 
     var adapter = store.adapterFor('application');
 
-    ok(adapter instanceof DS.JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
+    assert.ok(adapter instanceof DS.JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
   });
 });
 
 module("integration/application - Injecting the Default Store", {
-  setup: function() {
+  beforeEach: function() {
     run(function() {
       app = Application.create({
         FooController: Controller.extend(),
@@ -79,32 +81,32 @@ module("integration/application - Injecting the Default Store", {
     container = app.__container__;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(app, 'destroy');
     Ember.BOOTED = false;
   }
 });
 
-test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
-  ok(getStore() instanceof DS.Store, "the store was instantiated");
+test("If a Store property exists on an Ember.Application, it should be instantiated.", function(assert) {
+  assert.ok(getStore() instanceof DS.Store, "the store was instantiated");
 });
 
-test("If a store is instantiated, it should be made available to each controller.", function() {
+test("If a store is instantiated, it should be made available to each controller.", function(assert) {
   run(function() {
     var fooController = lookup('controller:foo');
-    ok(fooController.get('store') instanceof DS.Store, "the store was injected");
+    assert.ok(fooController.get('store') instanceof DS.Store, "the store was injected");
   });
 });
 
-test("the DS namespace should be accessible", function() {
+test("the DS namespace should be accessible", function(assert) {
   run(function() {
-    ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
+    assert.ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
   });
 });
 
 if (Ember.inject && Ember.inject.service) {
   module("integration/application - Using the store as a service", {
-    setup: function() {
+    beforeEach: function() {
       run(function() {
         app = Application.create({
           DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
@@ -114,26 +116,26 @@ if (Ember.inject && Ember.inject.service) {
       container = app.__container__;
     },
 
-    teardown: function() {
+    afterEach: function() {
       run(app, 'destroy');
       Ember.BOOTED = false;
     }
   });
 
-  test("The store can be injected as a service", function() {
+  test("The store can be injected as a service", function(assert) {
     run(function() {
       var doodleService = lookup('service:doodle');
-      ok(doodleService.get('store') instanceof Store, "the store can be used as a service");
+      assert.ok(doodleService.get('store') instanceof Store, "the store can be used as a service");
     });
   });
 }
 
 module("integration/application - Attaching initializer", {
-  setup: function() {
+  beforeEach: function() {
     App = Application.extend();
   },
 
-  teardown: function() {
+  afterEach: function() {
     if (app) {
       run(app, app.destroy);
     }
@@ -141,7 +143,7 @@ module("integration/application - Attaching initializer", {
   }
 });
 
-test("ember-data initializer is run", function() {
+test("ember-data initializer is run", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-ember-data",
@@ -153,10 +155,10 @@ test("ember-data initializer is run", function() {
     app = App.create();
   });
 
-  ok(ran, 'ember-data initializer was found');
+  assert.ok(ran, 'ember-data initializer was found');
 });
 
-test("ember-data initializer does not register the store service when it was already registered", function() {
+test("ember-data initializer does not register the store service when it was already registered", function(assert) {
 
   var AppStore = Store.extend({
     isCustomStore: true
@@ -176,11 +178,11 @@ test("ember-data initializer does not register the store service when it was alr
   });
 
   var store = getStore();
-  ok(store && store.get('isCustomStore'), 'ember-data initializer does not overwrite the previous registered service store');
+  assert.ok(store && store.get('isCustomStore'), 'ember-data initializer does not overwrite the previous registered service store');
 
 });
 
-test("store initializer is run (DEPRECATED)", function() {
+test("store initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -192,10 +194,10 @@ test("store initializer is run (DEPRECATED)", function() {
     app = App.create();
   });
 
-  ok(ran, 'store initializer was found');
+  assert.ok(ran, 'store initializer was found');
 });
 
-test("injectStore initializer is run (DEPRECATED)", function() {
+test("injectStore initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -207,10 +209,10 @@ test("injectStore initializer is run (DEPRECATED)", function() {
     app = App.create();
   });
 
-  ok(ran, 'injectStore initializer was found');
+  assert.ok(ran, 'injectStore initializer was found');
 });
 
-test("transforms initializer is run (DEPRECATED)", function() {
+test("transforms initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -222,5 +224,5 @@ test("transforms initializer is run (DEPRECATED)", function() {
     app = App.create();
   });
 
-  ok(ran, 'transforms initializer was found');
+  assert.ok(ran, 'transforms initializer was found');
 });

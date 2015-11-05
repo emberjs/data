@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 const {attr, belongsTo} = DS;
@@ -21,7 +23,7 @@ const AsyncBook = DS.Model.extend({
 });
 
 module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
-  setup() {
+  beforeEach() {
     let env = setupStore({
       book: Book,
       author: Author,
@@ -31,7 +33,7 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
     store = env.store;
   },
 
-  teardown() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
@@ -66,7 +68,7 @@ test('using store.push with a null value for a payload in relationships sets the
     return store.peekRecord('book', 1);
   });
 
-  equal(book.get('author.id'), 1);
+  assert.equal(book.get('author.id'), 1);
 
   let payloadThatResetsBelongToRelationship = {
     data: {
@@ -82,7 +84,7 @@ test('using store.push with a null value for a payload in relationships sets the
   };
 
   run(() => store.push(payloadThatResetsBelongToRelationship));
-  equal(book.get('author'), null);
+  assert.equal(book.get('author'), null);
 });
 
 test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', () => {
@@ -129,11 +131,11 @@ test('using store.push with a null value for a payload in relationships sets the
 
   stop();
   book.get('author').then((author) => {
-    equal(author.get('id'), 1);
+    assert.equal(author.get('id'), 1);
     run(() => store.push(payloadThatResetsBelongToRelationship));
     return book.get('author');
   }).then((author) => {
     start();
-    equal(author, null);
+    assert.equal(author, null);
   });
 });

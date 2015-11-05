@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, User, Message, NotMessage, Video;
@@ -14,7 +16,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins', {
-  setup: function() {
+  beforeEach: function() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true, polymorphic: true })
@@ -45,7 +47,7 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
@@ -54,7 +56,7 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
   Server loading tests
 */
 
-test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - async", function () {
+test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - async", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -84,9 +86,9 @@ test("Relationship is available from the belongsTo side even if only loaded from
   });
   run(function() {
     user.get('messages').then(function(messages) {
-      equal(messages.objectAt(0), video, 'The hasMany has loaded correctly');
+      assert.equal(messages.objectAt(0), video, 'The hasMany has loaded correctly');
       messages.objectAt(0).get('user').then(function(fetchedUser) {
-        equal(fetchedUser, user, 'The inverse was setup correctly');
+        assert.equal(fetchedUser, user, 'The inverse was setup correctly');
       });
     });
   });
@@ -95,7 +97,7 @@ test("Relationship is available from the belongsTo side even if only loaded from
 /*
   Local edits
 */
-test("Pushing to the hasMany reflects the change on the belongsTo side - async", function () {
+test("Pushing to the hasMany reflects the change on the belongsTo side - async", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -126,7 +128,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - async",
     user.get('messages').then(function(fetchedMessages) {
       fetchedMessages.pushObject(video);
       video.get('user').then(function(fetchedUser) {
-        equal(fetchedUser, user, "user got set correctly");
+        assert.equal(fetchedUser, user, "user got set correctly");
       });
     });
   });
@@ -135,7 +137,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - async",
 /*
   Local edits
 */
-test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out", function () {
+test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out", function(assert) {
   var user,notMessage;
   run(function() {
     store.push({
@@ -171,7 +173,7 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
   });
 });
 
-test("Pushing to the hasMany reflects the change on the belongsTo side - model injections true", function () {
+test("Pushing to the hasMany reflects the change on the belongsTo side - model injections true", function(assert) {
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 
@@ -206,7 +208,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
       user.get('messages').then(function(fetchedMessages) {
         fetchedMessages.pushObject(video);
         video.get('user').then(function(fetchedUser) {
-          equal(fetchedUser, user, "user got set correctly");
+          assert.equal(fetchedUser, user, "user got set correctly");
         });
       });
     });
@@ -218,7 +220,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
 /*
   Local edits
 */
-test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true", function () {
+test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true", function(assert) {
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 

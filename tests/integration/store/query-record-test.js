@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var Person, store, env;
 var run = Ember.run;
 
 module("integration/store/query-record - Query one record with a query hash", {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -20,29 +22,29 @@ module("integration/store/query-record - Query one record with a query hash", {
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(store, 'destroy');
   }
 });
 
-test("It raises an assertion when no type is passed", function() {
+test("It raises an assertion when no type is passed", function(assert) {
   expectAssertion(function() {
     store.queryRecord();
   }, "You need to pass a type to the store's queryRecord method");
 });
 
-test("It raises an assertion when no query hash is passed", function() {
+test("It raises an assertion when no query hash is passed", function(assert) {
   expectAssertion(function() {
     store.queryRecord('person');
   }, "You need to pass a query hash to the store's queryRecord method");
 });
 
-test("When a record is requested, the adapter's queryRecord method should be called.", function() {
-  expect(1);
+test("When a record is requested, the adapter's queryRecord method should be called.", function(assert) {
+  assert.expect(1);
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord: function(store, type, query) {
-      equal(type, Person, "the query method is called with the correct type");
+      assert.equal(type, Person, "the query method is called with the correct type");
       return Ember.RSVP.resolve({ id: 1, name: "Peter Wagenet" });
     }
   }));
@@ -52,7 +54,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
   });
 });
 
-test("When a record is requested, and the promise is rejected, .queryRecord() is rejected.", function() {
+test("When a record is requested, and the promise is rejected, .queryRecord() is rejected.", function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord: function(store, type, query) {
       return Ember.RSVP.reject();
@@ -61,17 +63,17 @@ test("When a record is requested, and the promise is rejected, .queryRecord() is
 
   run(function() {
     store.queryRecord('person', {}).catch(function(reason) {
-      ok(true, "The rejection handler was called");
+      assert.ok(true, "The rejection handler was called");
     });
   });
 });
 
-test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function() {
-  expect(1);
+test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function(assert) {
+  assert.expect(1);
 
   env.registry.register('serializer:person', DS.JSONAPISerializer.extend({
     normalizeQueryRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
-      equal(payload.data.id , '1', "the normalizeQueryRecordResponse method was called with the right payload");
+      assert.equal(payload.data.id , '1', "the normalizeQueryRecordResponse method was called with the right payload");
       return this._super(...arguments);
     }
   }));

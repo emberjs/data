@@ -1,5 +1,7 @@
 import DS from 'ember-data';
 
+import {module, test} from 'qunit';
+
 module("unit/model/internal-model - Internal Model");
 
 var mockModelFactory = {
@@ -10,8 +12,8 @@ var mockModelFactory = {
   eachRelationship: function() {
   }
 };
-test("Materializing a model twice errors out", function() {
-  expect(1);
+test("Materializing a model twice errors out", function(assert) {
+  assert.expect(1);
   var internalModel = new DS.InternalModel(mockModelFactory, null, null, null);
 
   internalModel.materializeRecord();

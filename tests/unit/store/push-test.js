@@ -1,5 +1,7 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var env, store, Person, PhoneNumber, Post;
@@ -9,7 +11,7 @@ var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 module("unit/store/push - DS.Store#push", {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -45,15 +47,15 @@ module("unit/store/push - DS.Store#push", {
     env.registry.register('serializer:post', DS.RESTSerializer);
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(function() {
       store.destroy();
     });
   }
 });
 
-test("Calling push with a normalized hash returns a record", function() {
-  expect(2);
+test("Calling push with a normalized hash returns a record", function(assert) {
+  assert.expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
@@ -68,8 +70,8 @@ test("Calling push with a normalized hash returns a record", function() {
       }
     });
     store.findRecord('person', 'wat').then(function(foundPerson) {
-      equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
-      deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+      assert.equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
+      assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: 'Yehuda',
         lastName: 'Katz'
@@ -78,8 +80,8 @@ test("Calling push with a normalized hash returns a record", function() {
   });
 });
 
-test("Supplying a model class for `push` is the same as supplying a string", function () {
-  expect(1);
+test("Supplying a model class for `push` is the same as supplying a string", function(assert) {
+  assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   var Programmer = Person.extend();
@@ -98,7 +100,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
     });
 
     store.findRecord('programmer', 'wat').then(function(foundProgrammer) {
-      deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
+      assert.deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: 'Yehuda',
         lastName: 'Katz'
@@ -107,12 +109,12 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   });
 });
 
-test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
-  expect(1);
+test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function(assert) {
+  assert.expect(1);
 
   Person.reopen({
     didLoad: async(function() {
-      ok(true, "The didLoad callback was called");
+      assert.ok(true, "The didLoad callback was called");
     })
   });
 
@@ -130,8 +132,8 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
   });
 });
 
-test("Calling push with partial records updates just those attributes", function() {
-  expect(2);
+test("Calling push with partial records updates just those attributes", function(assert) {
+  assert.expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(function() {
@@ -158,8 +160,8 @@ test("Calling push with partial records updates just those attributes", function
     });
 
     store.findRecord('person', 'wat').then(function(foundPerson) {
-      equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
-      deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+      assert.equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
+      assert.deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: 'Yehuda',
         lastName: "Katz!"
@@ -168,7 +170,7 @@ test("Calling push with partial records updates just those attributes", function
   });
 });
 
-test("Calling push on normalize allows partial updates with raw JSON", function () {
+test("Calling push on normalize allows partial updates with raw JSON", function(assert) {
   env.registry.register('serializer:person', DS.RESTSerializer);
   var person;
 
@@ -190,12 +192,12 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
     }));
   });
 
-  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
-  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+  assert.equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  assert.equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test("Calling push with a normalized hash containing IDs of related records returns a record", function() {
-  expect(1);
+test("Calling push with a normalized hash containing IDs of related records returns a record", function(assert) {
+  assert.expect(1);
 
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: true })
@@ -228,7 +230,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
       phoneNumbers: ["1", "2"]
     }));
     person.get('phoneNumbers').then(function(phoneNumbers) {
-      deepEqual(phoneNumbers.map(function(item) {
+      assert.deepEqual(phoneNumbers.map(function(item) {
         return item.getProperties('id', 'number', 'person');
       }), [{
         id: "1",
@@ -243,7 +245,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
   });
 });
 
-test("Calling pushPayload allows pushing raw JSON", function () {
+test("Calling pushPayload allows pushing raw JSON", function(assert) {
   run(function() {
     store.pushPayload('post', {
       posts: [{
@@ -255,7 +257,7 @@ test("Calling pushPayload allows pushing raw JSON", function () {
 
   var post = store.peekRecord('post', 1);
 
-  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+  assert.equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
   run(function() {
     store.pushPayload('post', {
@@ -266,10 +268,10 @@ test("Calling pushPayload allows pushing raw JSON", function () {
     });
   });
 
-  equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
+  assert.equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
-test("Calling pushPayload allows pushing singular payload properties", function () {
+test("Calling pushPayload allows pushing singular payload properties", function(assert) {
   run(function() {
     store.pushPayload('post', {
       post: {
@@ -281,7 +283,7 @@ test("Calling pushPayload allows pushing singular payload properties", function 
 
   var post = store.peekRecord('post', 1);
 
-  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+  assert.equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
   run(function() {
     store.pushPayload('post', {
@@ -292,20 +294,20 @@ test("Calling pushPayload allows pushing singular payload properties", function 
     });
   });
 
-  equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
+  assert.equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
-test("Calling pushPayload should use the type's serializer for normalizing", function () {
-  expect(4);
+test("Calling pushPayload should use the type's serializer for normalizing", function(assert) {
+  assert.expect(4);
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
-      ok(true, "normalized is called on Post serializer");
+      assert.ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
   env.registry.register('serializer:person', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
-      ok(true, "normalized is called on Person serializer");
+      assert.ok(true, "normalized is called on Person serializer");
       return this._super(store, payload);
     }
   }));
@@ -325,19 +327,19 @@ test("Calling pushPayload should use the type's serializer for normalizing", fun
 
   var post = store.peekRecord('post', 1);
 
-  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+  assert.equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
   var person = store.peekRecord('person', 2);
 
-  equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
+  assert.equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
 
-test("Calling pushPayload without a type uses application serializer's pushPayload method", function () {
-  expect(1);
+test("Calling pushPayload without a type uses application serializer's pushPayload method", function(assert) {
+  assert.expect(1);
 
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     pushPayload: function(store, payload) {
-      ok(true, "pushPayload is called on Application serializer");
+      assert.ok(true, "pushPayload is called on Application serializer");
       return this._super(store, payload);
     }
   }));
@@ -349,19 +351,19 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
   });
 });
 
-test("Calling pushPayload without a type should use a model's serializer when normalizing", function () {
-  expect(4);
+test("Calling pushPayload without a type should use a model's serializer when normalizing", function(assert) {
+  assert.expect(4);
 
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
-      ok(true, "normalized is called on Post serializer");
+      assert.ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
 
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
-      ok(true, "normalized is called on Application serializer");
+      assert.ok(true, "normalized is called on Application serializer");
       return this._super(store, payload);
     }
   }));
@@ -381,14 +383,14 @@ test("Calling pushPayload without a type should use a model's serializer when no
 
   var post = store.peekRecord('post', 1);
 
-  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+  assert.equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
   var person = store.peekRecord('person', 2);
 
-  equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
+  assert.equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
 
-test("Calling pushPayload allows partial updates with raw JSON", function () {
+test("Calling pushPayload allows partial updates with raw JSON", function(assert) {
   env.registry.register('serializer:person', DS.RESTSerializer);
 
   var person;
@@ -405,8 +407,8 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
 
   person = store.peekRecord('person', 1);
 
-  equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
-  equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");
+  assert.equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
+  assert.equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");
 
   run(function() {
     store.pushPayload('person', {
@@ -417,11 +419,11 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
     });
   });
 
-  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
-  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+  assert.equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  assert.equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test('calling push without data argument as an object raises an error', function() {
+test('calling push without data argument as an object raises an error', function(assert) {
   var invalidValues = [
     null,
     1,
@@ -431,10 +433,10 @@ test('calling push without data argument as an object raises an error', function
     true
   ];
 
-  expect(invalidValues.length);
+  assert.expect(invalidValues.length);
 
   invalidValues.forEach(function(invalidValue) {
-    throws(function() {
+    assert.throws(function() {
       run(function() {
         store.push('person', invalidValue);
       });
@@ -442,7 +444,7 @@ test('calling push without data argument as an object raises an error', function
   });
 });
 
-test('Calling push with a link for a non async relationship should warn', function() {
+test('Calling push with a link for a non async relationship should warn', function(assert) {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: false })
   });
@@ -459,7 +461,7 @@ test('Calling push with a link for a non async relationship should warn', functi
   }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
 });
 
-test('Calling push with an unknown model name throws an assertion error', function() {
+test('Calling push with an unknown model name throws an assertion error', function(assert) {
 
   expectAssertion(function() {
     run(function() {
@@ -473,7 +475,7 @@ test('Calling push with an unknown model name throws an assertion error', functi
   }, /You tried to push data with a type 'unknown' but no model could be found with that name/);
 });
 
-test('Calling push with a link containing an object', function() {
+test('Calling push with a link containing an object', function(assert) {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: true })
   });
@@ -492,10 +494,10 @@ test('Calling push with a link containing an object', function() {
 
   var person = store.peekRecord('person', 1);
 
-  equal(person.get('firstName'), "Tan", "you can use links containing an object");
+  assert.equal(person.get('firstName'), "Tan", "you can use links containing an object");
 });
 
-test('Calling push with a link containing the value null', function() {
+test('Calling push with a link containing the value null', function(assert) {
   run(function() {
     store.push(store.normalize('person', {
       id: '1',
@@ -508,10 +510,10 @@ test('Calling push with a link containing the value null', function() {
 
   var person = store.peekRecord('person', 1);
 
-  equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
+  assert.equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
 });
 
-test('calling push with hasMany relationship the value must be an array', function() {
+test('calling push with hasMany relationship the value must be an array', function(assert) {
   var invalidValues = [
     1,
     'string',
@@ -520,10 +522,10 @@ test('calling push with hasMany relationship the value must be an array', functi
     true
   ];
 
-  expect(invalidValues.length);
+  assert.expect(invalidValues.length);
 
   invalidValues.forEach(function(invalidValue) {
-    throws(function() {
+    assert.throws(function() {
       run(function() {
         store.push({
           data: {
@@ -541,17 +543,17 @@ test('calling push with hasMany relationship the value must be an array', functi
   });
 });
 
-test('calling push with missing or invalid `id` throws assertion error', function() {
+test('calling push with missing or invalid `id` throws assertion error', function(assert) {
   var invalidValues = [
     {},
     { id: null },
     { id: '' }
   ];
 
-  expect(invalidValues.length);
+  assert.expect(invalidValues.length);
 
   invalidValues.forEach(function(invalidValue) {
-    throws(function() {
+    assert.throws(function() {
       run(function() {
         store.push({
           data: invalidValue
@@ -561,8 +563,8 @@ test('calling push with missing or invalid `id` throws assertion error', functio
   });
 });
 
-test('calling push with belongsTo relationship the value must not be an array', function() {
-  throws(function() {
+test('calling push with belongsTo relationship the value must not be an array', function(assert) {
+  assert.throws(function() {
     run(function() {
       store.push({
         data: {
@@ -579,7 +581,7 @@ test('calling push with belongsTo relationship the value must not be an array', 
   }, /must not be an array/);
 });
 
-test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", function() {
+test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", function(assert) {
   run(function() {
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
@@ -603,7 +605,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
   });
 });
 
-test("Calling push with unknown keys should not warn by default", function() {
+test("Calling push with unknown keys should not warn by default", function(assert) {
   noWarns(function() {
     run(function() {
       store.push({
@@ -622,7 +624,7 @@ test("Calling push with unknown keys should not warn by default", function() {
 });
 
 module("unit/store/push - DS.Store#push with JSON-API", {
-  setup: function() {
+  beforeEach: function() {
     var Person = DS.Model.extend({
       name: DS.attr('string'),
       cars: DS.hasMany('car', { async: false })
@@ -647,7 +649,7 @@ module("unit/store/push - DS.Store#push with JSON-API", {
 
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(function() {
       store.destroy();
     });
@@ -655,8 +657,8 @@ module("unit/store/push - DS.Store#push with JSON-API", {
 });
 
 
-test("Should support pushing multiple models into the store", function() {
-  expect(2);
+test("Should support pushing multiple models into the store", function(assert) {
+  assert.expect(2);
 
   run(function() {
     store.push({
@@ -677,15 +679,15 @@ test("Should support pushing multiple models into the store", function() {
   });
 
   var tom = store.peekRecord('person', 1);
-  equal(tom.get('name'), 'Tom Dale', 'Tom should be in the store');
+  assert.equal(tom.get('name'), 'Tom Dale', 'Tom should be in the store');
 
   var tomster = store.peekRecord('person', 2);
-  equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+  assert.equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
 });
 
 
-test("Should support pushing included models into the store", function() {
-  expect(2);
+test("Should support pushing included models into the store", function(assert) {
+  assert.expect(2);
 
   run(function() {
     store.push({
@@ -722,8 +724,8 @@ test("Should support pushing included models into the store", function() {
   });
 
   var tomster = store.peekRecord('person', 1);
-  equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
+  assert.equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
 
   var car = store.peekRecord('car', 1);
-  equal(car.get('model'), 'Neon', 'Tomster\'s car should be in the store');
+  assert.equal(car.get('model'), 'Neon', 'Tomster\'s car should be in the store');
 });

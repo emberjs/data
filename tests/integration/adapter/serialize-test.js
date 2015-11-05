@@ -1,12 +1,14 @@
 import Ember from 'ember';
 
+import {module, test} from 'qunit';
+
 import DS from 'ember-data';
 
 var run = Ember.run;
 var env, store, adapter, serializer;
 
 module("integration/adapter/serialize - DS.Adapter integration test", {
-  setup: function() {
+  beforeEach: function() {
     var Person = DS.Model.extend({
       name: DS.attr('string')
     });
@@ -17,16 +19,16 @@ module("integration/adapter/serialize - DS.Adapter integration test", {
     serializer = store.serializerFor('person');
   },
 
-  teardown: function() {
+  afterEach: function() {
     run(env.container, 'destroy');
   }
 });
 
-test("serialize() is delegated to the serializer", function() {
-  expect(1);
+test("serialize() is delegated to the serializer", function(assert) {
+  assert.expect(1);
 
   serializer.serialize = function(snapshot, options) {
-    deepEqual(options, { foo: 'bar' });
+    assert.deepEqual(options, { foo: 'bar' });
   };
 
   run(function() {
