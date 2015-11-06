@@ -25,7 +25,7 @@ install:
   - npm config set cache C:\nc
   - npm version
   - npm install --no-optional
-
+  - npm run bower
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
