@@ -1,6 +1,7 @@
 ---
 language: node_js
-sudo: false
+sudo: required
+dist: trusty
 node_js:
   - "0.10"
 before_install:
