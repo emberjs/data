@@ -14,9 +14,8 @@ install:
   # Get the latest stable version of Node 0.STABLE.latest
   - ps: Install-Product node $env:nodejs_version
   # Install PhantomJS
-  - cinst PhantomJS -Version 1.9.8
-  - set path=%path%;C:\tools\PhantomJS\
-  - dir C:\tools\PhantomJS
+  - choco install phantomjs --version 2.0.0 -y
+  - set path=%path%;C:\ProgramData\chocolatey\lib\PhantomJS\tools\
   # Typical npm stuff.
   - md C:\nc
   - npm install -g npm@^2
@@ -32,9 +31,6 @@ test_script:
   - npm version
   - npm run build
   - cmd: npm run test
-  - cmd: npm run test:beta
-  - cmd: npm run test:canary
-  - cmd: npm run test:optional-features
 
 # Don't actually build.
 build: off
