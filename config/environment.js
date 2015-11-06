@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(environment, appConfig) {
-  const ENV = { };
+  var ENV = { };
 
   if (environment === 'testing') {
     ENV.EmberENV = {
