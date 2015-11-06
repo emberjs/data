@@ -376,18 +376,19 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {Object} attribute
   */
   serializeAttribute: function(snapshot, json, key, attribute) {
-    var type = attribute.type;
+    const type = attribute.type;
 
     if (this._canSerialize(key)) {
       json.attributes = json.attributes || {};
 
-      var value = snapshot.attr(key);
+      let value = snapshot.attr(key);
       if (type) {
-        var transform = this.transformFor(type);
+        const transform = this.transformFor(type);
         value = transform.serialize(value);
       }
 
-      var payloadKey =  this._getMappedKey(key);
+      let payloadKey = this._getMappedKey(key, snapshot.type);
+
       if (payloadKey === key) {
         payloadKey = this.keyForAttribute(key, 'serialize');
       }
@@ -411,7 +412,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
         json.relationships = json.relationships || {};
 
-        var payloadKey = this._getMappedKey(key);
+        var payloadKey = this._getMappedKey(key, snapshot.type);
         if (payloadKey === key) {
           payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
         }
@@ -444,7 +445,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
         json.relationships = json.relationships || {};
 
-        var payloadKey = this._getMappedKey(key);
+        var payloadKey = this._getMappedKey(key, snapshot.type);
         if (payloadKey === key && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
