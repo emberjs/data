@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 1.13.15 (November 9, 2015)
+- [#3876](https://github.com/emberjs/data/pull/3876) [BACKPORT] [BUGFIX beta] serialize type for embedded, polymorphic belongsTo
+- [#3891](https://github.com/emberjs/data/pull/3891) Don't use Ember.create by default
+
 ### Release 1.13.14 (October 18, 2015)
 - [#3665](https://github.com/emberjs/data/pull/3665) [BUGFIX beta] Fix usage of registry for 2.1.0+.
 - [#3825](https://github.com/emberjs/data/pull/3825) [BUGFIX] Restore IE8 compatibility by using Ember.create
