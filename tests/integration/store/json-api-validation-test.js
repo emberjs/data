@@ -34,7 +34,7 @@ test("when normalizeResponse returns undefined (or doesn't return), throws an er
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({});
+      return Ember.RSVP.resolve({ data: {} });
     }
   }));
 
@@ -53,7 +53,7 @@ test("when normalizeResponse returns null, throws an error", function(assert) {
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({});
+      return Ember.RSVP.resolve({ data: {} });
     }
   }));
 
@@ -73,7 +73,7 @@ test("when normalizeResponse returns an empty object, throws an error", function
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({});
+      return Ember.RSVP.resolve({ data: {} });
     }
   }));
 
@@ -97,7 +97,7 @@ test("when normalizeResponse returns a document with both data and errors, throw
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({});
+      return Ember.RSVP.resolve({ data: {} });
     }
   }));
 
