@@ -6,7 +6,7 @@ module("unit/store/serializer_for - DS.Store#serializerFor", {
     Person = DS.Model.extend({});
     var env = setupStore({ person: Person });
     store = env.store;
-    container = store.container;
+    container = env.container;
     registry = env.registry;
   },
 

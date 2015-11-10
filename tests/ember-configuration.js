@@ -16,6 +16,8 @@
   // Handle testing feature flags
   ENV['ENABLE_OPTIONAL_FEATURES'] = !!QUnit.urlParams.enableoptionalfeatures;
 
+  var Owner;
+
   window.async = function(callback, timeout) {
     var timer;
     stop();
@@ -51,13 +53,33 @@
   };
 
   window.setupStore = function(options) {
-    var container, registry;
+    var container, registry, owner;
     var env = {};
     options = options || {};
 
+    // This is done once upon first setupStore call (we cannot do it eagerly
+    // because this file is loaded before Ember itself).
+    if (!Owner) {
+      if (Ember._RegistryProxyMixin && Ember._ContainerProxyMixin) {
+        Owner = Ember.Object.extend(Ember._RegistryProxyMixin, Ember._ContainerProxyMixin);
+      } else {
+        Owner = Ember.Object.extend();
+      }
+    }
+
     if (Ember.Registry) {
+
       registry = env.registry = new Ember.Registry();
-      container = env.container = registry.container();
+
+      owner = Owner.create({
+        __registry__: registry
+      });
+
+      container = env.container = registry.container({
+        owner: owner
+      });
+
+      owner.__container__ = container;
     } else {
       container = env.container = new Ember.Container();
       registry = env.registry = container;

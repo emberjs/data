@@ -40,6 +40,10 @@ import {
   _queryRecord
 } from "ember-data/system/store/finders";
 
+import {
+  getOwner
+} from 'ember-data/utils';
+
 import coerceId from "ember-data/system/coerce-id";
 
 import RecordArrayManager from "ember-data/system/record-array-manager";
@@ -219,7 +223,7 @@ Store = Service.extend({
       store: this
     });
     this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(this.container);
+    this._instanceCache = new ContainerInstanceCache(getOwner(this));
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
   },
@@ -1475,11 +1479,12 @@ Store = Service.extend({
     // container.registry = 2.1
     // container._registry = 1.11 - 2.0
     // container = < 1.11
-    var registry = this.container.registry || this.container._registry || this.container;
-    var mixin = this.container.lookupFactory('mixin:' + normalizedModelName);
+    var owner = getOwner(this);
+
+    var mixin = owner._lookupFactory('mixin:' + normalizedModelName);
     if (mixin) {
       //Cache the class as a model
-      registry.register('model:' + normalizedModelName, DS.Model.extend(mixin));
+      owner.register('model:' + normalizedModelName, DS.Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(normalizedModelName);
     if (factory) {
@@ -1518,7 +1523,10 @@ Store = Service.extend({
   modelFactoryFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var normalizedKey = normalizeModelName(modelName);
-    return this.container.lookupFactory('model:' + normalizedKey);
+
+    var owner = getOwner(this);
+
+    return owner._lookupFactory('model:' + normalizedKey);
   },
 
   /**
@@ -1687,7 +1695,7 @@ Store = Service.extend({
   },
 
   _hasModelFor: function(type) {
-    return this.container.lookupFactory(`model:${type}`);
+    return getOwner(this)._lookupFactory(`model:${type}`);
   },
 
   _pushInternalModel: function(data) {
@@ -1854,7 +1862,7 @@ Store = Service.extend({
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    var internalModel = new InternalModel(type, id, this, this.container, data);
+    var internalModel = new InternalModel(type, id, this, null, data);
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.

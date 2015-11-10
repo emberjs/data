@@ -829,4 +829,23 @@ Model.reopenClass({
   modelName: null
 });
 
+// if `Ember.setOwner` is defined, accessing `this.container` is
+// deprecated (but functional). In "standard" Ember usage, this
+// deprecation is actually created via an `.extend` of the factory
+// inside the container itself, but that only happens on models
+// with MODEL_FACTORY_INJECTIONS enabled :(
+if (Ember.setOwner) {
+  Object.defineProperty(Model.prototype, 'container', {
+    configurable: true,
+    enumerable: false,
+    get() {
+      Ember.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.',
+                      false,
+                      { id: 'ember-application.injected-container', until: '3.0.0' });
+
+      return this.store.container;
+    }
+  });
+}
+
 export default Model;
