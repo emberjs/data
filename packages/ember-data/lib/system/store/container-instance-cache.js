@@ -19,9 +19,9 @@ import EmptyObject from "ember-data/system/empty-object";
  * @class ContainerInstanceCache
  *
 */
-export default function ContainerInstanceCache(container) {
-  this._container = container;
-  this._cache     = new EmptyObject();
+export default function ContainerInstanceCache(owner) {
+  this._owner = owner;
+  this._cache = new EmptyObject();
 }
 
 ContainerInstanceCache.prototype = new EmptyObject();
@@ -55,7 +55,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
   instanceFor: function(key) {
     let cache = this._cache;
     if (!cache[key]) {
-      let instance = this._container.lookup(key);
+      let instance = this._owner.lookup(key);
       if (instance) {
         cache[key] = instance;
       }
@@ -74,7 +74,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
         cacheEntry.destroy();
       }
     }
-    this._container = null;
+    this._owner = null;
   },
 
   constructor: ContainerInstanceCache,
