@@ -803,7 +803,7 @@ export default Adapter.extend(BuildURLMixin, {
     * Registers success and failure handlers.
 
     @method ajax
-    @private
+    @public
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
     @param {Object} options
