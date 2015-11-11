@@ -2,6 +2,15 @@
 
 ### Master
 
+### Release 2.2.0-beta.4 (November 11, 2015)
+- [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
+- [#3875](https://github.com/emberjs/data/pull/3875) [BUGFIX beta] serialize type for embedded, polymorphic belongsTo
+- [#3900](https://github.com/emberjs/data/pull/3900) [DOC fix] errors pointers should start with a /
+- [#3905](https://github.com/emberjs/data/pull/3905) [BUGFIX release] Update the dependencies for Ember 2.x
+- [#3909](https://github.com/emberjs/data/pull/3909) [BUGFIX beta] Correctly handle object level errors in json api
+- [#3910](https://github.com/emberjs/data/pull/3910) [BUGFIX release] Normalize attrs keys
+- [#3912](https://github.com/emberjs/data/pull/3912) Use public API for container/registry when possible.
+
 ### Release 2.2.0-beta.3 (October 27, 2015)
 - [#3835](https://github.com/emberjs/data/pull/3835) [BUGFIX] extract polymorphic belongsTo in RESTSerializer
 - [#3887](https://github.com/emberjs/data/pull/3887) [BUGFIX release] update ember-inflector to resolve default Inflector …
