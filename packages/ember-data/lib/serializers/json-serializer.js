@@ -550,6 +550,10 @@ export default Serializer.extend({
 
     modelClass.eachAttribute((key) => {
       attributeKey = this.keyForAttribute(key, 'deserialize');
+      // Make sure attributes mapped by `attrs` are copied
+      if (resourceHash.hasOwnProperty(key)) {
+        attributes[key] = resourceHash[key];
+      }
       if (resourceHash.hasOwnProperty(attributeKey)) {
         attributes[key] = resourceHash[attributeKey];
       }
