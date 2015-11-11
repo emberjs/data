@@ -47,9 +47,31 @@ var errorsArray = [
   }
 ];
 
+var errorsPrimaryHash = {
+  base: ['is invalid', 'error message']
+};
+
+var errorsPrimaryArray = [
+  {
+    title: 'Invalid Document',
+    detail: 'is invalid',
+    source: { pointer: '/data' }
+  },
+  {
+    title: 'Invalid Document',
+    detail: 'error message',
+    source: { pointer: '/data' }
+  }
+];
+
 test("errorsHashToArray", function() {
   var result = DS.errorsHashToArray(errorsHash);
   deepEqual(result, errorsArray);
+});
+
+test("errorsHashToArray for primary data object", function() {
+  var result = DS.errorsHashToArray(errorsPrimaryHash);
+  deepEqual(result, errorsPrimaryArray);
 });
 
 test("errorsArrayToHash", function() {
@@ -65,6 +87,11 @@ test("errorsArrayToHash without trailing slash", function() {
     }
   ]);
   deepEqual(result, { name: ['error message'] });
+});
+
+test("errorsArrayToHash for primary data object", function() {
+  var result = DS.errorsArrayToHash(errorsPrimaryArray);
+  deepEqual(result, errorsPrimaryHash);
 });
 
 test("DS.InvalidError will normalize errors hash will assert", function() {
