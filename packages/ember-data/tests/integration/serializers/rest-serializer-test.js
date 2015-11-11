@@ -409,6 +409,28 @@ test('normalize should allow for different levels of normalization', function() 
   equal(array.data[0].relationships.superVillain.data.id, 1);
 });
 
+test('normalize should allow for different levels of normalization - attributes', function() {
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
+    attrs: {
+      name: 'full_name'
+    },
+    keyForAttribute: function(attr) {
+      return Ember.String.decamelize(attr);
+    }
+  }));
+
+  var jsonHash = {
+    evilMinions: [{ id: "1", full_name: "Tom Dale" }]
+  };
+  var array;
+
+  run(function() {
+    array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+  });
+
+  equal(array.data[0].attributes.name, 'Tom Dale');
+});
+
 test("serializeIntoHash", function() {
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });

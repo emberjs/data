@@ -714,17 +714,26 @@ export default Serializer.extend({
     @method normalizeUsingDeclaredMapping
     @private
   */
-  normalizeUsingDeclaredMapping: function(typeClass, hash) {
+  normalizeUsingDeclaredMapping: function(modelClass, hash) {
     var attrs = get(this, 'attrs');
-    var payloadKey, key;
+    var payloadKey, normalizedKey, key;
 
     if (attrs) {
       for (key in attrs) {
-        payloadKey = this._getMappedKey(key);
+        payloadKey = this._getMappedKey(key, modelClass);
+
         if (!hash.hasOwnProperty(payloadKey)) { continue; }
 
-        if (payloadKey !== key) {
-          hash[key] = hash[payloadKey];
+        if (get(modelClass, 'attributes').has(key)) {
+          normalizedKey = this.keyForAttribute(key);
+        }
+
+        if (get(modelClass, 'relationshipsByName').has(key)) {
+          normalizedKey = this.keyForRelationship(key);
+        }
+
+        if (payloadKey !== normalizedKey) {
+          hash[normalizedKey] = hash[payloadKey];
           delete hash[payloadKey];
         }
       }
@@ -753,7 +762,9 @@ export default Serializer.extend({
     @param {String} key
     @return {String} key
   */
-  _getMappedKey: function(key) {
+  _getMappedKey: function(key, modelClass) {
+    Ember.assert('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key));
+
     var attrs = get(this, 'attrs');
     var mappedKey;
     if (attrs && attrs[key]) {
@@ -1066,7 +1077,7 @@ export default Serializer.extend({
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
-      var payloadKey =  this._getMappedKey(key);
+      var payloadKey =  this._getMappedKey(key, snapshot.type);
 
       if (payloadKey === key && this.keyForAttribute) {
         payloadKey = this.keyForAttribute(key, 'serialize');
@@ -1111,7 +1122,7 @@ export default Serializer.extend({
 
       // if provided, use the mapping provided by `attrs` in
       // the serializer
-      var payloadKey = this._getMappedKey(key);
+      var payloadKey = this._getMappedKey(key, snapshot.type);
       if (payloadKey === key && this.keyForRelationship) {
         payloadKey = this.keyForRelationship(key, "belongsTo", "serialize");
       }
@@ -1163,7 +1174,7 @@ export default Serializer.extend({
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
         // the serializer
-        var payloadKey = this._getMappedKey(key);
+        var payloadKey = this._getMappedKey(key, snapshot.type);
         if (payloadKey === key && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(key, "hasMany", "serialize");
         }
