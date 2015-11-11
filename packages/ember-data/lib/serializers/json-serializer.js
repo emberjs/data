@@ -3,6 +3,10 @@ import coerceId from "ember-data/system/coerce-id";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import { modelHasAttributeOrRelationshipNamedType } from "ember-data/utils";
 
+import {
+  getOwner
+} from 'ember-data/utils';
+
 import { errorsArrayToHash } from "ember-data/adapters/errors";
 
 var get = Ember.get;
@@ -1366,8 +1370,10 @@ export default Serializer.extend({
    @return {DS.Transform} transform
   */
   transformFor: function(attributeType, skipAssertion) {
-    var transform = this.container.lookup('transform:' + attributeType);
+    var transform = getOwner(this).lookup('transform:' + attributeType);
+
     Ember.assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
+
     return transform;
   }
 });
