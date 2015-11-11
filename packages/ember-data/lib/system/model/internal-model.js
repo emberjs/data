@@ -11,6 +11,7 @@ import {
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
+var copy = Ember.copy;
 
 var _extractPivotNameCache = new EmptyObject();
 var _splitOnDotCache = new EmptyObject();
@@ -283,6 +284,52 @@ InternalModel.prototype = {
   flushChangedAttributes: function() {
     this._inFlightAttributes = this._attributes;
     this._attributes = new EmptyObject();
+  },
+
+  hasChangedAttributes: function() {
+    return Object.keys(this._attributes).length > 0;
+  },
+
+  /**
+    Checks if the attributes which are considered as changed are still
+    different to the state which is acknowledged by the server.
+
+    This method is needed when data for the internal model is pushed and the
+    pushed data might acknowledge dirty attributes as confirmed.
+   */
+  updateChangedAttributes: function() {
+    var changedAttributes = this.changedAttributes();
+    var changedAttributeNames = Object.keys(changedAttributes);
+
+    for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
+      let attribute = changedAttributeNames[i];
+      let [oldData, newData] = changedAttributes[attribute];
+
+      if (oldData === newData) {
+        delete this._attributes[attribute];
+      }
+    }
+  },
+
+  /**
+    Returns an object, whose keys are changed properties, and value is an
+    [oldProp, newProp] array.
+  */
+  changedAttributes: function() {
+    var oldData = this._data;
+    var currentData = this._attributes;
+    var inFlightData = this._inFlightAttributes;
+    var newData = merge(copy(inFlightData), currentData);
+    var diffData = new EmptyObject();
+
+    var newDataKeys = Object.keys(newData);
+
+    for (let i = 0, length = newDataKeys.length; i < length; i++) {
+      let key = newDataKeys[i];
+      diffData[key] = [oldData[key], newData[key]];
+    }
+
+    return diffData;
   },
 
   /**

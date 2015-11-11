@@ -241,13 +241,16 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(internalModel, name) {
-      var length = Object.keys(internalModel._attributes).length;
-      var stillDirty = length > 0;
-
-      if (!stillDirty) { internalModel.send('rolledBack'); }
+      if (!internalModel.hasChangedAttributes()) { internalModel.send('rolledBack'); }
     },
 
-    pushedData: Ember.K,
+    pushedData: function(internalModel) {
+      internalModel.updateChangedAttributes();
+
+      if (!internalModel.hasChangedAttributes()) {
+        internalModel.transitionTo('loaded.saved');
+      }
+    },
 
     becomeDirty: Ember.K,
 
@@ -534,10 +537,7 @@ var RootState = {
     // in the `saved` state.
     saved: {
       setup: function(internalModel) {
-        var attrs = internalModel._attributes;
-        var isDirty = Object.keys(attrs).length > 0;
-
-        if (isDirty) {
+        if (internalModel.hasChangedAttributes()) {
           internalModel.adapterDidDirty();
         }
       },
