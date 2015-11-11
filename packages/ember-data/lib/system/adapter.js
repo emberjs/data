@@ -437,6 +437,7 @@ export default Ember.Object.extend({
     @param {Array} snapshots
     @return {Promise} promise
   */
+  findMany: null,
 
   /**
     Organize records into groups, each of which is to be passed to separate
