@@ -296,6 +296,30 @@ test('Serializer should respect the attrs hash when extracting records', functio
   assert.deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }, { id: "2", type: "comment" }]);
 });
 
+test('Serializer should map `attrs` attributes directly when keyForAttribute also has a transform', function(assert) {
+  Post = DS.Model.extend({
+    authorName: DS.attr('string')
+  });
+  env = setupStore({
+    post: Post
+  });
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    keyForAttribute: Ember.String.underscore,
+    attrs: {
+      authorName: 'author_name_key'
+    }
+  }));
+
+  var jsonHash = {
+    id: "1",
+    author_name_key: "DHH"
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  assert.equal(post.data.attributes.authorName, "DHH");
+});
+
 test('Serializer should respect the attrs hash when serializing records', function(assert) {
   Post.reopen({
     parentPost: DS.belongsTo('post', { inverse: null, async: true })

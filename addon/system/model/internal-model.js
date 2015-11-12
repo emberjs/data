@@ -4,9 +4,14 @@ import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
 import EmptyObject from "ember-data/system/empty-object";
 
+import {
+  getOwner
+} from 'ember-data/utils';
+
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
+var copy = Ember.copy;
 
 var _extractPivotNameCache = new EmptyObject();
 var _splitOnDotCache = new EmptyObject();
@@ -46,11 +51,10 @@ var guid = 0;
   @class InternalModel
 */
 
-export default function InternalModel(type, id, store, container, data) {
+export default function InternalModel(type, id, store, _, data) {
   this.type = type;
   this.id = id;
   this.store = store;
-  this.container = container;
   this._data = data || new EmptyObject();
   this.modelName = type.modelName;
   this.dataHasInitialized = false;
@@ -110,17 +114,27 @@ InternalModel.prototype = {
   constructor: InternalModel,
   materializeRecord: function() {
     Ember.assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
+
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    this.record = this.type._create({
+    var createOptions = {
       store: this.store,
-      container: this.container,
       _internalModel: this,
       id: this.id,
       currentState: get(this, 'currentState'),
       isError: this.isError,
       adapterError: this.error
-    });
+    };
+
+    if (Ember.setOwner) {
+      // ensure that `Ember.getOwner(this)` works inside a model instance
+      Ember.setOwner(createOptions, getOwner(this.store));
+    } else {
+      createOptions.container = this.store.container;
+    }
+
+    this.record = this.type._create(createOptions);
+
     this._triggerDeferredTriggers();
   },
 
@@ -270,6 +284,52 @@ InternalModel.prototype = {
   flushChangedAttributes: function() {
     this._inFlightAttributes = this._attributes;
     this._attributes = new EmptyObject();
+  },
+
+  hasChangedAttributes: function() {
+    return Object.keys(this._attributes).length > 0;
+  },
+
+  /**
+    Checks if the attributes which are considered as changed are still
+    different to the state which is acknowledged by the server.
+
+    This method is needed when data for the internal model is pushed and the
+    pushed data might acknowledge dirty attributes as confirmed.
+   */
+  updateChangedAttributes: function() {
+    var changedAttributes = this.changedAttributes();
+    var changedAttributeNames = Object.keys(changedAttributes);
+
+    for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
+      let attribute = changedAttributeNames[i];
+      let [oldData, newData] = changedAttributes[attribute];
+
+      if (oldData === newData) {
+        delete this._attributes[attribute];
+      }
+    }
+  },
+
+  /**
+    Returns an object, whose keys are changed properties, and value is an
+    [oldProp, newProp] array.
+  */
+  changedAttributes: function() {
+    var oldData = this._data;
+    var currentData = this._attributes;
+    var inFlightData = this._inFlightAttributes;
+    var newData = merge(copy(inFlightData), currentData);
+    var diffData = new EmptyObject();
+
+    var newDataKeys = Object.keys(newData);
+
+    for (let i = 0, length = newDataKeys.length; i < length; i++) {
+      let key = newDataKeys[i];
+      diffData[key] = [oldData[key], newData[key]];
+    }
+
+    return diffData;
   },
 
   /**

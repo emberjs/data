@@ -10,7 +10,7 @@ var env, store, serializer;
 var get = Ember.get;
 var run = Ember.run;
 
-var User, Handle, GithubHandle, TwitterHandle, Company;
+var User, Handle, GithubHandle, TwitterHandle, Company, Project;
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', {
   beforeEach: function() {
@@ -39,6 +39,10 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
       employees: DS.hasMany('user', { async: true })
     });
 
+    Project = DS.Model.extend({
+      'company-name': DS.attr('string')
+    });
+
     env = setupStore({
       adapter: DS.JSONAPIAdapter,
 
@@ -46,7 +50,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
       handle: Handle,
       'github-handle': GithubHandle,
       'twitter-handle': TwitterHandle,
-      company: Company
+      company: Company,
+      project: Project
     });
 
     store = env.store;
@@ -132,6 +137,7 @@ test('Warns when normalizing an unknown type', function(assert) {
 test('Serializer should respect the attrs hash when extracting attributes and relationships', function(assert) {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
+      firstName: 'firstname_attribute_key',
       title: "title_attribute_key",
       company: { key: 'company_relationship_key' }
     }
@@ -142,6 +148,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
       type: 'users',
       id: '1',
       attributes: {
+        'firstname_attribute_key': 'Yehuda',
         'title_attribute_key': 'director'
       },
       relationships: {
@@ -161,6 +168,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 
   var user = env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
+  assert.equal(user.data.attributes.firstName, 'Yehuda');
   assert.equal(user.data.attributes.title, "director");
   assert.deepEqual(user.data.relationships.company.data, { id: "2", type: "company" });
 });
@@ -168,6 +176,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 test('Serializer should respect the attrs hash when serializing attributes and relationships', function(assert) {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
+      firstName: 'firstname_attribute_key',
       title: "title_attribute_key",
       company: { key: 'company_relationship_key' }
     }
@@ -191,5 +200,45 @@ test('Serializer should respect the attrs hash when serializing attributes and r
   var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
 
   assert.equal(payload.data.relationships['company_relationship_key'].data.id, "1");
+  assert.equal(payload.data.attributes['firstname_attribute_key'], 'Yehuda');
   assert.equal(payload.data.attributes['title_attribute_key'], "director");
+});
+
+test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function(assert) {
+  env.registry.register('serializer:project', DS.JSONAPISerializer.extend({
+    attrs: {
+      'company-name': 'company_name'
+    }
+  }));
+
+  var jsonHash = {
+    data: {
+      type: 'projects',
+      id: '1',
+      attributes: {
+        'company_name': 'Tilde Inc.'
+      }
+    }
+  };
+
+  var project = env.store.serializerFor('project').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+
+  assert.equal(project.data.attributes['company-name'], 'Tilde Inc.');
+});
+
+test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function(assert) {
+  env.registry.register('serializer:project', DS.JSONAPISerializer.extend({
+    attrs: {
+      'company-name': 'company_name'
+    }
+  }));
+  var project;
+
+  run(function() {
+    project = env.store.createRecord('project', { 'company-name': 'Tilde Inc.' });
+  });
+
+  var payload = env.store.serializerFor('project').serialize(project._createSnapshot());
+
+  assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });

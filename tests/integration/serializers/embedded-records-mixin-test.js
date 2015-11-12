@@ -1164,6 +1164,57 @@ test("serialize with embedded object (belongsTo relationship)", function(assert)
   });
 });
 
+test("serialize with embedded object (polymorphic belongsTo relationship)", function(assert) {
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { embedded: 'always' }
+    }
+  }));
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
+  });
+
+  var json, tom;
+  run(function() {
+    tom = env.store.createRecord(
+      'super-villain',
+      {
+        id: "1",
+        firstName: "Tom",
+        lastName: "Dale",
+        secretLab: env.store.createRecord('bat-cave', {
+          id: "101",
+          minionCapacity: 5000,
+          vicinity: "California, USA",
+          infiltrated: true
+        }),
+        homePlanet: env.store.createRecord('home-planet', {
+          id: "123",
+          name: "Villain League"
+        })
+      }
+    );
+  });
+
+  run(function() {
+    json = tom.serialize();
+  });
+
+  assert.deepEqual(json, {
+    firstName: get(tom, "firstName"),
+    lastName: get(tom, "lastName"),
+    homePlanet: get(tom, "homePlanet").get("id"),
+    secretLabType: 'batCave',
+    secretLab: {
+      id: get(tom, "secretLab").get("id"),
+      minionCapacity: get(tom, "secretLab").get("minionCapacity"),
+      vicinity: get(tom, "secretLab").get("vicinity"),
+      infiltrated: true
+    }
+  });
+});
+
 test("serialize with embedded object (belongsTo relationship) works with different primaryKeys", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     primaryKey: '_id',
@@ -1240,6 +1291,111 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
       minionCapacity: get(tom, "secretLab").get("minionCapacity"),
       vicinity: get(tom, "secretLab").get("vicinity")
     }
+  });
+});
+
+test("serialize with embedded object (polymorphic belongsTo relationship) supports serialize:ids", function(assert) {
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
+  });
+
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { serialize: 'ids' }
+    }
+  }));
+
+  var tom, json;
+  run(function() {
+    tom = env.store.createRecord(
+      'super-villain',
+      { firstName: "Tom", lastName: "Dale", id: "1",
+        secretLab: env.store.createRecord('bat-cave', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
+      }
+    );
+  });
+
+  run(function() {
+    json = tom.serialize();
+  });
+
+  assert.deepEqual(json, {
+    firstName: get(tom, "firstName"),
+    lastName: get(tom, "lastName"),
+    homePlanet: get(tom, "homePlanet").get("id"),
+    secretLab: get(tom, "secretLab").get("id"),
+    secretLabType: 'batCave'
+  });
+});
+
+test("serialize with embedded object (belongsTo relationship) supports serialize:id", function(assert) {
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
+  });
+
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { serialize: 'id' }
+    }
+  }));
+
+  var tom, json;
+  run(function() {
+    tom = env.store.createRecord(
+      'super-villain',
+      { firstName: "Tom", lastName: "Dale", id: "1",
+        secretLab: env.store.createRecord('bat-cave', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
+      }
+    );
+  });
+
+  run(function() {
+    json = tom.serialize();
+  });
+
+  assert.deepEqual(json, {
+    firstName: get(tom, "firstName"),
+    lastName: get(tom, "lastName"),
+    homePlanet: get(tom, "homePlanet").get("id"),
+    secretLab: get(tom, "secretLab").get("id"),
+    secretLabType: 'batCave'
+  });
+});
+
+test("serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records", function(assert) {
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
+  });
+
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { serialize: 'id', deserialize: 'records' }
+    }
+  }));
+
+  var tom, json;
+  run(function() {
+    tom = env.store.createRecord(
+      'super-villain',
+      { firstName: "Tom", lastName: "Dale", id: "1",
+        secretLab: env.store.createRecord('bat-cave', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
+      }
+    );
+  });
+
+  run(function() {
+    json = tom.serialize();
+  });
+
+  assert.deepEqual(json, {
+    firstName: get(tom, "firstName"),
+    lastName: get(tom, "lastName"),
+    homePlanet: get(tom, "homePlanet").get("id"),
+    secretLab: get(tom, "secretLab").get("id"),
+    secretLabType: 'batCave'
   });
 });
 

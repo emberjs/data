@@ -20,7 +20,7 @@ module("unit/store/model_for - DS.Store#modelFor", {
       "blog.post": DS.Model.extend()
     });
     store = env.store;
-    container = store.container;
+    container = env.container;
     registry = env.registry;
   },
 
