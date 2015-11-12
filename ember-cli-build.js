@@ -1,4 +1,5 @@
 /* global require, module */
+/* jshint node: true*/
 var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
 var globals  = require('./lib/globals');
@@ -16,6 +17,11 @@ module.exports = function(defaults) {
   */
 
   var appTree = app.toTree();
-  var globalsBuild = globals('addon', 'config/package-manager-files');
-  return merge([appTree, globalsBuild]);
+
+  if (process.env.EMBER_ENV === 'production') {
+    var globalsBuild = globals('addon', 'config/package-manager-files');
+    return merge([appTree, globalsBuild]);
+  } else {
+    return appTree;
+  }
 };
