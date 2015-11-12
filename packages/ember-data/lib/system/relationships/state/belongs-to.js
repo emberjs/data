@@ -130,8 +130,7 @@ BelongsToRelationship.prototype.getRecord = function() {
     }
 
     return PromiseObject.create({
-      promise: promise,
-      content: this.inverseRecord ? this.inverseRecord.getRecord() : null
+      promise: promise
     });
   } else {
     if (this.inverseRecord === null) {
