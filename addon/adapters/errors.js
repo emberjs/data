@@ -1,3 +1,4 @@
+import {assert} from 'ember-data/debug';
 const EmberError = Ember.Error;
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
@@ -78,7 +79,7 @@ AdapterError.prototype = Object.create(EmberError.prototype);
   @namespace DS
 */
 export function InvalidError(errors) {
-  Ember.assert('`InvalidError` expects json-api formatted errors array.', Ember.isArray(errors || []));
+  assert('`InvalidError` expects json-api formatted errors array.', Ember.isArray(errors || []));
   AdapterError.call(this, errors, 'The adapter rejected the commit because it was invalid');
 }
 

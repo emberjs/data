@@ -1,3 +1,6 @@
+import Ember from 'ember';
+import VERSION from 'ember-data/version';
+
 /**
   @module ember-data
 */
@@ -12,12 +15,11 @@
 /**
   @property VERSION
   @type String
-  @default 'VERSION_STRING_PLACEHOLDER'
   @static
 */
 /*jshint -W079 */
 var DS = Ember.Namespace.create({
-  VERSION: 'VERSION_STRING_PLACEHOLDER'
+  VERSION: VERSION
 });
 
 if (Ember.libraries) {

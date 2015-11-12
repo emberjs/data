@@ -1,3 +1,4 @@
+import Ember from "ember";
 /**
   Ember Data
   @module ember-data
