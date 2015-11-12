@@ -21,7 +21,7 @@ setResolver(resolver);
 
 const ENV = Ember.ENV;
 const QUNIT_PARAMS = QUnit.urlParams;
-const {assert} = QUnit;
+const { assert } = QUnit;
 
 ENV.EXTEND_PROTOTYPES = QUNIT_PARAMS.extendprototypes;
 ENV.ENABLE_OPTIONAL_FEATURES = QUNIT_PARAMS.enableoptionalfeatures;

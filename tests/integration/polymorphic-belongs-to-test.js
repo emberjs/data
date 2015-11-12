@@ -5,8 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-const {attr, belongsTo} = DS;
-const {run} = Ember;
+const { attr, belongsTo } = DS;
+const { run } = Ember;
 
 let store;
 

@@ -416,7 +416,7 @@ test("belongsTo gives a warning when provided with a serialize option", function
     });
   });
 
-    run(function() {
+  run(function() {
       store.find('person', 1).then(assert.wait(function(person) {
         assert.warns(function() {
           get(person, 'hobby');
@@ -470,10 +470,10 @@ test("belongsTo gives a warning when provided with an embedded option", function
     });
   });
 
-    run(function() {
+  run(function() {
       store.find('person', 1).then(assert.wait(function(person) {
         assert.warns(function() {
-        get(person, 'hobby');
+          get(person, 'hobby');
         }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
       }));
     });

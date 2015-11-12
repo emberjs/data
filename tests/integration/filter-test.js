@@ -653,7 +653,7 @@ var serverResponds = function() {
   edited.forEach(function(person) { run(person, 'save'); });
 };
 
-var setup = function(assert, serverCallbacks){
+var setup = function(assert, serverCallbacks) {
   run(function() {
     customAdapter(env, DS.Adapter.extend(serverCallbacks));
 

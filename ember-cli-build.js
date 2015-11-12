@@ -7,6 +7,10 @@ var yuidoc   = require('./lib/yuidoc');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
+    jscsOptions: {
+      enabled: true,
+      excludeFiles: ['tests/dummy/config']
+    }
     // Add options here
   });
 
