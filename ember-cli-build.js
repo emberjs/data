@@ -1,5 +1,7 @@
 /* global require, module */
 var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
+var merge    = require('broccoli-merge-trees');
+var globals  = require('./lib/globals');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
@@ -13,5 +15,7 @@ module.exports = function(defaults) {
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
 
-  return app.toTree();
+  var appTree = app.toTree();
+  var globalsBuild = globals('addon', 'config/package-manager-files');
+  return merge([appTree, globalsBuild]);
 };
