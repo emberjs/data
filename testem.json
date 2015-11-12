@@ -1,14 +1,12 @@
 {
-  "test_page": "dist/index.html",
-  "serve_files": [
-    "dist/**/*.js",
-    "tests/**/*"
-  ],
-  "routes": {
-    "/ember-data.js": "dist/ember-data.js",
-    "/tests/tests.js": "dist/tests.js"
-  },
+  "framework": "qunit",
+  "test_page": "tests/index.html?hidepassed",
+  "disable_watching": true,
   "launch_in_ci": [
     "PhantomJS"
+  ],
+  "launch_in_dev": [
+    "PhantomJS",
+    "Chrome"
   ]
 }

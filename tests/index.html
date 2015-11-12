@@ -1,82 +1,33 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Ember Data</title>
-    <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
-    <script src="/bower_components/qunit/qunit/qunit.js"></script>
-    <script src="qunit-configuration.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Dummy Tests</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script type="text/javascript">
-      window.loadScript = function(url) {
-            document.write(unescape('%3Cscript src="'+url+'"%3E%3C/script%3E'));
-      };
-    </script>
+    {{content-for 'head'}}
+    {{content-for 'test-head'}}
 
-    <script type="text/javascript">
-      // Load custom version of jQuery if possible (assign to window so IE8 can use in later blocks)
-      var jQueryVersion = QUnit.urlParams.jquery;
-      if (jQueryVersion) {
-        loadScript('https://code.jquery.com/jquery-'+jQueryVersion+'.js');
-      }
-      // Close the script tag to make sure document.write happens
-    </script>
+    <link rel="stylesheet" href="assets/vendor.css">
+    <link rel="stylesheet" href="assets/dummy.css">
+    <link rel="stylesheet" href="assets/test-support.css">
 
-    <script type="text/javascript">
-      // Fallback to default jQuery
-      if (jQueryVersion !== 'none' && !window.jQuery) {
-        loadScript('/bower_components/jquery/jquery.js');
-      }
-      // Close the script tag to make sure document.write happens
-    </script>
-
-    <script src="ember-configuration.js"></script>
-
-    <script type="text/javascript">
-      var emberChannel = QUnit.urlParams.emberchannel || "release", emberPath;
-      if (emberChannel === "release") {
-        emberPath = "/bower_components/ember/ember.debug.js";
-      } else {
-        emberPath = 'https://s3.amazonaws.com/builds.emberjs.com/' + emberChannel + '/ember.debug.js';
-      }
-      loadScript(emberPath);
-    </script>
-    <!--[if lte IE 8]>
-      <script src="/bower_components/es5-shim/es5-shim.js"></script>
-      <script src="/bower_components/es5-shim/es5-sham.js"></script>
-    <![endif]]-->
-
-    <script src="/bower_components/loader.js/loader.js"></script>
-    <script src="/ember-data.js"></script>
-    <script src="ember-data-setup.js"></script>
-    <script src="ember-data-tests.js"></script>
-
-    <script type="text/javascript">
-      (function(){
-        var packages = QUnit.urlParams.package;
-        packages     = (packages && packages.split(',')) || [".*"];
-
-        var packageRegexp   = new RegExp('^('+packages.join('|')+')/');
-        var skipPackages    = QUnit.urlParams.skipPackage;
-        skipPackages        = (skipPackages && skipPackages.split(',')) || [];
-
-        var skipPackageRegexp = new RegExp('^('+skipPackages.join('|')+')/');
-
-        var keys = Object.keys(requirejs.entries);
-
-        for (var i = 0, length = keys.length; i < length; i++) {
-          var moduleName = keys[i];
-          if (!moduleName.match(packageRegexp))   { continue; }
-          if (moduleName.match(skipPackageRegexp)) { continue; }
-          if (moduleName.match(/[_-]test$/)) { require(moduleName); }
-          if (!QUnit.urlParams.nojshint && moduleName.match(/[-_.]jshint$/)) { require(moduleName); }
-        }
-      })();
-    </script>
+    {{content-for 'head-footer'}}
+    {{content-for 'test-head-footer'}}
   </head>
-<body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <script src="/testem.js"></script>
-</body>
+  <body>
+
+    {{content-for 'body'}}
+    {{content-for 'test-body'}}
+    <script src="assets/vendor.js"></script>
+    <script src="assets/test-support.js"></script>
+    <script src="assets/dummy.js"></script>
+    <script src="testem.js" integrity=""></script>
+    <script src="assets/test-loader.js"></script>
+
+    {{content-for 'body-footer'}}
+    {{content-for 'test-body-footer'}}
+  </body>
 </html>

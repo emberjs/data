@@ -1,6 +1,7 @@
 ---
 language: node_js
-sudo: false
+sudo: required
+dist: trusty
 node_js:
   - "0.10"
 before_install:
@@ -8,12 +9,10 @@ before_install:
   - "npm install -g npm@^2"
 install:
   - npm install --no-optional
+  - ./node_modules/.bin/bower install
 script:
   - ./bin/lint-features
   - npm run-script test
-  - npm run-script test:beta
-  - npm run-script test:canary
-  - npm run-script test:optional-features
 after_success:
   - npm run-script publish-build:prebuilt
   - "./bin/bower-ember-data-build"

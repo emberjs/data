@@ -1,73 +1,68 @@
 {
   "name": "ember-data",
-  "version": "2.3.0-canary",
-  "namespace": "DS",
-  "repository": "git://github.com/emberjs/data.git",
+  "version": "2.3.0+canary",
+  "description": "The default blueprint for ember-cli addons.",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "start": "ember server",
+    "test": "ember try:testall",
+    "bower": "bower install"
+  },
+  "repository": "",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "author": "",
   "license": "MIT",
+  "dependencies": {
+    "broccoli-file-creator": "^1.0.0",
+    "broccoli-merge-trees": "^1.0.0",
+    "ember-cli-babel": "^5.1.3"
+  },
+  "devDependencies": {
+    "babel-plugin-filter-imports": "^0.2.0",
+    "bower": "^1.6.5",
+    "broccoli-asset-rev": "^2.1.2",
+    "broccoli-babel-transpiler": "^5.5.0",
+    "broccoli-concat": "0.0.13",
+    "broccoli-funnel": "^1.0.0",
+    "broccoli-jscs": "^1.1.0",
+    "broccoli-stew": "^1.0.1",
+    "broccoli-string-replace": "^0.1.1",
+    "broccoli-uglify-sourcemap": "^1.0.1",
+    "broccoli-yuidoc": "^2.1.0",
+    "ember-cli": "1.13.8",
+    "ember-cli-app-version": "0.5.0",
+    "ember-cli-content-security-policy": "0.4.0",
+    "ember-cli-dependency-checker": "^1.0.1",
+    "ember-cli-htmlbars": "0.7.9",
+    "ember-cli-htmlbars-inline-precompile": "^0.2.0",
+    "ember-cli-ic-ajax": "0.2.1",
+    "ember-cli-inject-live-reload": "^1.3.1",
+    "ember-cli-qunit": "^1.0.0",
+    "ember-cli-release": "0.2.3",
+    "ember-cli-sri": "^1.0.3",
+    "ember-cli-uglify": "^1.2.0",
+    "ember-disable-prototype-extensions": "^1.0.0",
+    "ember-disable-proxy-controllers": "^1.0.0",
+    "ember-export-application-global": "^1.0.3",
+    "ember-inflector": "^1.9.3",
+    "ember-try": "0.0.6",
+    "ember-watson": "^0.7.0",
+    "git-repo-version": "^0.3.0",
+    "lodash.assign": "^3.2.0"
+  },
+  "peerDependencies": {
+    "ember-inflector": "^1.0.0"
+  },
   "keywords": [
     "ember-addon"
   ],
-  "main": "lib/ember-addon/index.js",
   "ember-addon": {
-    "main": "lib/ember-addon/index.js"
-  },
-  "files": [
-    "lib/ember-addon"
-  ],
-  "scripts": {
-    "build": "ember build",
-    "build:production": "ember build --environment=production",
-    "prepublish": "bower install && npm run-script build:production",
-    "start": "ember serve",
-    "test": "jscs packages && testem -R dot ci",
-    "publish-build": "npm run build:production && ./bin/publish-to-s3.js",
-    "publish-build:prebuilt": "./bin/publish-to-s3.js",
-    "test:local": "testem -R dot ci",
-    "test:beta": "testem -f config/testem-beta.json -R dot ci",
-    "test:canary": "testem -f config/testem-canary.json -R dot ci",
-    "test:stable": "testem -f config/testem-stable.json -R dot ci",
-    "test:optional-features": "testem -f config/testem-optional-features.json -R dot ci"
-  },
-  "devDependencies": {
-    "aws-sdk": "~2.0.0-rc8",
-    "bower": "~1.3",
-    "broccoli-babel-transpiler": "5.1.1",
-    "broccoli-compile-modules": "^1.1.0",
-    "broccoli-concat": "0.0.12",
-    "broccoli-defeatureify": "^1.0.0",
-    "broccoli-env": "0.0.1",
-    "broccoli-es3-safe-recast": "2.0.0",
-    "broccoli-es6-module-transpiler": "^0.5.0",
-    "broccoli-es6-transpiler": "^0.1.0",
-    "broccoli-file-creator": "^0.1.0",
-    "broccoli-file-mover": "~0.2.0",
-    "broccoli-jscs": "0.0.22",
-    "broccoli-jshint": "^0.5.6",
-    "broccoli-merge-trees": "^0.1.4",
-    "broccoli-render-template": "0.0.3",
-    "broccoli-replace": "~0.2.0",
-    "broccoli-sourcemap-concat": "^0.4.4",
-    "broccoli-static-compiler": "^0.2.1",
-    "broccoli-stew": "^0.2.1",
-    "broccoli-uglify-js": "^0.1.3",
-    "broccoli-wrap": "0.0.2",
-    "broccoli-yuidoc": "^1.3.0",
-    "defeatureify": "~0.1.4",
-    "ejs": "^1.0.0",
-    "ember-cli": "^1.13.8",
-    "ember-cli-dependency-checker": "^1.0.1",
-    "ember-inflector": "^1.9.3",
-    "ember-publisher": "0.0.7",
-    "es6-module-transpiler": "^0.9.5",
-    "es6-module-transpiler-amd-formatter": "^0.2.4",
-    "es6-module-transpiler-package-resolver": "^1.0.1",
-    "git-repo-version": "0.0.2",
-    "github": "^0.2.4",
-    "jscs": "^1.12.0",
-    "testem": "^0.6.19",
-    "yuidocjs": "~0.3.46"
-  },
-  "dependencies": {
-    "rsvp": "^3.0.18"
+    "configPath": "tests/dummy/config"
   }
 }
