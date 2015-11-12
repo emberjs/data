@@ -33,6 +33,7 @@
     "broccoli-stew": "^1.0.1",
     "broccoli-string-replace": "^0.1.1",
     "broccoli-uglify-sourcemap": "^1.0.1",
+    "broccoli-yuidoc": "^2.1.0",
     "ember-cli": "1.13.8",
     "ember-cli-app-version": "0.5.0",
     "ember-cli-content-security-policy": "0.4.0",
