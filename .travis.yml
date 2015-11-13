@@ -14,7 +14,7 @@ script:
   - ./bin/lint-features
   - npm run-script test
 after_success:
-  - npm run-script publish-build:prebuilt
+  - npm run-script production
   - "./bin/bower-ember-data-build"
 env:
   global:

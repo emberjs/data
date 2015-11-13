@@ -1,7 +1,8 @@
 {
   "name": "ember-data",
   "version": "2.3.0+canary",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "A data layer for your Ember applications.",
+  "repository": "git://github.com/emberjs/data.git",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -10,7 +11,8 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:testall",
-    "bower": "bower install"
+    "bower": "bower install",
+    "production": "ember build --environment=production"
   },
   "repository": "",
   "engines": {
