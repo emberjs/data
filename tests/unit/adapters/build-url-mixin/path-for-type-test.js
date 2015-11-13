@@ -6,11 +6,11 @@ import {module, test} from 'qunit';
 var env, adapter;
 
 module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {
-  beforeEach: function() {
+  beforeEach() {
 
     // test for overriden pathForType methods which return null path values
     var customPathForType = {
-      pathForType: function(type) {
+      pathForType(type) {
         if (type === 'rootModel') { return ''; }
         return this._super(type);
       }

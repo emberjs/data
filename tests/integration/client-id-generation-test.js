@@ -10,7 +10,7 @@ var Post, Comment, Misc, env;
 var run = Ember.run;
 
 module("integration/client_id_generation - Client-side ID Generation", {
-  beforeEach: function() {
+  beforeEach() {
     Comment = DS.Model.extend({
       post: DS.belongsTo('post', { async: false })
     });
@@ -30,7 +30,7 @@ module("integration/client_id_generation - Client-side ID Generation", {
     });
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

@@ -7,7 +7,7 @@ var Person, store, env;
 var run = Ember.run;
 
 module("integration/store/json-validation", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -21,7 +21,7 @@ module("integration/store/json-validation", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
   }
 });

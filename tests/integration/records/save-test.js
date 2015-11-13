@@ -9,7 +9,7 @@ var Post, env;
 var run = Ember.run;
 
 module("integration/records/save - Save Record", {
-  beforeEach: function() {
+  beforeEach() {
     Post = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -19,7 +19,7 @@ module("integration/records/save - Save Record", {
     env = setupStore({ post: Post });
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

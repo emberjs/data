@@ -9,7 +9,7 @@ var get = Ember.get;
 var run = Ember.run;
 
 module("DS.DebugAdapter", {
-  beforeEach: function() {
+  beforeEach() {
     Ember.run(function() {
       App = Ember.Application.create();
       App.toString = function() { return 'App'; };
@@ -35,12 +35,12 @@ module("DS.DebugAdapter", {
     debugAdapter = App.__container__.lookup('data-adapter:main');
 
     debugAdapter.reopen({
-      getModelTypes: function() {
+      getModelTypes() {
         return Ember.A([{ klass: App.__container__.lookupFactory('model:post'), name: 'post' }]);
       }
     });
   },
-  afterEach: function() {
+  afterEach() {
     run(App, App.destroy);
   }
 });

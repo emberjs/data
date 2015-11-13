@@ -24,7 +24,7 @@ var run = Ember.run;
 var Person, Dog, env, store, adapter;
 
 module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration test", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -41,7 +41,7 @@ module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
     adapter = env.adapter;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });
@@ -1346,7 +1346,7 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
     post: Post,
     comment: Comment,
     adapter: DS.RESTAdapter.extend({
-      findRecord: function() {
+      findRecord() {
         return {
           posts: {
             id: 1,
@@ -1355,7 +1355,7 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
           }
         };
       },
-      findHasMany: function() {
+      findHasMany() {
         return Ember.RSVP.resolve({
           comments: [
             { id: 1, name: "FIRST" },
@@ -1364,7 +1364,7 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
           ]
         });
       },
-      shouldBackgroundReloadRecord: function() {
+      shouldBackgroundReloadRecord() {
         assert.ok(false, 'shouldBackgroundReloadRecord should not be called');
       }
     })

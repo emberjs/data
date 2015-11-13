@@ -10,7 +10,7 @@ var attr = DS.attr;
 var run = Ember.run;
 
 module('integration/records/property-changes - Property changes', {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string')
@@ -23,7 +23,7 @@ module('integration/records/property-changes - Property changes', {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     Ember.run(function() {
       env.container.destroy();
     });

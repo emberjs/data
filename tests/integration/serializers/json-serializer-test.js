@@ -9,7 +9,7 @@ var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
-  beforeEach: function() {
+  beforeEach() {
     Post = DS.Model.extend({
       title: DS.attr('string'),
       comments: DS.hasMany('comment', { inverse: null, async: false })
@@ -31,7 +31,7 @@ module("integration/serializer/json - JSONSerializer", {
     env.store.modelFor('favorite');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.store, 'destroy');
   }
 });
@@ -81,7 +81,7 @@ test("serializeAttribute", function(assert) {
 
 test("serializeAttribute respects keyForAttribute", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForAttribute: function(key) {
+    keyForAttribute(key) {
       return key.toUpperCase();
     }
   }));
@@ -140,7 +140,7 @@ test("async serializeBelongsTo with null", function(assert) {
 
 test("serializeBelongsTo respects keyForRelationship", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -159,7 +159,7 @@ test("serializeBelongsTo respects keyForRelationship", function(assert) {
 
 test("serializeHasMany respects keyForRelationship", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -218,7 +218,7 @@ test("serializePolymorphicType sync", function(assert) {
   assert.expect(1);
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicType(record, json, relationship) {
       var key = relationship.key;
       var belongsTo = record.belongsTo(key);
       json[relationship.key + "TYPE"] = belongsTo.modelName;
@@ -243,7 +243,7 @@ test("serializePolymorphicType async", function(assert) {
   });
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicType(record, json, relationship) {
       assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
   }));
@@ -264,7 +264,7 @@ test("normalizeResponse normalizes each record in the array", function(assert) {
   ];
 
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    normalize: function () {
+    normalize() {
       postNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -628,7 +628,7 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
 test("Serializer should respect keyForAttribute when extracting records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForAttribute: function(key) {
+    keyForAttribute(key) {
       return key.toUpperCase();
     }
   }));
@@ -643,7 +643,7 @@ test("Serializer should respect keyForAttribute when extracting records", functi
 
 test("Serializer should respect keyForRelationship when extracting records", function(assert) {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -705,7 +705,7 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
   var expected = { post: '1', postTYPE: 'post' };
 
   env.registry.register('serializer:favorite', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(snapshot, json, relationship) {
+    serializePolymorphicType(snapshot, json, relationship) {
       var key = relationship.key;
       json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
     }
@@ -782,7 +782,7 @@ test('extractErrors leaves payload untouched if it has no errors property', func
 
 test('normalizeResponse should extract meta using extractMeta', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
-    extractMeta: function(store, modelClass, payload) {
+    extractMeta(store, modelClass, payload) {
       let meta = this._super(...arguments);
       meta.authors.push('Tomhuda');
       return meta;

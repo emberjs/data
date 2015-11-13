@@ -13,7 +13,7 @@ var run = Ember.run;
 var User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
@@ -76,7 +76,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
     adapter = env.adapter;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.store, 'destroy');
   }
 });

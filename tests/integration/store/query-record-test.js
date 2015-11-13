@@ -9,7 +9,7 @@ var Person, store, env;
 var run = Ember.run;
 
 module("integration/store/query-record - Query one record with a query hash", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -23,7 +23,7 @@ module("integration/store/query-record - Query one record with a query hash", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
@@ -44,7 +44,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
   assert.expect(1);
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    queryRecord: function(store, type, query) {
+    queryRecord(store, type, query) {
       assert.equal(type, Person, "the query method is called with the correct type");
       return Ember.RSVP.resolve({ id: 1, name: "Peter Wagenet" });
     }
@@ -57,7 +57,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
 
 test("When a record is requested, and the promise is rejected, .queryRecord() is rejected.", function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
-    queryRecord: function(store, type, query) {
+    queryRecord(store, type, query) {
       return Ember.RSVP.reject();
     }
   }));
@@ -73,14 +73,14 @@ test("When a record is requested, the serializer's normalizeQueryRecordResponse 
   assert.expect(1);
 
   env.registry.register('serializer:person', DS.JSONAPISerializer.extend({
-    normalizeQueryRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+    normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
       assert.equal(payload.data.id , '1', "the normalizeQueryRecordResponse method was called with the right payload");
       return this._super(...arguments);
     }
   }));
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    queryRecord: function(store, type, query) {
+    queryRecord(store, type, query) {
       return Ember.RSVP.resolve({
         data: {
           id: '1',

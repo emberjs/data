@@ -9,7 +9,7 @@ var Person, Place, store, adapter, env;
 var run = Ember.run;
 
 module("unit/adapters/rest-adapter/ajax - building requests", {
-  beforeEach: function() {
+  beforeEach() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
@@ -17,7 +17,7 @@ module("unit/adapters/rest-adapter/ajax - building requests", {
     adapter = env.adapter;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
       env.container.destroy();
@@ -58,7 +58,7 @@ test("ajaxOptions() headers are set", function(assert) {
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
   var receivedHeaders = [];
   var fakeXHR = {
-    setRequestHeader: function(key, value) {
+    setRequestHeader(key, value) {
       receivedHeaders.push([key, value]);
     }
   };

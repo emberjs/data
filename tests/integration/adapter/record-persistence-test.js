@@ -15,7 +15,7 @@ var all = Ember.RSVP.all;
 var hash = Ember.RSVP.hash;
 
 module("integration/adapter/record_persistence - Persisting Records", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -33,7 +33,7 @@ module("integration/adapter/record_persistence - Persisting Records", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

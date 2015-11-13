@@ -10,7 +10,7 @@ var run = Ember.run;
 var env;
 
 module("unit/model/relationships - DS.hasMany", {
-  beforeEach: function() {
+  beforeEach() {
     env = setupStore();
   }
 });

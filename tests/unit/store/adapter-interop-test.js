@@ -13,12 +13,12 @@ var TestAdapter, store, person, oldFilterEnabled;
 var run = Ember.run;
 
 module("unit/store/adapter-interop - DS.Store working with a DS.Adapter", {
-  beforeEach: function() {
+  beforeEach() {
     TestAdapter = DS.Adapter.extend();
     oldFilterEnabled = Ember.ENV.ENABLE_DS_FILTER;
     Ember.ENV.ENABLE_DS_FILTER = false;
   },
-  afterEach: function() {
+  afterEach() {
     run(function() {
       if (store) { store.destroy(); }
       Ember.ENV.ENABLE_DS_FILTER = oldFilterEnabled;
@@ -52,7 +52,7 @@ test("Calling Store#find invokes its adapter#find", function(assert) {
   let done = assert.async();
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.ok(true, "Adapter#find was called");
       assert.equal(store, currentStore, "Adapter#find was called with the right store");
       assert.equal(type, store.modelFor('test'), "Adapter#find was called with the type passed into Store#find");
@@ -77,10 +77,10 @@ test("Calling Store#findRecord multiple times coalesces the calls into a adapter
   let done = assert.async();
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.ok(false, "Adapter#findRecord was not called");
     },
-    findMany: function(store, type, ids, snapshots) {
+    findMany(store, type, ids, snapshots) {
       assert.ok(true, "Adapter#findMany was called");
       assert.deepEqual(ids, ["1","2"], 'Correct ids were passed in to findMany');
       return Ember.RSVP.resolve([{ id: 1 }, { id: 2 }]);
@@ -104,7 +104,7 @@ test("Returning a promise from `findRecord` asynchronously loads data", function
   assert.expect(1);
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       return resolve({ id: 1, name: "Scumbag Dale" });
     }
   });
@@ -125,7 +125,7 @@ test("IDs provided as numbers are coerced to strings", function(assert) {
   assert.expect(5);
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(typeof id, 'string', "id has been normalized to a string");
       return resolve({ id: 1, name: "Scumbag Sylvain" });
     }
@@ -223,7 +223,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   });
 
   var adapter = TestAdapter.extend({
-    query: function(store, type, query) {
+    query(store, type, query) {
       assert.equal(type, store.modelFor('person'), 'The type was Person');
       assert.equal(query, passedQuery, "The query was passed in");
       return Ember.RSVP.resolve([]);
@@ -248,7 +248,7 @@ test("Find with query calls the correct normalizeResponse", function(assert) {
   });
 
   var adapter = TestAdapter.extend({
-    query: function(store, type, query) {
+    query(store, type, query) {
       return Ember.RSVP.resolve([]);
     }
   });
@@ -256,7 +256,7 @@ test("Find with query calls the correct normalizeResponse", function(assert) {
   var callCount = 0;
 
   var ApplicationSerializer = DS.JSONSerializer.extend({
-    normalizeQueryResponse: function() {
+    normalizeQueryResponse() {
       callCount++;
       return this._super(...arguments);
     }
@@ -349,7 +349,7 @@ test("a new record with a specific id can't be created if this id is already use
   });
 
   Person.reopenClass({
-    toString: function() {
+    toString() {
       return 'Person';
     }
   });
@@ -415,7 +415,7 @@ test("initial values of attributes can be passed in as the third argument to fin
   assert.expect(1);
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
       return Ember.RSVP.resolve({ id: '1', name: 'Test' });
     }
@@ -438,7 +438,7 @@ test("initial values of attributes can be passed in as the third argument to fin
 test("initial values of belongsTo can be passed in as the third argument to find as records", function(assert) {
   assert.expect(1);
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
       return new Ember.RSVP.Promise(function() {});
     }
@@ -476,7 +476,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
   assert.expect(1);
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       return Ember.RSVP.Promise.resolve({ id: id });
     }
   });
@@ -505,7 +505,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 test("initial values of hasMany can be passed in as the third argument to find as records", function(assert) {
   assert.expect(1);
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
       return new Ember.RSVP.Promise(function() {});
     }
@@ -543,7 +543,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
   assert.expect(1);
 
   var adapter = TestAdapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
       return Ember.RSVP.resolve({ id: id });
     }
@@ -575,7 +575,7 @@ test("records should have their ids updated when the adapter returns the id data
 
   var idCounter = 1;
   var adapter = TestAdapter.extend({
-    createRecord: function(store, type, snapshot) {
+    createRecord(store, type, snapshot) {
       return Ember.RSVP.resolve({ name: snapshot.attr('name'), id: idCounter++ });
     }
   });
@@ -634,7 +634,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
   var Phone = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    findRecord: function (store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       var wait = 5;
 
       var record = { id: id };
@@ -646,7 +646,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
       });
     },
 
-    findMany: function(store, type, ids, snapshots) {
+    findMany(store, type, ids, snapshots) {
       var wait = 15;
 
       var records = ids.map(function(id) {
@@ -691,19 +691,19 @@ test("the store calls adapter.findMany according to groupings returned by adapte
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function(store, snapshots) {
+    groupRecordsForFindMany(store, snapshots) {
       return [
         [snapshots[0]],
         [snapshots[1], snapshots[2]]
       ];
     },
 
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       assert.equal(id, "10", "The first group is passed to find");
       return Ember.RSVP.resolve({ id: id });
     },
 
-    findMany: function(store, type, ids, snapshots) {
+    findMany(store, type, ids, snapshots) {
       var records = ids.map(function(id) {
         return { id: id };
       });
@@ -742,14 +742,14 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
   var davidResolved = false;
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function (store, snapshots) {
+    groupRecordsForFindMany(store, snapshots) {
       return [
         [snapshots[0]],
         [snapshots[1]]
       ];
     },
 
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       var record = { id: id };
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -791,14 +791,14 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
   var davidResolved = false;
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function(store, snapshots) {
+    groupRecordsForFindMany(store, snapshots) {
       return [
         [snapshots[0]],
         [snapshots[1]]
       ];
     },
 
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       var record = { id: id };
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -839,7 +839,7 @@ test("store.fetchRecord reject records that were not found, even when those requ
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    findMany: function(store, type, ids, snapshots) {
+    findMany(store, type, ids, snapshots) {
       var records = ids.map(function(id) {
         return { id: id };
       });
@@ -883,11 +883,11 @@ test("store should not call shouldReloadRecord when the record is not in the sto
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadRecord: function(store, type, id, snapshot) {
+    shouldReloadRecord(store, type, id, snapshot) {
       assert.ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
       return false;
     },
-    findRecord: function() {
+    findRecord() {
       assert.ok(true, 'find is always called when the record is not in the store');
       return { id: 1 };
     }
@@ -911,12 +911,12 @@ test("store should not reload record when shouldReloadRecord returns false", fun
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadRecord: function(store, type, id, snapshot) {
+    shouldReloadRecord(store, type, id, snapshot) {
       assert.ok(true, 'shouldReloadRecord should be called when the record is in the store');
       return false;
     },
     shouldBackgroundReloadRecord: () => false,
-    findRecord: function() {
+    findRecord() {
       assert.ok(false, 'find should not be called when shouldReloadRecord returns false');
     }
   });
@@ -945,11 +945,11 @@ test("store should reload record when shouldReloadRecord returns true", function
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadRecord: function(store, type, id, snapshot) {
+    shouldReloadRecord(store, type, id, snapshot) {
       assert.ok(true, 'shouldReloadRecord should be called when the record is in the store');
       return true;
     },
-    findRecord: function() {
+    findRecord() {
       assert.ok(true, 'find should not be called when shouldReloadRecord returns false');
       return { id: 1, name: 'Tom' };
     }
@@ -981,13 +981,13 @@ test("store should not call shouldBackgroundReloadRecord when the store is alrea
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadRecord: function(store, type, id, snapshot) {
+    shouldReloadRecord(store, type, id, snapshot) {
       return true;
     },
-    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+    shouldBackgroundReloadRecord(store, type, id, snapshot) {
       assert.ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
     },
-    findRecord: function() {
+    findRecord() {
       assert.ok(true, 'find should be called');
       return { id: 1, name: 'Tom' };
     }
@@ -1019,11 +1019,11 @@ test("store should not reload a record when `shouldBackgroundReloadRecord` is fa
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+    shouldBackgroundReloadRecord(store, type, id, snapshot) {
       assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
       return false;
     },
-    findRecord: function() {
+    findRecord() {
       assert.ok(false, 'find should not be called');
       return { id: 1, name: 'Tom' };
     }
@@ -1056,11 +1056,11 @@ test("store should reload the record in the background when `shouldBackgroundRel
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+    shouldBackgroundReloadRecord(store, type, id, snapshot) {
       assert.ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
       return true;
     },
-    findRecord: function() {
+    findRecord() {
       assert.ok(true, 'find should not be called');
       return { id: 1, name: 'Tom' };
     }
@@ -1094,14 +1094,14 @@ test("store should not reload record array when shouldReloadAll returns false", 
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function(store, snapshot) {
+    shouldReloadAll(store, snapshot) {
       assert.ok(true, 'shouldReloadAll should be called when the record is in the store');
       return false;
     },
-    shouldBackgroundReloadAll: function(store, snapshot) {
+    shouldBackgroundReloadAll(store, snapshot) {
       return false;
     },
-    findAll: function() {
+    findAll() {
       assert.ok(false, 'findAll should not be called when shouldReloadAll returns false');
     }
   });
@@ -1124,11 +1124,11 @@ test("store should reload all records when shouldReloadAll returns true", functi
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function(store, type, id, snapshot) {
+    shouldReloadAll(store, type, id, snapshot) {
       assert.ok(true, 'shouldReloadAll should be called when the record is in the store');
       return true;
     },
-    findAll: function() {
+    findAll() {
       assert.ok(true, 'findAll should be called when shouldReloadAll returns true');
       return [{ id: 1, name: 'Tom' }];
     }
@@ -1154,13 +1154,13 @@ test("store should not call shouldBackgroundReloadAll when the store is already 
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function(store, type, id, snapshot) {
+    shouldReloadAll(store, type, id, snapshot) {
       return true;
     },
-    shouldBackgroundReloadAll: function(store, type, id, snapshot) {
+    shouldBackgroundReloadAll(store, type, id, snapshot) {
       assert.ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
     },
-    findAll: function() {
+    findAll() {
       assert.ok(true, 'find should be called');
       return [{ id: 1, name: 'Tom' }];
     }
@@ -1186,15 +1186,15 @@ test("store should not reload all records when `shouldBackgroundReloadAll` is fa
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function(store, type, id, snapshot) {
+    shouldReloadAll(store, type, id, snapshot) {
       assert.ok(true, 'shouldReloadAll is called when record is loaded form the cache');
       return false;
     },
-    shouldBackgroundReloadAll: function(store, type, id, snapshot) {
+    shouldBackgroundReloadAll(store, type, id, snapshot) {
       assert.ok(true, 'shouldBackgroundReloadAll is called when record is loaded form the cache');
       return false;
     },
-    findAll: function() {
+    findAll() {
       assert.ok(false, 'findAll should not be called');
       return [{ id: 1, name: 'Tom' }];
     }
@@ -1221,15 +1221,15 @@ test("store should reload all records in the background when `shouldBackgroundRe
   });
 
   var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function() {
+    shouldReloadAll() {
       assert.ok(true, 'shouldReloadAll is called');
       return false;
     },
-    shouldBackgroundReloadAll: function(store, snapshot) {
+    shouldBackgroundReloadAll(store, snapshot) {
       assert.ok(true, 'shouldBackgroundReloadAll is called when record is loaded form the cache');
       return true;
     },
-    findAll: function() {
+    findAll() {
       assert.ok(true, 'find should not be called');
       return [{ id: 1, name: 'Tom' }];
     }

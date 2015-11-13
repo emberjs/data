@@ -14,7 +14,7 @@ var run = Ember.run;
 var env;
 
 module("unit/store/model_for - DS.Store#modelFor", {
-  beforeEach: function() {
+  beforeEach() {
     env = setupStore({
       blogPost: DS.Model.extend(),
       "blog.post": DS.Model.extend()
@@ -24,7 +24,7 @@ module("unit/store/model_for - DS.Store#modelFor", {
     registry = env.registry;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       container.destroy();
       store.destroy();

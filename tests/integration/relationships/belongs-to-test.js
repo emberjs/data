@@ -30,7 +30,7 @@ function getComputedPropertyDesc(model, key) {
 }
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true, async: false }),
@@ -98,7 +98,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
     Author  = store.modelFor('author');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

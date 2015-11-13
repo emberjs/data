@@ -14,7 +14,7 @@ var run = Ember.run;
 var Post, Tag;
 
 module("unit/many_array - DS.ManyArray", {
-  beforeEach: function() {
+  beforeEach() {
     Post = DS.Model.extend({
       title: attr('string'),
       tags: hasMany('tag', { async: false })
@@ -38,7 +38,7 @@ module("unit/many_array - DS.ManyArray", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
     });
@@ -50,7 +50,7 @@ test("manyArray.save() calls save() on all records", function(assert) {
 
   run(function() {
     Tag.reopen({
-      save: function() {
+      save() {
         assert.ok(true, 'record.save() was called');
         return Ember.RSVP.resolve();
       }
@@ -101,13 +101,13 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
   var originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
   var originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
   DS.ManyArray.reopen({
-    arrayContentWillChange: function(startIdx, removeAmt, addAmt) {
+    arrayContentWillChange(startIdx, removeAmt, addAmt) {
       willChangeStartIdx = startIdx;
       willChangeRemoveAmt = removeAmt;
       willChangeAddAmt = addAmt;
       return this._super.apply(this, arguments);
     },
-    arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
+    arrayContentDidChange(startIdx, removeAmt, addAmt) {
       assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
       assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
       assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');

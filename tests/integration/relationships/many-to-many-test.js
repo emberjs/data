@@ -16,7 +16,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/many_to_many_test - ManyToMany relationships', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       topics: hasMany('topic', { async: true }),
@@ -51,7 +51,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       env.container.destroy();
     });

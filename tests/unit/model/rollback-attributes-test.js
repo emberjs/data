@@ -9,7 +9,7 @@ var env, store, Person, Dog;
 var run = Ember.run;
 
 module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
       lastName: DS.attr()
@@ -225,7 +225,7 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
     }
   ]);
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       return Ember.RSVP.reject(error);
     }
   });
@@ -255,7 +255,7 @@ test("invalid record's attributes can be rollbacked after multiple failed calls 
   var person;
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       var error = new DS.InvalidError();
       return Ember.RSVP.reject(error);
     }
@@ -336,7 +336,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
   ]);
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       return Ember.RSVP.reject(error);
     }
   });
@@ -363,10 +363,10 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     });
 
     dog.get('errors').addArrayObserver({}, {
-      willChange: function() {
+      willChange() {
         assert.ok(true, 'errors will change');
       },
-      didChange: function() {
+      didChange() {
         assert.ok(true, 'errors did change');
       }
     });
@@ -397,7 +397,7 @@ test("invalid record's attributes rolled back to correct state after set", funct
   ]);
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       return Ember.RSVP.reject(error);
     }
   });
@@ -464,7 +464,7 @@ test("when destroying a record setup the record state to invalid, the record's a
   ]);
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       return Ember.RSVP.reject(error);
     }
   });

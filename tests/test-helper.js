@@ -47,7 +47,7 @@ QUnit.begin(function() {
 
   // Prevent all tests involving serialization to require a container
   DS.JSONSerializer.reopen({
-    transformFor: function(attributeType) {
+    transformFor(attributeType) {
       return this._super(attributeType, true) || transforms[attributeType];
     }
   });

@@ -13,7 +13,7 @@ var run = Ember.run;
 var User, Handle, GithubHandle, TwitterHandle, Company, Project;
 
 module('integration/serializers/json-api-serializer - JSONAPISerializer', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
@@ -58,7 +58,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     serializer = store.serializerFor('-json-api');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.store, 'destroy');
   }
 });

@@ -9,7 +9,7 @@ var run = Ember.run;
 var env, Post, Comment;
 
 module("integration/snapshot - DS.Snapshot", {
-  beforeEach: function() {
+  beforeEach() {
     Post = DS.Model.extend({
       author: DS.attr(),
       title: DS.attr(),
@@ -26,7 +26,7 @@ module("integration/snapshot - DS.Snapshot", {
     });
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       env.store.destroy();
     });

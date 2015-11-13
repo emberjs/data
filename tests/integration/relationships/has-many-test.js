@@ -20,7 +20,7 @@ function stringify(string) {
 }
 
 module("integration/relationships/has_many - Has-Many Relationships", {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true, async: false }),
@@ -91,7 +91,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });
@@ -1766,12 +1766,12 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
     chapter = env.store.peekRecord('chapter', 1);
 
     chapter.get('pages').addEnumerableObserver(this, {
-      willChange: function(pages, removing, addCount) {
+      willChange(pages, removing, addCount) {
         if (observe) {
           assert.equal(removing[0], page2, 'page2 is passed to willChange');
         }
       },
-      didChange: function(pages, removeCount, adding) {
+      didChange(pages, removeCount, adding) {
         if (observe) {
           assert.equal(removeCount, 1, 'removeCount is correct');
         }
@@ -1824,12 +1824,12 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
     chapter = env.store.peekRecord('chapter', 1);
 
     chapter.get('pages').addEnumerableObserver(this, {
-      willChange: function(pages, removing, addCount) {
+      willChange(pages, removing, addCount) {
         if (observe) {
           assert.equal(addCount, 1, 'addCount is correct');
         }
       },
-      didChange: function(pages, removeCount, adding) {
+      didChange(pages, removeCount, adding) {
         if (observe) {
           assert.equal(adding[0], page2, 'page2 is passed to didChange');
         }
@@ -2006,13 +2006,13 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   });
 
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
-    deleteRecord: function(record) {
+    deleteRecord(record) {
       return Ember.RSVP.resolve();
     },
-    updateRecord: function(record) {
+    updateRecord(record) {
       return Ember.RSVP.resolve();
     },
-    createRecord: function() {
+    createRecord() {
       return Ember.RSVP.resolve();
     }
   }));

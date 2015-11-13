@@ -5,7 +5,7 @@ import {module, test} from 'qunit';
 var filteredArray;
 
 module("unit/record-arrays/filtered-record-array - DS.FilteredRecordArray", {
-  beforeEach: function() {
+  beforeEach() {
     filteredArray = DS.FilteredRecordArray.create({ type: 'recordType' });
   }
 });

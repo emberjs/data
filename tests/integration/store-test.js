@@ -35,7 +35,7 @@ function initializeStore(adapter) {
 }
 
 module("integration/store - destroy", {
-  beforeEach: function() {
+  beforeEach() {
     initializeStore(DS.Adapter.extend());
   }
 });
@@ -62,7 +62,7 @@ test("destroying record during find doesn't cause error", function(assert) {
   let done = assert.async();
 
   var TestAdapter = DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
           store.unloadAll(type.modelName);
@@ -87,7 +87,7 @@ test("find calls do not resolve when the store is destroyed", function(assert) {
   let done = assert.async();
 
   var TestAdapter = DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       store.destroy();
       Ember.RSVP.resolve(null);
     }
@@ -336,7 +336,7 @@ test('store#findRecord call with `id` of type different than non-empty string or
 });
 
 module("integration/store - findAll", {
-  beforeEach: function() {
+  beforeEach() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
@@ -527,7 +527,7 @@ test("Using store#serializerFor should not throw an error when looking up the ap
 });
 
 module("integration/store - deleteRecord", {
-  beforeEach: function() {
+  beforeEach() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });

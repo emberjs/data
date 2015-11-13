@@ -11,7 +11,7 @@ var run = Ember.run;
 var get = Ember.get;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
-  beforeEach: function() {
+  beforeEach() {
     Post = DS.Model.extend({
       name: DS.attr("string")
     });
@@ -332,7 +332,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
       name: 'given_name'
     },
 
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return attr.toUpperCase();
     }
   }));
@@ -354,7 +354,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
       post: 'article'
     },
 
-    keyForRelationship: function(attr, kind) {
+    keyForRelationship(attr, kind) {
       return attr.toUpperCase();
     }
   }));
@@ -379,7 +379,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
       comments: 'opinions'
     },
 
-    keyForRelationship: function(attr, kind) {
+    keyForRelationship(attr, kind) {
       return attr.toUpperCase();
     }
   }));
@@ -1994,14 +1994,14 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 
 test('normalizeKey - to set up _ids and _id', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return Ember.String.underscore(attr);
     },
 
-    keyForBelongsTo: function(belongsTo) {
+    keyForBelongsTo(belongsTo) {
     },
 
-    keyForRelationship: function(rel, kind) {
+    keyForRelationship(rel, kind) {
       if (kind === 'belongsTo') {
         var underscored = Ember.String.underscore(rel);
         return underscored + '_id';
@@ -2166,7 +2166,7 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     status: 200,
-    getAllResponseHeaders: function() { return ''; }
+    getAllResponseHeaders() { return ''; }
   };
   var data = {
     post: {
@@ -2200,7 +2200,7 @@ test('calls handleResponse with jqXHR, jqXHR.responseText', function(assert) {
   var jqXHR = {
     status: 400,
     responseText: 'Nope lol',
-    getAllResponseHeaders: function() { return ''; }
+    getAllResponseHeaders() { return ''; }
   };
 
   Ember.$.ajax = function(hash) {
@@ -2228,7 +2228,7 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
   assert.expect(3);
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
-    getAllResponseHeaders: function() { return ''; }
+    getAllResponseHeaders() { return ''; }
   };
   var data = {
     something: 'is invalid'
@@ -2259,7 +2259,7 @@ test('on error appends errorThrown for sanity', function(assert) {
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     responseText: 'Nope lol',
-    getAllResponseHeaders: function() { return ''; }
+    getAllResponseHeaders() { return ''; }
   };
 
   var errorThrown = new Error('nope!');
@@ -2291,7 +2291,7 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     responseText: '',
-    getAllResponseHeaders: function() { return ''; }
+    getAllResponseHeaders() { return ''; }
   };
 
   var errorThrown = 'nope!';
