@@ -182,7 +182,7 @@ export default Serializer.extend({
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
-  applyTransforms: function(typeClass, data) {
+  applyTransforms(typeClass, data) {
     typeClass.eachTransformedAttribute((key, typeClass) => {
       if (!data.hasOwnProperty(key)) { return; }
 
@@ -227,7 +227,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     switch (requestType) {
       case 'findRecord':
         return this.normalizeFindRecordResponse(...arguments);
@@ -261,7 +261,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindRecordResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -274,7 +274,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeQueryRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -287,7 +287,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindAllResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -300,7 +300,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindBelongsToResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindBelongsToResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -313,7 +313,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindHasManyResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindHasManyResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -326,7 +326,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindManyResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindManyResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -339,7 +339,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -352,7 +352,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeCreateRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeCreateRecordResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -365,7 +365,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeDeleteRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeDeleteRecordResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -378,7 +378,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeUpdateRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeUpdateRecordResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSaveResponse(...arguments);
   },
 
@@ -391,7 +391,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeSaveResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeSaveResponse(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -404,7 +404,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeSingleResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeSingleResponse(store, primaryModelClass, payload, id, requestType) {
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, true);
   },
 
@@ -417,7 +417,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeArrayResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
     return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, false);
   },
 
@@ -432,7 +432,7 @@ export default Serializer.extend({
     @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
     let documentHash = {
       data: null,
       included: []
@@ -501,7 +501,7 @@ export default Serializer.extend({
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(modelClass, resourceHash) {
+  normalize(modelClass, resourceHash) {
     let data = null;
 
     if (resourceHash) {
@@ -528,7 +528,7 @@ export default Serializer.extend({
     @param {Object} resourceHash
     @return {String}
   */
-  extractId: function(modelClass, resourceHash) {
+  extractId(modelClass, resourceHash) {
     var primaryKey = get(this, 'primaryKey');
     var id = resourceHash[primaryKey];
     return coerceId(id);
@@ -544,7 +544,7 @@ export default Serializer.extend({
     @param {Object} resourceHash
     @return {Object}
   */
-  extractAttributes: function(modelClass, resourceHash) {
+  extractAttributes(modelClass, resourceHash) {
     var attributeKey;
     var attributes = {};
 
@@ -568,7 +568,7 @@ export default Serializer.extend({
     @param {Object} relationshipHash
     @return {Object}
   */
-  extractRelationship: function(relationshipModelName, relationshipHash) {
+  extractRelationship(relationshipModelName, relationshipHash) {
     if (Ember.isNone(relationshipHash)) { return null; }
     /*
       When `relationshipHash` is an object it usually means that the relationship
@@ -608,7 +608,7 @@ export default Serializer.extend({
     @param {Object} relationshipOptions
     @return {Object}
   */
-  extractPolymorphicRelationship: function(relationshipModelName, relationshipHash, relationshipOptions) {
+  extractPolymorphicRelationship(relationshipModelName, relationshipHash, relationshipOptions) {
     return this.extractRelationship(relationshipModelName, relationshipHash);
   },
 
@@ -622,7 +622,7 @@ export default Serializer.extend({
     @param {Object} resourceHash
     @return {Object}
   */
-  extractRelationships: function(modelClass, resourceHash) {
+  extractRelationships(modelClass, resourceHash) {
     let relationships = {};
 
     modelClass.eachRelationship((key, relationshipMeta) => {
@@ -667,7 +667,7 @@ export default Serializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey: function(key) {
+  modelNameFromPayloadKey(key) {
     return normalizeModelName(key);
   },
 
@@ -676,7 +676,7 @@ export default Serializer.extend({
     @method normalizeAttributes
     @private
   */
-  normalizeAttributes: function(typeClass, hash) {
+  normalizeAttributes(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForAttribute) {
@@ -695,7 +695,7 @@ export default Serializer.extend({
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(typeClass, hash) {
+  normalizeRelationships(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForRelationship) {
@@ -714,7 +714,7 @@ export default Serializer.extend({
     @method normalizeUsingDeclaredMapping
     @private
   */
-  normalizeUsingDeclaredMapping: function(modelClass, hash) {
+  normalizeUsingDeclaredMapping(modelClass, hash) {
     var attrs = get(this, 'attrs');
     var payloadKey, normalizedKey, key;
 
@@ -749,7 +749,7 @@ export default Serializer.extend({
     @param {String} key
     @return {String} key
   */
-  _getMappedKey: function(key, modelClass) {
+  _getMappedKey(key, modelClass) {
     Ember.warn('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key), {
       id: 'ds.serializer.no-mapped-attrs-key'
     });
@@ -780,7 +780,7 @@ export default Serializer.extend({
     @param {String} key
     @return {boolean} true if the key can be serialized
   */
-  _canSerialize: function(key) {
+  _canSerialize(key) {
     var attrs = get(this, 'attrs');
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
@@ -796,7 +796,7 @@ export default Serializer.extend({
     @param {String} key
     @return {boolean} true if the key must be serialized
   */
-  _mustSerialize: function(key) {
+  _mustSerialize(key) {
     var attrs = get(this, 'attrs');
 
     return attrs && attrs[key] && attrs[key].serialize === true;
@@ -812,7 +812,7 @@ export default Serializer.extend({
     @param {String} relationshipType
     @return {boolean} true if the hasMany relationship should be serialized
   */
-  _shouldSerializeHasMany: function (snapshot, key, relationship) {
+  _shouldSerializeHasMany(snapshot, key, relationship) {
     var relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
@@ -973,7 +973,7 @@ export default Serializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     var json = {};
 
     if (options && options.includeId) {
@@ -1025,7 +1025,7 @@ export default Serializer.extend({
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash, typeClass, snapshot, options) {
     merge(hash, this.serialize(snapshot, options));
   },
 
@@ -1054,7 +1054,7 @@ export default Serializer.extend({
    @param {String} key
    @param {Object} attribute
   */
-  serializeAttribute: function(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot, json, key, attribute) {
     var type = attribute.type;
 
     if (this._canSerialize(key)) {
@@ -1103,7 +1103,7 @@ export default Serializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeBelongsTo: function(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._canSerialize(key)) {
@@ -1155,7 +1155,7 @@ export default Serializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeHasMany: function(snapshot, json, relationship) {
+  serializeHasMany(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._shouldSerializeHasMany(snapshot, key, relationship)) {
@@ -1232,7 +1232,7 @@ export default Serializer.extend({
     @param {DS.Model} modelClass
     @param {Object} payload
   */
-  extractMeta: function(store, modelClass, payload) {
+  extractMeta(store, modelClass, payload) {
     if (payload && payload.hasOwnProperty('meta')) {
       let meta = payload.meta;
       delete payload.meta;
@@ -1269,7 +1269,7 @@ export default Serializer.extend({
     @param {(String|Number)} id
     @return {Object} json The deserialized errors
   */
-  extractErrors: function(store, typeClass, payload, id) {
+  extractErrors(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
       payload = errorsArrayToHash(payload.errors);
 
@@ -1316,7 +1316,7 @@ export default Serializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForAttribute: function(key, method) {
+  keyForAttribute(key, method) {
     return key;
   },
 
@@ -1343,7 +1343,7 @@ export default Serializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForRelationship: function(key, typeClass, method) {
+  keyForRelationship(key, typeClass, method) {
     return key;
   },
 
@@ -1356,7 +1356,7 @@ export default Serializer.extend({
    @param {String} kind `belongsTo` or `hasMany`
    @return {String} normalized key
   */
-  keyForLink: function(key, kind) {
+  keyForLink(key, kind) {
     return key;
   },
 
@@ -1369,7 +1369,7 @@ export default Serializer.extend({
    @param {Boolean} skipAssertion
    @return {DS.Transform} transform
   */
-  transformFor: function(attributeType, skipAssertion) {
+  transformFor(attributeType, skipAssertion) {
     var transform = getOwner(this).lookup('transform:' + attributeType);
 
     Ember.assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);

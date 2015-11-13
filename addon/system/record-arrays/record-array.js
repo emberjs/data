@@ -90,7 +90,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {Number} index
     @return {DS.Model} record
   */
-  objectAtContent: function(index) {
+  objectAtContent(index) {
     var content = get(this, 'content');
     var internalModel = content.objectAt(index);
     return internalModel && internalModel.getRecord();
@@ -111,7 +111,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     @method update
   */
-  update: function() {
+  update() {
     if (get(this, 'isUpdating')) { return; }
 
     var store = get(this, 'store');
@@ -128,7 +128,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {InternalModel} internalModel
     @param {number} an optional index to insert at
   */
-  addInternalModel: function(internalModel, idx) {
+  addInternalModel(internalModel, idx) {
     var content = get(this, 'content');
     if (idx === undefined) {
       content.addObject(internalModel);
@@ -144,7 +144,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
     @param {InternalModel} internalModel
   */
-  removeInternalModel: function(internalModel) {
+  removeInternalModel(internalModel) {
     get(this, 'content').removeObject(internalModel);
   },
 
@@ -164,7 +164,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method save
     @return {DS.PromiseArray} promise
   */
-  save: function() {
+  save() {
     var recordArray = this;
     var promiseLabel = "DS: RecordArray#save " + get(this, 'type');
     var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
@@ -174,7 +174,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     return PromiseArray.create({ promise: promise });
   },
 
-  _dissociateFromOwnRecords: function() {
+  _dissociateFromOwnRecords() {
     this.get('content').forEach((record) => {
       var recordArrays = record._recordArrays;
 
@@ -188,12 +188,12 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _unregisterFromManager
     @private
   */
-  _unregisterFromManager: function() {
+  _unregisterFromManager() {
     var manager = get(this, 'manager');
     manager.unregisterRecordArray(this);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
     set(this, 'content', undefined);

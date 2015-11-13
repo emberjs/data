@@ -50,7 +50,7 @@ var set = Ember.set;
   @uses Ember.MutableArray, Ember.Evented
 */
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
-  init: function() {
+  init() {
     this._super(...arguments);
     this.currentState = Ember.A([]);
   },
@@ -62,7 +62,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   length: 0,
 
-  objectAt: function(index) {
+  objectAt(index) {
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
     if (!this.currentState[index]) {
       return undefined;
@@ -70,7 +70,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     return this.currentState[index].getRecord();
   },
 
-  flushCanonical: function() {
+  flushCanonical() {
     //TODO make this smarter, currently its plenty stupid
     var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
@@ -150,7 +150,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   */
   meta: null,
 
-  internalReplace: function(idx, amt, objects) {
+  internalReplace(idx, amt, objects) {
     if (!objects) {
       objects = [];
     }
@@ -166,7 +166,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   //TODO(Igor) optimize
-  internalRemoveRecords: function(records) {
+  internalRemoveRecords(records) {
     var index;
     for (var i=0; i < records.length; i++) {
       index = this.currentState.indexOf(records[i]);
@@ -175,14 +175,14 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   //TODO(Igor) optimize
-  internalAddRecords: function(records, idx) {
+  internalAddRecords(records, idx) {
     if (idx === undefined) {
       idx = this.currentState.length;
     }
     this.internalReplace(idx, 0, records);
   },
 
-  replace: function(idx, amt, objects) {
+  replace(idx, amt, objects) {
     var records;
     if (amt > 0) {
       records = this.currentState.slice(idx, idx+amt);
@@ -206,7 +206,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @param {Number} count
     @private
   */
-  loadingRecordsCount: function(count) {
+  loadingRecordsCount(count) {
     this.loadingRecordsCount = count;
   },
 
@@ -214,7 +214,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @method loadedRecord
     @private
   */
-  loadedRecord: function() {
+  loadedRecord() {
     this.loadingRecordsCount--;
     if (this.loadingRecordsCount === 0) {
       set(this, 'isLoaded', true);
@@ -226,7 +226,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @method reload
     @public
   */
-  reload: function() {
+  reload() {
     return this.relationship.reload();
   },
 
@@ -249,7 +249,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @method save
     @return {DS.PromiseArray} promise
   */
-  save: function() {
+  save() {
     var manyArray = this;
     var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
     var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
@@ -267,7 +267,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @param {Object} hash
     @return {DS.Model} record
   */
-  createRecord: function(hash) {
+  createRecord(hash) {
     var store = get(this, 'store');
     var type = get(this, 'type');
     var record;

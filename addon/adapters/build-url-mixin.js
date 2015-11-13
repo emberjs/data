@@ -49,7 +49,7 @@ export default Ember.Mixin.create({
     @param {Object} query object of query parameters to send for query requests.
     @return {String} url
   */
-  buildURL: function(modelName, id, snapshot, requestType, query) {
+  buildURL(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);
@@ -83,7 +83,7 @@ export default Ember.Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL: function(modelName, id) {
+  _buildURL(modelName, id) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
@@ -112,7 +112,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForFindRecord: function(id, modelName, snapshot) {
+  urlForFindRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -121,7 +121,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindAll: function(modelName) {
+  urlForFindAll(modelName) {
     return this._buildURL(modelName);
   },
 
@@ -131,7 +131,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForQuery: function(query, modelName) {
+  urlForQuery(query, modelName) {
     return this._buildURL(modelName);
   },
 
@@ -141,7 +141,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForQueryRecord: function(query, modelName) {
+  urlForQueryRecord(query, modelName) {
     return this._buildURL(modelName);
   },
 
@@ -152,7 +152,7 @@ export default Ember.Mixin.create({
    * @param {Array} snapshots
    * @return {String} url
    */
-  urlForFindMany: function(ids, modelName, snapshots) {
+  urlForFindMany(ids, modelName, snapshots) {
     return this._buildURL(modelName);
   },
 
@@ -162,7 +162,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindHasMany: function(id, modelName) {
+  urlForFindHasMany(id, modelName) {
     return this._buildURL(modelName, id);
   },
 
@@ -172,7 +172,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindBelongsTo: function(id, modelName) {
+  urlForFindBelongsTo(id, modelName) {
     return this._buildURL(modelName, id);
   },
 
@@ -182,7 +182,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForCreateRecord: function(modelName, snapshot) {
+  urlForCreateRecord(modelName, snapshot) {
     return this._buildURL(modelName);
   },
 
@@ -193,7 +193,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForUpdateRecord: function(id, modelName, snapshot) {
+  urlForUpdateRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -204,7 +204,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForDeleteRecord: function(id, modelName, snapshot) {
+  urlForDeleteRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -215,7 +215,7 @@ export default Ember.Mixin.create({
     @param {String} parentURL
     @return {String} urlPrefix
   */
-  urlPrefix: function(path, parentURL) {
+  urlPrefix(path, parentURL) {
     var host = get(this, 'host');
     var namespace = get(this, 'namespace');
     var url = [];
@@ -277,7 +277,7 @@ export default Ember.Mixin.create({
     @param {String} modelName
     @return {String} path
   **/
-  pathForType: function(modelName) {
+  pathForType(modelName) {
     var camelized = Ember.String.camelize(modelName);
     return Ember.String.pluralize(camelized);
   }

@@ -102,7 +102,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeDocumentHelper: function(documentHash) {
+  _normalizeDocumentHelper(documentHash) {
 
     if (Ember.typeOf(documentHash.data) === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
@@ -123,7 +123,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeRelationshipDataHelper: function(relationshipDataHash) {
+  _normalizeRelationshipDataHelper(relationshipDataHash) {
     let type = this.modelNameFromPayloadKey(relationshipDataHash.type);
     relationshipDataHash.type = type;
     return relationshipDataHash;
@@ -135,7 +135,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeResourceHelper: function(resourceHash) {
+  _normalizeResourceHelper(resourceHash) {
     Ember.assert(this.warnMessageForUndefinedType(), !Ember.isNone(resourceHash.type), {
       id: 'ds.serializer.type-is-undefined'
     });
@@ -160,7 +160,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {DS.Store} store
     @param {Object} payload
   */
-  pushPayload: function(store, payload) {
+  pushPayload(store, payload) {
     let normalizedPayload = this._normalizeDocumentHelper(payload);
     store.push(normalizedPayload);
   },
@@ -176,7 +176,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
     let normalizedPayload = this._normalizeDocumentHelper(payload);
     return normalizedPayload;
   },
@@ -187,7 +187,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} resourceHash
     @return {Object}
   */
-  extractAttributes: function(modelClass, resourceHash) {
+  extractAttributes(modelClass, resourceHash) {
     var attributes = {};
 
     if (resourceHash.attributes) {
@@ -207,7 +207,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} relationshipHash
     @return {Object}
   */
-  extractRelationship: function(relationshipHash) {
+  extractRelationship(relationshipHash) {
 
     if (Ember.typeOf(relationshipHash.data) === 'object') {
       relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
@@ -226,7 +226,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} resourceHash
     @return {Object}
   */
-  extractRelationships: function(modelClass, resourceHash) {
+  extractRelationships(modelClass, resourceHash) {
     let relationships = {};
 
     if (resourceHash.relationships) {
@@ -251,7 +251,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @return {String}
     @private
   */
-  _extractType: function(modelClass, resourceHash) {
+  _extractType(modelClass, resourceHash) {
     return this.modelNameFromPayloadKey(resourceHash.type);
   },
 
@@ -260,7 +260,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey: function(key) {
+  modelNameFromPayloadKey(key) {
     return singularize(normalizeModelName(key));
   },
 
@@ -269,7 +269,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName: function(modelName) {
+  payloadKeyFromModelName(modelName) {
     return pluralize(modelName);
   },
 
@@ -279,7 +279,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} resourceHash the resource hash from the adapter
     @return {Object} the normalized resource hash
   */
-  normalize: function(modelClass, resourceHash) {
+  normalize(modelClass, resourceHash) {
     if (resourceHash.attributes) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.attributes);
     }
@@ -326,7 +326,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForAttribute: function(key, method) {
+  keyForAttribute(key, method) {
     return dasherize(key);
   },
 
@@ -356,7 +356,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForRelationship: function(key, typeClass, method) {
+  keyForRelationship(key, typeClass, method) {
     return dasherize(key);
   },
 
@@ -366,7 +366,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     let data = this._super(...arguments);
     data.type = this.payloadKeyFromModelName(snapshot.modelName);
     return { data };
@@ -379,7 +379,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {String} key
    @param {Object} attribute
   */
-  serializeAttribute: function(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot, json, key, attribute) {
     const type = attribute.type;
 
     if (this._canSerialize(key)) {
@@ -407,7 +407,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeBelongsTo: function(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._canSerialize(key)) {
@@ -440,7 +440,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeHasMany: function(snapshot, json, relationship) {
+  serializeHasMany(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._shouldSerializeHasMany(snapshot, key, relationship)) {
@@ -469,10 +469,10 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 Ember.runInDebug(function() {
   JSONAPISerializer.reopen({
-    warnMessageForUndefinedType: function() {
+    warnMessageForUndefinedType() {
       return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
     },
-    warnMessageNoModelForType: function(modelName, originalType) {
+    warnMessageNoModelForType(modelName, originalType) {
       return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + originalType + '"))';
     }
   });

@@ -279,7 +279,7 @@ export default Ember.Object.extend({
     @param {Object}   options
     @return {Object} serialized snapshot
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     return get(snapshot.record, 'store').serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
@@ -454,7 +454,7 @@ export default Ember.Object.extend({
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function(store, snapshots) {
+  groupRecordsForFindMany(store, snapshots) {
     return [snapshots];
   },
 
@@ -473,7 +473,7 @@ export default Ember.Object.extend({
     @param {DS.Snapshot} snapshot
     @return {Boolean}
   */
-  shouldReloadRecord: function(store, snapshot) {
+  shouldReloadRecord(store, snapshot) {
     return false;
   },
 
@@ -491,7 +491,7 @@ export default Ember.Object.extend({
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldReloadAll: function(store, snapshotRecordArray) {
+  shouldReloadAll(store, snapshotRecordArray) {
     return !snapshotRecordArray.length;
   },
 
@@ -511,7 +511,7 @@ export default Ember.Object.extend({
     @param {DS.Snapshot} snapshot
     @return {Boolean}
   */
-  shouldBackgroundReloadRecord: function(store, snapshot) {
+  shouldBackgroundReloadRecord(store, snapshot) {
     return true;
   },
 
@@ -531,7 +531,7 @@ export default Ember.Object.extend({
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Boolean}
   */
-  shouldBackgroundReloadAll: function(store, snapshotRecordArray) {
+  shouldBackgroundReloadAll(store, snapshotRecordArray) {
     return true;
   }
 });

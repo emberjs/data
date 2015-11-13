@@ -21,7 +21,7 @@ export default RESTAdapter.extend({
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions: function(url, type, options) {
+  ajaxOptions(url, type, options) {
     let hash = this._super(...arguments);
 
     if (hash.contentType) {
@@ -96,7 +96,7 @@ export default RESTAdapter.extend({
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: function(store, type, ids, snapshots) {
+  findMany(store, type, ids, snapshots) {
     var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   },
@@ -106,7 +106,7 @@ export default RESTAdapter.extend({
     @param {String} modelName
     @return {String} path
   **/
-  pathForType: function(modelName) {
+  pathForType(modelName) {
     var dasherized = Ember.String.dasherize(modelName);
     return Ember.String.pluralize(dasherized);
   },
@@ -119,7 +119,7 @@ export default RESTAdapter.extend({
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: function(store, type, snapshot) {
+  updateRecord(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.modelName);
 

@@ -97,7 +97,7 @@ Snapshot.prototype = {
     @param {String} keyName
     @return {Object} The attribute value or undefined
   */
-  attr: function(keyName) {
+  attr(keyName) {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
@@ -117,7 +117,7 @@ Snapshot.prototype = {
     @method attributes
     @return {Object} All attributes of the current snapshot
   */
-  attributes: function() {
+  attributes() {
     return Ember.copy(this._attributes);
   },
 
@@ -135,7 +135,7 @@ Snapshot.prototype = {
     @method changedAttributes
     @return {Object} All changed attributes of the current snapshot
   */
-  changedAttributes: function() {
+  changedAttributes() {
     let changedAttributes = new EmptyObject();
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
@@ -182,7 +182,7 @@ Snapshot.prototype = {
       relationship or null if the relationship is known but unset. undefined
       will be returned if the contents of the relationship is unknown.
   */
-  belongsTo: function(keyName, options) {
+  belongsTo(keyName, options) {
     var id = options && options.id;
     var relationship, inverseRecord, hasData;
     var result;
@@ -253,7 +253,7 @@ Snapshot.prototype = {
       relationship or an empty array if the relationship is known but unset.
       undefined will be returned if the contents of the relationship is unknown.
   */
-  hasMany: function(keyName, options) {
+  hasMany(keyName, options) {
     var ids = options && options.ids;
     var relationship, members, hasData;
     var results;
@@ -312,7 +312,7 @@ Snapshot.prototype = {
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     this.record.eachAttribute(callback, binding);
   },
 
@@ -332,7 +332,7 @@ Snapshot.prototype = {
     @param {Function} callback the callback to execute
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
-  eachRelationship: function(callback, binding) {
+  eachRelationship(callback, binding) {
     this.record.eachRelationship(callback, binding);
   },
 
@@ -341,7 +341,7 @@ Snapshot.prototype = {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
    */
-  serialize: function(options) {
+  serialize(options) {
     return this.record.store.serializerFor(this.modelName).serialize(this, options);
   }
 };

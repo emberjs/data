@@ -158,7 +158,7 @@ Model.reopenClass({
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @static
   */
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     get(this, 'attributes').forEach((meta, name) => {
       callback.call(binding, name, meta);
     });
@@ -208,7 +208,7 @@ Model.reopenClass({
     @param {Object} [binding] the value to which the callback's `this` should be bound
     @static
   */
-  eachTransformedAttribute: function(callback, binding) {
+  eachTransformedAttribute(callback, binding) {
     get(this, 'transformedAttributes').forEach((type, name) => {
       callback.call(binding, name, type);
     });
@@ -217,7 +217,7 @@ Model.reopenClass({
 
 
 Model.reopen({
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
   }
 });
@@ -318,7 +318,7 @@ export default function attr(type, options) {
   };
 
   return Ember.computed({
-    get: function(key) {
+    get(key) {
       var internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {
         return getValue(internalModel, key);
@@ -326,7 +326,7 @@ export default function attr(type, options) {
         return getDefaultValue(this, options, key);
       }
     },
-    set: function(key, value) {
+    set(key, value) {
       var internalModel = this._internalModel;
       var oldValue = getValue(internalModel, key);
 

@@ -80,7 +80,7 @@ var RESTSerializer = JSONSerializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForPolymorphicType: function(key, typeClass, method) {
+  keyForPolymorphicType(key, typeClass, method) {
     var relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
@@ -152,7 +152,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} prop
     @return {Object}
   */
-  normalize: function(modelClass, resourceHash, prop) {
+  normalize(modelClass, resourceHash, prop) {
     if (this.normalizeHash && this.normalizeHash[prop]) {
       this.normalizeHash[prop](resourceHash);
     }
@@ -171,7 +171,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object}
     @private
   */
-  _normalizeArray: function(store, modelName, arrayHash, prop) {
+  _normalizeArray(store, modelName, arrayHash, prop) {
     let documentHash = {
       data: [],
       included: []
@@ -192,7 +192,7 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  _normalizePolymorphicRecord: function(store, hash, prop, primaryModelClass, primarySerializer) {
+  _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
     let serializer, modelClass;
     const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
     // Support polymorphic records in async relationships
@@ -217,7 +217,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object} JSON-API Document
     @private
   */
-  _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
+  _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
     let documentHash = {
       data: null,
       included: []
@@ -338,7 +338,7 @@ var RESTSerializer = JSONSerializer.extend({
     return documentHash;
   },
 
-  isPrimaryType: function(store, typeName, primaryTypeClass) {
+  isPrimaryType(store, typeName, primaryTypeClass) {
     var typeClass = store.modelFor(typeName);
     return typeClass.modelName === primaryTypeClass.modelName;
   },
@@ -374,7 +374,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {DS.Store} store
     @param {Object} payload
   */
-  pushPayload: function(store, payload) {
+  pushPayload(store, payload) {
     let documentHash = {
       data: [],
       included: []
@@ -462,7 +462,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey: function(key) {
+  modelNameFromPayloadKey(key) {
     return singularize(normalizeModelName(key));
   },
 
@@ -619,7 +619,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     return this._super(...arguments);
   },
 
@@ -647,7 +647,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash, typeClass, snapshot, options) {
     var normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
@@ -697,7 +697,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName: function(modelName) {
+  payloadKeyFromModelName(modelName) {
     return camelize(modelName);
   },
 
@@ -711,7 +711,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: function(snapshot, json, relationship) {
+  serializePolymorphicType(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
     var typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
@@ -751,7 +751,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} relationshipOptions
     @return {Object}
    */
-  extractPolymorphicRelationship: function(relationshipType, relationshipHash, relationshipOptions) {
+  extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions) {
     var { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload
@@ -788,7 +788,7 @@ var RESTSerializer = JSONSerializer.extend({
 
 Ember.runInDebug(function() {
   RESTSerializer.reopen({
-    warnMessageNoModelForKey: function(prop, typeKey) {
+    warnMessageNoModelForKey(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
     }
   });

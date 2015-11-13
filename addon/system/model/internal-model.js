@@ -112,7 +112,7 @@ InternalModel.prototype = {
   dirtyType: retrieveFromCurrentState('dirtyType'),
 
   constructor: InternalModel,
-  materializeRecord: function() {
+  materializeRecord() {
     Ember.assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
 
     // lookupFactory should really return an object that creates
@@ -138,15 +138,15 @@ InternalModel.prototype = {
     this._triggerDeferredTriggers();
   },
 
-  recordObjectWillDestroy: function() {
+  recordObjectWillDestroy() {
     this.record = null;
   },
 
-  deleteRecord: function() {
+  deleteRecord() {
     this.send('deleteRecord');
   },
 
-  save: function(options) {
+  save(options) {
     var promiseLabel = "DS: Model#save " + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
@@ -154,21 +154,21 @@ InternalModel.prototype = {
     return resolver.promise;
   },
 
-  startedReloading: function() {
+  startedReloading() {
     this.isReloading = true;
     if (this.record) {
       set(this.record, 'isReloading', true);
     }
   },
 
-  finishedReloading: function() {
+  finishedReloading() {
     this.isReloading = false;
     if (this.record) {
       set(this.record, 'isReloading', false);
     }
   },
 
-  reload: function() {
+  reload() {
     this.startedReloading();
     var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
@@ -186,30 +186,30 @@ InternalModel.prototype = {
     });
   },
 
-  getRecord: function() {
+  getRecord() {
     if (!this.record) {
       this.materializeRecord();
     }
     return this.record;
   },
 
-  unloadRecord: function() {
+  unloadRecord() {
     this.send('unloadRecord');
   },
 
-  eachRelationship: function(callback, binding) {
+  eachRelationship(callback, binding) {
     return this.type.eachRelationship(callback, binding);
   },
 
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     return this.type.eachAttribute(callback, binding);
   },
 
-  inverseFor: function(key) {
+  inverseFor(key) {
     return this.type.inverseFor(key);
   },
 
-  setupData: function(data) {
+  setupData(data) {
     var changedKeys = this._changedKeys(data.attributes);
     merge(this._data, data.attributes);
     this.pushedData();
@@ -219,18 +219,18 @@ InternalModel.prototype = {
     this.didInitalizeData();
   },
 
-  becameReady: function() {
+  becameReady() {
     Ember.run.schedule('actions', this.store.recordArrayManager, this.store.recordArrayManager.recordWasLoaded, this);
   },
 
-  didInitalizeData: function() {
+  didInitalizeData() {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
     }
   },
 
-  destroy: function() {
+  destroy() {
     if (this.record) {
       return this.record.destroy();
     }
@@ -240,7 +240,7 @@ InternalModel.prototype = {
     @method createSnapshot
     @private
   */
-  createSnapshot: function(options) {
+  createSnapshot(options) {
     var adapterOptions = options && options.adapterOptions;
     var snapshot = new Snapshot(this);
     snapshot.adapterOptions = adapterOptions;
@@ -252,7 +252,7 @@ InternalModel.prototype = {
     @private
     @param {Promise} promise
   */
-  loadingData: function(promise) {
+  loadingData(promise) {
     this.send('loadingData', promise);
   },
 
@@ -260,7 +260,7 @@ InternalModel.prototype = {
     @method loadedData
     @private
   */
-  loadedData: function() {
+  loadedData() {
     this.send('loadedData');
     this.didInitalizeData();
   },
@@ -269,7 +269,7 @@ InternalModel.prototype = {
     @method notFound
     @private
   */
-  notFound: function() {
+  notFound() {
     this.send('notFound');
   },
 
@@ -277,16 +277,16 @@ InternalModel.prototype = {
     @method pushedData
     @private
   */
-  pushedData: function() {
+  pushedData() {
     this.send('pushedData');
   },
 
-  flushChangedAttributes: function() {
+  flushChangedAttributes() {
     this._inFlightAttributes = this._attributes;
     this._attributes = new EmptyObject();
   },
 
-  hasChangedAttributes: function() {
+  hasChangedAttributes() {
     return Object.keys(this._attributes).length > 0;
   },
 
@@ -297,7 +297,7 @@ InternalModel.prototype = {
     This method is needed when data for the internal model is pushed and the
     pushed data might acknowledge dirty attributes as confirmed.
    */
-  updateChangedAttributes: function() {
+  updateChangedAttributes() {
     var changedAttributes = this.changedAttributes();
     var changedAttributeNames = Object.keys(changedAttributes);
 
@@ -315,7 +315,7 @@ InternalModel.prototype = {
     Returns an object, whose keys are changed properties, and value is an
     [oldProp, newProp] array.
   */
-  changedAttributes: function() {
+  changedAttributes() {
     var oldData = this._data;
     var currentData = this._attributes;
     var inFlightData = this._inFlightAttributes;
@@ -336,7 +336,7 @@ InternalModel.prototype = {
     @method adapterWillCommit
     @private
   */
-  adapterWillCommit: function() {
+  adapterWillCommit() {
     this.send('willCommit');
   },
 
@@ -344,7 +344,7 @@ InternalModel.prototype = {
     @method adapterDidDirty
     @private
   */
-  adapterDidDirty: function() {
+  adapterDidDirty() {
     this.send('becomeDirty');
     this.updateRecordArraysLater();
   },
@@ -355,7 +355,7 @@ InternalModel.prototype = {
     @param {String} name
     @param {Object} context
   */
-  send: function(name, context) {
+  send(name, context) {
     var currentState = get(this, 'currentState');
 
     if (!currentState[name]) {
@@ -365,31 +365,31 @@ InternalModel.prototype = {
     return currentState[name](this, context);
   },
 
-  notifyHasManyAdded: function(key, record, idx) {
+  notifyHasManyAdded(key, record, idx) {
     if (this.record) {
       this.record.notifyHasManyAdded(key, record, idx);
     }
   },
 
-  notifyHasManyRemoved: function(key, record, idx) {
+  notifyHasManyRemoved(key, record, idx) {
     if (this.record) {
       this.record.notifyHasManyRemoved(key, record, idx);
     }
   },
 
-  notifyBelongsToChanged: function(key, record) {
+  notifyBelongsToChanged(key, record) {
     if (this.record) {
       this.record.notifyBelongsToChanged(key, record);
     }
   },
 
-  notifyPropertyChange: function(key) {
+  notifyPropertyChange(key) {
     if (this.record) {
       this.record.notifyPropertyChange(key);
     }
   },
 
-  rollbackAttributes: function() {
+  rollbackAttributes() {
     var dirtyKeys = Object.keys(this._attributes);
 
     this._attributes = new EmptyObject();
@@ -425,7 +425,7 @@ InternalModel.prototype = {
     @private
     @param {String} name
   */
-  transitionTo: function(name) {
+  transitionTo(name) {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
 
@@ -467,7 +467,7 @@ InternalModel.prototype = {
     this.updateRecordArraysLater();
   },
 
-  _unhandledEvent: function(state, name, context) {
+  _unhandledEvent(state, name, context) {
     var errorMessage = "Attempted to handle event `" + name + "` ";
     errorMessage    += "on " + String(this) + " while in state ";
     errorMessage    += state.stateName + ". ";
@@ -479,7 +479,7 @@ InternalModel.prototype = {
     throw new Ember.Error(errorMessage);
   },
 
-  triggerLater: function() {
+  triggerLater() {
     var length = arguments.length;
     var args = new Array(length);
 
@@ -493,7 +493,7 @@ InternalModel.prototype = {
     Ember.run.scheduleOnce('actions', this, '_triggerDeferredTriggers');
   },
 
-  _triggerDeferredTriggers: function() {
+  _triggerDeferredTriggers() {
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record
@@ -510,7 +510,7 @@ InternalModel.prototype = {
     @method clearRelationships
     @private
   */
-  clearRelationships: function() {
+  clearRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         var rel = this._relationships.get(name);
@@ -539,7 +539,7 @@ InternalModel.prototype = {
     @private
     @param {Object} preload
   */
-  _preloadData: function(preload) {
+  _preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
       var preloadValue = get(preload, key);
@@ -552,7 +552,7 @@ InternalModel.prototype = {
     });
   },
 
-  _preloadRelationship: function(key, preloadValue) {
+  _preloadRelationship(key, preloadValue) {
     var relationshipMeta = this.type.metaForProperty(key);
     var type = relationshipMeta.type;
     if (relationshipMeta.kind === 'hasMany') {
@@ -562,7 +562,7 @@ InternalModel.prototype = {
     }
   },
 
-  _preloadHasMany: function(key, preloadValue, type) {
+  _preloadHasMany(key, preloadValue, type) {
     Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
     var internalModel = this;
 
@@ -574,7 +574,7 @@ InternalModel.prototype = {
     this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
   },
 
-  _preloadBelongsTo: function(key, preloadValue, type) {
+  _preloadBelongsTo(key, preloadValue, type) {
     var recordToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, type);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
@@ -582,7 +582,7 @@ InternalModel.prototype = {
     this._relationships.get(key).setRecord(recordToSet);
   },
 
-  _convertStringOrNumberIntoInternalModel: function(value, type) {
+  _convertStringOrNumberIntoInternalModel(value, type) {
     if (typeof value === 'string' || typeof value === 'number') {
       return this.store._internalModelForId(type, value);
     }
@@ -597,12 +597,12 @@ InternalModel.prototype = {
     @method updateRecordArrays
     @private
   */
-  updateRecordArrays: function() {
+  updateRecordArrays() {
     this._updatingRecordArraysLater = false;
     this.store.dataWasUpdated(this.type, this);
   },
 
-  setId: function(id) {
+  setId(id) {
     Ember.assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
     this.id = id;
     if (this.record.get('id') !== id) {
@@ -610,7 +610,7 @@ InternalModel.prototype = {
     }
   },
 
-  didError: function(error) {
+  didError(error) {
     this.error = error;
     this.isError = true;
 
@@ -622,7 +622,7 @@ InternalModel.prototype = {
     }
   },
 
-  didCleanError: function() {
+  didCleanError() {
     this.error = null;
     this.isError = false;
 
@@ -640,7 +640,7 @@ InternalModel.prototype = {
 
     @method adapterDidCommit
   */
-  adapterDidCommit: function(data) {
+  adapterDidCommit(data) {
     if (data) {
       data = data.attributes;
     }
@@ -667,29 +667,29 @@ InternalModel.prototype = {
     @method updateRecordArraysLater
     @private
   */
-  updateRecordArraysLater: function() {
+  updateRecordArraysLater() {
     // quick hack (something like this could be pushed into run.once
     if (this._updatingRecordArraysLater) { return; }
     this._updatingRecordArraysLater = true;
     Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
-  addErrorMessageToAttribute: function(attribute, message) {
+  addErrorMessageToAttribute(attribute, message) {
     var record = this.getRecord();
     get(record, 'errors')._add(attribute, message);
   },
 
-  removeErrorMessageFromAttribute: function(attribute) {
+  removeErrorMessageFromAttribute(attribute) {
     var record = this.getRecord();
     get(record, 'errors')._remove(attribute);
   },
 
-  clearErrorMessages: function() {
+  clearErrorMessages() {
     var record = this.getRecord();
     get(record, 'errors')._clear();
   },
 
-  hasErrors: function() {
+  hasErrors() {
     var record = this.getRecord();
     var errors = get(record, 'errors');
 
@@ -702,7 +702,7 @@ InternalModel.prototype = {
     @method adapterDidInvalidate
     @private
   */
-  adapterDidInvalidate: function(errors) {
+  adapterDidInvalidate(errors) {
     var attribute;
 
     for (attribute in errors) {
@@ -720,13 +720,13 @@ InternalModel.prototype = {
     @method adapterDidError
     @private
   */
-  adapterDidError: function(error) {
+  adapterDidError(error) {
     this.send('becameError');
     this.didError(error);
     this._saveWasRejected();
   },
 
-  _saveWasRejected: function() {
+  _saveWasRejected() {
     var keys = Object.keys(this._inFlightAttributes);
     for (var i=0; i < keys.length; i++) {
       if (this._attributes[keys[i]] === undefined) {
@@ -777,7 +777,7 @@ InternalModel.prototype = {
     @method _changedKeys
     @private
   */
-  _changedKeys: function(updates) {
+  _changedKeys(updates) {
     var changedKeys = [];
 
     if (updates) {
@@ -809,7 +809,7 @@ InternalModel.prototype = {
     return changedKeys;
   },
 
-  toString: function() {
+  toString() {
     if (this.record) {
       return this.record.toString();
     } else {

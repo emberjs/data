@@ -16,7 +16,7 @@ const { assert } = Ember;
   @private
 */
 export default Ember.DataAdapter.extend({
-  getFilters: function() {
+  getFilters() {
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
@@ -24,11 +24,11 @@ export default Ember.DataAdapter.extend({
     ];
   },
 
-  detect: function(typeClass) {
+  detect(typeClass) {
     return typeClass !== Model && Model.detect(typeClass);
   },
 
-  columnsForType: function(typeClass) {
+  columnsForType(typeClass) {
     var columns = [{
       name: 'id',
       desc: 'Id'
@@ -43,7 +43,7 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(modelClass, modelName) {
+  getRecords(modelClass, modelName) {
     if (arguments.length < 2) {
       // Legacy Ember.js < 1.13 support
       let containerKey = modelClass._debugContainerKey;
@@ -58,7 +58,7 @@ export default Ember.DataAdapter.extend({
     return this.get('store').peekAll(modelName);
   },
 
-  getRecordColumnValues: function(record) {
+  getRecordColumnValues(record) {
     var count = 0;
     var columnValues = { id: get(record, 'id') };
 
@@ -72,7 +72,7 @@ export default Ember.DataAdapter.extend({
     return columnValues;
   },
 
-  getRecordKeywords: function(record) {
+  getRecordKeywords(record) {
     var keywords = [];
     var keys = Ember.A(['id']);
     record.eachAttribute((key) => keys.push(key));
@@ -80,7 +80,7 @@ export default Ember.DataAdapter.extend({
     return keywords;
   },
 
-  getRecordFilterValues: function(record) {
+  getRecordFilterValues(record) {
     return {
       isNew: record.get('isNew'),
       isModified: record.get('hasDirtyAttributes') && !record.get('isNew'),
@@ -88,7 +88,7 @@ export default Ember.DataAdapter.extend({
     };
   },
 
-  getRecordColor: function(record) {
+  getRecordColor(record) {
     var color = 'black';
     if (record.get('isNew')) {
       color = 'green';
@@ -98,7 +98,7 @@ export default Ember.DataAdapter.extend({
     return color;
   },
 
-  observeRecord: function(record, recordUpdated) {
+  observeRecord(record, recordUpdated) {
     var releaseMethods = Ember.A();
     var keysToObserve = Ember.A(['id', 'isNew', 'hasDirtyAttributes']);
 
