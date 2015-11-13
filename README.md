@@ -38,6 +38,12 @@ after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
 
+**Internet Explorer 8 is no longer supported by Ember Data on versions
+2.0 and later.**
+
+If you require IE8 support, you can use the `1.13` series of releases.
+The source code is available on the `release-1-13` branch.
+
 Internet Explorer 8 support requires Ember 1.8.1 (which provides a polyfill for `Object.create`).
 
 ### Instantiating the Store
