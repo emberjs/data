@@ -1,20 +1,21 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
 import {module, test} from 'qunit';
-
 import DS from 'ember-data';
 
-var Person, store, env;
-var run = Ember.run;
+const { run } = Ember;
+const { attr } = DS;
+const { reject } = Ember.RSVP;
+
+let Person, store, env;
 
 module("integration/adapter/find - Finding Records", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      updatedAt: attr('string'),
+      name: attr('string'),
+      firstName: attr('string'),
+      lastName: attr('string')
     });
 
     env = setupStore({
@@ -23,28 +24,28 @@ module("integration/adapter/find - Finding Records", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
 
-test("It raises an assertion when `undefined` is passed as id (#1705)", function(assert) {
-  assert.expectAssertion(function() {
+test("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
+  assert.expectAssertion(() => {
     store.find('person', undefined);
   }, "You cannot pass `undefined` as id to the store's find method");
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     store.find('person', null);
   }, "You cannot pass `null` as id to the store's find method");
 });
 
-test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function(assert) {
+test("When a single record is requested, the adapter's find method should be called unless it's loaded.", (assert) => {
   assert.expect(2);
 
   var count = 0;
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(_, type) {
       assert.equal(type, Person, "the find method is called with the correct type");
       assert.equal(count, 0, "the find method is only called once");
 
@@ -53,47 +54,45 @@ test("When a single record is requested, the adapter's find method should be cal
     }
   }));
 
-  run(function() {
+  run(() => {
     store.findRecord('person', 1);
     store.findRecord('person', 1);
   });
 });
 
-test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function(assert) {
+test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", (assert) => {
   var deferred = Ember.RSVP.defer();
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
-      return deferred.promise;
-    }
+    findRecord: () => deferred.promise
   }));
 
-  run(function() {
+  run(() => {
     store.findRecord('person', 1).then(assert.wait(function(person) {
       assert.equal(person.get('id'), "1");
       assert.equal(person.get('name'), "Braaaahm Dale");
 
       let done = assert.async();
-      deferred.promise.then(function(value) {
+      deferred.promise.then(() => {
         assert.ok(true, 'expected deferred.promise to fulfill');
         done();
-      }, function(reason) {
+      }, () => {
         assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
         done();
       });
     }));
   });
 
-  run(function() {
-    store.findRecord('person', 1).then(assert.wait(function(post) {
+  run(() => {
+    store.findRecord('person', 1).then(assert.wait((post) => {
       assert.equal(post.get('id'), "1");
       assert.equal(post.get('name'), "Braaaahm Dale");
 
       let done = assert.async();
-      deferred.promise.then(function(value) {
+      deferred.promise.then(() => {
         assert.ok(true, 'expected deferred.promise to fulfill');
         done();
-      }, function(reason) {
+      }, () => {
         assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
         done();
       });
@@ -101,39 +100,32 @@ test("When a single record is requested multiple times, all .find() calls are re
     }));
   });
 
-  Ember.run(function() {
-    deferred.resolve({ id: 1, name: "Braaaahm Dale" });
-  });
+  run(() => deferred.resolve({ id: 1, name: "Braaaahm Dale" }));
 });
 
-test("When a single record is requested, and the promise is rejected, .find() is rejected.", function(assert) {
+test("When a single record is requested, and the promise is rejected, .find() is rejected.", (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
-      return Ember.RSVP.reject();
-    }
+    findRecord: () => reject()
   }));
 
-  run(function() {
-    store.findRecord('person', 1).then(null, assert.wait(function(reason) {
+  run(() => {
+    store.findRecord('person', 1).then(null, assert.wait(() => {
       assert.ok(true, "The rejection handler was called");
     }));
   });
 });
 
-test("When a single record is requested, and the promise is rejected, the record should be unloaded.", function(assert) {
+test("When a single record is requested, and the promise is rejected, the record should be unloaded.", (assert) => {
   assert.expect(2);
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
-      return Ember.RSVP.reject();
-    }
+    findRecord: () => reject()
   }));
 
-  run(function() {
-    store.findRecord('person', 1).then(null, assert.wait(function(reason) {
+  run(() => {
+    store.findRecord('person', 1).then(null, assert.wait((reason) => {
       assert.ok(true, "The rejection handler was called");
       assert.ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
     }));
   });
-
 });
