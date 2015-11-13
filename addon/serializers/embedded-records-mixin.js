@@ -85,6 +85,7 @@ var camelize = Ember.String.camelize;
   to modify it to fit your specific needs.**
 
   For example review the docs for each method of this mixin:
+  
   * [normalize](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_normalize)
   * [serializeBelongsTo](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeBelongsTo)
   * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
