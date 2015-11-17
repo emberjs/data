@@ -763,7 +763,9 @@ export default Serializer.extend({
     @return {String} key
   */
   _getMappedKey: function(key, modelClass) {
-    Ember.assert('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key));
+    Ember.warn('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key), {
+      id: 'ds.serializer.no-mapped-attrs-key'
+    });
 
     var attrs = get(this, 'attrs');
     var mappedKey;
