@@ -2,31 +2,26 @@
 
 ### Master
 
-### Release 2.2.0-beta.4 (November 11, 2015)
+### Release 2.2.0 (November 17, 2015)
+- [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
 - [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
 - [#3875](https://github.com/emberjs/data/pull/3875) [BUGFIX beta] serialize type for embedded, polymorphic belongsTo
 - [#3900](https://github.com/emberjs/data/pull/3900) [DOC fix] errors pointers should start with a /
 - [#3905](https://github.com/emberjs/data/pull/3905) [BUGFIX release] Update the dependencies for Ember 2.x
 - [#3909](https://github.com/emberjs/data/pull/3909) [BUGFIX beta] Correctly handle object level errors in json api
 - [#3910](https://github.com/emberjs/data/pull/3910) [BUGFIX release] Normalize attrs keys
-- [#3912](https://github.com/emberjs/data/pull/3912) Use public API for container/registry when possible.
-
-### Release 2.2.0-beta.3 (October 27, 2015)
+- [#3912](https://github.com/emberjs/data/pull/3912) Use public API for container/registry when possible.]
 - [#3835](https://github.com/emberjs/data/pull/3835) [BUGFIX] extract polymorphic belongsTo in RESTSerializer
 - [#3887](https://github.com/emberjs/data/pull/3887) [BUGFIX release] update ember-inflector to resolve default Inflector …
 - [#3888](https://github.com/emberjs/data/pull/3888) [BUGFIX release] import from ember-inflector to use the default instance
-
-### Release 2.2.0-beta.2 (October 18, 2015)
 - [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
-- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
 - [#3846](https://github.com/emberjs/data/pull/3846) [BUGFIX beta] Attribute/relationship named "type" of primary record i…
 - [#3847](https://github.com/emberjs/data/pull/3847) [BUGFIX beta] JSONAPI serializer not respecting 'attrs' hash
 - [#3857](https://github.com/emberjs/data/pull/3857) [BUGFIX beta] rollbackAttributes() works after multiple failed saves
 - [#3859](https://github.com/emberjs/data/pull/3859) [BUGFIX beta] Correctly handle invalid errors without payload or pointer
 - [#3861](https://github.com/emberjs/data/pull/3861) [BUGFIX beta] Assert that an array is returned from the normalized re…
 - [#3867](https://github.com/emberjs/data/pull/3867) Allow serializers to normalize response, remove old internal serializers code
-
-### Release 2.2.0-beta.1 (October 5, 2015)
 - [#3697](https://github.com/emberjs/data/pull/3697) Fix typo in CHANGELOG
 - [#3215](https://github.com/emberjs/data/pull/3215) remove Map/MapWithDefault polyfills, use Ember's ones
 - [#3711](https://github.com/emberjs/data/pull/3711) Explicitly set length after setting a new content property
@@ -50,6 +45,15 @@
 - [#3816](https://github.com/emberjs/data/pull/3816) run optional feature tests on AppVeyor
 - [#3817](https://github.com/emberjs/data/pull/3817) Update the changelog for Ember Data 2.1.0
 
+### Release 1.13.14 (October 18, 2015)
+- [#3665](https://github.com/emberjs/data/pull/3665) [BUGFIX beta] Fix usage of registry for 2.1.0+.
+- [#3825](https://github.com/emberjs/data/pull/3825) [BUGFIX] Restore IE8 compatibility by using Ember.create
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3840](https://github.com/emberjs/data/pull/3840) Backport Fix usage of registry for 2.1.0+ from pr #3665
+- [#3846](https://github.com/emberjs/data/pull/3846) [BUGFIX beta] Attribute/relationship named "type" of primary record i…
+- [#3847](https://github.com/emberjs/data/pull/3847) [BUGFIX beta] JSONAPI serializer not respecting 'attrs' hash
+- [#3857](https://github.com/emberjs/data/pull/3857) [BUGFIX beta] rollbackAttributes() works after multiple failed saves
+- [#3859](https://github.com/emberjs/data/pull/3859) [BUGFIX beta] Correctly handle invalid errors without payload or pointer
 
 ### Release 2.1.0 (October 5, 2015)
 - [#3811](https://github.com/emberjs/data/pull/3811) Format lists in JSONSerializer docs for rendering
