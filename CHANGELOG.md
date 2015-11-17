@@ -2,6 +2,51 @@
 
 ### Master
 
+
+### Release 2.3.0-beta.1 (November 17, 2015)
+- [#3865](https://github.com/emberjs/data/pull/3865) Assert that passed array to set a hasMany consists of records
+- [#3820](https://github.com/emberjs/data/pull/3820) [CLEANUP] Remove duplicate test for creating record
+- [#3819](https://github.com/emberjs/data/pull/3819) [CLEANUP] Remove duplicate `default export` in snapshot.js
+- [#3713](https://github.com/emberjs/data/pull/3713) Document the return value of DS.Adapter#updateRecord
+- [#3390](https://github.com/emberjs/data/pull/3390) Update the jsbin link so it has no deprecation warnings
+- [#3835](https://github.com/emberjs/data/pull/3835) [BUGFIX] extract polymorphic belongsTo in RESTSerializer
+- [#3829](https://github.com/emberjs/data/pull/3829) Remove references to findQuery
+- [#3824](https://github.com/emberjs/data/pull/3824) [DOCS] Improve docs for JSONSerializer
+- [#3828](https://github.com/emberjs/data/pull/3828) [CLEANUP] Make idiomatic use of `export default`
+- [#3821](https://github.com/emberjs/data/pull/3821) [CLEANUP] Remove unecessary wrap of rejection in run-loop
+- [#3827](https://github.com/emberjs/data/pull/3827) [DOC] Remove reference to `isDirty` in DS.Model documentation
+- [#3839](https://github.com/emberjs/data/pull/3839) Cleanup build
+- [#3831](https://github.com/emberjs/data/pull/3831) [CLEANUP] dasherize file name for hasRecordForId test
+- [#3830](https://github.com/emberjs/data/pull/3830) Fix tests for non-dasherized lookups
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
+- [#3834](https://github.com/emberjs/data/pull/3834) raise errors on deprecation
+- [#3843](https://github.com/emberjs/data/pull/3843) Remove unneeded PromiseArray allocation
+- [#3844](https://github.com/emberjs/data/pull/3844) Remove conditional statement that is always true
+- [#3855](https://github.com/emberjs/data/pull/3855) Deprecate complex objects as an attributes `defaultValue`.
+- [#3850](https://github.com/emberjs/data/pull/3850) [DOC] Document snapshotRecordArray param passed to adapter.findAll
+- [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
+- [#3869](https://github.com/emberjs/data/pull/3869) Update the Changelog for 1.13.14
+- [#3867](https://github.com/emberjs/data/pull/3867) Allow serializers to normalize response, remove old internal serializers code
+- [#3858](https://github.com/emberjs/data/pull/3858) [DOC] remove documentation for `isError` in states
+- [#3866](https://github.com/emberjs/data/pull/3866) Allow store.push to accept { data: null }
+- [#3860](https://github.com/emberjs/data/pull/3860) [CLEANUP] remove unused private method in AdapterPopulatedRecordArray
+- [#3907](https://github.com/emberjs/data/pull/3907) Addonize
+- [#3898](https://github.com/emberjs/data/pull/3898) Fix DS.Errors summary and error object example
+- [#3889](https://github.com/emberjs/data/pull/3889)  [perf] minor adjustments to `store#push` flow
+- [#3928](https://github.com/emberjs/data/pull/3928) update README stating no IE8 support
+- [#3915](https://github.com/emberjs/data/pull/3915) Add null implementation of findMany in DS.Adapter
+- [#3904](https://github.com/emberjs/data/pull/3904) Cleanup `.codeclimate.yml`
+- [#3912](https://github.com/emberjs/data/pull/3912) Use public API for container/registry when possible.
+- [#3924](https://github.com/emberjs/data/pull/3924) [CLEANUP] `tests/integration/adapter/find-test.js`
+- [#3925](https://github.com/emberjs/data/pull/3925) [CLEANUP] Clean up adapter/find-all-test.js
+- [#3927](https://github.com/emberjs/data/pull/3927) restore globals publishing to canary build
+- [#3929](https://github.com/emberjs/data/pull/3929) upgrade node to 4 on CI
+- [#3931](https://github.com/emberjs/data/pull/3931) update ember-cli to 1.13.12
+- [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
+- [#3938](https://github.com/emberjs/data/pull/3938) Update the changelog for Ember Data 2.2.0
+
+
 ### Release 2.2.0 (November 17, 2015)
 - [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
 - [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
