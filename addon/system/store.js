@@ -1937,7 +1937,7 @@ Store = Service.extend({
     the value of the `defaultAdapter`.
 
     @method adapterFor
-    @private
+    @public
     @param {String} modelName
     @return DS.Adapter
   */
@@ -1973,7 +1973,7 @@ Store = Service.extend({
     to an instance of `DS.JSONSerializer`.
 
     @method serializerFor
-    @private
+    @public
     @param {String} modelName the record to serialize
     @return {DS.Serializer}
   */
