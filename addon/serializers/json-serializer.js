@@ -741,19 +741,6 @@ export default Serializer.extend({
   },
 
   /**
-    @method normalizeId
-    @private
-  */
-  normalizeId: function(hash) {
-    var primaryKey = get(this, 'primaryKey');
-
-    if (primaryKey === 'id') { return; }
-
-    hash.id = hash[primaryKey];
-    delete hash[primaryKey];
-  },
-
-  /**
     Looks up the property key that was set by the custom `attr` mapping
     passed to the serializer.
 
