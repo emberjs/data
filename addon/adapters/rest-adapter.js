@@ -824,9 +824,9 @@ export default Adapter.extend(BuildURLMixin, {
         );
 
         if (response instanceof AdapterError) {
-          Ember.run(null, reject, response);
+          Ember.run.join(null, reject, response);
         } else {
-          Ember.run(null, resolve, response);
+          Ember.run.join(null, resolve, response);
         }
       };
 
@@ -849,7 +849,7 @@ export default Adapter.extend(BuildURLMixin, {
           }
         }
 
-        Ember.run(null, reject, error);
+        Ember.run.join(null, reject, error);
       };
 
       Ember.$.ajax(hash);
