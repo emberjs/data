@@ -136,6 +136,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResourceHelper: function(resourceHash) {
+    Ember.assert(this.warnMessageForUndefinedType(), !Ember.isNone(resourceHash.type), {
+      id: 'ds.serializer.type-is-undefined'
+    });
+
     let modelName = this.modelNameFromPayloadKey(resourceHash.type);
 
     if (!this.store._hasModelFor(modelName)) {
@@ -465,6 +469,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 Ember.runInDebug(function() {
   JSONAPISerializer.reopen({
+    warnMessageForUndefinedType: function() {
+      return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
+    },
     warnMessageNoModelForType: function(modelName, originalType) {
       return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + originalType + '"))';
     }
