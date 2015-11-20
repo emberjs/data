@@ -144,3 +144,13 @@ test("When all records for a type are requested, records that are created on the
   assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
   assert.equal(allRecords.objectAt(0).get('name'), "Carsten Nielsen", "the first item in the record array is Carsten Nielsen");
 });
+
+test('When all records are requested, assert the payload is not blank', (assert) => {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll: () => Ember.RSVP.resolve({})
+  }));
+
+  assert.expectAssertion(() => {
+    run(() => store.findAll('person'));
+  }, /the adapter's response did not have any data/);
+});

@@ -129,3 +129,27 @@ test("When a single record is requested, and the promise is rejected, the record
     }));
   });
 });
+
+test('When a single record is requested, and the payload is blank', (assert) => {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findRecord: () => Ember.RSVP.resolve({})
+  }));
+
+  assert.expectAssertion(() => {
+    run(() => store.find('person', 'the-id'));
+  }, /the adapter's response did not have any data/);
+});
+
+test('When multiple records are requested, and the payload is blank', (assert) => {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    coalesceFindRequests: true,
+    findMany: () => Ember.RSVP.resolve({})
+  }));
+
+  assert.expectAssertion(() => {
+    run(() => {
+      store.findRecord('person', '1');
+      store.findRecord('person', '2');
+    });
+  }, /the adapter's response did not have any data/);
+});
