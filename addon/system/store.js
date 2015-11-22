@@ -1054,7 +1054,7 @@ Store = Service.extend({
     locally created records of the type, however, it will not make a
     request to the backend to retrieve additional records. If you
     would like to request all the records from the backend please use
-    [store.find](#method_find).
+    [store.findAll](#method_findAll).
 
     Also note that multiple calls to `peekAll` for a given type will always
     return the same `RecordArray`.
