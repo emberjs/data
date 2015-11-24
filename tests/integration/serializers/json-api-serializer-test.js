@@ -134,6 +134,23 @@ test('Warns when normalizing an unknown type', function(assert) {
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
 
+test('Warns when normalizing with type missing', function(assert) {
+  var documentHash = {
+    data: {
+      id: '1',
+      attributes: {
+        foo: 'bar'
+      }
+    }
+  };
+
+  assert.throws(function() {
+    run(function() {
+      env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+    });
+  }, /Encountered a resource object with an undefined type/);
+});
+
 test('Serializer should respect the attrs hash when extracting attributes and relationships', function(assert) {
   env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
     attrs: {
