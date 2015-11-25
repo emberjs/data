@@ -19,9 +19,9 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
 
     Message = Ember.Mixin.create({
       title: attr('string'),
-      user: belongsTo('user', { async: true })
+      user: belongsTo('user', { async: true }),
+      toString: stringify('Message')
     });
-    Message.toString = stringify('Message');
 
     Video = DS.Model.extend(Message, {
       video: attr()
