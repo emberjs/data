@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
   "license": "MIT",

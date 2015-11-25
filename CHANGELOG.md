@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.2.1 (November 25, 2015)
+- [#3866](https://github.com/emberjs/data/pull/3866) Allow store.push to accept { data: null }
+
 ### Release 2.2.0 (November 17, 2015)
 - [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
 - [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
