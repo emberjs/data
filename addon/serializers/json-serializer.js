@@ -720,7 +720,7 @@ export default Serializer.extend({
 
     if (attrs) {
       for (key in attrs) {
-        var normalizedKey;
+        var normalizedKey = null;
         payloadKey = this._getMappedKey(key, modelClass);
 
         if (!hash.hasOwnProperty(payloadKey)) { continue; }
