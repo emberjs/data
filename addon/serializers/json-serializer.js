@@ -716,10 +716,11 @@ export default Serializer.extend({
   */
   normalizeUsingDeclaredMapping: function(modelClass, hash) {
     var attrs = get(this, 'attrs');
-    var payloadKey, normalizedKey, key;
+    var payloadKey, key;
 
     if (attrs) {
       for (key in attrs) {
+        var normalizedKey;
         payloadKey = this._getMappedKey(key, modelClass);
 
         if (!hash.hasOwnProperty(payloadKey)) { continue; }
@@ -732,7 +733,7 @@ export default Serializer.extend({
           normalizedKey = this.keyForRelationship(key);
         }
 
-        if (payloadKey !== normalizedKey) {
+        if (normalizedKey && payloadKey !== normalizedKey) {
           hash[normalizedKey] = hash[payloadKey];
           delete hash[payloadKey];
         }
