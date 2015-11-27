@@ -885,3 +885,24 @@ test('normalizeResponse respects `included` items (array response)', function(as
     { id: "3", type: "comment", attributes: { body: "comment 3" }, relationships: {} }
   ]);
 });
+
+test('normalizeResponse ignores unmapped attributes', function(assert) {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: { serialize: false },
+      notInMapping: { serialize: false }
+    }
+  }));
+
+  var jsonHash = {
+    id: "1",
+    notInMapping: 'I should be ignored',
+    title: "Rails is omakase"
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+
+  assert.equal(post.data.attributes.title, "Rails is omakase");
+});
+
+
