@@ -960,7 +960,7 @@ Store = Service.extend({
     once the server returns.
 
     @method queryRecord
-    @param {String or subclass of DS.Model} type
+    @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
