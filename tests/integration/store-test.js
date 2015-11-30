@@ -571,3 +571,17 @@ test("Store should accept a null value for `data`", function(assert) {
     });
   });
 });
+
+test('store#findRecord that returns an array should assert', assert => {
+  initializeStore(DS.JSONAPIAdapter.extend({
+    findRecord: function() {
+      return { data: [] };
+    }
+  }));
+
+  assert.expectAssertion(function() {
+    run(function() {
+      store.findRecord('car', 1);
+    });
+  }, /expected the primary data returned from a `findRecord` response to be an object but instead it found an array/);
+});
