@@ -351,14 +351,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
   errors: Ember.computed(function() {
     let errors = Errors.create();
 
-    errors.registerHandlers(this._internalModel,
+    errors._registerHandlers(this._internalModel,
       function() {
         this.send('becameInvalid');
       },
       function() {
         this.send('becameValid');
       });
-
     return errors;
   }).readOnly(),
 

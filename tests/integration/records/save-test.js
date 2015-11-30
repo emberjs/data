@@ -58,7 +58,9 @@ test("Will reject save on error", function(assert) {
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    var error = new DS.InvalidError([{ title: 'not valid' }]);
+
+    return Ember.RSVP.reject(error);
   };
 
   run(function() {
@@ -77,8 +79,10 @@ test("Retry is allowed in a failure handler", function(assert) {
   var count = 0;
 
   env.adapter.createRecord = function(store, type, snapshot) {
+    var error = new DS.InvalidError([{ title: 'not valid' }]);
+
     if (count++ === 0) {
-      return Ember.RSVP.reject();
+      return Ember.RSVP.reject(error);
     } else {
       return Ember.RSVP.resolve({ id: 123 });
     }
@@ -181,7 +185,9 @@ test("Will reject save on invalid", function(assert) {
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject({ title: 'invalid' });
+    var error = new DS.InvalidError([{ title: 'not valid' }]);
+
+    return Ember.RSVP.reject(error);
   };
 
   run(function() {

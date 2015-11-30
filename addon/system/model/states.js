@@ -326,6 +326,10 @@ var DirtyState = {
       internalModel.removeErrorMessageFromAttribute(context.name);
 
       didSetProperty(internalModel, context);
+
+      if (!internalModel.hasErrors()) {
+        this.becameValid(internalModel);
+      }
     },
 
     becameInvalid: Ember.K,
@@ -695,6 +699,10 @@ var RootState = {
         internalModel.removeErrorMessageFromAttribute(context.name);
 
         didSetProperty(internalModel, context);
+
+        if (!internalModel.hasErrors()) {
+          this.becameValid(internalModel);
+        }
       },
 
       becameInvalid: Ember.K,
