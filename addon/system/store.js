@@ -407,7 +407,7 @@ Store = Service.extend({
     Example
 
     ```javascript
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       store.unloadRecord(post);
     });
     ```
