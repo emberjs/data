@@ -18,7 +18,7 @@ Model.reopen({
     @for DS.Model
     @private
   */
-  _debugInfo: function() {
+  _debugInfo() {
     var attributes = ['id'];
     var relationships = { belongsTo: [], hasMany: [] };
     var expensiveProperties = [];

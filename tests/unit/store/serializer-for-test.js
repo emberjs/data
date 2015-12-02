@@ -9,7 +9,7 @@ var container, store, registry, Person;
 var run = Ember.run;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({});
     var env = setupStore({ person: Person });
     store = env.store;
@@ -17,7 +17,7 @@ module("unit/store/serializer_for - DS.Store#serializerFor", {
     registry = env.registry;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       container.destroy();
       store.destroy();

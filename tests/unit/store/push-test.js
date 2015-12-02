@@ -12,7 +12,7 @@ var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 module("unit/store/push - DS.Store#push", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -48,7 +48,7 @@ module("unit/store/push - DS.Store#push", {
     env.registry.register('serializer:post', DS.RESTSerializer);
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
     });
@@ -345,13 +345,13 @@ test("Calling pushPayload allows pushing singular payload properties", function(
 test("Calling pushPayload should use the type's serializer for normalizing", function(assert) {
   assert.expect(4);
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
-    normalize: function(store, payload) {
+    normalize(store, payload) {
       assert.ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
   env.registry.register('serializer:person', DS.RESTSerializer.extend({
-    normalize: function(store, payload) {
+    normalize(store, payload) {
       assert.ok(true, "normalized is called on Person serializer");
       return this._super(store, payload);
     }
@@ -383,7 +383,7 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
   assert.expect(1);
 
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    pushPayload: function(store, payload) {
+    pushPayload(store, payload) {
       assert.ok(true, "pushPayload is called on Application serializer");
       return this._super(store, payload);
     }
@@ -400,14 +400,14 @@ test("Calling pushPayload without a type should use a model's serializer when no
   assert.expect(4);
 
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
-    normalize: function(store, payload) {
+    normalize(store, payload) {
       assert.ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
 
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalize: function(store, payload) {
+    normalize(store, payload) {
       assert.ok(true, "normalized is called on Application serializer");
       return this._super(store, payload);
     }
@@ -669,7 +669,7 @@ test("Calling push with unknown keys should not warn by default", function(asser
 });
 
 module("unit/store/push - DS.Store#push with JSON-API", {
-  beforeEach: function() {
+  beforeEach() {
     var Person = DS.Model.extend({
       name: DS.attr('string'),
       cars: DS.hasMany('car', { async: false })
@@ -694,7 +694,7 @@ module("unit/store/push - DS.Store#push with JSON-API", {
 
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
     });

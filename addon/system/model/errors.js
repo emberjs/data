@@ -109,7 +109,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {Function} becameValid
     @deprecated
   */
-  registerHandlers: function(target, becameInvalid, becameValid) {
+  registerHandlers(target, becameInvalid, becameValid) {
     Ember.deprecate(
       `Record errors will no longer be evented.`, false, {
         id: 'ds.errors.registerHandlers',
@@ -126,7 +126,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _registerHandlers
     @private
   */
-  _registerHandlers: function(target, becameInvalid, becameValid) {
+  _registerHandlers(target, becameInvalid, becameValid) {
     this.on('becameInvalid', target, becameInvalid);
     this.on('becameValid', target, becameValid);
   },
@@ -139,7 +139,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   errorsByAttributeName: Ember.computed(function() {
     return MapWithDefault.create({
-      defaultValue: function() {
+      defaultValue() {
         return Ember.A();
       }
     });
@@ -163,7 +163,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {String} attribute
     @return {Array}
   */
-  errorsFor: function(attribute) {
+  errorsFor(attribute) {
     return get(this, 'errorsByAttributeName').get(attribute);
   },
 
@@ -197,7 +197,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method unknownProperty
     @private
   */
-  unknownProperty: function(attribute) {
+  unknownProperty(attribute) {
     var errors = this.errorsFor(attribute);
     if (isEmpty(errors)) { return null; }
     return errors;
@@ -235,7 +235,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {(Array|String)} messages
     @deprecated
   */
-  add: function(attribute, messages) {
+  add(attribute, messages) {
     Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.add'
     });
@@ -256,7 +256,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _add
     @private
   */
-  _add: function(attribute, messages) {
+  _add(attribute, messages) {
     messages = this._findOrCreateMessages(attribute, messages);
     this.addObjects(messages);
     get(this, 'errorsByAttributeName').get(attribute).addObjects(messages);
@@ -268,7 +268,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _findOrCreateMessages
     @private
   */
-  _findOrCreateMessages: function(attribute, messages) {
+  _findOrCreateMessages(attribute, messages) {
     var errors = this.errorsFor(attribute);
 
     return makeArray(messages).map((message) => {
@@ -314,7 +314,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {String} attribute
     @deprecated
   */
-  remove: function(attribute) {
+  remove(attribute) {
     Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.remove'
     });
@@ -334,7 +334,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _remove
     @private
   */
-  _remove: function(attribute) {
+  _remove(attribute) {
     if (get(this, 'isEmpty')) { return; }
 
     let content = this.rejectBy('attribute', attribute);
@@ -366,7 +366,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method clear
     @deprecated
   */
-  clear: function() {
+  clear() {
     Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.clear'
     });
@@ -385,7 +385,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _clear
     @private
   */
-  _clear: function() {
+  _clear() {
     if (get(this, 'isEmpty')) { return; }
 
     let errorsByAttributeName = get(this, 'errorsByAttributeName');
@@ -426,7 +426,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {String} attribute
     @return {Boolean} true if there some errors on given attribute
   */
-  has: function(attribute) {
+  has(attribute) {
     return !isEmpty(this.errorsFor(attribute));
   }
 });

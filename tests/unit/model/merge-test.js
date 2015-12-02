@@ -9,7 +9,7 @@ var Person;
 var run = Ember.run;
 
 module("unit/model/merge - Merging", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr(),
       city: DS.attr()
@@ -21,7 +21,7 @@ test("When a record is in flight, changes can be made", function(assert) {
   assert.expect(3);
 
   var adapter = DS.Adapter.extend({
-    createRecord: function(store, type, snapshot) {
+    createRecord(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
     }
   });
@@ -54,7 +54,7 @@ test("Make sure snapshot is created at save time not at flush time", function(as
   assert.expect(5);
 
   var adapter = DS.Adapter.extend({
-    updateRecord: function(store, type, snapshot) {
+    updateRecord(store, type, snapshot) {
       assert.equal(snapshot.attr('name'), 'Thomas Dale');
 
       return Ember.RSVP.resolve();
@@ -97,7 +97,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   assert.expect(6);
 
   var adapter = DS.Adapter.extend({
-    updateRecord: function(store, type, snapshot) {
+    updateRecord(store, type, snapshot) {
       // Make sure saving isn't resolved synchronously
       return new Ember.RSVP.Promise(function(resolve, reject) {
         run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
@@ -246,7 +246,7 @@ test("A record with no changes can still be saved", function(assert) {
   assert.expect(1);
 
   var adapter = DS.Adapter.extend({
-    updateRecord: function(store, type, snapshot) {
+    updateRecord(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
     }
   });
@@ -280,7 +280,7 @@ test("A dirty record can be reloaded", function(assert) {
   assert.expect(3);
 
   var adapter = DS.Adapter.extend({
-    findRecord: function(store, type, id, snapshot) {
+    findRecord(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
     }
   });

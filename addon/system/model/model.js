@@ -384,7 +384,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
   */
-  serialize: function(options) {
+  serialize(options) {
     return this.store.serialize(this, options);
   },
 
@@ -402,7 +402,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options
     @return {Object} A JSON representation of the object.
   */
-  toJSON: function(options) {
+  toJSON(options) {
     // container is for lazy transform lookups
     var serializer = this.store.serializerFor('-default');
     var snapshot = this._internalModel.createSnapshot();
@@ -481,7 +481,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
     @param {Object} context
   */
-  send: function(name, context) {
+  send(name, context) {
     return this._internalModel.send(name, context);
   },
 
@@ -490,7 +490,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @param {String} name
   */
-  transitionTo: function(name) {
+  transitionTo(name) {
     return this._internalModel.transitionTo(name);
   },
 
@@ -523,7 +523,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method deleteRecord
   */
-  deleteRecord: function() {
+  deleteRecord() {
     this._internalModel.deleteRecord();
   },
 
@@ -552,7 +552,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  destroyRecord: function(options) {
+  destroyRecord(options) {
     this.deleteRecord();
     return this.save(options);
   },
@@ -561,7 +561,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method unloadRecord
     @private
   */
-  unloadRecord: function() {
+  unloadRecord() {
     if (this.isDestroyed) { return; }
     this._internalModel.unloadRecord();
   },
@@ -570,7 +570,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method _notifyProperties
     @private
   */
-  _notifyProperties: function(keys) {
+  _notifyProperties(keys) {
     Ember.beginPropertyChanges();
     var key;
     for (var i = 0, length = keys.length; i < length; i++) {
@@ -605,7 +605,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} an object, whose keys are changed properties,
       and value is an [oldProp, newProp] array.
   */
-  changedAttributes: function() {
+  changedAttributes() {
     return this._internalModel.changedAttributes();
   },
 
@@ -643,7 +643,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method rollbackAttributes
   */
-  rollbackAttributes: function() {
+  rollbackAttributes() {
     this._internalModel.rollbackAttributes();
   },
 
@@ -651,11 +651,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method _createSnapshot
     @private
   */
-  _createSnapshot: function() {
+  _createSnapshot() {
     return this._internalModel.createSnapshot();
   },
 
-  toStringExtension: function() {
+  toStringExtension() {
     return get(this, 'id');
   },
 
@@ -678,7 +678,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  save: function(options) {
+  save(options) {
     return PromiseObject.create({
       promise: this._internalModel.save(options).then(() => this)
     });
@@ -710,7 +710,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload: function() {
+  reload() {
     return PromiseObject.create({
       promise: this._internalModel.reload().then(() => this)
     });
@@ -725,7 +725,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @param {String} name
   */
-  trigger: function(name) {
+  trigger(name) {
     var length = arguments.length;
     var args = new Array(length - 1);
 
@@ -737,7 +737,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     //TODO Move!
     this._super(...arguments);
     this._internalModel.clearRelationships();
@@ -747,21 +747,21 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   // This is a temporary solution until we refactor DS.Model to not
   // rely on the data property.
-  willMergeMixin: function(props) {
+  willMergeMixin(props) {
     var constructor = this.constructor;
     Ember.assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
     Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
   },
 
-  attr: function() {
+  attr() {
     Ember.assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
-  belongsTo: function() {
+  belongsTo() {
     Ember.assert("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
-  hasMany: function() {
+  hasMany() {
     Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
@@ -793,7 +793,7 @@ Model.reopenClass({
     @private
     @static
   */
-  create: function() {
+  create() {
     throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
   },
 

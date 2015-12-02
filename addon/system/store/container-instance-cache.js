@@ -27,7 +27,7 @@ export default function ContainerInstanceCache(owner) {
 ContainerInstanceCache.prototype = new EmptyObject();
 
 Ember.merge(ContainerInstanceCache.prototype, {
-  get: function(type, preferredKey, fallbacks) {
+  get(type, preferredKey, fallbacks) {
     let cache = this._cache;
     let preferredLookupKey = `${type}:${preferredKey}`;
 
@@ -40,7 +40,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
     return cache[preferredLookupKey];
   },
 
-  _findInstance: function(type, fallbacks) {
+  _findInstance(type, fallbacks) {
     for (let i = 0, length = fallbacks.length; i < length; i++) {
       let fallback = fallbacks[i];
       let lookupKey = `${type}:${fallback}`;
@@ -52,7 +52,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
     }
   },
 
-  instanceFor: function(key) {
+  instanceFor(key) {
     let cache = this._cache;
     if (!cache[key]) {
       let instance = this._owner.lookup(key);
@@ -63,7 +63,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
     return cache[key];
   },
 
-  destroy: function() {
+  destroy() {
     let cache = this._cache;
     let cacheEntries = Object.keys(cache);
 
@@ -79,7 +79,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
 
   constructor: ContainerInstanceCache,
 
-  toString: function() {
+  toString() {
     return 'ContainerInstanceCache';
   }
 });

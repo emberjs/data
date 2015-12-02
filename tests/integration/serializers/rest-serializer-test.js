@@ -9,7 +9,7 @@ var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, 
 var run = Ember.run;
 
 module("integration/serializer/rest - RESTSerializer", {
-  beforeEach: function() {
+  beforeEach() {
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
       superVillains: DS.hasMany('super-villain', { async: false })
@@ -64,7 +64,7 @@ module("integration/serializer/rest - RESTSerializer", {
     env.store.modelFor('container');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.store, 'destroy');
   }
 });
@@ -79,7 +79,7 @@ test("modelNameFromPayloadKey returns always same modelName even for uncountable
 
 test('normalizeResponse should extract meta using extractMeta', function(assert) {
   env.registry.register("serializer:home-planet", DS.RESTSerializer.extend({
-    extractMeta: function(store, modelClass, payload) {
+    extractMeta(store, modelClass, payload) {
       let meta = this._super(...arguments);
       meta.authors.push('Tomhuda');
       return meta;
@@ -257,7 +257,7 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
-    normalize: function() {
+    normalize() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -294,7 +294,7 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
-    normalize: function() {
+    normalize() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -315,7 +315,7 @@ test("normalizeResponse loads secondary records with correct serializer", functi
 test('normalizeHash normalizes specific parts of the payload', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
-      homePlanets: function(hash) {
+      homePlanets(hash) {
         hash.id = hash._id;
         delete hash._id;
         return hash;
@@ -355,7 +355,7 @@ test('normalizeHash normalizes specific parts of the payload', function(assert) 
 test('normalizeHash works with transforms', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
-      evilMinions: function(hash) {
+      evilMinions(hash) {
         hash.condition = hash._condition;
         delete hash._condition;
         return hash;
@@ -364,14 +364,14 @@ test('normalizeHash works with transforms', function(assert) {
   }));
 
   env.registry.register('transform:condition', DS.Transform.extend({
-    deserialize: function(serialized) {
+    deserialize(serialized) {
       if (serialized === 1) {
         return "healing";
       } else {
         return "unknown";
       }
     },
-    serialize: function(deserialized) {
+    serialize(deserialized) {
       if (deserialized === "healing") {
         return 1;
       } else {
@@ -399,7 +399,7 @@ test('normalize should allow for different levels of normalization', function(as
     attrs: {
       superVillain: 'is_super_villain'
     },
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return Ember.String.decamelize(attr);
     }
   }));
@@ -421,7 +421,7 @@ test('normalize should allow for different levels of normalization - attributes'
     attrs: {
       name: 'full_name'
     },
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return Ember.String.decamelize(attr);
     }
   }));
@@ -565,7 +565,7 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
   });
   var json = {};
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
-    payloadKeyFromModelName: function(modelName) {
+    payloadKeyFromModelName(modelName) {
       return Ember.String.dasherize(modelName);
     }
   }));

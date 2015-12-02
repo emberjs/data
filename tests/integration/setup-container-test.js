@@ -17,7 +17,7 @@ var container, registry, application;
 */
 
 module("integration/setup-container - Setting up a container", {
-  beforeEach: function() {
+  beforeEach() {
     run(function() {
       application = Ember.Application.create();
     });
@@ -36,7 +36,7 @@ module("integration/setup-container - Setting up a container", {
     setupContainer(setupContainerArgument);
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       application.destroy();
     });

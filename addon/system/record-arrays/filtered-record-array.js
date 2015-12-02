@@ -46,7 +46,7 @@ export default RecordArray.extend({
   filterFunction: null,
   isLoaded: true,
 
-  replace: function() {
+  replace() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a client-side filter (on " + type + ") is immutable.");
   },
@@ -55,7 +55,7 @@ export default RecordArray.extend({
     @method updateFilter
     @private
   */
-  _updateFilter: function() {
+  _updateFilter() {
     var manager = get(this, 'manager');
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   },

@@ -9,13 +9,13 @@ var Person, store;
 var run = Ember.run;
 
 var adapter = DS.Adapter.extend({
-  deleteRecord: function() {
+  deleteRecord() {
     return Ember.RSVP.Promise.resolve();
   }
 });
 
 module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string')
     });

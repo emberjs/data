@@ -233,7 +233,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} obj
     @return {Object}
   */
-  sortQueryParams: function(obj) {
+  sortQueryParams(obj) {
     var keys = Object.keys(obj);
     var len = keys.length;
     if (len < 2) {
@@ -370,7 +370,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  findRecord: function(store, type, id, snapshot) {
+  findRecord(store, type, id, snapshot) {
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'findRecord'), 'GET');
   },
 
@@ -388,7 +388,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
-  findAll: function(store, type, sinceToken, snapshotRecordArray) {
+  findAll(store, type, sinceToken, snapshotRecordArray) {
     var query, url;
 
     if (sinceToken) {
@@ -417,7 +417,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} query
     @return {Promise} promise
   */
-  query: function(store, type, query) {
+  query(store, type, query) {
     var url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -444,7 +444,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} query
     @return {Promise} promise
   */
-  queryRecord: function(store, type, query) {
+  queryRecord(store, type, query) {
     var url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -487,7 +487,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: function(store, type, ids, snapshots) {
+  findMany(store, type, ids, snapshots) {
     var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   },
@@ -519,7 +519,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} url
     @return {Promise} promise
   */
-  findHasMany: function(store, snapshot, url, relationship) {
+  findHasMany(store, snapshot, url, relationship) {
     var id   = snapshot.id;
     var type = snapshot.modelName;
 
@@ -555,7 +555,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} url
     @return {Promise} promise
   */
-  findBelongsTo: function(store, snapshot, url, relationship) {
+  findBelongsTo(store, snapshot, url, relationship) {
     var id   = snapshot.id;
     var type = snapshot.modelName;
 
@@ -579,7 +579,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: function(store, type, snapshot) {
+  createRecord(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.modelName);
     var url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
@@ -605,7 +605,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: function(store, type, snapshot) {
+  updateRecord(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.modelName);
 
@@ -628,13 +628,13 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: function(store, type, snapshot) {
+  deleteRecord(store, type, snapshot) {
     var id = snapshot.id;
 
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
   },
 
-  _stripIDFromURL: function(store, snapshot) {
+  _stripIDFromURL(store, snapshot) {
     var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
     var expandedURL = url.split('/');
@@ -676,8 +676,8 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function (store, snapshots) {
-    var groups = MapWithDefault.create({ defaultValue: function() { return []; } });
+  groupRecordsForFindMany(store, snapshots) {
+    var groups = MapWithDefault.create({ defaultValue() { return []; } });
     var adapter = this;
     var maxURLLength = this.maxURLLength;
 
@@ -745,7 +745,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Object} payload
     @return {Object | DS.AdapterError} response
   */
-  handleResponse: function(status, headers, payload) {
+  handleResponse(status, headers, payload) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
@@ -767,7 +767,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Object} payload
     @return {Boolean}
   */
-  isSuccess: function(status, headers, payload) {
+  isSuccess(status, headers, payload) {
     return status >= 200 && status < 300 || status === 304;
   },
 
@@ -781,7 +781,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Object} payload
     @return {Boolean}
   */
-  isInvalid: function(status, headers, payload) {
+  isInvalid(status, headers, payload) {
     return status === 422;
   },
 
@@ -809,7 +809,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax: function(url, type, options) {
+  ajax(url, type, options) {
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -864,7 +864,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions: function(url, type, options) {
+  ajaxOptions(url, type, options) {
     var hash = options || {};
     hash.url = url;
     hash.type = type;
@@ -892,7 +892,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} responseText
     @return {Object}
   */
-  parseErrorResponse: function(responseText) {
+  parseErrorResponse(responseText) {
     var json = responseText;
 
     try {
@@ -910,7 +910,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Object} payload
     @return {Object} errors payload
   */
-  normalizeErrorResponse: function(status, headers, payload) {
+  normalizeErrorResponse(status, headers, payload) {
     if (payload && typeof payload === 'object' && payload.errors) {
       return payload.errors;
     } else {

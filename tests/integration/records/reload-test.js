@@ -11,7 +11,7 @@ var Person, env;
 var run = Ember.run;
 
 module("integration/reload - Reloading Records", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -24,7 +24,7 @@ module("integration/reload - Reloading Records", {
     env = setupStore({ person: Person });
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

@@ -139,11 +139,11 @@ export default function hasMany(type, options) {
   };
 
   return Ember.computed({
-    get: function(key) {
+    get(key) {
       var relationship = this._internalModel._relationships.get(key);
       return relationship.getRecords();
     },
-    set: function(key, records) {
+    set(key, records) {
       Ember.assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
       Ember.assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
         return Ember.A(records).every((record) => Model.detectInstance(record) );
@@ -158,7 +158,7 @@ export default function hasMany(type, options) {
 }
 
 Model.reopen({
-  notifyHasManyAdded: function(key) {
+  notifyHasManyAdded(key) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded

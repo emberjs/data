@@ -10,7 +10,7 @@ var Person, env;
 var run = Ember.run;
 
 module("integration/deletedRecord - Deleting Records", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       name: attr('string')
     });
@@ -22,7 +22,7 @@ module("integration/deletedRecord - Deleting Records", {
     });
   },
 
-  afterEach: function() {
+  afterEach() {
     Ember.run(function() {
       env.container.destroy();
     });

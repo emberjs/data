@@ -7,7 +7,7 @@ module("unit/model/internal-model - Internal Model");
 function MockModelFactory () { }
 
 MockModelFactory._create = function() {
-  return { trigger: function() {} };
+  return { trigger() {} };
 };
 
 MockModelFactory.eachRelationship = function() { };

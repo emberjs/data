@@ -10,7 +10,7 @@ var run = Ember.run;
 var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
-  beforeEach: function() {
+  beforeEach() {
 
     Record = DS.Model.extend({
       title: DS.attr('string'),
@@ -18,7 +18,7 @@ module("unit/store/unload - Store unloading records", {
     });
     store = createStore({
       adapter: DS.Adapter.extend({
-        findRecord: function(store, type, id, snapshot) {
+        findRecord(store, type, id, snapshot) {
           tryToFind = true;
           return Ember.RSVP.resolve({ id: id, wasFetched: true });
         }
@@ -27,7 +27,7 @@ module("unit/store/unload - Store unloading records", {
     });
   },
 
-  afterEach: function() {
+  afterEach() {
     Ember.run(store, 'destroy');
   }
 });
@@ -119,10 +119,10 @@ test("can commit store after unload record with relationships", function(assert)
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      findRecord: function(store, type, id, snapshot) {
+      findRecord(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
       },
-      createRecord: function(store, type, snapshot) {
+      createRecord(store, type, snapshot) {
         return Ember.RSVP.resolve();
       }
     }),

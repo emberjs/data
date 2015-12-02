@@ -16,7 +16,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       bestMessage: belongsTo('message', { async: true, polymorphic: true })
@@ -47,7 +47,7 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

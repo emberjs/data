@@ -6,11 +6,11 @@ const AssertPrototype = QUnit.assert;
 var errors;
 
 module("unit/model/errors", {
-  beforeEach: function() {
+  beforeEach() {
     errors = DS.Errors.create();
   },
 
-  afterEach: function() {
+  afterEach() {
   }
 });
 

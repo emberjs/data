@@ -9,7 +9,7 @@ var run = Ember.run;
 var env, store, adapter, serializer;
 
 module("integration/adapter/serialize - DS.Adapter integration test", {
-  beforeEach: function() {
+  beforeEach() {
     var Person = DS.Model.extend({
       name: DS.attr('string')
     });
@@ -20,7 +20,7 @@ module("integration/adapter/serialize - DS.Adapter integration test", {
     serializer = store.serializerFor('person');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

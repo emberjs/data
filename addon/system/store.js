@@ -215,7 +215,7 @@ Store = Service.extend({
     @method init
     @private
   */
-  init: function() {
+  init() {
     this._super(...arguments);
     this._backburner = new Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
     // internal bookkeeping; not observable
@@ -260,7 +260,7 @@ Store = Service.extend({
     @param {DS.Model} record the record to serialize
     @param {Object} options an options hash
   */
-  serialize: function(record, options) {
+  serialize(record, options) {
     var snapshot = record._internalModel.createSnapshot();
     return snapshot.serialize(options);
   },
@@ -322,7 +322,7 @@ Store = Service.extend({
       newly created record.
     @return {DS.Model} record
   */
-  createRecord: function(modelName, inputProperties) {
+  createRecord(modelName, inputProperties) {
     Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var properties = copy(inputProperties) || new EmptyObject();
@@ -366,7 +366,7 @@ Store = Service.extend({
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId: function(modelName, properties) {
+  _generateId(modelName, properties) {
     var adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -396,7 +396,7 @@ Store = Service.extend({
     @method deleteRecord
     @param {DS.Model} record
   */
-  deleteRecord: function(record) {
+  deleteRecord(record) {
     record.deleteRecord();
   },
 
@@ -415,7 +415,7 @@ Store = Service.extend({
     @method unloadRecord
     @param {DS.Model} record
   */
-  unloadRecord: function(record) {
+  unloadRecord(record) {
     record.unloadRecord();
   },
 
@@ -431,7 +431,7 @@ Store = Service.extend({
     @return {Promise} promise
     @private
   */
-  find: function(modelName, id, options) {
+  find(modelName, id, options) {
     // The default `model` hook in Ember.Route calls `find(modelName, id)`,
     // that's why we have to keep this method around even though `findRecord` is
     // the public way to get a record by modelName and id.
@@ -498,7 +498,7 @@ Store = Service.extend({
     @param {Object} options
     @return {Promise} promise
   */
-  findRecord: function(modelName, id, options) {
+  findRecord(modelName, id, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     Ember.assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
@@ -514,7 +514,7 @@ Store = Service.extend({
     return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
   },
 
-  _findRecord: function(internalModel, options) {
+  _findRecord(internalModel, options) {
     // Refetch if the reload option is passed
     if (options.reload) {
       return this.scheduleFetch(internalModel, options);
@@ -538,7 +538,7 @@ Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
-  _findByInternalModel: function(internalModel, options) {
+  _findByInternalModel(internalModel, options) {
     options = options || {};
 
     if (options.preload) {
@@ -550,7 +550,7 @@ Store = Service.extend({
     return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
   },
 
-  _findEmptyInternalModel: function(internalModel, options) {
+  _findEmptyInternalModel(internalModel, options) {
     if (internalModel.isEmpty()) {
       return this.scheduleFetch(internalModel, options);
     }
@@ -573,7 +573,7 @@ Store = Service.extend({
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds: function(modelName, ids) {
+  findByIds(modelName, ids) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var store = this;
 
@@ -593,7 +593,7 @@ Store = Service.extend({
     @return {Promise} promise
    */
   // TODO rename this to have an underscore
-  fetchRecord: function(internalModel, options) {
+  fetchRecord(internalModel, options) {
     var typeClass = internalModel.type;
     var id = internalModel.id;
     var adapter = this.adapterFor(typeClass.modelName);
@@ -605,12 +605,12 @@ Store = Service.extend({
     return promise;
   },
 
-  scheduleFetchMany: function(records) {
+  scheduleFetchMany(records) {
     var internalModels = records.map((record) => record._internalModel);
     return Promise.all(internalModels.map(this.scheduleFetch, this));
   },
 
-  scheduleFetch: function(internalModel, options) {
+  scheduleFetch(internalModel, options) {
     var typeClass = internalModel.type;
 
     if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
@@ -635,7 +635,7 @@ Store = Service.extend({
     return promise;
   },
 
-  flushAllPendingFetches: function() {
+  flushAllPendingFetches() {
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -644,7 +644,7 @@ Store = Service.extend({
     this._pendingFetch = Map.create();
   },
 
-  _flushPendingFetchForType: function (pendingFetchItems, typeClass) {
+  _flushPendingFetchForType(pendingFetchItems, typeClass) {
     var store = this;
     var adapter = store.adapterFor(typeClass.modelName);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
@@ -752,7 +752,7 @@ Store = Service.extend({
     @param {String|Integer} id
     @return {DS.Model|null} record
   */
-  peekRecord: function(modelName, id) {
+  peekRecord(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
       return this._internalModelForId(modelName, id).getRecord();
@@ -773,7 +773,7 @@ Store = Service.extend({
     @param {DS.Model} internalModel
     @return {Promise} promise
   */
-  reloadRecord: function(internalModel) {
+  reloadRecord(internalModel) {
     var modelName = internalModel.type.modelName;
     var adapter = this.adapterFor(modelName);
     var id = internalModel.id;
@@ -793,7 +793,7 @@ Store = Service.extend({
     @param {(String|Integer)} inputId
     @return {Boolean}
   */
-  hasRecordForId: function(modelName, inputId) {
+  hasRecordForId(modelName, inputId) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
@@ -811,12 +811,12 @@ Store = Service.extend({
     @param {(String|Integer)} id
     @return {DS.Model} record
   */
-  recordForId: function(modelName, id) {
+  recordForId(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this._internalModelForId(modelName, id).getRecord();
   },
 
-  _internalModelForId: function(typeName, inputId) {
+  _internalModelForId(typeName, inputId) {
     var typeClass = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
@@ -837,7 +837,7 @@ Store = Service.extend({
     @param {Array} internalModels
     @return {Promise} promise
   */
-  findMany: function(internalModels) {
+  findMany(internalModels) {
     return Promise.all(internalModels.map((internalModel) => this._findByInternalModel(internalModel)));
   },
 
@@ -860,7 +860,7 @@ Store = Service.extend({
     @param {(Relationship)} relationship
     @return {Promise} promise
   */
-  findHasMany: function(owner, link, relationship) {
+  findHasMany(owner, link, relationship) {
     var adapter = this.adapterFor(owner.type.modelName);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
@@ -877,7 +877,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo: function(owner, link, relationship) {
+  findBelongsTo(owner, link, relationship) {
     var adapter = this.adapterFor(owner.type.modelName);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
@@ -934,7 +934,7 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  query: function(modelName, query) {
+  query(modelName, query) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var array = this.recordArrayManager
@@ -964,7 +964,7 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  queryRecord: function(modelName, query) {
+  queryRecord(modelName, query) {
     Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
     Ember.assert("You need to pass a query hash to the store's queryRecord method", query);
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
@@ -1000,7 +1000,7 @@ Store = Service.extend({
     @param {Object} options
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(modelName, options) {
+  findAll(modelName, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
@@ -1014,7 +1014,7 @@ Store = Service.extend({
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll: function(typeClass, array, options) {
+  _fetchAll(typeClass, array, options) {
     options = options || {};
     var adapter = this.adapterFor(typeClass.modelName);
     var sinceToken = this.typeMapFor(typeClass).metadata.since;
@@ -1041,7 +1041,7 @@ Store = Service.extend({
     @param {DS.Model} typeClass
     @private
   */
-  didUpdateAll: function(typeClass) {
+  didUpdateAll(typeClass) {
     var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
     set(liveRecordArray, 'isUpdating', false);
   },
@@ -1069,7 +1069,7 @@ Store = Service.extend({
     @param {String} modelName
     @return {DS.RecordArray}
   */
-  peekAll: function(modelName) {
+  peekAll(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
@@ -1092,7 +1092,7 @@ Store = Service.extend({
    @method unloadAll
    @param {String=} modelName
   */
-  unloadAll: function(modelName) {
+  unloadAll(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
@@ -1173,7 +1173,7 @@ Store = Service.extend({
     @param {Function} filter
     @return {DS.PromiseArray}
   */
-  filter: function(modelName, query, filter) {
+  filter(modelName, query, filter) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (!Ember.ENV.ENABLE_DS_FILTER) {
@@ -1224,7 +1224,7 @@ Store = Service.extend({
     @param {string} id
     @return {boolean}
   */
-  recordIsLoaded: function(modelName, id) {
+  recordIsLoaded(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this.hasRecordForId(modelName, id);
   },
@@ -1235,7 +1235,7 @@ Store = Service.extend({
     @return {object}
     @private
   */
-  _metadataFor: function(modelName) {
+  _metadataFor(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     return this.typeMapFor(typeClass).metadata;
@@ -1247,7 +1247,7 @@ Store = Service.extend({
     @param {Object} metadata metadata to set
     @private
   */
-  _setMetadataFor: function(modelName, metadata) {
+  _setMetadataFor(modelName, metadata) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
@@ -1268,7 +1268,7 @@ Store = Service.extend({
     @param {Class} type
     @param {InternalModel} internalModel
   */
-  dataWasUpdated: function(type, internalModel) {
+  dataWasUpdated(type, internalModel) {
     this.recordArrayManager.recordDidChange(internalModel);
   },
 
@@ -1288,7 +1288,7 @@ Store = Service.extend({
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave: function(internalModel, resolver, options) {
+  scheduleSave(internalModel, resolver, options) {
     var snapshot = internalModel.createSnapshot(options);
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
@@ -1306,7 +1306,7 @@ Store = Service.extend({
     @method flushPendingSave
     @private
   */
-  flushPendingSave: function() {
+  flushPendingSave() {
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
@@ -1344,7 +1344,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
   */
-  didSaveRecord: function(internalModel, dataArg) {
+  didSaveRecord(internalModel, dataArg) {
     var data;
     if (dataArg) {
       data = dataArg.data;
@@ -1370,7 +1370,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid: function(internalModel, errors) {
+  recordWasInvalid(internalModel, errors) {
     internalModel.adapterDidInvalidate(errors);
   },
 
@@ -1384,7 +1384,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Error} error
   */
-  recordWasError: function(internalModel, error) {
+  recordWasError(internalModel, error) {
     internalModel.adapterDidError(error);
   },
 
@@ -1398,7 +1398,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Object} data
   */
-  updateId: function(internalModel, data) {
+  updateId(internalModel, data) {
     var oldId = internalModel.id;
     var id = coerceId(data.id);
 
@@ -1417,7 +1417,7 @@ Store = Service.extend({
     @param {DS.Model} typeClass
     @return {Object} typeMap
   */
-  typeMapFor: function(typeClass) {
+  typeMapFor(typeClass) {
     var typeMaps = get(this, 'typeMaps');
     var guid = Ember.guidFor(typeClass);
     var typeMap = typeMaps[guid];
@@ -1448,7 +1448,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} type
     @param {Object} data
   */
-  _load: function(data) {
+  _load(data) {
     var internalModel = this._internalModelForId(data.type, data.id);
 
     internalModel.setupData(data);
@@ -1474,7 +1474,7 @@ Store = Service.extend({
     in this case
   */
 
-  _modelForMixin: function(modelName) {
+  _modelForMixin(modelName) {
     var normalizedModelName = normalizeModelName(modelName);
     // container.registry = 2.1
     // container._registry = 1.11 - 2.0
@@ -1504,7 +1504,7 @@ Store = Service.extend({
     @param {String} modelName
     @return {DS.Model}
   */
-  modelFor: function(modelName) {
+  modelFor(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var factory = this.modelFactoryFor(modelName);
@@ -1520,7 +1520,7 @@ Store = Service.extend({
     return factory;
   },
 
-  modelFactoryFor: function(modelName) {
+  modelFactoryFor(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var normalizedKey = normalizeModelName(modelName);
 
@@ -1679,7 +1679,7 @@ Store = Service.extend({
     @return {DS.Model|Array} the record(s) that was created or
       updated.
   */
-  push: function(data) {
+  push(data) {
     var included = data.included;
     var i, length;
     if (included) {
@@ -1708,11 +1708,11 @@ Store = Service.extend({
     return internalModel.getRecord();
   },
 
-  _hasModelFor: function(type) {
+  _hasModelFor(type) {
     return getOwner(this)._lookupFactory(`model:${type}`);
   },
 
-  _pushInternalModel: function(data) {
+  _pushInternalModel(data) {
     var modelName = data.type;
     Ember.assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id != null && data.id !== '');
     Ember.assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
@@ -1744,7 +1744,7 @@ Store = Service.extend({
     return internalModel;
   },
 
-  _setupRelationships: function(record, type, data) {
+  _setupRelationships(record, type, data) {
     // If the payload contains relationships that are specified as
     // IDs, normalizeRelationships will convert them into DS.Model instances
     // (possibly unloaded) before we push the payload into the
@@ -1814,7 +1814,7 @@ Store = Service.extend({
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
   */
-  pushPayload: function (modelName, inputPayload) {
+  pushPayload(modelName, inputPayload) {
     var serializer;
     var payload;
     if (!inputPayload) {
@@ -1848,7 +1848,7 @@ Store = Service.extend({
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize: function (modelName, payload) {
+  normalize(modelName, payload) {
     Ember.assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var serializer = this.serializerFor(modelName);
     var model = this.modelFor(modelName);
@@ -1866,7 +1866,7 @@ Store = Service.extend({
     @param {Object} data
     @return {InternalModel} internal model
   */
-  buildInternalModel: function(type, id, data) {
+  buildInternalModel(type, id, data) {
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -1889,7 +1889,7 @@ Store = Service.extend({
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
-  recordWasLoaded: function(record) {
+  recordWasLoaded(record) {
     this.recordArrayManager.recordWasLoaded(record);
   },
 
@@ -1905,7 +1905,7 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel
   */
-  _dematerializeRecord: function(internalModel) {
+  _dematerializeRecord(internalModel) {
     var type = internalModel.type;
     var typeMap = this.typeMapFor(type);
     var id = internalModel.id;
@@ -1941,14 +1941,14 @@ Store = Service.extend({
     @param {String} modelName
     @return DS.Adapter
   */
-  adapterFor: function(modelName) {
+  adapterFor(modelName) {
 
     Ember.assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
     return this.lookupAdapter(modelName);
   },
 
-  _adapterRun: function (fn) {
+  _adapterRun(fn) {
     return this._backburner.run(fn);
   },
 
@@ -1977,7 +1977,7 @@ Store = Service.extend({
     @param {String} modelName the record to serialize
     @return {DS.Serializer}
   */
-  serializerFor: function(modelName) {
+  serializerFor(modelName) {
 
     Ember.assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
@@ -2006,7 +2006,7 @@ Store = Service.extend({
     @param {Array} fallbacks the fallback objects to lookup if the lookup for modelName or 'application' fails
     @return {Ember.Object}
   */
-  retrieveManagedInstance: function(type, modelName, fallbacks) {
+  retrieveManagedInstance(type, modelName, fallbacks) {
     var normalizedModelName = normalizeModelName(modelName);
 
     var instance = this._instanceCache.get(type, normalizedModelName, fallbacks);
@@ -2014,7 +2014,7 @@ Store = Service.extend({
     return instance;
   },
 
-  lookupAdapter: function(name) {
+  lookupAdapter(name) {
     return this.retrieveManagedInstance('adapter', name, this.get('_adapterFallbacks'));
   },
 
@@ -2023,11 +2023,11 @@ Store = Service.extend({
     return ['application', adapter, '-json-api'];
   }),
 
-  lookupSerializer: function(name, fallbacks) {
+  lookupSerializer(name, fallbacks) {
     return this.retrieveManagedInstance('serializer', name, fallbacks);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this._super(...arguments);
     this.recordArrayManager.destroy();
 

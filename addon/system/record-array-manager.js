@@ -18,9 +18,9 @@ var get = Ember.get;
   @extends Ember.Object
 */
 export default Ember.Object.extend({
-  init: function() {
+  init() {
     this.filteredRecordArrays = MapWithDefault.create({
-      defaultValue: function() { return []; }
+      defaultValue() { return []; }
     });
 
     this.liveRecordArrays = MapWithDefault.create({
@@ -33,13 +33,13 @@ export default Ember.Object.extend({
     this._adapterPopulatedRecordArrays = [];
   },
 
-  recordDidChange: function(record) {
+  recordDidChange(record) {
     if (this.changedRecords.push(record) !== 1) { return; }
 
     Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
-  recordArraysForRecord: function(record) {
+  recordArraysForRecord(record) {
     record._recordArrays = record._recordArrays || OrderedSet.create();
     return record._recordArrays;
   },
@@ -54,7 +54,7 @@ export default Ember.Object.extend({
 
     @method updateRecordArrays
   */
-  updateRecordArrays: function() {
+  updateRecordArrays() {
     this.changedRecords.forEach((internalModel) => {
       if (get(internalModel, 'record.isDestroyed') || get(internalModel, 'record.isDestroying') ||
            (get(internalModel, 'currentState.stateName') === 'root.deleted.saved')) {
@@ -67,7 +67,7 @@ export default Ember.Object.extend({
     this.changedRecords.length = 0;
   },
 
-  _recordWasDeleted: function (record) {
+  _recordWasDeleted(record) {
     var recordArrays = record._recordArrays;
 
     if (!recordArrays) { return; }
@@ -78,7 +78,7 @@ export default Ember.Object.extend({
   },
 
 
-  _recordWasChanged: function (record) {
+  _recordWasChanged(record) {
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
@@ -89,7 +89,7 @@ export default Ember.Object.extend({
   },
 
   //Need to update live arrays on loading
-  recordWasLoaded: function(record) {
+  recordWasLoaded(record) {
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
@@ -113,7 +113,7 @@ export default Ember.Object.extend({
     @param {DS.Model} typeClass
     @param {InternalModel} record
   */
-  updateFilterRecordArray: function(array, filter, typeClass, record) {
+  updateFilterRecordArray(array, filter, typeClass, record) {
     var shouldBeInArray = filter(record.getRecord());
     var recordArrays = this.recordArraysForRecord(record);
     if (shouldBeInArray) {
@@ -124,7 +124,7 @@ export default Ember.Object.extend({
     }
   },
 
-  _addRecordToRecordArray: function(array, record) {
+  _addRecordToRecordArray(array, record) {
     var recordArrays = this.recordArraysForRecord(record);
     if (!recordArrays.has(array)) {
       array.addInternalModel(record);
@@ -132,7 +132,7 @@ export default Ember.Object.extend({
     }
   },
 
-  populateLiveRecordArray: function(array, modelName) {
+  populateLiveRecordArray(array, modelName) {
     var typeMap = this.store.typeMapFor(modelName);
     var records = typeMap.records;
     var record;
@@ -158,7 +158,7 @@ export default Ember.Object.extend({
     @param {String} modelName
     @param {Function} filter
   */
-  updateFilter: function(array, modelName, filter) {
+  updateFilter(array, modelName, filter) {
     var typeMap = this.store.typeMapFor(modelName);
     var records = typeMap.records;
     var record;
@@ -180,7 +180,7 @@ export default Ember.Object.extend({
     @param {Class} typeClass
     @return {DS.RecordArray}
   */
-  liveRecordArrayFor: function(typeClass) {
+  liveRecordArrayFor(typeClass) {
     return this.liveRecordArrays.get(typeClass);
   },
 
@@ -191,7 +191,7 @@ export default Ember.Object.extend({
     @param {Class} typeClass
     @return {DS.RecordArray}
   */
-  createRecordArray: function(typeClass) {
+  createRecordArray(typeClass) {
     var array = RecordArray.create({
       type: typeClass,
       content: Ember.A(),
@@ -212,7 +212,7 @@ export default Ember.Object.extend({
     @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(typeClass, filter, query) {
+  createFilteredRecordArray(typeClass, filter, query) {
     var array = FilteredRecordArray.create({
       query: query,
       type: typeClass,
@@ -235,7 +235,7 @@ export default Ember.Object.extend({
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray: function(typeClass, query) {
+  createAdapterPopulatedRecordArray(typeClass, query) {
     var array = AdapterPopulatedRecordArray.create({
       type: typeClass,
       query: query,
@@ -260,7 +260,7 @@ export default Ember.Object.extend({
     @param {DS.Model} typeClass
     @param {Function} filter
   */
-  registerFilteredRecordArray: function(array, typeClass, filter) {
+  registerFilteredRecordArray(array, typeClass, filter) {
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     recordArrays.push(array);
 
@@ -274,7 +274,7 @@ export default Ember.Object.extend({
     @method unregisterRecordArray
     @param {DS.RecordArray} array
   */
-  unregisterRecordArray: function(array) {
+  unregisterRecordArray(array) {
     var typeClass = array.type;
 
     // unregister filtered record array
@@ -292,7 +292,7 @@ export default Ember.Object.extend({
     }
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this._super(...arguments);
 
     this.filteredRecordArrays.forEach((value) => flatten(value).forEach(destroy));

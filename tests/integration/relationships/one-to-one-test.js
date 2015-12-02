@@ -16,7 +16,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
@@ -41,7 +41,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

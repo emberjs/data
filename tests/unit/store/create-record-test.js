@@ -8,7 +8,7 @@ var store, container, Record, Storage;
 var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
-  beforeEach: function() {
+  beforeEach() {
     Record = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -64,7 +64,7 @@ test("allow passing relationships as well as attributes", function(assert) {
 });
 
 module("unit/store/createRecord - Store with models by dash", {
-  beforeEach: function() {
+  beforeEach() {
     var env = setupStore({
       someThing: DS.Model.extend({ foo: DS.attr('string') })
     });

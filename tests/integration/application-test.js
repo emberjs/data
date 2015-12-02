@@ -26,7 +26,7 @@ function lookup(thing) {
 }
 
 module("integration/application - Injecting a Custom Store", {
-  beforeEach: function() {
+  beforeEach() {
     run(function() {
       app = Application.create({
         StoreService: Store.extend({ isCustom: true }),
@@ -40,7 +40,7 @@ module("integration/application - Injecting a Custom Store", {
     container = app.__container__;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(app, app.destroy);
     Ember.BOOTED = false;
   }
@@ -69,7 +69,7 @@ test("The JSONAPIAdapter is the default adapter when no custom adapter is provid
 });
 
 module("integration/application - Injecting the Default Store", {
-  beforeEach: function() {
+  beforeEach() {
     run(function() {
       app = Application.create({
         FooController: Controller.extend(),
@@ -81,7 +81,7 @@ module("integration/application - Injecting the Default Store", {
     container = app.__container__;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(app, 'destroy');
     Ember.BOOTED = false;
   }
@@ -106,7 +106,7 @@ test("the DS namespace should be accessible", function(assert) {
 
 if (Ember.inject && Ember.inject.service) {
   module("integration/application - Using the store as a service", {
-    beforeEach: function() {
+    beforeEach() {
       run(function() {
         app = Application.create({
           DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
@@ -116,7 +116,7 @@ if (Ember.inject && Ember.inject.service) {
       container = app.__container__;
     },
 
-    afterEach: function() {
+    afterEach() {
       run(app, 'destroy');
       Ember.BOOTED = false;
     }
@@ -131,11 +131,11 @@ if (Ember.inject && Ember.inject.service) {
 }
 
 module("integration/application - Attaching initializer", {
-  beforeEach: function() {
+  beforeEach() {
     App = Application.extend();
   },
 
-  afterEach: function() {
+  afterEach() {
     if (app) {
       run(app, app.destroy);
     }
@@ -148,7 +148,7 @@ test("ember-data initializer is run", function(assert) {
   App.initializer({
     name:       "after-ember-data",
     after:      "ember-data",
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -167,7 +167,7 @@ test("ember-data initializer does not register the store service when it was alr
   App.initializer({
     name:       "after-ember-data",
     before:      "ember-data",
-    initialize: function(registry) {
+    initialize(registry) {
       registry.register('service:store', AppStore);
     }
   });
@@ -187,7 +187,7 @@ test("store initializer is run (DEPRECATED)", function(assert) {
   App.initializer({
     name:       "after-store",
     after:      'store',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -202,7 +202,7 @@ test("injectStore initializer is run (DEPRECATED)", function(assert) {
   App.initializer({
     name:       "after-store",
     after:      'injectStore',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -217,7 +217,7 @@ test("transforms initializer is run (DEPRECATED)", function(assert) {
   App.initializer({
     name:       "after-store",
     after:      'transforms',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {

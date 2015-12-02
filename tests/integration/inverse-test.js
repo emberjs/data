@@ -16,7 +16,7 @@ function stringify(string) {
 }
 
 module('integration/inverse_test - inverseFor', {
-  beforeEach: function() {
+  beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: null }),
@@ -51,7 +51,7 @@ module('integration/inverse_test - inverseFor', {
     ReflexiveModel = store.modelFor('reflexive-model');
   },
 
-  afterEach: function() {
+  afterEach() {
     run(env.container, 'destroy');
   }
 });

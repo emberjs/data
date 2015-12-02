@@ -20,7 +20,7 @@ var get = Ember.get;
 export default RecordArray.extend({
   query: null,
 
-  replace: function() {
+  replace() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
@@ -30,7 +30,7 @@ export default RecordArray.extend({
     @param {Array} records
     @private
   */
-  loadRecords: function(records) {
+  loadRecords(records) {
     var store = get(this, 'store');
     var type = get(this, 'type');
     var modelName = type.modelName;

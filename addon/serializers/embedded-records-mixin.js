@@ -121,12 +121,12 @@ export default Ember.Mixin.create({
    @param {String} prop the hash has been referenced by
    @return {Object} the normalized hash
   **/
-  normalize: function(typeClass, hash, prop) {
+  normalize(typeClass, hash, prop) {
     var normalizedHash = this._super(typeClass, hash, prop);
     return this._extractEmbeddedRecords(this, this.store, typeClass, normalizedHash);
   },
 
-  keyForRelationship: function(key, typeClass, method) {
+  keyForRelationship(key, typeClass, method) {
     if ((method === 'serialize' && this.hasSerializeRecordsOption(key)) ||
         (method === 'deserialize' && this.hasDeserializeRecordsOption(key))) {
       return this.keyForAttribute(key, method);
@@ -186,7 +186,7 @@ export default Ember.Mixin.create({
     @param {Object} json
     @param {Object} relationship
   */
-  serializeBelongsTo: function(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot, json, relationship) {
     var attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
@@ -212,7 +212,7 @@ export default Ember.Mixin.create({
     }
   },
 
-  _serializeEmbeddedBelongsTo: function(snapshot, json, relationship) {
+  _serializeEmbeddedBelongsTo(snapshot, json, relationship) {
     let embeddedSnapshot = snapshot.belongsTo(relationship.key);
     let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
     if (!embeddedSnapshot) {
@@ -312,7 +312,7 @@ export default Ember.Mixin.create({
     @param {Object} json
     @param {Object} relationship
   */
-  serializeHasMany: function(snapshot, json, relationship) {
+  serializeHasMany(snapshot, json, relationship) {
     var attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
@@ -328,7 +328,7 @@ export default Ember.Mixin.create({
     }
   },
 
-  _serializeEmbeddedHasMany: function(snapshot, json, relationship) {
+  _serializeEmbeddedHasMany(snapshot, json, relationship) {
     let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
 
     Ember.warn(
@@ -343,7 +343,7 @@ export default Ember.Mixin.create({
   /*
     Returns an array of embedded records serialized to JSON
   */
-  _generateSerializedHasMany: function(snapshot, relationship) {
+  _generateSerializedHasMany(snapshot, relationship) {
     let hasMany = snapshot.hasMany(relationship.key);
     return Ember.A(hasMany).map((embeddedSnapshot) => {
       var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
@@ -368,7 +368,7 @@ export default Ember.Mixin.create({
     @param {Object} relationship
     @param {Object} json
   */
-  removeEmbeddedForeignKey: function (snapshot, embeddedSnapshot, relationship, json) {
+  removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'hasMany') {
       return;
     } else if (relationship.kind === 'belongsTo') {
@@ -385,26 +385,26 @@ export default Ember.Mixin.create({
   },
 
   // checks config for attrs option to embedded (always) - serialize and deserialize
-  hasEmbeddedAlwaysOption: function (attr) {
+  hasEmbeddedAlwaysOption(attr) {
     var option = this.attrsOption(attr);
     return option && option.embedded === 'always';
   },
 
   // checks config for attrs option to serialize ids
-  hasSerializeRecordsOption: function(attr) {
+  hasSerializeRecordsOption(attr) {
     var alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
     var option = this.attrsOption(attr);
     return alwaysEmbed || (option && (option.serialize === 'records'));
   },
 
   // checks config for attrs option to serialize records
-  hasSerializeIdsOption: function(attr) {
+  hasSerializeIdsOption(attr) {
     var option = this.attrsOption(attr);
     return option && (option.serialize === 'ids' || option.serialize === 'id');
   },
 
   // checks config for attrs option to serialize records
-  noSerializeOptionSpecified: function(attr) {
+  noSerializeOptionSpecified(attr) {
     var option = this.attrsOption(attr);
     return !(option && (option.serialize || option.embedded));
   },
@@ -412,13 +412,13 @@ export default Ember.Mixin.create({
   // checks config for attrs option to deserialize records
   // a defined option object for a resource is treated the same as
   // `deserialize: 'records'`
-  hasDeserializeRecordsOption: function(attr) {
+  hasDeserializeRecordsOption(attr) {
     var alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
     var option = this.attrsOption(attr);
     return alwaysEmbed || (option && option.deserialize === 'records');
   },
 
-  attrsOption: function(attr) {
+  attrsOption(attr) {
     var attrs = this.get('attrs');
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   },
@@ -427,7 +427,7 @@ export default Ember.Mixin.create({
    @method _extractEmbeddedRecords
    @private
   */
-  _extractEmbeddedRecords: function(serializer, store, typeClass, partial) {
+  _extractEmbeddedRecords(serializer, store, typeClass, partial) {
     typeClass.eachRelationship((key, relationship) => {
       if (serializer.hasDeserializeRecordsOption(key)) {
         if (relationship.kind === "hasMany") {
@@ -445,7 +445,7 @@ export default Ember.Mixin.create({
    @method _extractEmbeddedHasMany
    @private
   */
-  _extractEmbeddedHasMany: function(store, key, hash, relationshipMeta) {
+  _extractEmbeddedHasMany(store, key, hash, relationshipMeta) {
     let relationshipHash = get(hash, `data.relationships.${key}.data`);
     if (!relationshipHash) {
       return;
@@ -470,7 +470,7 @@ export default Ember.Mixin.create({
    @method _extractEmbeddedBelongsTo
    @private
   */
-  _extractEmbeddedBelongsTo: function(store, key, hash, relationshipMeta) {
+  _extractEmbeddedBelongsTo(store, key, hash, relationshipMeta) {
     let relationshipHash = get(hash, `data.relationships.${key}.data`);
     if (!relationshipHash) {
       return;
@@ -493,7 +493,7 @@ export default Ember.Mixin.create({
    @method _normalizeEmbeddedRelationship
    @private
   */
-  _normalizeEmbeddedRelationship: function(store, relationshipMeta, relationshipHash) {
+  _normalizeEmbeddedRelationship(store, relationshipMeta, relationshipHash) {
     let modelName = relationshipMeta.type;
     if (relationshipMeta.options.polymorphic) {
       modelName = relationshipHash.type;

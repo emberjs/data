@@ -13,7 +13,7 @@ var run = Ember.run;
 var Person, store, env;
 
 module("unit/model - DS.Model", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string'),
       isDrugAddict: DS.attr('boolean')
@@ -25,7 +25,7 @@ module("unit/model - DS.Model", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
     });
@@ -476,7 +476,7 @@ test("currentState is accessible when the record is created", function(assert) {
 });
 
 module("unit/model - DS.Model updating", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({ name: DS.attr('string') });
     env = setupStore({
       person: Person
@@ -506,7 +506,7 @@ module("unit/model - DS.Model updating", {
       });
     });
   },
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
       Person = null;
@@ -555,7 +555,7 @@ test("a DS.model can define 'setUnknownProperty'", function(assert) {
   var Tag = DS.Model.extend({
     name: DS.attr("string"),
 
-    setUnknownProperty: function(key, value) {
+    setUnknownProperty(key, value) {
       if (key === "title") {
         this.set("name", value);
       }
@@ -577,7 +577,7 @@ test("a DS.model can define 'setUnknownProperty'", function(assert) {
 test("a defaultValue for an attribute can be a function", function(assert) {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
-      defaultValue: function() {
+      defaultValue() {
         return "le default value";
       }
     })
@@ -599,7 +599,7 @@ test("a defaultValue function gets the record, options, and key", function(asser
 
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
-      defaultValue: function(record, options, key) {
+      defaultValue(record, options, key) {
         assert.deepEqual(record, tag, "the record is passed in properly");
         assert.equal(key, 'createdAt', "the attribute being defaulted is passed in properly");
         return "le default value";
@@ -702,7 +702,7 @@ test("setting a property back to its original value removes the property from th
 });
 
 module("unit/model - with a simple Person model", {
-  beforeEach: function() {
+  beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
@@ -733,7 +733,7 @@ module("unit/model - with a simple Person model", {
       });
     });
   },
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
       Person = null;
@@ -993,7 +993,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      findRecord: function(store, type, id, snapshot) {
+      findRecord(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     }),
@@ -1145,7 +1145,7 @@ test('accessing attributes in the initializer should not throw an error', functi
   var Person = DS.Model.extend({
     name: DS.attr('string'),
 
-    init: function() {
+    init() {
       this._super.apply(this, arguments);
       assert.ok(!this.get('name'));
     }

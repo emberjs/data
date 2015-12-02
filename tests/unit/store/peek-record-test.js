@@ -9,7 +9,7 @@ var env, store, Person;
 var run = Ember.run;
 
 module("unit/store/peekRecord - Store peekRecord", {
-  beforeEach: function() {
+  beforeEach() {
 
     Person = DS.Model.extend();
     Person.toString = function() {
@@ -22,7 +22,7 @@ module("unit/store/peekRecord - Store peekRecord", {
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     Ember.run(store, 'destroy');
   }
 });

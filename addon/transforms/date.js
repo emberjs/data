@@ -21,7 +21,7 @@
 import Transform from "ember-data/transforms/base";
 
 export default Transform.extend({
-  deserialize: function(serialized) {
+  deserialize(serialized) {
     var type = typeof serialized;
 
     if (type === "string") {
@@ -37,7 +37,7 @@ export default Transform.extend({
     }
   },
 
-  serialize: function(date) {
+  serialize(date) {
     if (date instanceof Date) {
       return date.toISOString();
     } else {

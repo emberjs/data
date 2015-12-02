@@ -12,7 +12,7 @@ var Person, array;
 var run = Ember.run;
 
 module("unit/record_array - DS.RecordArray", {
-  beforeEach: function() {
+  beforeEach() {
     array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
 
     Person = DS.Model.extend({

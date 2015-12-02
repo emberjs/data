@@ -10,16 +10,16 @@ var maxLength = -1;
 var lengths = Ember.A([]);
 
 module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany", {
-  beforeEach: function() {
+  beforeEach() {
     GroupsAdapter = DS.RESTAdapter.extend({
 
       coalesceFindRequests: true,
 
-      findRecord: function(store, type, id, snapshot) {
+      findRecord(store, type, id, snapshot) {
         return Ember.RSVP.Promise.resolve({ id: id });
       },
 
-      ajax: function(url, type, options) {
+      ajax(url, type, options) {
         var queryString = options.data.ids.map(function(i) {
           return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
         }).join('&');

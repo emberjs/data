@@ -10,7 +10,7 @@ var run = Ember.run;
 var Occupation, Person, store;
 
 module("unit/model/relationships - DS.Model", {
-  beforeEach: function() {
+  beforeEach() {
     Occupation = DS.Model.extend();
 
     Person = DS.Model.extend({

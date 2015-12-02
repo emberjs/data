@@ -100,7 +100,7 @@ export default function belongsTo(modelName, options) {
   };
 
   return Ember.computed({
-    get: function(key) {
+    get(key) {
       if (opts.hasOwnProperty('serialize')) {
         Ember.warn(`You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.Serializer and it's implementations http://emberjs.com/api/data/classes/DS.Serializer.html`, false, {
           id: 'ds.model.serialize-option-in-belongs-to'
@@ -115,7 +115,7 @@ export default function belongsTo(modelName, options) {
 
       return this._internalModel._relationships.get(key).getRecord();
     },
-    set: function(key, value) {
+    set(key, value) {
       if (value === undefined) {
         value = null;
       }
@@ -137,7 +137,7 @@ export default function belongsTo(modelName, options) {
   `relationships/ext` to see how these observers get their dependencies.
 */
 Model.reopen({
-  notifyBelongsToChanged: function(key) {
+  notifyBelongsToChanged(key) {
     this.notifyPropertyChange(key);
   }
 });

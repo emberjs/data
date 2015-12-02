@@ -26,7 +26,7 @@ Car.toString = function() { return "Car"; };
 var manager;
 
 module("integration/record_array_manager", {
-  beforeEach: function() {
+  beforeEach() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend()
     });

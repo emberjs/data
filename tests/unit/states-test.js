@@ -9,7 +9,7 @@ var get = Ember.get;
 var rootState, stateName;
 
 module("unit/states - Flags for record states", {
-  beforeEach: function() {
+  beforeEach() {
     rootState = DS.RootState;
   }
 });

@@ -9,7 +9,7 @@ var Person, Place, store, adapter, env;
 var run = Ember.run;
 
 module("unit/adapters/json-api-adapter/ajax - building requests", {
-  beforeEach: function() {
+  beforeEach() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.JSONAPIAdapter, person: Person, place: Place });
@@ -17,7 +17,7 @@ module("unit/adapters/json-api-adapter/ajax - building requests", {
     adapter = env.adapter;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(function() {
       store.destroy();
       env.container.destroy();
@@ -31,7 +31,7 @@ test("ajaxOptions() adds Accept when no other headers exist", function(assert) {
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
   var receivedHeaders = [];
   var fakeXHR = {
-    setRequestHeader: function(key, value) {
+    setRequestHeader(key, value) {
       receivedHeaders.push([key, value]);
     }
   };
@@ -46,7 +46,7 @@ test("ajaxOptions() adds Accept header to existing headers", function(assert) {
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
   var receivedHeaders = [];
   var fakeXHR = {
-    setRequestHeader: function(key, value) {
+    setRequestHeader(key, value) {
       receivedHeaders.push([key, value]);
     }
   };
@@ -63,7 +63,7 @@ test("ajaxOptions() adds Accept header to existing computed properties headers",
   var ajaxOptions = adapter.ajaxOptions(url, type, {});
   var receivedHeaders = [];
   var fakeXHR = {
-    setRequestHeader: function(key, value) {
+    setRequestHeader(key, value) {
       receivedHeaders.push([key, value]);
     }
   };

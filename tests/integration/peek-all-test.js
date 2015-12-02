@@ -11,7 +11,7 @@ var run = Ember.run;
 var Person, store, array, moreArray;
 
 module("integration/peek-all - DS.Store#peekAll()", {
-  beforeEach: function() {
+  beforeEach() {
     array = {
       data: [{
         type: 'person',
@@ -41,7 +41,7 @@ module("integration/peek-all - DS.Store#peekAll()", {
 
     store = createStore({ person: Person });
   },
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
     Person = null;
     array = null;

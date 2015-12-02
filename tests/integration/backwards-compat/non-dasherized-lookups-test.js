@@ -20,7 +20,7 @@ const {
 let store;
 
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders', {
-  beforeEach: function() {
+  beforeEach() {
     const PostNote = Model.extend({
       name: attr('string')
     });
@@ -39,7 +39,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
@@ -89,7 +89,7 @@ test('can lookup records using under_scored strings', function(assert) {
 });
 
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros', {
-  beforeEach: function() {
+  beforeEach() {
     const PostNote = Model.extend({
       notePost: belongsTo('note-post', { async: false }),
 
@@ -122,7 +122,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     store = env.store;
   },
 
-  afterEach: function() {
+  afterEach() {
     run(store, 'destroy');
   }
 });
