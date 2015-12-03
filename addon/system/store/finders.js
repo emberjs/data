@@ -35,6 +35,7 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
     Ember.assert("You made a `find` request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'findRecord');
+      Ember.assert('Ember Data expected the primary data returned from a `findRecord` response to be an object but instead it found an array.', !Array.isArray(payload.data));
       //TODO Optimize
       var record = store.push(payload);
       return record._internalModel;
