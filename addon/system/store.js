@@ -1351,7 +1351,7 @@ Store = Service.extend({
     }
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
+      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
       this.updateId(internalModel, data);
     }
 
@@ -1738,23 +1738,15 @@ Store = Service.extend({
     var internalModel = this._load(data);
 
     this._backburner.join(() => {
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, type, data);
+      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
     });
 
     return internalModel;
   },
 
-  _setupRelationships(record, type, data) {
-    // If the payload contains relationships that are specified as
-    // IDs, normalizeRelationships will convert them into DS.Model instances
-    // (possibly unloaded) before we push the payload into the
-    // store.
-
-    data = normalizeRelationships(this, type, data);
-
-
-    // Now that the pushed record as well as any related records
-    // are in the store, create the data structures used to track
+  _setupRelationships(record, data) {
+    // This will convert relationships specified as IDs into DS.Model instances
+    // (possibly unloaded) and also create the data structures used to track
     // relationships.
     setupRelationships(this, record, data);
   },
@@ -2043,25 +2035,6 @@ Store = Service.extend({
 
 });
 
-
-function normalizeRelationships(store, type, data, record) {
-  data.relationships = data.relationships || {};
-  type.eachRelationship(function(key, relationship) {
-    var kind = relationship.kind;
-    var value;
-    if (data.relationships[key] && data.relationships[key].data) {
-      value = data.relationships[key].data;
-      if (kind === 'belongsTo') {
-        data.relationships[key].data = deserializeRecordId(store,  key, relationship, value);
-      } else if (kind === 'hasMany') {
-        data.relationships[key].data = deserializeRecordIds(store, key, relationship, value);
-      }
-    }
-  });
-
-  return data;
-}
-
 function deserializeRecordId(store, key, relationship, id) {
   if (isNone(id)) {
     return;
@@ -2131,13 +2104,13 @@ function _commit(adapter, store, operation, snapshot) {
 }
 
 function setupRelationships(store, record, data) {
-  var typeClass = record.type;
   if (!data.relationships) {
     return;
   }
 
-  typeClass.eachRelationship((key, descriptor) => {
+  record.type.eachRelationship((key, descriptor) => {
     var kind = descriptor.kind;
+
     if (!data.relationships[key]) {
       return;
     }
@@ -2156,6 +2129,12 @@ function setupRelationships(store, record, data) {
       relationship = record._relationships.get(key);
       relationship.updateMeta(data.relationships[key].meta);
     }
+
+    // If the data contains a relationship that is specified as an ID (or IDs),
+    // normalizeRelationship will convert them into DS.Model instances
+    // (possibly unloaded) before we push the payload into the store.
+    normalizeRelationship(store, key, descriptor, data.relationships[key]);
+
     var value = data.relationships[key].data;
 
     if (value !== undefined) {
@@ -2168,6 +2147,18 @@ function setupRelationships(store, record, data) {
       }
     }
   });
+}
+
+function normalizeRelationship(store, key, relationship, jsonPayload) {
+  var data = jsonPayload.data;
+  if (data) {
+    var kind = relationship.kind;
+    if (kind === 'belongsTo') {
+      jsonPayload.data = deserializeRecordId(store, key, relationship, data);
+    } else if (kind === 'hasMany') {
+      jsonPayload.data = deserializeRecordIds(store, key, relationship, data);
+    }
+  }
 }
 
 export { Store };
