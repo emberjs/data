@@ -5,14 +5,16 @@ import Ember from "ember";
   @main ember-data
 */
 
-if (Ember.VERSION.match(/^1\.[0-7]\./)) {
-  throw new Ember.Error("Ember Data requires at least Ember 1.8.0, but you have " +
+if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
+  throw new Ember.Error("Ember Data requires at least Ember 1.13.0, but you have " +
                         Ember.VERSION +
-                        ". Please upgrade your version of Ember, then upgrade Ember Data");
+                        ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
 
-if (Ember.VERSION.match(/^1\.12\.0/)) {
-  throw new Ember.Error("Ember Data does not work with Ember 1.12.0. Please upgrade to Ember 1.12.1 or higher.");
+if (Ember.VERSION.match(/^1\.13\./)) {
+  Ember.warn(`Use of Ember Data 2+ with Ember 1.13 is unsupported. Please upgrade your version of Ember to 2.0 or higher.`, false, {
+    id: 'ds.version.ember-1-13'
+  });
 }
 
 import DS from "ember-data/core";
