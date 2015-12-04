@@ -2194,8 +2194,8 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
   }
 });
 
-test('calls handleResponse with jqXHR, jqXHR.responseText', function(assert) {
-  assert.expect(3);
+test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', function(assert) {
+  assert.expect(4);
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     status: 400,
@@ -2203,13 +2203,19 @@ test('calls handleResponse with jqXHR, jqXHR.responseText', function(assert) {
     getAllResponseHeaders() { return ''; }
   };
 
+  var expectedRequestData = {
+    method: "GET",
+    url:    "/posts/1"
+  };
+
   Ember.$.ajax = function(hash) {
     hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
   };
 
-  adapter.handleResponse = function(status, headers, json) {
+  adapter.handleResponse = function(status, headers, json, requestData) {
     assert.deepEqual(status, 400);
     assert.deepEqual(json, jqXHR.responseText);
+    assert.deepEqual(requestData, expectedRequestData);
     return new DS.AdapterError('nope!');
   };
 
@@ -2310,6 +2316,60 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
   } finally {
     Ember.$.ajax = originalAjax;
   }
+});
+
+test('error handling includes a detailed message from the server', (assert) => {
+  assert.expect(2);
+
+  let originalAjax = Ember.$.ajax;
+  let jqXHR = {
+    status: 500,
+    responseText: 'An error message, perhaps generated from a backend server!',
+    getAllResponseHeaders: function() { return 'Content-Type: text/plain'; }
+  };
+
+  Ember.$.ajax = function(hash) {
+    hash.error(jqXHR, 'error');
+  };
+
+  try {
+    run(function() {
+      store.find('post', '1').catch(function(err) {
+        assert.equal(err.message, "Ember Data Request GET /posts/1 returned a 500\nPayload (text/plain)\nAn error message, perhaps generated from a backend server!");
+        assert.ok(err, 'promise rejected');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+
+});
+
+test('error handling with a very long HTML-formatted payload truncates the friendly message', (assert) => {
+  assert.expect(2);
+
+  let originalAjax = Ember.$.ajax;
+  let jqXHR = {
+    status: 500,
+    responseText: new Array(100).join("<blink />"),
+    getAllResponseHeaders: function() { return 'Content-Type: text/html'; }
+  };
+
+  Ember.$.ajax = function(hash) {
+    hash.error(jqXHR, 'error');
+  };
+
+  try {
+    run(function() {
+      store.find('post', '1').catch(function(err) {
+        assert.equal(err.message, "Ember Data Request GET /posts/1 returned a 500\nPayload (text/html)\n[Omitted Lengthy HTML]");
+        assert.ok(err, 'promise rejected');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+
 });
 
 test('findAll resolves with a collection of DS.Models, not DS.InternalModels', (assert) => {
