@@ -36,8 +36,8 @@ var MapWithDefault = Ember.MapWithDefault;
   user.save();
   ```
 
-  Your backend data store might return a response that looks like
-  this. This response will be used to populate the error object.
+  Your backend data store might return a response with status code 422 (Unprocessable Entity)
+  and that looks like this. This response will be used to populate the error object.
 
   ```javascript
   {
