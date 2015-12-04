@@ -888,16 +888,16 @@ test('normalizeResponse respects `included` items (array response)', function(as
 
 test('normalizeResponse ignores unmapped attributes', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
-    attrs: {      
+    attrs: {
       title: { serialize: false },
-      notInMapping: { serialize: false },
+      notInMapping: { serialize: false }
     }
   }));
 
   var jsonHash = {
     id: "1",
     notInMapping: 'I should be ignored',
-    title: "Rails is omakase",
+    title: "Rails is omakase"
   };
 
   var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
