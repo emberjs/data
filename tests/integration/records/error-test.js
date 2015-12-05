@@ -1,9 +1,14 @@
+import Ember from 'ember';
+import {module, test} from 'qunit';
+import DS from 'ember-data';
+import setupStore from 'dummy/tests/helpers/store';
+
 var env, store, Person;
 var attr = DS.attr;
 var run = Ember.run;
 
 module('integration/records/error', {
-  setup: function() {
+  beforeEach: function() {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string')
@@ -17,15 +22,15 @@ module('integration/records/error', {
     store = env.store;
   },
 
-  teardown: function() {
+  afterEach: function() {
     Ember.run(function() {
       env.container.destroy();
     });
   }
 });
 
-test('adding errors during root.loaded.created.invalid works', function() {
-  expect(3);
+test('adding errors during root.loaded.created.invalid works', function(assert) {
+  assert.expect(3);
 
   var person = run(() => {
     store.push({
@@ -46,22 +51,22 @@ test('adding errors during root.loaded.created.invalid works', function() {
     person.set('lastName', null);
   });
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
   Ember.run(() => person.get('errors').add('firstName', 'is invalid') );
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
 
   Ember.run(() => person.get('errors').add('lastName', 'is invalid') );
 
-  deepEqual(person.get('errors').toArray(), [
+  assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
     { attribute: 'lastName', message: 'is invalid' }
   ]);
 });
 
 
-test('adding errors root.loaded.created.invalid works', function() {
-  expect(3);
+test('adding errors root.loaded.created.invalid works', function(assert) {
+  assert.expect(3);
 
   var person = run(() => {
     return store.createRecord('person', {
@@ -76,22 +81,22 @@ test('adding errors root.loaded.created.invalid works', function() {
     person.set('lastName', null);
   });
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
   Ember.run(() => person.get('errors').add('firstName', 'is invalid') );
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
   Ember.run(() => person.get('errors').add('lastName', 'is invalid') );
 
-  deepEqual(person.get('errors').toArray(), [
+  assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
     { attribute: 'lastName', message: 'is invalid' }
   ]);
 });
 
-test('adding errors root.loaded.created.invalid works add + remove + add', function() {
-  expect(4);
+test('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
+  assert.expect(4);
 
   var person = run(() => {
     return store.createRecord('person', {
@@ -104,25 +109,25 @@ test('adding errors root.loaded.created.invalid works add + remove + add', funct
     person.set('firstName', null);
   });
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
   Ember.run(() => person.get('errors').add('firstName', 'is invalid') );
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
   Ember.run(() => person.get('errors').remove('firstName'));
 
-  deepEqual(person.get('errors').toArray(), []);
+  assert.deepEqual(person.get('errors').toArray(), []);
 
   Ember.run(() => person.get('errors').add('firstName', 'is invalid') );
 
-  deepEqual(person.get('errors').toArray(), [
+  assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' }
   ]);
 });
 
-test('adding errors root.loaded.created.invalid works add + (remove, add)', function() {
-  expect(4);
+test('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
+  assert.expect(4);
 
   var person = run(() => {
     return store.createRecord('person', {
@@ -135,13 +140,13 @@ test('adding errors root.loaded.created.invalid works add + (remove, add)', func
     person.set('firstName', null);
   });
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
   Ember.run(() => {
     person.get('errors').add('firstName', 'is invalid');
   });
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
   Ember.run(() => {
     person.get('errors').remove('firstName');
@@ -149,9 +154,9 @@ test('adding errors root.loaded.created.invalid works add + (remove, add)', func
   });
 
 
-  equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
+  assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-  deepEqual(person.get('errors').toArray(), [
+  assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' }
   ]);
 });
