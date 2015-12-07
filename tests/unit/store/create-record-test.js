@@ -73,18 +73,6 @@ module("unit/store/createRecord - Store with models by dash", {
   }
 });
 
-test("creating a record by camel-case string finds the model", function(assert) {
-  var attributes = { foo: 'bar' };
-  var record;
-
-  run(function() {
-    record = store.createRecord('some-thing', attributes);
-  });
-
-  assert.equal(record.get('foo'), attributes.foo, "The record is created");
-  assert.equal(store.modelFor('someThing').modelName, 'some-thing');
-});
-
 test("creating a record by dasherize string finds the model", function(assert) {
   var attributes = { foo: 'bar' };
   var record;
