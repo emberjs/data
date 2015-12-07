@@ -1,3 +1,4 @@
+import { assert } from "ember-data/debug";
 import {
   PromiseObject
 } from "ember-data/system/promise-proxies";
@@ -79,7 +80,7 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
 
 BelongsToRelationship.prototype.setRecordPromise = function(newPromise) {
   var content = newPromise.get && newPromise.get('content');
-  Ember.assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
+  assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
   this.setRecord(content ? content._internalModel : content);
 };
 
@@ -138,7 +139,7 @@ BelongsToRelationship.prototype.getRecord = function() {
       return null;
     }
     var toReturn = this.inverseRecord.getRecord();
-    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
     return toReturn;
   }
 };
