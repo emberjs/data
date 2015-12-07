@@ -1,6 +1,8 @@
 /**
   @module ember-data
 */
+import { assert } from "ember-data/debug";
+
 var get = Ember.get;
 /*
   This file encapsulates the various states that a record can transition
@@ -421,7 +423,7 @@ createdState.uncommitted.pushedData = function(internalModel) {
 createdState.uncommitted.propertyWasReset = Ember.K;
 
 function assertAgainstUnloadRecord(internalModel) {
-  Ember.assert("You can only unload a record which is not inFlight. `" + internalModel + "`", false);
+  assert("You can only unload a record which is not inFlight. `" + internalModel + "`", false);
 }
 
 updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;

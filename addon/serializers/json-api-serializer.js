@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import { runInDebug, warn } from 'ember-data/debug';
 import JSONSerializer from 'ember-data/serializers/json-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector';
@@ -139,7 +140,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     let modelName = this.modelNameFromPayloadKey(resourceHash.type);
 
     if (!this.store._hasModelFor(modelName)) {
-      Ember.warn(this.warnMessageNoModelForType(modelName, resourceHash.type), false, {
+      warn(this.warnMessageNoModelForType(modelName, resourceHash.type), false, {
         id: 'ds.serializer.model-for-type-missing'
       });
       return null;
@@ -463,7 +464,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   }
 });
 
-Ember.runInDebug(function() {
+runInDebug(function() {
   JSONAPISerializer.reopen({
     warnMessageNoModelForType: function(modelName, originalType) {
       return 'Encountered a resource object with type "' + originalType + '", but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + originalType + '"))';

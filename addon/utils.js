@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { assert } from "ember-data/debug";
 
 const get = Ember.get;
 
@@ -29,7 +30,7 @@ var assertPolymorphicType = function(record, relationshipMeta, addedRecord) {
 
   var assertionMessage = `You cannot add a record of type '${addedType}' to the '${recordType}.${key}' relationship (only '${typeClass.modelName}' allowed)`;
 
-  Ember.assert(assertionMessage, checkPolymorphic(typeClass, addedRecord));
+  assert(assertionMessage, checkPolymorphic(typeClass, addedRecord));
 };
 
 function checkPolymorphic(typeClass, addedRecord) {

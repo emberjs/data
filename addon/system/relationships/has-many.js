@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import { assert } from "ember-data/debug";
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import isArrayLike from "ember-data/system/is-array-like";
@@ -118,7 +119,7 @@ export default function hasMany(type, options) {
     type = undefined;
   }
 
-  Ember.assert("The first argument to DS.hasMany must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Comment model, use DS.hasMany('comment')", typeof type === 'string' || typeof type === 'undefined');
+  assert("The first argument to DS.hasMany must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Comment model, use DS.hasMany('comment')", typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
 
@@ -144,8 +145,8 @@ export default function hasMany(type, options) {
       return relationship.getRecords();
     },
     set: function(key, records) {
-      Ember.assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
-      Ember.assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
+      assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
+      assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
         return Ember.A(records).every((record) => Model.detectInstance(record) );
       })());
 

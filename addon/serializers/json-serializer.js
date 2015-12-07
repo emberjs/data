@@ -1,3 +1,4 @@
+import { assert, warn } from 'ember-data/debug';
 import Serializer from "ember-data/system/serializer";
 import coerceId from "ember-data/system/coerce-id";
 import normalizeModelName from "ember-data/system/normalize-model-name";
@@ -440,7 +441,7 @@ export default Serializer.extend({
 
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
-      Ember.assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
       documentHash.meta = meta;
     }
 
@@ -763,7 +764,7 @@ export default Serializer.extend({
     @return {String} key
   */
   _getMappedKey: function(key, modelClass) {
-    Ember.warn('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key), {
+    warn('There is no attribute or relationship with the name `' + key + '` on `' + modelClass.modelName + '`. Check your serializers attrs hash.', get(modelClass, 'attributes').has(key) || get(modelClass, 'relationshipsByName').has(key), {
       id: 'ds.serializer.no-mapped-attrs-key'
     });
 
@@ -1385,7 +1386,7 @@ export default Serializer.extend({
   transformFor: function(attributeType, skipAssertion) {
     var transform = getOwner(this).lookup('transform:' + attributeType);
 
-    Ember.assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
+    assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
 
     return transform;
   }

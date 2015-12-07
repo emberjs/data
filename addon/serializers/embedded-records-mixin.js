@@ -1,3 +1,5 @@
+import { warn } from "ember-data/debug";
+
 var get = Ember.get;
 var set = Ember.set;
 var camelize = Ember.String.camelize;
@@ -331,7 +333,7 @@ export default Ember.Mixin.create({
   _serializeEmbeddedHasMany: function(snapshot, json, relationship) {
     let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
 
-    Ember.warn(
+    warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
       Ember.typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
       { id: 'ds.serializer.embedded-relationship-undefined' }

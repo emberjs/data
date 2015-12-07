@@ -1,3 +1,4 @@
+import { assert } from "ember-data/debug";
 import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
@@ -185,7 +186,7 @@ ManyRelationship.prototype.getRecords = function() {
       promise: promise
     });
   } else {
-    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
+    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
 
     //TODO(Igor) WTF DO I DO HERE?
     if (!this.manyArray.get('isDestroyed')) {

@@ -1,3 +1,4 @@
+import { assert, warn } from "ember-data/debug";
 import Model from 'ember-data/system/model';
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
@@ -87,7 +88,7 @@ export default function belongsTo(modelName, options) {
     userEnteredModelName = normalizeModelName(userEnteredModelName);
   }
 
-  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
+  assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
 
   opts = opts || {};
 
@@ -102,13 +103,13 @@ export default function belongsTo(modelName, options) {
   return Ember.computed({
     get: function(key) {
       if (opts.hasOwnProperty('serialize')) {
-        Ember.warn(`You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.Serializer and it's implementations http://emberjs.com/api/data/classes/DS.Serializer.html`, false, {
+        warn(`You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.Serializer and it's implementations http://emberjs.com/api/data/classes/DS.Serializer.html`, false, {
           id: 'ds.model.serialize-option-in-belongs-to'
         });
       }
 
       if (opts.hasOwnProperty('embedded')) {
-        Ember.warn(`You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin http://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`, false, {
+        warn(`You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin http://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`, false, {
           id: 'ds.model.embedded-option-in-belongs-to'
         });
       }

@@ -1,4 +1,5 @@
 import Ember from "ember";
+import { warn } from "ember-data/debug";
 /**
   Ember Data
   @module ember-data
@@ -12,7 +13,7 @@ if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
 }
 
 if (Ember.VERSION.match(/^1\.13\./)) {
-  Ember.warn(`Use of Ember Data 2+ with Ember 1.13 is unsupported. Please upgrade your version of Ember to 2.0 or higher.`, false, {
+  warn(`Use of Ember Data 2+ with Ember 1.13 is unsupported. Please upgrade your version of Ember to 2.0 or higher.`, false, {
     id: 'ds.version.ember-1-13'
   });
 }

@@ -1,3 +1,4 @@
+import { assert } from "ember-data/debug";
 import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
@@ -113,7 +114,7 @@ InternalModel.prototype = {
 
   constructor: InternalModel,
   materializeRecord: function() {
-    Ember.assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
+    assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
@@ -563,7 +564,7 @@ InternalModel.prototype = {
   },
 
   _preloadHasMany: function(key, preloadValue, type) {
-    Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
+    assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
     var internalModel = this;
 
     var recordsToSet = preloadValue.map((recordToPush) => {
@@ -603,7 +604,7 @@ InternalModel.prototype = {
   },
 
   setId: function(id) {
-    Ember.assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
+    assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
     this.id = id;
     if (this.record.get('id') !== id) {
       this.record.set('id', id);

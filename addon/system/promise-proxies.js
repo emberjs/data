@@ -1,3 +1,5 @@
+import { assert } from "ember-data/debug";
+
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 
@@ -103,7 +105,7 @@ function proxyToContent(method) {
 var PromiseManyArray = PromiseArray.extend({
   reload: function() {
     //I don't think this should ever happen right now, but worth guarding if we refactor the async relationships
-    Ember.assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
+    assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
     return PromiseManyArray.create({
       promise: get(this, 'content').reload()
     });

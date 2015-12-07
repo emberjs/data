@@ -1,3 +1,4 @@
+import { assert, warn } from "ember-data/debug";
 import {
   typeForRelationshipMeta,
   relationshipFromMeta
@@ -52,10 +53,10 @@ var relatedTypesDescriptor = Ember.computed(function() {
       meta.key = name;
       modelName = typeForRelationshipMeta(meta);
 
-      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
+      assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
 
       if (!types.contains(modelName)) {
-        Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!modelName);
+        assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!modelName);
         types.push(modelName);
       }
     }
@@ -247,14 +248,14 @@ Model.reopenClass({
       inverseName = options.inverse;
       inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
 
-      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
+      assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
         "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
 
       inverseKind = inverse.kind;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
       if (propertyMeta.type === propertyMeta.parentType.modelName) {
-        Ember.warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
+        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
           id: 'ds.model.reflexive-relationship-without-inverse'
         });
       }
@@ -268,7 +269,7 @@ Model.reopenClass({
         return name === optionsForRelationship.inverse;
       });
 
-      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
+      assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
         inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
         filteredRelationships.length < 2);
 
@@ -276,7 +277,7 @@ Model.reopenClass({
         possibleRelationships = filteredRelationships;
       }
 
-      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
+      assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
         this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
         possibleRelationships.length === 1);
 

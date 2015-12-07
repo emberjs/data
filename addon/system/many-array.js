@@ -1,6 +1,7 @@
 /**
   @module ember-data
 */
+import { assert } from "ember-data/debug";
 import { PromiseArray } from "ember-data/system/promise-proxies";
 
 var get = Ember.get;
@@ -272,7 +273,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     var type = get(this, 'type');
     var record;
 
-    Ember.assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
     record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 

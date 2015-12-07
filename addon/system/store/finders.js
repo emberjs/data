@@ -1,3 +1,4 @@
+import { assert } from "ember-data/debug";
 import {
   _bind,
   _guard,
@@ -24,7 +25,7 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    Ember.assert("You made a request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
+    assert("You made a request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
     return store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'findRecord');
       //TODO Optimize
@@ -155,7 +156,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
       records = store.push(payload);
     });
 
-    Ember.assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Ember.isArray(records));
+    assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Ember.isArray(records));
     recordArray.loadRecords(records);
     return recordArray;
 
