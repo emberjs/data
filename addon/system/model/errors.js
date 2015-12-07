@@ -1,3 +1,5 @@
+import { deprecate, warn } from "ember-data/debug";
+
 var get = Ember.get;
 var set = Ember.set;
 var isEmpty = Ember.isEmpty;
@@ -110,7 +112,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @deprecated
   */
   registerHandlers(target, becameInvalid, becameValid) {
-    Ember.deprecate(
+    deprecate(
       `Record errors will no longer be evented.`, false, {
         id: 'ds.errors.registerHandlers',
         until: '3.0.0'
@@ -236,7 +238,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @deprecated
   */
   add(attribute, messages) {
-    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.add'
     });
 
@@ -315,7 +317,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @deprecated
   */
   remove(attribute) {
-    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.remove'
     });
 
@@ -367,7 +369,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @deprecated
   */
   clear() {
-    Ember.warn(`Interacting with a record errors object will no longer change the record state.`, false, {
+    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
       id: 'ds.errors.clear'
     });
 

@@ -1,3 +1,4 @@
+import { assert, deprecate } from "ember-data/debug";
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
 
@@ -749,20 +750,20 @@ var Model = Ember.Object.extend(Ember.Evented, {
   // rely on the data property.
   willMergeMixin(props) {
     var constructor = this.constructor;
-    Ember.assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
-    Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
+    assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
+    assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
   },
 
   attr() {
-    Ember.assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
   belongsTo() {
-    Ember.assert("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    assert("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
   hasMany() {
-    Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
 
   setId: Ember.observer('id', function () {
@@ -836,7 +837,7 @@ if (Ember.setOwner) {
     configurable: true,
     enumerable: false,
     get() {
-      Ember.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.',
+      deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.',
                       false,
                       { id: 'ember-application.injected-container', until: '3.0.0' });
 

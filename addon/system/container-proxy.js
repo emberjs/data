@@ -1,3 +1,5 @@
+import { deprecate } from "ember-data/debug";
+
 /**
   This is used internally to enable deprecation of container paths and provide
   a decent message to the user indicating how to fix the issue.
@@ -28,7 +30,7 @@ ContainerProxy.prototype.registerAlias = function(source, dest, preLookup) {
 
 ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
   var preLookupCallback = function() {
-    Ember.deprecate(`You tried to look up '${deprecated}', but this has been deprecated in favor of '${valid}'.`, false, {
+    deprecate(`You tried to look up '${deprecated}', but this has been deprecated in favor of '${valid}'.`, false, {
       id: 'ds.store.deprecated-lookup',
       until: '2.0.0'
     });

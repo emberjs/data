@@ -1,4 +1,5 @@
 import Model from "ember-data/system/model/model";
+import { assert, deprecate } from "ember-data/debug";
 
 /**
   @module ember-data
@@ -55,7 +56,7 @@ Model.reopenClass({
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
-        Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
+        assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
 
         meta.name = name;
         map.set(name, meta);
@@ -227,7 +228,7 @@ function getDefaultValue(record, options, key) {
     return options.defaultValue.apply(null, arguments);
   } else {
     let defaultValue = options.defaultValue;
-    Ember.deprecate(`Non primitive defaultValues are deprecated because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
+    deprecate(`Non primitive defaultValues are deprecated because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
       typeof defaultValue !== 'object' || defaultValue === null, {
         id: 'ds.defaultValue.complex-object',
         until: '3.0.0'

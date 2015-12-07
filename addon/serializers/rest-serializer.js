@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import { assert, deprecate, runInDebug, warn } from "ember-data/debug";
 import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector";
@@ -225,7 +226,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
-      Ember.assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
       documentHash.meta = meta;
     }
 
@@ -263,7 +264,7 @@ var RESTSerializer = JSONSerializer.extend({
 
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
+        warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
@@ -383,7 +384,7 @@ var RESTSerializer = JSONSerializer.extend({
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false, {
+        warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
@@ -727,7 +728,7 @@ var RESTSerializer = JSONSerializer.extend({
     // `keyForPolymorphicType`. If this is the case, a deprecation warning is
     // logged and the old way is restored (so nothing breaks).
     if (key !== typeKey && this.keyForPolymorphicType === RESTSerializer.prototype.keyForPolymorphicType) {
-      Ember.deprecate("The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.", false, {
+      deprecate("The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.", false, {
         id: 'ds.rest-serializer.deprecated-key-for-polymorphic-type',
         until: '3.0.0'
       });
@@ -787,7 +788,7 @@ var RESTSerializer = JSONSerializer.extend({
   }
 });
 
-Ember.runInDebug(function() {
+runInDebug(function() {
   RESTSerializer.reopen({
     warnMessageNoModelForKey(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
