@@ -3,6 +3,7 @@
   "repo": "components/ember-data",
   "description": "A data persistence library for Ember.js.",
   "version": "VERSION_STRING_PLACEHOLDER",
+  "license": "MIT",
   "main": "ember-data.js",
   "scripts": [
     "ember-data.js",
@@ -11,6 +12,5 @@
   ],
   "dependencies": {
     "components/ember": ">= 2.0.0 < 3.0.0"
-  },
-  "license": "MIT"
+  }
 }
