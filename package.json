@@ -51,14 +51,14 @@
     "ember-disable-prototype-extensions": "^1.0.0",
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.3",
-    "ember-inflector": "^1.9.3",
+    "ember-inflector": "^1.9.4",
     "ember-try": "0.0.6",
     "ember-watson": "^0.7.0",
     "git-repo-version": "^0.3.0",
     "lodash.assign": "^3.2.0"
   },
   "peerDependencies": {
-    "ember-inflector": "^1.0.0"
+    "ember-inflector": "^1.9.4"
   },
   "keywords": [
     "ember-addon"
