@@ -11,6 +11,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:testall",
+    "test:optional-features": "ember test --environment=test-optional-features",
     "bower": "bower install",
     "production": "ember build --environment=production"
   },
