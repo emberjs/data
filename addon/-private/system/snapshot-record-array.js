@@ -2,6 +2,8 @@
   @module ember-data
 */
 
+import isEnabled from 'ember-data/-private/features';
+
 /**
   @class SnapshotRecordArray
   @namespace DS
@@ -10,7 +12,7 @@
   @param {Array} snapshots An array of snapshots
   @param {Object} meta
 */
-export default function SnapshotRecordArray(recordArray, meta, adapterOptions) {
+export default function SnapshotRecordArray(recordArray, meta, options = {}) {
   /**
     An array of snapshots
     @private
@@ -48,7 +50,11 @@ export default function SnapshotRecordArray(recordArray, meta, adapterOptions) {
     @property adapterOptions
     @type {Object}
   */
-  this.adapterOptions = adapterOptions;
+  this.adapterOptions = options.adapterOptions;
+
+  if (isEnabled('ds-finder-include')) {
+    this.include = options.include;
+  }
 }
 
 /**

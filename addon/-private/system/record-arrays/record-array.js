@@ -202,8 +202,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   createSnapshot(options) {
-    var adapterOptions = options && options.adapterOptions;
-    var meta = this.get('meta');
-    return new SnapshotRecordArray(this, meta, adapterOptions);
+    const meta = this.get('meta');
+    return new SnapshotRecordArray(this, meta, options);
   }
 });

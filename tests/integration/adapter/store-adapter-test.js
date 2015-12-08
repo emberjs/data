@@ -4,6 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 /*
  This is an integration test that tests the communication between a store
@@ -1303,7 +1304,7 @@ test("record.save should pass adapterOptions to the deleteRecord method", functi
 });
 
 
-test("findRecord should pass adapterOptions to the find method", function(assert) {
+test("store.findRecord should pass adapterOptions to adapter.findRecord", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = assert.wait(function(store, type, id, snapshot) {
@@ -1316,8 +1317,20 @@ test("findRecord should pass adapterOptions to the find method", function(assert
   });
 });
 
+if (isEnabled('ds-finder-include')) {
+  test("store.findRecord should pass 'include' to adapter.findRecord", function(assert) {
+    assert.expect(1);
 
-test("findAll should pass adapterOptions to the findAll method", function(assert) {
+    env.adapter.findRecord = assert.wait((store, type, id, snapshot) => {
+      assert.equal(snapshot.include,  'books', 'include passed to adapter.findRecord');
+      return Ember.RSVP.resolve({ id: 1 });
+    });
+
+    run(() => store.findRecord('person', 1, { include: 'books' }));
+  });
+}
+
+test("store.findAll should pass adapterOptions to the adapter.findAll method", function(assert) {
   assert.expect(1);
 
   env.adapter.findAll = assert.wait(function(store, type, sinceToken, arraySnapshot) {
@@ -1331,6 +1344,18 @@ test("findAll should pass adapterOptions to the findAll method", function(assert
   });
 });
 
+if (isEnabled('ds-finder-include')) {
+  test("store.findAll should pass 'include' to adapter.findAll", function(assert) {
+    assert.expect(1);
+
+    env.adapter.findAll = assert.wait((store, type, sinceToken, arraySnapshot) => {
+      assert.equal(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
+      return Ember.RSVP.resolve([{ id: 1 }]);
+    });
+
+    run(() => store.findAll('person', { include: 'books' }));
+  });
+}
 
 test("An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord", function(assert) {
   var Post = DS.Model.extend({

@@ -4,6 +4,8 @@
 
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
+import isEnabled from 'ember-data/-private/features';
+
 var get = Ember.get;
 
 /**
@@ -13,7 +15,7 @@ var get = Ember.get;
   @constructor
   @param {DS.Model} internalModel The model to create a snapshot from
 */
-export default function Snapshot(internalModel) {
+export default function Snapshot(internalModel, options = {}) {
   this._attributes = new EmptyObject();
   this._belongsToRelationships = new EmptyObject();
   this._belongsToIds = new EmptyObject();
@@ -28,6 +30,17 @@ export default function Snapshot(internalModel) {
   this._internalModel = internalModel;
   this.type = internalModel.type;
   this.modelName = internalModel.type.modelName;
+
+  /**
+    A hash of adapter options
+    @property adapterOptions
+    @type {Object}
+  */
+  this.adapterOptions = options.adapterOptions;
+
+  if (isEnabled('ds-finder-include')) {
+    this.include = options.include;
+  }
 
   this._changedAttributes = record.changedAttributes();
 }

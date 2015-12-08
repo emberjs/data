@@ -11,6 +11,12 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
+- `ds-find-include`
+
+  Allows an `include` query parameter to be specified with using
+  `store.findRecord()` and `store.findAll()` as described in [RFC
+  99](https://github.com/emberjs/rfcs/pull/99)
+
 - `ds-references`
 
   Adds references as described in [RFC 57](https://github.com/emberjs/rfcs/pull/57)
