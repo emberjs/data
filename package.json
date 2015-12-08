@@ -66,6 +66,9 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "paths": [
+      "lib/enable-optional-features-via-url"
+    ]
   }
 }

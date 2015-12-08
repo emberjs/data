@@ -19,13 +19,7 @@ import Ember from 'ember';
 
 setResolver(resolver);
 
-const ENV = Ember.ENV;
-const QUNIT_PARAMS = QUnit.urlParams;
 const { assert } = QUnit;
-
-ENV.EXTEND_PROTOTYPES = QUNIT_PARAMS.extendprototypes;
-ENV.ENABLE_OPTIONAL_FEATURES = QUNIT_PARAMS.enableoptionalfeatures;
-ENV.ENABLE_DS_FILTER = true;
 
 QUnit.begin(function() {
   Ember.RSVP.configure('onerror', function(reason) {
@@ -76,6 +70,5 @@ assert.without = function(array, item)  {
 
 addEmberAssertions(assert);
 
-QUnit.config.testTimeout= 2000;
+QUnit.config.testTimeout = 2000;
 QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features" });
-
