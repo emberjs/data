@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 var get = Ember.get;
 
 export function _bind(fn) {

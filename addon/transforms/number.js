@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import Transform from "ember-data/transforms/base";
 
 var empty = Ember.isEmpty;

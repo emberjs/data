@@ -1,3 +1,4 @@
+import Ember from 'ember';
 var EmberError = Ember.Error;
 
 /**

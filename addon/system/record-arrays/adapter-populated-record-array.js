@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import RecordArray from "ember-data/system/record-arrays/record-array";
 import cloneNull from "ember-data/system/clone-null";
 

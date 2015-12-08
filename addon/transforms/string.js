@@ -1,4 +1,6 @@
+import Ember from 'ember';
 import Transform from "ember-data/transforms/base";
+
 var none = Ember.isNone;
 
 /**

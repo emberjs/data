@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 var EmberOrderedSet = Ember.OrderedSet;
 var guidFor = Ember.guidFor;
 

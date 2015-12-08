@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import Ember from 'ember';
 import { assert, runInDebug, warn } from 'ember-data/debug';
 import JSONSerializer from 'ember-data/serializers/json-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';

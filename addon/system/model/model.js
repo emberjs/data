@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { assert, deprecate } from "ember-data/debug";
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";

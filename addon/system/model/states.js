@@ -1,6 +1,7 @@
 /**
   @module ember-data
 */
+import Ember from 'ember';
 import { assert } from "ember-data/debug";
 
 var get = Ember.get;

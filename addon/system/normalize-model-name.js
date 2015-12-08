@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 /**
   All modelNames are dasherized internally. Changing this function may
   require changes to other normalization hooks (such as typeForRoot).

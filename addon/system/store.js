@@ -5,6 +5,8 @@
   @module ember-data
 */
 
+import Ember from 'ember';
+import Model from 'ember-data/system/model';
 import { assert, warn } from "ember-data/debug";
 import _normalizeLink from "ember-data/system/normalize-link";
 import normalizeModelName from "ember-data/system/normalize-model-name";
@@ -1485,7 +1487,7 @@ Store = Service.extend({
     var mixin = owner._lookupFactory('mixin:' + normalizedModelName);
     if (mixin) {
       //Cache the class as a model
-      owner.register('model:' + normalizedModelName, DS.Model.extend(mixin));
+      owner.register('model:' + normalizedModelName, Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(normalizedModelName);
     if (factory) {

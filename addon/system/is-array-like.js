@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 /*
   We're using this to detect arrays and "array-like" objects.
 

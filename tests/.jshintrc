@@ -1,27 +1,7 @@
 {
   "predef": [
-    "document",
     "window",
-    "location",
-    "setTimeout",
-    "$",
-    "-Promise",
-    "define",
-    "console",
-    "visit",
-    "exists",
-    "fillIn",
-    "click",
-    "keyEvent",
-    "triggerEvent",
-    "find",
-    "findWithAssert",
-    "wait",
-    "DS",
-    "andThen",
-    "currentURL",
-    "currentPath",
-    "currentRouteName"
+    "setTimeout"
   ],
   "node": false,
   "browser": false,

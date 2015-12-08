@@ -2,6 +2,8 @@
   @module ember-data
 */
 
+import Ember from 'ember';
+
 /**
   Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
 

@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import Ember from 'ember';
 import {
   RecordArray,
   FilteredRecordArray,
