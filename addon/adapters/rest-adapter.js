@@ -744,18 +744,20 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
+    @param  {Object} requestData - the original request information
     @return {Object | DS.AdapterError} response
   */
-  handleResponse(status, headers, payload) {
+  handleResponse(status, headers, payload, requestData) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
       return new InvalidError(payload.errors);
     }
 
-    let errors = this.normalizeErrorResponse(status, headers, payload);
+    let errors          = this.normalizeErrorResponse(status, headers, payload);
+    let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
-    return new AdapterError(errors);
+    return new AdapterError(errors, detailedMessage);
   },
 
   /**
@@ -813,6 +815,11 @@ export default Adapter.extend(BuildURLMixin, {
   ajax(url, type, options) {
     var adapter = this;
 
+    var requestData = {
+      url:    url,
+      method: type
+    };
+
     return new Ember.RSVP.Promise(function(resolve, reject) {
       var hash = adapter.ajaxOptions(url, type, options);
 
@@ -821,7 +828,8 @@ export default Adapter.extend(BuildURLMixin, {
         let response = adapter.handleResponse(
           jqXHR.status,
           parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-          payload
+          payload,
+          requestData
         );
 
         if (response instanceof AdapterError) {
@@ -845,7 +853,8 @@ export default Adapter.extend(BuildURLMixin, {
             error = adapter.handleResponse(
               jqXHR.status,
               parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown
+              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
+              requestData
             );
           }
         }
@@ -923,6 +932,35 @@ export default Adapter.extend(BuildURLMixin, {
         }
       ];
     }
+  },
+
+  /**
+    Generates a detailed ("friendly") error message, with plenty
+    of information for debugging (good luck!)
+
+    @method generatedDetailedMessage
+    @private
+    @param  {Number} status
+    @param  {Object} headers
+    @param  {Object} payload
+    @return {Object} request information
+  */
+  generatedDetailedMessage: function(status, headers, payload, requestData) {
+    var shortenedPayload;
+    var payloadContentType = headers["Content-Type"] || "Empty Content-Type";
+
+    if (payloadContentType === "text/html" && payload.length > 250) {
+      shortenedPayload = "[Omitted Lengthy HTML]";
+    } else {
+      shortenedPayload = payload;
+    }
+
+    var requestDescription = requestData.method + ' ' + requestData.url;
+    var payloadDescription = 'Payload (' + payloadContentType + ')';
+
+    return ['Ember Data Request ' + requestDescription + ' returned a ' + status,
+            payloadDescription,
+            shortenedPayload].join('\n');
   }
 });
 
