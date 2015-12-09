@@ -635,7 +635,7 @@ Model.reopen({
         record.eachRelationship(function(name, descriptor) {
           if (descriptor.kind === 'hasMany') {
             var serializedHasManyName = name.toUpperCase() + '_IDS';
-            json[name.toUpperCase()] = record.get(name).mapBy('id');
+            json[serializedHasManyName] = record.get(name).mapBy('id');
           }
         });
 
