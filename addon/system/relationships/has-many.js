@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import Ember from 'ember';
 import { assert } from "ember-data/debug";
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";

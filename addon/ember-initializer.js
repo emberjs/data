@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import setupContainer from 'ember-data/setup-container';
 import initializeStoreService from 'ember-data/instance-initializers/initialize-store-service';
 

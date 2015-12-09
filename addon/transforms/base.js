@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 /**
   The `DS.Transform` class is used to serialize and deserialize model
   attributes when they are saved or loaded from an

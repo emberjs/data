@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { assert, warn } from "ember-data/debug";
 import {
   typeForRelationshipMeta,

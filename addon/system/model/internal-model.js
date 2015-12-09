@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { assert } from "ember-data/debug";
 import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";

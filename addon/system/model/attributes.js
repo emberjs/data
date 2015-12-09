@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import Model from "ember-data/system/model/model";
 import { assert, deprecate } from "ember-data/debug";
 

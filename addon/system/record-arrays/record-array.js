@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import Ember from 'ember';
 import { PromiseArray } from "ember-data/system/promise-proxies";
 import SnapshotRecordArray from "ember-data/system/snapshot-record-array";
 

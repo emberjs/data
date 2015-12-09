@@ -2,6 +2,8 @@
   @module ember-data
 */
 
+import Ember from 'ember';
+
 /**
   `DS.Serializer` is an abstract base class that you should override in your
   application to customize it for your backend. The minimum set of methods

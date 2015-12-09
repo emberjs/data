@@ -1,3 +1,5 @@
+import Ember from 'ember';
+
 /**
   The `DS.DateTransform` class is used to serialize and deserialize
   date attributes on Ember Data record objects. This transform is used

@@ -1,4 +1,6 @@
+import Ember from 'ember';
 import {assert} from 'ember-data/debug';
+
 const EmberError = Ember.Error;
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;

@@ -1,6 +1,7 @@
 /**
   @module ember-data
 */
+import Ember from 'ember';
 import { assert } from "ember-data/debug";
 import { PromiseArray } from "ember-data/system/promise-proxies";
 

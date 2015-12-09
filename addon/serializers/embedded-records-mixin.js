@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { warn } from "ember-data/debug";
 
 var get = Ember.get;

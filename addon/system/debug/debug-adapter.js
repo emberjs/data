@@ -1,6 +1,7 @@
 /**
   @module ember-data
 */
+import Ember from 'ember';
 import Model from "ember-data/system/model";
 var get = Ember.get;
 var capitalize = Ember.String.capitalize;

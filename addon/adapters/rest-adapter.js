@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import Ember from 'ember';
 import Adapter from "ember-data/system/adapter";
 import {
   AdapterError,

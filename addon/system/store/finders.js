@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { assert } from "ember-data/debug";
 import {
   _bind,
