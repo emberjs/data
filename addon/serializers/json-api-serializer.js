@@ -183,6 +183,22 @@ const JSONAPISerializer = JSONSerializer.extend({
     return normalizedPayload;
   },
 
+  normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
+    let normalizedPayload = this._normalizeResponse(store, primaryModelClass, payload, id, requestType, false);
+
+    if (Array.isArray(normalizedPayload.data)) {
+      // If the store is expecting a single response normalize the
+      // payload and move the extra records into the included array.
+      let arrayData = normalizedPayload.data;
+      let included = normalizedPayload.included || [];
+      normalizedPayload.data = arrayData[0];
+      normalizedPayload.included = included.concat(arrayData.slice(1));
+      return normalizedPayload;
+    }
+
+    return normalizedPayload;
+  },
+
   /**
     @method extractAttributes
     @param {DS.Model} modelClass

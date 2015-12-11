@@ -259,3 +259,27 @@ test('Serializer should respect the attrs hash when serializing attributes with 
 
   assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });
+
+test('Serializer should normalize array responses to a single data object', function(assert) {
+
+  var jsonHash = {
+    data: [{
+      type: 'company',
+      id: '1',
+      attributes: {
+        name: "Tilde Inc."
+      }
+    }, {
+      type: 'company',
+      id: '2',
+      attributes: {
+        name: "Weyland-Yutani Corporation"
+      }
+    }]
+  };
+
+  var project = env.store.serializerFor('company').normalizeQueryRecordResponse(env.store, Company, jsonHash, 1, 'findRecord');
+
+  assert.equal(project.data.attributes['name'], 'Tilde Inc.');
+  assert.equal(project.included[0].attributes['name'], 'Weyland-Yutani Corporation');
+});
