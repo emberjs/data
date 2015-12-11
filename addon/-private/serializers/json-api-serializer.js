@@ -108,12 +108,26 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (Ember.typeOf(documentHash.data) === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
-    } else if (Ember.typeOf(documentHash.data) === 'array') {
-      documentHash.data = documentHash.data.map(this._normalizeResourceHelper, this);
+    } else if (Array.isArray(documentHash.data)) {
+      let ret = new Array(documentHash.data.length);
+
+      for (let i = 0, l = documentHash.data.length; i < l; i++) {
+        let data = documentHash.data[i];
+        ret[i] = this._normalizeResourceHelper(data);
+      }
+
+      documentHash.data = ret;
     }
 
-    if (Ember.typeOf(documentHash.included) === 'array') {
-      documentHash.included = documentHash.included.map(this._normalizeResourceHelper, this);
+    if (Array.isArray(documentHash.included)) {
+      let ret = new Array(documentHash.included.length);
+
+      for (let i = 0, l = documentHash.included.length; i < l; i++) {
+        let included = documentHash.included[i];
+        ret[i] = this._normalizeResourceHelper(included);
+      }
+
+      documentHash.included = ret;
     }
 
     return documentHash;
@@ -215,8 +229,15 @@ const JSONAPISerializer = JSONSerializer.extend({
       relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
     }
 
-    if (Ember.typeOf(relationshipHash.data) === 'array') {
-      relationshipHash.data = relationshipHash.data.map(this._normalizeRelationshipDataHelper, this);
+    if (Array.isArray(relationshipHash.data)) {
+      let ret = new Array(relationshipHash.data.length);
+
+      for (let i = 0, l = relationshipHash.data.length; i < l; i++) {
+        let data = relationshipHash.data[i];
+        ret[i] = this._normalizeRelationshipDataHelper(data);
+      }
+
+      relationshipHash.data = ret;
     }
 
     return relationshipHash;
@@ -456,12 +477,15 @@ const JSONAPISerializer = JSONSerializer.extend({
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
 
-        let data = hasMany.map((item) => {
-          return {
+        let data = new Array(hasMany.length);
+
+        for (let i = 0, l = hasMany.length; i < l; i++) {
+          let item = hasMany[i];
+          data[i] = {
             type: this.payloadKeyFromModelName(item.modelName),
             id: item.id
           };
-        });
+        }
 
         json.relationships[payloadKey] = { data };
       }

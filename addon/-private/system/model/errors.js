@@ -272,14 +272,24 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
   */
   _findOrCreateMessages(attribute, messages) {
-    var errors = this.errorsFor(attribute);
+    let errors = this.errorsFor(attribute);
+    let messagesArray = makeArray(messages);
+    let _messages = new Array(messagesArray.length);
 
-    return makeArray(messages).map((message) => {
-      return errors.findBy('message', message) || {
-        attribute: attribute,
-        message: message
-      };
-    });
+    for (let i = 0, l = messagesArray.length; i < l; i++) {
+      let message = messagesArray[i];
+      let err = errors.findBy('message', message);
+      if (err) {
+        _messages[i] = err;
+      } else {
+        _messages[i] = {
+          attribute: attribute,
+          message: message
+        };
+      }
+    }
+
+    return _messages;
   },
 
   /**

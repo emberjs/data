@@ -566,11 +566,13 @@ InternalModel.prototype = {
 
   _preloadHasMany(key, preloadValue, type) {
     assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
-    var internalModel = this;
+    let recordsToSet = new Array(preloadValue.length);
 
-    var recordsToSet = preloadValue.map((recordToPush) => {
-      return internalModel._convertStringOrNumberIntoInternalModel(recordToPush, type);
-    });
+    for (let i = 0, l = preloadValue.length; i < l; i++) {
+      let recordToPush = preloadValue[i];
+      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, type);
+    }
+
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
     this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);

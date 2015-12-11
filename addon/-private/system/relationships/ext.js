@@ -569,16 +569,19 @@ Model.reopenClass({
     @param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelatedType(callback, binding) {
-    get(this, 'relatedTypes').forEach((type) => {
+    let relationshipTypes = get(this, 'relatedTypes');
+
+    for (let i = 0; i < relationshipTypes.length; i++) {
+      let type = relationshipTypes[i];
       callback.call(binding, type);
-    });
+    }
   },
 
   determineRelationshipType(knownSide, store) {
-    var knownKey = knownSide.key;
-    var knownKind = knownSide.kind;
-    var inverse = this.inverseFor(knownKey, store);
-    var key, otherKind;
+    let knownKey = knownSide.key;
+    let knownKind = knownSide.kind;
+    let inverse = this.inverseFor(knownKey, store);
+    let key, otherKind;
 
     if (!inverse) {
       return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';

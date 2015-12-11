@@ -578,11 +578,13 @@ Store = Service.extend({
   */
   findByIds(modelName, ids) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var store = this;
+    let promises = new Array(ids.length);
 
-    return promiseArray(Ember.RSVP.all(ids.map((id) => {
-      return store.findRecord(modelName, id);
-    })).then(Ember.A, null, "DS: Store#findByIds of " + modelName + " complete"));
+    for (let i = 0, l = ids.length; i < l; i++) {
+      promises[i] = this.findRecord(modelName, ids[i]);
+    }
+
+    return promiseArray(Ember.RSVP.all(promises).then(Ember.A, null, "DS: Store#findByIds of " + modelName + " complete"));
   },
 
   /**
@@ -609,8 +611,17 @@ Store = Service.extend({
   },
 
   scheduleFetchMany(records) {
-    var internalModels = records.map((record) => record._internalModel);
-    return Promise.all(internalModels.map(this.scheduleFetch, this));
+    let internalModels = new Array(records.length);
+    let fetches = new Array(records.length);
+    for (let i = 0, l = records.length; i < l; i++) {
+      internalModels[i] = records[i]._internalModel;
+    }
+
+    for (let i = 0, l = internalModels.length; i < l; i++) {
+      fetches[i] = this.scheduleFetch(internalModels[i]);
+    }
+
+    return Ember.RSVP.Promise.all(fetches);
   },
 
   scheduleFetch(internalModel, options) {
@@ -841,7 +852,13 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findMany(internalModels) {
-    return Promise.all(internalModels.map((internalModel) => this._findByInternalModel(internalModel)));
+    let finds = new Array(internalModels.length);
+
+    for (let i = 0, l = internalModels.length; i < l; i++) {
+      finds[i] = this._findByInternalModel(internalModels[i]);
+    }
+
+    return Promise.all(finds);
   },
 
 
@@ -1098,29 +1115,28 @@ Store = Service.extend({
   unloadAll(modelName) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
     if (arguments.length === 0) {
-      var typeMaps = this.typeMaps;
-      var keys = Object.keys(typeMaps);
+      let typeMaps = this.typeMaps;
+      let keys = Object.keys(typeMaps);
+      let types = new Array(keys.length);
 
-      var types = keys.map(byType);
+      for (let i = 0, l = keys.length; i < l; i++) {
+        types[i] = typeMaps[keys[i]]['type'].modelName;
+      }
 
       types.forEach(this.unloadAll, this);
     } else {
-      var typeClass = this.modelFor(modelName);
-      var typeMap = this.typeMapFor(typeClass);
-      var records = typeMap.records.slice();
-      var record;
+      let typeClass = this.modelFor(modelName);
+      let typeMap = this.typeMapFor(typeClass);
+      let records = typeMap.records.slice();
+      let record;
 
-      for (var i = 0; i < records.length; i++) {
+      for (let i = 0; i < records.length; i++) {
         record = records[i];
         record.unloadRecord();
         record.destroy(); // maybe within unloadRecord
       }
 
       typeMap.metadata = new EmptyObject();
-    }
-
-    function byType(entry) {
-      return typeMaps[entry]['type'].modelName;
     }
   },
 
@@ -2055,7 +2071,13 @@ function deserializeRecordIds(store, key, relationship, ids) {
   }
 
   assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, isArray(ids));
-  return ids.map((id) => deserializeRecordId(store, key, relationship, id));
+  let _ids = new Array(ids.length);
+
+  for (let i = 0, l = ids.length; i < l; i++) {
+    _ids[i] = deserializeRecordId(store, key, relationship, ids[i]);
+  }
+
+  return _ids;
 }
 
 // Delegation to the adapter and promise management
