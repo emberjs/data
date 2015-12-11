@@ -190,6 +190,7 @@ export function _queryRecord(adapter, store, typeClass, query) {
     var record;
     store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'queryRecord');
+      Ember.assert('`store.queryRecord` expected the adapter to return one record but the response from the adapter was empty.', payload.data);
       //TODO Optimize
       record = store.push(payload);
     });
