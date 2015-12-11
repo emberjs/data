@@ -718,11 +718,11 @@ export default Serializer.extend({
   */
   normalizeUsingDeclaredMapping(modelClass, hash) {
     var attrs = get(this, 'attrs');
-    var payloadKey, normalizedKey, key;
+    var normalizedKey, payloadKey, key;
 
     if (attrs) {
       for (key in attrs) {
-        payloadKey = this._getMappedKey(key, modelClass);
+        normalizedKey = payloadKey = this._getMappedKey(key, modelClass);
 
         if (!hash.hasOwnProperty(payloadKey)) { continue; }
 
