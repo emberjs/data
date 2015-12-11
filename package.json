@@ -11,6 +11,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:testall",
+    "test:optional-features": "ember test --environment=test-optional-features",
     "bower": "bower install",
     "production": "ember build --environment=production"
   },
@@ -26,6 +27,7 @@
     "ember-cli-babel": "^5.1.3"
   },
   "devDependencies": {
+    "babel-plugin-feature-flags": "^0.2.0",
     "babel-plugin-filter-imports": "^0.2.0",
     "bower": "^1.6.5",
     "broccoli-asset-rev": "^2.1.2",
@@ -64,6 +66,9 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "paths": [
+      "lib/enable-optional-features-via-url"
+    ]
   }
 }
