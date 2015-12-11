@@ -842,21 +842,19 @@ export default Adapter.extend(BuildURLMixin, {
       hash.error = function(jqXHR, textStatus, errorThrown) {
         let error;
 
-        if (!(error instanceof Error)) {
-          if (errorThrown instanceof Error) {
-            error = errorThrown;
-          } else if (textStatus === 'timeout') {
-            error = new TimeoutError();
-          } else if (textStatus === 'abort') {
-            error = new AbortError();
-          } else {
-            error = adapter.handleResponse(
-              jqXHR.status,
-              parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
-              requestData
-            );
-          }
+        if (errorThrown instanceof Error) {
+          error = errorThrown;
+        } else if (textStatus === 'timeout') {
+          error = new TimeoutError();
+        } else if (textStatus === 'abort') {
+          error = new AbortError();
+        } else {
+          error = adapter.handleResponse(
+            jqXHR.status,
+            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+            adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
+            requestData
+          );
         }
 
         Ember.run.join(null, reject, error);
