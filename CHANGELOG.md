@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.3.0-beta.2 (December 12, 2015)
+- [#3865](https://github.com/emberjs/data/pull/3943) [PERF] Ajax should join an existing run if one exists
+- [#3949](https://github.com/emberjs/data/pull/3949) Fix incorrect reference in store api docs
+- [#3841](https://github.com/emberjs/data/pull/3841) Log a deprecation warning when when Ember Data is loaded with Ember 1.13
+- [#3973](https://github.com/emberjs/data/pull/3973) [CLEANUP] use debug helpers from ember-data/debug
+- [#3978](https://github.com/emberjs/data/pull/3978) [BUGFIX beta] bump ember-inflector
+- [#3983](https://github.com/emberjs/data/pull/3983) [DOC beta] Fix documentation to use "serializedHasManyName"
+- [#3986](https://github.com/emberjs/data/pull/3986) Move private modules into the `-private` directory
 
 ### Release 2.3.0-beta.1 (November 17, 2015)
 - [#3865](https://github.com/emberjs/data/pull/3865) Assert that passed array to set a hasMany consists of records
