@@ -524,8 +524,7 @@ Store = Service.extend({
     }
 
     // Refetch the record if the adapter thinks the record is stale
-    var snapshot = internalModel.createSnapshot();
-    snapshot.adapterOptions = options && options.adapterOptions;
+    var snapshot = internalModel.createSnapshot(options);
     var typeClass = internalModel.type;
     var adapter = this.adapterFor(typeClass.modelName);
     if (adapter.shouldReloadRecord(this, snapshot)) {
