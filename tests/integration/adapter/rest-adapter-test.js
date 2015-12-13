@@ -50,10 +50,10 @@ function ajaxResponse(value) {
   };
 }
 
-test("find - basic payload", function(assert) {
+test("findRecord - basic payload", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -80,7 +80,7 @@ test("findRecord - passes buildURL a requestType", function(assert) {
 test("find - basic payload (with legacy singular name)", function(assert) {
   ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -90,7 +90,7 @@ test("find - basic payload (with legacy singular name)", function(assert) {
   }));
 });
 
-test("find - payload with sideloaded records of the same type", function(assert) {
+test("findRecord - payload with sideloaded records of the same type", function(assert) {
   ajaxResponse({
     posts: [
       { id: 1, name: "Rails is omakase" },
@@ -98,7 +98,7 @@ test("find - payload with sideloaded records of the same type", function(assert)
     ]
   });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -112,13 +112,13 @@ test("find - payload with sideloaded records of the same type", function(assert)
   }));
 });
 
-test("find - payload with sideloaded records of a different type", function(assert) {
+test("findRecord - payload with sideloaded records of a different type", function(assert) {
   ajaxResponse({
     posts: [{ id: 1, name: "Rails is omakase" }],
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -133,14 +133,14 @@ test("find - payload with sideloaded records of a different type", function(asse
 });
 
 
-test("find - payload with an serializer-specified primary key", function(assert) {
+test("findRecord - payload with an serializer-specified primary key", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_'
   }));
 
   ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -150,7 +150,7 @@ test("find - payload with an serializer-specified primary key", function(assert)
   }));
 });
 
-test("find - payload with a serializer-specified attribute mapping", function(assert) {
+test("findRecord - payload with a serializer-specified attribute mapping", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       'name': '_NAME_',
@@ -164,7 +164,7 @@ test("find - payload with a serializer-specified attribute mapping", function(as
 
   ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
 
-  run(store, 'find', 'post', 1).then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.equal(passedHash, undefined);
@@ -175,7 +175,7 @@ test("find - payload with a serializer-specified attribute mapping", function(as
   }));
 });
 
-test("create - an empty payload is a basic success if an id was specified", function(assert) {
+test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
   ajaxResponse();
   var post;
 
@@ -192,7 +192,7 @@ test("create - an empty payload is a basic success if an id was specified", func
   });
 });
 
-test("create - passes buildURL the requestType", function(assert) {
+test("createRecord - passes buildURL the requestType", function(assert) {
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/post/" + requestType;
   };
@@ -208,7 +208,7 @@ test("create - passes buildURL the requestType", function(assert) {
   });
 });
 
-test("create - a payload with a new ID and data applies the updates", function(assert) {
+test("createRecord - a payload with a new ID and data applies the updates", function(assert) {
   ajaxResponse({ posts: [{ id: "1", name: "Dat Parley Letter" }] });
   run(function() {
     var post = store.createRecord('post', { name: "The Parley Letter" });
@@ -225,7 +225,7 @@ test("create - a payload with a new ID and data applies the updates", function(a
   });
 });
 
-test("create - a payload with a new ID and data applies the updates (with legacy singular name)", function(assert) {
+test("createRecord - a payload with a new ID and data applies the updates (with legacy singular name)", function(assert) {
   var post;
   ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } });
   run(function() {
@@ -243,7 +243,7 @@ test("create - a payload with a new ID and data applies the updates (with legacy
   }));
 });
 
-test("create - findMany doesn't overwrite owner", function(assert) {
+test("createRecord - findMany doesn't overwrite owner", function(assert) {
   ajaxResponse({ comment: { id: "1", name: "Dat Parley Letter", post: 1 } });
   var comment;
 
@@ -284,7 +284,7 @@ test("create - findMany doesn't overwrite owner", function(assert) {
   });
 });
 
-test("create - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
+test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
   var post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
@@ -305,7 +305,7 @@ test("create - a serializer's primary key and attributes are consulted when buil
   }));
 });
 
-test("create - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
+test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
   var post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primarykey: '_id_',
@@ -326,7 +326,7 @@ test("create - a serializer's attributes are consulted when building the payload
   });
 });
 
-test("create - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function(assert) {
+test("createRecord - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       name: 'given_name'
@@ -348,7 +348,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
   });
 });
 
-test("create - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function(assert) {
+test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function(assert) {
   env.registry.register('serializer:comment', DS.RESTSerializer.extend({
     attrs: {
       post: 'article'
@@ -373,7 +373,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
   });
 });
 
-test("create - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function(assert) {
+test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       comments: 'opinions'
@@ -398,7 +398,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
   });
 });
 
-test("create - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function(assert) {
+test("createRecord - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function(assert) {
   assert.expect(3);
 
   ajaxResponse({
@@ -478,7 +478,7 @@ test("create - a record on the many side of a hasMany relationship should update
   });
 });
 
-test("create - sideloaded belongsTo relationships are both marked as loaded", function(assert) {
+test("createRecord - sideloaded belongsTo relationships are both marked as loaded", function(assert) {
   assert.expect(4);
   var post;
 
@@ -504,7 +504,7 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
   });
 });
 
-test("create - response can contain relationships the client doesn't yet know about", function(assert) {
+test("createRecord - response can contain relationships the client doesn't yet know about", function(assert) {
   assert.expect(3); // while records.length is 2, we are getting 4 assertions
 
   ajaxResponse({
@@ -541,7 +541,7 @@ test("create - response can contain relationships the client doesn't yet know ab
   });
 });
 
-test("create - relationships are not duplicated", function(assert) {
+test("createRecord - relationships are not duplicated", function(assert) {
   var post, comment;
 
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
@@ -570,7 +570,7 @@ test("create - relationships are not duplicated", function(assert) {
   }));
 });
 
-test("update - an empty payload is a basic success", function(assert) {
+test("updateRecord - an empty payload is a basic success", function(assert) {
   run(function() {
     store.push({
       data: {
@@ -599,7 +599,7 @@ test("update - an empty payload is a basic success", function(assert) {
   });
 });
 
-test("update - passes the requestType to buildURL", function(assert) {
+test("updateRecord - passes the requestType to buildURL", function(assert) {
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
   };
@@ -629,7 +629,7 @@ test("update - passes the requestType to buildURL", function(assert) {
   });
 });
 
-test("update - a payload with updates applies the updates", function(assert) {
+test("updateRecord - a payload with updates applies the updates", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -658,7 +658,7 @@ test("update - a payload with updates applies the updates", function(assert) {
   }));
 });
 
-test("update - a payload with updates applies the updates (with legacy singular name)", function(assert) {
+test("updateRecord - a payload with updates applies the updates (with legacy singular name)", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -687,7 +687,7 @@ test("update - a payload with updates applies the updates (with legacy singular 
   }));
 });
 
-test("update - a payload with sideloaded updates pushes the updates", function(assert) {
+test("updateRecord - a payload with sideloaded updates pushes the updates", function(assert) {
   var post;
   ajaxResponse({
     posts: [{ id: 1, name: "Dat Parley Letter" }],
@@ -710,7 +710,7 @@ test("update - a payload with sideloaded updates pushes the updates", function(a
   });
 });
 
-test("update - a payload with sideloaded updates pushes the updates", function(assert) {
+test("updateRecord - a payload with sideloaded updates pushes the updates", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -745,7 +745,7 @@ test("update - a payload with sideloaded updates pushes the updates", function(a
   }));
 });
 
-test("update - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
+test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
@@ -774,7 +774,7 @@ test("update - a serializer's primary key and attributes are consulted when buil
   }));
 });
 
-test("update - hasMany relationships faithfully reflect simultaneous adds and removes", function(assert) {
+test("updateRecord - hasMany relationships faithfully reflect simultaneous adds and removes", function(assert) {
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   adapter.shouldBackgroundReloadRecord = () => false;
@@ -832,7 +832,7 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
   }));
 });
 
-test("delete - an empty payload is a basic success", function(assert) {
+test("deleteRecord - an empty payload is a basic success", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -861,7 +861,7 @@ test("delete - an empty payload is a basic success", function(assert) {
   }));
 });
 
-test("delete - passes the requestType to buildURL", function(assert) {
+test("deleteRecord - passes the requestType to buildURL", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
@@ -889,7 +889,7 @@ test("delete - passes the requestType to buildURL", function(assert) {
   }));
 });
 
-test("delete - a payload with sideloaded updates pushes the updates", function(assert) {
+test("deleteRecord - a payload with sideloaded updates pushes the updates", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -921,7 +921,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function(a
   }));
 });
 
-test("delete - a payload with sidloaded updates pushes the updates when the original record is omitted", function(assert) {
+test("deleteRecord - a payload with sidloaded updates pushes the updates when the original record is omitted", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     store.push({
@@ -953,7 +953,7 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
   }));
 });
 
-test("delete - deleting a newly created record should not throw an error", function(assert) {
+test("deleteRecord - deleting a newly created record should not throw an error", function(assert) {
   var post;
   run(function() {
     post = store.createRecord('post');
@@ -2413,7 +2413,7 @@ test('findAll resolves with a collection of DS.Models, not DS.InternalModels', (
 
 });
 
-test("create - sideloaded records are pushed to the store", function(assert) {
+test("createRecord - sideloaded records are pushed to the store", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment')
   });
