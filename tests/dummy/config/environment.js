@@ -1,5 +1,9 @@
 /* jshint node: true */
 
+var fs = require('fs');
+var featuresJson = fs.readFileSync('config/features.json', { encoding: 'utf8' });
+var featureFlags = JSON.parse(featuresJson);
+
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'dummy',
@@ -7,10 +11,12 @@ module.exports = function(environment) {
     baseURL: '/',
     locationType: 'auto',
     EmberENV: {
-      FEATURES: {
-        // Here you can enable experimental features on an ember canary build
-        // e.g. 'with-controller': true
-      }
+      FEATURES: featureFlags,
+      ENABLE_DS_FILTER: true,
+
+      // don't raise on deprecation yet, since there are too many thrown errors;
+      // this should be addressed in another PR
+      // RAISE_ON_DEPRECATION: true
     },
 
     APP: {
@@ -18,6 +24,10 @@ module.exports = function(environment) {
       // when it is created
     }
   };
+
+  if (environment === 'test-optional-features') {
+    ENV.EmberENV.ENABLE_OPTIONAL_FEATURES = true;
+  }
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;
