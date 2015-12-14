@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.3.0-beta.3 (December 14, 2015)
+- [#3995](https://github.com/emberjs/data/pull/3995) [BUGFIX beta] Implement public module API.
+
 ### Release 2.3.0-beta.2 (December 12, 2015)
 - [#3865](https://github.com/emberjs/data/pull/3943) [PERF] Ajax should join an existing run if one exists
 - [#3949](https://github.com/emberjs/data/pull/3949) Fix incorrect reference in store api docs
