@@ -26,6 +26,15 @@ module.exports = {
     } else {
       this._forceBowerUsage = false;
     }
+
+    var VersionChecker = require('ember-cli-version-checker');
+
+    var checker = new VersionChecker(this);
+    var dep = checker.for('ember-cli-shims', 'bower');
+
+    if (!dep.satisfies('>= 0.1.0')) {
+      this._warn('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3+. Please update ember-cli-shims from ' + dep.version + ' to 0.1.0.');
+    }
   },
 
   treeForAddon: function(dir) {
