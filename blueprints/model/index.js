@@ -25,21 +25,21 @@ module.exports = {
         type = type.split(':')[0];
       }
       var dasherizedName = stringUtils.dasherize(name);
-      var dasherizedNameSingular = inflection.singularize(dasherizedName);
       var camelizedName = stringUtils.camelize(name);
       var dasherizedType = stringUtils.dasherize(type);
       var dasherizedForeignModel = stringUtils.dasherize(foreignModel);
       var dasherizedForeignModelSingular = inflection.singularize(dasherizedForeignModel);
 
+      var attr;
       if (/has-many/.test(dasherizedType)) {
         var camelizedNamePlural = inflection.pluralize(camelizedName);
-        var attr = dsAttr(dasherizedForeignModelSingular, dasherizedType);
+        attr = dsAttr(dasherizedForeignModelSingular, dasherizedType);
         attrs.push(camelizedNamePlural + ': ' + attr);
       } else if (/belongs-to/.test(dasherizedType)) {
-        var attr = dsAttr(dasherizedForeignModel, dasherizedType)
+        attr = dsAttr(dasherizedForeignModel, dasherizedType);
         attrs.push(camelizedName + ': ' + attr);
       } else {
-        var attr = dsAttr(dasherizedName, dasherizedType)
+        attr = dsAttr(dasherizedName, dasherizedType);
         attrs.push(camelizedName + ': ' + attr);
       }
 
@@ -49,7 +49,7 @@ module.exports = {
     }
     var needsDeduplicated = needs.filter(function(need, i) {
       return needs.indexOf(need) === i;
-    })
+    });
 
     attrs = attrs.join(',' + EOL + '  ');
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
