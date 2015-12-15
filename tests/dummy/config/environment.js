@@ -1,7 +1,9 @@
 /* jshint node: true */
 
 var fs = require('fs');
-var featuresJson = fs.readFileSync('config/features.json', { encoding: 'utf8' });
+var path = require('path');
+var featuresJsonPath = path.join(__dirname, '../../../config/features.json');
+var featuresJson = fs.readFileSync(featuresJsonPath, { encoding: 'utf8' });
 var featureFlags = JSON.parse(featuresJson);
 
 module.exports = function(environment) {
