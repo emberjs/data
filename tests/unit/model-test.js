@@ -415,8 +415,8 @@ test("a DS.Model can have a defaultValue without an attribute type", function(as
   assert.equal(get(tag, 'name'), "unknown", "the default value is found");
 });
 
-test("Calling attr(), belongsTo() or hasMany() throws a warning", function(assert) {
-  assert.expect(3);
+test("Calling attr() throws a warning", function(assert) {
+  assert.expect(1);
 
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -432,14 +432,6 @@ test("Calling attr(), belongsTo() or hasMany() throws a warning", function(asser
     assert.throws(function() {
       person.attr();
     }, /The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected/, "attr() throws a warning");
-
-    assert.throws(function() {
-      person.belongsTo();
-    }, /The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected/, "belongTo() throws a warning");
-
-    assert.throws(function() {
-      person.hasMany();
-    }, /The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected/, "hasMany() throws a warning");
   });
 });
 
