@@ -13,6 +13,7 @@ install:
 script:
   - ./bin/lint-features
   - npm run-script test
+  - npm run-script node-tests
 after_success:
   - npm run-script production
   - "./bin/bower-ember-data-build"
