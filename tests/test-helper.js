@@ -15,6 +15,7 @@ import {
 } from 'dummy/tests/helpers/warns';
 import addEmberAssertions from 'dummy/tests/helpers/ember-assertions';
 import Ember from 'ember';
+import './ember-data-initializers';
 
 
 setResolver(resolver);

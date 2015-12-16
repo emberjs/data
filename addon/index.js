@@ -82,8 +82,8 @@ import {
 } from "ember-data/-private/transforms";
 
 import {hasMany, belongsTo} from "ember-data/-private/system/relationships";
-import "ember-data/-private/ember-initializer";
 import setupContainer from "ember-data/-private/setup-container";
+import initializeStoreService from 'ember-data/-private/instance-initializers/initialize-store-service';
 
 import ContainerProxy from "ember-data/-private/system/container-proxy";
 import Relationship from "ember-data/-private/system/relationships/state/relationship";
@@ -148,6 +148,7 @@ DS.Relationship  = Relationship;
 DS.ContainerProxy = ContainerProxy;
 
 DS._setupContainer = setupContainer;
+DS._initializeStoreService = initializeStoreService;
 
 Object.defineProperty(DS, 'normalizeModelName', {
   enumerable: true,
