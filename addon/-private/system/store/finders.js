@@ -54,10 +54,10 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
 
 
 export function _findMany(adapter, store, typeClass, ids, internalModels) {
-  var snapshots = Ember.A(internalModels).invoke('createSnapshot');
-  var promise = adapter.findMany(store, typeClass, ids, snapshots);
-  var serializer = serializerForAdapter(store, adapter, typeClass.modelName);
-  var label = "DS: Handle Adapter#findMany of " + typeClass;
+  let snapshots = Ember.A(internalModels).invoke('createSnapshot');
+  let promise = adapter.findMany(store, typeClass, ids, snapshots);
+  let serializer = serializerForAdapter(store, adapter, typeClass.modelName);
+  let label = "DS: Handle Adapter#findMany of " + typeClass;
 
   if (promise === undefined) {
     throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
@@ -69,10 +69,16 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
   return promise.then(function(adapterPayload) {
     assert("You made a `findMany` request for a " + typeClass.typeClassKey + " with ids " + ids + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
+      let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
       //TODO Optimize, no need to materialize here
-      var records = store.push(payload);
-      return records.map((record) => record._internalModel);
+      let records = store.push(payload);
+      let internalModels = new Array(records.length);
+
+      for (let i = 0, l = records.length; i < l; i++) {
+        internalModels[i] = records[i]._internalModel;
+      }
+
+      return internalModels;
     });
   }, null, "DS: Extract payload of " + typeClass);
 }

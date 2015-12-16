@@ -166,15 +166,21 @@ ManyRelationship.prototype.fetchLink = function() {
 };
 
 ManyRelationship.prototype.findRecords = function() {
+  let manyArray = this.manyArray.toArray();
+  let internalModels = new Array(manyArray.length);
+
+  for (let i = 0, l = manyArray.length; i < l; i++) {
+    internalModels[i] = manyArray[i]._internalModel;
+  }
+
   //TODO CLEANUP
-  return this.store.findMany(this.manyArray.toArray().map((rec) => rec._internalModel)).
-    then(() => {
-      if (!this.manyArray.get('isDestroyed')) {
-        //Goes away after the manyArray refactor
-        this.manyArray.set('isLoaded', true);
-      }
-      return this.manyArray;
-    });
+  return this.store.findMany(internalModels).then(() => {
+    if (!this.manyArray.get('isDestroyed')) {
+      //Goes away after the manyArray refactor
+      this.manyArray.set('isLoaded', true);
+    }
+    return this.manyArray;
+  });
 };
 ManyRelationship.prototype.notifyHasManyChanged = function() {
   this.record.notifyHasManyAdded(this.key);

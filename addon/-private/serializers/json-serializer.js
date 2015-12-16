@@ -453,13 +453,17 @@ export default Serializer.extend({
         documentHash.included = included;
       }
     } else {
-      documentHash.data = payload.map((item) => {
+      let ret = new Array(payload.length);
+      for (let i = 0, l = payload.length; i < l; i++) {
+        let item = payload[i];
         let { data, included } = this.normalize(primaryModelClass, item);
         if (included) {
           documentHash.included.push(...included);
         }
-        return data;
-      });
+        ret[i] = data;
+      }
+
+      documentHash.data = ret;
     }
 
     return documentHash;
@@ -644,7 +648,13 @@ export default Serializer.extend({
             data = this.extractRelationship(relationshipMeta.type, relationshipHash);
           }
         } else if (relationshipMeta.kind === 'hasMany') {
-          data = Ember.isNone(relationshipHash) ? null : relationshipHash.map((item) => this.extractRelationship(relationshipMeta.type, item));
+          if (!Ember.isNone(relationshipHash)) {
+            data = new Array(relationshipHash.length);
+            for (let i = 0, l = relationshipHash.length; i < l; i++) {
+              let item = relationshipHash[i];
+              data[i] = this.extractRelationship(relationshipMeta.type, item);
+            }
+          }
         }
         relationship = { data };
       }

@@ -348,11 +348,17 @@ export default Ember.Mixin.create({
   */
   _generateSerializedHasMany(snapshot, relationship) {
     let hasMany = snapshot.hasMany(relationship.key);
-    return Ember.A(hasMany).map((embeddedSnapshot) => {
-      var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
+    let manyArray = Ember.A(hasMany);
+    let ret = new Array(manyArray.length);
+
+    for (let i = 0, l = manyArray.length; i < l; i++) {
+      let embeddedSnapshot = manyArray[i];
+      let embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
-      return embeddedJson;
-    });
+      ret[i] = embeddedJson;
+    }
+
+    return ret;
   },
 
   /**
@@ -450,11 +456,15 @@ export default Ember.Mixin.create({
   */
   _extractEmbeddedHasMany(store, key, hash, relationshipMeta) {
     let relationshipHash = get(hash, `data.relationships.${key}.data`);
+
     if (!relationshipHash) {
       return;
     }
 
-    let hasMany = relationshipHash.map(item => {
+    let hasMany = new Array(relationshipHash.length);
+
+    for (let i = 0, l = relationshipHash.length; i < l; i++) {
+      let item = relationshipHash[i];
       let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
       hash.included = hash.included || [];
       hash.included.push(data);
@@ -462,8 +472,8 @@ export default Ember.Mixin.create({
         hash.included.push(...included);
       }
 
-      return { id: data.id, type: data.type };
-    });
+      hasMany[i] = { id: data.id, type: data.type };
+    }
 
     let relationship = { data: hasMany };
     set(hash, `data.relationships.${key}`, relationship);
