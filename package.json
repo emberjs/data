@@ -11,7 +11,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:testall",
-    "node-tests": "mocha node-tests/blueprints/*-test.js",
+    "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
     "bower": "bower install",
     "production": "ember build --environment=production"
@@ -48,13 +48,14 @@
     "broccoli-yuidoc": "^2.1.0",
     "ember-cli": "1.13.12",
     "ember-cli-app-version": "0.5.0",
-    "ember-cli-blueprint-test-helpers": "^0.5.0",
+    "ember-cli-blueprint-test-helpers": "^0.6.0",
     "ember-cli-content-security-policy": "0.4.0",
     "ember-cli-dependency-checker": "^1.0.1",
     "ember-cli-htmlbars": "0.7.9",
     "ember-cli-htmlbars-inline-precompile": "^0.2.0",
     "ember-cli-ic-ajax": "0.2.1",
     "ember-cli-inject-live-reload": "^1.3.1",
+    "ember-cli-internal-test-helpers": "^0.5.0",
     "ember-cli-qunit": "^1.0.0",
     "ember-cli-release": "0.2.3",
     "ember-cli-uglify": "^1.2.0",
@@ -65,8 +66,11 @@
     "ember-try": "0.0.6",
     "ember-watson": "^0.7.0",
     "git-repo-version": "^0.3.0",
+    "glob": "^5.0.13",
     "lodash.assign": "^3.2.0",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "mocha-only-detector": "0.0.2",
+    "rimraf": "^2.3.2"
   },
   "peerDependencies": {
     "ember-inflector": "^1.9.4"
