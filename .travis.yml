@@ -16,7 +16,7 @@ script:
   - npm run-script node-tests
 after_success:
   - npm run-script production
-  - "./bin/bower-ember-data-build"
+  - "./bin/publish-builds"
 env:
   global:
   - BROCCOLI_ENV="production"
