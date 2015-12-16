@@ -12,3 +12,5 @@ dist/
 bower.json
 Brocfile.js
 testem.json
+*.gem
+node-tests/
