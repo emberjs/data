@@ -11,10 +11,13 @@ import {
   AbortError
 } from 'ember-data/-private/adapters/errors';
 import EmptyObject from "ember-data/-private/system/empty-object";
-var get = Ember.get;
-var MapWithDefault = Ember.MapWithDefault;
-
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
+import isEnabled from 'ember-data/-private/features';
+
+const {
+  MapWithDefault,
+  get
+} = Ember;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -372,7 +375,10 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'findRecord'), 'GET');
+    const url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
+    const query = this.buildQuery(snapshot);
+
+    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -390,13 +396,12 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
-    var query, url;
+    const url = this.buildURL(type.modelName, null, null, 'findAll');
+    const query = this.buildQuery(snapshotRecordArray);
 
     if (sinceToken) {
-      query = { since: sinceToken };
+      query.since = sinceToken;
     }
-
-    url = this.buildURL(type.modelName, null, null, 'findAll');
 
     return this.ajax(url, 'GET', { data: query });
   },
@@ -959,6 +964,20 @@ export default Adapter.extend(BuildURLMixin, {
     return ['Ember Data Request ' + requestDescription + ' returned a ' + status,
             payloadDescription,
             shortenedPayload].join('\n');
+  },
+
+  buildQuery(snapshot) {
+    const { include } = snapshot;
+
+    let query = {};
+
+    if (isEnabled('ds-finder-include')) {
+      if (include) {
+        query.include = include;
+      }
+    }
+
+    return query;
   }
 });
 

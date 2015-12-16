@@ -4,6 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 var env, store, adapter, Post, Comment, SuperUser;
 var passedUrl, passedVerb, passedHash;
@@ -56,7 +57,7 @@ test("findRecord - basic payload", function(assert) {
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -83,7 +84,7 @@ test("find - basic payload (with legacy singular name)", function(assert) {
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -101,7 +102,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -121,7 +122,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -143,7 +144,7 @@ test("findRecord - payload with an serializer-specified primary key", function(a
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -167,13 +168,30 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
     assert.equal(post.get('createdAt'), 2013);
   }));
 });
+
+if (isEnabled('ds-finder-include')) {
+  test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
+    adapter.ajax = function(url, verb, hash) {
+      assert.deepEqual(hash.data, { include: 'comments' },
+        '`include` parameter sent to adapter.ajax');
+
+      return run(Ember.RSVP, 'resolve', {
+        post: { id: 1, name: 'Rails is very expensive sushi' }
+      });
+    };
+
+    run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
+      // Noop
+    }));
+  });
+}
 
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
   ajaxResponse();
@@ -983,7 +1001,7 @@ test("findAll - returning an array populates the array", function(assert) {
   store.findAll('post').then(assert.wait(function(posts) {
     assert.equal(passedUrl, "/posts");
     assert.equal(passedVerb, "GET");
-    assert.equal(passedHash.data, undefined);
+    assert.deepEqual(passedHash.data, {});
 
     var post1 = store.peekRecord('post', 1);
     var post2 = store.peekRecord('post', 2);
@@ -1027,6 +1045,23 @@ test("findAll - passes buildURL the requestType", function(assert) {
     assert.equal(passedUrl, "/findAll/posts");
   }));
 });
+
+if (isEnabled('ds-finder-include')) {
+  test("findAll - passed `include` as a query parameter to ajax", function(assert) {
+    adapter.ajax = function(url, verb, hash) {
+      assert.deepEqual(hash.data, { include: 'comments' },
+        '`include` params sent to adapter.ajax');
+
+      return run(Ember.RSVP, 'resolve', {
+        posts: [{ id: 1, name: 'Rails is very expensive sushi' }]
+      });
+    };
+
+    run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
+      // Noop
+    }));
+  });
+}
 
 test("findAll - returning sideloaded data loads the data", function(assert) {
   ajaxResponse({
@@ -1473,7 +1508,7 @@ test("findMany - findMany does not coalesce by default", function(assert) {
   });
   run(post, 'get', 'comments').then(assert.wait(function(comments) {
     assert.equal(passedUrl, "/comments/3");
-    assert.equal(passedHash, null);
+    assert.deepEqual(passedHash.data, {});
   }));
 });
 

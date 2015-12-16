@@ -251,10 +251,7 @@ InternalModel.prototype = {
     @private
   */
   createSnapshot(options) {
-    var adapterOptions = options && options.adapterOptions;
-    var snapshot = new Snapshot(this);
-    snapshot.adapterOptions = adapterOptions;
-    return snapshot;
+    return new Snapshot(this, options);
   },
 
   /**
