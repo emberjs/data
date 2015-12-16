@@ -351,7 +351,7 @@ export default Ember.Mixin.create({
     let manyArray = Ember.A(hasMany);
     let ret = new Array(manyArray.length);
 
-    for (let i = 0, l = manyArray.length; i < l; i++) {
+    for (let i = 0; i < manyArray.length; i++) {
       let embeddedSnapshot = manyArray[i];
       let embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
