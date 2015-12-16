@@ -1,10 +1,10 @@
 function fileMap(revision,tag,date) {
   return {
-    'ember-data.js': fileObject('ember-data',             '.js',   'text/javascript',  revision, tag, date),
-    'ember-data.js.map': fileObject('ember-data.js',      '.map',  'application/json', revision, tag, date),
-    'ember-data.min.js': fileObject('ember-data.min',     '.js',   'text/javascript',  revision, tag, date),
-    'ember-data.prod.js': fileObject('ember-data.prod',   '.js',   'text/javascript',  revision, tag, date),
-    'docs/data.json':  fileObject('ember-data-docs',   '.json', 'application/json', revision, tag, date)
+    'globals/ember-data.js':      fileObject('ember-data',      '.js',   'text/javascript',  revision, tag, date),
+    'globals/ember-data.js.map':  fileObject('ember-data.js',   '.map',  'application/json', revision, tag, date),
+    'globals/ember-data.min.js':  fileObject('ember-data.min',  '.js',   'text/javascript',  revision, tag, date),
+    'globals/ember-data.prod.js': fileObject('ember-data.prod', '.js',   'text/javascript',  revision, tag, date),
+    'docs/data.json':             fileObject('ember-data-docs', '.json', 'application/json', revision, tag, date)
   };
 }
 
