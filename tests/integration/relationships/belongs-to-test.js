@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import isEnabled from 'ember-data/-private/features';
 
 import {module, test} from 'qunit';
 
@@ -1122,7 +1123,7 @@ test("Updated related link should take precedence over local data", function(ass
   });
 });
 
-if (Ember.FEATURES.isEnabled('ds-references')) {
+if (isEnabled('ds-references')) {
 
   test("A belongsTo relationship can be reloaded using the reference if it was fetched via link", function(assert) {
     var done = assert.async();
