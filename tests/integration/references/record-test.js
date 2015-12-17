@@ -30,9 +30,9 @@ if (isEnabled("ds-references")) {
   test("a RecordReference can be retrieved via store.getReference(type, id)", function(assert) {
     var recordReference = env.store.getReference('person', 1);
 
-    assert.equal(recordReference.remoteType, 'identity');
+    assert.equal(recordReference.remoteType(), 'identity');
     assert.equal(recordReference.type, 'person');
-    assert.equal(recordReference.id, 1);
+    assert.equal(recordReference.id(), 1);
   });
 
   test("push(object)", function(assert) {

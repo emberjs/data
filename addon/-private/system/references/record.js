@@ -4,13 +4,20 @@ import Reference from './reference';
 var RecordReference = function(store, internalModel) {
   this._super$constructor(store, internalModel);
   this.type = internalModel.modelName;
-  this.id = internalModel.id;
-  this.remoteType = 'identity';
+  this._id = internalModel.id;
 };
 
 RecordReference.prototype = Object.create(Reference.prototype);
 RecordReference.prototype.constructor = RecordReference;
 RecordReference.prototype._super$constructor = Reference;
+
+RecordReference.prototype.id = function() {
+  return this._id;
+};
+
+RecordReference.prototype.remoteType = function() {
+  return 'identity';
+};
 
 RecordReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((data) => {
@@ -24,7 +31,7 @@ RecordReference.prototype.value = function() {
 };
 
 RecordReference.prototype.load = function() {
-  return this.store.findRecord(this.type, this.id);
+  return this.store.findRecord(this.type, this._id);
 };
 
 RecordReference.prototype.reload = function() {
