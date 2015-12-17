@@ -17,7 +17,6 @@ import VERSION from 'ember-data/version';
   @type String
   @static
 */
-/*jshint -W079 */
 var DS = Ember.Namespace.create({
   VERSION: VERSION
 });
@@ -25,9 +24,5 @@ var DS = Ember.Namespace.create({
 if (Ember.libraries) {
   Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
 }
-
-// var EMBER_DATA_FEATURES = EMBER_DATA_FEATURES_PLACEHOLDER; //jshint ignore: line
-
-// Ember.merge(Ember.FEATURES, EMBER_DATA_FEATURES);
 
 export default DS;
