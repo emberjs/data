@@ -560,54 +560,54 @@ test("relationshipsByName does not cache a factory", function(assert) {
 test("relationshipsByName is cached in production", function(assert) {
   var model = store.modelFor('user');
   var oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //We set volatile to false because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
   var relationshipsByName = getComputedPropertyDesc(model, 'relationshipsByName');
-  var oldCacheable = relationshipsByName._cacheable;
-  relationshipsByName._cacheable = true;
+  var oldVolatile = relationshipsByName._volatile;
+  relationshipsByName._volatile = false;
   Ember.testing = false;
   try {
     assert.equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
     assert.equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
   } finally {
     Ember.testing = oldTesting;
-    relationshipsByName._cacheable = oldCacheable;
+    relationshipsByName._volatile = oldVolatile;
   }
 });
 
 test("relatedTypes is cached in production", function(assert) {
   var model = store.modelFor('user');
   var oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //We set volatile to false because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
   var relatedTypes = getComputedPropertyDesc(model, 'relatedTypes');
-  var oldCacheable = relatedTypes._cacheable;
-  relatedTypes._cacheable = true;
+  var oldVolatile = relatedTypes._volatile;
+  relatedTypes._volatile = false;
   Ember.testing = false;
   try {
     assert.equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
     assert.equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
   } finally {
     Ember.testing = oldTesting;
-    relatedTypes._cacheable = oldCacheable;
+    relatedTypes._volatile = oldVolatile;
   }
 });
 
 test("relationships is cached in production", function(assert) {
   var model = store.modelFor('user');
   var oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //We set volatile to false because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
   var relationships = getComputedPropertyDesc(model, 'relationships');
-  var oldCacheable = relationships._cacheable;
-  relationships._cacheable = true;
+  var oldVolatile = relationships._volatile;
+  relationships._volatile = false;
   Ember.testing = false;
   try {
     assert.equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
     assert.equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
   } finally {
     Ember.testing = oldTesting;
-    relationships._cacheable = oldCacheable;
+    relationships._volatile = oldVolatile;
   }
 });
 
