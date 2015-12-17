@@ -1,6 +1,6 @@
 {
   "framework": "qunit",
-  "test_page": "tests/index.html?hidepassed",
+  "test_page": "./tests/index.html?hidepassed",
   "disable_watching": true,
   "launch_in_ci": [
     "SL_Chrome_Current",
@@ -10,6 +10,8 @@
     "SL_IE_10",
     "SL_IE_9",
     "SL_Firefox_Current",
+    "SL_iphone_9.1",
+    "SL_iphone_8.4",
     "PhantomJS"
   ],
   "launchers": {
@@ -43,6 +45,14 @@
     },
     "SL_IE_9": {
       "command": "npm run sauce:launch  -- -b 'internet explorer' -v 9 --no-ct -u <url>",
+      "protocol": "tap"
+    },
+    "SL_iphone_9.1": {
+      "command": "npm run sauce:launch -- -b 'iphone' -v 9.1 --dn 'iPhone 6 --platform 'OS X 10.10' --no-ct -u <url>",
+      "protocol": "tap"
+    },
+    "SL_iphone_8.4": {
+      "command": "npm run sauce:launch -- -b 'iphone' -v 8.4 --no-ct -u <url>",
       "protocol": "tap"
     }
   }

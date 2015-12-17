@@ -4,6 +4,7 @@ var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
 var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
+var es3      = require('broccoli-es3-safe-recast');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
@@ -23,10 +24,13 @@ module.exports = function(defaults) {
 
   var appTree = app.toTree();
 
+  var tree;
   if (process.env.EMBER_ENV === 'production') {
     var globalsBuild = globals('addon', 'config/package-manager-files');
-    return merge([appTree, globalsBuild, yuidoc()]);
+    tree = merge([appTree, globalsBuild, yuidoc()]);
   } else {
-    return appTree;
+    tree = appTree;
   }
+
+  return es3(tree);
 };
