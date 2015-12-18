@@ -67,11 +67,13 @@
     "ember-try": "0.0.6",
     "ember-watson": "^0.7.0",
     "git-repo-version": "^0.3.0",
+    "github": "^0.2.4",
     "glob": "^5.0.13",
     "lodash.assign": "^3.2.0",
     "mocha": "^2.3.4",
     "mocha-only-detector": "0.0.2",
-    "rimraf": "^2.3.2"
+    "rimraf": "^2.3.2",
+    "rsvp": "^3.1.0"
   },
   "peerDependencies": {
     "ember-inflector": "^1.9.4"
