@@ -111,7 +111,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     } else if (Array.isArray(documentHash.data)) {
       let ret = new Array(documentHash.data.length);
 
-      for (let i = 0, l = documentHash.data.length; i < l; i++) {
+      for (let i = 0; i < documentHash.data.length; i++) {
         let data = documentHash.data[i];
         ret[i] = this._normalizeResourceHelper(data);
       }
@@ -122,7 +122,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (Array.isArray(documentHash.included)) {
       let ret = new Array(documentHash.included.length);
 
-      for (let i = 0, l = documentHash.included.length; i < l; i++) {
+      for (let i = 0; i < documentHash.included.length; i++) {
         let included = documentHash.included[i];
         ret[i] = this._normalizeResourceHelper(included);
       }
@@ -232,7 +232,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (Array.isArray(relationshipHash.data)) {
       let ret = new Array(relationshipHash.data.length);
 
-      for (let i = 0, l = relationshipHash.data.length; i < l; i++) {
+      for (let i = 0; i < relationshipHash.data.length; i++) {
         let data = relationshipHash.data[i];
         ret[i] = this._normalizeRelationshipDataHelper(data);
       }
@@ -479,7 +479,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
         let data = new Array(hasMany.length);
 
-        for (let i = 0, l = hasMany.length; i < l; i++) {
+        for (let i = 0; i < hasMany.length; i++) {
           let item = hasMany[i];
           data[i] = {
             type: this.payloadKeyFromModelName(item.modelName),

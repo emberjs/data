@@ -276,7 +276,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     let messagesArray = makeArray(messages);
     let _messages = new Array(messagesArray.length);
 
-    for (let i = 0, l = messagesArray.length; i < l; i++) {
+    for (let i = 0; i < messagesArray.length; i++) {
       let message = messagesArray[i];
       let err = errors.findBy('message', message);
       if (err) {

@@ -579,7 +579,7 @@ InternalModel.prototype = {
     assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
     let recordsToSet = new Array(preloadValue.length);
 
-    for (let i = 0, l = preloadValue.length; i < l; i++) {
+    for (let i = 0; i < preloadValue.length; i++) {
       let recordToPush = preloadValue[i];
       recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, type);
     }

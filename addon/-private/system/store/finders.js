@@ -74,7 +74,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
       let records = store.push(payload);
       let internalModels = new Array(records.length);
 
-      for (let i = 0, l = records.length; i < l; i++) {
+      for (let i = 0; i < records.length; i++) {
         internalModels[i] = records[i]._internalModel;
       }
 
