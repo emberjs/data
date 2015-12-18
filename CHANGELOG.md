@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.3.0-beta.4 (December 18, 2015)
+- [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
+- [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
+- [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
+- [#4003](https://github.com/emberjs/data/pull/4003) Only run the Ember.onload initializers in globals mode
+- [#4010](https://github.com/emberjs/data/pull/4010) [DOC beta] Mark comments as private
+- [#4014](https://github.com/emberjs/data/pull/4014) Register the version before the DEBUG version are printed when loadin…
+
 ### Release 2.3.0-beta.3 (December 14, 2015)
 - [#3995](https://github.com/emberjs/data/pull/3995) [BUGFIX beta] Implement public module API.
 
