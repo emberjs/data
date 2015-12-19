@@ -1082,18 +1082,12 @@ test("findAll - data is normalized through custom serializers", function(assert)
 });
 
 test("query - if `sortQueryParams` option is not provided, query params are sorted alphabetically", function(assert) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
-
-    assert.deepEqual(Object.keys(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
-
-    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  ajaxResponse({
+    posts: [{ id: 1, name: "Rails is very expensive sushi" }]
+  });
 
   store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
-    // Noop
+    assert.deepEqual(Object.keys(passedHash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
   }));
 });
 
@@ -1102,45 +1096,31 @@ test("query - passes buildURL the requestType", function(assert) {
     return "/" + requestType + "/posts";
   };
 
-  adapter.ajax = function(url, verb, hash) {
-    assert.equal(url, '/query/posts');
-
-    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  ajaxResponse({
+    posts: [{ id: 1, name: "Rails is very expensive sushi" }]
+  });
 
   store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
-    // NOOP
+    assert.equal(passedUrl, '/query/posts');
   }));
 });
 
 test("query - if `sortQueryParams` is falsey, query params are not sorted at all", function(assert) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
-
-    assert.deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
-
-    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  ajaxResponse({
+    posts: [{ id: 1, name: "Rails is very expensive sushi" }]
+  });
 
   adapter.sortQueryParams = null;
 
   store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
-    // Noop
+    assert.deepEqual(Object.keys(passedHash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
   }));
 });
 
 test("query - if `sortQueryParams` is a custom function, query params passed through that function", function(assert) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
-
-    assert.deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
-
-    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  ajaxResponse({
+    posts: [{ id: 1, name: "Rails is very expensive sushi" }]
+  });
 
   adapter.sortQueryParams = function(obj) {
     var sortedKeys = Object.keys(obj).sort().reverse();
@@ -1154,7 +1134,7 @@ test("query - if `sortQueryParams` is a custom function, query params passed thr
   };
 
   store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(assert.wait(function() {
-    // Noop
+    assert.deepEqual(Object.keys(passedHash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
   }));
 });
 
