@@ -30,6 +30,7 @@
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-version-checker": "^1.1.4",
+    "ember-inflector": "^1.9.4",
     "inflection": "^1.8.0",
     "silent-error": "^1.0.0"
   },
@@ -62,7 +63,6 @@
     "ember-disable-prototype-extensions": "^1.0.0",
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.3",
-    "ember-inflector": "^1.9.4",
     "ember-publisher": "0.0.7",
     "ember-try": "0.0.6",
     "ember-watson": "^0.7.0",
