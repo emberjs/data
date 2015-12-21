@@ -3,6 +3,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 const AssertionPrototype = QUnit.assert;
 
@@ -418,14 +419,6 @@ test("a DS.Model can have a defaultValue without an attribute type", function(as
 test("Calling attr() throws a warning", function(assert) {
   assert.expect(1);
 
-  var Person = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var store = createStore({
-    person: Person
-  });
-
   run(function() {
     var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
@@ -434,6 +427,32 @@ test("Calling attr() throws a warning", function(assert) {
     }, /The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected/, "attr() throws a warning");
   });
 });
+
+if (!isEnabled('ds-references')) {
+  test("Calling belongsTo() throws a warning", function(assert) {
+    assert.expect(1);
+
+    run(function() {
+      var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+
+      assert.throws(function() {
+        person.belongsTo();
+      }, /The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected/, "belongsTo() throws a warning");
+    });
+  });
+
+  test("Calling hasMany() throws a warning", function(assert) {
+    assert.expect(1);
+
+    run(function() {
+      var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+
+      assert.throws(function() {
+        person.hasMany();
+      }, /The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected/, "hasMany() throws a warning");
+    });
+  });
+}
 
 test("supports pushedData in root.deleted.uncommitted", function(assert) {
   var record;
