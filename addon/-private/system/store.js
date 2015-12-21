@@ -93,7 +93,7 @@ if (!Backburner.prototype.join) {
         return method.call(target);
       } else {
         var args = new Array(length - 2);
-        for (var i =0, l = length - 2; i < l; i++) {
+        for (var i = 0; i < args.length; i++) {
           args[i] = arguments[i + 2];
         }
         return method.apply(target, args);
@@ -581,7 +581,7 @@ Store = Service.extend({
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     let promises = new Array(ids.length);
 
-    for (let i = 0, l = ids.length; i < l; i++) {
+    for (let i = 0; i < ids.length; i++) {
       promises[i] = this.findRecord(modelName, ids[i]);
     }
 
@@ -614,11 +614,11 @@ Store = Service.extend({
   scheduleFetchMany(records) {
     let internalModels = new Array(records.length);
     let fetches = new Array(records.length);
-    for (let i = 0, l = records.length; i < l; i++) {
+    for (let i = 0; i < records.length; i++) {
       internalModels[i] = records[i]._internalModel;
     }
 
-    for (let i = 0, l = internalModels.length; i < l; i++) {
+    for (let i = 0; i < internalModels.length; i++) {
       fetches[i] = this.scheduleFetch(internalModels[i]);
     }
 
@@ -855,7 +855,7 @@ Store = Service.extend({
   findMany(internalModels) {
     let finds = new Array(internalModels.length);
 
-    for (let i = 0, l = internalModels.length; i < l; i++) {
+    for (let i = 0; i < internalModels.length; i++) {
       finds[i] = this._findByInternalModel(internalModels[i]);
     }
 
@@ -1120,7 +1120,7 @@ Store = Service.extend({
       let keys = Object.keys(typeMaps);
       let types = new Array(keys.length);
 
-      for (let i = 0, l = keys.length; i < l; i++) {
+      for (let i = 0; i < keys.length; i++) {
         types[i] = typeMaps[keys[i]]['type'].modelName;
       }
 
@@ -2120,7 +2120,7 @@ function deserializeRecordIds(store, key, relationship, ids) {
   assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, isArray(ids));
   let _ids = new Array(ids.length);
 
-  for (let i = 0, l = ids.length; i < l; i++) {
+  for (let i = 0; i < ids.length; i++) {
     _ids[i] = deserializeRecordId(store, key, relationship, ids[i]);
   }
 

@@ -463,7 +463,7 @@ export default Ember.Mixin.create({
 
     let hasMany = new Array(relationshipHash.length);
 
-    for (let i = 0, l = relationshipHash.length; i < l; i++) {
+    for (let i = 0; i < relationshipHash.length; i++) {
       let item = relationshipHash[i];
       let { data, included } = this._normalizeEmbeddedRelationship(store, relationshipMeta, item);
       hash.included = hash.included || [];

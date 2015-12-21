@@ -138,7 +138,7 @@ export default Ember.Object.extend({
     var records = typeMap.records;
     var record;
 
-    for (var i = 0, l = records.length; i < l; i++) {
+    for (var i = 0; i < records.length; i++) {
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
@@ -164,7 +164,7 @@ export default Ember.Object.extend({
     var records = typeMap.records;
     var record;
 
-    for (var i = 0, l = records.length; i < l; i++) {
+    for (var i = 0; i < records.length; i++) {
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {

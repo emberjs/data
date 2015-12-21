@@ -169,7 +169,7 @@ ManyRelationship.prototype.findRecords = function() {
   let manyArray = this.manyArray.toArray();
   let internalModels = new Array(manyArray.length);
 
-  for (let i = 0, l = manyArray.length; i < l; i++) {
+  for (let i = 0; i < manyArray.length; i++) {
     internalModels[i] = manyArray[i]._internalModel;
   }
 
