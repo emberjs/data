@@ -4,6 +4,7 @@
 
 import Ember from 'ember';
 import RESTAdapter from "ember-data/adapters/rest";
+import isEnabled from 'ember-data/-private/features';
 
 /**
   @class JSONAPIAdapter
@@ -11,7 +12,7 @@ import RESTAdapter from "ember-data/adapters/rest";
   @namespace DS
   @extends DS.RESTAdapter
 */
-export default RESTAdapter.extend({
+var JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
   /**
@@ -98,8 +99,12 @@ export default RESTAdapter.extend({
     @return {Promise} promise
   */
   findMany(store, type, ids, snapshots) {
-    var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
-    return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
+    if (isEnabled('ds-improved-ajax')) {
+      return this._super(...arguments);
+    } else {
+      var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+      return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
+    }
   },
 
   /**
@@ -121,14 +126,76 @@ export default RESTAdapter.extend({
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    var data = {};
-    var serializer = store.serializerFor(type.modelName);
+    if (isEnabled('ds-improved-ajax')) {
+      return this._super(...arguments);
+    } else {
+      var data = {};
+      var serializer = store.serializerFor(type.modelName);
 
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+      serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-    var id = snapshot.id;
-    var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+      var id = snapshot.id;
+      var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, 'PATCH', { data: data });
+      return this.ajax(url, 'PATCH', { data: data });
+    }
   }
 });
+
+if (isEnabled('ds-improved-ajax')) {
+
+  JSONAPIAdapter.reopen({
+
+    methodForRequest(params) {
+      if (params.requestType === 'updateRecord') {
+        return 'PATCH';
+      }
+
+      return this._super(...arguments);
+    },
+
+    dataForRequest(params) {
+      const { requestType, ids } = params;
+
+      if (requestType === 'findMany') {
+        return {
+          filter: { id: ids.join(',') }
+        };
+      }
+
+      if (requestType === 'updateRecord') {
+        const { store, type, snapshot } = params;
+        const data = {};
+        const serializer = store.serializerFor(type.modelName);
+
+        serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+
+        return data;
+      }
+
+      return this._super(...arguments);
+    },
+
+    headersForRequest() {
+      const headers = this._super(...arguments) || {};
+
+      headers['Accept'] = 'application/vnd.api+json';
+
+      return headers;
+    },
+
+    _requestToJQueryAjaxHash() {
+      const hash = this._super(...arguments);
+
+      if (hash.contentType) {
+        hash.contentType = 'application/vnd.api+json';
+      }
+
+      return hash;
+    }
+
+  });
+
+}
+
+export default JSONAPIAdapter;

@@ -1,6 +1,7 @@
 {
   "ds-boolean-transform-allow-null": null,
   "ds-finder-include": null,
+  "ds-improved-ajax": null,
   "ds-references": null,
   "ds-transform-pass-options": null,
   "ds-pushpayload-return": null,

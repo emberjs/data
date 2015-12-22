@@ -5,6 +5,7 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 var store, env;
 
@@ -202,13 +203,20 @@ test("destroying the store correctly cleans everything up", function(assert) {
 
 function ajaxResponse(value) {
   var passedUrl, passedVerb, passedHash;
-  env.adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
 
-    return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
-  };
+  if (isEnabled('ds-improved-ajax')) {
+    env.adapter._makeRequest = function() {
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  } else {
+    env.adapter.ajax = function(url, verb, hash) {
+      passedUrl = url;
+      passedVerb = verb;
+      passedHash = hash;
+
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  }
 }
 
 
