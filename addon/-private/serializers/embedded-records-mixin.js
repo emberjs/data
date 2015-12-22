@@ -217,7 +217,7 @@ export default Ember.Mixin.create({
 
   _serializeEmbeddedBelongsTo: function(snapshot, json, relationship) {
     let embeddedSnapshot = snapshot.belongsTo(relationship.key);
-    let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
+    let serializedKey = this.keyForRelationship(relationship.key, 'serialize');
     if (!embeddedSnapshot) {
       json[serializedKey] = null;
     } else {
@@ -332,7 +332,7 @@ export default Ember.Mixin.create({
   },
 
   _serializeEmbeddedHasMany: function(snapshot, json, relationship) {
-    let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
+    let serializedKey = this.keyForRelationship(relationship.key, 'serialize');
 
     warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,

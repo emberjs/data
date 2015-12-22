@@ -910,7 +910,7 @@ test("serialize with embedded objects and a custom keyForAttribute (hasMany rela
   });
 
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
-    keyForAttribute: function(key) {
+    keyForRelationship: function(key) {
       return key + '-custom';
     },
     attrs: {
@@ -926,7 +926,7 @@ test("serialize with embedded objects and a custom keyForAttribute (hasMany rela
   });
 
   assert.deepEqual(json, {
-    "name-custom": "Villain League",
+    "name": "Villain League",
     "villains-custom": [{
       id: get(tom, "id"),
       firstName: "Tom",
