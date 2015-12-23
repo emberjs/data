@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import Transform from "ember-data/-private/transforms/base";
+import Transform from "ember-data/transform";
 
 var empty = Ember.isEmpty;
 

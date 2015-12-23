@@ -38,9 +38,9 @@ import {
   RootState,
   attr
 } from "ember-data/-private/system/model";
-import Model from "ember-data/-private/system/model";
+import Model from "ember-data/model";
 import Snapshot from "ember-data/-private/system/snapshot";
-import Adapter from "ember-data/-private/system/adapter";
+import Adapter from "ember-data/adapter";
 import Serializer from "ember-data/-private/system/serializer";
 import DebugAdapter from "ember-data/-private/system/debug";
 
@@ -81,7 +81,7 @@ import {
   BooleanTransform
 } from "ember-data/-private/transforms";
 
-import {hasMany, belongsTo} from "ember-data/-private/system/relationships";
+import {hasMany, belongsTo} from "ember-data/relationships";
 import setupContainer from "ember-data/-private/setup-container";
 import initializeStoreService from 'ember-data/-private/instance-initializers/initialize-store-service';
 
