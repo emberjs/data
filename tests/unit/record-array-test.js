@@ -102,10 +102,6 @@ test("stops updating when destroyed", function(assert) {
   var store = createStore({
     person: Person
   });
-  // TODO remove once
-  // https://github.com/emberjs/ember.js/commit/c3f13e85a62069295965dd49ca487fe6ddba1188
-  // is on the release branch
-  var emptyLength = Ember.meta(store).descs ? undefined : 0;
 
   var recordArray = store.peekAll('person');
   run(function() {
@@ -125,7 +121,7 @@ test("stops updating when destroyed", function(assert) {
   });
 
   run(function() {
-    assert.equal(recordArray.get('length'), emptyLength, "Has no more records");
+    assert.equal(recordArray.get('length'), 0, "Has no more records");
     store.push({
       data: {
         type: 'person',
@@ -137,10 +133,9 @@ test("stops updating when destroyed", function(assert) {
     });
   });
 
-  assert.equal(recordArray.get('length'), emptyLength, "Has not been updated");
+  assert.equal(recordArray.get('length'), 0, "Has not been updated");
   assert.equal(recordArray.get('content'), undefined, "Has not been updated");
 });
-
 
 test("a loaded record is removed from a record array when it is deleted", function(assert) {
   assert.expect(5);
