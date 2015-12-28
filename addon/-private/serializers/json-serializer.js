@@ -230,6 +230,29 @@ export default Serializer.extend({
     @return {Object} JSON-API Document
   */
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
+    let meta = this.extractMeta(store, primaryModelClass, payload);
+
+    let documentHash = this._normalizeResponseForType(...arguments);
+
+    if (meta) {
+      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      documentHash.meta = meta;
+    }
+    return documentHash;
+  },
+
+  /**
+    @method _normalizeResponseForType
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @private
+    @return {Object} JSON-API Document
+  */
+
+  _normalizeResponseForType(store, primaryModelClass, payload, id, requestType) {
     switch (requestType) {
       case 'findRecord':
         return this.normalizeFindRecordResponse(...arguments);
@@ -439,12 +462,6 @@ export default Serializer.extend({
       data: null,
       included: []
     };
-
-    let meta = this.extractMeta(store, primaryModelClass, payload);
-    if (meta) {
-      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
-      documentHash.meta = meta;
-    }
 
     if (isSingle) {
       let { data, included } = this.normalize(primaryModelClass, payload);
