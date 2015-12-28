@@ -2044,13 +2044,6 @@ Store = Service.extend({
     this.recordArrayManager.destroy();
 
     this.unloadAll();
-
-    for (var cacheKey in this._containerCache) {
-      this._containerCache[cacheKey].destroy();
-      delete this._containerCache[cacheKey];
-    }
-
-    delete this._containerCache;
   }
 
 });
