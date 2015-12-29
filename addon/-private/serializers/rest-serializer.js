@@ -3,7 +3,7 @@
 */
 
 import Ember from 'ember';
-import { assert, deprecate, runInDebug, warn } from "ember-data/-private/debug";
+import { deprecate, runInDebug, warn } from "ember-data/-private/debug";
 import JSONSerializer from "ember-data/-private/serializers/json-serializer";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import {singularize} from "ember-inflector";
@@ -224,12 +224,6 @@ var RESTSerializer = JSONSerializer.extend({
       data: null,
       included: []
     };
-
-    let meta = this.extractMeta(store, primaryModelClass, payload);
-    if (meta) {
-      assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
-      documentHash.meta = meta;
-    }
 
     var keys = Object.keys(payload);
 

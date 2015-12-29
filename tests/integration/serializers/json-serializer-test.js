@@ -803,6 +803,37 @@ test('normalizeResponse should extract meta using extractMeta', function(assert)
   assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
 });
 
+test('normalizeResponse should extract meta using extractMeta - nested records - query', function(assert) {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    extractMeta(store, modelClass, payload) {
+      let meta = this._super(...arguments);
+      meta.authors.push('Tomhuda');
+      return meta;
+    },
+
+    normalizeQueryResponse(store, primaryModelClass, payload, id, requestType) {
+      return this._super(store, primaryModelClass, payload.records.nested, id, requestType);
+    }
+  }));
+
+  var jsonHash = {
+    records: {
+      nested: [{
+        id: "1",
+        title_payload_key: "Rails is omakase",
+        my_comments: [1, 2]
+      }]
+    },
+    meta: {
+      authors: ['Tomster']
+    }
+  };
+
+  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'query');
+
+  assert.deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
+});
+
 test('normalizeResponse returns empty `included` payload by default', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend());
 
