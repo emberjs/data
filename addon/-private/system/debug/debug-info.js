@@ -1,4 +1,4 @@
-import Model from "ember-data/-private/system/model";
+import Model from "ember-data/model";
 
 Model.reopen({
 

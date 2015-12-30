@@ -4,7 +4,7 @@ import {
   typeForRelationshipMeta,
   relationshipFromMeta
 } from "ember-data/-private/system/relationship-meta";
-import Model from "ember-data/-private/system/model";
+import Model from "ember-data/model";
 import EmptyObject from "ember-data/-private/system/empty-object";
 
 var get = Ember.get;

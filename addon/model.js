@@ -1,1 +1,3 @@
-export { default } from "ember-data/-private/system/model";
+import Model from "ember-data/-private/system/model";
+
+export default Model;
