@@ -518,13 +518,13 @@ export default Adapter.extend(BuildURLMixin, {
     This method will be called with the parent record and `/posts/1/comments`.
 
     The `findHasMany` method will make an Ajax (HTTP GET) request to the originally specified URL.
-    
+
     The format of your `links` value will influence the final request URL via the `urlPrefix` method:
-    
+
     * Links beginning with `//`, `http://`, `https://`, will be used as is, with no further manipulation.
-    
+
     * Links beginning with a single `/` will have the current adapter's `host` value prepended to it.
-    
+
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findHasMany
@@ -562,13 +562,13 @@ export default Adapter.extend(BuildURLMixin, {
     This method will be called with the parent record and `/people/1/group`.
 
     The `findBelongsTo` method will make an Ajax (HTTP GET) request to the originally specified URL.
-    
+
     The format of your `links` value will influence the final request URL via the `urlPrefix` method:
-    
+
     * Links beginning with `//`, `http://`, `https://`, will be used as is, with no further manipulation.
-    
+
     * Links beginning with a single `/` will have the current adapter's `host` value prepended to it.
-    
+
     * Links with no beginning `/` will have a parentURL prepended to it, via the current adapter's `buildURL`.
 
     @method findBelongsTo
