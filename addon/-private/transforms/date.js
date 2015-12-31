@@ -18,7 +18,7 @@
   @extends DS.Transform
   @namespace DS
  */
-import Transform from "ember-data/-private/transforms/base";
+import Transform from "ember-data/transform";
 
 export default Transform.extend({
   deserialize: function(serialized) {

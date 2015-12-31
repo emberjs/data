@@ -2,8 +2,8 @@
   @module ember-data
 */
 
-import JSONAPIAdapter from "ember-data/-private/adapters/json-api-adapter";
-import RESTAdapter from "ember-data/-private/adapters/rest-adapter";
+import JSONAPIAdapter from "ember-data/adapters/json-api";
+import RESTAdapter from "ember-data/adapters/rest";
 
 export {
   JSONAPIAdapter,

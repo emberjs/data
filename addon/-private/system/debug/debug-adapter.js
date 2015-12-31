@@ -2,7 +2,7 @@
   @module ember-data
 */
 import Ember from 'ember';
-import Model from "ember-data/-private/system/model";
+import Model from "ember-data/model";
 var get = Ember.get;
 var capitalize = Ember.String.capitalize;
 var underscore = Ember.String.underscore;

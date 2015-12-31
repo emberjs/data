@@ -4,7 +4,7 @@
 
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import Model from "ember-data/-private/system/model";
+import Model from "ember-data/model";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import isArrayLike from "ember-data/-private/system/is-array-like";
 
