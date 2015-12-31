@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.3.0-beta.5 (December 31, 2015)
+- [#4018](https://github.com/emberjs/data/pull/4018) [CLEANUP] re-use test setup to assert correct call to adapter.ajax
+- [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
+- [#4021](https://github.com/emberjs/data/pull/4021) [BUGFIX beta] Move ember-inflector to an explicit dependency for the …
+- [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
+- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder 
+- [#4026](https://github.com/emberjs/data/pull/4026) [BUGFIX beta] ignores keys that are not found in the map
+
 ### Release 2.3.0-beta.4 (December 18, 2015)
 - [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
 - [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
