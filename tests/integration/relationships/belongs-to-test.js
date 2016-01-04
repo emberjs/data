@@ -1145,7 +1145,7 @@ if (isEnabled('ds-references')) {
 
     run(function() {
       var chapter;
-      store.find('chapter', 1).then(function(_chapter) {
+      store.findRecord('chapter', 1).then(function(_chapter) {
         chapter = _chapter;
 
         return chapter.get('book');

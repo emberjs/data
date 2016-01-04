@@ -101,7 +101,7 @@ test("After a created record has been assigned an ID, finding a record by that I
     tom.save();
   });
 
-  assert.asyncEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
+  assert.asyncEqual(tom, env.store.findRecord('person', 1), "the retrieved record is the same as the created record");
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function(assert) {
@@ -125,7 +125,7 @@ test("when a store is committed, the adapter's `commit` method should be called 
       }
     });
   });
-  env.store.find('person', 1).then(assert.wait(function(person) {
+  env.store.findRecord('person', 1).then(assert.wait(function(person) {
     tom = person;
     tom.deleteRecord();
     return tom.save();
@@ -155,7 +155,7 @@ test("An adapter can notify the store that records were updated by calling `didS
     });
   });
 
-  all([env.store.find('person', 1), env.store.find('person', 2)])
+  all([env.store.findRecord('person', 1), env.store.findRecord('person', 2)])
     .then(assert.wait(function(array) {
       tom = array[0];
       yehuda = array[1];
@@ -203,7 +203,7 @@ test("An adapter can notify the store that records were updated and provide new 
     });
   });
 
-  hash({ tom: env.store.find('person', 1), yehuda: env.store.find('person', 2) }).then(assert.wait(function(people) {
+  hash({ tom: env.store.findRecord('person', 1), yehuda: env.store.findRecord('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
     people.yehuda.set('name', "Goy Katz");
 
@@ -233,7 +233,7 @@ test("An adapter can notify the store that a record was updated by calling `didS
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
+  hash({ tom: store.findRecord('person', 1), yehuda: store.findRecord('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Tom Dale");
     people.yehuda.set('name', "Yehuda Katz");
 
@@ -274,7 +274,7 @@ test("An adapter can notify the store that a record was updated and provide new 
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
+  hash({ tom: store.findRecord('person', 1), yehuda: store.findRecord('person', 2) }).then(assert.wait(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
     people.yehuda.set('name', "Goy Katz");
 
@@ -311,7 +311,7 @@ test("An adapter can notify the store that records were deleted by calling `didS
     });
   });
 
-  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(assert.wait(function(people) {
+  hash({ tom: store.findRecord('person', 1), yehuda: store.findRecord('person', 2) }).then(assert.wait(function(people) {
     people.tom.deleteRecord();
     people.yehuda.deleteRecord();
 

@@ -114,7 +114,7 @@ test('find a single record', function(assert) {
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -251,7 +251,7 @@ test('find a single record with belongsTo link as object { related }', function(
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -296,7 +296,7 @@ test('find a single record with belongsTo link as object { data }', function(ass
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -342,7 +342,7 @@ test('find a single record with belongsTo link as object { data } (polymorphic)'
   }]);
 
   run(function() {
-    store.find('user', 1).then(function(user) {
+    store.findRecord('user', 1).then(function(user) {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
@@ -388,7 +388,7 @@ test('find a single record with sideloaded belongsTo link as object { data }', f
 
   run(function() {
 
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -440,7 +440,7 @@ test('find a single record with hasMany link as object { related }', function(as
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -495,7 +495,7 @@ test('find a single record with hasMany link as object { data }', function(asser
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -552,7 +552,7 @@ test('find a single record with hasMany link as object { data } (polymorphic)', 
   }]);
 
   run(function() {
-    store.find('user', 1).then(function(user) {
+    store.findRecord('user', 1).then(function(user) {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
@@ -606,7 +606,7 @@ test('find a single record with sideloaded hasMany link as object { data }', fun
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -659,7 +659,7 @@ test('find a single record with sideloaded hasMany link as object { data } (poly
   }]);
 
   run(function() {
-    store.find('user', 1).then(function(user) {
+    store.findRecord('user', 1).then(function(user) {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
@@ -906,7 +906,7 @@ test('fetching a belongsTo relationship link that returns null', function(assert
   }]);
 
   run(function() {
-    store.find('post', 1).then(function(post) {
+    store.findRecord('post', 1).then(function(post) {
       assert.equal(passedUrl[0], '/posts/1');
       return post.get('author');
 

@@ -576,7 +576,7 @@ test("A hasMany relationship can be reloaded even if it failed at the first time
     }
   };
   run(function() {
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       var comments = post.get('comments');
       return comments.catch(function() {
         return comments.reload();
@@ -617,7 +617,7 @@ test("A hasMany relationship can be directly reloaded if it was fetched via link
     ]);
   };
   run(function() {
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments').reload().then(function(comments) {
         assert.equal(comments.get('isLoaded'), true, "comments are loaded");
         assert.equal(comments.get('length'), 2, "comments have 2 length");
