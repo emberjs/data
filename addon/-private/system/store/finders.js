@@ -28,13 +28,13 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
   var promise = adapter.findRecord(store, typeClass, id, snapshot);
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
-  var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
+  var label = "DS: Handle Adapter#findRecord of " + typeClass + " with id: " + id;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    assert("You made a `find` request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
+    assert("You made a `findRecord` request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'findRecord');
       assert('Ember Data expected the primary data returned from a `findRecord` response to be an object but instead it found an array.', !Array.isArray(payload.data));
