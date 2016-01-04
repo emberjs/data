@@ -82,7 +82,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var record = store.createRecord('model');
     record.get('isLoaded'); // true
 
-    store.find('model', 1).then(function(model) {
+    store.findRecord('model', 1).then(function(model) {
       model.get('isLoaded'); // true
     });
     ```
@@ -104,7 +104,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var record = store.createRecord('model');
     record.get('hasDirtyAttributes'); // true
 
-    store.find('model', 1).then(function(model) {
+    store.findRecord('model', 1).then(function(model) {
       model.get('hasDirtyAttributes'); // false
       model.set('foo', 'some value');
       model.get('hasDirtyAttributes'); // true
@@ -283,7 +283,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var record = store.createRecord('model');
     record.get('id'); // null
 
-    store.find('model', 1).then(function(model) {
+    store.findRecord('model', 1).then(function(model) {
       model.get('id'); // '1'
     });
     ```

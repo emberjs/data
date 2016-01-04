@@ -20,7 +20,7 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
   var promise = adapter.findRecord(store, typeClass, id, snapshot);
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
-  var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
+  var label = "DS: Handle Adapter#findRecord of " + typeClass + " with id: " + id;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));

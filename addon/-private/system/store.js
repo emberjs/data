@@ -1209,14 +1209,14 @@ Store = Service.extend({
 
   /**
     This method returns if a certain record is already loaded
-    in the store. Use this function to know beforehand if a find()
+    in the store. Use this function to know beforehand if a findRecord()
     will result in a request or that it will be a cache hit.
 
      Example
 
     ```javascript
     store.recordIsLoaded('post', 1); // false
-    store.find('post', 1).then(function() {
+    store.findRecord('post', 1).then(function() {
       store.recordIsLoaded('post', 1); // true
     });
     ```

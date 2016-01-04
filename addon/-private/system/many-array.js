@@ -238,7 +238,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     Example
 
     ```javascript
-    store.find('inbox', 1).then(function(inbox) {
+    store.findRecord('inbox', 1).then(function(inbox) {
       inbox.get('messages').then(function(messages) {
         messages.forEach(function(message) {
           message.set('isRead', true);
