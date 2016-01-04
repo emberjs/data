@@ -171,3 +171,27 @@ test("Should not filter a store.peekAll() array when a record property is change
   assert.equal(updateFilterRecordArray.called.length, 0);
 
 });
+
+test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', function(assert) {
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'Honda',
+          model: 'fit'
+        }
+      }
+    });
+  });
+  const query = {};
+
+  var adapterPopulated = manager.createAdapterPopulatedRecordArray(Car, query);
+
+  run(() => {
+    adapterPopulated.destroy();
+  });
+
+  assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
+});

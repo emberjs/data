@@ -278,17 +278,22 @@ export default Ember.Object.extend({
     var typeClass = array.type;
 
     // unregister filtered record array
-    var recordArrays = this.filteredRecordArrays.get(typeClass);
-    var index = recordArrays.indexOf(array);
-    if (index !== -1) {
-      recordArrays.splice(index, 1);
+    const recordArrays = this.filteredRecordArrays.get(typeClass);
+    const removedFromFiltered = remove(recordArrays, array);
 
-    // unregister live record array
-    } else if (this.liveRecordArrays.has(typeClass)) {
-      var liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
-      if (array === liveRecordArrayForType) {
-        this.liveRecordArrays.delete(typeClass);
+    // remove from adapter populated record array
+    const removedFromAdapterPopulated = remove(this._adapterPopulatedRecordArrays, array);
+
+    if (!removedFromFiltered && !removedFromAdapterPopulated) {
+
+      // unregister live record array
+      if (this.liveRecordArrays.has(typeClass)) {
+        var liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
+        if (array === liveRecordArrayForType) {
+          this.liveRecordArrays.delete(typeClass);
+        }
       }
+
     }
   },
 
@@ -314,4 +319,15 @@ function flatten(list) {
   }
 
   return result;
+}
+
+function remove(array, item) {
+  const index = array.indexOf(item);
+
+  if (index !== -1) {
+    array.splice(index, 1);
+    return true;
+  }
+
+  return false;
 }
