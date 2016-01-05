@@ -30,6 +30,8 @@ test_script:
   # Output useful info for debugging.
   - npm version
   - cmd: npm run test
+  - cmd: npm run test:optional-features
+  - cmd: npm run node-tests
 
 # Don't actually build.
 build: off
