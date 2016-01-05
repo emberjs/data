@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import RecordArray from "ember-data/-private/system/record-arrays/record-array";
+import ImmutableArrayMixin from "ember-data/-private/system/record-arrays/immutable-array-mixin";
 import cloneNull from "ember-data/-private/system/clone-null";
 
 /**
@@ -45,7 +46,7 @@ const { get } = Ember;
   @namespace DS
   @extends DS.RecordArray
 */
-export default RecordArray.extend({
+export default RecordArray.extend(ImmutableArrayMixin, {
   init() {
     // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
     this.set('content', this.get('content') || Ember.A());

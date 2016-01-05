@@ -150,3 +150,10 @@ entry in `config/features.json`.
 
   Adds a deprecation warning when using Store#serialize(record) method.
   You can use record.serialize() instead.
+
+- `ds-better-adapter-populated-record-array-error-messages` [#4045](https://github.com/emberjs/data/pull/4045)
+
+  The result returned from `store.query` is an
+  AdapterPopulatedRecordArray. This adds better error messages when you
+  try to mutate the array, as it is considered immutable and the
+  mutation methods should not be used.

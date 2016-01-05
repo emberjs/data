@@ -7,5 +7,6 @@
   "ds-check-should-serialize-relationships": null,
   "ds-reset-attribute": null,
   "ds-serialize-id": null,
-  "ds-deprecate-store-serialize": true
+  "ds-deprecate-store-serialize": true,
+  "ds-better-adapter-populated-record-array-error-messages": null
 }
