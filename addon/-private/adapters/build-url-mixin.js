@@ -218,40 +218,30 @@ export default Ember.Mixin.create({
     @return {String} urlPrefix
   */
   urlPrefix(path, parentURL) {
-    var host = get(this, 'host');
+    var host = get(this, 'host') || '';
     var namespace = get(this, 'namespace');
-    var url = [];
 
     if (path) {
       // Protocol relative url
-      //jscs:disable disallowEmptyBlocks
-      if (/^\/\//.test(path)) {
-        // Do nothing, the full host is already included. This branch
-        // avoids the absolute path logic and the relative path logic.
+      if (/^\/\//.test(path) || /http(s)?:\/\//.test(path)) {
+        // Do nothing, the full host is already included.
+        return path;
 
       // Absolute path
       } else if (path.charAt(0) === '/') {
-        //jscs:enable disallowEmptyBlocks
-        if (host) {
-          path = path.slice(1);
-          url.push(host);
-        }
+        return `${host}${path}`;
       // Relative path
-      } else if (!/^http(s)?:\/\//.test(path)) {
-        url.push(parentURL);
+      } else {
+        return `${parentURL}/${path}`;
       }
-    } else {
-      if (host) { url.push(host); }
-      if (namespace) { url.push(namespace); }
     }
 
-    if (path) {
-      url.push(path);
-    }
-
+    // No path provided
+    var url = [];
+    if (host) { url.push(host); }
+    if (namespace) { url.push(namespace); }
     return url.join('/');
   },
-
 
   /**
     Determines the pathname for a given type.
