@@ -1,4 +1,4 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import {setupStore, createStore} from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
@@ -72,4 +72,62 @@ test('recordArray.replace() throws error', function(assert) {
   assert.throws(function() {
     recordArray.replace();
   }, Error("The result of a server query (on (subclass of DS.Model)) is immutable."), 'throws error');
+});
+
+test("when an adapter populated record gets updated the array contents are also updated", function(assert) {
+  assert.expect(8);
+  var filteredPromise, filteredArr, findPromise, findArray;
+  var env = setupStore({ person: Person });
+  var store = env.store;
+  var array = [{ id: '1', name: "Scumbag Dale" }];
+
+  // resemble server side filtering
+  env.adapter.query = function(store, type, query, recordArray) {
+    return Ember.RSVP.resolve(array.slice(query.slice));
+  };
+
+  // implement findAll to further test that query updates won't muddle
+  // with the non-query record arrays
+  env.adapter.findAll = function(store, type, sinceToken) {
+    return Ember.RSVP.resolve(array.slice(0));
+  };
+
+  run(function() {
+    filteredPromise = store.query('person', { slice: 1 });
+    findPromise = store.findAll('person');
+
+    // initialize adapter populated record array and assert initial state
+    filteredPromise.then(function(_filteredArr) {
+      filteredArr = _filteredArr;
+      assert.equal(filteredArr.get('length'), 0, "No records for this query");
+      assert.equal(filteredArr.get('isUpdating'), false, "Record array isUpdating state updated");
+    });
+
+    // initialize a record collection array and assert initial state
+    findPromise.then(function(_findArr) {
+      findArray = _findArr;
+      assert.equal(findArray.get('length'), 1, "All records are included in collection array");
+    });
+  });
+
+  // a new element gets pushed in record array
+  run(function() {
+    array.push({ id: '2', name: "Scumbag Katz" });
+    filteredArr.update().then(function() {
+      assert.equal(filteredArr.get('length'), 1, "The new record is returned and added in adapter populated array");
+      assert.equal(filteredArr.get('isUpdating'), false, "Record array isUpdating state updated");
+      assert.equal(findArray.get('length'), 2);
+    });
+  });
+
+  // element gets removed
+  run(function() {
+    array.pop(0);
+    filteredArr.update().then(function() {
+      assert.equal(filteredArr.get('length'), 0, "Record removed from array");
+      // record not removed from the model collection
+      assert.equal(findArray.get('length'), 2, "Record still remains in collection array");
+    });
+  });
+
 });
