@@ -115,8 +115,13 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   update: function() {
     if (get(this, 'isUpdating')) { return; }
 
-    var store = get(this, 'store');
-    var modelName = get(this, 'type.modelName');
+    let store = get(this, 'store');
+    let modelName = get(this, 'type.modelName');
+    let query = get(this, 'query');
+
+    if (query) {
+      return store.query(modelName, query, this);
+    }
 
     return store.findAll(modelName, { reload: true });
   },

@@ -936,10 +936,10 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  query: function(modelName, query) {
+  query: function(modelName, query, array) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
-    var array = this.recordArrayManager
+    array = array || this.recordArrayManager
       .createAdapterPopulatedRecordArray(typeClass, query);
 
     var adapter = this.adapterFor(modelName);
