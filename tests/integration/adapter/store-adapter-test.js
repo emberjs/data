@@ -113,8 +113,8 @@ test("by default, createRecords calls createRecord once per record", function(as
     tom = records.tom;
     yehuda = records.yehuda;
 
-    assert.asyncEqual(tom, store.findRecord('person', 1), "Once an ID is in, find returns the same object");
-    assert.asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, find returns the same object");
+    assert.asyncEqual(tom, store.findRecord('person', 1), "Once an ID is in, findRecord returns the same object");
+    assert.asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, findRecord returns the same object");
     assert.equal(get(tom, 'updatedAt'), "now", "The new information is received");
     assert.equal(get(yehuda, 'updatedAt'), "now", "The new information is received");
   }));
@@ -1119,7 +1119,7 @@ test("deleteRecord receives a snapshot", function(assert) {
   });
 });
 
-test("find receives a snapshot", function(assert) {
+test("findRecord receives a snapshot", function(assert) {
   assert.expect(1);
 
   adapter.findRecord = function(store, type, id, snapshot) {
@@ -1397,7 +1397,7 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
 
   store = env.store;
 
-  run(store, 'find', 'post', '1').then(assert.wait(function(post) {
+  run(store, 'findRecord', 'post', '1').then(assert.wait(function(post) {
     return post.get('comments');
   })).then(assert.wait(function(comments) {
     assert.equal(comments.get('length'), 3);

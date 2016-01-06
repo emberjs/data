@@ -48,7 +48,7 @@ test('groupRecordsForFindMany - findMany', function(assert) {
 
   Ember.run(function() {
     for (var i = 1; i <= 1024; i++) {
-      Store.find('testRecord', i);
+      Store.findRecord('testRecord', i);
     }
   });
 

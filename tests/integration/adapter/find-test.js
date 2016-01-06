@@ -60,7 +60,7 @@ test("When a single record is requested, the adapter's find method should be cal
   });
 });
 
-test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", (assert) => {
+test("When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved", (assert) => {
   var deferred = Ember.RSVP.defer();
 
   env.registry.register('adapter:person', DS.Adapter.extend({
@@ -103,7 +103,7 @@ test("When a single record is requested multiple times, all .find() calls are re
   run(() => deferred.resolve({ id: 1, name: "Braaaahm Dale" }));
 });
 
-test("When a single record is requested, and the promise is rejected, .find() is rejected.", (assert) => {
+test("When a single record is requested, and the promise is rejected, .findRecord() is rejected.", (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord: () => reject()
   }));
@@ -136,7 +136,7 @@ test('When a single record is requested, and the payload is blank', (assert) => 
   }));
 
   assert.expectAssertion(() => {
-    run(() => store.find('person', 'the-id'));
+    run(() => store.findRecord('person', 'the-id'));
   }, /the adapter's response did not have any data/);
 });
 

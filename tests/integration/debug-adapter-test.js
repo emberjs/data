@@ -116,7 +116,7 @@ test("Watching Records", function(assert) {
   assert.deepEqual(record.color, 'black');
 
   Ember.run(function() {
-    post = store.find('post', 1);
+    post = store.findRecord('post', 1);
   });
 
   Ember.run(function() {

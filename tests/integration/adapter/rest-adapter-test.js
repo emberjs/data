@@ -78,7 +78,7 @@ test("findRecord - passes buildURL a requestType", function(assert) {
   }));
 });
 
-test("find - basic payload (with legacy singular name)", function(assert) {
+test("findRecord - basic payload (with legacy singular name)", function(assert) {
   ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
 
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
@@ -2069,7 +2069,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
   });
 
   run(function() {
-    store.find('post', 1).then(assert.wait(function(post) {
+    store.findRecord('post', 1).then(assert.wait(function(post) {
       assert.equal(post.get('authorName'), "@d2h");
       assert.equal(post.get('author.name'), "D2H");
       assert.deepEqual(post.get('comments').mapBy('body'), ["Rails is unagi", "What is omakase?"]);
@@ -2163,7 +2163,7 @@ test('groupRecordsForFindMany groups calls for small ids', function(assert) {
   adapter.coalesceFindRequests = true;
 
   adapter.findRecord = function(store, type, id, snapshot) {
-    assert.ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
+    assert.ok(false, "findRecord should not be called - we expect 1 call to findMany for a100 and b100");
     return Ember.RSVP.reject();
   };
 
@@ -2204,7 +2204,7 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
 
   try {
     run(function() {
-      store.find('post', '1');
+      store.findRecord('post', '1');
     });
   } finally {
     Ember.$.ajax = originalAjax;
@@ -2238,7 +2238,7 @@ test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', fun
 
   try {
     run(function() {
-      store.find('post', '1').catch(function(err) {
+      store.findRecord('post', '1').catch(function(err) {
         assert.ok(err, 'promise rejected');
       });
     });
@@ -2267,7 +2267,7 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
   };
 
   Ember.run(function() {
-    store.find('post', '1').then(null, function(reason) {
+    store.findRecord('post', '1').then(null, function(reason) {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
     });
@@ -2297,7 +2297,7 @@ test('on error appends errorThrown for sanity', function(assert) {
 
   try {
     run(function() {
-      store.find('post', '1').catch(function(err) {
+      store.findRecord('post', '1').catch(function(err) {
         assert.equal(err, errorThrown);
         assert.ok(err, 'promise rejected');
       });
@@ -2325,7 +2325,7 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
 
   try {
     run(function() {
-      store.find('post', '1').catch(function(err) {
+      store.findRecord('post', '1').catch(function(err) {
         assert.equal(err.errors[0].detail, errorThrown);
         assert.ok(err, 'promise rejected');
       });
@@ -2351,7 +2351,7 @@ test('error handling includes a detailed message from the server', (assert) => {
 
   try {
     run(function() {
-      store.find('post', '1').catch(function(err) {
+      store.findRecord('post', '1').catch(function(err) {
         assert.equal(err.message, "Ember Data Request GET /posts/1 returned a 500\nPayload (text/plain)\nAn error message, perhaps generated from a backend server!");
         assert.ok(err, 'promise rejected');
       });
@@ -2378,7 +2378,7 @@ test('error handling with a very long HTML-formatted payload truncates the frien
 
   try {
     run(function() {
-      store.find('post', '1').catch(function(err) {
+      store.findRecord('post', '1').catch(function(err) {
         assert.equal(err.message, "Ember Data Request GET /posts/1 returned a 500\nPayload (text/html)\n[Omitted Lengthy HTML]");
         assert.ok(err, 'promise rejected');
       });

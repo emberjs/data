@@ -40,7 +40,7 @@ test("when normalizeResponse returns undefined (or doesn't return), throws an er
 
   assert.throws(function () {
     run(function() {
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, /Top level of a JSON API document must be an object/);
 });
@@ -59,7 +59,7 @@ test("when normalizeResponse returns null, throws an error", function(assert) {
 
   assert.throws(function () {
     run(function() {
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, /Top level of a JSON API document must be an object/);
 });
@@ -79,7 +79,7 @@ test("when normalizeResponse returns an empty object, throws an error", function
 
   assert.throws(function () {
     run(function() {
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, /One or more of the following keys must be present/);
 });
@@ -103,7 +103,7 @@ test("when normalizeResponse returns a document with both data and errors, throw
 
   assert.throws(function () {
     run(function() {
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, /cannot both be present/);
 });
@@ -121,7 +121,7 @@ QUnit.assert.payloadError = function payloadError(payload, expectedError) {
   }));
   this.throws(function () {
     run(function() {
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, expectedError, `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`);
   env.registry.unregister('serializer:person');
