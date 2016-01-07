@@ -8,7 +8,7 @@ var capitalize = Ember.String.capitalize;
 var underscore = Ember.String.underscore;
 const { assert } = Ember;
 
-/**
+/*
   Extend `Ember.DataAdapter` with ED specific code.
 
   @class DebugAdapter
