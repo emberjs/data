@@ -1,12 +1,5 @@
-import Ember from 'ember';
 import RecordArray from "ember-data/-private/system/record-arrays/record-array";
-import cloneNull from "ember-data/-private/system/clone-null";
-
-/**
-  @module ember-data
-*/
-
-var get = Ember.get;
+import AdapterPopulatedRecordArrayMixin from "ember-data/-private/system/record-arrays/mixins/adapter-populated-record-array-mixin";
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -18,38 +11,4 @@ var get = Ember.get;
   @namespace DS
   @extends DS.RecordArray
 */
-export default RecordArray.extend({
-  query: null,
-
-  replace() {
-    var type = get(this, 'type').toString();
-    throw new Error("The result of a server query (on " + type + ") is immutable.");
-  },
-
-  /**
-    @method loadRecords
-    @param {Array} records
-    @private
-  */
-  loadRecords(records) {
-    var store = get(this, 'store');
-    var type = get(this, 'type');
-    var modelName = type.modelName;
-    var meta = store._metadataFor(modelName);
-
-    //TODO Optimize
-    var internalModels = Ember.A(records).mapBy('_internalModel');
-    this.setProperties({
-      content: Ember.A(internalModels),
-      isLoaded: true,
-      meta: cloneNull(meta)
-    });
-
-    internalModels.forEach((record) => {
-      this.manager.recordArraysForRecord(record).add(this);
-    });
-
-    // TODO: should triggering didLoad event be the last action of the runLoop?
-    Ember.run.once(this, 'trigger', 'didLoad');
-  }
-});
+export default RecordArray.extend(AdapterPopulatedRecordArrayMixin);

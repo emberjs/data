@@ -195,3 +195,12 @@ test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their m
 
   assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
 });
+
+test('return user-defined collection factory when creating a record manager', function(assert) {
+  var CarCollection = DS.RecordArray.extend();
+  assert.ok(manager.createRecordArray(Car) instanceof DS.RecordArray, 'returns a record array instance by default');
+
+  env.registry.register('collection:car', CarCollection);
+
+  assert.ok(manager.createRecordArray(Car) instanceof CarCollection, 'returns a user-defined collection instance');
+});
