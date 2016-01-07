@@ -44,7 +44,7 @@ function retrieveFromCurrentState(key) {
 }
 
 var guid = 0;
-/**
+/*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
 
@@ -57,6 +57,7 @@ var guid = 0;
   We need to make sure that the properties from `InternalModel` are correctly exposed/proxied on `Model`
   if they are needed.
 
+  @private
   @class InternalModel
 */
 
@@ -247,7 +248,7 @@ InternalModel.prototype = {
     }
   },
 
-  /**
+  /*
     @method createSnapshot
     @private
   */
@@ -255,7 +256,7 @@ InternalModel.prototype = {
     return new Snapshot(this, options);
   },
 
-  /**
+  /*
     @method loadingData
     @private
     @param {Promise} promise
@@ -264,7 +265,7 @@ InternalModel.prototype = {
     this.send('loadingData', promise);
   },
 
-  /**
+  /*
     @method loadedData
     @private
   */
@@ -273,7 +274,7 @@ InternalModel.prototype = {
     this.didInitalizeData();
   },
 
-  /**
+  /*
     @method notFound
     @private
   */
@@ -281,7 +282,7 @@ InternalModel.prototype = {
     this.send('notFound');
   },
 
-  /**
+  /*
     @method pushedData
     @private
   */
@@ -298,7 +299,7 @@ InternalModel.prototype = {
     return Object.keys(this._attributes).length > 0;
   },
 
-  /**
+  /*
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.
 
@@ -322,7 +323,7 @@ InternalModel.prototype = {
     }
   },
 
-  /**
+  /*
     Returns an object, whose keys are changed properties, and value is an
     [oldProp, newProp] array.
 
@@ -346,7 +347,7 @@ InternalModel.prototype = {
     return diffData;
   },
 
-  /**
+  /*
     @method adapterWillCommit
     @private
   */
@@ -354,7 +355,7 @@ InternalModel.prototype = {
     this.send('willCommit');
   },
 
-  /**
+  /*
     @method adapterDidDirty
     @private
   */
@@ -363,7 +364,7 @@ InternalModel.prototype = {
     this.updateRecordArraysLater();
   },
 
-  /**
+  /*
     @method send
     @private
     @param {String} name
@@ -434,7 +435,7 @@ InternalModel.prototype = {
     this.record._notifyProperties(dirtyKeys);
 
   },
-  /**
+  /*
     @method transitionTo
     @private
     @param {String} name
@@ -520,7 +521,7 @@ InternalModel.prototype = {
 
     this._deferredTriggers.length = 0;
   },
-  /**
+  /*
     @method clearRelationships
     @private
   */
@@ -538,7 +539,7 @@ InternalModel.prototype = {
     });
   },
 
-  /**
+  /*
     When a find request is triggered on the store, the user can optionally pass in
     attributes and relationships to be preloaded. These are meant to behave as if they
     came back from the server, except the user obtained them out of band and is informing
@@ -608,7 +609,7 @@ InternalModel.prototype = {
     return value;
   },
 
-  /**
+  /*
     @method updateRecordArrays
     @private
   */
@@ -648,7 +649,7 @@ InternalModel.prototype = {
       });
     }
   },
-  /**
+  /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
@@ -678,7 +679,7 @@ InternalModel.prototype = {
     this.record._notifyProperties(changedKeys);
   },
 
-  /**
+  /*
     @method updateRecordArraysLater
     @private
   */
@@ -713,7 +714,7 @@ InternalModel.prototype = {
 
   // FOR USE DURING COMMIT PROCESS
 
-  /**
+  /*
     @method adapterDidInvalidate
     @private
   */
@@ -731,7 +732,7 @@ InternalModel.prototype = {
     this._saveWasRejected();
   },
 
-  /**
+  /*
     @method adapterDidError
     @private
   */
@@ -751,7 +752,7 @@ InternalModel.prototype = {
     this._inFlightAttributes = new EmptyObject();
   },
 
-  /**
+  /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
 
     `_data` holds all of the attributes that have been acknowledged by
