@@ -82,7 +82,7 @@ import {
 } from "ember-data/-private/transforms";
 
 import {hasMany, belongsTo} from "ember-data/relationships";
-import setupContainer from "ember-data/-private/setup-container";
+import setupContainer from "ember-data/setup-container";
 import initializeStoreService from 'ember-data/-private/instance-initializers/initialize-store-service';
 
 import ContainerProxy from "ember-data/-private/system/container-proxy";

@@ -1,4 +1,4 @@
-import setupContainer from 'ember-data/-private/setup-container';
+import setupContainer from 'ember-data/setup-container';
 import 'ember-data/-private/core';
 
 /*
