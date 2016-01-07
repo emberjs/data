@@ -189,7 +189,7 @@ export default Ember.Object.extend({
 
   _lookupRecordArrayFactoryWithDefault(typeClass, DefaultRecordArrayFactory, ...Mixins) {
     var container = this.store.container;
-    var RecordArrayFactory = container._lookupFactory(`collection:${typeClass.modelName}`);
+    var RecordArrayFactory = container.lookupFactory(`collection:${typeClass.modelName}`);
 
     if (!RecordArrayFactory) {
       RecordArrayFactory = DefaultRecordArrayFactory;
