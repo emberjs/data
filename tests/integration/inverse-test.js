@@ -128,7 +128,7 @@ test("Caches findInverseFor return value", function(assert) {
 test("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
-  assert.warns(function() {
+  assert.expectWarning(function() {
     var reflexiveModel;
     run(function() {
       store.push({

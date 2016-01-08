@@ -10,10 +10,6 @@ import {
   asyncEqual,
   invokeAsync
 } from 'dummy/tests/helpers/async';
-import {
-  warns,
-  noWarns
-} from 'dummy/tests/helpers/warns';
 import Ember from 'ember';
 import './ember-data-initializers';
 
@@ -57,8 +53,6 @@ assert.assertClean = function(promise) {
     return record;
   }));
 };
-assert.warns = warns;
-assert.noWarns = noWarns;
 
 assert.contains = function(array, item) {
   this.ok(array.indexOf(item) !== -1, `array contains ${item}`);

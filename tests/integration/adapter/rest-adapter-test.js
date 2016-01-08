@@ -1889,7 +1889,7 @@ test('coalesceFindRequests assert.warns if the expected records are not returned
   ajaxResponse({ comments: [{ id: 1 }] });
   var post;
 
-  assert.warns(function() {
+  assert.expectWarning(function() {
     run(function() {
       store.push({
         data: {
