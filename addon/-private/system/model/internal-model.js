@@ -5,6 +5,7 @@ import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
 import EmptyObject from "ember-data/-private/system/empty-object";
+import isEnabled from "ember-data/-private/features";
 
 import {
   getOwner
@@ -607,25 +608,6 @@ InternalModel.prototype = {
     return value;
   },
 
-  referenceFor: function(type, name) {
-    var reference = this.references[name];
-
-    if (!reference) {
-      var relationship = this._relationships.get(name);
-
-      if (type === "belongsTo") {
-        reference = new BelongsToReference(this.store, this, relationship);
-      } else if (type === "hasMany") {
-        reference = new HasManyReference(this.store, this, relationship);
-      }
-
-      this.references[name] = reference;
-    }
-
-    return reference;
-  },
-
-
   /**
     @method updateRecordArrays
     @private
@@ -850,3 +832,25 @@ InternalModel.prototype = {
     }
   }
 };
+
+if (isEnabled('ds-references')) {
+
+  InternalModel.prototype.referenceFor = function(type, name) {
+    var reference = this.references[name];
+
+    if (!reference) {
+      var relationship = this._relationships.get(name);
+
+      if (type === "belongsTo") {
+        reference = new BelongsToReference(this.store, this, relationship);
+      } else if (type === "hasMany") {
+        reference = new HasManyReference(this.store, this, relationship);
+      }
+
+      this.references[name] = reference;
+    }
+
+    return reference;
+  };
+
+}
