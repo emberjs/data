@@ -2,6 +2,7 @@
 'use strict';
 
 var path = require('path');
+var SilentError = require('silent-error');
 
 module.exports = {
   name: 'ember-data',
@@ -21,21 +22,41 @@ module.exports = {
 
   init: function() {
     var bowerDeps = this.project.bowerDependencies();
-
-    if (bowerDeps['ember-data']) {
-      this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed.');
-      this._forceBowerUsage = true;
-    } else {
-      this._forceBowerUsage = false;
-    }
-
     var VersionChecker = require('ember-cli-version-checker');
 
     var checker = new VersionChecker(this);
-    var dep = checker.for('ember-cli-shims', 'bower');
+    var shims = checker.for('ember-cli-shims', 'bower');
 
-    if (!dep.satisfies('>= 0.1.0')) {
-      this._warn('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3+. Please update ember-cli-shims from ' + dep.version + ' to 0.1.0.');
+    var semver = require('semver');
+    var version = require('./package').version;
+
+    if (process.env.EMBER_DATA_SKIP_VERSION_CHECKING_DO_NOT_USE_THIS_ENV_VARIABLE) {
+      // Skip for node tests as we can't currently override the version of ember-cli-shims
+      // before the test helpers run.
+      return;
+    }
+
+    if (bowerDeps['ember-data']) {
+      this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed. If you need an ' +
+                'earlier version of ember-data (< 2.3.0), you can leave this unchanged for now, but we strongly suggest you upgrade your version of Ember Data ' +
+                'as soon as possible.');
+      this._forceBowerUsage = true;
+
+      var emberDataBower = checker.for('ember-data', 'bower');
+
+      if (!shims.satisfies('< 0.1.0') && emberDataBower.satisfies('< 2.3.0-beta.3')) {
+        throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
+      }
+
+      if (!shims.satisfies('>= 0.1.0') && emberDataBower.satisfies('>= 2.3.0-beta.3')) {
+        throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
+      }
+
+    } else {
+      // NPM only, but ember-cli-shims does not match
+      if (!shims.satisfies('>= 0.1.0') && semver.satisfies(version, '^2.3.0-beta.3')) {
+        throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
+      }
     }
   },
 

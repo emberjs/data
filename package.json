@@ -35,6 +35,7 @@
     "ember-cli-version-checker": "^1.1.4",
     "ember-inflector": "^1.9.4",
     "inflection": "^1.8.0",
+    "semver": "^5.1.0",
     "silent-error": "^1.0.0"
   },
   "devDependencies": {
