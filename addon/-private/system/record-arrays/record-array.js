@@ -120,7 +120,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     let query = get(this, 'query');
 
     if (query) {
-      return store.query(modelName, query, this);
+      return store._query(modelName, query, this);
     }
 
     return store.findAll(modelName, { reload: true });
