@@ -2,7 +2,11 @@
 
 ### Master
 
-### Release 2.3.0 (January 12, 2015)
+### Release 2.3.1 (January 12, 2016)
+- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
+- [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
+
+### Release 2.3.0 (January 12, 2016)
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
 - [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
 - [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
