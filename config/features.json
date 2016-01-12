@@ -1,4 +1,4 @@
 {
-  "ds-finder-include": null,
-  "ds-references": null
+  "ds-finder-include": false,
+  "ds-references": false
 }

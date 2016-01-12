@@ -2,8 +2,73 @@
 
 ### Master
 
+### Release 2.4.0-beta.1 (January 12, 2016)
+- [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
+- [#3941](https://github.com/emberjs/data/pull/3941) Mark `adapterFor` and `serializerFor` as public
+- [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
+- [#3916](https://github.com/emberjs/data/pull/3916) `Store._find` asserts `adapterPayload` not empty
+- [#3940](https://github.com/emberjs/data/pull/3940) Remove JSONSerializer#normalizeId
+- [#3303](https://github.com/emberjs/data/pull/3303) Implement RFC 57 - Reference Unification
+- [#3864](https://github.com/emberjs/data/pull/3864) Throw a more helpful error message if the response from queryRecord i…
+- [#3930](https://github.com/emberjs/data/pull/3930) Friendly Errors
+- [#2384](https://github.com/emberjs/data/pull/2384) Directly reloading a hasMany with links should trigger only one request
+- [#3853](https://github.com/emberjs/data/pull/3853) fix transitioning into invalid state
+- [#3841](https://github.com/emberjs/data/pull/3841) Log a deprecation warning when when Ember Data is loaded with Ember 1.13
+- [#3926](https://github.com/emberjs/data/pull/3926) Run `ember watson: methodify` on `addon/` and `test/`
+- [#4009](https://github.com/emberjs/data/pull/4009) [FEATURE ds-references] More conistency for RecordReference
+- [#3961](https://github.com/emberjs/data/pull/3961) Add a better error message when findRecord returns an array
+- [#3949](https://github.com/emberjs/data/pull/3949) Fix incorrect reference in store api docs
+- [#3946](https://github.com/emberjs/data/pull/3946) Report better error when `type` is missing from a JSONApi response
+- [#3958](https://github.com/emberjs/data/pull/3958) [DOCS fix] fix incorrect argument description...
+- [#4014](https://github.com/emberjs/data/pull/4014) Register the version before the DEBUG version are printed when loadin…
+- [#3968](https://github.com/emberjs/data/pull/3968) Add failing test on PromiseArray.createRecord when called before hasM…
+- [#3965](https://github.com/emberjs/data/pull/3965) [Doc] Specify the status code expected to populate the error object
+- [#3964](https://github.com/emberjs/data/pull/3964) Merge normalizeRelationships and setupRelationships methods in store
+- [#3967](https://github.com/emberjs/data/pull/3967) Added documentation to modify the hash by reference
+- [#3966](https://github.com/emberjs/data/pull/3966) tests for #3707
+- [#4016](https://github.com/emberjs/data/pull/4016) Add missing dependencies for the changelog script
+- [#3970](https://github.com/emberjs/data/pull/3970) [CLEANUP] move test file to correct location
+- [#4017](https://github.com/emberjs/data/pull/4017) [FEATURE ds-references] bring back accidentally removed tests
+- [#3985](https://github.com/emberjs/data/pull/3985) Remove extraneous conditional in ajax()
+- [#3980](https://github.com/emberjs/data/pull/3980) Add license field to bower.json
+- [#3979](https://github.com/emberjs/data/pull/3979) Re-enable feature flags
+- [#3974](https://github.com/emberjs/data/pull/3974) Remove duplicate createRecord test
+- [#3973](https://github.com/emberjs/data/pull/3973) [CLEANUP] use debug helpers from ember-data/debug
+- [#3983](https://github.com/emberjs/data/pull/3983) Fix documentation to use "serializedHasManyName"
+- [#3984](https://github.com/emberjs/data/pull/3984) Cleanup .jshintrc since no globals are used anymore
+- [#3976](https://github.com/emberjs/data/pull/3976) Allow `include` query parameter with store.findRecord & store.findAll
+- [#4000](https://github.com/emberjs/data/pull/4000) Re-enable pushing builds to S3
+- [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
+- [#3988](https://github.com/emberjs/data/pull/3988) [PERF] Don't use array methods
+- [#3989](https://github.com/emberjs/data/pull/3989) Rely on internalModel.createSnapshot to set adapterOptions
+- [#3990](https://github.com/emberjs/data/pull/3990) Update adapter function references in test
+- [#3993](https://github.com/emberjs/data/pull/3993) Do not publish .gem files to npm
+- [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
+- [#4007](https://github.com/emberjs/data/pull/4007) [CLEANUP] Use `isEnabled` instead of `Ember.FEATURES` directly
+- [#4006](https://github.com/emberjs/data/pull/4006) [CLEANUP] Separate buildURL tests from pathForType tests
+- [#4001](https://github.com/emberjs/data/pull/4001) Add ember-publisher to package.json
+- [#4004](https://github.com/emberjs/data/pull/4004) [CLEANUP] remove unused feature-flags.js
+- [#4003](https://github.com/emberjs/data/pull/4003) Only run the Ember.onload initializers in globals mode
+- [#4005](https://github.com/emberjs/data/pull/4005) don't cache length in for loops
+- [#4002](https://github.com/emberjs/data/pull/4002) Fix paths to files which should be uploaded to S3
+- [#4049](https://github.com/emberjs/data/pull/4049) Run node tests and optional feature tests on AppVeyor
+- [#4015](https://github.com/emberjs/data/pull/4015) [CLEANUP] Don't cache length in for loops
+- [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
+- [#4018](https://github.com/emberjs/data/pull/4018) [CLEANUP] re-use test setup to assert correct call to adapter.ajax
+- [#4011](https://github.com/emberjs/data/pull/4011) [CLEANUP] Update and remove obsolete comments
+- [#4030](https://github.com/emberjs/data/pull/4030) [CLEANUP] use methods from utils module directly
+- [#4029](https://github.com/emberjs/data/pull/4029) Move public modules out of the `-private` folder
+- [#4051](https://github.com/emberjs/data/pull/4051) Make setup-container public to allow consuming apps more flexibility with initializer
+- [#4037](https://github.com/emberjs/data/pull/4037) Happy New Year!
+- [#4035](https://github.com/emberjs/data/pull/4035) Simplify the urlPrefix method to make it easier to understand
+- [#4031](https://github.com/emberjs/data/pull/4031) [CLEANUP] Remove special logic for meta.descs in tests
+- [#4032](https://github.com/emberjs/data/pull/4032) [CLEANUP] remove obsolete code within Store#willDestroy
+- [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
+- [#4053](https://github.com/emberjs/data/pull/4053) [FEATURE ds-references] Only add function to prototype if enabled
+- [#4059](https://github.com/emberjs/data/pull/4059) Update name for feature in FEATURES.md
 
-### Release 2.3.0 (January 12, 2015)
+
+### Release 2.3.0 (January 12, 2016)
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
 - [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
 - [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
