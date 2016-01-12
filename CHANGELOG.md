@@ -3,7 +3,7 @@
 ### Master
 
 
-### Release 2.3.0 (January 12, 2015)
+### Release 2.3.0 (January 12, 2016)
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
 - [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
 - [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
