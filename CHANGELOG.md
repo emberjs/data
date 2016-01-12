@@ -2,26 +2,30 @@
 
 ### Master
 
-### Release 2.3.0-beta.5 (December 31, 2015)
+### Release 2.3.0 (January 12, 2015)
+- [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
+- [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
+- [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
+- [#4050](https://github.com/emberjs/data/pull/4050) [BUGFIX beta] Functional update for adapter populated record arrays
+- [#4051](https://github.com/emberjs/data/pull/4051) Make setup-container public to allow consuming apps more flexibility with initializer
+- [#4052](https://github.com/emberjs/data/pull/4052) [DOC beta] Hide private classes from YUIDoc
+- [#4055](https://github.com/emberjs/data/pull/4055) [BUGFIX beta] pin jquery to 1.11.3 to fix broken build
+- [#4057](https://github.com/emberjs/data/pull/4057) [BUGFIX beta] fail builds in ember-cli when ember-cli-shims isn't met
+- [#4058](https://github.com/emberjs/data/pull/4058) [BUGFIX beta] Do not expose the array argument on store.query
+- [#4060](https://github.com/emberjs/data/pull/4060) Require ember-source 2.x
 - [#4018](https://github.com/emberjs/data/pull/4018) [CLEANUP] re-use test setup to assert correct call to adapter.ajax
 - [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
 - [#4021](https://github.com/emberjs/data/pull/4021) [BUGFIX beta] Move ember-inflector to an explicit dependency for the …
 - [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
 - [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder 
 - [#4026](https://github.com/emberjs/data/pull/4026) [BUGFIX beta] ignores keys that are not found in the map
-
-### Release 2.3.0-beta.4 (December 18, 2015)
 - [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
 - [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
 - [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
 - [#4003](https://github.com/emberjs/data/pull/4003) Only run the Ember.onload initializers in globals mode
 - [#4010](https://github.com/emberjs/data/pull/4010) [DOC beta] Mark comments as private
 - [#4014](https://github.com/emberjs/data/pull/4014) Register the version before the DEBUG version are printed when loadin…
-
-### Release 2.3.0-beta.3 (December 14, 2015)
 - [#3995](https://github.com/emberjs/data/pull/3995) [BUGFIX beta] Implement public module API.
-
-### Release 2.3.0-beta.2 (December 12, 2015)
 - [#3865](https://github.com/emberjs/data/pull/3943) [PERF] Ajax should join an existing run if one exists
 - [#3949](https://github.com/emberjs/data/pull/3949) Fix incorrect reference in store api docs
 - [#3841](https://github.com/emberjs/data/pull/3841) Log a deprecation warning when when Ember Data is loaded with Ember 1.13
@@ -29,8 +33,6 @@
 - [#3978](https://github.com/emberjs/data/pull/3978) [BUGFIX beta] bump ember-inflector
 - [#3983](https://github.com/emberjs/data/pull/3983) [DOC beta] Fix documentation to use "serializedHasManyName"
 - [#3986](https://github.com/emberjs/data/pull/3986) Move private modules into the `-private` directory
-
-### Release 2.3.0-beta.1 (November 17, 2015)
 - [#3865](https://github.com/emberjs/data/pull/3865) Assert that passed array to set a hasMany consists of records
 - [#3820](https://github.com/emberjs/data/pull/3820) [CLEANUP] Remove duplicate test for creating record
 - [#3819](https://github.com/emberjs/data/pull/3819) [CLEANUP] Remove duplicate `default export` in snapshot.js
@@ -45,7 +47,7 @@
 - [#3839](https://github.com/emberjs/data/pull/3839) Cleanup build
 - [#3831](https://github.com/emberjs/data/pull/3831) [CLEANUP] dasherize file name for hasRecordForId test
 - [#3830](https://github.com/emberjs/data/pull/3830) Fix tests for non-dasherized lookups
-- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
 - [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
 - [#3834](https://github.com/emberjs/data/pull/3834) raise errors on deprecation
 - [#3843](https://github.com/emberjs/data/pull/3843) Remove unneeded PromiseArray allocation
@@ -70,9 +72,6 @@
 - [#3927](https://github.com/emberjs/data/pull/3927) restore globals publishing to canary build
 - [#3929](https://github.com/emberjs/data/pull/3929) upgrade node to 4 on CI
 - [#3931](https://github.com/emberjs/data/pull/3931) update ember-cli to 1.13.12
-- [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
-- [#3938](https://github.com/emberjs/data/pull/3938) Update the changelog for Ember Data 2.2.0
-
 
 ### Release 2.2.0 (November 17, 2015)
 - [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
