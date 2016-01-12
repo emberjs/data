@@ -34,6 +34,8 @@
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-version-checker": "^1.1.4",
     "ember-inflector": "^1.9.4",
+    "exists-sync": "0.0.3",
+    "git-repo-info": "^1.1.2",
     "inflection": "^1.8.0",
     "semver": "^5.1.0",
     "silent-error": "^1.0.0"
@@ -67,7 +69,6 @@
     "ember-publisher": "0.0.7",
     "ember-try": "0.0.6",
     "ember-watson": "^0.7.0",
-    "git-repo-version": "^0.3.0",
     "github": "^0.2.4",
     "glob": "^5.0.13",
     "lodash.assign": "^3.2.0",
