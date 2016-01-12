@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.3.1 (January 12, 2016)
+- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
+- [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
 
 ### Release 2.3.0 (January 12, 2016)
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
