@@ -6,6 +6,8 @@ var Promise = require('ember-cli/lib/ext/promise');
 var rimraf = require('rimraf');
 var mochaOnlyDetector = require('mocha-only-detector');
 
+process.env.EMBER_DATA_SKIP_VERSION_CHECKING_DO_NOT_USE_THIS_ENV_VARIABLE = true;
+
 if (process.env.EOLNEWLINE) {
   require('os').EOL = '\n';
 }
