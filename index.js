@@ -64,6 +64,17 @@ module.exports = {
     return path.join(__dirname, 'blueprints');
   },
 
+  treeForApp: function(dir) {
+    if (this._forceBowerUsage) {
+      // Fake an empty broccoli tree
+      return { inputTree: dir, rebuild: function() { return []; } };
+    }
+
+    // this._super.treeForApp is undefined in ember-cli (1.13) for some reason.
+    // TODO: investigate why treeForApp isn't on _super
+    return dir;
+  },
+
   treeForAddon: function(dir) {
     if (this._forceBowerUsage) {
       // Fakes an empty broccoli tree
