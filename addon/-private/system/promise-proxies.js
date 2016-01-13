@@ -135,8 +135,5 @@ var promiseManyArray = function(promise, label) {
 export {
   PromiseArray,
   PromiseObject,
-  PromiseManyArray,
-  promiseArray,
-  promiseObject,
-  promiseManyArray
+  PromiseManyArray
 };
