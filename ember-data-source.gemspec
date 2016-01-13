@@ -14,5 +14,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "ember-source", ">= 2", "< 3.0"
 
-  gem.files = %w(package.json) + Dir['dist/ember-data*.js', 'dist/ember-data.js.map', 'lib/ember/data/*.rb']
+  gem.files = %w(package.json) + Dir['dist/globals/ember-data*.js', 'dist/globals/ember-data.js.map', 'lib/ember/data/*.rb']
 end
