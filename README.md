@@ -23,7 +23,18 @@ Christoffer Persson and Stanley Stuart.
 
 ### Getting Ember Data
 
+Since version `2.3` ember-data is a proper Ember-CLI addon which can be added
+to your app via:
+
 ```no-highlight
+ember install ember-data
+```
+
+If you need to use a version of ember-data package `< 2.3`, you need to add the
+npm package and add the dependency via bower:
+
+```no-highlight
+npm install ember-data@v2.2.1 --save-dev
 bower install ember-data --save
 ```
 
