@@ -60,8 +60,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         {
           file: 'app/adapters/application.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.JSONAPIAdapter.extend({'
+            'import JSONAPIAdapter from \'ember-data/adapters/json-api\';',
+            'export default JSONAPIAdapter.extend({'
           ]
         },
         {

@@ -11,8 +11,14 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         {
           file: 'app/models/foo.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.Model.extend('
+            'import Model from \'ember-data/model\';',
+            'export default Model.extend('
+          ],
+          doesNotContain: [
+            'import attr from \'ember-data/attr\';',
+            'import { belongsTo } from \'ember-data/relationships\';',
+            'import { hasMany } from \'ember-data/relationships\';',
+            'import { belongsTo, hasMany } from \'ember-data/relationships\';'
           ]
         },
         {
@@ -42,16 +48,22 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         {
           file: 'app/models/foo.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.Model.extend(',
-            'misc: DS.attr()',
-            'skills: DS.attr(\'array\')',
-            'isActive: DS.attr(\'boolean\')',
-            'birthday: DS.attr(\'date\')',
-            'someObject: DS.attr(\'object\')',
-            'age: DS.attr(\'number\')',
-            'name: DS.attr(\'string\')',
-            'customAttr: DS.attr(\'custom-transform\')'
+            'import Model from \'ember-data/model\';',
+            'import attr from \'ember-data/attr\';',
+            'export default Model.extend(',
+            'misc: attr()',
+            'skills: attr(\'array\')',
+            'isActive: attr(\'boolean\')',
+            'birthday: attr(\'date\')',
+            'someObject: attr(\'object\')',
+            'age: attr(\'number\')',
+            'name: attr(\'string\')',
+            'customAttr: attr(\'custom-transform\')'
+          ],
+          doesNotContain: [
+            'import { belongsTo } from \'ember-data/relationships\';',
+            'import { hasMany } from \'ember-data/relationships\';',
+            'import { belongsTo, hasMany } from \'ember-data/relationships\';'
           ]
         },
         {
@@ -70,10 +82,16 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         {
           file: 'app/models/comment.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.Model.extend(',
-            'post: DS.belongsTo(\'post\')',
-            'author: DS.belongsTo(\'user\')',
+            'import Model from \'ember-data/model\';',
+            'import { belongsTo } from \'ember-data/relationships\';',
+            'export default Model.extend(',
+            'post: belongsTo(\'post\')',
+            'author: belongsTo(\'user\')',
+          ],
+          doesNotContain: [
+            'import attr from \'ember-data/attr\';',
+            'import { hasMany } from \'ember-data/relationships\';',
+            'import { belongsTo, hasMany } from \'ember-data/relationships\';'
           ]
         },
         {
@@ -93,10 +111,16 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         {
           file: 'app/models/post.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.Model.extend(',
-            'comments: DS.hasMany(\'comment\')',
-            'otherComments: DS.hasMany(\'comment\')',
+            'import Model from \'ember-data/model\';',
+            'import { hasMany } from \'ember-data/relationships\';',
+            'export default Model.extend(',
+            'comments: hasMany(\'comment\')',
+            'otherComments: hasMany(\'comment\')',
+          ],
+          doesNotContain: [
+            'import attr from \'ember-data/attr\';',
+            'import { belongsTo } from \'ember-data/relationships\';',
+            'import { belongsTo, hasMany } from \'ember-data/relationships\';'
           ]
         },
         {
@@ -104,6 +128,24 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           contains: [
             'moduleForModel(\'post\'',
             'needs: [\'model:comment\']'
+          ]
+        }
+      ]
+    });
+  });
+
+  it('model with belongsTo and hasMany has both imports', function() {
+    return generateAndDestroy(['model', 'post', 'comments:has-many', 'user:belongs-to'], {
+      files: [
+        {
+          file: 'app/models/post.js',
+          contains: [
+            'import { belongsTo, hasMany } from \'ember-data/relationships\';'
+          ],
+          doesNotContain: [
+            'import attr from \'ember-data/attr\';',
+            'import { belongsTo } from \'ember-data/relationships\';',
+            'import { hasMany } from \'ember-data/relationships\';'
           ]
         }
       ]
