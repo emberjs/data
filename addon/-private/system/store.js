@@ -1253,30 +1253,6 @@ Store = Service.extend({
     return this.hasRecordForId(modelName, id);
   },
 
-  /**
-    @method _metadataFor
-    @param {String} modelName
-    @return {object}
-    @private
-  */
-  _metadataFor(modelName) {
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    return this.typeMapFor(typeClass).metadata;
-  },
-
-  /**
-    @method _setMetadataFor
-    @param {String} modelName
-    @param {Object} metadata metadata to set
-    @private
-  */
-  _setMetadataFor(modelName, metadata) {
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
-  },
-
   // ............
   // . UPDATING .
   // ............

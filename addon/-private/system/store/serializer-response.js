@@ -79,10 +79,6 @@ export function normalizeResponseHelper(serializer, store, modelClass, payload, 
     validationErrors = validateDocumentStructure(normalizedResponse);
   });
   assert(`normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`, Ember.isEmpty(validationErrors));
-  // TODO: Remove after metadata refactor
-  if (normalizedResponse.meta) {
-    store._setMetadataFor(modelClass.modelName, normalizedResponse.meta);
-  }
 
   return normalizedResponse;
 }
