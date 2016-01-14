@@ -1036,7 +1036,9 @@ test("async hasMany always returns a promise", function(assert) {
     tom = store.createRecord('person', { name: "Tom Dale" });
   });
 
-  assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
+  run(function() {
+    assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
+  });
 
   run(function() {
     tom.save().then(assert.wait(function() {

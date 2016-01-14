@@ -834,7 +834,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
 });
 
 test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
-  assert.expect(4);
+  assert.expect(3);
 
   var Person = DS.Model.extend();
 
@@ -858,7 +858,7 @@ test("store.fetchRecord reject records that were not found, even when those requ
   });
 
   let done = assert.async();
-  assert.warns(function() {
+  assert.expectWarning(function() {
     run(function () {
       var davidPromise = store.findRecord('test', 'david');
       var igorPromise = store.findRecord('test', 'igor');

@@ -155,7 +155,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  assert.warns(Ember.run.bind(null, function() {
+  assert.expectWarning(Ember.run.bind(null, function() {
     run(function() {
       env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
@@ -167,7 +167,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  assert.noWarns(function() {
+  assert.expectNoWarning(function() {
     run(function() {
 
       homePlanet = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
@@ -189,7 +189,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  assert.warns(function() {
+  assert.expectWarning(function() {
     env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
   }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
@@ -202,7 +202,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  assert.noWarns(function() {
+  assert.expectNoWarning(function() {
     run(function() {
       homePlanets = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
     });

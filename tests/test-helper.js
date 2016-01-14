@@ -1,3 +1,4 @@
+import 'dummy/tests/helpers/setup-ember-dev';
 import resolver from './helpers/resolver';
 import {
   setResolver
@@ -9,14 +10,8 @@ import {
   asyncEqual,
   invokeAsync
 } from 'dummy/tests/helpers/async';
-import {
-  warns,
-  noWarns
-} from 'dummy/tests/helpers/warns';
-import addEmberAssertions from 'dummy/tests/helpers/ember-assertions';
 import Ember from 'ember';
 import './ember-data-initializers';
-
 
 setResolver(resolver);
 
@@ -58,8 +53,6 @@ assert.assertClean = function(promise) {
     return record;
   }));
 };
-assert.warns = warns;
-assert.noWarns = noWarns;
 
 assert.contains = function(array, item) {
   this.ok(array.indexOf(item) !== -1, `array contains ${item}`);
@@ -68,8 +61,6 @@ assert.contains = function(array, item) {
 assert.without = function(array, item)  {
   this.ok(array.indexOf(item) === -1, `array doesn't contain ${item}`);
 };
-
-addEmberAssertions(assert);
 
 QUnit.config.testTimeout = 2000;
 QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features" });

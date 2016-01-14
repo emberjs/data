@@ -494,7 +494,7 @@ test('Calling push with a link for a non async relationship should warn', functi
     phoneNumbers: hasMany('phone-number', { async: false })
   });
 
-  assert.warns(function() {
+  assert.expectWarning(function() {
     run(function() {
       store.push(store.normalize('person', {
         id: '1',
@@ -631,7 +631,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-      assert.warns(function() {
+      assert.expectWarning(function() {
         store.push({
           data: {
             type: 'person',
@@ -651,7 +651,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
 });
 
 test("Calling push with unknown keys should not warn by default", function(assert) {
-  assert.noWarns(function() {
+  assert.expectNoWarning(function() {
     run(function() {
       store.push({
         data: {

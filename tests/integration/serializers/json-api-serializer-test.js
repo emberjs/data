@@ -127,7 +127,7 @@ test('Warns when normalizing an unknown type', function(assert) {
     }
   };
 
-  assert.warns(function() {
+  assert.expectWarning(function() {
     run(function() {
       env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
     });

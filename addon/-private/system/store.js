@@ -1733,7 +1733,7 @@ Store = Service.extend({
   },
 
   _hasModelFor(type) {
-    return getOwner(this)._lookupFactory(`model:${type}`);
+    return !!getOwner(this)._lookupFactory(`model:${type}`);
   },
 
   _pushInternalModel(data) {
