@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import merge from "ember-data/-private/system/merge";
 import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
@@ -21,6 +20,7 @@ var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
 var copy = Ember.copy;
+var merge = Ember.merge;
 
 var _extractPivotNameCache = new EmptyObject();
 var _splitOnDotCache = new EmptyObject();
