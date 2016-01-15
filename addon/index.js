@@ -19,7 +19,6 @@ if (Ember.VERSION.match(/^1\.13\./)) {
 }
 
 import DS from "ember-data/-private/core";
-import "ember-data/-private/ext/date";
 
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 
