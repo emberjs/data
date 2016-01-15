@@ -1,6 +1,3 @@
-/*globals Ember*/
-/*jshint eqnull:true*/
-
 /**
   @module ember-data
 */
