@@ -12,8 +12,8 @@ var Map = Ember.Map;
 var MapWithDefault = Ember.MapWithDefault;
 
 var relationshipsDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
-    relationshipsDescriptor._cacheable = false;
+  if (Ember.testing === true && relationshipsDescriptor._volatile === false) {
+    relationshipsDescriptor._volatile = true;
   }
 
   var map = new MapWithDefault({
@@ -39,8 +39,8 @@ var relationshipsDescriptor = Ember.computed(function() {
 }).readOnly();
 
 var relatedTypesDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relatedTypesDescriptor._cacheable === true) {
-    relatedTypesDescriptor._cacheable = false;
+  if (Ember.testing === true && relatedTypesDescriptor._volatile === false) {
+    relatedTypesDescriptor._volatile = true;
   }
 
   var modelName;
@@ -67,8 +67,8 @@ var relatedTypesDescriptor = Ember.computed(function() {
 }).readOnly();
 
 var relationshipsByNameDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relationshipsByNameDescriptor._cacheable === true) {
-    relationshipsByNameDescriptor._cacheable = false;
+  if (Ember.testing === true && relationshipsByNameDescriptor._volatile === false) {
+    relationshipsByNameDescriptor._volatile = true;
   }
 
   var map = Map.create();
