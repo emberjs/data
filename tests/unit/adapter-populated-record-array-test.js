@@ -30,30 +30,31 @@ module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
 test("when a record is deleted in an adapter populated record array, it should be removed", function(assert) {
   var recordArray = store.recordArrayManager
     .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+  var payload = {
+    data: [{
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Scumbag Dale'
+      }
+    }, {
+      type: 'person',
+      id: '2',
+      attributes: {
+        name: 'Scumbag Katz'
+      }
+    }, {
+      type: 'person',
+      id: '3',
+      attributes: {
+        name: 'Scumbag Bryn'
+      }
+    }]
+  };
 
   run(function() {
-    var records = store.push({
-      data: [{
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Scumbag Dale'
-        }
-      }, {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'Scumbag Katz'
-        }
-      }, {
-        type: 'person',
-        id: '3',
-        attributes: {
-          name: 'Scumbag Bryn'
-        }
-      }]
-    });
-    recordArray.loadRecords(records);
+    var records = store.push(payload);
+    recordArray.loadRecords(records, payload);
   });
 
   assert.equal(recordArray.get('length'), 3, "expected recordArray to contain exactly 3 records");
@@ -63,6 +64,42 @@ test("when a record is deleted in an adapter populated record array, it should b
   });
 
   assert.equal(recordArray.get('length'), 2, "expected recordArray to contain exactly 2 records");
+});
+
+test("stores the metadata off the payload", function(assert) {
+  var recordArray = store.recordArrayManager
+    .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+  var payload = {
+    data: [{
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Scumbag Dale'
+      }
+    }, {
+      type: 'person',
+      id: '2',
+      attributes: {
+        name: 'Scumbag Katz'
+      }
+    }, {
+      type: 'person',
+      id: '3',
+      attributes: {
+        name: 'Scumbag Bryn'
+      }
+    }],
+    meta: {
+      foo: 'bar'
+    }
+  };
+
+  run(function() {
+    var records = store.push(payload);
+    recordArray.loadRecords(records, payload);
+  });
+
+  assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
 });
 
 test('recordArray.replace() throws error', function(assert) {
