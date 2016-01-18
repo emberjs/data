@@ -1,6 +1,6 @@
-import Model from "ember-data/model";
+import Ember from "ember";
 
-Model.reopen({
+export default Ember.Mixin.create({
 
   /**
     Provides info about the model for debugging purposes
@@ -63,5 +63,3 @@ Model.reopen({
     };
   }
 });
-
-export default Model;

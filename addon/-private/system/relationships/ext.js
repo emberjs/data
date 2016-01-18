@@ -4,7 +4,6 @@ import {
   typeForRelationshipMeta,
   relationshipFromMeta
 } from "ember-data/-private/system/relationship-meta";
-import Model from "ember-data/model";
 import EmptyObject from "ember-data/-private/system/empty-object";
 
 var get = Ember.get;
@@ -98,7 +97,7 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
   @class Model
   @namespace DS
 */
-Model.reopen({
+export const DidDefinePropertyMixin = Ember.Mixin.create({
 
   /**
     This Ember.js hook allows an object to be notified when a property
@@ -157,7 +156,7 @@ Model.reopen({
   extensively.
 */
 
-Model.reopenClass({
+export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
 
   /**
     For a given relationship name, returns the model type of the relationship.
@@ -596,7 +595,7 @@ Model.reopenClass({
 
 });
 
-Model.reopen({
+export const RelationshipsInstanceMethodsMixin = Ember.Mixin.create({
   /**
     Given a callback, iterates over each of the relationships in the model,
     invoking the callback with the name of each relationship and its relationship

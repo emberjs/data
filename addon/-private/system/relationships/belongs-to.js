@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
-import Model from 'ember-data/model';
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 
 /**
@@ -138,7 +137,7 @@ export default function belongsTo(modelName, options) {
   These observers observe all `belongsTo` relationships on the record. See
   `relationships/ext` to see how these observers get their dependencies.
 */
-Model.reopen({
+export const BelongsToMixin = Ember.Mixin.create({
   notifyBelongsToChanged: function(key) {
     this.notifyPropertyChange(key);
   }

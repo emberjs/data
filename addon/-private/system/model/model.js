@@ -2,6 +2,11 @@ import Ember from 'ember';
 import { assert, deprecate } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
+import DebuggerInfoMixin from 'ember-data/-private/system/debug/debug-info';
+import { BelongsToMixin } from 'ember-data/-private/system/relationships/belongs-to';
+import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many';
+import { DidDefinePropertyMixin, RelationshipsClassMethodsMixin, RelationshipsInstanceMethodsMixin } from 'ember-data/-private/system/relationships/ext';
+import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 
 /**
   @module ember-data
@@ -848,4 +853,13 @@ if (Ember.setOwner) {
   });
 }
 
-export default Model;
+Model.reopenClass(RelationshipsClassMethodsMixin);
+Model.reopenClass(AttrClassMethodsMixin);
+
+export default Model.extend(
+  DebuggerInfoMixin,
+  BelongsToMixin,
+  DidDefinePropertyMixin,
+  RelationshipsInstanceMethodsMixin,
+  HasManyMixin,
+  AttrInstanceMethodsMixin);
