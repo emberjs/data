@@ -4,7 +4,6 @@
 
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import Model from "ember-data/model";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import isArrayLike from "ember-data/-private/system/is-array-like";
 
@@ -146,6 +145,7 @@ export default function hasMany(type, options) {
       return relationship.getRecords();
     },
     set(key, records) {
+      var Model = require('ember-data/model').default;
       assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
       assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
         return Ember.A(records).every((record) => Model.detectInstance(record) );
