@@ -2,6 +2,17 @@
 
 ### Master
 
+### Release 2.3.2 (January 18, 2016)
+- [#4000](https://github.com/emberjs/data/pull/4000) Re-enable pushing builds to S3
+- [#4002](https://github.com/emberjs/data/pull/4002) Fix paths to files which should be uploaded to S3
+- [#4072](https://github.com/emberjs/data/pull/4072) [BUGFIX release] Fix bundled source path for gem
+- [#4073](https://github.com/emberjs/data/pull/4073) [BUGFIX release] Add missing dist source to gem
+- [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
+- [#4084](https://github.com/emberjs/data/pull/4084) [cleanup] Remove unnecessary inline JSHint config
+- [#4088](https://github.com/emberjs/data/pull/4088) [BUFGIX release] Fix regression with missing initializers
+- [#4090](https://github.com/emberjs/data/pull/4090) Make yui doc generate links from the project root instead of the file…
+- [#4091](https://github.com/emberjs/data/pull/4091) [BUGFIX release] Refactor Model.reopen to use mixins
+
 ### Release 2.3.1 (January 12, 2016)
 - [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
 - [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
