@@ -159,7 +159,7 @@ export default function hasMany(type, options) {
   }).meta(meta);
 }
 
-Model.reopen({
+export const HasManyMixin = Ember.Mixin.create({
   notifyHasManyAdded(key) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
