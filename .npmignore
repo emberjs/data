@@ -7,10 +7,12 @@ dist/
 .editorconfig
 .ember-cli
 .travis.yml
+.appveyor.yml
 .npmignore
 **/.gitkeep
 bower.json
-Brocfile.js
 testem.json
 *.gem
+*.gemspec
+**/*.rb
 node-tests/
