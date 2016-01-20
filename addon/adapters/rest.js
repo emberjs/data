@@ -543,9 +543,9 @@ export default Adapter.extend(BuildURLMixin, {
   },
 
   /**
-    Called by the store in order to fetch a JSON array for
-    the unloaded records in a belongs-to relationship that were originally
-    specified as a URL (inside of `links`).
+    Called by the store in order to fetch the JSON for the unloaded record in a
+    belongs-to relationship that was originally specified as a URL (inside of
+    `links`).
 
     For example, if your original payload looks like this:
 
