@@ -1167,7 +1167,7 @@ Store = Service.extend({
     still be in the array.
 
     Optionally you can pass a query, which is the equivalent of calling
-    [find](#method_find) with that same query, to fetch additional records
+    [query](#method_query) with that same query, to fetch additional records
     from the server. The results returned by the server could then appear
     in the filter if they match the filter function.
 
