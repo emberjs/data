@@ -15,21 +15,6 @@ var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 var hash = Ember.RSVP.hash;
 
-// Before https://github.com/emberjs/ember.js/pull/10323 the computed
-// property descriptor was stored on the ember meta object. After that
-// pr it was moved to the ember object. This code normalized that
-// lookup because the Ember Data ci tests run against diferent version
-// of Ember. Once that code reaches the release branch this code can
-// be removed.
-function getComputedPropertyDesc(model, key) {
-  if (Ember.meta(model).descs) {
-    return Ember.meta(model).descs[key];
-  }
-  var possibleDesc = model[key];
-  var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
-  return desc;
-}
-
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   beforeEach() {
     User = DS.Model.extend({
@@ -563,7 +548,7 @@ test("relationshipsByName is cached in production", function(assert) {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relationshipsByName = getComputedPropertyDesc(model, 'relationshipsByName');
+  var relationshipsByName = model.relationshipsByName;
   var oldCacheable = relationshipsByName._cacheable;
   relationshipsByName._cacheable = true;
   Ember.testing = false;
@@ -581,7 +566,7 @@ test("relatedTypes is cached in production", function(assert) {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relatedTypes = getComputedPropertyDesc(model, 'relatedTypes');
+  var relatedTypes = model.relatedTypes;
   var oldCacheable = relatedTypes._cacheable;
   relatedTypes._cacheable = true;
   Ember.testing = false;
@@ -599,7 +584,7 @@ test("relationships is cached in production", function(assert) {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relationships = getComputedPropertyDesc(model, 'relationships');
+  var relationships = model.relationships;
   var oldCacheable = relationships._cacheable;
   relationships._cacheable = true;
   Ember.testing = false;
