@@ -128,6 +128,26 @@ test('buildURL - with absolute paths in links and protocol relative host', funct
   }));
 });
 
+test('buildURL - with absolute paths in links and host is /', function(assert) {
+  run(function() {
+    adapter.setProperties({
+      host: '/',
+      namespace: 'api/v1'
+    });
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+  run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(assert.wait(function (comments) {
+    assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
+  }));
+});
+
 test('buildURL - with full URLs in links', function(assert) {
   adapter.setProperties({
     host: 'http://example.com',
