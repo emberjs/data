@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.3.3 (January 21, 2016)
+- [#4095](https://github.com/emberjs/data/pull/4095) [BUGFIX release] Remove 'v' prefix from `DS.VERSION`
+
 ### Release 2.3.2 (January 18, 2016)
 - [#4000](https://github.com/emberjs/data/pull/4000) Re-enable pushing builds to S3
 - [#4002](https://github.com/emberjs/data/pull/4002) Fix paths to files which should be uploaded to S3
