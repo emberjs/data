@@ -218,8 +218,12 @@ export default Ember.Mixin.create({
     @return {String} urlPrefix
   */
   urlPrefix(path, parentURL) {
-    var host = get(this, 'host') || '';
+    var host = get(this, 'host');
     var namespace = get(this, 'namespace');
+
+    if (!host || host === '/') {
+      host = '';
+    }
 
     if (path) {
       // Protocol relative url
