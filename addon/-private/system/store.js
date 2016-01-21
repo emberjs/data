@@ -1189,6 +1189,7 @@ Store = Service.extend({
     ```
 
     @method filter
+    @private
     @param {String} modelName
     @param {Object} query optional query
     @param {Function} filter
