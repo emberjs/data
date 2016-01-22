@@ -10,24 +10,28 @@ test("DS.AdapterError", function(assert) {
   var error = new DS.AdapterError();
   assert.ok(error instanceof Error);
   assert.ok(error instanceof Ember.Error);
+  assert.ok(error.isAdapterError);
 });
 
 test("DS.InvalidError", function(assert) {
   var error = new DS.InvalidError();
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
 });
 
 test("DS.TimeoutError", function(assert) {
   var error = new DS.TimeoutError();
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
 });
 
 test("DS.AbortError", function(assert) {
   var error = new DS.AbortError();
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
 });
 
 var errorsHash = {

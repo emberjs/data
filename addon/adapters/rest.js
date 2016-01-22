@@ -853,7 +853,7 @@ export default Adapter.extend(BuildURLMixin, {
           requestData
         );
 
-        if (response instanceof AdapterError) {
+        if (response && response.isAdapterError) {
           Ember.run.join(null, reject, response);
         } else {
           Ember.run.join(null, resolve, response);
