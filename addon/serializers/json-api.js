@@ -7,6 +7,7 @@ import { assert, runInDebug, warn } from 'ember-data/-private/debug';
 import JSONSerializer from 'ember-data/serializers/json';
 import normalizeModelName from 'ember-data/-private/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector';
+import isEnabled from 'ember-data/-private/features';
 
 var dasherize = Ember.String.dasherize;
 
@@ -178,7 +179,11 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   pushPayload(store, payload) {
     let normalizedPayload = this._normalizeDocumentHelper(payload);
-    store.push(normalizedPayload);
+    if (isEnabled('ds-pushpayload-return')) {
+      return store.push(normalizedPayload);
+    } else {
+      store.push(normalizedPayload);
+    }
   },
 
   /**

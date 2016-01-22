@@ -25,3 +25,8 @@ entry in `config/features.json`.
 
   Pass options specified for a `DS.attr` to the `DS.Tranform`'s `serialize` and
   `deserialize` methods (described in [RFC 1](https://github.com/emberjs/rfcs/pull/1))
+
+- `ds-pushpayload-return`
+
+  Enables `pushPayload` to return the model(s) that are created or
+  updated via the internal `store.push`. [PR 4110](https://github.com/emberjs/data/pull/4110)
