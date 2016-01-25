@@ -881,8 +881,17 @@ export default Adapter.extend(BuildURLMixin, {
         Ember.run.join(null, reject, error);
       };
 
-      Ember.$.ajax(hash);
+      adapter._ajaxRequest(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
+  },
+
+  /**
+    @method _ajaxRequest
+    @private
+    @param {Object} options jQuery ajax options to be used for the ajax request
+  */
+  _ajaxRequest(options) {
+    Ember.$.ajax(options);
   },
 
   /**
