@@ -11,8 +11,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         {
           file: 'app/serializers/foo.js',
           contains: [
-            'import DS from \'ember-data\';',
-            'export default DS.JSONAPISerializer.extend('
+            'import JSONAPISerializer from \'ember-data/serializers/json-api\';',
+            'export default JSONAPISerializer.extend('
           ]
         },
         {

@@ -1,6 +1,3 @@
-/*globals Ember*/
-/*jshint eqnull:true*/
-
 /**
   @module ember-data
 */
@@ -955,7 +952,11 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  query(modelName, query, array) {
+  query(modelName, query) {
+    return this._query(modelName, query);
+  },
+
+  _query(modelName, query, array) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     array = array || this.recordArrayManager
@@ -1166,7 +1167,7 @@ Store = Service.extend({
     still be in the array.
 
     Optionally you can pass a query, which is the equivalent of calling
-    [find](#method_find) with that same query, to fetch additional records
+    [query](#method_query) with that same query, to fetch additional records
     from the server. The results returned by the server could then appear
     in the filter if they match the filter function.
 
@@ -1188,6 +1189,7 @@ Store = Service.extend({
     ```
 
     @method filter
+    @private
     @param {String} modelName
     @param {Object} query optional query
     @param {Function} filter
@@ -1247,30 +1249,6 @@ Store = Service.extend({
   recordIsLoaded(modelName, id) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this.hasRecordForId(modelName, id);
-  },
-
-  /**
-    @method _metadataFor
-    @param {String} modelName
-    @return {object}
-    @private
-  */
-  _metadataFor(modelName) {
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    return this.typeMapFor(typeClass).metadata;
-  },
-
-  /**
-    @method _setMetadataFor
-    @param {String} modelName
-    @param {Object} metadata metadata to set
-    @private
-  */
-  _setMetadataFor(modelName, metadata) {
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
   },
 
   // ............
@@ -1729,7 +1707,7 @@ Store = Service.extend({
   },
 
   _hasModelFor(type) {
-    return getOwner(this)._lookupFactory(`model:${type}`);
+    return !!getOwner(this)._lookupFactory(`model:${type}`);
   },
 
   _pushInternalModel(data) {

@@ -28,20 +28,16 @@ export default Ember.Mixin.create({
   /**
     @method loadRecords
     @param {Array} records
+    @param {Object} payload normalized payload
     @private
   */
-  loadRecords(records) {
-    var store = get(this, 'store');
-    var type = get(this, 'type');
-    var modelName = type.modelName;
-    var meta = store._metadataFor(modelName);
-
+  loadRecords(records, payload) {
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
     this.setProperties({
       content: Ember.A(internalModels),
       isLoaded: true,
-      meta: cloneNull(meta)
+      meta: cloneNull(payload.meta)
     });
 
     internalModels.forEach((record) => {

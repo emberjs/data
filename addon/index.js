@@ -19,7 +19,6 @@ if (Ember.VERSION.match(/^1\.13\./)) {
 }
 
 import DS from "ember-data/-private/core";
-import "ember-data/-private/ext/date";
 
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 
@@ -82,7 +81,7 @@ import {
 } from "ember-data/-private/transforms";
 
 import {hasMany, belongsTo} from "ember-data/relationships";
-import setupContainer from "ember-data/-private/setup-container";
+import setupContainer from "ember-data/setup-container";
 import initializeStoreService from 'ember-data/-private/instance-initializers/initialize-store-service';
 
 import ContainerProxy from "ember-data/-private/system/container-proxy";

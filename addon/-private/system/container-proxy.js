@@ -1,6 +1,6 @@
 import { deprecate } from "ember-data/-private/debug";
 
-/**
+/*
   This is used internally to enable deprecation of container paths and provide
   a decent message to the user indicating how to fix the issue.
 

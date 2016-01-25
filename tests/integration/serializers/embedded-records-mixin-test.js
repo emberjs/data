@@ -959,7 +959,7 @@ test("serialize with embedded objects (unknown hasMany relationship)", function(
   }));
 
   var serializer, json;
-  assert.warns(function() {
+  assert.expectWarning(function() {
     run(function() {
       serializer = env.store.serializerFor("home-planet");
       json = serializer.serialize(league._createSnapshot());

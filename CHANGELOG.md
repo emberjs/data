@@ -2,6 +2,95 @@
 
 ### Master
 
+### Release 2.3.3 (January 21, 2016)
+- [#4095](https://github.com/emberjs/data/pull/4095) [BUGFIX release] Remove 'v' prefix from `DS.VERSION`
+
+### Release 2.3.2 (January 18, 2016)
+- [#4000](https://github.com/emberjs/data/pull/4000) Re-enable pushing builds to S3
+- [#4002](https://github.com/emberjs/data/pull/4002) Fix paths to files which should be uploaded to S3
+- [#4072](https://github.com/emberjs/data/pull/4072) [BUGFIX release] Fix bundled source path for gem
+- [#4073](https://github.com/emberjs/data/pull/4073) [BUGFIX release] Add missing dist source to gem
+- [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
+- [#4084](https://github.com/emberjs/data/pull/4084) [cleanup] Remove unnecessary inline JSHint config
+- [#4088](https://github.com/emberjs/data/pull/4088) [BUFGIX release] Fix regression with missing initializers
+- [#4090](https://github.com/emberjs/data/pull/4090) Make yui doc generate links from the project root instead of the file…
+- [#4091](https://github.com/emberjs/data/pull/4091) [BUGFIX release] Refactor Model.reopen to use mixins
+
+### Release 2.3.1 (January 12, 2016)
+- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
+- [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
+
+### Release 2.3.0 (January 12, 2016)
+- [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
+- [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
+- [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
+- [#4050](https://github.com/emberjs/data/pull/4050) [BUGFIX beta] Functional update for adapter populated record arrays
+- [#4051](https://github.com/emberjs/data/pull/4051) Make setup-container public to allow consuming apps more flexibility with initializer
+- [#4052](https://github.com/emberjs/data/pull/4052) [DOC beta] Hide private classes from YUIDoc
+- [#4055](https://github.com/emberjs/data/pull/4055) [BUGFIX beta] pin jquery to 1.11.3 to fix broken build
+- [#4057](https://github.com/emberjs/data/pull/4057) [BUGFIX beta] fail builds in ember-cli when ember-cli-shims isn't met
+- [#4058](https://github.com/emberjs/data/pull/4058) [BUGFIX beta] Do not expose the array argument on store.query
+- [#4060](https://github.com/emberjs/data/pull/4060) Require ember-source 2.x
+- [#4018](https://github.com/emberjs/data/pull/4018) [CLEANUP] re-use test setup to assert correct call to adapter.ajax
+- [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
+- [#4021](https://github.com/emberjs/data/pull/4021) [BUGFIX beta] Move ember-inflector to an explicit dependency for the …
+- [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
+- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder 
+- [#4026](https://github.com/emberjs/data/pull/4026) [BUGFIX beta] ignores keys that are not found in the map
+- [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
+- [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
+- [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
+- [#4003](https://github.com/emberjs/data/pull/4003) Only run the Ember.onload initializers in globals mode
+- [#4010](https://github.com/emberjs/data/pull/4010) [DOC beta] Mark comments as private
+- [#4014](https://github.com/emberjs/data/pull/4014) Register the version before the DEBUG version are printed when loadin…
+- [#3995](https://github.com/emberjs/data/pull/3995) [BUGFIX beta] Implement public module API.
+- [#3865](https://github.com/emberjs/data/pull/3943) [PERF] Ajax should join an existing run if one exists
+- [#3949](https://github.com/emberjs/data/pull/3949) Fix incorrect reference in store api docs
+- [#3841](https://github.com/emberjs/data/pull/3841) Log a deprecation warning when when Ember Data is loaded with Ember 1.13
+- [#3973](https://github.com/emberjs/data/pull/3973) [CLEANUP] use debug helpers from ember-data/debug
+- [#3978](https://github.com/emberjs/data/pull/3978) [BUGFIX beta] bump ember-inflector
+- [#3983](https://github.com/emberjs/data/pull/3983) [DOC beta] Fix documentation to use "serializedHasManyName"
+- [#3986](https://github.com/emberjs/data/pull/3986) Move private modules into the `-private` directory
+- [#3865](https://github.com/emberjs/data/pull/3865) Assert that passed array to set a hasMany consists of records
+- [#3820](https://github.com/emberjs/data/pull/3820) [CLEANUP] Remove duplicate test for creating record
+- [#3819](https://github.com/emberjs/data/pull/3819) [CLEANUP] Remove duplicate `default export` in snapshot.js
+- [#3713](https://github.com/emberjs/data/pull/3713) Document the return value of DS.Adapter#updateRecord
+- [#3390](https://github.com/emberjs/data/pull/3390) Update the jsbin link so it has no deprecation warnings
+- [#3835](https://github.com/emberjs/data/pull/3835) [BUGFIX] extract polymorphic belongsTo in RESTSerializer
+- [#3829](https://github.com/emberjs/data/pull/3829) Remove references to findQuery
+- [#3824](https://github.com/emberjs/data/pull/3824) [DOCS] Improve docs for JSONSerializer
+- [#3828](https://github.com/emberjs/data/pull/3828) [CLEANUP] Make idiomatic use of `export default`
+- [#3821](https://github.com/emberjs/data/pull/3821) [CLEANUP] Remove unecessary wrap of rejection in run-loop
+- [#3827](https://github.com/emberjs/data/pull/3827) [DOC] Remove reference to `isDirty` in DS.Model documentation
+- [#3839](https://github.com/emberjs/data/pull/3839) Cleanup build
+- [#3831](https://github.com/emberjs/data/pull/3831) [CLEANUP] dasherize file name for hasRecordForId test
+- [#3830](https://github.com/emberjs/data/pull/3830) Fix tests for non-dasherized lookups
+- [#3837](https://github.com/emberjs/data/pull/3837) [BUGFIX] Attribute/relationship named "type" of embedded record is considered before normalization
+- [#3832](https://github.com/emberjs/data/pull/3832) Fix API docs for JSONAPISerializer.normalize
+- [#3834](https://github.com/emberjs/data/pull/3834) raise errors on deprecation
+- [#3843](https://github.com/emberjs/data/pull/3843) Remove unneeded PromiseArray allocation
+- [#3844](https://github.com/emberjs/data/pull/3844) Remove conditional statement that is always true
+- [#3855](https://github.com/emberjs/data/pull/3855) Deprecate complex objects as an attributes `defaultValue`.
+- [#3850](https://github.com/emberjs/data/pull/3850) [DOC] Document snapshotRecordArray param passed to adapter.findAll
+- [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed
+- [#3869](https://github.com/emberjs/data/pull/3869) Update the Changelog for 1.13.14
+- [#3867](https://github.com/emberjs/data/pull/3867) Allow serializers to normalize response, remove old internal serializers code
+- [#3858](https://github.com/emberjs/data/pull/3858) [DOC] remove documentation for `isError` in states
+- [#3866](https://github.com/emberjs/data/pull/3866) Allow store.push to accept { data: null }
+- [#3860](https://github.com/emberjs/data/pull/3860) [CLEANUP] remove unused private method in AdapterPopulatedRecordArray
+- [#3907](https://github.com/emberjs/data/pull/3907) Addonize
+- [#3898](https://github.com/emberjs/data/pull/3898) Fix DS.Errors summary and error object example
+- [#3889](https://github.com/emberjs/data/pull/3889)  [perf] minor adjustments to `store#push` flow
+- [#3928](https://github.com/emberjs/data/pull/3928) update README stating no IE8 support
+- [#3915](https://github.com/emberjs/data/pull/3915) Add null implementation of findMany in DS.Adapter
+- [#3904](https://github.com/emberjs/data/pull/3904) Cleanup `.codeclimate.yml`
+- [#3912](https://github.com/emberjs/data/pull/3912) Use public API for container/registry when possible.
+- [#3924](https://github.com/emberjs/data/pull/3924) [CLEANUP] `tests/integration/adapter/find-test.js`
+- [#3925](https://github.com/emberjs/data/pull/3925) [CLEANUP] Clean up adapter/find-all-test.js
+- [#3927](https://github.com/emberjs/data/pull/3927) restore globals publishing to canary build
+- [#3929](https://github.com/emberjs/data/pull/3929) upgrade node to 4 on CI
+- [#3931](https://github.com/emberjs/data/pull/3931) update ember-cli to 1.13.12
+
 ### Release 2.2.0 (November 17, 2015)
 - [#3937](https://github.com/emberjs/data/pull/3937) [BUGFIX beta] Warn instead of asserting when a mapped key doesn't mat…
 - [#3868](https://github.com/emberjs/data/pull/3868) Reset changed attributes when matching data is pushed

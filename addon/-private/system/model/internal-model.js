@@ -1,10 +1,10 @@
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import merge from "ember-data/-private/system/merge";
 import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
 import EmptyObject from "ember-data/-private/system/empty-object";
+import isEnabled from "ember-data/-private/features";
 
 import {
   getOwner
@@ -20,6 +20,7 @@ var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
 var copy = Ember.copy;
+var merge = Ember.merge;
 
 var _extractPivotNameCache = new EmptyObject();
 var _splitOnDotCache = new EmptyObject();
@@ -43,7 +44,7 @@ function retrieveFromCurrentState(key) {
 }
 
 var guid = 0;
-/**
+/*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
 
@@ -56,6 +57,7 @@ var guid = 0;
   We need to make sure that the properties from `InternalModel` are correctly exposed/proxied on `Model`
   if they are needed.
 
+  @private
   @class InternalModel
 */
 
@@ -246,7 +248,7 @@ InternalModel.prototype = {
     }
   },
 
-  /**
+  /*
     @method createSnapshot
     @private
   */
@@ -254,7 +256,7 @@ InternalModel.prototype = {
     return new Snapshot(this, options);
   },
 
-  /**
+  /*
     @method loadingData
     @private
     @param {Promise} promise
@@ -263,7 +265,7 @@ InternalModel.prototype = {
     this.send('loadingData', promise);
   },
 
-  /**
+  /*
     @method loadedData
     @private
   */
@@ -272,7 +274,7 @@ InternalModel.prototype = {
     this.didInitalizeData();
   },
 
-  /**
+  /*
     @method notFound
     @private
   */
@@ -280,7 +282,7 @@ InternalModel.prototype = {
     this.send('notFound');
   },
 
-  /**
+  /*
     @method pushedData
     @private
   */
@@ -297,7 +299,7 @@ InternalModel.prototype = {
     return Object.keys(this._attributes).length > 0;
   },
 
-  /**
+  /*
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.
 
@@ -321,7 +323,7 @@ InternalModel.prototype = {
     }
   },
 
-  /**
+  /*
     Returns an object, whose keys are changed properties, and value is an
     [oldProp, newProp] array.
 
@@ -345,7 +347,7 @@ InternalModel.prototype = {
     return diffData;
   },
 
-  /**
+  /*
     @method adapterWillCommit
     @private
   */
@@ -353,7 +355,7 @@ InternalModel.prototype = {
     this.send('willCommit');
   },
 
-  /**
+  /*
     @method adapterDidDirty
     @private
   */
@@ -362,7 +364,7 @@ InternalModel.prototype = {
     this.updateRecordArraysLater();
   },
 
-  /**
+  /*
     @method send
     @private
     @param {String} name
@@ -433,7 +435,7 @@ InternalModel.prototype = {
     this.record._notifyProperties(dirtyKeys);
 
   },
-  /**
+  /*
     @method transitionTo
     @private
     @param {String} name
@@ -519,7 +521,7 @@ InternalModel.prototype = {
 
     this._deferredTriggers.length = 0;
   },
-  /**
+  /*
     @method clearRelationships
     @private
   */
@@ -537,7 +539,7 @@ InternalModel.prototype = {
     });
   },
 
-  /**
+  /*
     When a find request is triggered on the store, the user can optionally pass in
     attributes and relationships to be preloaded. These are meant to behave as if they
     came back from the server, except the user obtained them out of band and is informing
@@ -607,26 +609,7 @@ InternalModel.prototype = {
     return value;
   },
 
-  referenceFor: function(type, name) {
-    var reference = this.references[name];
-
-    if (!reference) {
-      var relationship = this._relationships.get(name);
-
-      if (type === "belongsTo") {
-        reference = new BelongsToReference(this.store, this, relationship);
-      } else if (type === "hasMany") {
-        reference = new HasManyReference(this.store, this, relationship);
-      }
-
-      this.references[name] = reference;
-    }
-
-    return reference;
-  },
-
-
-  /**
+  /*
     @method updateRecordArrays
     @private
   */
@@ -666,7 +649,7 @@ InternalModel.prototype = {
       });
     }
   },
-  /**
+  /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
@@ -696,7 +679,7 @@ InternalModel.prototype = {
     this.record._notifyProperties(changedKeys);
   },
 
-  /**
+  /*
     @method updateRecordArraysLater
     @private
   */
@@ -731,7 +714,7 @@ InternalModel.prototype = {
 
   // FOR USE DURING COMMIT PROCESS
 
-  /**
+  /*
     @method adapterDidInvalidate
     @private
   */
@@ -749,7 +732,7 @@ InternalModel.prototype = {
     this._saveWasRejected();
   },
 
-  /**
+  /*
     @method adapterDidError
     @private
   */
@@ -769,7 +752,7 @@ InternalModel.prototype = {
     this._inFlightAttributes = new EmptyObject();
   },
 
-  /**
+  /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
 
     `_data` holds all of the attributes that have been acknowledged by
@@ -850,3 +833,25 @@ InternalModel.prototype = {
     }
   }
 };
+
+if (isEnabled('ds-references')) {
+
+  InternalModel.prototype.referenceFor = function(type, name) {
+    var reference = this.references[name];
+
+    if (!reference) {
+      var relationship = this._relationships.get(name);
+
+      if (type === "belongsTo") {
+        reference = new BelongsToReference(this.store, this, relationship);
+      } else if (type === "hasMany") {
+        reference = new HasManyReference(this.store, this, relationship);
+      }
+
+      this.references[name] = reference;
+    }
+
+    return reference;
+  };
+
+}

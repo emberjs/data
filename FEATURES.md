@@ -11,7 +11,7 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
-- `ds-find-include`
+- `ds-finder-include`
 
   Allows an `include` query parameter to be specified with using
   `store.findRecord()` and `store.findAll()` as described in [RFC

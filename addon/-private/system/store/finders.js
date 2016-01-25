@@ -168,15 +168,15 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    var records;
+    var records, payload;
     store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'query');
+      payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'query');
       //TODO Optimize
       records = store.push(payload);
     });
 
     assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Ember.isArray(records));
-    recordArray.loadRecords(records);
+    recordArray.loadRecords(records, payload);
     return recordArray;
 
   }, null, "DS: Extract payload of query " + typeClass);
