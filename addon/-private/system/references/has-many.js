@@ -1,5 +1,7 @@
 import Ember from 'ember';
 import Reference from './reference';
+import { assertPolymorphicType } from 'ember-data/-private/utils';
+import { runInDebug } from 'ember-data/-private/debug';
 
 const get = Ember.get;
 
@@ -50,10 +52,14 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
     var internalModels = array.map((obj) => {
       var record = this.store.push(obj);
+
+      runInDebug(() => {
+        var relationshipMeta = this.hasManyRelationship.relationshipMeta;
+        assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
+      });
+
       return record._internalModel;
     });
-
-    // TODO add assertion for polymorphic type
 
     this.hasManyRelationship.computeChanges(internalModels);
 
