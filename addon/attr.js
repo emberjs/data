@@ -7,7 +7,7 @@ import { deprecate } from "ember-data/-private/debug";
 
 function getDefaultValue(record, options, key) {
   if (typeof options.defaultValue === "function") {
-    return options.defaultValue.apply(null, arguments);
+    return options.defaultValue.apply(record, key);
   } else {
     let defaultValue = options.defaultValue;
     deprecate(`Non primitive defaultValues are deprecated because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
