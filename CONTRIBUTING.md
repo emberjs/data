@@ -3,8 +3,9 @@
 This is the issue tracker for Ember Data. The Ember.js community uses this site
 to collect and track bugs and discussions of new features. If you are having
 difficulties using Ember Data or have a question about usage please ask a
-question on StackOverflow: http://stackoverflow.com/questions/ask and tag
-your question with `ember.js` and `ember-data`.
+question on StackOverflow:
+[http://stackoverflow.com/questions/ask](http://stackoverflow.com/questions/ask?tags=ember.js&tags=ember-data)
+and tag your question with `ember.js` and `ember-data`.
 
 The Ember.js community is very active on StackOverflow and most questions
 receive attention the same day they're posted:
