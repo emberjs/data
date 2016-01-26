@@ -957,6 +957,8 @@ Store = Service.extend({
   },
 
   _query(modelName, query, array) {
+    assert("You need to pass a type to the store's query method", modelName);
+    assert("You need to pass a query hash to the store's query method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     array = array || this.recordArrayManager

@@ -28,6 +28,18 @@ module("integration/adapter/queries - Queries", {
   }
 });
 
+test("It raises an assertion when no type is passed", function(assert) {
+  assert.expectAssertion(function() {
+    store.query();
+  }, "You need to pass a type to the store's query method");
+});
+
+test("It raises an assertion when no query hash is passed", function(assert) {
+  assert.expectAssertion(function() {
+    store.query('person');
+  }, "You need to pass a query hash to the store's query method");
+});
+
 test("When a query is made, the adapter should receive a record array it can populate with the results of the query.", function(assert) {
   adapter.query = function(store, type, query, recordArray) {
     assert.equal(type, Person, "the query method is called with the correct type");
