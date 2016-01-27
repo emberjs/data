@@ -5,6 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
+import isEnabled from 'ember-data/-private/features';
+
 var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
@@ -904,3 +906,50 @@ test('normalizeResponse ignores unmapped attributes', function(assert) {
 
   assert.equal(post.data.attributes.title, "Rails is omakase");
 });
+
+if (isEnabled('ds-transform-pass-options')) {
+
+  test('options are passed to transform for serialization', function(assert) {
+    assert.expect(1);
+
+    env.registry.register('transform:custom', DS.Transform.extend({
+      serialize: function(deserialized, options) {
+        assert.deepEqual(options, { custom: 'config' });
+      }
+    }));
+
+    Post.reopen({
+      custom: DS.attr('custom', {
+        custom: 'config'
+      })
+    });
+
+    var post;
+    run(function() {
+      post = env.store.createRecord('post', { custom: 'value' });
+    });
+
+    env.serializer.serialize(post._createSnapshot());
+  });
+
+  test('options are passed to transform for normalization', function(assert) {
+    assert.expect(1);
+
+    env.registry.register('transform:custom', DS.Transform.extend({
+      deserialize: function(serialized, options) {
+        assert.deepEqual(options, { custom: 'config' });
+      }
+    }));
+
+    Post.reopen({
+      custom: DS.attr('custom', {
+        custom: 'config'
+      })
+    });
+
+    env.serializer.normalize(Post, {
+      custom: 'value'
+    });
+  });
+
+}
