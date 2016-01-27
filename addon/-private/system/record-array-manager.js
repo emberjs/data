@@ -8,6 +8,8 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "ember-data/-private/system/record-arrays";
+import FilteredRecordArrayMixin from "ember-data/-private/system/record-arrays/mixins/filtered-record-array-mixin";
+import AdapterPopulatedRecordArrayMixin from "ember-data/-private/system/record-arrays/mixins/adapter-populated-record-array-mixin";
 var  MapWithDefault = Ember.MapWithDefault;
 import OrderedSet from "ember-data/-private/system/ordered-set";
 var get = Ember.get;
@@ -185,6 +187,19 @@ export default Ember.Object.extend({
     return this.liveRecordArrays.get(typeClass);
   },
 
+  _lookupRecordArrayFactoryWithDefault(typeClass, DefaultRecordArrayFactory, ...Mixins) {
+    var container = this.store.container;
+    var RecordArrayFactory = container.lookupFactory(`collection:${typeClass.modelName}`);
+
+    if (!RecordArrayFactory) {
+      RecordArrayFactory = DefaultRecordArrayFactory;
+    } else if (Mixins && Mixins.length) {
+      RecordArrayFactory = RecordArrayFactory.extend(...Mixins);
+    }
+
+    return RecordArrayFactory;
+  },
+
   /**
     Create a `DS.RecordArray` for a type.
 
@@ -193,7 +208,8 @@ export default Ember.Object.extend({
     @return {DS.RecordArray}
   */
   createRecordArray(typeClass) {
-    var array = RecordArray.create({
+    var Factory = this._lookupRecordArrayFactoryWithDefault(typeClass, RecordArray);
+    var array = Factory.create({
       type: typeClass,
       content: Ember.A(),
       store: this.store,
@@ -214,7 +230,8 @@ export default Ember.Object.extend({
     @return {DS.FilteredRecordArray}
   */
   createFilteredRecordArray(typeClass, filter, query) {
-    var array = FilteredRecordArray.create({
+    var Factory = this._lookupRecordArrayFactoryWithDefault(typeClass, FilteredRecordArray, FilteredRecordArrayMixin);
+    var array = Factory.create({
       query: query,
       type: typeClass,
       content: Ember.A(),
@@ -237,7 +254,8 @@ export default Ember.Object.extend({
     @return {DS.AdapterPopulatedRecordArray}
   */
   createAdapterPopulatedRecordArray(typeClass, query) {
-    var array = AdapterPopulatedRecordArray.create({
+    var Factory = this._lookupRecordArrayFactoryWithDefault(typeClass, AdapterPopulatedRecordArray, AdapterPopulatedRecordArrayMixin);
+    var array = Factory.create({
       type: typeClass,
       query: query,
       content: Ember.A(),
