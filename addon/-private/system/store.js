@@ -1818,7 +1818,11 @@ Store = Service.extend({
       assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
       serializer = this.serializerFor(modelName);
     }
-    this._adapterRun(() => serializer.pushPayload(this, payload));
+    if (isEnabled('ds-pushpayload-return')) {
+      return this._adapterRun(() => { return serializer.pushPayload(this, payload); });
+    } else {
+      this._adapterRun(() => serializer.pushPayload(this, payload));
+    }
   },
 
   /**

@@ -5,6 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
+import isEnabled from 'ember-data/-private/features';
+
 var env, store, Person, PhoneNumber, Post;
 var attr = DS.attr;
 var hasMany = DS.hasMany;
@@ -667,6 +669,35 @@ test("Calling push with unknown keys should not warn by default", function(asser
     });
   }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
 });
+
+if (isEnabled('ds-pushpayload-return')) {
+  test("Calling pushPayload returns records", function(assert) {
+    env.registry.register('serializer:person', DS.RESTSerializer);
+
+    var people;
+
+    run(function() {
+      people = store.pushPayload('person', {
+        people: [{
+          id: '1',
+          firstName: "Robert",
+          lastName: "Jackson"
+        }, {
+          id: '2',
+          firstName: "Matthew",
+          lastName: "Beale"
+        }]
+      });
+    });
+
+    assert.equal(people.length, 2, "both records were returned by `store.pushPayload`");
+
+    assert.equal(people[0].get('firstName'), "Robert", "pushPayload returns pushed records");
+    assert.equal(people[0].get('lastName'), "Jackson", "pushPayload returns pushed records");
+    assert.equal(people[1].get('firstName'), "Matthew", "pushPayload returns pushed records");
+    assert.equal(people[1].get('lastName'), "Beale", "pushPayload returns pushed records");
+  });
+}
 
 module("unit/store/push - DS.Store#push with JSON-API", {
   beforeEach() {

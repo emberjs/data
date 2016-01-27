@@ -9,6 +9,7 @@ import normalizeModelName from "ember-data/-private/system/normalize-model-name"
 import {singularize} from "ember-inflector";
 import coerceId from "ember-data/-private/system/coerce-id";
 import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
+import isEnabled from 'ember-data/-private/features';
 
 var camelize = Ember.String.camelize;
 
@@ -403,7 +404,11 @@ var RESTSerializer = JSONSerializer.extend({
       });
     }
 
-    store.push(documentHash);
+    if (isEnabled('ds-pushpayload-return')) {
+      return store.push(documentHash);
+    } else {
+      store.push(documentHash);
+    }
   },
 
   /**
