@@ -12,6 +12,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @namespace DS
 */
 export function AdapterError(errors, message = 'Adapter operation failed') {
+  this.isAdapterError = true;
   EmberError.call(this, message);
 
   this.errors = errors || [
