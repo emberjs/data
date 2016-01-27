@@ -168,6 +168,66 @@ if (isEnabled("ds-references")) {
     });
   });
 
+  test("push(array) works with polymorphic type", function(assert) {
+    var done = assert.async();
+
+    env.container.register('model:mafia-boss', Person.extend());
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    run(() => {
+      var data = {
+        data: [
+          { data: { type: 'mafia-boss', id: 1, attributes: { name: "Vito" } } }
+        ]
+      };
+
+      personsReference.push(data).then(function(records) {
+        assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+        assert.equal(get(records, 'length'), 1);
+        assert.equal(records.objectAt(0).get('name'), "Vito");
+
+        done();
+      });
+    });
+  });
+
+  test("push(array) asserts polymorphic type", function(assert) {
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    assert.expectAssertion(() => {
+      run(() => {
+        var data = {
+          data: [
+            { data: { type: 'family', id: 1 } }
+          ]
+        };
+
+        personsReference.push(data);
+      });
+    }, "You cannot add a record of type 'family' to the 'family.persons' relationship (only 'person' allowed)");
+  });
+
   test("push(object) supports JSON-API payload", function(assert) {
     var done = assert.async();
 
