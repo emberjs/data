@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { assert, warn } from 'ember-data/-private/debug';
-import Serializer from "ember-data/-private/system/serializer";
+import Serializer from "ember-data/serializer";
 import coerceId from "ember-data/-private/system/coerce-id";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
