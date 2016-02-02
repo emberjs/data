@@ -37,6 +37,7 @@
     "exists-sync": "0.0.3",
     "git-repo-info": "^1.1.2",
     "inflection": "^1.8.0",
+    "npm-git-info": "^1.0.0",
     "semver": "^5.1.0",
     "silent-error": "^1.0.0"
   },
