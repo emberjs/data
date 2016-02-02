@@ -2,6 +2,20 @@
 
 ### Master
 
+### Release 2.4.0-beta.2 (February 2, 2016)
+- [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
+- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
+- [#4088](https://github.com/emberjs/data/pull/4088) [BUFGIX release] Fix regression with missing initializers
+- [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
+- [#4072](https://github.com/emberjs/data/pull/4072) [BUGFIX release] Fix bundled source path for gem
+- [#4073](https://github.com/emberjs/data/pull/4073) [BUGFIX release] Add missing dist source to gem
+- [#4077](https://github.com/emberjs/data/pull/4077) [CLEANUP beta] Change the way metadata in response is stored on record array
+- [#4084](https://github.com/emberjs/data/pull/4084) [cleanup] Remove unnecessary inline JSHint config
+- [#4090](https://github.com/emberjs/data/pull/4090) Make yui doc generate links from the project root instead of the file…
+- [#4091](https://github.com/emberjs/data/pull/4091) [BUGFIX release] Refactor Model.reopen to use mixins
+- [#4095](https://github.com/emberjs/data/pull/4095) [BUGFIX release] Remove 'v' prefix from `DS.VERSION`
+- [#4108](https://github.com/emberjs/data/pull/4108) [BUGFIX beta] Fix `BuildUrlMixin.urlPrefix` regression when host=/
+
 ### Release 2.4.0-beta.1 (January 12, 2016)
 - [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
 - [#3941](https://github.com/emberjs/data/pull/3941) Mark `adapterFor` and `serializerFor` as public
