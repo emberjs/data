@@ -2106,7 +2106,7 @@ function _commit(adapter, store, operation, snapshot) {
   return promise.then((adapterPayload) => {
     store._adapterRun(() => {
       var payload, data;
-      if (adapterPayload) {
+      if (typeof adapterPayload !== 'undefined') {
         payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, snapshot.id, operation);
         if (payload.included) {
           store.push({ data: payload.included });

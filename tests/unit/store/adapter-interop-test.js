@@ -277,6 +277,43 @@ test("Find with query calls the correct normalizeResponse", function(assert) {
   assert.equal(callCount, 1, 'normalizeQueryResponse was called');
 });
 
+
+test("Find with query and a response of `false` calls the correct normalizeResponse", function(assert) {
+  var passedQuery = { page: 1 };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var adapter = TestAdapter.extend({
+    query(store, type, query) {
+      return Ember.RSVP.resolve(false);
+    }
+  });
+
+  var callCount = 0;
+
+  var ApplicationSerializer = DS.JSONSerializer.extend({
+    normalizeQueryResponse() {
+      callCount++;
+      return { data: [] };
+    }
+  });
+
+  var env = setupStore({
+    adapter: adapter,
+    person: Person
+  });
+  var store = env.store;
+
+  env.registry.register('serializer:application', ApplicationSerializer);
+
+  run(function() {
+    store.query('person', passedQuery);
+  });
+  assert.equal(callCount, 1, 'normalizeQueryResponse was called');
+});
+
 test("peekAll(type) returns a record array of all records of a specific type", function(assert) {
   var Person = DS.Model.extend({
     name: DS.attr('string')
