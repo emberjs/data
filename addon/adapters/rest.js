@@ -10,9 +10,9 @@ import {
   TimeoutError,
   AbortError
 } from 'ember-data/-private/adapters/errors';
-import EmptyObject from "ember-data/-private/system/empty-object";
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
 import isEnabled from 'ember-data/-private/features';
+import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
 
 const {
   MapWithDefault,
@@ -1005,26 +1005,6 @@ export default Adapter.extend(BuildURLMixin, {
     return query;
   }
 });
-
-function parseResponseHeaders(headerStr) {
-  var headers = new EmptyObject();
-  if (!headerStr) { return headers; }
-
-  var headerPairs = headerStr.split('\u000d\u000a');
-  for (var i = 0; i < headerPairs.length; i++) {
-    var headerPair = headerPairs[i];
-    // Can't use split() here because it does the wrong thing
-    // if the header value has the string ": " in it.
-    var index = headerPair.indexOf('\u003a\u0020');
-    if (index > 0) {
-      var key = headerPair.substring(0, index);
-      var val = headerPair.substring(index + 2);
-      headers[key] = val;
-    }
-  }
-
-  return headers;
-}
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(string, suffix) {
