@@ -4,7 +4,7 @@ import {
   PromiseObject
 } from "ember-data/-private/system/promise-proxies";
 
-import { assertPolymorphicType } from "ember-data/-private/utils";
+import { assertPolymorphicType } from "ember-data/-private/debug";
 
 import Relationship from "ember-data/-private/system/relationships/state/relationship";
 

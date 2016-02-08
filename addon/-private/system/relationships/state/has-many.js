@@ -4,7 +4,7 @@ import Relationship from "ember-data/-private/system/relationships/state/relatio
 import OrderedSet from "ember-data/-private/system/ordered-set";
 import ManyArray from "ember-data/-private/system/many-array";
 
-import { assertPolymorphicType } from "ember-data/-private/utils";
+import { assertPolymorphicType } from "ember-data/-private/debug";
 
 export default function ManyRelationship(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
