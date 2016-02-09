@@ -2,6 +2,12 @@
 
 ### Master
 
+### Release 1.13.16 (February 9, 2016)
+
+- [#4143](https://github.com/emberjs/data/pull/4143) Update Ember
+  Inflector and correct Ember Data's usage of it so that users' default
+  custom inflections work.
+
 ### Release 1.13.15 (November 9, 2015)
 - [#3876](https://github.com/emberjs/data/pull/3876) [BACKPORT] [BUGFIX beta] serialize type for embedded, polymorphic belongsTo
 - [#3891](https://github.com/emberjs/data/pull/3891) Don't use Ember.create by default
