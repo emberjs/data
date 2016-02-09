@@ -96,6 +96,33 @@ var MapWithDefault = Ember.MapWithDefault;
   {{/each}}
   ```
 
+  The JSON API spec also allows for object level errors to be placed
+  in an object with pointer `data`.
+
+  ```javascript
+  {
+    "errors": [
+      {
+        "detail": "Some generic non property error message",
+        "source": {
+          "pointer": "data"
+        }
+      }
+    ]
+  }
+  ```
+
+  You can access these errors by using the `base` property on the errors
+  object.
+
+  ```handlebars
+  {{#each model.errors.base as |error|}}
+    <div class="error">
+      {{error.message}}
+    </div>
+  {{/each}}
+  ```
+
   @class Errors
   @namespace DS
   @extends Ember.Object
