@@ -4,7 +4,7 @@
 
 import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
-import {singularize} from "ember-inflector/lib/system/string";
+import {singularize} from "ember-inflector";
 import coerceId from "ember-data/system/coerce-id";
 import { pushPayload } from "ember-data/system/store/serializer-response";
 import ArrayPolyfills from 'ember-data/ext/ember/array';

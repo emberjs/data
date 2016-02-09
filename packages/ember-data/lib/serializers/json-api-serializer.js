@@ -4,9 +4,9 @@
 
 import JSONSerializer from 'ember-data/serializers/json-serializer';
 import normalizeModelName from 'ember-data/system/normalize-model-name';
-import { pluralize, singularize } from 'ember-inflector/lib/system/string';
 import ArrayPolyfills  from 'ember-data/ext/ember/array';
 import Ember from 'ember';
+import { pluralize, singularize } from 'ember-inflector';
 
 const map = ArrayPolyfills.map;
 const dasherize = Ember.String.dasherize;
