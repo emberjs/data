@@ -1,7 +1,9 @@
 import Ember from 'ember';
 import Reference from './reference';
-import { assertPolymorphicType } from 'ember-data/-private/utils';
-import { runInDebug } from 'ember-data/-private/debug';
+import {
+  assertPolymorphicType,
+  runInDebug
+} from 'ember-data/-private/debug';
 
 const get = Ember.get;
 

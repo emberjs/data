@@ -2,7 +2,7 @@ import Model from 'ember-data/model';
 import Ember from 'ember';
 import Reference from './reference';
 
-import { assertPolymorphicType } from "ember-data/-private/utils";
+import { assertPolymorphicType } from "ember-data/-private/debug";
 
 var BelongsToReference = function(store, parentInternalModel, belongsToRelationship) {
   this._super$constructor(store, parentInternalModel);
