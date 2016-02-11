@@ -1,14 +1,21 @@
 import Ember from 'ember';
 import DS from 'ember-data';
+import Owner from './owner';
 
 export default function setupStore(options) {
-  var container, registry;
+  var container, registry, owner;
   var env = {};
   options = options || {};
 
   if (Ember.Registry) {
     registry = env.registry = new Ember.Registry();
-    container = env.container = registry.container();
+    owner = Owner.create({
+      __registry__: registry
+    });
+    container = env.container = registry.container({
+      owner: owner
+    });
+    owner.__container__ = container;
   } else {
     container = env.container = new Ember.Container();
     registry = env.registry = container;
@@ -63,4 +70,3 @@ export {setupStore};
 export function createStore(options) {
   return setupStore(options).store;
 }
-
