@@ -78,7 +78,9 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    var newRecords = this.currentState.filter((internalModel) => internalModel.isNew());
+    var newRecords = this.currentState.filter(
+      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
+    );
     toSet = toSet.concat(newRecords);
     var oldLength = this.length;
     this.arrayContentWillChange(0, this.length, toSet.length);
