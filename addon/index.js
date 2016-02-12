@@ -40,7 +40,7 @@ import {
 import Model from "ember-data/model";
 import Snapshot from "ember-data/-private/system/snapshot";
 import Adapter from "ember-data/adapter";
-import Serializer from "ember-data/-private/system/serializer";
+import Serializer from "ember-data/serializer";
 import DebugAdapter from "ember-data/-private/system/debug";
 
 import {
@@ -70,7 +70,7 @@ import {
   RESTSerializer
 } from "ember-data/-private/serializers";
 import "ember-inflector";
-import EmbeddedRecordsMixin from "ember-data/-private/serializers/embedded-records-mixin";
+import EmbeddedRecordsMixin from "ember-data/serializers/embedded-records-mixin";
 
 import {
   Transform,
