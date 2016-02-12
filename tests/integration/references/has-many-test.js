@@ -171,7 +171,7 @@ if (isEnabled("ds-references")) {
   test("push(array) works with polymorphic type", function(assert) {
     var done = assert.async();
 
-    env.container.register('model:mafia-boss', Person.extend());
+    env.registry.register('model:mafia-boss', Person.extend());
 
     var family;
     run(function() {
