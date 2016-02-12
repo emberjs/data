@@ -139,8 +139,7 @@ set of RESTful JSON conventions.
 
 To learn more about adapters, including what conventions the
 `RESTAdapter` follows and how to build your own, see the Ember.js
-Guides: [Connecting to an HTTP
-Server](http://emberjs.com/guides/models/connecting-to-an-http-server/).
+Guides: [Customizing Adapters](https://guides.emberjs.com/v2.3.0/models/customizing-adapters/).
 
 ### Fetching a Collection of Models
 
