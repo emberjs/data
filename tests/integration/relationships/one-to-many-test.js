@@ -13,10 +13,6 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/one_to_many_test - OneToMany relationships', {
   beforeEach() {
     User = DS.Model.extend({
@@ -24,19 +20,16 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
       messages: hasMany('message', { async: true }),
       accounts: hasMany('account', { async: false })
     });
-    User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
       user: belongsTo('user', { async: false })
     });
-    Account.toString = stringify('Account');
 
     Message = DS.Model.extend({
       title: attr('string'),
       user: belongsTo('user', { async: true })
     });
-    Message.toString = stringify('Message');
 
     env = setupStore({
       user: User,

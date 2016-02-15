@@ -15,7 +15,6 @@ module('integration/records/property-changes - Property changes', {
       firstName: attr('string'),
       lastName: attr('string')
     });
-    Person.toString = function() { return 'Person'; };
 
     env = setupStore({
       person: Person

@@ -17,13 +17,11 @@ test("belongsTo lazily loads relationships as needed", function(assert) {
     name: DS.attr('string'),
     people: DS.hasMany('person', { async: false })
   });
-  Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tag: DS.belongsTo('tag', { async: false })
   });
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
@@ -202,14 +200,10 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
     person: DS.belongsTo('person', { async: false })
   });
 
-  Occupation.toString = function() { return "Occupation"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     occupations: DS.hasMany('occupation', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
@@ -265,14 +259,10 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
     person: DS.belongsTo('person', { async: false })
   });
 
-  Occupation.toString = function() { return "Occupation"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     occupation: DS.belongsTo('occupation', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
@@ -317,7 +307,6 @@ test("belongsTo supports relationships to models with id 0", function(assert) {
     name: DS.attr('string'),
     tag: DS.belongsTo('tag', { async: false })
   });
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
@@ -375,13 +364,11 @@ test("belongsTo gives a warning when provided with a serialize option", function
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });
-  Hobby.toString = function() { return "Hobby"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     hobby: DS.belongsTo('hobby', { serialize: true, async: true })
   });
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ hobby: Hobby, person: Person });
   var store = env.store;
@@ -429,13 +416,11 @@ test("belongsTo gives a warning when provided with an embedded option", function
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });
-  Hobby.toString = function() { return "Hobby"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     hobby: DS.belongsTo('hobby', { embedded: true, async: true })
   });
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ hobby: Hobby, person: Person });
   var store = env.store;

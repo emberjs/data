@@ -19,17 +19,11 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number', { async: false })
     });
-    Person.toString = function() {
-      return 'Person';
-    };
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
       person: belongsTo('person', { async: false })
     });
-    PhoneNumber.toString = function() {
-      return 'PhoneNumber';
-    };
 
     env = setupStore({
       person: Person,

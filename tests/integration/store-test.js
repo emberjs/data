@@ -14,15 +14,11 @@ var Person = DS.Model.extend({
 
 var run = Ember.run;
 
-Person.toString = function() { return "Person"; };
-
 var Car = DS.Model.extend({
   make: DS.attr('string'),
   model: DS.attr('string'),
   person: DS.belongsTo('person', { async: false })
 });
-
-Car.toString = function() { return "Car"; };
 
 function initializeStore(adapter) {
   env = setupStore({

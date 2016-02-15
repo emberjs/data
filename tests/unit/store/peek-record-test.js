@@ -12,9 +12,6 @@ module("unit/store/peekRecord - Store peekRecord", {
   beforeEach() {
 
     Person = DS.Model.extend();
-    Person.toString = function() {
-      return 'Person';
-    };
 
     env = setupStore({
       person: Person

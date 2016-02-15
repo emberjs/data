@@ -15,10 +15,6 @@ module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
       name: DS.attr("string")
     });
 
-    Post.toString = function() {
-      return "Post";
-    };
-
     Comment = DS.Model.extend({
       name: DS.attr("string")
     });

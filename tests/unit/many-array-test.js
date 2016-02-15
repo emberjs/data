@@ -19,17 +19,11 @@ module("unit/many_array - DS.ManyArray", {
       title: attr('string'),
       tags: hasMany('tag', { async: false })
     });
-    Post.toString = function() {
-      return 'Post';
-    };
 
     Tag = DS.Model.extend({
       name: attr('string'),
       post: belongsTo('post', { async: false })
     });
-    Tag.toString = function() {
-      return 'Tag';
-    };
 
     env = setupStore({
       post: Post,

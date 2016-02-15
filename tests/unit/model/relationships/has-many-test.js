@@ -478,14 +478,10 @@ test("hasMany relationships work when the data hash has not been loaded", functi
     person: DS.belongsTo('person', { async: false })
   });
 
-  Tag.toString = function() { return "Tag"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany('tag', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
@@ -721,9 +717,6 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
     name: DS.attr('string'),
     tags: DS.hasMany('tag', { async: false })
   });
-
-  Tag.toString = function() { return "Tag"; };
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;

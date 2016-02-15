@@ -12,23 +12,17 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true, polymorphic: true })
     });
-    User.toString = stringify('User');
 
     Message = Ember.Mixin.create({
       title: attr('string'),
       user: belongsTo('user', { async: true })
     });
-    Message.toString = stringify('Message');
 
     Video = DS.Model.extend(Message, {
       video: attr()

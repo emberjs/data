@@ -15,10 +15,6 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module("integration/relationships/has_many - Has-Many Relationships", {
   beforeEach() {
     User = DS.Model.extend({
@@ -43,37 +39,31 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       user: belongsTo('user', { async: false }),
       created_at: attr('date')
     });
-    Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment', { async: false })
     });
-    Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('post', { polymorphic: true, async: true })
     });
-    Comment.toString = stringify('Comment');
 
     Book = DS.Model.extend({
       title: attr(),
       chapters: hasMany('chapter', { async: true })
     });
-    Book.toString = stringify('Book');
 
     Chapter = DS.Model.extend({
       title: attr(),
       pages: hasMany('page', { async: false })
     });
-    Chapter.toString = stringify('Chapter');
 
     Page = DS.Model.extend({
       number: attr('number'),
       chapter: belongsTo('chapter', { async: false })
     });
-    Page.toString = stringify('Page');
 
     env = setupStore({
       user: User,

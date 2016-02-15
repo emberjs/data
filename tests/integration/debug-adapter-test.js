@@ -12,7 +12,6 @@ module("DS.DebugAdapter", {
   beforeEach() {
     Ember.run(function() {
       App = Ember.Application.create();
-      App.toString = function() { return 'App'; };
 
       App.StoreService = DS.Store.extend({});
 

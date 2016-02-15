@@ -16,21 +16,15 @@ var Person = DS.Model.extend({
   cars: hasMany('car', { async: false })
 });
 
-Person.toString = function() { return "Person"; };
-
 var Group = DS.Model.extend({
   people: hasMany('person', { async: false })
 });
-
-Group.toString = function() { return "Group"; };
 
 var Car = DS.Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person', { async: false })
 });
-
-Car.toString = function() { return "Car"; };
 
 module("integration/unload - Unloading Records", {
   beforeEach() {
