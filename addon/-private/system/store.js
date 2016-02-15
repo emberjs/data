@@ -1196,6 +1196,7 @@ Store = Service.extend({
     @param {Object} query optional query
     @param {Function} filter
     @return {DS.PromiseArray}
+    @deprecated
   */
   filter(modelName, query, filter) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
