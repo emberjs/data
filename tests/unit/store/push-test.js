@@ -20,24 +20,15 @@ module("unit/store/push - DS.Store#push", {
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number', { async: false })
     });
-    Person.toString = function() {
-      return 'Person';
-    };
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
       person: belongsTo('person', { async: false })
     });
-    PhoneNumber.toString = function() {
-      return 'PhoneNumber';
-    };
 
     Post = DS.Model.extend({
       postTitle: attr('string')
     });
-    Post.toString = function() {
-      return 'Post';
-    };
 
     env = setupStore({
       post: Post,
@@ -706,15 +697,11 @@ module("unit/store/push - DS.Store#push with JSON-API", {
       cars: DS.hasMany('car', { async: false })
     });
 
-    Person.toString = function() { return "Person"; };
-
     var Car = DS.Model.extend({
       make: DS.attr('string'),
       model: DS.attr('string'),
       person: DS.belongsTo('person', { async: false })
     });
-
-    Car.toString = function() { return "Car"; };
 
     env = setupStore({
       adapter: DS.Adapter,

@@ -13,7 +13,6 @@ module('integration/records/error', {
       firstName: attr('string'),
       lastName: attr('string')
     });
-    Person.toString = function() { return 'Person'; };
 
     env = setupStore({
       person: Person

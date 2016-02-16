@@ -17,9 +17,6 @@ module("integration/load - Loading Records", {
 
     Comment = DS.Model.extend();
 
-    Post.toString = function() { return "Post"; };
-    Comment.toString = function() { return "Comment"; };
-
     env = setupStore({ post: Post, comment: Comment });
   },
 

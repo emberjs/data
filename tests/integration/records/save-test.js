@@ -14,8 +14,6 @@ module("integration/records/save - Save Record", {
       title: DS.attr('string')
     });
 
-    Post.toString = function() { return "Post"; };
-
     env = setupStore({ post: Post });
   },
 

@@ -11,23 +11,17 @@ var run = Ember.run;
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),
       bestMessage: belongsTo('message', { async: true, polymorphic: true })
     });
-    User.toString = stringify('User');
 
     Message = Ember.Mixin.create({
       title: attr('string'),
       user: belongsTo('user', { async: true })
     });
-    Message.toString = stringify('Message');
 
     NotMessage = DS.Model.extend({
       video: attr()

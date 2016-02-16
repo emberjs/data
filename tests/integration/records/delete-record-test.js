@@ -15,8 +15,6 @@ module("integration/deletedRecord - Deleting Records", {
       name: attr('string')
     });
 
-    Person.toString = function() { return "Person"; };
-
     env = setupStore({
       person: Person
     });

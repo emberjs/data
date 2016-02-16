@@ -11,10 +11,6 @@ var run = Ember.run;
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/one_to_one_test - OneToOne relationships', {
   beforeEach() {
     User = DS.Model.extend({
@@ -22,13 +18,11 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
       job: belongsTo('job', { async: false })
     });
-    User.toString = stringify('User');
 
     Job = DS.Model.extend({
       isGood: attr(),
       user: belongsTo('user', { async: false })
     });
-    Job.toString = stringify('Job');
 
     env = setupStore({
       user: User,

@@ -17,10 +17,6 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       name: DS.attr("string")
     });
 
-    Post.toString = function() {
-      return "Post";
-    };
-
     Comment = DS.Model.extend({
       name: DS.attr("string")
     });
