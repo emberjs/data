@@ -53,14 +53,14 @@
     "broccoli-yuidoc": "^2.1.0",
     "ember-cli": "1.13.12",
     "ember-cli-app-version": "0.5.0",
-    "ember-cli-blueprint-test-helpers": "^0.6.0",
+    "ember-cli-blueprint-test-helpers": "^0.8.0",
     "ember-cli-content-security-policy": "0.4.0",
     "ember-cli-dependency-checker": "^1.0.1",
     "ember-cli-htmlbars": "0.7.9",
     "ember-cli-htmlbars-inline-precompile": "^0.2.0",
     "ember-cli-ic-ajax": "0.2.1",
     "ember-cli-inject-live-reload": "^1.3.1",
-    "ember-cli-internal-test-helpers": "^0.5.0",
+    "ember-cli-internal-test-helpers": "^0.8.0",
     "ember-cli-qunit": "^1.0.0",
     "ember-cli-release": "0.2.3",
     "ember-cli-uglify": "^1.2.0",
@@ -88,6 +88,7 @@
     "configPath": "tests/dummy/config",
     "paths": [
       "lib/enable-optional-features-via-url"
-    ]
+    ],
+    "after": "ember-cli-mocha"
   }
 }
