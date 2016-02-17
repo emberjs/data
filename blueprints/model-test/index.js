@@ -2,8 +2,9 @@
 
 var ModelBlueprint = require('../model');
 var testInfo = require('ember-cli-test-info');
+var useTestFrameworkDetector = require('../test-framework-detector');
 
-module.exports = {
+module.exports = useTestFrameworkDetector({
   description: 'Generates a model unit test.',
 
   locals: function(options) {
@@ -13,4 +14,4 @@ module.exports = {
 
     return result;
   }
-};
+});
