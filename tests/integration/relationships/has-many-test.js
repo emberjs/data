@@ -617,6 +617,38 @@ test("A hasMany relationship can be directly reloaded if it was fetched via link
   });
 });
 
+test("Has many via links - Calling reload multiple times does not send a new request if the first one is not settled", function(assert) {
+  assert.expect(1);
+  let done = assert.async();
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findRecord = function(store, type, id) {
+    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+  };
+
+  let count = 0;
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    count++;
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+  run(function() {
+    env.store.findRecord('post', 1).then(function(post) {
+      post.get('comments').then(function(comments) {
+        Ember.RSVP.all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
+          assert.equal(count, 2, "One request for the original access and only one request for the mulitple reloads");
+          done();
+        });
+      });
+    });
+  });
+});
+
 test("A hasMany relationship can be directly reloaded if it was fetched via ids", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -642,6 +674,39 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
         assert.equal(comments.get('isLoaded'), true, "comments are loaded");
         assert.equal(comments.get('length'), 2, "comments have 2 length");
         assert.equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
+      });
+    });
+  });
+});
+
+test("Has many via ids - Calling reload multiple times does not send a new request if the first one is not settled", function(assert) {
+  assert.expect(1);
+  let done = assert.async();
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+  };
+
+  let count = 0;
+  env.adapter.findMany = function(store, type, ids, snapshots) {
+    count++;
+    return Ember.RSVP.resolve([
+      { id: 1, body: "FirstUpdated" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  run(function() {
+    env.store.findRecord('post', 1).then(function(post) {
+      post.get('comments').then(function(comments) {
+        Ember.RSVP.all([comments.reload(), comments.reload(), comments.reload()]).then(function(comments) {
+          assert.equal(count, 2, "One request for the original access and only one request for the mulitple reloads");
+          done();
+        });
       });
     });
   });

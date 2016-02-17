@@ -1,5 +1,5 @@
 import { assert } from "ember-data/-private/debug";
-import { PromiseManyArray } from "ember-data/-private/system/promise-proxies";
+import { PromiseManyArray, promiseManyArray } from "ember-data/-private/system/promise-proxies";
 import Relationship from "ember-data/-private/system/relationships/state/relationship";
 import OrderedSet from "ember-data/-private/system/ordered-set";
 import ManyArray from "ember-data/-private/system/many-array";
@@ -99,7 +99,6 @@ ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx)
 };
 
 ManyRelationship.prototype.reload = function() {
-  var self = this;
   var manyArrayLoadedState = this.manyArray.get('isLoaded');
 
   if (this._loadingPromise) {
@@ -112,13 +111,13 @@ ManyRelationship.prototype.reload = function() {
   }
 
   if (this.link) {
-    return this.fetchLink();
+    this._loadingPromise = promiseManyArray(this.fetchLink(), 'Reload with link');
+    return this._loadingPromise;
   } else {
-    return this.store.scheduleFetchMany(this.manyArray.toArray()).then(function() {
-      //Goes away after the manyArray refactor
-      self.manyArray.set('isLoaded', true);
-      return self.manyArray;
-    });
+    this._loadingPromise = promiseManyArray(this.store.scheduleFetchMany(this.manyArray.toArray()).then(() => {
+      return this.manyArray;
+    }), 'Reload with ids');
+    return this._loadingPromise;
   }
 };
 
