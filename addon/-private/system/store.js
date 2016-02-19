@@ -118,10 +118,7 @@ var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
 
-var Service = Ember.Service;
-if (!Service) {
-  Service = Ember.Object;
-}
+const { Service } = Ember;
 
 // Implementors Note:
 //
