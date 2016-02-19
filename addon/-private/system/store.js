@@ -57,50 +57,9 @@ import isEnabled from 'ember-data/-private/features';
 
 export let badIdFormatAssertion = '`id` has to be non-empty string or number';
 
-var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
+const Backburner = Ember._Backburner;
 var Map = Ember.Map;
 var isArray = Array.isArray || Ember.isArray;
-
-//Shim Backburner.join
-if (!Backburner.prototype.join) {
-  var isString = function(suspect) {
-    return typeof suspect === 'string';
-  };
-
-  Backburner.prototype.join = function(/*target, method, args */) {
-    var method, target;
-
-    if (this.currentInstance) {
-      var length = arguments.length;
-      if (length === 1) {
-        method = arguments[0];
-        target = null;
-      } else {
-        target = arguments[0];
-        method = arguments[1];
-      }
-
-      if (isString(method)) {
-        method = target[method];
-      }
-
-      if (length === 1) {
-        return method();
-      } else if (length === 2) {
-        return method.call(target);
-      } else {
-        var args = new Array(length - 2);
-        for (var i = 0; i < args.length; i++) {
-          args[i] = arguments[i + 2];
-        }
-        return method.apply(target, args);
-      }
-    } else {
-      return this.run.apply(this, arguments);
-    }
-  };
-}
-
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
