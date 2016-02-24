@@ -8,10 +8,11 @@ module.exports = function(blueprint) {
   blueprint.filesPath = function() {
     var type;
 
-    if ('ember-cli-mocha' in this.project.addonPackages) {
-      type = 'mocha';
-    } else if ('ember-cli-qunit' in this.project.addonPackages) {
+    var dependencies = this.project.dependencies();
+    if ('ember-cli-qunit' in dependencies) {
       type = 'qunit';
+    } else if ('ember-cli-mocha' in dependencies) {
+      type = 'mocha';
     } else {
       this.ui.writeLine('Couldn\'t determine test style - using QUnit');
       type = 'qunit';
