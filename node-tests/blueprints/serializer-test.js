@@ -37,4 +37,25 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       ]
     });
   });
+
+  it('serializer-test for mocha', function() {
+    return generateAndDestroy(['serializer-test', 'foo'], {
+      packages: [
+        { name: 'ember-cli-qunit', delete: true },
+        { name: 'ember-cli-mocha', dev: true }
+      ],
+      files: [
+        {
+          file: 'tests/unit/serializers/foo-test.js',
+          contains: [
+            'import { describeModel, it } from \'ember-mocha\';',
+            'describeModel(\n  \'foo\',',
+            'Unit | Serializer | foo',
+            'needs: [\'serializer:foo\']',
+            'expect(serializedRecord).to.be.ok;'
+          ]
+        }
+      ]
+    });
+  });
 });

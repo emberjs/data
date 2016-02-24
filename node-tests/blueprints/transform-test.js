@@ -39,4 +39,23 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
       ]
     });
   });
+
+  it('transform-test for mocha', function() {
+    return generateAndDestroy(['transform-test', 'foo'], {
+      packages: [
+        { name: 'ember-cli-qunit', delete: true },
+        { name: 'ember-cli-mocha', dev: true }
+      ],
+      files: [
+        {
+          file: 'tests/unit/transforms/foo-test.js',
+          contains: [
+            'import { describeModule, it } from \'ember-mocha\';',
+            'describeModule(\n  \'transform:foo\',',
+            'expect(transform).to.be.ok;'
+          ]
+        }
+      ]
+    });
+  });
 });
