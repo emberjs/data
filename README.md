@@ -190,7 +190,7 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 1. To start the development server, run `npm start`.
 
-2. Visit http://localhost:4200
+2. Visit `http://localhost:4200/tests`
 
 ### From the CLI
 

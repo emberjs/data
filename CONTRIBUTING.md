@@ -66,7 +66,7 @@ We love pull requests. Here's a quick guide:
 
 2. Run the tests. We only take pull requests with passing tests, and it's great
 to know that you have a clean slate, see notes on how to run unit tests [here](https://github.com/emberjs/data#how-to-run-unit-tests). (To see tests in the browser,
-run `npm start` and open `http://localhost:4200`.)
+run `npm start` and open `http://localhost:4200/tests`.)
 
 3. Add a test for your change. Only refactoring and documentation changes
 require no new tests. If you are adding functionality or fixing a bug, we need
