@@ -1674,12 +1674,11 @@ Store = Service.extend({
     assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id != null && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
-    var type = this.modelFor(modelName);
-
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.
 
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
+      var type = this.modelFor(modelName);
       warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
         Ember.inspect(Object.keys(data).forEach((key) => {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
