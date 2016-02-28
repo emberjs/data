@@ -144,6 +144,45 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   });
 });
 
+test("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
+  assert.expect(2);
+
+  var homePlanetNormalizeCount = 0;
+
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
+    return "home-planet";
+  };
+
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
+    normalize() {
+      homePlanetNormalizeCount++;
+      return this._super.apply(this, arguments);
+    }
+  }));
+
+  var jsonHash = {
+    "my-custom-type": [{ id: "1", name: "Umber", type: "my-custom-type" }]
+  };
+  var array;
+
+  run(function() {
+    array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
+  });
+
+  assert.deepEqual(array, {
+    data: [{
+      id: '1',
+      type: 'home-planet',
+      attributes: {
+        name: 'Umber'
+      },
+      relationships: {}
+    }],
+    included: []
+  });
+  assert.equal(homePlanetNormalizeCount, 1, "homePlanet is normalized once");
+});
+
 testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
   var homePlanet;
   var oldModelNameFromPayloadKey = env.restSerializer.modelNameFromPayloadKey;

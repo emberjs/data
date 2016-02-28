@@ -200,8 +200,8 @@ var RESTSerializer = JSONSerializer.extend({
     const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
     // Support polymorphic records in async relationships
     if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
-      serializer = store.serializerFor(hash.type);
-      modelClass = store.modelFor(hash.type);
+      serializer = store.serializerFor(this.modelNameFromPayloadKey(hash.type));
+      modelClass = store.modelFor(this.modelNameFromPayloadKey(hash.type));
     } else {
       serializer = primarySerializer;
       modelClass = primaryModelClass;
