@@ -12,12 +12,6 @@ if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
 
-if (Ember.VERSION.match(/^1\.13\./)) {
-  warn(`Use of Ember Data 2+ with Ember 1.13 is unsupported. Please upgrade your version of Ember to 2.0 or higher.`, false, {
-    id: 'ds.version.ember-1-13'
-  });
-}
-
 import DS from "ember-data/-private/core";
 
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
