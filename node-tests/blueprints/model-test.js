@@ -164,4 +164,23 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       ]
     });
   });
+
+  it('model-test for mocha', function() {
+    return generateAndDestroy(['model-test', 'foo'], {
+      packages: [
+        { name: 'ember-cli-qunit', delete: true },
+        { name: 'ember-cli-mocha', dev: true }
+      ],
+      files: [
+        {
+          file: 'tests/unit/models/foo-test.js',
+          contains: [
+            'import { describeModel, it } from \'ember-mocha\';',
+            'describeModel(\n  \'foo\',',
+            'expect(model).to.be.ok;'
+          ]
+        }
+      ]
+    });
+  });
 });

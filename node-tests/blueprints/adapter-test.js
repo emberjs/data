@@ -86,4 +86,23 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       ]
     });
   });
+
+  it('adapter-test for mocha', function() {
+    return generateAndDestroy(['adapter-test', 'foo'], {
+      packages: [
+        { name: 'ember-cli-qunit', delete: true },
+        { name: 'ember-cli-mocha', dev: true }
+      ],
+      files: [
+        {
+          file: 'tests/unit/adapters/foo-test.js',
+          contains: [
+            'import { describeModule, it } from \'ember-mocha\';',
+            'describeModule(\n  \'adapter:foo\',',
+            'expect(adapter).to.be.ok;'
+          ]
+        }
+      ]
+    });
+  });
 });
