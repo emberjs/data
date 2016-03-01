@@ -2,16 +2,13 @@
 
 ### Master
 
-### Release 2.4.0-beta.3 (February 26, 2016)
+### Release 2.4.0 (February 29, 2016)
 - [#4125](https://github.com/emberjs/data/pull/4125) [BUGFIX beta] Export more public API's via modules
 - [#4135](https://github.com/emberjs/data/pull/4135) import require
 - [#4137](https://github.com/emberjs/data/pull/4137) [BUGFIX beta] Allow optional spaces when parsing response headers
 - [#4141](https://github.com/emberjs/data/pull/4141) [DOC] Document behavior of object level errors with JSON API
 - [#4147](https://github.com/emberjs/data/pull/4147) Fix key remapping for embedded belongsTo
 - [#4167](https://github.com/emberjs/data/pull/4167) Add blueprints from ember-cli-mocha
-
-
-### Release 2.4.0-beta.2 (February 2, 2016)
 - [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
 - [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
 - [#4088](https://github.com/emberjs/data/pull/4088) [BUFGIX release] Fix regression with missing initializers
@@ -24,8 +21,6 @@
 - [#4091](https://github.com/emberjs/data/pull/4091) [BUGFIX release] Refactor Model.reopen to use mixins
 - [#4095](https://github.com/emberjs/data/pull/4095) [BUGFIX release] Remove 'v' prefix from `DS.VERSION`
 - [#4108](https://github.com/emberjs/data/pull/4108) [BUGFIX beta] Fix `BuildUrlMixin.urlPrefix` regression when host=/
-
-### Release 2.4.0-beta.1 (January 12, 2016)
 - [#3999](https://github.com/emberjs/data/pull/3999) Run the Ember Data initializer when Ember Data is loaded as an Ember …
 - [#3941](https://github.com/emberjs/data/pull/3941) Mark `adapterFor` and `serializerFor` as public
 - [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
