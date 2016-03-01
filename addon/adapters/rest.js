@@ -946,7 +946,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
-    @return {Object} errors payload
+    @return {Array} errors payload
   */
   normalizeErrorResponse(status, headers, payload) {
     if (payload && typeof payload === 'object' && payload.errors) {
@@ -971,7 +971,8 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
-    @return {Object} request information
+    @param  {Object} requestData
+    @return {String} detailed error message
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
     var shortenedPayload;
