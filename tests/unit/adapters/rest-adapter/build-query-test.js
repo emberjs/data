@@ -13,6 +13,13 @@ test("buildQuery() returns an empty query when snapshot has no query params", fu
   assert.deepEqual(query, {}, 'query is empty');
 });
 
+test("buildQuery - doesn't fail without a snapshot", function(assert) {
+  const adapter = DS.RESTAdapter.create();
+  const query = adapter.buildQuery();
+
+  assert.deepEqual(query, {}, 'returns an empty query');
+});
+
 if (isEnabled('ds-finder-include')) {
   test("buildQuery() returns query with `include` from snapshot", function(assert) {
     const adapter = DS.RESTAdapter.create();
