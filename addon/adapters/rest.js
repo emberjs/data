@@ -992,13 +992,15 @@ export default Adapter.extend(BuildURLMixin, {
   },
 
   buildQuery(snapshot) {
-    const { include } = snapshot;
-
     let query = {};
 
     if (isEnabled('ds-finder-include')) {
-      if (include) {
-        query.include = include;
+      if (snapshot) {
+        const { include } = snapshot;
+
+        if (include) {
+          query.include = include;
+        }
       }
     }
 
