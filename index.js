@@ -25,7 +25,8 @@ module.exports = {
     var VersionChecker = require('ember-cli-version-checker');
 
     var checker = new VersionChecker(this);
-    var shims = checker.for('ember-cli-shims', 'bower');
+    // prevent errors when ember-cli-shims is no longer required
+    var shims = bowerDeps['ember-cli-shims'] && checker.for('ember-cli-shims', 'bower');
 
     var semver = require('semver');
     var version = require('./package').version;
@@ -44,17 +45,17 @@ module.exports = {
 
       var emberDataBower = checker.for('ember-data', 'bower');
 
-      if (!shims.satisfies('< 0.1.0') && emberDataBower.satisfies('< 2.3.0-beta.3')) {
+      if (shims && !shims.satisfies('< 0.1.0') && emberDataBower.satisfies('< 2.3.0-beta.3')) {
         throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
       }
 
-      if (!shims.satisfies('>= 0.1.0') && emberDataBower.satisfies('>= 2.3.0-beta.3')) {
+      if (shims && !shims.satisfies('>= 0.1.0') && emberDataBower.satisfies('>= 2.3.0-beta.3')) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
 
     } else {
       // NPM only, but ember-cli-shims does not match
-      if (!shims.satisfies('>= 0.1.0') && semver.satisfies(version, '^2.3.0-beta.3')) {
+      if (shims && !shims.satisfies('>= 0.1.0') && semver.satisfies(version, '^2.3.0-beta.3')) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
     }
