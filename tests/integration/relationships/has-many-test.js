@@ -404,7 +404,7 @@ test("A hasMany updated link should not remove new children when the parent reco
   });
 });
 
-test("A hasMany updated link should not remove new children when the parent record has children already with feedback from the server after save", function(assert) {
+test("A hasMany relationship doesn't contain duplicate children, after the canonical state of the relationship is updated via store#push", function(assert) {
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -416,48 +416,59 @@ test("A hasMany updated link should not remove new children when the parent reco
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({
-      id: 5
+      id: 1
     });
   };
 
-
-  env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([{ id: 5 }]);
-  };
-
-
   run(function() {
     var post = env.store.createRecord('post', {});
-    env.store.createRecord('comment', { id: 5, message: post });
+
+    // create a new comment with id 'local', which is in the 'comments'
+    // relationship of post
+    var localComment = env.store.createRecord('comment', { id: 'local', message: post });
 
     post.get('comments')
       .then(function(comments) {
         assert.equal(comments.get('length'), 1);
+        assert.equal(localComment.get('isNew'), true);
+
         return post.save();
       })
       .then(function() {
-        return env.store.push({
+
+        // Now the post is saved but the locally created comment with the id
+        // 'local' is still in the created state since it hasn't been saved
+        // yet.
+        //
+        // As next we are pushing the post into the store again, having the
+        // locally created comment in the 'comments' relationship. By this the
+        // canonical state of the relationship is defined to consist of one
+        // comment: the one with id 'local'.
+        //
+        // This setup is needed to demonstrate the bug which has been fixed
+        // in #4154, where the locally created comment was duplicated in the
+        // comment relationship.
+        env.store.push({
           data: {
-            type: "post",
-            id: 5,
+            type: 'post',
+            id: 1,
             relationships: {
               comments: {
                 data: [
-                  {
-                    id: 5,
-                    type: "comment"
-                  }
+                  { id: 'local', type: 'comment' }
                 ]
               }
             }
           }
         });
+
       })
       .then(function() {
         return post.get('comments');
       })
       .then(function(comments) {
         assert.equal(comments.get('length'), 1);
+        assert.equal(localComment.get('isNew'), true);
       });
   });
 });
