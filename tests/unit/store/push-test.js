@@ -619,7 +619,7 @@ test('calling push with belongsTo relationship the value must not be an array', 
   }, /must not be an array/);
 });
 
-test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", function(assert) {
+test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes", function(assert) {
   run(function() {
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
@@ -636,7 +636,31 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
             }
           }
         });
-      });
+      }, "The payload for 'person' contains these unknown attributes: emailAddress,isMascot. Make sure they've been defined in your model.");
+    } finally {
+      Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
+    }
+  });
+});
+
+test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships", function(assert) {
+  run(function() {
+    var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
+    try {
+      Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
+      assert.expectWarning(function() {
+        store.push({
+          data: {
+            type: 'person',
+            id: '1',
+            relationships: {
+              phoneNumbers: {},
+              emailAddresses: {},
+              mascots: {}
+            }
+          }
+        });
+      }, "The payload for 'person' contains these unknown relationships: emailAddresses,mascots. Make sure they've been defined in your model.");
     } finally {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
     }
@@ -658,7 +682,7 @@ test("Calling push with unknown keys should not warn by default", function(asser
         }
       });
     });
-  }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
+  }, /The payload for 'person' contains these unknown .*: .* Make sure they've been defined in your model./);
 });
 
 if (isEnabled('ds-pushpayload-return')) {
