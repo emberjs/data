@@ -1,12 +1,12 @@
 import Ember from 'ember';
-import { deprecate } from "ember-data/-private/debug";
+import { deprecate } from 'ember-data/-private/debug';
 
 /**
   @module ember-data
 */
 
 function getDefaultValue(record, options, key) {
-  if (typeof options.defaultValue === "function") {
+  if (typeof options.defaultValue === 'function') {
     return options.defaultValue.apply(null, arguments);
   } else {
     let defaultValue = options.defaultValue;
