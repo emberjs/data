@@ -5,9 +5,17 @@ import EmptyObject from "ember-data/-private/system/empty-object";
 
 var get = Ember.get;
 
+function shouldFindInverse(relationshipMeta) {
+  let options = relationshipMeta.options;
+  return !(options && options.inverse === null);
+}
+
 function createRelationshipFor(record, relationshipMeta, store) {
-  var inverseKey;
-  var inverse = record.type.inverseFor(relationshipMeta.key, store);
+  let inverseKey;
+  let inverse = null;
+  if (shouldFindInverse(relationshipMeta)) {
+    inverse = record.type.inverseFor(relationshipMeta.key, store);
+  }
 
   if (inverse) {
     inverseKey = inverse.name;
