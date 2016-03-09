@@ -834,7 +834,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
 });
 
 test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
-  assert.expect(3);
+  assert.expect(2);
 
   var Person = DS.Model.extend();
 
@@ -857,22 +857,48 @@ test("store.fetchRecord reject records that were not found, even when those requ
     test: Person
   });
 
-  let done = assert.async();
+  run(function () {
+    var davidPromise = store.findRecord('test', 'david');
+    var igorPromise = store.findRecord('test', 'igor');
+
+    davidPromise.then(assert.wait(function () {
+      assert.ok(true, "David resolved");
+    }));
+
+    igorPromise.then(null, assert.wait(function () {
+      assert.ok(true, "Igor rejected");
+    }));
+  });
+});
+
+test("store.fetchRecord warns when records are missing", function(assert) {
+  var Person = DS.Model.extend();
+
+  var adapter = TestAdapter.extend({
+    findMany(store, type, ids, snapshots) {
+      var records = ids.map(function(id) {
+        return { id: id };
+      });
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        resolve([
+          records[0]
+        ]);
+      });
+    }
+  });
+
+  var store = createStore({
+    adapter: adapter,
+    test: Person
+  });
+
   assert.expectWarning(function() {
     run(function () {
-      var davidPromise = store.findRecord('test', 'david');
-      var igorPromise = store.findRecord('test', 'igor');
-
-      davidPromise.then(assert.wait(function () {
-        assert.ok(true, "David resolved");
-      }));
-
-      igorPromise.then(null, assert.wait(function () {
-        assert.ok(true, "Igor rejected");
-      }));
+      store.findRecord('test', 'david');
+      store.findRecord('test', 'igor');
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
-  done();
 });
 
 test("store should not call shouldReloadRecord when the record is not in the store", function(assert) {
