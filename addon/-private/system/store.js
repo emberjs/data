@@ -297,7 +297,7 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var internalModel = this.buildInternalModel(typeClass, properties.id);
+    var internalModel = this.buildInternalModel(typeClass, properties.id, properties.attributes);
     var record = internalModel.getRecord();
 
     // Move the record out of its initial `empty` state into
