@@ -1,6 +1,6 @@
 {
-  "ds-finder-include": false,
-  "ds-references": false,
-  "ds-transform-pass-options": false,
+  "ds-finder-include": true,
+  "ds-references": true,
+  "ds-transform-pass-options": true,
   "ds-pushpayload-return": false
 }
