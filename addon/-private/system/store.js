@@ -4,7 +4,7 @@
 
 import Ember from 'ember';
 import Model from 'ember-data/model';
-import { assert, warn } from "ember-data/-private/debug";
+import { assert, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import {
@@ -1674,21 +1674,28 @@ Store = Service.extend({
     assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id != null && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
-    // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
-    // contains unknown keys, log a warning.
+    runInDebug(() => {
+      // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
+      // contains unknown attributes or relationships, log a warning.
 
-    if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-      var type = this.modelFor(modelName);
-      warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
-        Ember.inspect(Object.keys(data).forEach((key) => {
-          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
-        })) + ". Make sure they've been defined in your model.",
-        Object.keys(data).filter((key) => {
-          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
-        }).length === 0,
-        { id: 'ds.store.unknown-keys-in-payload' }
-      );
-    }
+      if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
+        let type = this.modelFor(modelName);
+
+        // Check unknown attributes
+        let unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
+          return !get(type, 'fields').has(key);
+        });
+        let unknownAttributesMessage = `The payload for '${type.modelName}' contains these unknown attributes: ${unknownAttributes}. Make sure they've been defined in your model.`;
+        warn(unknownAttributesMessage, unknownAttributes.length === 0, { id: 'ds.store.unknown-keys-in-payload' });
+
+        // Check unknown relationships
+        let unknownRelationships = Object.keys(data.relationships || {}).filter((key) => {
+          return !get(type, 'fields').has(key);
+        });
+        let unknownRelationshipsMessage = `The payload for '${type.modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
+        warn(unknownRelationshipsMessage, unknownRelationships.length === 0, { id: 'ds.store.unknown-keys-in-payload' });
+      }
+    });
 
     // Actually load the record into the store.
     var internalModel = this._load(data);
