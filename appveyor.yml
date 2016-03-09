@@ -27,6 +27,7 @@ test_script:
   - npm version
   - cmd: npm run test
   - cmd: npm run test:optional-features
+  - cmd: npm run test:production
   - cmd: npm run node-tests
 
 # Don't actually build.

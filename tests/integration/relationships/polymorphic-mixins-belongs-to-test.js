@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -122,7 +123,7 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - as
   });
 });
 
-test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out", function(assert) {
+testInDebug("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out", function(assert) {
   var user, video;
   run(function() {
     store.push({
@@ -193,7 +194,7 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - mo
   }
 });
 
-test("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true", function(assert) {
+testInDebug("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true", function(assert) {
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 

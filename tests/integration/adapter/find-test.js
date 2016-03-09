@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
 
@@ -29,7 +30,7 @@ module("integration/adapter/find - Finding Records", {
   }
 });
 
-test("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
+testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
   assert.expectAssertion(() => {
     store.find('person', undefined);
   }, "You cannot pass `undefined` as id to the store's find method");
@@ -130,7 +131,7 @@ test("When a single record is requested, and the promise is rejected, the record
   });
 });
 
-test('When a single record is requested, and the payload is blank', (assert) => {
+testInDebug('When a single record is requested, and the payload is blank', (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord: () => Ember.RSVP.resolve({})
   }));
@@ -140,7 +141,7 @@ test('When a single record is requested, and the payload is blank', (assert) => 
   }, /the adapter's response did not have any data/);
 });
 
-test('When multiple records are requested, and the payload is blank', (assert) => {
+testInDebug('When multiple records are requested, and the payload is blank', (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
     coalesceFindRequests: true,
     findMany: () => Ember.RSVP.resolve({})

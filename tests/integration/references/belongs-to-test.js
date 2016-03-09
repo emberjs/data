@@ -1,6 +1,7 @@
 import DS from 'ember-data';
 import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import isEnabled from 'ember-data/-private/features';
 
@@ -251,7 +252,7 @@ if (isEnabled("ds-references")) {
     });
   });
 
-  test("push(record) asserts for invalid type", function(assert) {
+  testInDebug("push(record) asserts for invalid type", function(assert) {
     var person, anotherPerson;
     run(function() {
       person = env.store.push({

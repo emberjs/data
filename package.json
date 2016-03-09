@@ -13,6 +13,7 @@
     "test": "ember try:testall",
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
+    "test:production": "ember test --environment=production",
     "bower": "bower install",
     "production": "ember build --environment=production"
   },

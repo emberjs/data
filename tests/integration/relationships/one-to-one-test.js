@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -498,7 +499,7 @@ test("Setting a BelongsTo to a promise works when the promise returns null- asyn
 });
 
 
-test("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function(assert) {
+testInDebug("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function(assert) {
   var stanley, igor;
   run(function() {
     stanley = store.push({

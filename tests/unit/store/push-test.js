@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -482,7 +483,7 @@ test('calling push without data argument as an object raises an error', function
   });
 });
 
-test('Calling push with a link for a non async relationship should warn', function(assert) {
+testInDebug('Calling push with a link for a non async relationship should warn', function(assert) {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: false })
   });
@@ -499,7 +500,7 @@ test('Calling push with a link for a non async relationship should warn', functi
   }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
 });
 
-test('Calling push with an unknown model name throws an assertion error', function(assert) {
+testInDebug('Calling push with an unknown model name throws an assertion error', function(assert) {
 
   assert.expectAssertion(function() {
     run(function() {
@@ -551,7 +552,7 @@ test('Calling push with a link containing the value null', function(assert) {
   assert.equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
 });
 
-test('calling push with hasMany relationship the value must be an array', function(assert) {
+testInDebug('calling push with hasMany relationship the value must be an array', function(assert) {
   var invalidValues = [
     1,
     'string',
@@ -581,7 +582,7 @@ test('calling push with hasMany relationship the value must be an array', functi
   });
 });
 
-test('calling push with missing or invalid `id` throws assertion error', function(assert) {
+testInDebug('calling push with missing or invalid `id` throws assertion error', function(assert) {
   var invalidValues = [
     {},
     { id: null },
@@ -601,7 +602,7 @@ test('calling push with missing or invalid `id` throws assertion error', functio
   });
 });
 
-test('calling push with belongsTo relationship the value must not be an array', function(assert) {
+testInDebug('calling push with belongsTo relationship the value must not be an array', function(assert) {
   assert.throws(function() {
     run(function() {
       store.push({
@@ -619,7 +620,7 @@ test('calling push with belongsTo relationship the value must not be an array', 
   }, /must not be an array/);
 });
 
-test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes", function(assert) {
+testInDebug("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attributes", function(assert) {
   run(function() {
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
@@ -643,7 +644,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown attribut
   });
 });
 
-test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships", function(assert) {
+testInDebug("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relationships", function(assert) {
   run(function() {
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
@@ -667,7 +668,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown relation
   });
 });
 
-test("Calling push with unknown keys should not warn by default", function(assert) {
+testInDebug("Calling push with unknown keys should not warn by default", function(assert) {
   assert.expectNoWarning(function() {
     run(function() {
       store.push({

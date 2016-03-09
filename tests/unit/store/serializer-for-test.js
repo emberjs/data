@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -45,7 +46,7 @@ test("Calling serializerFor with a type that has not been registered and in an a
   assert.ok(store.serializerFor('person') instanceof DS.JSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
 });
 
-test("Calling serializerFor with a model class should assert", function(assert) {
+testInDebug("Calling serializerFor with a model class should assert", function(assert) {
   assert.expectAssertion(function() {
     store.serializerFor(Person);
   }, /Passing classes to store.serializerFor has been removed/);

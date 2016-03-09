@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -360,7 +361,7 @@ test("belongsTo supports relationships to models with id 0", function(assert) {
   });
 });
 
-test("belongsTo gives a warning when provided with a serialize option", function(assert) {
+testInDebug("belongsTo gives a warning when provided with a serialize option", function(assert) {
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -412,7 +413,7 @@ test("belongsTo gives a warning when provided with a serialize option", function
     });
 });
 
-test("belongsTo gives a warning when provided with an embedded option", function(assert) {
+testInDebug("belongsTo gives a warning when provided with an embedded option", function(assert) {
   var Hobby = DS.Model.extend({
     name: DS.attr('string')
   });

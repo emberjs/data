@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -116,7 +117,7 @@ test('Calling pushPayload works', function(assert) {
   });
 });
 
-test('Warns when normalizing an unknown type', function(assert) {
+testInDebug('Warns when normalizing an unknown type', function(assert) {
   var documentHash = {
     data: {
       type: 'UnknownType',
@@ -134,7 +135,7 @@ test('Warns when normalizing an unknown type', function(assert) {
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
 
-test('Warns when normalizing with type missing', function(assert) {
+testInDebug('Warns when normalizing with type missing', function(assert) {
   var documentHash = {
     data: {
       id: '1',

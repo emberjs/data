@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -42,7 +43,7 @@ module("unit/utils", {
   }
 });
 
-test("assertPolymorphicType works for subclasses", function(assert) {
+testInDebug("assertPolymorphicType works for subclasses", function(assert) {
   var user, post, person;
 
   Ember.run(function() {
@@ -103,7 +104,7 @@ test("modelHasAttributeOrRelationshipNamedType", function(assert) {
   assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany), true);
 });
 
-test("assertPolymorphicType works for mixins", function(assert) {
+testInDebug("assertPolymorphicType works for mixins", function(assert) {
   var post, video, person;
 
   Ember.run(function() {

@@ -1,6 +1,7 @@
 import {createStore} from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
 
@@ -145,7 +146,7 @@ test("When all records for a type are requested, records that are created on the
   assert.equal(allRecords.objectAt(0).get('name'), "Carsten Nielsen", "the first item in the record array is Carsten Nielsen");
 });
 
-test('When all records are requested, assert the payload is not blank', (assert) => {
+testInDebug('When all records are requested, assert the payload is not blank', (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll: () => Ember.RSVP.resolve({})
   }));

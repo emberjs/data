@@ -1,5 +1,6 @@
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -104,7 +105,7 @@ test("errorsArrayToHash for primary data object", function(assert) {
   assert.deepEqual(result, errorsPrimaryHash);
 });
 
-test("DS.InvalidError will normalize errors hash will assert", function(assert) {
+testInDebug("DS.InvalidError will normalize errors hash will assert", function(assert) {
   var error;
 
   assert.expectAssertion(function() {

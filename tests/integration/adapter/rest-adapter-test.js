@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -1326,7 +1327,7 @@ test("queryRecord - returning an array picks the first one but saves all records
   }));
 });
 
-test("queryRecord - returning an empty array errors", function(assert) {
+testInDebug("queryRecord - returning an empty array errors", function(assert) {
   ajaxResponse({
     post: []
   });
@@ -1876,7 +1877,7 @@ test('findBelongsTo - passes buildURL the requestType', function(assert) {
   }));
 });
 
-test('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {
+testInDebug('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 

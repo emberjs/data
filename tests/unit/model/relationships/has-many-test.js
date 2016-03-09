@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -770,7 +771,7 @@ test("DS.hasMany is async by default", function(assert) {
   });
 });
 
-test("throws assertion if of not set with an array", function(assert) {
+testInDebug("throws assertion if of not set with an array", function(assert) {
   var Person = DS.Model.extend();
   var Tag = DS.Model.extend({
     people: DS.hasMany('person')
@@ -791,7 +792,7 @@ test("throws assertion if of not set with an array", function(assert) {
   });
 });
 
-test("checks if passed array only contains instances of DS.Model", function(assert) {
+testInDebug("checks if passed array only contains instances of DS.Model", function(assert) {
   var Person = DS.Model.extend();
   var Tag = DS.Model.extend({
     people: DS.hasMany('person')

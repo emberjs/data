@@ -1,6 +1,7 @@
 import {createStore} from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
@@ -159,7 +160,7 @@ test("a record's id is included in its toString representation", function(assert
   });
 });
 
-test("trying to set an `id` attribute should raise", function(assert) {
+testInDebug("trying to set an `id` attribute should raise", function(assert) {
   Person = DS.Model.extend({
     id: DS.attr('number'),
     name: DS.attr('string')
@@ -416,7 +417,7 @@ test("a DS.Model can have a defaultValue without an attribute type", function(as
   assert.equal(get(tag, 'name'), "unknown", "the default value is found");
 });
 
-test("Calling attr() throws a warning", function(assert) {
+testInDebug("Calling attr() throws a warning", function(assert) {
   assert.expect(1);
 
   run(function() {
@@ -429,7 +430,7 @@ test("Calling attr() throws a warning", function(assert) {
 });
 
 if (!isEnabled('ds-references')) {
-  test("Calling belongsTo() throws a warning", function(assert) {
+  testInDebug("Calling belongsTo() throws a warning", function(assert) {
     assert.expect(1);
 
     run(function() {
@@ -441,7 +442,7 @@ if (!isEnabled('ds-references')) {
     });
   });
 
-  test("Calling hasMany() throws a warning", function(assert) {
+  testInDebug("Calling hasMany() throws a warning", function(assert) {
     assert.expect(1);
 
     run(function() {
@@ -630,7 +631,7 @@ test("a defaultValue function gets the record, options, and key", function(asser
   get(tag, 'createdAt');
 });
 
-test("a complex object defaultValue is deprecated ", function(assert) {
+testInDebug("a complex object defaultValue is deprecated ", function(assert) {
   var Tag = DS.Model.extend({
     tagInfo: DS.attr({ defaultValue: [] })
   });
@@ -648,7 +649,7 @@ test("a complex object defaultValue is deprecated ", function(assert) {
   }, /Non primitive defaultValues are deprecated/);
 });
 
-test("a null defaultValue is not deprecated", function(assert) {
+testInDebug("a null defaultValue is not deprecated", function(assert) {
   var Tag = DS.Model.extend({
     tagInfo: DS.attr({ defaultValue: null })
   });
@@ -980,7 +981,7 @@ test("a DS.Model can describe Date attributes", function(assert) {
   assert.convertsWhenSet('date', date, dateString);
 });
 
-test("don't allow setting", function(assert) {
+testInDebug("don't allow setting", function(assert) {
   var Person = DS.Model.extend();
   var record;
 
@@ -1033,7 +1034,7 @@ test("A DS.Model can be JSONified", function(assert) {
   assert.deepEqual(record.toJSON(), { name: "TomHuda" });
 });
 
-test("A subclass of DS.Model can not use the `data` property", function(assert) {
+testInDebug("A subclass of DS.Model can not use the `data` property", function(assert) {
   var Person = DS.Model.extend({
     data: DS.attr('string'),
     name: DS.attr('string')
@@ -1048,7 +1049,7 @@ test("A subclass of DS.Model can not use the `data` property", function(assert) 
   }, /`data` is a reserved property name on DS.Model objects/);
 });
 
-test("A subclass of DS.Model can not use the `store` property", function(assert) {
+testInDebug("A subclass of DS.Model can not use the `store` property", function(assert) {
   var Retailer = DS.Model.extend({
     store: DS.attr(),
     name: DS.attr()
@@ -1063,7 +1064,7 @@ test("A subclass of DS.Model can not use the `store` property", function(assert)
   }, /`store` is a reserved property name on DS.Model objects/);
 });
 
-test("A subclass of DS.Model can not use reserved properties", function(assert) {
+testInDebug("A subclass of DS.Model can not use reserved properties", function(assert) {
   assert.expect(3);
   [
     'currentState', 'data', 'store'
@@ -1105,7 +1106,7 @@ test("Pushing a record into the store should transition it to the loaded state",
   });
 });
 
-test("A subclass of DS.Model throws an error when calling create() directly", function(assert) {
+testInDebug("A subclass of DS.Model throws an error when calling create() directly", function(assert) {
   assert.throws(function() {
     Person.create();
   }, /You should not call `create` on a model/, "Throws an error when calling create() on model");

@@ -2,6 +2,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import isEnabled from 'ember-data/-private/features';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -130,7 +131,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 });
 
-test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same type can be used with a monomorphic belongsTo relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -161,7 +162,7 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
   });
 });
 
-test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   assert.expect(1);
   run(function() {
@@ -727,7 +728,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
   run(post, 'destroyRecord');
 });
 
-test("A sync belongsTo errors out if the record is unlaoded", function(assert) {
+testInDebug("A sync belongsTo errors out if the record is unlaoded", function(assert) {
   var message;
   run(function() {
     message = env.store.push({
@@ -833,7 +834,7 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
   assert.equal(book.get('author'), author, 'Book has an author after rollback attributes');
 });
 
-test("Passing a model as type to belongsTo should not work", function(assert) {
+testInDebug("Passing a model as type to belongsTo should not work", function(assert) {
   assert.expect(1);
 
   assert.expectAssertion(function() {

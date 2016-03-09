@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -143,7 +144,7 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   });
 });
 
-test("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
+testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
   var homePlanet;
   var oldModelNameFromPayloadKey = env.restSerializer.modelNameFromPayloadKey;
   env.restSerializer.modelNameFromPayloadKey = function(root) {
@@ -178,7 +179,7 @@ test("normalizeResponse warning with custom modelNameFromPayloadKey", function(a
   assert.deepEqual(homePlanet.data.relationships.superVillains.data, [{ id: '1', type: 'super-villain' }]);
 });
 
-test("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
+testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
   var homePlanets;
   env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
@@ -484,7 +485,7 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
   assert.deepEqual(json, expected, 'returned JSON is correct');
 });
 
-test('serializeBelongsTo logs deprecation when old behavior for getting polymorphic type key is used', function(assert) {
+testInDebug('serializeBelongsTo logs deprecation when old behavior for getting polymorphic type key is used', function(assert) {
   var evilMinion, doomsdayDevice;
   var json = {};
   var expected = { evilMinion: '1', myCustomKeyType: 'evilMinion' };
