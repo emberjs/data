@@ -67,14 +67,12 @@ export default RecordArray.extend({
 
   /**
     @method loadRecords
-    @param {Array} records
+    @param {Array} internalModels
     @param {Object} payload normalized payload
     @private
   */
-  loadRecords(records, payload) {
+  loadRecords(internalModels, payload) {
     let token = heimdall.start('AdapterPopulatedRecordArray.loadRecords');
-    //TODO Optimize
-    let internalModels = records.map(record => get(record, '_internalModel'));
     this.setProperties({
       content: Ember.A(internalModels),
       isLoaded: true,

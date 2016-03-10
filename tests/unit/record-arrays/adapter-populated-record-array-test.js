@@ -127,7 +127,7 @@ test('#loadRecords', function(assert) {
   let meta = { bar:2 };
 
   run(() => {
-    assert.equal(recordArray.loadRecords([model1, model2], {
+    assert.equal(recordArray.loadRecords([model1._internalModel, model2._internalModel], {
       links,
       meta
     }), undefined, 'loadRecords should have no return value');
