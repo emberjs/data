@@ -2,6 +2,7 @@ import {createStore} from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -38,7 +39,7 @@ test('Adapter can be set as a name', function(assert) {
   assert.ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
 });
 
-test('Adapter can not be set as an instance', function(assert) {
+testInDebug('Adapter can not be set as an instance', function(assert) {
   assert.expect(1);
 
   store = DS.Store.create({
@@ -343,7 +344,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
   assert.equal(get(person, 'name'), "Braaahm Dale", "Even if no hash is supplied, `set` still worked");
 });
 
-test("a new record with a specific id can't be created if this id is already used in the store", function(assert) {
+testInDebug("a new record with a specific id can't be created if this id is already used in the store", function(assert) {
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -834,7 +835,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
 });
 
 test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
-  assert.expect(3);
+  assert.expect(2);
 
   var Person = DS.Model.extend();
 
@@ -857,22 +858,48 @@ test("store.fetchRecord reject records that were not found, even when those requ
     test: Person
   });
 
-  let done = assert.async();
+  run(function () {
+    var davidPromise = store.findRecord('test', 'david');
+    var igorPromise = store.findRecord('test', 'igor');
+
+    davidPromise.then(assert.wait(function () {
+      assert.ok(true, "David resolved");
+    }));
+
+    igorPromise.then(null, assert.wait(function () {
+      assert.ok(true, "Igor rejected");
+    }));
+  });
+});
+
+testInDebug("store.fetchRecord warns when records are missing", function(assert) {
+  var Person = DS.Model.extend();
+
+  var adapter = TestAdapter.extend({
+    findMany(store, type, ids, snapshots) {
+      var records = ids.map(function(id) {
+        return { id: id };
+      });
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        resolve([
+          records[0]
+        ]);
+      });
+    }
+  });
+
+  var store = createStore({
+    adapter: adapter,
+    test: Person
+  });
+
   assert.expectWarning(function() {
     run(function () {
-      var davidPromise = store.findRecord('test', 'david');
-      var igorPromise = store.findRecord('test', 'igor');
-
-      davidPromise.then(assert.wait(function () {
-        assert.ok(true, "David resolved");
-      }));
-
-      igorPromise.then(null, assert.wait(function () {
-        assert.ok(true, "Igor rejected");
-      }));
+      store.findRecord('test', 'david');
+      store.findRecord('test', 'igor');
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
-  done();
 });
 
 test("store should not call shouldReloadRecord when the record is not in the store", function(assert) {
@@ -1249,7 +1276,7 @@ test("store should reload all records in the background when `shouldBackgroundRe
   assert.equal(store.peekRecord('person', 1).get('name'), 'Tom');
 });
 
-test("store should assert of the user tries to call store.filter", function(assert) {
+testInDebug("store should assert of the user tries to call store.filter", function(assert) {
   assert.expect(1);
 
   var Person = DS.Model.extend({
@@ -1268,7 +1295,7 @@ test("store should assert of the user tries to call store.filter", function(asse
 });
 
 
-test("Calling adapterFor with a model class should assert", function(assert) {
+testInDebug("Calling adapterFor with a model class should assert", function(assert) {
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });

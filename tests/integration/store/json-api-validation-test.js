@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import QUnit, {module, test} from 'qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import QUnit, { module } from 'qunit';
 import DS from 'ember-data';
 
 var Person, store, env;
@@ -26,7 +27,7 @@ module("integration/store/json-validation", {
   }
 });
 
-test("when normalizeResponse returns undefined (or doesn't return), throws an error", function(assert) {
+testInDebug("when normalizeResponse returns undefined (or doesn't return), throws an error", function(assert) {
 
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse() {}
@@ -45,7 +46,7 @@ test("when normalizeResponse returns undefined (or doesn't return), throws an er
   }, /Top level of a JSON API document must be an object/);
 });
 
-test("when normalizeResponse returns null, throws an error", function(assert) {
+testInDebug("when normalizeResponse returns null, throws an error", function(assert) {
 
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse() {return null;}
@@ -65,7 +66,7 @@ test("when normalizeResponse returns null, throws an error", function(assert) {
 });
 
 
-test("when normalizeResponse returns an empty object, throws an error", function(assert) {
+testInDebug("when normalizeResponse returns an empty object, throws an error", function(assert) {
 
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse() {return {};}
@@ -84,7 +85,7 @@ test("when normalizeResponse returns an empty object, throws an error", function
   }, /One or more of the following keys must be present/);
 });
 
-test("when normalizeResponse returns a document with both data and errors, throws an error", function(assert) {
+testInDebug("when normalizeResponse returns a document with both data and errors, throws an error", function(assert) {
 
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse() {
@@ -128,7 +129,7 @@ QUnit.assert.payloadError = function payloadError(payload, expectedError) {
   env.registry.unregister('adapter:person');
 };
 
-test("normalizeResponse 'data' cannot be undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'data' cannot be undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ data: undefined }, /data must be/);
   assert.payloadError({ data: 1 }, /data must be/);
@@ -137,7 +138,7 @@ test("normalizeResponse 'data' cannot be undefined, a number, a string or a bool
 
 });
 
-test("normalizeResponse 'meta' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'meta' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ meta: undefined }, /meta must be an object/);
   assert.payloadError({ meta: [] }, /meta must be an object/);
@@ -147,7 +148,7 @@ test("normalizeResponse 'meta' cannot be an array, undefined, a number, a string
 
 });
 
-test("normalizeResponse 'links' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'links' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ data: [], links: undefined }, /links must be an object/);
   assert.payloadError({ data: [], links: [] }, /links must be an object/);
@@ -157,7 +158,7 @@ test("normalizeResponse 'links' cannot be an array, undefined, a number, a strin
 
 });
 
-test("normalizeResponse 'jsonapi' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'jsonapi' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ data: [], jsonapi: undefined }, /jsonapi must be an object/);
   assert.payloadError({ data: [], jsonapi: [] }, /jsonapi must be an object/);
@@ -167,7 +168,7 @@ test("normalizeResponse 'jsonapi' cannot be an array, undefined, a number, a str
 
 });
 
-test("normalizeResponse 'included' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'included' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ included: undefined }, /included must be an array/);
   assert.payloadError({ included: {} }, /included must be an array/);
@@ -177,7 +178,7 @@ test("normalizeResponse 'included' cannot be an object, undefined, a number, a s
 
 });
 
-test("normalizeResponse 'errors' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
+testInDebug("normalizeResponse 'errors' cannot be an object, undefined, a number, a string or a boolean", function(assert) {
 
   assert.payloadError({ errors: undefined }, /errors must be an array/);
   assert.payloadError({ errors: {} }, /errors must be an array/);

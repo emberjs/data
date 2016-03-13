@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -316,7 +317,7 @@ test("store#findRecord { reload: true } ignores cached record and reloads record
   });
 });
 
-test('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', assert => {
+testInDebug('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', assert => {
   const badValues = ['', undefined, null, NaN, false];
   assert.expect(badValues.length);
 
@@ -568,7 +569,7 @@ test("Store should accept a null value for `data`", function(assert) {
   });
 });
 
-test('store#findRecord that returns an array should assert', assert => {
+testInDebug('store#findRecord that returns an array should assert', assert => {
   initializeStore(DS.JSONAPIAdapter.extend({
     findRecord: function() {
       return { data: [] };

@@ -1,6 +1,7 @@
 import DS from 'ember-data';
 import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import isEnabled from 'ember-data/-private/features';
 
@@ -202,7 +203,7 @@ if (isEnabled("ds-references")) {
     });
   });
 
-  test("push(array) asserts polymorphic type", function(assert) {
+  testInDebug("push(array) asserts polymorphic type", function(assert) {
     var family;
     run(function() {
       family = env.store.push({

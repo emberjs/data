@@ -1,6 +1,7 @@
 import {createStore} from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -32,7 +33,7 @@ module("unit/store/unload - Store unloading records", {
   }
 });
 
-test("unload a dirty record", function(assert) {
+testInDebug("unload a dirty record asserts", function(assert) {
   assert.expect(2);
 
   run(function() {

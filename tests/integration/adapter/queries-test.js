@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -28,13 +29,13 @@ module("integration/adapter/queries - Queries", {
   }
 });
 
-test("It raises an assertion when no type is passed", function(assert) {
+testInDebug("It raises an assertion when no type is passed", function(assert) {
   assert.expectAssertion(function() {
     store.query();
   }, "You need to pass a type to the store's query method");
 });
 
-test("It raises an assertion when no query hash is passed", function(assert) {
+testInDebug("It raises an assertion when no query hash is passed", function(assert) {
   assert.expectAssertion(function() {
     store.query('person');
   }, "You need to pass a query hash to the store's query method");
@@ -56,7 +57,7 @@ test("When a query is made, the adapter should receive a record array it can pop
   }));
 });
 
-test("The store asserts when query is made and the adapter responses with a single record.", function(assert) {
+testInDebug("The store asserts when query is made and the adapter responses with a single record.", function(assert) {
   env = setupStore({ person: Person, adapter: DS.RESTAdapter });
   store = env.store;
   adapter = env.adapter;

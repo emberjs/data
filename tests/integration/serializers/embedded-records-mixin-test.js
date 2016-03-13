@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -952,7 +953,7 @@ test("serialize with embedded objects and a custom keyForAttribute (hasMany rela
   });
 });
 
-test("serialize with embedded objects (unknown hasMany relationship)", function(assert) {
+testInDebug("serialize with embedded objects (unknown hasMany relationship)", function(assert) {
   var league;
   run(function() {
     env.store.push({

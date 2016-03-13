@@ -2,6 +2,7 @@ import {createStore} from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -424,7 +425,7 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   assert.equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 });
 
-test("Inverse relationships that don't exist throw a nice error for a hasMany", function(assert) {
+testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", function(assert) {
   User = DS.Model.extend();
   Comment = DS.Model.extend();
 
@@ -446,7 +447,7 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
   }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
 });
 
-test("Inverse relationships that don't exist throw a nice error for a belongsTo", function(assert) {
+testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", function(assert) {
   User = DS.Model.extend();
   Comment = DS.Model.extend();
 

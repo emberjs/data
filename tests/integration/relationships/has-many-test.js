@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -1201,7 +1202,7 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   assert.equal(get(email, 'posts.length'), 1, "The inverse has many is set up correctly on the email side.");
 });
 
-test("A record can't be created from a polymorphic hasMany relationship", function(assert) {
+testInDebug("A record can't be created from a polymorphic hasMany relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
     env.store.push({
@@ -1228,7 +1229,7 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   });
 });
 
-test("Only records of the same type can be added to a monomorphic hasMany relationship", function(assert) {
+testInDebug("Only records of the same type can be added to a monomorphic hasMany relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -1260,7 +1261,7 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   });
 });
 
-test("Only records of the same base type can be added to a polymorphic hasMany relationship", function(assert) {
+testInDebug("Only records of the same base type can be added to a polymorphic hasMany relationship", function(assert) {
   assert.expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -1606,7 +1607,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 });
 
-test("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
+testInDebug("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
   var post;
   run(function() {
     env.store.push({
@@ -2042,7 +2043,7 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
   });
 });
 
-test("Passing a model as type to hasMany should not work", function(assert) {
+testInDebug("Passing a model as type to hasMany should not work", function(assert) {
   assert.expect(1);
 
   assert.expectAssertion(function() {

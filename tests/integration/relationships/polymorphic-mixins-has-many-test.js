@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -132,7 +133,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - async",
 /*
   Local edits
 */
-test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out", function(assert) {
+testInDebug("Pushing a an object that does not implement the mixin to the mixin accepting array errors out", function(assert) {
   var user,notMessage;
   run(function() {
     store.push({
@@ -215,7 +216,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
 /*
   Local edits
 */
-test("Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true", function(assert) {
+testInDebug("Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true", function(assert) {
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
   Ember.MODEL_FACTORY_INJECTIONS = true;
 

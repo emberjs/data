@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -98,7 +99,7 @@ test("Returns null if inverse relationship it is manually set with a different r
   assert.equal(User.inverseFor('job', store), null, 'There is no inverse');
 });
 
-test("Errors out if you define 2 inverses to the same model", function(assert) {
+testInDebug("Errors out if you define 2 inverses to the same model", function(assert) {
   Job.reopen({
     user: belongsTo('user', { inverse: 'job', async: false }),
     owner: belongsTo('user', { inverse: 'job', async: false })
@@ -125,7 +126,7 @@ test("Caches findInverseFor return value", function(assert) {
   assert.equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
 });
 
-test("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
+testInDebug("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
   assert.expectWarning(function() {
