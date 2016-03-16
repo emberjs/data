@@ -978,7 +978,7 @@ Store = Service.extend({
     @method findAll
     @param {String} modelName
     @param {Object} options
-    @return {DS.AdapterPopulatedRecordArray}
+    @return {Promise} promise
   */
   findAll(modelName, options) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
