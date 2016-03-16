@@ -227,7 +227,7 @@ export default Serializer.extend({
       var data = message.data;
       var modelClass = store.modelFor(data.modelName);
       var serializer = store.serializerFor(data.modelName);
-      var json = serializer.normalizeSingleResponse(store, modelClass, data, data.id);
+      var normalized = serializer.normalizeSingleResponse(store, modelClass, data, data.id);
 
       store.push(normalized);
     });
