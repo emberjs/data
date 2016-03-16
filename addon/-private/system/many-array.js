@@ -75,6 +75,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   flushCanonical() {
     //TODO make this smarter, currently its plenty stupid
+    if (this.isDestroyed || this.isDestroying) { return; }
     var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
     //a hack for not removing new records
