@@ -823,9 +823,9 @@ test("when a method is invoked from an event with the same name the arguments ar
   assert.equal(eventMethodArgs[1], 2);
 });
 
-AssertionPrototype.converts = function converts(type, provided, expected) {
+AssertionPrototype.converts = function converts(type, provided, expected, options = {}) {
   var Model = DS.Model.extend({
-    name: DS.attr(type)
+    name: DS.attr(type, options)
   });
 
   var registry, container;
@@ -931,13 +931,27 @@ test("a DS.Model can describe Number attributes", function(assert) {
 });
 
 test("a DS.Model can describe Boolean attributes", function(assert) {
-  assert.expect(7);
-
   assert.converts('boolean', "1", true);
   assert.converts('boolean', "", false);
   assert.converts('boolean', 1, true);
   assert.converts('boolean', 0, false);
-  assert.converts('boolean', null, false);
+
+  if (isEnabled('ds-transform-pass-options') && isEnabled('ds-boolean-transform-allow-null')) {
+    assert.converts('boolean', null, null, { allowNull: true });
+    assert.converts('boolean', undefined, null, { allowNull: true });
+
+    assert.converts('boolean', null, false, { allowNull: false });
+    assert.converts('boolean', undefined, false, { allowNull: false });
+
+    // duplicating the tests from the else branch here, so once the feature is
+    // enabled and the else branch is deleted, those assertions are kept
+    assert.converts('boolean', null, false);
+    assert.converts('boolean', undefined, false);
+  } else {
+    assert.converts('boolean', null, false);
+    assert.converts('boolean', undefined, false);
+  }
+
   assert.converts('boolean', true, true);
   assert.converts('boolean', false, false);
 });

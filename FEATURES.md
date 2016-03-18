@@ -11,6 +11,12 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
+- `ds-boolean-transform-allow-null`
+
+  Allow `null`/`undefined` values for `boolean` attributes via `DS.attr('boolean', { allowNull: true })`
+
+  Note that this feature only works when `ds-transform-pass-options` is enabled too.
+
 - `ds-finder-include`
 
   Allows an `include` query parameter to be specified with using

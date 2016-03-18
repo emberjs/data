@@ -1,4 +1,8 @@
+import Ember from 'ember';
 import Transform from "ember-data/transform";
+import isEnabled from 'ember-data/-private/features';
+
+const { isNone } = Ember;
 
 /**
   The `DS.BooleanTransform` class is used to serialize and deserialize
@@ -23,8 +27,16 @@ import Transform from "ember-data/transform";
   @namespace DS
  */
 export default Transform.extend({
-  deserialize(serialized) {
+  deserialize(serialized, options) {
     var type = typeof serialized;
+
+    if (isEnabled('ds-transform-pass-options')) {
+      if (isEnabled('ds-boolean-transform-allow-null')) {
+        if (isNone(serialized) && options.allowNull === true) {
+          return null;
+        }
+      }
+    }
 
     if (type === "boolean") {
       return serialized;
@@ -37,7 +49,15 @@ export default Transform.extend({
     }
   },
 
-  serialize(deserialized) {
+  serialize(deserialized, options) {
+    if (isEnabled('ds-transform-pass-options')) {
+      if (isEnabled('ds-boolean-transform-allow-null')) {
+        if (isNone(deserialized) && options.allowNull === true) {
+          return null;
+        }
+      }
+    }
+
     return Boolean(deserialized);
   }
 });
