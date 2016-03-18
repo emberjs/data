@@ -32,7 +32,7 @@ module("integration/store/query-record - Query one record with a query hash", {
 testInDebug("It raises an assertion when no type is passed", function(assert) {
   assert.expectAssertion(function() {
     store.queryRecord();
-  }, "You need to pass a type to the store's queryRecord method");
+  }, "You need to pass a model name to the store's queryRecord method");
 });
 
 testInDebug("It raises an assertion when no query hash is passed", function(assert) {

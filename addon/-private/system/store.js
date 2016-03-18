@@ -73,6 +73,7 @@ var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
+var isPresent = Ember.isPresent;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
@@ -281,6 +282,7 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   createRecord(modelName, inputProperties) {
+    assert("You need to pass a model name to the store's createRecord method", isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var properties = copy(inputProperties) || new EmptyObject();
@@ -457,6 +459,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findRecord(modelName, id, options) {
+    assert("You need to pass a model name to the store's findRecord method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
@@ -531,6 +534,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findByIds(modelName, ids) {
+    assert("You need to pass a model name to the store's findByIds method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     let promises = new Array(ids.length);
 
@@ -721,6 +725,7 @@ Store = Service.extend({
     @return {DS.Model|null} record
   */
   peekRecord(modelName, id) {
+    assert("You need to pass a model name to the store's peekRecord method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
       return this._internalModelForId(modelName, id).getRecord();
@@ -762,6 +767,7 @@ Store = Service.extend({
     @return {Boolean}
   */
   hasRecordForId(modelName, inputId) {
+    assert("You need to pass a model name to the store's hasRecordForId method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
@@ -780,6 +786,7 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   recordForId(modelName, id) {
+    assert("You need to pass a model name to the store's recordForId method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this._internalModelForId(modelName, id).getRecord();
   },
@@ -913,7 +920,7 @@ Store = Service.extend({
   },
 
   _query(modelName, query, array) {
-    assert("You need to pass a type to the store's query method", modelName);
+    assert("You need to pass a model name to the store's query method", isPresent(modelName));
     assert("You need to pass a query hash to the store's query method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
@@ -945,7 +952,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   queryRecord(modelName, query) {
-    assert("You need to pass a type to the store's queryRecord method", modelName);
+    assert("You need to pass a model name to the store's queryRecord method", isPresent(modelName));
     assert("You need to pass a query hash to the store's queryRecord method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
@@ -981,6 +988,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findAll(modelName, options) {
+    assert("You need to pass a model name to the store's findAll method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
@@ -1050,6 +1058,7 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   peekAll(modelName) {
+    assert("You need to pass a model name to the store's peekAll method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
@@ -1155,6 +1164,7 @@ Store = Service.extend({
     @deprecated
   */
   filter(modelName, query, filter) {
+    assert("You need to pass a model name to the store's filter method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (!Ember.ENV.ENABLE_DS_FILTER) {
@@ -1206,6 +1216,7 @@ Store = Service.extend({
     @return {boolean}
   */
   recordIsLoaded(modelName, id) {
+    assert("You need to pass a model name to the store's recordIsLoaded method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this.hasRecordForId(modelName, id);
   },
@@ -1462,6 +1473,7 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor(modelName) {
+    assert("You need to pass a model name to the store's modelFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var factory = this.modelFactoryFor(modelName);
@@ -1478,6 +1490,7 @@ Store = Service.extend({
   },
 
   modelFactoryFor(modelName) {
+    assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var normalizedKey = normalizeModelName(modelName);
 
@@ -1808,6 +1821,7 @@ Store = Service.extend({
     @return {Object} The normalized payload
   */
   normalize(modelName, payload) {
+    assert("You need to pass a model name to the store's normalize method", isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var serializer = this.serializerFor(modelName);
     var model = this.modelFor(modelName);
@@ -1901,7 +1915,7 @@ Store = Service.extend({
     @return DS.Adapter
   */
   adapterFor(modelName) {
-
+    assert("You need to pass a model name to the store's adapterFor method", isPresent(modelName));
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
     return this.lookupAdapter(modelName);
@@ -1937,7 +1951,7 @@ Store = Service.extend({
     @return {DS.Serializer}
   */
   serializerFor(modelName) {
-
+    assert("You need to pass a model name to the store's serializerFor method", isPresent(modelName));
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
     var fallbacks = [
