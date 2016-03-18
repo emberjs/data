@@ -1,4 +1,16 @@
 # Ember Data Changelog
+### Release 2.5.0-beta.2 (March 18, 2016)
+- [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
+- [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
+- [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
+- [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
+- [#4198](https://github.com/emberjs/data/pull/4198) [DOC beta] Fix error message internal docs
+- [#4200](https://github.com/emberjs/data/pull/4200) Avoid errors when ember-cli-shims is not included.
+- [#4204](https://github.com/emberjs/data/pull/4204) Fix RESTAdapter.findRecord without a snapshot
+- [#4205](https://github.com/emberjs/data/pull/4205) [BUGFIX release] ensure import paths are resolved \w posix separators
+- [#4221](https://github.com/emberjs/data/pull/4221) [BUGFIX beta] use assert from debug utils so it is stripped correctly
+- [#4235](https://github.com/emberjs/data/pull/4235) [DOC] Fix store.findAll return type
+- [#4237](https://github.com/emberjs/data/pull/4237) [DOC beta] Fix typo in inline doc. of normalizeResponse
 
 ### Release 2.5.0-beta.1 (March 9, 2016)
 
