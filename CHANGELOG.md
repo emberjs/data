@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 2.4.1 (March 18, 2016)
+- [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
+- [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
+- [#4204](https://github.com/emberjs/data/pull/4204) Fix RESTAdapter.findRecord without a snapshot
+- [#4205](https://github.com/emberjs/data/pull/4205) [BUGFIX release] ensure import paths are resolved \w posix separators
+- [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
+
 ### Release 2.4.0 (February 29, 2016)
 - [#4125](https://github.com/emberjs/data/pull/4125) [BUGFIX beta] Export more public API's via modules
 - [#4135](https://github.com/emberjs/data/pull/4135) import require
