@@ -996,7 +996,7 @@ export default Adapter.extend(BuildURLMixin, {
     let query = {};
 
     if (isEnabled('ds-finder-include')) {
-      if(snapshot) {
+      if (snapshot) {
         const { include } = snapshot;
 
         if (include) {
