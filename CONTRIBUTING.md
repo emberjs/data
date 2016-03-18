@@ -90,7 +90,7 @@ taken straight from the Ruby on Rails guide:
 * Update the documentation, the surrounding one, examples elsewhere, guides,
   whatever is affected by your contribution
 
-Syntax:
+## Syntax:
 
 * Two spaces, no tabs.
 * No trailing whitespace. Blank lines should not have any space.
@@ -98,5 +98,11 @@ Syntax:
 * Follow the conventions you see used in the source already.
 
 And in case we didn't emphasize it enough: we love tests!
+
+## Writing Tests
+
+* We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
+* Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on warning/assertion messages failing for your PR, use the `testInDebug` helper to skip them in production. See [this](https://github.com/emberjs/data/blob/b3eb9c098ef8c2cf9ff3378ed079769782c02bb5/tests/integration/adapter/queries-test.js#L32) example.
+
 
 NOTE: Partially copied from https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md
