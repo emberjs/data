@@ -428,6 +428,184 @@ test("changedAttributes() works while the record is being updated", function(ass
   });
 });
 
+if (isEnabled('ds-reset-attribute')) {
+  test("resetAttribute() reverts a single attribute to its canonical value", function(assert) {
+    assert.expect(5);
+
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Peter',
+            isDrugAddict: true
+          }
+        }
+      });
+
+      let person = store.peekRecord('person', 1);
+
+      assert.equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
+      person.setProperties({
+        name: 'Piper',
+        isDrugAddict: false
+      });
+      assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
+      person.resetAttribute('isDrugAddict');
+      assert.equal(person.get('isDrugAddict'), true, "The specified attribute is rolled back");
+      assert.equal(person.get('name'), 'Piper', "Unspecified attributes are not rolled back");
+      assert.equal(person.get('hasDirtyAttributes'), true, "record with changed attributes is still dirty");
+    });
+  });
+
+  test("calling resetAttribute() on an unmodified property has no effect", function(assert) {
+    assert.expect(5);
+
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Peter',
+            isDrugAddict: true
+          }
+        }
+      });
+
+      let person = store.peekRecord('person', 1);
+
+      assert.equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
+      person.set('name', 'Piper');
+      assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
+      person.resetAttribute('isDrugAddict');
+      assert.equal(person.get('isDrugAddict'), true, "The specified attribute does not change value");
+      assert.equal(person.get('name'), 'Piper', "Unspecified attributes are not rolled back");
+      assert.equal(person.get('hasDirtyAttributes'), true, "record with changed attributes is still dirty");
+    });
+  });
+
+  test("Rolling back the final value with resetAttribute() causes the record to become clean again", function(assert) {
+    assert.expect(3);
+
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Peter',
+            isDrugAddict: true
+          }
+        }
+      });
+
+      let person = store.peekRecord('person', 1);
+
+      assert.equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
+      person.set('isDrugAddict', false);
+      assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
+      person.resetAttribute('isDrugAddict');
+      assert.equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting property to the old value");
+    });
+  });
+
+  test("Using resetAttribute on an in-flight record reverts to the latest in-flight value", function(assert) {
+    assert.expect(4);
+
+    var person, finishSaving;
+
+    // Make sure the save is async
+    env.adapter.updateRecord = function(store, type, snapshot) {
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        finishSaving = resolve;
+      });
+    };
+
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: "Tom"
+          }
+        }
+      });
+      person = store.peekRecord('person', 1);
+      person.set('name', "Thomas");
+
+      person.save();
+    });
+
+    run(function() {
+      assert.equal(person.get('isSaving'), true);
+      assert.equal(person.get('name'), "Thomas");
+
+      person.set('name', "Tomathy");
+      assert.equal(person.get('name'), "Tomathy");
+
+      person.resetAttribute('name');
+      assert.equal(person.get('name'), "Thomas");
+
+      finishSaving();
+    });
+  });
+
+  test("Saving an in-flight record updates the in-flight value resetAttribute will use", function(assert) {
+    assert.expect(7);
+
+    var person, finishSaving;
+
+    // Make sure the save is async
+    env.adapter.updateRecord = function(store, type, snapshot) {
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        finishSaving = resolve;
+      });
+    };
+
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: "Tom"
+          }
+        }
+      });
+      person = store.peekRecord('person', 1);
+      person.set('name', "Thomas");
+
+      person.save();
+    });
+
+    run(function() {
+      assert.equal(person.get('isSaving'), true);
+      assert.equal(person.get('name'), "Thomas");
+
+      person.set('name', "Tomathy");
+      assert.equal(person.get('name'), "Tomathy");
+
+      person.save();
+    });
+
+    run(function() {
+      assert.equal(person.get('isSaving'), true);
+      assert.equal(person.get('name'), "Tomathy");
+
+      person.set('name', "Tomny");
+      assert.equal(person.get('name'), "Tomny");
+
+      person.resetAttribute('name');
+      assert.equal(person.get('name'), 'Tomathy');
+
+      finishSaving();
+    });
+  });
+}
+
 test("a DS.Model does not require an attribute type", function(assert) {
   var Tag = DS.Model.extend({
     name: DS.attr()

@@ -7,6 +7,7 @@ import { BelongsToMixin } from 'ember-data/-private/system/relationships/belongs
 import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many';
 import { DidDefinePropertyMixin, RelationshipsClassMethodsMixin, RelationshipsInstanceMethodsMixin } from 'ember-data/-private/system/relationships/ext';
 import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
+import isEnabled from 'ember-data/-private/features';
 
 /**
   @module ember-data
@@ -1022,6 +1023,32 @@ if (Ember.setOwner) {
     }
   });
 }
+
+if (isEnabled('ds-reset-attribute')) {
+  Model.reopen({
+    /**
+      Discards any unsaved changes to the given attribute.
+
+      Example
+
+      ```javascript
+      record.get('name'); // 'Untitled Document'
+      record.set('name', 'Doc 1');
+      record.get('name'); // 'Doc 1'
+      record.resetAttribute('name');
+      record.get('name'); // 'Untitled Document'
+      ```
+
+      @method resetAttribute
+    */
+    resetAttribute(attributeName) {
+      if (attributeName in this._internalModel._attributes) {
+        this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
+      }
+    }
+  });
+}
+
 
 Model.reopenClass(RelationshipsClassMethodsMixin);
 Model.reopenClass(AttrClassMethodsMixin);
