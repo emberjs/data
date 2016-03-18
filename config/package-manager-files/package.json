@@ -6,7 +6,7 @@
     "ember"
   ],
   "main": "./ember-data.js",
-  "dependencies": {
+  "optionalDependencies": {
     "ember": ">= 2.0.0 < 3.0.0"
   },
   "jspm": {
