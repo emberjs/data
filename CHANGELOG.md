@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.4.2 (March 19, 2016)
+- [#4248](https://github.com/emberjs/data/pull/4248) [BUGFIX release] fix prod-build issue
+
 ### Release 2.4.1 (March 18, 2016)
 - [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
 - [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
