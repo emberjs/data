@@ -20,7 +20,7 @@ var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
 var copy = Ember.copy;
-var merge = Ember.merge;
+var assign = Ember.assign || Ember.merge;
 
 var _extractPivotNameCache = new EmptyObject();
 var _splitOnDotCache = new EmptyObject();
@@ -223,7 +223,7 @@ InternalModel.prototype = {
 
   setupData(data) {
     var changedKeys = this._changedKeys(data.attributes);
-    merge(this._data, data.attributes);
+    assign(this._data, data.attributes);
     this.pushedData();
     if (this.record) {
       this.record._notifyProperties(changedKeys);
@@ -334,7 +334,7 @@ InternalModel.prototype = {
     var oldData = this._data;
     var currentData = this._attributes;
     var inFlightData = this._inFlightAttributes;
-    var newData = merge(copy(inFlightData), currentData);
+    var newData = assign(copy(inFlightData), currentData);
     var diffData = new EmptyObject();
 
     var newDataKeys = Object.keys(newData);
@@ -664,9 +664,9 @@ InternalModel.prototype = {
     this.didCleanError();
     var changedKeys = this._changedKeys(data);
 
-    merge(this._data, this._inFlightAttributes);
+    assign(this._data, this._inFlightAttributes);
     if (data) {
-      merge(this._data, data);
+      assign(this._data, data);
     }
 
     this._inFlightAttributes = new EmptyObject();
@@ -801,8 +801,8 @@ InternalModel.prototype = {
       var keys = Object.keys(updates);
       var length = keys.length;
 
-      original = merge(new EmptyObject(), this._data);
-      original = merge(original, this._inFlightAttributes);
+      original = assign(new EmptyObject(), this._data);
+      original = assign(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {
         key = keys[i];

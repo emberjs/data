@@ -15,7 +15,7 @@ import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
 var isNone = Ember.isNone;
-var merge = Ember.merge;
+var assign = Ember.assign || Ember.merge;
 
 /**
   Ember Data 2.0 Serializer:
@@ -1051,7 +1051,7 @@ export default Serializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    merge(hash, this.serialize(snapshot, options));
+    assign(hash, this.serialize(snapshot, options));
   },
 
   /**
