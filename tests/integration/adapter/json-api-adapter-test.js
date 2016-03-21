@@ -4,6 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 var env, store, adapter;
 var passedUrl, passedVerb, passedHash;
@@ -89,15 +90,27 @@ function ajaxResponse(responses) {
   passedVerb = [];
   passedHash = [];
 
-  adapter.ajax = function(url, verb, hash) {
-    index = counter++;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter._makeRequest = function(request) {
+      index = counter++;
 
-    passedUrl[index] = url;
-    passedVerb[index] = verb;
-    passedHash[index] = hash;
+      passedUrl[index] = request.url;
+      passedVerb[index] = request.method;
+      passedHash[index] = request.data ? { data: request.data } : undefined;
 
-    return run(Ember.RSVP, 'resolve', responses[index]);
-  };
+      return run(Ember.RSVP, 'resolve', responses[index]);
+    };
+  } else {
+    adapter.ajax = function(url, verb, hash) {
+      index = counter++;
+
+      passedUrl[index] = url;
+      passedVerb[index] = verb;
+      passedHash[index] = hash;
+
+      return run(Ember.RSVP, 'resolve', responses[index]);
+    };
+  }
 }
 
 test('find a single record', function(assert) {

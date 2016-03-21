@@ -39,13 +39,23 @@ module("integration/adapter/rest_adapter - REST Adapter", {
 });
 
 function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter._makeRequest = function(request) {
+      passedUrl = request.url;
+      passedVerb = request.method;
+      passedHash = request.data ? { data: request.data } : undefined;
 
-    return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
-  };
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  } else {
+    adapter.ajax = function(url, verb, hash) {
+      passedUrl = url;
+      passedVerb = verb;
+      passedHash = hash;
+
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  }
 }
 
 test("findRecord - basic payload", function(assert) {

@@ -4,6 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import isEnabled from 'ember-data/-private/features';
 
 var env, store, Person, Dog;
 var run = Ember.run;
@@ -224,11 +225,21 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
       source: { pointer: 'data/attributes/name' }
     }
   ]);
-  var adapter = DS.RESTAdapter.extend({
-    ajax(url, type, hash) {
-      return Ember.RSVP.reject(error);
-    }
-  });
+
+  var adapter;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter = DS.RESTAdapter.extend({
+      _makeRequest() {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  } else {
+    adapter = DS.RESTAdapter.extend({
+      ajax(url, type, hash) {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  }
 
   env = setupStore({ person: Person, adapter: adapter });
 
@@ -254,12 +265,22 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
 test("invalid record's attributes can be rollbacked after multiple failed calls - #3677", function(assert) {
   var person;
 
-  var adapter = DS.RESTAdapter.extend({
-    ajax(url, type, hash) {
-      var error = new DS.InvalidError();
-      return Ember.RSVP.reject(error);
-    }
-  });
+  var adapter;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter = DS.RESTAdapter.extend({
+      _makeRequest() {
+        var error = new DS.InvalidError();
+        return Ember.RSVP.reject(error);
+      }
+    });
+  } else {
+    adapter = DS.RESTAdapter.extend({
+      ajax(url, type, hash) {
+        var error = new DS.InvalidError();
+        return Ember.RSVP.reject(error);
+      }
+    });
+  }
 
   env = setupStore({ person: Person, adapter: adapter });
 
@@ -335,11 +356,21 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     }
   ]);
 
-  var adapter = DS.RESTAdapter.extend({
-    ajax(url, type, hash) {
-      return Ember.RSVP.reject(error);
-    }
-  });
+  var adapter;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter = DS.RESTAdapter.extend({
+      _makeRequest() {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  } else {
+    adapter = DS.RESTAdapter.extend({
+      ajax(url, type, hash) {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  }
+
 
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
@@ -396,11 +427,20 @@ test("invalid record's attributes rolled back to correct state after set", funct
     }
   ]);
 
-  var adapter = DS.RESTAdapter.extend({
-    ajax(url, type, hash) {
-      return Ember.RSVP.reject(error);
-    }
-  });
+  var adapter;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter = DS.RESTAdapter.extend({
+      _makeRequest() {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  } else {
+    adapter = DS.RESTAdapter.extend({
+      ajax(url, type, hash) {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  }
 
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
@@ -463,11 +503,20 @@ test("when destroying a record setup the record state to invalid, the record's a
     }
   ]);
 
-  var adapter = DS.RESTAdapter.extend({
-    ajax(url, type, hash) {
-      return Ember.RSVP.reject(error);
-    }
-  });
+  var adapter;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter = DS.RESTAdapter.extend({
+      _makeRequest() {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  } else {
+    adapter = DS.RESTAdapter.extend({
+      ajax(url, type, hash) {
+        return Ember.RSVP.reject(error);
+      }
+    });
+  }
 
   env = setupStore({ dog: Dog, adapter: adapter });
   var dog;

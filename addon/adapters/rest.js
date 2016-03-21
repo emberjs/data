@@ -193,7 +193,7 @@ const {
   @extends DS.Adapter
   @uses DS.BuildURLMixin
 */
-export default Adapter.extend(BuildURLMixin, {
+var RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   /**
@@ -375,10 +375,19 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
-    const url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
-    const query = this.buildQuery(snapshot);
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, id, snapshot,
+        requestType: 'findRecord'
+      });
 
-    return this.ajax(url, 'GET', { data: query });
+      return this._makeRequest(request);
+    } else {
+      const url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
+      const query = this.buildQuery(snapshot);
+
+      return this.ajax(url, 'GET', { data: query });
+    }
   },
 
   /**
@@ -396,14 +405,25 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
-    const url = this.buildURL(type.modelName, null, null, 'findAll');
     const query = this.buildQuery(snapshotRecordArray);
 
-    if (sinceToken) {
-      query.since = sinceToken;
-    }
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, sinceToken, query,
+        snapshots: snapshotRecordArray,
+        requestType: 'findAll'
+      });
 
-    return this.ajax(url, 'GET', { data: query });
+      return this._makeRequest(request);
+    } else {
+      const url = this.buildURL(type.modelName, null, null, 'findAll');
+
+      if (sinceToken) {
+        query.since = sinceToken;
+      }
+
+      return this.ajax(url, 'GET', { data: query });
+    }
   },
 
   /**
@@ -424,13 +444,22 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query(store, type, query) {
-    var url = this.buildURL(type.modelName, null, null, 'query', query);
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, query,
+        requestType: 'query'
+      });
 
-    if (this.sortQueryParams) {
-      query = this.sortQueryParams(query);
+      return this._makeRequest(request);
+    } else {
+      var url = this.buildURL(type.modelName, null, null, 'query', query);
+
+      if (this.sortQueryParams) {
+        query = this.sortQueryParams(query);
+      }
+
+      return this.ajax(url, 'GET', { data: query });
     }
-
-    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -451,13 +480,22 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   queryRecord(store, type, query) {
-    var url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, query,
+        requestType: 'queryRecord'
+      });
 
-    if (this.sortQueryParams) {
-      query = this.sortQueryParams(query);
+      return this._makeRequest(request);
+    } else {
+      var url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
+
+      if (this.sortQueryParams) {
+        query = this.sortQueryParams(query);
+      }
+
+      return this.ajax(url, 'GET', { data: query });
     }
-
-    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -494,8 +532,17 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findMany(store, type, ids, snapshots) {
-    var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
-    return this.ajax(url, 'GET', { data: { ids: ids } });
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, ids, snapshots,
+        requestType: 'findMany'
+      });
+
+      return this._makeRequest(request);
+    } else {
+      var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+      return this.ajax(url, 'GET', { data: { ids: ids } });
+    }
   },
 
   /**
@@ -534,12 +581,21 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findHasMany(store, snapshot, url, relationship) {
-    var id   = snapshot.id;
-    var type = snapshot.modelName;
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, snapshot, url, relationship,
+        requestType: 'findHasMany'
+      });
 
-    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
+      return this._makeRequest(request);
+    } else {
+      var id   = snapshot.id;
+      var type = snapshot.modelName;
 
-    return this.ajax(url, 'GET');
+      url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
+
+      return this.ajax(url, 'GET');
+    }
   },
 
   /**
@@ -578,11 +634,20 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findBelongsTo(store, snapshot, url, relationship) {
-    var id   = snapshot.id;
-    var type = snapshot.modelName;
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, snapshot, url, relationship,
+        requestType: 'findBelongsTo'
+      });
 
-    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
-    return this.ajax(url, 'GET');
+      return this._makeRequest(request);
+    } else {
+      var id   = snapshot.id;
+      var type = snapshot.modelName;
+
+      url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
+      return this.ajax(url, 'GET');
+    }
   },
 
   /**
@@ -602,13 +667,22 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   createRecord(store, type, snapshot) {
-    var data = {};
-    var serializer = store.serializerFor(type.modelName);
-    var url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, snapshot,
+        requestType: 'createRecord'
+      });
 
-    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+      return this._makeRequest(request);
+    } else {
+      var data = {};
+      var serializer = store.serializerFor(type.modelName);
+      var url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
-    return this.ajax(url, "POST", { data: data });
+      serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+
+      return this.ajax(url, "POST", { data: data });
+    }
   },
 
   /**
@@ -628,15 +702,24 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    var data = {};
-    var serializer = store.serializerFor(type.modelName);
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, snapshot,
+        requestType: 'updateRecord'
+      });
 
-    serializer.serializeIntoHash(data, type, snapshot);
+      return this._makeRequest(request);
+    } else {
+      var data = {};
+      var serializer = store.serializerFor(type.modelName);
 
-    var id = snapshot.id;
-    var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+      serializer.serializeIntoHash(data, type, snapshot);
 
-    return this.ajax(url, "PUT", { data: data });
+      var id = snapshot.id;
+      var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+
+      return this.ajax(url, "PUT", { data: data });
+    }
   },
 
   /**
@@ -651,9 +734,18 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   deleteRecord(store, type, snapshot) {
-    var id = snapshot.id;
+    if (isEnabled('ds-improved-ajax')) {
+      const request = this._requestFor({
+        store, type, snapshot,
+        requestType: 'deleteRecord'
+      });
 
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
+      return this._makeRequest(request);
+    } else {
+      var id = snapshot.id;
+
+      return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
+    }
   },
 
   _stripIDFromURL(store, snapshot) {
@@ -1009,6 +1101,253 @@ export default Adapter.extend(BuildURLMixin, {
   }
 });
 
+if (isEnabled('ds-improved-ajax')) {
+
+  RESTAdapter.reopen({
+
+    /**
+     * Get the data (body or query params) for a request.
+     *
+     * @public
+     * @method dataForRequest
+     * @param {Object} params
+     * @return {Object} data
+     */
+    dataForRequest(params) {
+      var { store, type, snapshot, requestType, query } = params;
+
+      // type is not passed to findBelongsTo and findHasMany
+      type = type || (snapshot && snapshot.type);
+
+      var serializer = store.serializerFor(type.modelName);
+      var data = {};
+
+      switch (requestType) {
+        case 'createRecord':
+          serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+          break;
+
+        case 'updateRecord':
+          serializer.serializeIntoHash(data, type, snapshot);
+          break;
+
+        case 'findRecord':
+          data = this.buildQuery(snapshot);
+          break;
+
+        case 'findAll':
+          if (params.sinceToken) {
+            query = query || {};
+            query.since = params.sinceToken;
+          }
+          data = query;
+          break;
+
+        case 'query':
+        case 'queryRecord':
+          if (this.sortQueryParams) {
+            query = this.sortQueryParams(query);
+          }
+          data = query;
+          break;
+
+        case 'findMany':
+          data = { ids: params.ids };
+          break;
+
+        default:
+          data = undefined;
+          break;
+      }
+
+      return data;
+    },
+
+    /**
+     * Get the HTTP method for a request.
+     *
+     * @public
+     * @method methodForRequest
+     * @param {Object} params
+     * @return {String} HTTP method
+     */
+    methodForRequest(params) {
+      const { requestType } = params;
+
+      switch (requestType) {
+        case 'createRecord': return 'POST';
+        case 'updateRecord': return 'PUT';
+        case 'deleteRecord': return 'DELETE';
+      }
+
+      return 'GET';
+    },
+
+    /**
+     * Get the URL for a request.
+     *
+     * @public
+     * @method urlForRequest
+     * @param {Object} params
+     * @return {String} URL
+     */
+    urlForRequest(params) {
+      var { type, id, ids, snapshot, snapshots, requestType, query } = params;
+
+      // type and id are not passed from updateRecord and deleteRecord, hence they
+      // are defined if not set
+      type = type || (snapshot && snapshot.type);
+      id = id || (snapshot && snapshot.id);
+
+      switch (requestType) {
+        case 'findAll':
+          return this.buildURL(type.modelName, null, null, requestType);
+
+        case 'query':
+        case 'queryRecord':
+          return this.buildURL(type.modelName, null, null, requestType, query);
+
+        case 'findMany':
+          return this.buildURL(type.modelName, ids, snapshots, requestType);
+
+        case 'findHasMany':
+        case 'findBelongsTo':
+          let url = this.buildURL(type.modelName, id, null, requestType);
+          return this.urlPrefix(params.url, url);
+      }
+
+      return this.buildURL(type.modelName, id, snapshot, requestType, query);
+    },
+
+    /**
+     * Get the headers for a request.
+     *
+     * By default the value of the `headers` property of the adapter is
+     * returned.
+     *
+     * @public
+     * @method headersForRequest
+     * @param {Object} params
+     * @return {Object} headers
+     */
+    headersForRequest(params) {
+      return this.get('headers');
+    },
+
+    /**
+     * Get an object which contains all properties for a request which should
+     * be made.
+     *
+     * @private
+     * @method _requestFor
+     * @param {Object} params
+     * @return {Object} request object
+     */
+   _requestFor(params) {
+      const method = this.methodForRequest(params);
+      const url = this.urlForRequest(params);
+      const headers = this.headersForRequest(params);
+      const data = this.dataForRequest(params);
+
+      return { method, url, headers, data };
+    },
+
+    /**
+     * Convert a request object into a hash which can be passed to `jQuery.ajax`.
+     *
+     * @private
+     * @method _requestToJQueryAjaxHash
+     * @param {Object} request
+     * @return {Object} jQuery ajax hash
+     */
+    _requestToJQueryAjaxHash(request) {
+      const hash = {};
+
+      hash.type = request.method;
+      hash.url = request.url;
+      hash.dataType = 'json';
+      hash.context = this;
+
+      if (request.data) {
+        if (request.type !== 'GET') {
+          hash.contentType = 'application/json; charset=utf-8';
+          hash.data = JSON.stringify(request.data);
+        } else {
+          hash.data = request.data;
+        }
+      }
+
+      var headers = request.headers;
+      if (headers !== undefined) {
+        hash.beforeSend = function(xhr) {
+          Object.keys(headers).forEach((key) => xhr.setRequestHeader(key, headers[key]));
+        };
+      }
+
+      return hash;
+    },
+
+    /**
+     * Make a request using `jQuery.ajax`.
+     *
+     * @private
+     * @method _makeRequest
+     * @param {Object} request
+     * @return {Promise} promise
+     */
+    _makeRequest(request) {
+      const adapter = this;
+      const hash = this._requestToJQueryAjaxHash(request);
+
+      const { method, url } = request;
+      const requestData = { method, url };
+
+      return new Ember.RSVP.Promise((resolve, reject) => {
+
+        hash.success = function(payload, textStatus, jqXHR) {
+          let response = adapter.handleResponse(
+            jqXHR.status,
+            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+            payload,
+            requestData
+          );
+
+          if (response instanceof AdapterError) {
+            Ember.run.join(null, reject, response);
+          } else {
+            Ember.run.join(null, resolve, response);
+          }
+        };
+
+        hash.error = function(jqXHR, textStatus, errorThrown) {
+          let error;
+
+          if (errorThrown instanceof Error) {
+            error = errorThrown;
+          } else if (textStatus === 'timeout') {
+            error = new TimeoutError();
+          } else if (textStatus === 'abort') {
+            error = new AbortError();
+          } else {
+            error = adapter.handleResponse(
+              jqXHR.status,
+              parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
+              requestData
+            );
+          }
+
+          Ember.run.join(null, reject, error);
+        };
+
+        adapter._ajaxRequest(hash);
+
+      }, `DS: RESTAdapter#makeRequest: ${method} ${url}`);
+    }
+  });
+
+}
+
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(string, suffix) {
   if (typeof String.prototype.endsWith !== 'function') {
@@ -1017,3 +1356,5 @@ function endsWith(string, suffix) {
     return string.endsWith(suffix);
   }
 }
+
+export default RESTAdapter;

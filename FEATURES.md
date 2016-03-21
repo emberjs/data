@@ -23,6 +23,12 @@ entry in `config/features.json`.
   `store.findRecord()` and `store.findAll()` as described in [RFC
   99](https://github.com/emberjs/rfcs/pull/99)
 
+- `ds-improved-ajax`
+
+  This feature allows to customize how a request is formed by overwriting
+  `methodForRequest`, `urlForRequest`, `headersForRequest` and `bodyForRequest`
+  in the `DS.RESTAdapter`.
+
 - `ds-references`
 
   Adds references as described in [RFC 57](https://github.com/emberjs/rfcs/pull/57)

@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import isEnabled from 'ember-data/-private/features';
 
 import {module, test} from 'qunit';
 
@@ -40,11 +41,19 @@ module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
 });
 
 function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
+  if (isEnabled('ds-improved-ajax')) {
+    adapter._makeRequest = function(request) {
+      passedUrl = request.url;
 
-    return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
-  };
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  } else {
+    adapter.ajax = function(url, verb, hash) {
+      passedUrl = url;
+
+      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+    };
+  }
 }
 
 
