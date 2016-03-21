@@ -1326,18 +1326,6 @@ test("queryRecord - returning an array picks the first one but saves all records
   }));
 });
 
-test("queryRecord - returning an empty array errors", function(assert) {
-  ajaxResponse({
-    post: []
-  });
-
-  assert.expectAssertion(function() {
-    Ember.run(function() {
-      store.queryRecord('post', { slug: 'rails-is-omakaze' });
-    });
-  }, /`store.queryRecord` expected the adapter to return one record/);
-});
-
 test("queryRecord - data is normalized through custom serializers", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
