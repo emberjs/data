@@ -19,7 +19,8 @@ STEPS:
   * `git commit -m "Release Ember Data X.Y.Z-beta.n"`
 * Git tag version
   * `git tag vX.Y.Z-beta.n`
-* Do a production build. `rm -rf node_modules bower_components; npm install; bower install; npm run production`
+* Do a production build. 
+  * `rm -rf node_modules bower_components; npm install; bower install; npm run production`
 * Publish to Bower
   * Commit built globals code to the https://github.com/components/ember-data repo
   * `cp dist/globals/* ../components-ember-data/`
