@@ -500,6 +500,11 @@ const JSONAPISerializer = JSONSerializer.extend({
 
 runInDebug(function() {
   JSONAPISerializer.reopen({
+    willMergeMixin(props) {
+      warn('The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.', !props.isEmbeddedRecordsMixin, {
+        id: 'ds.serializer.embedded-records-mixin-not-supported'
+      });
+    },
     warnMessageForUndefinedType() {
       return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
     },

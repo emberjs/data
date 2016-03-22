@@ -260,3 +260,10 @@ test('Serializer should respect the attrs hash when serializing attributes with 
 
   assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });
+
+
+testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
+  assert.expectWarning(function() {
+    DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
+  }, /The JSONAPISerializer does not work with the EmbeddedRecordsMixin/);
+});
