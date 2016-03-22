@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.4.3 (March 22, 2016)
+- [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
+- [#4256](https://github.com/emberjs/data/pull/4256) [BUGFIX release] Revert pr #3864
+
 ### Release 2.4.2 (March 19, 2016)
 - [#4248](https://github.com/emberjs/data/pull/4248) [BUGFIX release] fix prod-build issue
 
