@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
+const assign = Ember.assign || Ember.merge;
 
 /**
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
@@ -26,7 +27,7 @@ export default function ContainerInstanceCache(owner) {
 
 ContainerInstanceCache.prototype = new EmptyObject();
 
-Ember.merge(ContainerInstanceCache.prototype, {
+assign(ContainerInstanceCache.prototype, {
   get(type, preferredKey, fallbacks) {
     let cache = this._cache;
     let preferredLookupKey = `${type}:${preferredKey}`;
