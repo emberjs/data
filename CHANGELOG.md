@@ -1,4 +1,13 @@
 # Ember Data Changelog
+
+### Release 2.5.0-beta.3 (March 22, 2016)
+- [#4178](https://github.com/emberjs/data/pull/4178) DS.Store type presence checks
+- [#4194](https://github.com/emberjs/data/pull/4194) Use modelNameFromPayloadKey when type is given
+- [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
+- [#4248](https://github.com/emberjs/data/pull/4248) fix prod-build issue
+- [#4250](https://github.com/emberjs/data/pull/4250) [BUGFIX beta] Use Ember.assign when availability
+- [#4256](https://github.com/emberjs/data/pull/4256) [BUGFIX release] Revert pr #3864
+
 ### Release 2.5.0-beta.2 (March 18, 2016)
 - [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
 - [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
