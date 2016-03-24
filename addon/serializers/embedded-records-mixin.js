@@ -608,5 +608,6 @@ export default Ember.Mixin.create({
     let serializer = store.serializerFor(modelName);
 
     return serializer.normalize(modelClass, relationshipHash, null);
-  }
+  },
+  isEmbeddedRecordsMixin: true
 });
