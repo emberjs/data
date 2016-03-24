@@ -392,6 +392,29 @@ test('normalizeHash normalizes specific parts of the payload', function(assert) 
 
 });
 
+testInDebug('normalizeHash has been deprecated', function(assert) {
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
+    normalizeHash: {
+      homePlanets(hash) {
+        hash.id = hash._id;
+        delete hash._id;
+        return hash;
+      }
+    }
+  }));
+
+  var jsonHash = {
+    homePlanets: [{ _id: "1", name: "Umber", superVillains: [1] }]
+  };
+
+  run(function() {
+    assert.expectDeprecation(function() {
+      env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+    }, /`RESTSerializer.normalizeHash` has been deprecated/);
+  });
+});
+
+
 test('normalizeHash works with transforms', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {

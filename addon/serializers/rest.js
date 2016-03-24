@@ -156,6 +156,10 @@ var RESTSerializer = JSONSerializer.extend({
   */
   normalize(modelClass, resourceHash, prop) {
     if (this.normalizeHash && this.normalizeHash[prop]) {
+      deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.', false, {
+        id: 'ds.serializer.normalize-hash-deprecated',
+        until: '3.0.0'
+      });
       this.normalizeHash[prop](resourceHash);
     }
     return this._super(modelClass, resourceHash);
