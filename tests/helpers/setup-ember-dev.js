@@ -4,12 +4,26 @@ import EmberTestHelpers from "ember-dev/test-helper/index";
 
 const AVAILABLE_ASSERTIONS = ['expectAssertion', 'expectDeprecation', 'expectNoDeprecation', 'expectWarning', 'expectNoWarning'];
 
+// Maintain backwards compatiblity with older versions of ember.
+var emberDebugModule;
+if (Ember.__loader && Ember.__loader.registry && Ember.__loader.registry["ember-metal/debug"]) {
+  emberDebugModule = Ember.__loader.require('ember-metal/debug');
+}
+
 function getDebugFunction(name) {
-  return Ember[name];
+  if (emberDebugModule && emberDebugModule.getDebugFunction) {
+    return emberDebugModule.getDebugFunction(name);
+  } else {
+    return Ember[name];
+  }
 }
 
 function setDebugFunction(name, func) {
-  Ember[name] = func;
+  if (emberDebugModule && emberDebugModule.setDebugFunction) {
+    emberDebugModule.setDebugFunction(name, func);
+  } else {
+    Ember[name] = func;
+  }
 }
 
 var originalModule = QUnit.module;
