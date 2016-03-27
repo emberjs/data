@@ -13,13 +13,13 @@ var MapWithDefault = Ember.MapWithDefault;
 */
 
 /**
-  Holds validation errors for a given record organized by attribute names.
+  Holds validation errors for a given record, organized by attribute names.
 
-  Every DS.Model has an `errors` property that is an instance of
+  Every `DS.Model` has an `errors` property that is an instance of
   `DS.Errors`. This can be used to display validation error
   messages returned from the server when a `record.save()` rejects.
 
-  For Example, if you had an `User` model that looked like this:
+  For Example, if you had a `User` model that looked like this:
 
   ```app/models/user.js
   import DS from 'ember-data';
@@ -29,7 +29,7 @@ var MapWithDefault = Ember.MapWithDefault;
     email: attr('string')
   });
   ```
-  And you attempted to save a record that did not validate on the backend.
+  And you attempted to save a record that did not validate on the backend:
 
   ```javascript
   var user = store.createRecord('user', {
@@ -39,28 +39,13 @@ var MapWithDefault = Ember.MapWithDefault;
   user.save();
   ```
 
-  Your backend data store might return a response with status code 422 (Unprocessable Entity)
-  and that looks like this. This response will be used to populate the error object.
+  Your backend would be expected to return an error response that described
+  the problem, so that error messages can be generated on the app.
 
-  ```javascript
-  {
-    "errors": [
-      {
-        "detail": "This username is already taken!",
-        "source": {
-          "pointer": "data/attributes/username"
-        }
-      }, {
-        "detail": "Doesn't look like a valid email.",
-        "source": {
-          "pointer": "data/attributes/email"
-        }
-      }
-    ]
-  }
-  ```
-
-  For additional information on the error object, see the [JSON API spec](http://jsonapi.org/format/#error-objects).
+  API responses will be translated into instances of `DS.Errors` differently,
+  depending on the specific combination of adapter and serializer used. You
+  may want to check the documentation or the source code of the libraries
+  that you are using, to know how they expect errors to be communicated.
 
   Errors can be displayed to the user by accessing their property name
   to get an array of all the error objects for that property. Each
@@ -92,33 +77,6 @@ var MapWithDefault = Ember.MapWithDefault;
   {{#each model.errors.messages as |message|}}
     <div class="error">
       {{message}}
-    </div>
-  {{/each}}
-  ```
-
-  The JSON API spec also allows for object level errors to be placed
-  in an object with pointer `data`.
-
-  ```javascript
-  {
-    "errors": [
-      {
-        "detail": "Some generic non property error message",
-        "source": {
-          "pointer": "data"
-        }
-      }
-    ]
-  }
-  ```
-
-  You can access these errors by using the `base` property on the errors
-  object.
-
-  ```handlebars
-  {{#each model.errors.base as |error|}}
-    <div class="error">
-      {{error.message}}
     </div>
   {{/each}}
   ```

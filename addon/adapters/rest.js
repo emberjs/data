@@ -27,6 +27,24 @@ const {
   This adapter is designed around the idea that the JSON exchanged with
   the server should be conventional.
 
+  ## Success and failure
+
+  The REST adapter will consider a success any response with a status code
+  of the 2xx family ("Success"), as well as 304 ("Not Modified"). Any other
+  status code will be considered a failure.
+
+  On success, the request promise will be resolved with the full response
+  payload.
+
+  Failed responses with status code 422 ("Unprocessable Entity") will be
+  considered "invalid". The response will be discarded, except for the
+  `errors` key. The request promise will be rejected with a `DS.InvalidError`.
+  This error object will encapsulate the saved `errors` value.
+
+  Any other status codes will be treated as an "adapter error". The request
+  promise will be rejected, similarly to the "invalid" case, but with
+  an instance of `DS.AdapterError` instead.
+
   ## JSON Structure
 
   The REST adapter expects the JSON returned from your server to follow
@@ -103,6 +121,24 @@ const {
     }
   }
   ```
+
+  ### Errors
+
+  If a response is considered a failure, the JSON payload is expected to include
+  a top-level key `errors`, detailing any specific issues. For example:
+
+  ```js
+  {
+    "errors": {
+      "msg": "Something went wrong"
+    }
+  }
+  ```
+
+  This adapter does not make any assumptions as to the format of the `errors`
+  object. It will simply be passed along as is, wrapped in an instance
+  of `DS.InvalidError` or `DS.AdapterError`. The serializer can interpret it
+  afterwards.
 
   ## Customization
 
