@@ -1270,12 +1270,68 @@ export default Serializer.extend({
   },
 
   /**
-    `extractErrors` is used to extract model errors when a call is made
-    to `DS.Model#save` which fails with an `InvalidError`. By default
+    `extractErrors` is used to extract model errors when a call
+    to `DS.Model#save` fails with an `InvalidError`. By default
     Ember Data expects error information to be located on the `errors`
     property of the payload object.
 
-    Example
+    This serializer expects this `errors` object to be an Array similar
+    to the following, compliant with the JSON-API specification:
+
+    ```js
+    {
+      "errors": [
+        {
+          "detail": "This username is already taken!",
+          "source": {
+            "pointer": "data/attributes/username"
+          }
+        }, {
+          "detail": "Doesn't look like a valid email.",
+          "source": {
+            "pointer": "data/attributes/email"
+          }
+        }
+      ]
+    }
+    ```
+
+    The key `detail` provides a textual description of the problem.
+    Alternatively, the key `title` can be used for the same purpose.
+
+    The nested keys `source.pointer` detail which specific element
+    of the request data was invalid.
+
+    Note that JSON-API also allows for object-level errors to be placed
+    in an object with pointer `data`, signifying that the problem
+    cannot be traced to a specific attribute:
+
+    ```javascript
+    {
+      "errors": [
+        {
+          "detail": "Some generic non property error message",
+          "source": {
+            "pointer": "data"
+          }
+        }
+      ]
+    }
+    ```
+
+    When turn into a `DS.Errors` object, you can read these errors
+    through the property `base`:
+
+    ```handlebars
+    {{#each model.errors.base as |error|}}
+      <div class="error">
+        {{error.message}}
+      </div>
+    {{/each}}
+    ```
+
+    Example of alternative implementation, overriding the default
+    behavior to deal with a different format of errors:
 
     ```app/serializers/post.js
     import DS from 'ember-data';
