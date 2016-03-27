@@ -953,3 +953,24 @@ if (isEnabled('ds-transform-pass-options')) {
   });
 
 }
+
+test('Serializer should respect the attrs hash in links', function(assert) {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key",
+      comments: { key: 'my_comments' }
+    }
+  }));
+
+  var jsonHash = {
+    title_payload_key: "Rails is omakase",
+    links: {
+      my_comments: 'posts/1/comments'
+    }
+  };
+
+  var post = env.container.lookup("serializer:post").normalizeSingleResponse(env.store, Post, jsonHash);
+
+  assert.equal(post.data.attributes.title, "Rails is omakase");
+  assert.equal(post.data.relationships.comments.links.related, 'posts/1/comments');
+});

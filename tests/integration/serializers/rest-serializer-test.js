@@ -847,3 +847,27 @@ test("don't polymorphically deserialize based on the type key in payload when a 
   });
 
 });
+
+test('Serializer should respect the attrs hash in links', function(assert) {
+  env.registry.register("serializer:super-villain", DS.RESTSerializer.extend({
+    attrs: {
+      evilMinions: { key: 'my_minions' }
+    }
+  }));
+
+  var jsonHash = {
+    "super-villains": [
+      {
+        firstName: 'Tom',
+        lastName: 'Dale',
+        links: {
+          my_minions: 'me/minions'
+        }
+      }
+    ]
+  };
+
+  var documentHash = env.container.lookup("serializer:super-villain").normalizeSingleResponse(env.store, SuperVillain, jsonHash);
+
+  assert.equal(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
+});
