@@ -74,7 +74,18 @@ a test!
 
 4. Make the test pass.
 
-5. Push to your fork and submit a pull request. Please provide us with some
+5. Commit your changes. Please use an appropriate commit prefix.
+If your pull request fixes an issue specify it in the commit message. Some examples:
+
+  ```
+  [DOC beta] Update CONTRIBUTING.md for commit prefixes
+  [FEATURE ds-pushpayload-return] Change `pushPayload` to return a value. #4110
+  [BUGFIX beta] Allow optional spaces when parsing response headers
+  ```
+
+  For more information about commit prefixes see [Commit Tagging](#commit-tagging).
+
+6. Push to your fork and submit a pull request. Please provide us with some
 explanation of why you made the changes you made. For new features make sure to
 explain a standard use case to us.
 
@@ -99,10 +110,49 @@ taken straight from the Ruby on Rails guide:
 
 And in case we didn't emphasize it enough: we love tests!
 
+
 ## Writing Tests
 
 * We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
 * Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on warning/assertion messages failing for your PR, use the `testInDebug` helper to skip them in production. See [this](https://github.com/emberjs/data/blob/b3eb9c098ef8c2cf9ff3378ed079769782c02bb5/tests/integration/adapter/queries-test.js#L32) example.
 
+## Commit Tagging
 
-NOTE: Partially copied from https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md
+All commits should be tagged. Tags are denoted by square brackets (`[]`) and come at the start of the commit message.
+
+### Bug Fixes
+
+In general bug fixes are pulled into the beta branch. As such, the prefix is: `[BUGFIX beta]`. If a bug fix is a serious regression that requires a new patch release, `[BUGFIX release]` can be used instead.
+
+For bugs related to canary features, follow the prefixing rules for features.
+
+The vast majority of bug fixes apply to the current stable or beta releases, so submit your PR against the `master` branch with one of the above mentioned BUGFIX tags.
+(In the unusual case of a bug fix specifically for a past release, tag for that release `[BUGFIX release-1-13]` and submit the PR against the stable branch for that release: `stable-1-13`.)
+
+### Cleanup
+
+Cleanup commits are for removing deprecated functionality and should be tagged
+as `[CLEANUP beta]`.
+
+### Features
+
+All additions and fixes for features in canary should be tagged as `[FEATURE name]` where name is the same as the flag for that feature.
+
+### Documentation
+
+Documentation commits are tagged as `[DOC channel]` where channel is `canary`,
+`beta`, or `release`. If no release is provided `canary` is assumed. The channel should be the most stable release that this documentation change applies to.
+
+### Security
+
+Security commits will be tagged as `[SECURITY cve]`. Please do not submit security related PRs without coordinating with the security team. See the [Security Policy](http://emberjs.com/security/) for more information.
+
+### Other
+
+In general almost all commits should fall into one of these categories. In the cases where they don't please submit your PR untagged. An ember-data contributor will let you know if tagging is required.
+
+
+NOTE:
+* Partially copied from https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md
+* Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
+
