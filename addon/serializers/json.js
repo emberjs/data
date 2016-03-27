@@ -524,6 +524,9 @@ export default Serializer.extend({
 
     if (resourceHash) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
+      if (Ember.typeOf(resourceHash.links) === 'object') {
+        this.normalizeUsingDeclaredMapping(modelClass, resourceHash.links);
+      }
 
       data = {
         id:            this.extractId(modelClass, resourceHash),
