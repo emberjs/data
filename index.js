@@ -26,6 +26,12 @@ module.exports = {
   },
 
   init: function() {
+    if (process.env.EMBER_ENV === 'production') {
+      this.app.options.babel = this.app.options.babel || {};
+      add(this.app.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
+      add(this.app.options.babel, 'plugins', require('./lib/stripped-build-plugins')());
+    }
+
     var bowerDeps = this.project.bowerDependencies();
 
     var VersionChecker = require('ember-cli-version-checker');
@@ -100,12 +106,6 @@ module.exports = {
 
   included: function(app) {
     this._super.included.apply(this, arguments);
-
-    if (process.env.EMBER_ENV === 'production') {
-      this.options.babel = this.options.babel || {};
-      add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
-      add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')());
-    }
 
     if (this._forceBowerUsage) {
       this.app.import({
