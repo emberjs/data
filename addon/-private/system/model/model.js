@@ -122,8 +122,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {Boolean}
     @readOnly
   */
-  hasDirtyAttributes: Ember.computed('currentState.isDirty', function() {
-    return this.get('currentState.isDirty');
+  hasDirtyAttributes: Ember.computed('currentState', function() {
+    return this.get('_internalModel.currentState.isDirty');
   }),
   /**
     If this property is `true` the record is in the `saving` state. A

@@ -376,6 +376,7 @@ Store = Service.extend({
   */
   unloadRecord(record) {
     record.unloadRecord();
+    record.destroy();
   },
 
   // ................
@@ -1476,8 +1477,7 @@ Store = Service.extend({
 
       for (let i = 0; i < records.length; i++) {
         record = records[i];
-        record.unloadRecord();
-        record.destroy(); // maybe within unloadRecord
+        this.unloadRecord(record);
       }
 
       typeMap.metadata = new EmptyObject();

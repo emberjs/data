@@ -66,7 +66,7 @@ testInDebug("unload a dirty record asserts", function(assert) {
 });
 
 test("unload a record", function(assert) {
-  assert.expect(5);
+  assert.expect(6);
 
   run(function() {
     store.push({
@@ -87,11 +87,48 @@ test("unload a record", function(assert) {
       });
 
       assert.equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
+      assert.equal(get(record, 'isDestroyed'), true, 'record is destroyed');
       assert.equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;
       return store.findRecord('record', 1).then(function() {
         assert.equal(tryToFind, true, "not found record with id 1");
+      });
+    });
+  });
+});
+
+test("unload a record - observers should be removed", function(assert) {
+  assert.expect(4);
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'record',
+        id: '1',
+        attributes: {
+          title: 'toto'
+        }
+      }
+    });
+
+    store.findRecord('record', 1).then(function(record) {
+      Ember.addObserver(record, 'title', record, function() {
+        assert.ok(false, 'observer for record.title');
+      });
+
+      let observers = Ember.observersFor(record, 'title');
+      assert.equal(observers.length, 1, 'record should have 1 observer');
+
+      run(function() {
+        store.unloadRecord(record);
+      });
+
+      run(function() {
+        let observers = Ember.observersFor(record, 'title');
+        assert.equal(get(record, 'isDeleted'), true, 'record is deleted');
+        assert.equal(get(record, 'isDestroyed'), true, 'record is destroyed');
+        assert.equal(observers.length, 0, 'record should not have observers');
       });
     });
   });
