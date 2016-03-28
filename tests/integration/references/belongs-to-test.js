@@ -332,7 +332,7 @@ if (isEnabled("ds-references")) {
     });
 
     var familyReference = person.belongsTo('family');
-    assert.equal(familyReference.value(), null);
+    assert.strictEqual(familyReference.value(), null);
   });
 
   test("value() returns the referenced record when loaded", function(assert) {
