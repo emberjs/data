@@ -337,7 +337,7 @@ if (isEnabled("ds-references")) {
     });
 
     var personsReference = family.hasMany('persons');
-    assert.equal(personsReference.value(), null);
+    assert.strictEqual(personsReference.value(), null);
   });
 
   test("value() returns the referenced records when all records are loaded", function(assert) {
