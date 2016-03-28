@@ -2,6 +2,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
 
@@ -108,6 +109,7 @@ test("by default, createRecords calls createRecord once per record", function(as
       yehuda: yehuda.save()
     });
   });
+
   promise.then(assert.wait(function(records) {
     tom = records.tom;
     yehuda = records.yehuda;
@@ -116,6 +118,7 @@ test("by default, createRecords calls createRecord once per record", function(as
     assert.asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, findRecord returns the same object");
     assert.equal(get(tom, 'updatedAt'), "now", "The new information is received");
     assert.equal(get(yehuda, 'updatedAt'), "now", "The new information is received");
+
   }));
 });
 
@@ -1399,4 +1402,22 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
   })).then(assert.wait(function(comments) {
     assert.equal(comments.get('length'), 3);
   }));
+});
+
+
+testInDebug("There should be a friendly error for if the adapter does not implement createRecord", function(assert) {
+  adapter.createRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.createRecord('person', { name: "Tom Dale" });
+      tom.save();
+    });
+  }, /does not implement 'createRecord'/);
+  run(function() {
+    // move record out of the inflight state so the tests can clean up
+    // correctly
+    store.recordWasError(tom._internalModel, new Error());
+  });
 });
