@@ -2,27 +2,21 @@
 
 var glob = require('glob');
 var Mocha = require('mocha');
-var Promise = require('ember-cli/lib/ext/promise');
+var RSVP = require('rsvp');
 var rimraf = require('rimraf');
 var mochaOnlyDetector = require('mocha-only-detector');
-
-process.env.EMBER_DATA_SKIP_VERSION_CHECKING_DO_NOT_USE_THIS_ENV_VARIABLE = true;
-
-if (process.env.EOLNEWLINE) {
-  require('os').EOL = '\n';
-}
 
 rimraf.sync('.node_modules-tmp');
 rimraf.sync('.bower_components-tmp');
 
 var root = 'node-tests/{blueprints,acceptance,unit}';
-var _checkOnlyInTests = Promise.denodeify(mochaOnlyDetector.checkFolder.bind(null, root + '/**/*{-test}.js'));
+var _checkOnlyInTests = RSVP.denodeify(mochaOnlyDetector.checkFolder.bind(null, root + '/**/*{-test}.js'));
 var optionOrFile = process.argv[2];
 var mocha = new Mocha({
   timeout: 5000,
   reporter: 'spec'
 });
-var testFiles = glob.sync(root + '**/*-test.js');
+var testFiles = glob.sync(root + '/**/*-test.js');
 /*var jshintPosition = testFiles.indexOf('tests/unit/jshint-test.js');
 var jshint = testFiles.splice(jshintPosition, 1);
 
@@ -62,7 +56,7 @@ function ciVerificationStep() {
   if (process.env.CI === 'true') {
     return checkOnlyInTests();
   } else {
-    return Promise.resolve();
+    return RSVP.Promise.resolve();
   }
 }
 

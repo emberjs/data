@@ -56,7 +56,7 @@
     "ember-ajax": "0.7.1",
     "ember-cli": "2.4.1",
     "ember-cli-app-version": "^1.0.0",
-    "ember-cli-blueprint-test-helpers": "^0.9.0",
+    "ember-cli-blueprint-test-helpers": "0.10.1",
     "ember-cli-dependency-checker": "^1.2.0",
     "ember-cli-htmlbars": "^1.0.3",
     "ember-cli-htmlbars-inline-precompile": "^0.2.0",
@@ -76,12 +76,12 @@
     "ember-try": "^0.1.2",
     "ember-watson": "^0.7.0",
     "github": "^0.2.4",
-    "glob": "^5.0.13",
+    "glob": "5.0.13",
     "loader.js": "^4.0.0",
-    "mocha": "^2.3.4",
+    "mocha": "2.4.5",
     "mocha-only-detector": "0.0.2",
-    "rimraf": "^2.3.2",
-    "rsvp": "^3.1.0"
+    "rimraf": "2.5.2",
+    "rsvp": "3.2.1"
   },
   "peerDependencies": {
     "ember-inflector": "^1.9.4"

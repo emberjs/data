@@ -21,3 +21,4 @@ testem.js
 *.gem
 *.gemspec
 **/*.rb
+node-tests/
