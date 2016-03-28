@@ -153,5 +153,5 @@ testInDebug('When all records are requested, assert the payload is not blank', (
 
   assert.expectAssertion(() => {
     run(() => store.findAll('person'));
-  }, /the adapter's response did not have any data/);
+  }, /You made a `findAll` request for person records, but the adapter's response did not have any data/);
 });
