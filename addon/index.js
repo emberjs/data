@@ -44,7 +44,7 @@ import {
   AbortError,
   errorsHashToArray,
   errorsArrayToHash
-} from "ember-data/-private/adapters/errors";
+} from "ember-data/adapters/errors";
 
 import {
   RecordArray,

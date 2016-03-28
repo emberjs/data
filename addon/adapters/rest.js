@@ -9,7 +9,7 @@ import {
   InvalidError,
   TimeoutError,
   AbortError
-} from 'ember-data/-private/adapters/errors';
+} from 'ember-data/adapters/errors';
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
 import isEnabled from 'ember-data/-private/features';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';

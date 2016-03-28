@@ -9,7 +9,7 @@ import {
   getOwner
 } from 'ember-data/-private/utils';
 
-import { errorsArrayToHash } from "ember-data/-private/adapters/errors";
+import { errorsArrayToHash } from "ember-data/adapters/errors";
 
 import isEnabled from 'ember-data/-private/features';
 

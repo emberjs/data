@@ -9,7 +9,7 @@ import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import {
   InvalidError
-} from 'ember-data/-private/adapters/errors';
+} from 'ember-data/adapters/errors';
 
 import {
   promiseArray,
