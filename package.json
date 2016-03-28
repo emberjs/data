@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "ember build",
-    "start": "ember server",
+    "start": "./bin/start",
     "test": "ember try:testall",
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
