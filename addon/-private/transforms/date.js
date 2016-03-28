@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import "ember-data/-private/ext/date";
+import { parseDate } from "ember-data/-private/ext/date";
 
 /**
   The `DS.DateTransform` class is used to serialize and deserialize
@@ -28,7 +28,7 @@ export default Transform.extend({
     var type = typeof serialized;
 
     if (type === "string") {
-      return new Date(Ember.Date.parse(serialized));
+      return new Date(parseDate(serialized));
     } else if (type === "number") {
       return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {

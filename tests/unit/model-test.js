@@ -5,6 +5,7 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import QUnit, {module, test} from 'qunit';
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
+import { parseDate } from "ember-data/-private/ext/date";
 
 const AssertionPrototype = QUnit.assert;
 
@@ -949,7 +950,7 @@ test("a DS.Model can describe Date attributes", function(assert) {
   assert.converts('date', undefined, undefined);
 
   var dateString = "2011-12-31T00:08:16.000Z";
-  var date = new Date(Ember.Date.parse(dateString));
+  var date = new Date(parseDate(dateString));
 
 
   var Person = DS.Model.extend({

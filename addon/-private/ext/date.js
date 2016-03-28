@@ -3,29 +3,14 @@
 */
 
 import Ember from 'ember';
+import { deprecate } from 'ember-data/-private/debug';
 
-/**
-  Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
-
-  © 2011 Colin Snover <http://zetafleet.com>
-
-  Released under MIT license.
-
-  @class Date
-  @namespace Ember
-  @static
-*/
 Ember.Date = Ember.Date || {};
 
 var origParse = Date.parse;
 var numericKeys = [1, 4, 5, 6, 7, 10, 11];
 
-/**
-  @method parse
-  @param {Date} date
-  @return {Number} timestamp
-*/
-Ember.Date.parse = function (date) {
+export const parseDate = function (date) {
   var timestamp, struct;
   var minutesOffset = 0;
 
@@ -59,6 +44,34 @@ Ember.Date.parse = function (date) {
   return timestamp;
 };
 
+Ember.Date.parse = function (date) {
+  // throw deprecation
+  deprecate(`Ember.Date.parse is deprecated because Safari 5-, IE8-, and
+    Firefox 3.6- are no longer supported (see
+    https://github.com/csnover/js-iso8601 for the history of this issue).
+    Please use Date.parse instead`, false, {
+    id: 'ds.ember.date.parse-deprecate',
+    until: '3.0.0'
+  });
+
+  return parseDate(date);
+};
+
 if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Date) {
-  Date.parse = Ember.Date.parse;
+  deprecate(`Overriding Date.parse with Ember.Date.parse is deprecated. Please set ENV.EmberENV.EXTEND_PROTOTYPES.Date to false in config/environment.js
+
+
+// config/environment.js
+ENV = {
+  EmberENV: {
+    EXTEND_PROTOTYPES: {
+      Date: false,
+    }
+  }
+}
+`, false, {
+    id: 'ds.date.parse-deprecate',
+    until: '3.0.0'
+  });
+  Date.parse = parseDate;
 }
