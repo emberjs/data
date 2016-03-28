@@ -1248,9 +1248,10 @@ export default Serializer.extend({
 
     export default DS.JSONSerializer.extend({
       extractMeta: function(store, typeClass, payload) {
-        if (payload && payload._pagination) {
-          store.setMetadataFor(typeClass, payload._pagination);
+        if (payload && payload.hasOwnProperty('_pagination')) {
+          let meta = payload._pagination;
           delete payload._pagination;
+          return meta;
         }
       }
     });
