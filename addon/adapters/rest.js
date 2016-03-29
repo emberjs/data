@@ -7,6 +7,10 @@ import Adapter from "ember-data/adapter";
 import {
   AdapterError,
   InvalidError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
   TimeoutError,
   AbortError
 } from 'ember-data/adapters/errors';
@@ -905,6 +909,19 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let errors          = this.normalizeErrorResponse(status, headers, payload);
     let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
+
+    if (isEnabled('ds-extended-errors')) {
+      switch (status) {
+      case 401:
+        return new UnauthorizedError(errors, detailedMessage);
+      case 403:
+        return new ForbiddenError(errors, detailedMessage);
+      case 404:
+        return new NotFoundError(errors, detailedMessage);
+      case 409:
+        return new ConflictError(errors, detailedMessage);
+      }
+    }
 
     return new AdapterError(errors, detailedMessage);
   },

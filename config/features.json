@@ -5,5 +5,6 @@
   "ds-references": null,
   "ds-transform-pass-options": null,
   "ds-pushpayload-return": null,
-  "ds-serialize-ids-and-types": null
+  "ds-serialize-ids-and-types": null,
+  "ds-extended-errors": null
 }

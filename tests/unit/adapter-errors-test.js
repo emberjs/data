@@ -1,5 +1,6 @@
 import Ember from 'ember';
 
+import isEnabled from "ember-data/-private/features";
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
@@ -12,6 +13,7 @@ test("DS.AdapterError", function(assert) {
   assert.ok(error instanceof Error);
   assert.ok(error instanceof Ember.Error);
   assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'Adapter operation failed');
 });
 
 test("DS.InvalidError", function(assert) {
@@ -19,6 +21,7 @@ test("DS.InvalidError", function(assert) {
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
   assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter rejected the commit because it was invalid');
 });
 
 test("DS.TimeoutError", function(assert) {
@@ -26,6 +29,7 @@ test("DS.TimeoutError", function(assert) {
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
   assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation timed out');
 });
 
 test("DS.AbortError", function(assert) {
@@ -33,7 +37,57 @@ test("DS.AbortError", function(assert) {
   assert.ok(error instanceof Error);
   assert.ok(error instanceof DS.AdapterError);
   assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation was aborted');
 });
+
+if (isEnabled('ds-extended-errors')) {
+  test("DS.UnauthorizedError", function(assert) {
+    var error = new DS.UnauthorizedError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'The adapter operation is unauthorized');
+  });
+
+  test("DS.ForbiddenError", function(assert) {
+    var error = new DS.ForbiddenError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'The adapter operation is forbidden');
+  });
+
+  test("DS.NotFoundError", function(assert) {
+    var error = new DS.NotFoundError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'The adapter could not find the resource');
+  });
+
+  test("DS.ConflictError", function(assert) {
+    var error = new DS.ConflictError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'The adapter operation failed due to a conflict');
+  });
+
+  test("CustomAdapterError", function(assert) {
+    var CustomAdapterError = DS.AdapterError.extend();
+    var error = new CustomAdapterError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'Adapter operation failed');
+  });
+
+  test("CustomAdapterError with default message", function(assert) {
+    var CustomAdapterError = DS.AdapterError.extend({ message: 'custom error!' });
+    var error = new CustomAdapterError();
+    assert.equal(error.message, 'custom error!');
+  });
+}
 
 var errorsHash = {
   name: ['is invalid', 'must be a string'],

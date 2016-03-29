@@ -1,5 +1,6 @@
 import Ember from "ember";
 import { warn } from "ember-data/-private/debug";
+import isEnabled from "ember-data/-private/features";
 /**
   Ember Data
   @module ember-data
@@ -40,6 +41,10 @@ import DebugAdapter from "ember-data/-private/system/debug";
 import {
   AdapterError,
   InvalidError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
   TimeoutError,
   AbortError,
   errorsHashToArray,
@@ -101,6 +106,13 @@ DS.AdapterError = AdapterError;
 DS.InvalidError = InvalidError;
 DS.TimeoutError = TimeoutError;
 DS.AbortError   = AbortError;
+
+if (isEnabled('ds-extended-errors')) {
+  DS.UnauthorizedError = UnauthorizedError;
+  DS.ForbiddenError    = ForbiddenError;
+  DS.NotFoundError     = NotFoundError;
+  DS.ConflictError     = ConflictError;
+}
 
 DS.errorsHashToArray = errorsHashToArray;
 DS.errorsArrayToHash = errorsArrayToHash;

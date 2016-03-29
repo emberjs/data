@@ -66,3 +66,18 @@ entry in `config/features.json`.
 
   This is particularly useful for polymorphic relationships not backed by STI when just including the id
   of the records is not enough.
+
+- `ds-extended-errors`
+
+  Enables `extend` method on errors. It means you can extend from `DS.AdapterError`.
+
+  ```js
+    const MyCustomError = DS.AdapterError.extend({ message: "My custom error." });
+  ```
+
+  It will also add a few new errors to rest adapter based on http status.
+
+  * [401] `DS.UnauthorizedError`
+  * [403] `DS.ForbiddenError`
+  * [404] `DS.NotFoundError`
+  * [409] `DS.ConflictError`
