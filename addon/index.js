@@ -45,6 +45,7 @@ import {
   ForbiddenError,
   NotFoundError,
   ConflictError,
+  ServerError,
   TimeoutError,
   AbortError,
   errorsHashToArray,
@@ -112,6 +113,7 @@ if (isEnabled('ds-extended-errors')) {
   DS.ForbiddenError    = ForbiddenError;
   DS.NotFoundError     = NotFoundError;
   DS.ConflictError     = ConflictError;
+  DS.ServerError       = ServerError;
 }
 
 DS.errorsHashToArray = errorsHashToArray;

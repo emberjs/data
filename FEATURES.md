@@ -81,3 +81,4 @@ entry in `config/features.json`.
   * [403] `DS.ForbiddenError`
   * [404] `DS.NotFoundError`
   * [409] `DS.ConflictError`
+  * [500] `DS.ServerError`

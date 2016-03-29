@@ -73,6 +73,14 @@ if (isEnabled('ds-extended-errors')) {
     assert.equal(error.message, 'The adapter operation failed due to a conflict');
   });
 
+  test("DS.ServerError", function(assert) {
+    var error = new DS.ServerError();
+    assert.ok(error instanceof Error);
+    assert.ok(error instanceof DS.AdapterError);
+    assert.ok(error.isAdapterError);
+    assert.equal(error.message, 'The adapter operation failed due to a server error');
+  });
+
   test("CustomAdapterError", function(assert) {
     var CustomAdapterError = DS.AdapterError.extend();
     var error = new CustomAdapterError();
