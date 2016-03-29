@@ -34,7 +34,7 @@ function extendFn(ErrorClass) {
 
 function extend(ParentErrorClass, defaultMessage) {
   let ErrorClass = function(errors, message) {
-    assert('`AdapterError` expects json-api formatted errors array.', Ember.isArray(errors || []));
+    assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };
   ErrorClass.prototype = Object.create(ParentErrorClass.prototype);

@@ -578,7 +578,7 @@ InternalModel.prototype = {
   },
 
   _preloadHasMany(key, preloadValue, type) {
-    assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
+    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
     let recordsToSet = new Array(preloadValue.length);
 
     for (let i = 0; i < preloadValue.length; i++) {
