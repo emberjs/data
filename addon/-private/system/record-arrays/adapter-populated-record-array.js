@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import RecordArray from "ember-data/-private/system/record-arrays/record-array";
 import cloneNull from "ember-data/-private/system/clone-null";
+import isEnabled from 'ember-data/-private/features';
 
 /**
   @module ember-data
@@ -35,11 +36,20 @@ export default RecordArray.extend({
   loadRecords(records, payload) {
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
-    this.setProperties({
-      content: Ember.A(internalModels),
-      isLoaded: true,
-      meta: cloneNull(payload.meta)
-    });
+    if (isEnabled('ds-links-in-record-array')) {
+      this.setProperties({
+        content: Ember.A(internalModels),
+        isLoaded: true,
+        meta: cloneNull(payload.meta),
+        links: cloneNull(payload.links)
+      });
+    } else {
+      this.setProperties({
+        content: Ember.A(internalModels),
+        isLoaded: true,
+        meta: cloneNull(payload.meta)
+      });
+    }
 
     internalModels.forEach((record) => {
       this.manager.recordArraysForRecord(record).add(this);

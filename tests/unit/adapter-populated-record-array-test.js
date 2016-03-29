@@ -5,6 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
+import isEnabled from 'ember-data/-private/features';
+
 var Person, store;
 var run = Ember.run;
 
@@ -101,6 +103,44 @@ test("stores the metadata off the payload", function(assert) {
 
   assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
 });
+
+if (isEnabled('ds-links-in-record-array')) {
+  test('stores the links off the payload', function(assert) {
+    var recordArray = store.recordArrayManager
+    .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+    var payload = {
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }],
+      links: {
+        first: '/foo?page=1'
+      }
+    };
+
+    run(function() {
+      var records = store.push(payload);
+      recordArray.loadRecords(records, payload);
+    });
+
+    assert.equal(recordArray.get('links.first'), '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
+  });
+}
 
 test('recordArray.replace() throws error', function(assert) {
   var recordArray = store.recordArrayManager
