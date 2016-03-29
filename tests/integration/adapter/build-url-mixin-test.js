@@ -226,7 +226,7 @@ test('buildURL - buildURL takes the records from findMany', function(assert) {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   adapter.buildURL = function(type, ids, snapshots) {
-    if (Ember.isArray(snapshots)) {
+    if (Array.isArray(snapshots)) {
       return "/posts/" + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
     }
     return "";

@@ -26,7 +26,7 @@ export function validateDocumentStructure(doc) {
       }
     }
     if ('data' in doc) {
-      if (!(doc.data === null || Ember.isArray(doc.data) || typeof doc.data === 'object')) {
+      if (!(doc.data === null || Array.isArray(doc.data) || typeof doc.data === 'object')) {
         errors.push('data must be null, an object, or an array');
       }
     }
@@ -36,7 +36,7 @@ export function validateDocumentStructure(doc) {
       }
     }
     if ('errors' in doc) {
-      if (!Ember.isArray(doc.errors)) {
+      if (!Array.isArray(doc.errors)) {
         errors.push('errors must be an array');
       }
     }

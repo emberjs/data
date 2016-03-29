@@ -59,7 +59,6 @@ export let badIdFormatAssertion = '`id` has to be non-empty string or number';
 
 const Backburner = Ember._Backburner;
 var Map = Ember.Map;
-var isArray = Array.isArray || Ember.isArray;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -1658,7 +1657,7 @@ Store = Service.extend({
       }
     }
 
-    if (isArray(data.data)) {
+    if (Array.isArray(data.data)) {
       length = data.data.length;
       var internalModels = new Array(length);
       for (i = 0; i < length; i++) {
@@ -2060,7 +2059,7 @@ function deserializeRecordId(store, key, relationship, id) {
     return;
   }
 
-  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !isArray(id));
+  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(id));
 
   //TODO:Better asserts
   return store._internalModelForId(id.type, id.id);
@@ -2071,7 +2070,7 @@ function deserializeRecordIds(store, key, relationship, ids) {
     return;
   }
 
-  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, isArray(ids));
+  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${Ember.inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(ids));
   let _ids = new Array(ids.length);
 
   for (let i = 0; i < ids.length; i++) {

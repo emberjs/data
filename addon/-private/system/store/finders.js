@@ -17,7 +17,7 @@ import {
 var Promise = Ember.RSVP.Promise;
 
 function payloadIsNotBlank(adapterPayload) {
-  if (Ember.isArray(adapterPayload)) {
+  if (Array.isArray(adapterPayload)) {
     return true;
   } else {
     return Object.keys(adapterPayload || {}).length;
@@ -175,7 +175,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
       records = store.push(payload);
     });
 
-    assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Ember.isArray(records));
+    assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(records));
     recordArray.loadRecords(records, payload);
     return recordArray;
 
