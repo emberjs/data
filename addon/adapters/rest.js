@@ -17,6 +17,7 @@ import {
 } from 'ember-data/adapters/errors';
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
 import isEnabled from 'ember-data/-private/features';
+import { runInDebug, warn } from 'ember-data/-private/debug';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
 
 const {
@@ -1011,6 +1012,14 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
+        runInDebug(function() {
+          let message = `The server returned an empty string for ${type} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+          let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
+          warn(message, validJSONString, {
+            id: 'ds.adapter.returned-empty-string-as-JSON'
+          });
+        });
+
         let error;
 
         if (errorThrown instanceof Error) {
@@ -1378,6 +1387,14 @@ if (isEnabled('ds-improved-ajax')) {
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
+          runInDebug(function() {
+            let message = `The server returned an empty string for ${method} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+            let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
+            warn(message, validJSONString, {
+              id: 'ds.adapter.returned-empty-string-as-JSON'
+            });
+          });
+
           let error;
 
           if (errorThrown instanceof Error) {

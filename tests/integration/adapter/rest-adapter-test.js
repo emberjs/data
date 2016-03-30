@@ -4,6 +4,8 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
+import Pretender from "pretender";
+
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
 
@@ -2516,4 +2518,25 @@ test("createRecord - sideloaded records are pushed to the store", function(asser
       assert.equal(get(comments, 'lastObject.name'), 'Second comment', 'comments.lastObject.name is correct');
     });
   });
+});
+
+testInDebug("warns when an empty response is returned, though a valid stringified JSON is expected", function(assert) {
+  let done = assert.async();
+  let server = new Pretender();
+
+  server.post('/posts', function() {
+    return [201, { "Content-Type": "application/json" }, ""];
+  });
+
+  run(function() {
+    let post = store.createRecord('post');
+    let save = post.save();
+
+    save.then(null, function() {
+      server.shutdown();
+      done();
+    });
+  });
+
+  assert.expectWarning("The server returned an empty string for POST /posts, which cannot be parsed into a valid JSON. Return either null or {}.");
 });
