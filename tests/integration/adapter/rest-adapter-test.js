@@ -2304,7 +2304,7 @@ test('on error appends errorThrown for sanity', function(assert) {
 
 if (isEnabled('ds-extended-errors')) {
   test("rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes", function(assert) {
-    assert.expect(8);
+    assert.expect(10);
 
     var originalAjax = Ember.$.ajax;
     var jqXHR = {
@@ -2356,6 +2356,18 @@ if (isEnabled('ds-extended-errors')) {
       store.find('post', '1').then(null, function(reason) {
         assert.ok(true, 'promise should be rejected');
         assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
+      });
+    });
+
+    Ember.$.ajax = function(hash) {
+      jqXHR.status = 500;
+      hash.error(jqXHR, 'error');
+    };
+
+    Ember.run(function() {
+      store.find('post', '1').then(null, function(reason) {
+        assert.ok(true, 'promise should be rejected');
+        assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
       });
     });
 

@@ -156,6 +156,13 @@ export const ConflictError = extendedErrorsEnabled ?
   extend(AdapterError, 'The adapter operation failed due to a conflict') : null;
 
 /**
+  @class ServerError
+  @namespace DS
+*/
+export const ServerError = extendedErrorsEnabled ?
+  extend(AdapterError, 'The adapter operation failed due to a server error') : null;
+
+/**
   @method errorsHashToArray
   @private
 */

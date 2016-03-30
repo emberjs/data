@@ -11,6 +11,7 @@ import {
   ForbiddenError,
   NotFoundError,
   ConflictError,
+  ServerError,
   TimeoutError,
   AbortError
 } from 'ember-data/adapters/errors';
@@ -920,6 +921,10 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
         return new NotFoundError(errors, detailedMessage);
       case 409:
         return new ConflictError(errors, detailedMessage);
+      default:
+        if (status >= 500) {
+          return new ServerError(errors, detailedMessage);
+        }
       }
     }
 
