@@ -16,8 +16,9 @@
 .watchmanconfig
 bower.json
 ember-cli-build.js
-testem.json
+testem.js
 
 *.gem
 *.gemspec
 **/*.rb
+node-tests/
