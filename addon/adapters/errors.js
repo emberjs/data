@@ -24,7 +24,10 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
-const extendedErrorsEnabled = isEnabled('ds-extended-errors');
+let extendedErrorsEnabled = false;
+if (isEnabled('ds-extended-errors')) {
+  extendedErrorsEnabled = true;
+}
 
 function extendFn(ErrorClass) {
   return function({ message: defaultMessage } = {}) {
