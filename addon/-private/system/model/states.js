@@ -410,10 +410,14 @@ var updatedState = dirtyState({
   dirtyType: 'updated'
 });
 
-createdState.uncommitted.deleteRecord = function(internalModel) {
+function createdStateDeleteRecord(internalModel) {
   internalModel.transitionTo('deleted.saved');
   internalModel.send('invokeLifecycleCallbacks');
-};
+}
+
+createdState.uncommitted.deleteRecord = createdStateDeleteRecord;
+
+createdState.invalid.deleteRecord = createdStateDeleteRecord;
 
 createdState.uncommitted.rollback = function(internalModel) {
   DirtyState.uncommitted.rollback.apply(this, arguments);
