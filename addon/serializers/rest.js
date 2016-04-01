@@ -692,7 +692,7 @@ var RESTSerializer = JSONSerializer.extend({
     });
     ```
 
-    Given a `TacoParty' model, calling `save` on a tacoModel would produce an outgoing
+    Given a `TacoParty` model, calling `save` on it would produce an outgoing
     request like:
 
     ```js
