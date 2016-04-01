@@ -1,5 +1,13 @@
 # Ember Data Changelog
 
+### Release 2.5.0-beta.4 (April 1, 2016)
+- [#4245](https://github.com/emberjs/data/pull/4245) Tweaks to docs on error responses
+- [#4268](https://github.com/emberjs/data/pull/4268) JSONSerializer should normalize the links object using the attrs hash
+- [#4270](https://github.com/emberjs/data/pull/4270) Fix incorrect reference to `push` in the `findRecord` docs
+- [#4271](https://github.com/emberjs/data/pull/4271) [BUGFIX beta] Ensure `null` is returned for Reference#value()
+- [#4274](https://github.com/emberjs/data/pull/4274) [DOC canary] Update extractMeta documentation
+- [#4295](https://github.com/emberjs/data/pull/4295) [DOC release] Mistaken back tick.
+
 ### Release 2.5.0-beta.3 (March 22, 2016)
 - [#4178](https://github.com/emberjs/data/pull/4178) DS.Store type presence checks
 - [#4194](https://github.com/emberjs/data/pull/4194) Use modelNameFromPayloadKey when type is given
