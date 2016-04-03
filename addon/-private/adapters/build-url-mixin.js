@@ -169,7 +169,7 @@ export default Ember.Mixin.create({
   },
 
   /**
-   * @method urlForFindBelongTo
+   * @method urlForFindBelongsTo
    * @param {String} id
    * @param {String} modelName
    * @return {String} url
