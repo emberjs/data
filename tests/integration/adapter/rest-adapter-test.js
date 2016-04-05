@@ -1299,7 +1299,25 @@ test("query - data is normalized through custom serializers", function(assert) {
   }));
 });
 
-test("queryRecord - returns a single record in an object", function(assert) {
+test("queryRecord - empty response", function(assert) {
+  ajaxResponse({});
+
+  store.queryRecord('post', { slug: 'ember-js-rocks' }).then(assert.wait(function(post) {
+    assert.strictEqual(post, null);
+  }));
+});
+
+test("queryRecord - primary data being null", function(assert) {
+  ajaxResponse({
+    post: null
+  });
+
+  store.queryRecord('post', { slug: 'ember-js-rocks' }).then(assert.wait(function(post) {
+    assert.strictEqual(post, null);
+  }));
+});
+
+test("queryRecord - primary data being a single object", function(assert) {
   ajaxResponse({
     post: {
       id: '1',
@@ -1336,6 +1354,38 @@ test("queryRecord - returning an array picks the first one but saves all records
     assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
     assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
   }));
+});
+
+testInDebug("queryRecord - returning an array is deprecated", function(assert) {
+  let done = assert.async();
+
+  ajaxResponse({
+    post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
+  });
+
+  assert.expectDeprecation('The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
+
+  run(function() {
+    store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(function() {
+      done();
+    });
+  });
+});
+
+testInDebug("queryRecord - returning an single object doesn't throw a deprecation", function(assert) {
+  let done = assert.async();
+
+  ajaxResponse({
+    post: { id: 1, name: "Rails is omakase" }
+  });
+
+  assert.expectNoDeprecation();
+
+  run(function() {
+    store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(function() {
+      done();
+    });
+  });
 });
 
 test("queryRecord - data is normalized through custom serializers", function(assert) {

@@ -590,3 +590,29 @@ testInDebug('store#findRecord that returns an array should assert', assert => {
     });
   }, /expected the primary data returned from a `findRecord` response to be an object but instead it found an array/);
 });
+
+module("integration/store - queryRecord", {
+  beforeEach() {
+    initializeStore(DS.Adapter.extend());
+  }
+});
+
+testInDebug('store#queryRecord should assert when normalized payload of adapter has an array an data', function(assert) {
+  env.adapter.queryRecord = function() {
+    return {
+      cars: [{ id: 1 }]
+    };
+  };
+
+  env.serializer.normalizeQueryRecordResponse = function() {
+    return {
+      data: [{ id: 1, type: 'car' }]
+    };
+  };
+
+  assert.expectAssertion(function() {
+    run(function() {
+      store.queryRecord('car', {});
+    });
+  }, /Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array./);
+});
