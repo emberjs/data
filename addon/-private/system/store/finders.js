@@ -192,10 +192,14 @@ export function _queryRecord(adapter, store, typeClass, query) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    assert("You made a `queryRecord` request for a " + typeClass.modelName + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     var record;
     store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'queryRecord');
+
+      assert("Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array.", !Array.isArray(payload.data), {
+        id: 'ds.store.queryRecord-array-response'
+      });
+
       //TODO Optimize
       record = store.push(payload);
     });

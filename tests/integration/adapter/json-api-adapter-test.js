@@ -2,6 +2,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
@@ -232,6 +233,55 @@ test('find many records', function(assert) {
       assert.equal(posts.get('firstObject.title'), 'Ember.js rocks');
     });
   });
+});
+
+test('queryRecord - primary data being a single record', function(assert) {
+  ajaxResponse([{
+    data: {
+      type: 'posts',
+      id: '1',
+      attributes: {
+        title: 'Ember.js rocks'
+      }
+    }
+  }]);
+
+  run(function() {
+    store.queryRecord('post', {}).then(function(post) {
+      assert.equal(passedUrl[0], '/posts');
+
+      assert.equal(post.get('title'), 'Ember.js rocks');
+    });
+  });
+});
+
+test('queryRecord - primary data being null', function(assert) {
+  ajaxResponse([{
+    data: null
+  }]);
+
+  run(function() {
+    store.queryRecord('post', {}).then(function(post) {
+      assert.equal(passedUrl[0], '/posts');
+
+      assert.strictEqual(post, null);
+    });
+  });
+});
+
+testInDebug('queryRecord - primary data being an array throws an assertion', function(assert) {
+  ajaxResponse([{
+    data: [{
+      type: 'posts',
+      id: '1'
+    }]
+  }]);
+
+  assert.expectAssertion(function() {
+    run(function() {
+      store.queryRecord('post', {});
+    });
+  }, "Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.");
 });
 
 test('find a single record with belongsTo link as object { related }', function(assert) {

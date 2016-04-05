@@ -202,6 +202,16 @@ const JSONAPISerializer = JSONSerializer.extend({
     return normalizedPayload;
   },
 
+  normalizeQueryRecordResponse() {
+    let normalized = this._super(...arguments);
+
+    assert('Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.', !Array.isArray(normalized.data), {
+      id: 'ds.serializer.json-api.queryRecord-array-response'
+    });
+
+    return normalized;
+  },
+
   /**
     @method extractAttributes
     @param {DS.Model} modelClass
