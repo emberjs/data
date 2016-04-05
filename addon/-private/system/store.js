@@ -1810,7 +1810,7 @@ Store = Service.extend({
     socket.on('message', function(message) {
       var modelName = message.model;
       var data = message.data;
-      store.push(modelName, store.normalize(modelName, data));
+      store.push(store.normalize(modelName, data));
     });
     ```
 
