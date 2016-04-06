@@ -42,13 +42,15 @@ test('buildURL - find requestType delegates to urlForFindRecord', function(asser
 });
 
 test('buildURL - findAll requestType delegates to urlForFindAll', function(assert) {
-  assert.expect(2);
+  assert.expect(3);
   let originalMethod = adapter.urlForFindAll;
-  adapter.urlForFindAll = function(type) {
+  let snapshotStub = { snapshot: true };
+  adapter.urlForFindAll = function(type, snapshot) {
     assert.equal(type, 'super-user');
+    assert.equal(snapshot, snapshotStub);
     return originalMethod.apply(this, arguments);
   };
-  assert.equal(adapter.buildURL('super-user', null, null, 'findAll'), '/superUsers');
+  assert.equal(adapter.buildURL('super-user', null, snapshotStub, 'findAll'), '/superUsers');
 });
 
 test('buildURL - query requestType delegates to urlForQuery', function(assert) {

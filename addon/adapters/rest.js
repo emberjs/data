@@ -432,12 +432,8 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
-    const url = this.buildURL(type.modelName, null, null, 'findAll');
+    const url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
     const query = this.buildQuery(snapshotRecordArray);
-
-    if (sinceToken) {
-      query.since = sinceToken;
-    }
 
     return this.ajax(url, 'GET', { data: query });
   },

@@ -56,7 +56,7 @@ export default Ember.Mixin.create({
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);
       case 'findAll':
-        return this.urlForFindAll(modelName);
+        return this.urlForFindAll(modelName, snapshot);
       case 'query':
         return this.urlForQuery(query, modelName);
       case 'queryRecord':
@@ -121,9 +121,10 @@ export default Ember.Mixin.create({
   /**
    * @method urlForFindAll
    * @param {String} modelName
+   * @param {DS.SnapshotRecordArray} snapshot
    * @return {String} url
    */
-  urlForFindAll(modelName) {
+  urlForFindAll(modelName, snapshot) {
     return this._buildURL(modelName);
   },
 
