@@ -11,8 +11,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         {
           file: 'app/adapters/foo.js',
           contains: [
-            'import ApplicationAdapter from \'./application\';',
-            'export default ApplicationAdapter.extend({'
+            'import JSONAPIAdapter from \'ember-data/adapters/json-api\';',
+            'export default JSONAPIAdapter.extend({'
           ]
         },
         {
@@ -22,6 +22,31 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           ]
         }
       ]
+    });
+  });
+
+  it('adapter extends application adapter if it exists', function() {
+    return generateAndDestroy(['adapter', 'application'], {
+      afterGenerate: function() {
+        return generateAndDestroy(['adapter', 'foo'], {
+          skipInit: true,
+          files: [
+            {
+              file: 'app/adapters/foo.js',
+              contains: [
+                'import ApplicationAdapter from \'./application\';',
+                'export default ApplicationAdapter.extend({'
+              ]
+            },
+            {
+              file: 'tests/unit/adapters/foo-test.js',
+              contains: [
+                'moduleFor(\'adapter:foo\''
+              ]
+            }
+          ]
+        });
+      }
     });
   });
 

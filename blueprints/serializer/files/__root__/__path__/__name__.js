@@ -1,4 +1,4 @@
-import JSONAPISerializer from 'ember-data/serializers/json-api';
+<%= importStatement %>
 
-export default JSONAPISerializer.extend({
+export default <%= baseClass %>.extend({
 });
