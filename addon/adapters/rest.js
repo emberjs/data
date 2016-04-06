@@ -458,7 +458,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
       return this._makeRequest(request);
     } else {
-      const url = this.buildURL(type.modelName, null, null, 'findAll');
+      const url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
 
       if (sinceToken) {
         query.since = sinceToken;
