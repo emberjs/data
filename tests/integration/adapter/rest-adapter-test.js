@@ -348,7 +348,7 @@ test("createRecord - a serializer's attributes are consulted when building the p
   });
 });
 
-test("createRecord - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function(assert) {
+test("createRecord - a serializer's attribute mapping takes precedence over keyForAttribute when building the payload", function(assert) {
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       name: 'given_name'
