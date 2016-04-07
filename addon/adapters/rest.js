@@ -634,7 +634,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       var id   = snapshot.id;
       var type = snapshot.modelName;
 
-      url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
+      url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
 
       return this.ajax(url, 'GET');
     }
@@ -687,7 +687,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       var id   = snapshot.id;
       var type = snapshot.modelName;
 
-      url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
+      url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
       return this.ajax(url, 'GET');
     }
   },
