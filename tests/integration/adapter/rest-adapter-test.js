@@ -1700,8 +1700,10 @@ test("findHasMany - returning an array populates the array", function(assert) {
 });
 
 test("findHasMany - passes buildURL the requestType", function(assert) {
+  assert.expect(2);
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
+    assert.ok(snapshot instanceof DS.Snapshot);
     assert.equal(requestType, 'findHasMany');
   };
 
@@ -1846,8 +1848,10 @@ test("findMany - a custom serializer is used if present", function(assert) {
 });
 
 test('findBelongsTo - passes buildURL the requestType', function(assert) {
+  assert.expect(2);
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.buildURL = function(type, id, snapshot, requestType) {
+    assert.ok(snapshot instanceof DS.Snapshot);
     assert.equal(requestType, 'findBelongsTo');
   };
 

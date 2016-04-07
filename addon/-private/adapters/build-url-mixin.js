@@ -64,9 +64,9 @@ export default Ember.Mixin.create({
       case 'findMany':
         return this.urlForFindMany(id, modelName, snapshot);
       case 'findHasMany':
-        return this.urlForFindHasMany(id, modelName);
+        return this.urlForFindHasMany(id, modelName, snapshot);
       case 'findBelongsTo':
-        return this.urlForFindBelongsTo(id, modelName);
+        return this.urlForFindBelongsTo(id, modelName, snapshot);
       case 'createRecord':
         return this.urlForCreateRecord(modelName, snapshot);
       case 'updateRecord':
@@ -163,9 +163,10 @@ export default Ember.Mixin.create({
    * @method urlForFindHasMany
    * @param {String} id
    * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForFindHasMany(id, modelName) {
+  urlForFindHasMany(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -173,9 +174,10 @@ export default Ember.Mixin.create({
    * @method urlForFindBelongsTo
    * @param {String} id
    * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForFindBelongsTo(id, modelName) {
+  urlForFindBelongsTo(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
