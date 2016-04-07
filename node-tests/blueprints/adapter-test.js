@@ -1,133 +1,106 @@
-var setupTestHooks     = require('ember-cli-blueprint-test-helpers/lib/helpers/setup');
-var BlueprintHelpers   = require('ember-cli-blueprint-test-helpers/lib/helpers/blueprint-helper');
-var generateAndDestroy = BlueprintHelpers.generateAndDestroy;
+var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+var setupTestHooks = blueprintHelpers.setupTestHooks;
+var emberNew = blueprintHelpers.emberNew;
+var emberGenerate = blueprintHelpers.emberGenerate;
+var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+var modifyPackages = blueprintHelpers.modifyPackages;
+
+var chai = require('ember-cli-blueprint-test-helpers/chai');
+var expect = chai.expect;
+
+var SilentError = require('silent-error');
 
 describe('Acceptance: generate and destroy adapter blueprints', function() {
   setupTestHooks(this);
 
   it('adapter', function() {
-    return generateAndDestroy(['adapter', 'foo'], {
-      files: [
-        {
-          file: 'app/adapters/foo.js',
-          contains: [
-            'import JSONAPIAdapter from \'ember-data/adapters/json-api\';',
-            'export default JSONAPIAdapter.extend({'
-          ]
-        },
-        {
-          file: 'tests/unit/adapters/foo-test.js',
-          contains: [
-            'moduleFor(\'adapter:foo\''
-          ]
-        }
-      ]
-    });
+    var args = ['adapter', 'foo'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain('import JSONAPIAdapter from \'ember-data/adapters/json-api\';')
+          .to.contain('export default JSONAPIAdapter.extend({');
+
+        expect(_file('tests/unit/adapters/foo-test.js'))
+          .to.contain('moduleFor(\'adapter:foo\'');
+      }));
   });
 
   it('adapter extends application adapter if it exists', function() {
-    return generateAndDestroy(['adapter', 'application'], {
-      afterGenerate: function() {
-        return generateAndDestroy(['adapter', 'foo'], {
-          skipInit: true,
-          files: [
-            {
-              file: 'app/adapters/foo.js',
-              contains: [
-                'import ApplicationAdapter from \'./application\';',
-                'export default ApplicationAdapter.extend({'
-              ]
-            },
-            {
-              file: 'tests/unit/adapters/foo-test.js',
-              contains: [
-                'moduleFor(\'adapter:foo\''
-              ]
-            }
-          ]
-        });
-      }
-    });
+    var args = ['adapter', 'foo'];
+
+    return emberNew()
+      .then(() => emberGenerate(['adapter', 'application']))
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain('import ApplicationAdapter from \'./application\';')
+          .to.contain('export default ApplicationAdapter.extend({');
+
+        expect(_file('tests/unit/adapters/foo-test.js'))
+          .to.contain('moduleFor(\'adapter:foo\'');
+      }));
   });
 
   it('adapter with --base-class', function() {
-    return generateAndDestroy(['adapter', 'foo', '--base-class=bar'], {
-      files: [
-        {
-          file: 'app/adapters/foo.js',
-          contains: [
-            'import BarAdapter from \'./bar\';',
-            'export default BarAdapter.extend({'
-          ]
-        },
-        {
-          file: 'tests/unit/adapters/foo-test.js',
-          contains: [
-            'moduleFor(\'adapter:foo\''
-          ]
-        }
-      ]
-    });
+    var args = ['adapter', 'foo', '--base-class=bar'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/foo.js'))
+          .to.contain('import BarAdapter from \'./bar\';')
+          .to.contain('export default BarAdapter.extend({');
+
+        expect(_file('tests/unit/adapters/foo-test.js'))
+          .to.contain('moduleFor(\'adapter:foo\'');
+      }));
   });
 
   it('adapter throws when --base-class is same as name', function() {
-    return generateAndDestroy(['adapter', 'application', '--base-class=application'], {
-      throws: {
-        message: /Adapters cannot extend from themself/,
-        type: 'SilentError'
-      }
-    });
+    var args = ['adapter', 'foo', '--base-class=foo'];
+
+    return emberNew()
+      .then(() => expect(emberGenerate(args))
+        .to.be.rejectedWith(SilentError, /Adapters cannot extend from themself/));
   });
 
   it('adapter when is named "application"', function() {
-    return generateAndDestroy(['adapter', 'application'], {
-      files: [
-        {
-          file: 'app/adapters/application.js',
-          contains: [
-            'import JSONAPIAdapter from \'ember-data/adapters/json-api\';',
-            'export default JSONAPIAdapter.extend({'
-          ]
-        },
-        {
-          file: 'tests/unit/adapters/application-test.js',
-          contains: [
-            'moduleFor(\'adapter:application\''
-          ]
-        }
-      ]
-    });
+    var args = ['adapter', 'application'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('app/adapters/application.js'))
+          .to.contain('import JSONAPIAdapter from \'ember-data/adapters/json-api\';')
+          .to.contain('export default JSONAPIAdapter.extend({');
+
+        expect(_file('tests/unit/adapters/application-test.js'))
+          .to.contain('moduleFor(\'adapter:application\'');
+      }));
   });
 
   it('adapter-test', function() {
-    return generateAndDestroy(['adapter-test', 'foo'], {
-      files: [
-        {
-          file: 'tests/unit/adapters/foo-test.js',
-          contains: [
-            'moduleFor(\'adapter:foo\''
-          ]
-        }
-      ]
-    });
+    var args = ['adapter-test', 'foo'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('tests/unit/adapters/foo-test.js'))
+          .to.contain('moduleFor(\'adapter:foo\'');
+      }));
   });
 
   it('adapter-test for mocha', function() {
-    return generateAndDestroy(['adapter-test', 'foo'], {
-      packages: [
-        { name: 'ember-cli-qunit', delete: true },
-        { name: 'ember-cli-mocha', dev: true }
-      ],
-      files: [
-        {
-          file: 'tests/unit/adapters/foo-test.js',
-          contains: [
-            'import { describeModule, it } from \'ember-mocha\';',
-            'describeModule(\n  \'adapter:foo\',',
-            'expect(adapter).to.be.ok;'
-          ]
-        }
-      ]
-    });
+    var args = ['adapter-test', 'foo'];
+
+    return emberNew()
+      .then(() => modifyPackages([
+        {name: 'ember-cli-qunit', delete: true},
+        {name: 'ember-cli-mocha', dev: true}
+      ]))
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('tests/unit/adapters/foo-test.js'))
+          .to.contain('import { describeModule, it } from \'ember-mocha\';')
+          .to.contain('describeModule(\n  \'adapter:foo\',')
+          .to.contain('expect(adapter).to.be.ok;');
+      }));
   });
 });
