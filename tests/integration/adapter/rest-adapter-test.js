@@ -1033,8 +1033,11 @@ test("findAll - returning an array populates the array", function(assert) {
 });
 
 
-test("findAll - passes buildURL the requestType", function(assert) {
+test("findAll - passes buildURL the requestType and snapshot", function(assert) {
+  assert.expect(2);
+  let adapterOptionsStub = { stub: true };
   adapter.buildURL = function(type, id, snapshot, requestType) {
+    assert.equal(snapshot.adapterOptions, adapterOptionsStub);
     return "/" + requestType + "/posts";
   };
 
@@ -1045,7 +1048,7 @@ test("findAll - passes buildURL the requestType", function(assert) {
     ]
   });
 
-  store.findAll('post').then(assert.wait(function(posts) {
+  store.findAll('post', { adapterOptions: adapterOptionsStub }).then(assert.wait(function(posts) {
     assert.equal(passedUrl, "/findAll/posts");
   }));
 });

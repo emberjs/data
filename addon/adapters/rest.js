@@ -458,7 +458,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
       return this._makeRequest(request);
     } else {
-      const url = this.buildURL(type.modelName, null, null, 'findAll');
+      const url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
 
       if (sinceToken) {
         query.since = sinceToken;
@@ -1268,7 +1268,7 @@ if (isEnabled('ds-improved-ajax')) {
 
       switch (requestType) {
         case 'findAll':
-          return this.buildURL(type.modelName, null, null, requestType);
+          return this.buildURL(type.modelName, null, snapshots, requestType);
 
         case 'query':
         case 'queryRecord':
