@@ -1,61 +1,54 @@
-var setupTestHooks     = require('ember-cli-blueprint-test-helpers/lib/helpers/setup');
-var BlueprintHelpers   = require('ember-cli-blueprint-test-helpers/lib/helpers/blueprint-helper');
-var generateAndDestroy = BlueprintHelpers.generateAndDestroy;
+var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+var setupTestHooks = blueprintHelpers.setupTestHooks;
+var emberNew = blueprintHelpers.emberNew;
+var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+var modifyPackages = blueprintHelpers.modifyPackages;
+
+var chai = require('ember-cli-blueprint-test-helpers/chai');
+var expect = chai.expect;
 
 describe('Acceptance: generate and destroy transform blueprints', function() {
   setupTestHooks(this);
 
   it('transform', function() {
-    return generateAndDestroy(['transform', 'foo'], {
-      files: [
-        {
-          file: 'app/transforms/foo.js',
-          contains: [
-            'import Transform from \'ember-data/transform\';',
-            'export default Transform.extend(',
-            'deserialize(serialized) {',
-            'serialize(deserialized) {'
-          ]
-        },
-        {
-          file: 'tests/unit/transforms/foo-test.js',
-          contains: [
-            'moduleFor(\'transform:foo\''
-          ]
-        }
-      ]
-    });
+    var args = ['transform', 'foo'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('app/transforms/foo.js'))
+          .to.contain('import Transform from \'ember-data/transform\';')
+          .to.contain('export default Transform.extend(')
+          .to.contain('deserialize(serialized) {')
+          .to.contain('serialize(deserialized) {');
+
+        expect(_file('tests/unit/transforms/foo-test.js'))
+          .to.contain('moduleFor(\'transform:foo\'');
+      }));
   });
 
   it('transforms-test', function() {
-    return generateAndDestroy(['transform-test', 'foo'], {
-      files: [
-        {
-          file: 'tests/unit/transforms/foo-test.js',
-          contains: [
-            'moduleFor(\'transform:foo\''
-          ]
-        }
-      ]
-    });
+    var args = ['transform-test', 'foo'];
+
+    return emberNew()
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('tests/unit/transforms/foo-test.js'))
+          .to.contain('moduleFor(\'transform:foo\'');
+      }));
   });
 
   it('transform-test for mocha', function() {
-    return generateAndDestroy(['transform-test', 'foo'], {
-      packages: [
-        { name: 'ember-cli-qunit', delete: true },
-        { name: 'ember-cli-mocha', dev: true }
-      ],
-      files: [
-        {
-          file: 'tests/unit/transforms/foo-test.js',
-          contains: [
-            'import { describeModule, it } from \'ember-mocha\';',
-            'describeModule(\n  \'transform:foo\',',
-            'expect(transform).to.be.ok;'
-          ]
-        }
-      ]
-    });
+    var args = ['transform-test', 'foo'];
+
+    return emberNew()
+      .then(() => modifyPackages([
+        {name: 'ember-cli-qunit', delete: true},
+        {name: 'ember-cli-mocha', dev: true}
+      ]))
+      .then(() => emberGenerateDestroy(args, _file => {
+        expect(_file('tests/unit/transforms/foo-test.js'))
+          .to.contain('import { describeModule, it } from \'ember-mocha\';')
+          .to.contain('describeModule(\n  \'transform:foo\',')
+          .to.contain('expect(transform).to.be.ok;');
+      }));
   });
 });
