@@ -90,25 +90,29 @@ test('buildURL - findMany requestType delegates to urlForFindMany', function(ass
 });
 
 test('buildURL - findHasMany requestType delegates to urlForFindHasMany', function(assert) {
-  assert.expect(3);
+  assert.expect(4);
   let originalMethod = adapter.urlForFindHasMany;
-  adapter.urlForFindHasMany = function(id, type) {
+  let snapshotStub = { snapshot: true };
+  adapter.urlForFindHasMany = function(id, type, snapshot) {
     assert.equal(id, 1);
     assert.equal(type, 'super-user');
+    assert.equal(snapshot, snapshotStub);
     return originalMethod.apply(this, arguments);
   };
-  assert.equal(adapter.buildURL('super-user', 1, null, 'findHasMany'), '/superUsers/1');
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'findHasMany'), '/superUsers/1');
 });
 
 test('buildURL - findBelongsTo requestType delegates to urlForFindBelongsTo', function(assert) {
-  assert.expect(3);
+  assert.expect(4);
   let originalMethod = adapter.urlForFindBelongsTo;
-  adapter.urlForFindBelongsTo = function(id, type) {
+  let snapshotStub = { snapshot: true };
+  adapter.urlForFindBelongsTo = function(id, type, snapshot) {
     assert.equal(id, 1);
     assert.equal(type, 'super-user');
+    assert.equal(snapshot, snapshotStub);
     return originalMethod.apply(this, arguments);
   };
-  assert.equal(adapter.buildURL('super-user', 1, null, 'findBelongsTo'), '/superUsers/1');
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'findBelongsTo'), '/superUsers/1');
 });
 
 test('buildURL - createRecord requestType delegates to urlForCreateRecord', function(assert) {
