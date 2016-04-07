@@ -193,7 +193,7 @@ export default Serializer.extend({
     }
 
     typeClass.eachTransformedAttribute((key, typeClass) => {
-      if (!(key in data)) { return; }
+      if (data[key] === undefined) { return; }
 
       var transform = this.transformFor(typeClass);
       if (isEnabled('ds-transform-pass-options')) {
