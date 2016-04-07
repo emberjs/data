@@ -1279,7 +1279,7 @@ if (isEnabled('ds-improved-ajax')) {
 
         case 'findHasMany':
         case 'findBelongsTo':
-          let url = this.buildURL(type.modelName, id, null, requestType);
+          let url = this.buildURL(type.modelName, id, snapshot, requestType);
           return this.urlPrefix(params.url, url);
       }
 
