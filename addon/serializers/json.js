@@ -571,7 +571,7 @@ export default Serializer.extend({
 
     modelClass.eachAttribute((key) => {
       attributeKey = this.keyForAttribute(key, 'deserialize');
-      if (resourceHash.hasOwnProperty(attributeKey)) {
+      if (resourceHash[attributeKey] !== undefined) {
         attributes[key] = resourceHash[attributeKey];
       }
     });
@@ -649,7 +649,7 @@ export default Serializer.extend({
     modelClass.eachRelationship((key, relationshipMeta) => {
       let relationship = null;
       let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
-      if (resourceHash.hasOwnProperty(relationshipKey)) {
+      if (resourceHash[relationshipKey] !== undefined) {
         let data = null;
         let relationshipHash = resourceHash[relationshipKey];
         if (relationshipMeta.kind === 'belongsTo') {
@@ -675,7 +675,7 @@ export default Serializer.extend({
       }
 
       let linkKey = this.keyForLink(key, relationshipMeta.kind);
-      if (resourceHash.links && resourceHash.links.hasOwnProperty(linkKey)) {
+      if (resourceHash.links && resourceHash.links[linkKey] !== undefined) {
         let related = resourceHash.links[linkKey];
         relationship = relationship || {};
         relationship.links = { related };
@@ -710,7 +710,7 @@ export default Serializer.extend({
       typeClass.eachAttribute((key) => {
         payloadKey = this.keyForAttribute(key, 'deserialize');
         if (key === payloadKey) { return; }
-        if (!hash.hasOwnProperty(payloadKey)) { return; }
+        if (hash[payloadKey] === undefined) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
@@ -729,7 +729,7 @@ export default Serializer.extend({
       typeClass.eachRelationship((key, relationship) => {
         payloadKey = this.keyForRelationship(key, relationship.kind, 'deserialize');
         if (key === payloadKey) { return; }
-        if (!hash.hasOwnProperty(payloadKey)) { return; }
+        if (hash[payloadKey] === undefined) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
@@ -749,7 +749,7 @@ export default Serializer.extend({
       for (key in attrs) {
         normalizedKey = payloadKey = this._getMappedKey(key, modelClass);
 
-        if (!hash.hasOwnProperty(payloadKey)) { continue; }
+        if (hash[payloadKey] === undefined) { continue; }
 
         if (get(modelClass, 'attributes').has(key)) {
           normalizedKey = this.keyForAttribute(key);
@@ -1266,7 +1266,7 @@ export default Serializer.extend({
     @param {Object} payload
   */
   extractMeta(store, modelClass, payload) {
-    if (payload && payload.hasOwnProperty('meta')) {
+    if (payload && payload['meta'] !== undefined) {
       let meta = payload.meta;
       delete payload.meta;
       return meta;
@@ -1366,7 +1366,7 @@ export default Serializer.extend({
 
       typeClass.eachAttribute((name) => {
         let key = this.keyForAttribute(name, 'deserialize');
-        if (key !== name && payload.hasOwnProperty(key)) {
+        if (key !== name && payload[key] !== undefined) {
           payload[name] = payload[key];
           delete payload[key];
         }
@@ -1374,7 +1374,7 @@ export default Serializer.extend({
 
       typeClass.eachRelationship((name) => {
         let key = this.keyForRelationship(name, 'deserialize');
-        if (key !== name && payload.hasOwnProperty(key)) {
+        if (key !== name && payload[key] !== undefined) {
           payload[name] = payload[key];
           delete payload[key];
         }
