@@ -816,7 +816,7 @@ var RESTSerializer = JSONSerializer.extend({
     var isPolymorphic = relationshipMeta.options.polymorphic;
     var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
-    if (isPolymorphic && resourceHash.hasOwnProperty(typeProperty) && typeof relationshipHash !== 'object') {
+    if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
 
       if (isEnabled("ds-payload-type-hooks")) {
 

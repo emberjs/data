@@ -261,7 +261,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (resourceHash.attributes) {
       modelClass.eachAttribute((key) => {
         let attributeKey = this.keyForAttribute(key, 'deserialize');
-        if (resourceHash.attributes.hasOwnProperty(attributeKey)) {
+        if (resourceHash.attributes[attributeKey] !== undefined) {
           attributes[key] = resourceHash.attributes[attributeKey];
         }
       });
@@ -307,7 +307,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (resourceHash.relationships) {
       modelClass.eachRelationship((key, relationshipMeta) => {
         let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
-        if (resourceHash.relationships.hasOwnProperty(relationshipKey)) {
+        if (resourceHash.relationships[relationshipKey] !== undefined) {
 
           let relationshipHash = resourceHash.relationships[relationshipKey];
           relationships[key] = this.extractRelationship(relationshipHash);
