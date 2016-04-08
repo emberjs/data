@@ -184,7 +184,7 @@ var RESTSerializer = JSONSerializer.extend({
     let serializer = store.serializerFor(modelName);
 
     /*jshint loopfunc:true*/
-    arrayHash.forEach((hash) => {
+    Ember.makeArray(arrayHash).forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
       if (included) {
