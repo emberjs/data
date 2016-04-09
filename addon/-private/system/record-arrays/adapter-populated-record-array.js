@@ -36,19 +36,14 @@ export default RecordArray.extend({
   loadRecords(records, payload) {
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
+    this.setProperties({
+      content: Ember.A(internalModels),
+      isLoaded: true,
+      meta: cloneNull(payload.meta)
+    });
+
     if (isEnabled('ds-links-in-record-array')) {
-      this.setProperties({
-        content: Ember.A(internalModels),
-        isLoaded: true,
-        meta: cloneNull(payload.meta),
-        links: cloneNull(payload.links)
-      });
-    } else {
-      this.setProperties({
-        content: Ember.A(internalModels),
-        isLoaded: true,
-        meta: cloneNull(payload.meta)
-      });
+      this.set('links', cloneNull(payload.links));
     }
 
     internalModels.forEach((record) => {
