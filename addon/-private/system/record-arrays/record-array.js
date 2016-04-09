@@ -106,7 +106,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     ```javascript
     var people = store.peekAll('person');
     people.get('isUpdating'); // false
-    people.update();
+
+    people.update().then(function() {
+      people.get('isUpdating'); // false
+    });
+
     people.get('isUpdating'); // true
     ```
 
@@ -115,13 +119,17 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   update() {
     if (get(this, 'isUpdating')) { return; }
 
+    this.set('isUpdating', true);
+    return this._update();
+  },
+
+  /*
+    Update this RecordArray and return a promise which resolves once the update
+    is finished.
+   */
+  _update() {
     let store = get(this, 'store');
     let modelName = get(this, 'type.modelName');
-    let query = get(this, 'query');
-
-    if (query) {
-      return store._query(modelName, query, this);
-    }
 
     return store.findAll(modelName, { reload: true });
   },

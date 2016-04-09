@@ -26,6 +26,14 @@ export default RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
+  _update() {
+    let store = get(this, 'store');
+    let modelName = get(this, 'type.modelName');
+    let query = get(this, 'query');
+
+    return store._query(modelName, query, this);
+  },
+
   /**
     @method loadRecords
     @param {Array} records
@@ -38,6 +46,7 @@ export default RecordArray.extend({
     this.setProperties({
       content: Ember.A(internalModels),
       isLoaded: true,
+      isUpdating: false,
       meta: cloneNull(payload.meta)
     });
 
