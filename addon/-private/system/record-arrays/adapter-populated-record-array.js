@@ -27,6 +27,14 @@ export default RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
+  _update() {
+    let store = get(this, 'store');
+    let modelName = get(this, 'type.modelName');
+    let query = get(this, 'query');
+
+    return store._query(modelName, query, this);
+  },
+
   /**
     @method loadRecords
     @param {Array} records
@@ -36,19 +44,15 @@ export default RecordArray.extend({
   loadRecords(records, payload) {
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
+    this.setProperties({
+      content: Ember.A(internalModels),
+      isLoaded: true,
+      isUpdating: false,
+      meta: cloneNull(payload.meta)
+    });
+
     if (isEnabled('ds-links-in-record-array')) {
-      this.setProperties({
-        content: Ember.A(internalModels),
-        isLoaded: true,
-        meta: cloneNull(payload.meta),
-        links: cloneNull(payload.links)
-      });
-    } else {
-      this.setProperties({
-        content: Ember.A(internalModels),
-        isLoaded: true,
-        meta: cloneNull(payload.meta)
-      });
+      this.set('links', cloneNull(payload.links));
     }
 
     internalModels.forEach((record) => {

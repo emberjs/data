@@ -1006,8 +1006,6 @@ Store = Service.extend({
     var adapter = this.adapterFor(typeClass.modelName);
     var sinceToken = this.typeMapFor(typeClass).metadata.since;
 
-    set(array, 'isUpdating', true);
-
     assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
     if (options.reload) {

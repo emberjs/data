@@ -57,6 +57,37 @@ test("When a query is made, the adapter should receive a record array it can pop
   }));
 });
 
+test("a query can be updated via `update()`", function(assert) {
+  adapter.query = function() {
+    return Ember.RSVP.resolve([{ id: 'first' }]);
+  };
+
+  run(function() {
+    store.query('person', {}).then(function(query) {
+      assert.equal(query.get('length'), 1);
+      assert.equal(query.get('firstObject.id'), 'first');
+      assert.equal(query.get('isUpdating'), false);
+
+      adapter.query = function() {
+        assert.ok('query is called a second time');
+        return Ember.RSVP.resolve([{ id: 'second' }]);
+      };
+
+      let updateQuery = query.update();
+
+      assert.equal(query.get('isUpdating'), true);
+
+      return updateQuery;
+
+    }).then(function(query) {
+      assert.equal(query.get('length'), 1);
+      assert.equal(query.get('firstObject.id'), 'second');
+
+      assert.equal(query.get('isUpdating'), false);
+    });
+  });
+});
+
 testInDebug("The store asserts when query is made and the adapter responses with a single record.", function(assert) {
   env = setupStore({ person: Person, adapter: DS.RESTAdapter });
   store = env.store;
