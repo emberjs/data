@@ -8,6 +8,7 @@ import DS from 'ember-data';
 var attr = DS.attr;
 var Person, env;
 var run = Ember.run;
+var get = Ember.get;
 
 module("integration/deletedRecord - Deleting Records", {
   beforeEach() {
@@ -148,4 +149,79 @@ test("when deleted records are rolled back, they are still in their previous rec
   });
   assert.equal(all.get('length'), 2, 'record was not removed');
   assert.equal(filtered.get('length'), 2, 'record was not removed');
+});
+
+test("Deleting an invalid newly created record should remove it from the store", function(assert) {
+  var record;
+  var store = env.store;
+
+  env.adapter.createRecord = function() {
+    return Ember.RSVP.Promise.reject(new DS.InvalidError([
+      {
+        title: 'Invalid Attribute',
+        detail: 'name is invalid',
+        source: {
+          pointer: '/data/attributes/name'
+        }
+      }
+    ]));
+  };
+
+  run(function() {
+    record = store.createRecord('person', { name: 'pablobm' });
+    // Invalidate the record to put it in the `root.loaded.created.invalid` state
+    record.save().catch(Ember.K);
+  });
+
+  // Preconditions
+  assert.equal(get(record, 'currentState.stateName'), 'root.loaded.created.invalid',
+               'records should start in the created.invalid state');
+  assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+
+  run(function() {
+    record.deleteRecord();
+  });
+
+  assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
+  assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+});
+
+
+test("Destroying an invalid newly created record should remove it from the store", function(assert) {
+  var record;
+  var store = env.store;
+
+  env.adapter.deleteRecord = function() {
+    assert.fail('The adapter\'s deletedRecord method should not be called when the record was created locally.');
+  };
+
+  env.adapter.createRecord = function() {
+    return Ember.RSVP.Promise.reject(new DS.InvalidError([
+      {
+        title: 'Invalid Attribute',
+        detail: 'name is invalid',
+        source: {
+          pointer: '/data/attributes/name'
+        }
+      }
+    ]));
+  };
+
+  run(function() {
+    record = store.createRecord('person', { name: 'pablobm' });
+    // Invalidate the record to put it in the `root.loaded.created.invalid` state
+    record.save().catch(Ember.K);
+  });
+
+  // Preconditions
+  assert.equal(get(record, 'currentState.stateName'), 'root.loaded.created.invalid',
+               'records should start in the created.invalid state');
+  assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+
+  run(function() {
+    record.destroyRecord();
+  });
+
+  assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
+  assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
 });
