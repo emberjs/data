@@ -23,7 +23,8 @@ module("integration/serializer/rest - RESTSerializer", {
     });
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('super-villain', { async: false }),
-      name:         DS.attr('string')
+      name:         DS.attr('string'),
+      doomsdayDevice: DS.belongsTo('doomsday-device', { async: false })
     });
     YellowMinion = EvilMinion.extend({
       eyes: DS.attr('number')
@@ -893,4 +894,70 @@ test('Serializer should respect the attrs hash in links', function(assert) {
   var documentHash = env.container.lookup("serializer:super-villain").normalizeSingleResponse(env.store, SuperVillain, jsonHash);
 
   assert.equal(documentHash.data.relationships.evilMinions.links.related, 'me/minions');
+});
+
+// https://github.com/emberjs/data/issues/3805
+test('normalizes sideloaded single record so that it sideloads correctly - belongsTo - GH-3805', function(assert) {
+  env.registry.register("serializer:doomsday-device", DS.RESTSerializer.extend());
+  let payload = {
+    doomsdayDevice: {
+      id: 1,
+      evilMinion: 2
+    },
+    evilMinion: {
+      id: 2,
+      doomsdayDevice: 1
+    }
+  };
+
+  let document = env.store.serializerFor('doomsday-device').normalizeSingleResponse(env.store, DoomsdayDevice, payload);
+  assert.equal(document.data.relationships.evilMinion.data.id, 2);
+  assert.equal(document.included.length, 1);
+  assert.deepEqual(document.included[0], {
+    attributes: {},
+    id: '2',
+    type: 'evil-minion',
+    relationships: {
+      doomsdayDevice: {
+        data: {
+          id: '1',
+          type: 'doomsday-device'
+        }
+      }
+    }
+  });
+});
+
+// https://github.com/emberjs/data/issues/3805
+test('normalizes sideloaded single record so that it sideloads correctly - hasMany - GH-3805', function(assert) {
+  env.registry.register("serializer:home-planet", DS.RESTSerializer.extend());
+  let payload = {
+    homePlanet: {
+      id: 1,
+      superVillains: [2]
+    },
+    superVillain: {
+      id: 2,
+      homePlanet: 1
+    }
+  };
+
+  let document = env.store.serializerFor('home-planet').normalizeSingleResponse(env.store, HomePlanet, payload);
+
+  assert.equal(document.data.relationships.superVillains.data.length, 1);
+  assert.equal(document.data.relationships.superVillains.data[0].id, 2);
+  assert.equal(document.included.length, 1);
+  assert.deepEqual(document.included[0], {
+    attributes: {},
+    id: '2',
+    type: 'super-villain',
+    relationships: {
+      homePlanet: {
+        data: {
+          id: '1',
+          type: 'home-planet'
+        }
+      }
+    }
+  });
 });
