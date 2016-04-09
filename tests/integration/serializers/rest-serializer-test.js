@@ -680,9 +680,7 @@ test('normalizeResponse with async polymorphic belongsTo, using <relationshipNam
 });
 
 test('normalizeResponse with async polymorphic belongsTo', function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    isNewSerializerAPI: true
-  }));
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
   var store = env.store;
   env.adapter.findRecord = () => {
     return {
@@ -717,9 +715,7 @@ test('normalizeResponse with async polymorphic belongsTo', function(assert) {
 
 test('normalizeResponse with async polymorphic hasMany', function(assert) {
   SuperVillain.reopen({ evilMinions: DS.hasMany('evil-minion', { async: true, polymorphic: true }) });
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    isNewSerializerAPI: true
-  }));
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
   var store = env.store;
   env.adapter.findRecord = () => {
     return {
@@ -806,9 +802,7 @@ test("normalizeResponse can load secondary records of the same type without affe
 });
 
 test("don't polymorphically deserialize base on the type key in payload when a type attribute exist", function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    isNewSerializerAPI: true
-  }));
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
 
   run(function() {
     env.store.push(env.restSerializer.normalizeArrayResponse(env.store, Basket, {
@@ -831,9 +825,7 @@ test("don't polymorphically deserialize base on the type key in payload when a t
 });
 
 test("don't polymorphically deserialize base on the type key in payload when a type attribute exist on a singular response", function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    isNewSerializerAPI: true
-  }));
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
 
   run(function() {
     env.store.push(env.restSerializer.normalizeSingleResponse(env.store, Basket, {
@@ -849,9 +841,7 @@ test("don't polymorphically deserialize base on the type key in payload when a t
 
 
 test("don't polymorphically deserialize based on the type key in payload when a relationship exists named type", function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    isNewSerializerAPI: true
-  }));
+  env.registry.register('serializer:application', DS.RESTSerializer.extend());
 
   env.adapter.findRecord = () => {
     return {
