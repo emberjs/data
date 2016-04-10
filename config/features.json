@@ -7,5 +7,6 @@
   "ds-pushpayload-return": null,
   "ds-serialize-ids-and-types": true,
   "ds-extended-errors": null,
-  "ds-links-in-record-array": null
+  "ds-links-in-record-array": null,
+  "ds-payload-type-hooks": null
 }

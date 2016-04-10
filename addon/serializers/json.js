@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, warn } from 'ember-data/-private/debug';
+import { assert, deprecate, warn } from 'ember-data/-private/debug';
 import Serializer from "ember-data/serializer";
 import coerceId from "ember-data/-private/system/coerce-id";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
@@ -83,7 +83,7 @@ var assign = Ember.assign || Ember.merge;
   @namespace DS
   @extends DS.Serializer
 */
-export default Serializer.extend({
+var JSONSerializer = Serializer.extend({
 
   /**
     The `primaryKey` is used when serializing and deserializing
@@ -603,7 +603,25 @@ export default Serializer.extend({
 
       const modelClass = this.store.modelFor(relationshipModelName);
       if (relationshipHash.type && !modelHasAttributeOrRelationshipNamedType(modelClass)) {
-        relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
+
+        if (isEnabled("ds-payload-type-hooks")) {
+          let modelName = this.modelNameFromPayloadType(relationshipHash.type);
+          let deprecatedModelNameLookup = this.modelNameFromPayloadKey(relationshipHash.type);
+
+          if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
+            deprecate("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead", false, {
+              id: 'ds.json-serializer.deprecated-type-for-polymorphic-relationship',
+              until: '3.0.0'
+            });
+
+            modelName = deprecatedModelNameLookup;
+          }
+
+          relationshipHash.type = modelName;
+
+        } else {
+          relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
+        }
       }
       return relationshipHash;
     }
@@ -694,6 +712,7 @@ export default Serializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
+  // TODO @deprecated Use modelNameFromPayloadType instead
   modelNameFromPayloadKey(key) {
     return normalizeModelName(key);
   },
@@ -1466,3 +1485,27 @@ export default Serializer.extend({
     return transform;
   }
 });
+
+if (isEnabled("ds-payload-type-hooks")) {
+
+  JSONSerializer.reopen({
+
+    /**
+      @method modelNameFromPayloadType
+      @public
+      @param {String} type
+      @return {String} the model's modelName
+      */
+    modelNameFromPayloadType(type) {
+      return normalizeModelName(type);
+    },
+
+    _hasCustomModelNameFromPayloadKey() {
+      return this.modelNameFromPayloadKey !== JSONSerializer.prototype.modelNameFromPayloadKey;
+    }
+
+  });
+
+}
+
+export default JSONSerializer;

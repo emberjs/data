@@ -4,6 +4,8 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
+import isEnabled from 'ember-data/-private/features';
+
 import DS from 'ember-data';
 
 var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
@@ -951,3 +953,173 @@ test('normalizes sideloaded single record so that it sideloads correctly - hasMa
     }
   });
 });
+
+if (isEnabled("ds-payload-type-hooks")) {
+
+  test("mapping of payload type can be customized via modelNameFromPayloadType", function(assert) {
+    env.restSerializer.modelNameFromPayloadType = function(payloadType) {
+      return payloadType.replace("api::v1::", "");
+    };
+
+    var jsonHash = {
+      doomsdayDevice: {
+        id: '1',
+        evilMinion: '1',
+        evilMinionType: "api::v1::evil-minion"
+      }
+    };
+
+    assert.expectNoDeprecation();
+
+    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'doomsday-device',
+        attributes: {},
+        relationships: {
+          evilMinion: {
+            data: {
+              id: '1',
+              type: 'evil-minion'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+  test("payload key and payload type can be mapped", function(assert) {
+    env.restSerializer.modelNameFromPayloadKey = function(payloadKey) {
+      return 'doomsday-device';
+    };
+
+    env.restSerializer.modelNameFromPayloadType = function(payloadType) {
+      return payloadType.replace("api::v1::", "");
+    };
+
+    var jsonHash = {
+      "api/models/doomsday-device": {
+        id: '1',
+        evilMinion: '1',
+        evilMinionType: "api::v1::evil-minion"
+      }
+    };
+
+    assert.expectNoDeprecation();
+
+    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'doomsday-device',
+        attributes: {},
+        relationships: {
+          evilMinion: {
+            data: {
+              id: '1',
+              type: 'evil-minion'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+  test("only overwriting modelNameFromPayloadKey works", function(assert) {
+    env.restSerializer.modelNameFromPayloadKey = function(payloadKey) {
+      return payloadKey.replace("api/models/", "");
+    };
+
+    var jsonHash = {
+      "api/models/doomsday-device": {
+        id: '1',
+        evilMinion: '1',
+        evilMinionType: "evil-minion"
+      }
+    };
+
+    assert.expectNoDeprecation();
+
+    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'doomsday-device',
+        attributes: {},
+        relationships: {
+          evilMinion: {
+            data: {
+              id: '1',
+              type: 'evil-minion'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+  testInDebug("DEPRECATED - mapping of payload type can be customized via modelNameFromPayloadKey", function(assert) {
+    env.restSerializer.modelNameFromPayloadKey = function(payloadType) {
+      return payloadType.replace("api::v1::", "");
+    };
+
+    var jsonHash = {
+      doomsdayDevice: {
+        id: '1',
+        evilMinion: '1',
+        evilMinionType: "api::v1::evil-minion"
+      }
+    };
+
+    assert.expectDeprecation("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType");
+
+    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'doomsday-device',
+        attributes: {},
+        relationships: {
+          evilMinion: {
+            data: {
+              id: '1',
+              type: 'evil-minion'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+  test("mapping of model name can be customized via payloadTypeFromModelName", function(assert) {
+    env.restSerializer.payloadTypeFromModelName = function(modelName) {
+      return `api::v1::${modelName}`;
+    };
+
+    let tom, ray;
+    run(function() {
+      tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
+      ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
+    });
+
+    assert.expectNoDeprecation();
+
+    let json = env.restSerializer.serialize(ray._createSnapshot());
+
+    assert.deepEqual(json, {
+      name: "DeathRay",
+      evilMinion: "124",
+      evilMinionType: "api::v1::yellow-minion"
+    });
+  });
+
+}
