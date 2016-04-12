@@ -1,22 +1,23 @@
 # Ember Data Changelog
 
-### Release 2.5.0-beta.4 (April 1, 2016)
+### Release 2.5.0 (April 11, 2016)
+- [#4293](https://github.com/emberjs/data/pull/4293) Transition an invalid created record to the deleted saved state when deleted
+- [#4304](https://github.com/emberjs/data/pull/4304) pass DS.SnapshotRecordArray to build-url-mixin buildURL
+- [#4308](https://github.com/emberjs/data/pull/4308) pass snapshot through to urlForFindHasMany and urlForFindBelongsTo
+- [#4314](https://github.com/emberjs/data/pull/4314) [BUGFIX beta] convert single record sideloaded records to plural
+- [#4316](https://github.com/emberjs/data/pull/4316) Fix `isUpdating` for DS.AdapterPopulatedRecordArray#update()
 - [#4245](https://github.com/emberjs/data/pull/4245) Tweaks to docs on error responses
 - [#4268](https://github.com/emberjs/data/pull/4268) JSONSerializer should normalize the links object using the attrs hash
 - [#4270](https://github.com/emberjs/data/pull/4270) Fix incorrect reference to `push` in the `findRecord` docs
 - [#4271](https://github.com/emberjs/data/pull/4271) [BUGFIX beta] Ensure `null` is returned for Reference#value()
 - [#4274](https://github.com/emberjs/data/pull/4274) [DOC canary] Update extractMeta documentation
 - [#4295](https://github.com/emberjs/data/pull/4295) [DOC release] Mistaken back tick.
-
-### Release 2.5.0-beta.3 (March 22, 2016)
 - [#4178](https://github.com/emberjs/data/pull/4178) DS.Store type presence checks
 - [#4194](https://github.com/emberjs/data/pull/4194) Use modelNameFromPayloadKey when type is given
 - [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
 - [#4248](https://github.com/emberjs/data/pull/4248) fix prod-build issue
 - [#4250](https://github.com/emberjs/data/pull/4250) [BUGFIX beta] Use Ember.assign when availability
 - [#4256](https://github.com/emberjs/data/pull/4256) [BUGFIX release] Revert pr #3864
-
-### Release 2.5.0-beta.2 (March 18, 2016)
 - [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
 - [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
 - [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
@@ -28,9 +29,6 @@
 - [#4221](https://github.com/emberjs/data/pull/4221) [BUGFIX beta] use assert from debug utils so it is stripped correctly
 - [#4235](https://github.com/emberjs/data/pull/4235) [DOC] Fix store.findAll return type
 - [#4237](https://github.com/emberjs/data/pull/4237) [DOC beta] Fix typo in inline doc. of normalizeResponse
-
-### Release 2.5.0-beta.1 (March 9, 2016)
-
 - [#4119](https://github.com/emberjs/data/pull/4119) Add ember.js and ember-data tags automatically to SO question
 - [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
 - [#4040](https://github.com/emberjs/data/pull/4040) Use test helpers from ember dev
