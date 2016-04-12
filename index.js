@@ -101,11 +101,9 @@ module.exports = {
   included: function(app) {
     this._super.included.apply(this, arguments);
 
-    if (process.env.EMBER_ENV === 'production') {
-      this.options.babel = this.options.babel || {};
-      add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
-      add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')());
-    }
+    this.options.babel = this.options.babel || {};
+    add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
+    add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')(process.env.EMBER_ENV));
 
     if (this._forceBowerUsage) {
       this.app.import({
