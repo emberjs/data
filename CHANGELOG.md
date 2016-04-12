@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+### Release 2.5.1 (April 12, 2016)
+- [#4320](https://github.com/emberjs/data/pull/4320) [BUGFIX release] Ensure feature flag stripping works for all builds.
+
 ### Release 2.5.0 (April 11, 2016)
 - [#4293](https://github.com/emberjs/data/pull/4293) Transition an invalid created record to the deleted saved state when deleted
 - [#4304](https://github.com/emberjs/data/pull/4304) pass DS.SnapshotRecordArray to build-url-mixin buildURL
