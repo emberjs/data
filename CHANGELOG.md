@@ -2,6 +2,79 @@
 
 ### Master
 
+### Release 2.5.0 (April 11, 2016)
+- [#4293](https://github.com/emberjs/data/pull/4293) Transition an invalid created record to the deleted saved state when deleted
+- [#4304](https://github.com/emberjs/data/pull/4304) pass DS.SnapshotRecordArray to build-url-mixin buildURL
+- [#4308](https://github.com/emberjs/data/pull/4308) pass snapshot through to urlForFindHasMany and urlForFindBelongsTo
+- [#4314](https://github.com/emberjs/data/pull/4314) [BUGFIX beta] convert single record sideloaded records to plural
+- [#4316](https://github.com/emberjs/data/pull/4316) Fix `isUpdating` for DS.AdapterPopulatedRecordArray#update()
+- [#4245](https://github.com/emberjs/data/pull/4245) Tweaks to docs on error responses
+- [#4268](https://github.com/emberjs/data/pull/4268) JSONSerializer should normalize the links object using the attrs hash
+- [#4270](https://github.com/emberjs/data/pull/4270) Fix incorrect reference to `push` in the `findRecord` docs
+- [#4271](https://github.com/emberjs/data/pull/4271) [BUGFIX beta] Ensure `null` is returned for Reference#value()
+- [#4274](https://github.com/emberjs/data/pull/4274) [DOC canary] Update extractMeta documentation
+- [#4295](https://github.com/emberjs/data/pull/4295) [DOC release] Mistaken back tick.
+- [#4178](https://github.com/emberjs/data/pull/4178) DS.Store type presence checks
+- [#4194](https://github.com/emberjs/data/pull/4194) Use modelNameFromPayloadKey when type is given
+- [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
+- [#4248](https://github.com/emberjs/data/pull/4248) fix prod-build issue
+- [#4250](https://github.com/emberjs/data/pull/4250) [BUGFIX beta] Use Ember.assign when availability
+- [#4256](https://github.com/emberjs/data/pull/4256) [BUGFIX release] Revert pr #3864
+- [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
+- [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
+- [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
+- [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
+- [#4198](https://github.com/emberjs/data/pull/4198) [DOC beta] Fix error message internal docs
+- [#4200](https://github.com/emberjs/data/pull/4200) Avoid errors when ember-cli-shims is not included.
+- [#4204](https://github.com/emberjs/data/pull/4204) Fix RESTAdapter.findRecord without a snapshot
+- [#4205](https://github.com/emberjs/data/pull/4205) [BUGFIX release] ensure import paths are resolved \w posix separators
+- [#4221](https://github.com/emberjs/data/pull/4221) [BUGFIX beta] use assert from debug utils so it is stripped correctly
+- [#4235](https://github.com/emberjs/data/pull/4235) [DOC] Fix store.findAll return type
+- [#4237](https://github.com/emberjs/data/pull/4237) [DOC beta] Fix typo in inline doc. of normalizeResponse
+- [#4119](https://github.com/emberjs/data/pull/4119) Add ember.js and ember-data tags automatically to SO question
+- [#4063](https://github.com/emberjs/data/pull/4063) [BUGFIX release] don't load "app" code when loading globals files
+- [#4040](https://github.com/emberjs/data/pull/4040) Use test helpers from ember dev
+- [#4116](https://github.com/emberjs/data/pull/4116) Add assertions for store#query()
+- [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
+- [#4065](https://github.com/emberjs/data/pull/4065) Bump canary to 2.5.0
+- [#4070](https://github.com/emberjs/data/pull/4070) Update blueprints to import modules directly
+- [#4111](https://github.com/emberjs/data/pull/4111) [BUGFIX beta] Add ducktyping of `AdapterError`
+- [#4084](https://github.com/emberjs/data/pull/4084) [cleanup] Remove unnecessary inline JSHint config
+- [#4082](https://github.com/emberjs/data/pull/4082) Move the date import to where it is used intead of the root module
+- [#4074](https://github.com/emberjs/data/pull/4074) Update README, now that ember-data is a proper addon
+- [#4079](https://github.com/emberjs/data/pull/4079) [CLEANUP] remove unused config/ember-defeatureify.js
+- [#4078](https://github.com/emberjs/data/pull/4078) Use `Ember.merge` instead of ember-data's shim
+- [#4090](https://github.com/emberjs/data/pull/4090) Make yui doc generate links from the project root instead of the file…
+- [#4085](https://github.com/emberjs/data/pull/4085) Update codeclimate.yml
+- [#4086](https://github.com/emberjs/data/pull/4086) [FEATURE ds-transform-pass-options] pass options to DS.Transform
+- [#4141](https://github.com/emberjs/data/pull/4141) [DOC] Document behavior of object level errors with JSON API
+- [#4094](https://github.com/emberjs/data/pull/4094) Update changelog for 2.3.2 release
+- [#4092](https://github.com/emberjs/data/pull/4092) Delete TRANSITION.md
+- [#4152](https://github.com/emberjs/data/pull/4152) Remove extra definition of InvalidError
+- [#4100](https://github.com/emberjs/data/pull/4100) [DOC] Replace reference to DS.Store.find
+- [#4102](https://github.com/emberjs/data/pull/4102) [DOC] Fix misleading docs for `DS.RESTAdapter.findBelongsTo`
+- [#4110](https://github.com/emberjs/data/pull/4110) [FEATURE ds-pushpayload-return] Change `pushPayload` to return a value.
+- [#4097](https://github.com/emberjs/data/pull/4097) Update `.npmignore`
+- [#4104](https://github.com/emberjs/data/pull/4104) [DOC] Mark `DS.Store.filter` as private
+- [#4101](https://github.com/emberjs/data/pull/4101) [cleanup] Remove unneeded `getComputedPropertyDesc` test helper
+- [#4160](https://github.com/emberjs/data/pull/4160) Fixes broken link
+- [#4128](https://github.com/emberjs/data/pull/4128) Fix calls to keyForRelationship in embedded records
+- [#4117](https://github.com/emberjs/data/pull/4117) Add assertion for polymorphic type for HasManyReference#push
+- [#4118](https://github.com/emberjs/data/pull/4118) [ci skip] Sort CHANGELOG by version and not date of release
+- [#4164](https://github.com/emberjs/data/pull/4164) [CLEANUP] remove `toString` definitions for models in tests
+- [#4147](https://github.com/emberjs/data/pull/4147) Fix key remapping for embedded belongsTo
+- [#4135](https://github.com/emberjs/data/pull/4135) import require
+- [#4153](https://github.com/emberjs/data/pull/4153) calling reload multiple times on a has many triggers only one request
+- [#4155](https://github.com/emberjs/data/pull/4155) remove container related deprecation warnings
+- [#4159](https://github.com/emberjs/data/pull/4159) [DOC] Mark store.filter as deprecated in JSDoc.
+- [#4167](https://github.com/emberjs/data/pull/4167) Add blueprints from ember-cli-mocha
+- [#4168](https://github.com/emberjs/data/pull/4168) TravisCI: Use PhantomJS v2.1.1
+- [#4169](https://github.com/emberjs/data/pull/4169) Simplify PhantomJS installation on TravisCI
+- [#4171](https://github.com/emberjs/data/pull/4171) [CLEANUP] Remove shim for Backburner.join
+- [#4172](https://github.com/emberjs/data/pull/4172) [CLEANUP] Remove shim for Ember.Service
+- [#4224](https://github.com/emberjs/data/pull/4224) Enable feature flags for 2.5 beta cycle
+
+
 ### Release 2.4.3 (March 22, 2016)
 - [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
 - [#4256](https://github.com/emberjs/data/pull/4256) [BUGFIX release] Revert pr #3864
