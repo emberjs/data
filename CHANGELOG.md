@@ -2,6 +2,69 @@
 
 ### Master
 
+### Release 2.6.0-beta.1 (April 12, 2016)
+- [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
+- [#3848](https://github.com/emberjs/data/pull/3848) [BUGFIX] EmbeddedRecordMixin should include the type serializing hasMany as ids
+- [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
+- [#4023](https://github.com/emberjs/data/pull/4023) Enhance blueprints: only extend from application entity if it exists
+- [#4177](https://github.com/emberjs/data/pull/4177) Elaborate on running tests in browser
+- [#3586](https://github.com/emberjs/data/pull/3586) [FEATURE ds-extended-errors] Make adapter error extendable and add more error types
+- [#3099](https://github.com/emberjs/data/pull/3099) [FEATURE ds-improved-ajax] Finer control over customizing a request
+- [#4022](https://github.com/emberjs/data/pull/4022) [FEATURE ds-boolean-transform-allow-null] allow null for boolean
+- [#4173](https://github.com/emberjs/data/pull/4173) Create RELEASE.md
+- [#4178](https://github.com/emberjs/data/pull/4178) DS.Store type presence checks
+- [#3559](https://github.com/emberjs/data/pull/3559) [BUGFIX release] Guard against isDestroyed in ManyArray.flushCanonical
+- [#4259](https://github.com/emberjs/data/pull/4259) Warn when the JSONAPISerializer is extended with the EmbeddedRecordsM…
+- [#4200](https://github.com/emberjs/data/pull/4200) Avoid errors when ember-cli-shims is not included.
+- [#4188](https://github.com/emberjs/data/pull/4188) Update ember-cli to v2.3.0
+- [#4191](https://github.com/emberjs/data/pull/4191) Don't resolve model name unless actually needed
+- [#4189](https://github.com/emberjs/data/pull/4189) AppVeyor: Use same line endings as original files
+- [#4193](https://github.com/emberjs/data/pull/4193) support 1.13 officially
+- [#4194](https://github.com/emberjs/data/pull/4194) Use modelNameFromPayloadKey when type is given
+- [#4196](https://github.com/emberjs/data/pull/4196) Restructure and elaborate on test which fixes a tricky bug
+- [#4187](https://github.com/emberjs/data/pull/4187) Add acceptance tests for the mocha blueprints
+- [#4197](https://github.com/emberjs/data/pull/4197) Update changelog for Ember Data 2.4
+- [#4274](https://github.com/emberjs/data/pull/4274) [DOC canary] Update extractMeta documentation
+- [#4230](https://github.com/emberjs/data/pull/4230) Only show ember-cli-shims errors if actually installed
+- [#4214](https://github.com/emberjs/data/pull/4214) Fix AMD dependencies
+- [#4223](https://github.com/emberjs/data/pull/4223) Run tests in production
+- [#4205](https://github.com/emberjs/data/pull/4205) [BUGFIX release] ensure import paths are resolved \w posix separators
+- [#4215](https://github.com/emberjs/data/pull/4215) unify prod/dev add-on build
+- [#4225](https://github.com/emberjs/data/pull/4225) Don't do inverse work if inverse is explicitly turned off
+- [#4228](https://github.com/emberjs/data/pull/4228) Solves #4186 and fixes `this._super` call within `normalize` method.
+- [#4222](https://github.com/emberjs/data/pull/4222) Strip code for DS_WARN_ON_UNKNOWN_KEYS warning in production
+- [#4220](https://github.com/emberjs/data/pull/4220) Use single quotes
+- [#4204](https://github.com/emberjs/data/pull/4204) Fix RESTAdapter.findRecord without a snapshot
+- [#4264](https://github.com/emberjs/data/pull/4264) Moved the adapter errors into the public API space.
+- [#4247](https://github.com/emberjs/data/pull/4247) Add test asserting no unnecessary inverse work
+- [#4235](https://github.com/emberjs/data/pull/4235) [DOC] Fix store.findAll return type
+- [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
+- [#4241](https://github.com/emberjs/data/pull/4241) Fix spacing issue thats causing jscs errors on the beta branch
+- [#4240](https://github.com/emberjs/data/pull/4240) Add note on `testInDebug`
+- [#4248](https://github.com/emberjs/data/pull/4248) fix prod-build issue
+- [#4244](https://github.com/emberjs/data/pull/4244) [DOC] Add section on commit tagging to CONTRIBUTING.md
+- [#4245](https://github.com/emberjs/data/pull/4245) Tweaks to docs on error responses
+- [#4287](https://github.com/emberjs/data/pull/4287) [FEATURE ds-extended-errors] add DS.ServerError
+- [#4270](https://github.com/emberjs/data/pull/4270) Fix incorrect reference to `push` in the `findRecord` docs
+- [#4260](https://github.com/emberjs/data/pull/4260) Modified the setup-ember-dev test helper to use `ember-metal/debug`s override hooks
+- [#4263](https://github.com/emberjs/data/pull/4263) [FEATURE ds-links-in-record-array] Add links to RecordArray when present on payload
+- [#4257](https://github.com/emberjs/data/pull/4257) Update changelog for Ember Data 2.4.3
+- [#4268](https://github.com/emberjs/data/pull/4268) JSONSerializer should normalize the links object using the attrs hash
+- [#4258](https://github.com/emberjs/data/pull/4258) Deprecate normalizeHash method on the rest serializer
+- [#4301](https://github.com/emberjs/data/pull/4301) fix rest-adapter-test typo
+- [#4278](https://github.com/emberjs/data/pull/4278) Uses bin/start with friendly error message for npm start.
+- [#4276](https://github.com/emberjs/data/pull/4276) [BUGFIX canary] Improve finders assertion messages
+- [#4304](https://github.com/emberjs/data/pull/4304) pass DS.SnapshotRecordArray to build-url-mixin buildURL
+- [#4280](https://github.com/emberjs/data/pull/4280) Update "blueprint-test-helpers" and "ember-cli"
+- [#4307](https://github.com/emberjs/data/pull/4307) [skip ci] fix invalid indentation in codeclimate.yml
+- [#4288](https://github.com/emberjs/data/pull/4288) [FEATURE ds-extended-errors] fix usage of isEnabled
+- [#4284](https://github.com/emberjs/data/pull/4284) [CLEANUP] Use Array.isArray everywhere instead of Ember.isArray
+- [#4281](https://github.com/emberjs/data/pull/4281) Speed up JSONSerializer#applyTransforms
+- [#4286](https://github.com/emberjs/data/pull/4286) Use the dot reporter to reduce the noise in travis output
+- [#4308](https://github.com/emberjs/data/pull/4308) pass snapshot through to urlForFindHasMany and urlForFindBelongsTo
+- [#4316](https://github.com/emberjs/data/pull/4316) Fix `isUpdating` for DS.AdapterPopulatedRecordArray#update()
+- [#4317](https://github.com/emberjs/data/pull/4317) [CLEANUP] remove reference to no more used isNewSerializerAPI flag
+
 ### Release 2.5.0 (April 11, 2016)
 - [#4293](https://github.com/emberjs/data/pull/4293) Transition an invalid created record to the deleted saved state when deleted
 - [#4304](https://github.com/emberjs/data/pull/4304) pass DS.SnapshotRecordArray to build-url-mixin buildURL
@@ -73,7 +136,6 @@
 - [#4171](https://github.com/emberjs/data/pull/4171) [CLEANUP] Remove shim for Backburner.join
 - [#4172](https://github.com/emberjs/data/pull/4172) [CLEANUP] Remove shim for Ember.Service
 - [#4224](https://github.com/emberjs/data/pull/4224) Enable feature flags for 2.5 beta cycle
-
 
 ### Release 2.4.3 (March 22, 2016)
 - [#4243](https://github.com/emberjs/data/pull/4243) moves the ember dep in the package-manager package.json into optionalDependencies
