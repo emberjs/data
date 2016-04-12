@@ -1,11 +1,11 @@
 {
   "ds-boolean-transform-allow-null": null,
-  "ds-finder-include": null,
+  "ds-finder-include": true,
   "ds-improved-ajax": null,
-  "ds-references": null,
-  "ds-transform-pass-options": null,
+  "ds-references": true,
+  "ds-transform-pass-options": true,
   "ds-pushpayload-return": null,
-  "ds-serialize-ids-and-types": null,
+  "ds-serialize-ids-and-types": true,
   "ds-extended-errors": null,
   "ds-links-in-record-array": null
 }
