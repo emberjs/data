@@ -97,12 +97,22 @@ module.exports = {
     ]));
   },
 
-  included: function(app) {
-    this._super.included.apply(this, arguments);
+  _setupBabelOptions() {
+    if (this._hasSetupBabelOptions) {
+      return;
+    }
 
     this.options.babel = this.options.babel || {};
     add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
     add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')(process.env.EMBER_ENV));
+
+    this._hasSetupBabelOptions = true;
+  },
+
+  included: function(app) {
+    this._super.included.apply(this, arguments);
+
+    this._setupBabelOptions();
 
     if (this._forceBowerUsage) {
       this.app.import({
