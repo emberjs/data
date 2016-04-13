@@ -592,21 +592,40 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Returns an object, whose keys are changed properties, and value is
     an [oldProp, newProp] array.
 
+    The array represents the diff of the canonical state with the local state
+    of the model. Note: if the model is created locally, the canonical state is
+    empty since the adapter hasn't acknowledged the attributes yet:
+
     Example
 
     ```app/models/mascot.js
     import DS from 'ember-data';
 
     export default DS.Model.extend({
-      name: attr('string')
+      name: attr('string'),
+      isAdmin: attr('boolean', {
+        defaultValue: false
+      })
     });
     ```
 
     ```javascript
     var mascot = store.createRecord('mascot');
+
     mascot.changedAttributes(); // {}
+
     mascot.set('name', 'Tomster');
-    mascot.changedAttributes(); // {name: [undefined, 'Tomster']}
+    mascot.changedAttributes(); // { name: [undefined, 'Tomster'] }
+
+    mascot.set('isAdmin', true);
+    mascot.changedAttributes(); // { isAdmin: [undefined, true], name: [undefined, 'Tomster'] }
+
+    mascot.save().then(function() {
+      mascot.changedAttributes(); // {}
+
+      mascot.set('isAdmin', false);
+      mascot.changedAttributes(); // { isAdmin: [true, false] }
+    });
     ```
 
     @method changedAttributes
