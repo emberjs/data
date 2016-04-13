@@ -58,6 +58,58 @@ this will also help us to understand it better ourselves.
 always have more work to do than time to do it. If you can write some code
 then that will speed the process along.
 
+### Using Feature Flags
+
+Feature flags allow new features to be tested easily and strips them out of
+production builds automatically.
+
+1. Add your new feature flag to the [config/features.json](https://github.com/emberjs/data/blob/master/config/features.json) file.
+
+  ```js
+  {
+    "ds-boolean-transform-allow-null": null,
+    "ds-mynew-feature": null
+  }
+  ```
+
+  Give it a default of `null` so it will not be used in production builds.
+
+2. Import `isEnabled` from `ember-data/-private/features`, wrapping any new
+  code with your feature:
+
+  ```js
+  import isEnabled from 'ember-data/-private/features';
+
+  if (isEnabled('ds-mynew-feature')) {
+    // ... any additional code
+  } else {
+    // ... any previous code that may have been overwritten
+  }
+  ```
+
+3. Similarly, you will want to wrap any new or edited tests with the same
+  feature flag.
+
+  ```js
+  import isEnabled from 'ember-data/-private/features';
+
+  if (isEnabled('ds-mynew-feature')) {
+    test('test for new feature', function(assert) {
+      // ...
+    })
+  }
+  ```
+
+  This will allow the test suite to run as normal.
+
+4. Running tests with all feature flags enabled is possible via
+  `ember test --environment=test-optional-features` This is also possible while
+  running tests in the browser via the `Enable Opt Feature` checkbox.
+
+5. Add your feature to the [Features](https://github.com/emberjs/data/blob/master/FEATURES.md) file.
+  Be sure to leave a description of the feature and possible example of how to
+  use it (if necessary).
+
 # Pull Requests
 
 We love pull requests. Here's a quick guide:
@@ -155,4 +207,3 @@ In general almost all commits should fall into one of these categories. In the c
 NOTE:
 * Partially copied from https://raw.github.com/thoughtbot/factory_girl_rails/master/CONTRIBUTING.md
 * Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
-
