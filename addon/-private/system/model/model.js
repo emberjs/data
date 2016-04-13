@@ -868,7 +868,7 @@ if (isEnabled("ds-references")) {
         user: DS.belongsTo({ async: true })
       });
 
-      store.push({
+      var blog = store.push({
         type: 'blog',
         id: 1,
         relationships: {
@@ -927,7 +927,7 @@ if (isEnabled("ds-references")) {
         comments: DS.hasMany({ async: true })
       });
 
-      store.push({
+      var blog = store.push({
         type: 'blog',
         id: 1,
         relationships: {
