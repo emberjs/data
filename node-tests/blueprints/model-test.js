@@ -18,10 +18,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         expect(_file('app/models/foo.js'))
           .to.contain('import Model from \'ember-data/model\';')
           .to.contain('export default Model.extend(')
-          .to.not.contain('import attr from \'ember-data/attr\';')
+          .to.contain('// import attr from \'ember-data/attr\';')
+          .to.contain('// import { belongsTo, hasMany } from \'ember-data/relationships\';')
           .to.not.contain('import { belongsTo } from \'ember-data/relationships\';')
-          .to.not.contain('import { hasMany } from \'ember-data/relationships\';')
-          .to.not.contain('import { belongsTo, hasMany } from \'ember-data/relationships\';');
+          .to.not.contain('import { hasMany } from \'ember-data/relationships\';');
 
         expect(_file('tests/unit/models/foo-test.js'))
           .to.contain('moduleForModel(\'foo\'');
@@ -56,9 +56,9 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('age: attr(\'number\')')
           .to.contain('name: attr(\'string\')')
           .to.contain('customAttr: attr(\'custom-transform\')')
+          .to.contain('// import { belongsTo, hasMany } from \'ember-data/relationships\';')
           .to.not.contain('import { belongsTo } from \'ember-data/relationships\';')
-          .to.not.contain('import { hasMany } from \'ember-data/relationships\';')
-          .to.not.contain('import { belongsTo, hasMany } from \'ember-data/relationships\';');
+          .to.not.contain('import { hasMany } from \'ember-data/relationships\';');
 
         expect(_file('tests/unit/models/foo-test.js'))
           .to.contain('moduleForModel(\'foo\'');
@@ -76,8 +76,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('export default Model.extend(')
           .to.contain('post: belongsTo(\'post\')')
           .to.contain('author: belongsTo(\'user\')')
-          .to.not.contain('import attr from \'ember-data/attr\';')
-          .to.not.contain('import { hasMany } from \'ember-data/relationships\';')
+          .to.contain('// import attr from \'ember-data/attr\';')
+          .to.contain('// import { hasMany } from \'ember-data/relationships\';')
           .to.not.contain('import { belongsTo, hasMany } from \'ember-data/relationships\';');
 
         expect(_file('tests/unit/models/comment-test.js'))
@@ -97,8 +97,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('export default Model.extend(')
           .to.contain('comments: hasMany(\'comment\')')
           .to.contain('otherComments: hasMany(\'comment\')')
-          .to.not.contain('import attr from \'ember-data/attr\';')
-          .to.not.contain('import { belongsTo } from \'ember-data/relationships\';')
+          .to.contain('// import attr from \'ember-data/attr\';')
+          .to.contain('// import { belongsTo } from \'ember-data/relationships\';')
           .to.not.contain('import { belongsTo, hasMany } from \'ember-data/relationships\';');
 
         expect(_file('tests/unit/models/post-test.js'))
@@ -114,7 +114,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/models/post.js'))
           .to.contain('import { belongsTo, hasMany } from \'ember-data/relationships\';')
-          .to.not.contain('import attr from \'ember-data/attr\';')
+          .to.contain('// import attr from \'ember-data/attr\';')
           .to.not.contain('import { belongsTo } from \'ember-data/relationships\';')
           .to.not.contain('import { hasMany } from \'ember-data/relationships\';');
       }));
