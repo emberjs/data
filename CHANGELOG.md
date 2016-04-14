@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+### Release 2.5.2 (April 14, 2016)
+- [#4328](https://github.com/emberjs/data/pull/4328) [BUGFIX release] Only setup babel options once.
+- [#4333](https://github.com/emberjs/data/pull/4333) [BUGFIX release] use es5 syntax for addon's index.js file
+
 ### Release 2.5.1 (April 12, 2016)
 - [#4320](https://github.com/emberjs/data/pull/4320) [BUGFIX release] Ensure feature flag stripping works for all builds.
 
@@ -193,7 +197,7 @@
 - [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
 - [#4021](https://github.com/emberjs/data/pull/4021) [BUGFIX beta] Move ember-inflector to an explicit dependency for the …
 - [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
-- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder 
+- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder
 - [#4026](https://github.com/emberjs/data/pull/4026) [BUGFIX beta] ignores keys that are not found in the map
 - [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
 - [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
