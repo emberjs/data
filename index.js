@@ -98,7 +98,7 @@ module.exports = {
     ]));
   },
 
-  _setupBabelOptions() {
+  _setupBabelOptions: function() {
     if (this._hasSetupBabelOptions) {
       return;
     }
