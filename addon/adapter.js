@@ -465,9 +465,33 @@ export default Ember.Object.extend({
     reload a record from the adapter when a record is requested by
     `store.findRecord`.
 
-    If this method returns true, the store will re-fetch a record from
-    the adapter. If this method returns false, the store will resolve
+    If this method returns `true`, the store will re-fetch a record from
+    the adapter. If this method returns `false`, the store will resolve
     immediately using the cached record.
+
+    For example, if you are building an events ticketing system, in which users
+    can only reserve tickets for 20 minutes at a time, and want to ensure that
+    in each route you have data that is no more than 20 minutes old you could
+    write:
+
+    ```javascript
+    shouldReloadRecord: function(store, ticketSnapshot) {
+      var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt')).minutes();
+      if (timeDiff > 20) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    ```
+
+    This method would ensure that whenever you do `store.findRecord('ticket',
+    id)` you will always get a ticket that is no more than 20 minutes old. In
+    case the cached version is more than 20 minutes old, `findRecord` will not
+    resolve until you fetched the latest version.
+
+    By default this hook returns `false`, as most UIs should not block user
+    interactions while waiting on data update.
 
     @method shouldReloadRecord
     @param {DS.Store} store
@@ -483,9 +507,38 @@ export default Ember.Object.extend({
     reload all records from the adapter when records are requested by
     `store.findAll`.
 
-    If this method returns true, the store will re-fetch all records from
-    the adapter. If this method returns false, the store will resolve
-    immediately using the cached record.
+    If this method returns `true`, the store will re-fetch all records from
+    the adapter. If this method returns `false`, the store will resolve
+    immediately using the cached records.
+
+    For example, if you are building an events ticketing system, in which users
+    can only reserve tickets for 20 minutes at a time, and want to ensure that
+    in each route you have data that is no more than 20 minutes old you could
+    write:
+
+    ```javascript
+    shouldReloadAll: function(store, snapshotArray) {
+      var snapshots = snapshotArray.snapshots();
+
+      return snapshots.any(function(ticketSnapshot) {
+        var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt')).minutes();
+        if (timeDiff > 20) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+    }
+    ```
+
+    This method would ensure that whenever you do `store.findAll('ticket')` you
+    will always get a list of tickets that are no more than 20 minutes old. In
+    case a cached version is more than 20 minutes old, `findAll` will not
+    resolve until you fetched the latest versions.
+
+    By default this methods returns `true` if the passed `snapshotRecordArray`
+    is empty (meaning that there are no records locally available yet),
+    otherwise it returns `false`.
 
     @method shouldReloadAll
     @param {DS.Store} store
@@ -504,8 +557,26 @@ export default Ember.Object.extend({
     This method is *only* checked by the store when the store is
     returning a cached record.
 
-    If this method returns true the store will re-fetch a record from
+    If this method returns `true` the store will re-fetch a record from
     the adapter.
+
+    For example, if you do not want to fetch complex data over a mobile
+    connection, or if the network is down, you can implement
+    `shouldBackgroundReloadRecord` as follows:
+
+    ```javascript
+    shouldBackgroundReloadRecord: function(store, snapshot) {
+      var connection = window.navigator.connection;
+      if (connection === 'cellular' || connection === 'none') {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    ```
+
+    By default this hook returns `true` so the data for the record is updated
+    in the background.
 
     @method shouldBackgroundReloadRecord
     @param {DS.Store} store
@@ -524,8 +595,26 @@ export default Ember.Object.extend({
     This method is *only* checked by the store when the store is
     returning a cached record array.
 
-    If this method returns true the store will re-fetch all records
+    If this method returns `true` the store will re-fetch all records
     from the adapter.
+
+    For example, if you do not want to fetch complex data over a mobile
+    connection, or if the network is down, you can implement
+    `shouldBackgroundReloadAll` as follows:
+
+    ```javascript
+    shouldBackgroundReloadAll: function(store, snapshotArray) {
+      var connection = window.navigator.connection;
+      if (connection === 'cellular' || connection === 'none') {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    ```
+
+    By default this method returns `true`, indicating that a background reload
+    should always be triggered.
 
     @method shouldBackgroundReloadAll
     @param {DS.Store} store
