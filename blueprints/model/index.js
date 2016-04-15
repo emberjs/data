@@ -61,14 +61,20 @@ module.exports = {
 
     if (shouldImportAttr) {
       importStatements.push('import attr from \'ember-data/attr\';');
+    } else {
+      importStatements.push('// import attr from \'ember-data/attr\';');
     }
 
     if (shouldImportBelongsTo && shouldImportHasMany) {
       importStatements.push('import { belongsTo, hasMany } from \'ember-data/relationships\';');
     } else if (shouldImportBelongsTo) {
       importStatements.push('import { belongsTo } from \'ember-data/relationships\';');
+      importStatements.push('// import { hasMany } from \'ember-data/relationships\';');
     } else if (shouldImportHasMany) {
+      importStatements.push('// import { belongsTo } from \'ember-data/relationships\';');
       importStatements.push('import { hasMany } from \'ember-data/relationships\';');
+    } else {
+      importStatements.push('// import { belongsTo, hasMany } from \'ember-data/relationships\';');
     }
 
     importStatements = importStatements.join(EOL);
