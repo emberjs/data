@@ -16,7 +16,7 @@ ground up to manage loading and saving records, so integrating with
 other JavaScript APIs is easy.
 
 Igor Terzic is currently the lead maintainer of Ember Data, while the rest
-of the core team include Yehuda Katz, Tom Dale, Brendan McLoughlin, 
+of the core team include Yehuda Katz, Tom Dale, Brendan McLoughlin,
 Christoffer Persson and Stanley Stuart.
 
 ## Using Ember Data
@@ -81,21 +81,25 @@ ES6 modules (via ember-cli):
 // app/models/blog-post.js
 import DS from 'ember-data';
 
-export default DS.Model.extend({
-  title: DS.attr('string'),
-  createdAt: DS.attr('date'),
+const { attr, hasMany } = DS;
 
-  comments: DS.hasMany('comment')
+export default DS.Model.extend({
+  title: attr('string'),
+  createdAt: attr('date'),
+
+  comments: hasMany('comment')
 });
 
 // app/models/comment.js
 import DS from 'ember-data';
 
-export default DS.Model.extend({
-  body: DS.attr('string'),
-  username: DS.attr('string'),
+const { attr, belongsTo } = DS;
 
-  post: DS.belongsTo('blog-post')
+export default DS.Model.extend({
+  body: attr('string'),
+  username: attr('string'),
+
+  post: belongsTo('blog-post')
 });
 ```
 
