@@ -5,7 +5,6 @@
   "ds-references": true,
   "ds-transform-pass-options": true,
   "ds-pushpayload-return": null,
-  "ds-serialize-ids-and-types": true,
   "ds-extended-errors": null,
   "ds-links-in-record-array": null
 }
