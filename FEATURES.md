@@ -15,18 +15,11 @@ entry in `config/features.json`.
 
   Allow `null`/`undefined` values for `boolean` attributes via `DS.attr('boolean', { allowNull: true })`
 
-  Note that this feature only works when `ds-transform-pass-options` is enabled too.
-
 - `ds-improved-ajax`
 
   This feature allows to customize how a request is formed by overwriting
   `methodForRequest`, `urlForRequest`, `headersForRequest` and `bodyForRequest`
   in the `DS.RESTAdapter`.
-
-- `ds-transform-pass-options`
-
-  Pass options specified for a `DS.attr` to the `DS.Tranform`'s `serialize` and
-  `deserialize` methods (described in [RFC 1](https://github.com/emberjs/rfcs/pull/1))
 
 - `ds-pushpayload-return`
 

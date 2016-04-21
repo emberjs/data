@@ -910,7 +910,7 @@ test("a DS.Model can describe Boolean attributes", function(assert) {
   assert.converts('boolean', 1, true);
   assert.converts('boolean', 0, false);
 
-  if (isEnabled('ds-transform-pass-options') && isEnabled('ds-boolean-transform-allow-null')) {
+  if (isEnabled('ds-boolean-transform-allow-null')) {
     assert.converts('boolean', null, null, { allowNull: true });
     assert.converts('boolean', undefined, null, { allowNull: true });
 

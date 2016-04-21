@@ -78,6 +78,34 @@ function getValue(record, key) {
   });
   ```
 
+  The `options` hash is passed as second argument to a transforms'
+  `serialize` and `deserialize` method. This allows to configure a
+  transformation and adapt the corresponding value, based on the config:
+
+  ```app/models/post.js
+  export default DS.Model.extend({
+    text: DS.attr('text', {
+      uppercase: true
+    })
+  });
+  ```
+
+  ```app/transforms/text.js
+  export default DS.Transform.extend({
+    serialize: function(value, options) {
+      if (options.uppercase) {
+        return value.toUpperCase();
+      }
+
+      return value;
+    },
+
+    deserialize: function(value) {
+      return value;
+    }
+  })
+  ```
+
   @namespace
   @method attr
   @for DS
@@ -130,35 +158,3 @@ export default function attr(type, options) {
     }
   }).meta(meta);
 }
-
-// TODO add to documentation of `attr` function above, once this feature is added
-// /**
-//  * The `options` hash is passed as second argument to a transforms'
-//  * `serialize` and `deserialize` method. This allows to configure a
-//  * transformation and adapt the corresponding value, based on the config:
-//  *
-//  * ```app/models/post.js
-//  * export default DS.Model.extend({
-//  *   text: DS.attr('text', {
-//  *     uppercase: true
-//  *   })
-//  * });
-//  * ```
-//  *
-//  * ```app/transforms/text.js
-//  * export default DS.Transform.extend({
-//  *   serialize: function(value, options) {
-//  *     if (options.uppercase) {
-//  *       return value.toUpperCase();
-//  *     }
-//  *
-//  *     return value;
-//  *   },
-//  *
-//  *   deserialize: function(value) {
-//  *     return value;
-//  *   }
-//  * })
-//  * ```
-//  *
-//  */

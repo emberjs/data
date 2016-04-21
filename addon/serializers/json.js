@@ -11,8 +11,6 @@ import {
 
 import { errorsArrayToHash } from "ember-data/adapters/errors";
 
-import isEnabled from 'ember-data/-private/features';
-
 var get = Ember.get;
 var isNone = Ember.isNone;
 var assign = Ember.assign || Ember.merge;
@@ -187,21 +185,14 @@ export default Serializer.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms(typeClass, data) {
-    let attributes;
-    if (isEnabled('ds-transform-pass-options')) {
-      attributes = get(typeClass, 'attributes');
-    }
+    let attributes = get(typeClass, 'attributes');
 
     typeClass.eachTransformedAttribute((key, typeClass) => {
       if (!(key in data)) { return; }
 
       var transform = this.transformFor(typeClass);
-      if (isEnabled('ds-transform-pass-options')) {
-        var transformMeta = attributes.get(key);
-        data[key] = transform.deserialize(data[key], transformMeta.options);
-      } else {
-        data[key] = transform.deserialize(data[key]);
-      }
+      var transformMeta = attributes.get(key);
+      data[key] = transform.deserialize(data[key], transformMeta.options);
     });
 
     return data;
@@ -1089,11 +1080,7 @@ export default Serializer.extend({
       var value = snapshot.attr(key);
       if (type) {
         var transform = this.transformFor(type);
-        if (isEnabled('ds-transform-pass-options')) {
-          value = transform.serialize(value, attribute.options);
-        } else {
-          value = transform.serialize(value);
-        }
+        value = transform.serialize(value, attribute.options);
       }
 
       // if provided, use the mapping provided by `attrs` in
