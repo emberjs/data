@@ -1,6 +1,5 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import isEnabled from 'ember-data/-private/features';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
@@ -1109,136 +1108,132 @@ test("Updated related link should take precedence over local data", function(ass
   });
 });
 
-if (isEnabled('ds-references')) {
+test("A belongsTo relationship can be reloaded using the reference if it was fetched via link", function(assert) {
+  var done = assert.async();
 
-  test("A belongsTo relationship can be reloaded using the reference if it was fetched via link", function(assert) {
-    var done = assert.async();
-
-    Chapter.reopen({
-      book: DS.belongsTo({ async: true })
-    });
-
-    env.adapter.findRecord = function() {
-      return Ember.RSVP.resolve({
-        id: 1,
-        links: { book: '/books/1' }
-      });
-    };
-
-    env.adapter.findBelongsTo = function() {
-      return Ember.RSVP.resolve({ id: 1, name: "book title" });
-    };
-
-    run(function() {
-      var chapter;
-      store.findRecord('chapter', 1).then(function(_chapter) {
-        chapter = _chapter;
-
-        return chapter.get('book');
-      }).then(function(book) {
-        assert.equal(book.get('name'), "book title");
-
-        env.adapter.findBelongsTo = function() {
-          return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
-        };
-
-        return chapter.belongsTo('book').reload();
-      }).then(function(book) {
-        assert.equal(book.get('name'), "updated book title");
-
-        done();
-      });
-    });
+  Chapter.reopen({
+    book: DS.belongsTo({ async: true })
   });
 
-  test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
-    var done = assert.async();
-
-    Chapter.reopen({
-      book: DS.belongsTo()
+  env.adapter.findRecord = function() {
+    return Ember.RSVP.resolve({
+      id: 1,
+      links: { book: '/books/1' }
     });
+  };
 
+  env.adapter.findBelongsTo = function() {
+    return Ember.RSVP.resolve({ id: 1, name: "book title" });
+  };
+
+  run(function() {
     var chapter;
-    run(function() {
-      chapter = env.store.push({
-        data: {
-          type: 'chapter',
-          id: 1,
-          relationships: {
-            book: {
-              data: { type: 'book', id: 1 }
-            }
-          }
-        }
-      });
-      env.store.push({
-        data: {
-          type: 'book',
-          id: 1,
-          attributes: {
-            name: "book title"
-          }
-        }
-      });
-    });
+    store.findRecord('chapter', 1).then(function(_chapter) {
+      chapter = _chapter;
 
-    env.adapter.findRecord = function() {
-      return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
-    };
-
-    run(function() {
-      var book = chapter.get('book');
+      return chapter.get('book');
+    }).then(function(book) {
       assert.equal(book.get('name'), "book title");
 
-      chapter.belongsTo('book').reload().then(function(book) {
-        assert.equal(book.get('name'), "updated book title");
+      env.adapter.findBelongsTo = function() {
+        return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+      };
 
-        done();
-      });
+      return chapter.belongsTo('book').reload();
+    }).then(function(book) {
+      assert.equal(book.get('name'), "updated book title");
+
+      done();
     });
   });
+});
 
-  test("A belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
-    var done = assert.async();
+test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+  var done = assert.async();
 
-    Chapter.reopen({
-      book: DS.belongsTo({ async: true })
-    });
+  Chapter.reopen({
+    book: DS.belongsTo()
+  });
 
-    var chapter;
-    run(function() {
-      chapter = env.store.push({
-        data: {
-          type: 'chapter',
-          id: 1,
-          relationships: {
-            book: {
-              data: { type: 'book', id: 1 }
-            }
+  var chapter;
+  run(function() {
+    chapter = env.store.push({
+      data: {
+        type: 'chapter',
+        id: 1,
+        relationships: {
+          book: {
+            data: { type: 'book', id: 1 }
           }
         }
-      });
+      }
     });
-
-    env.adapter.findRecord = function() {
-      return Ember.RSVP.resolve({ id: 1, name: "book title" });
-    };
-
-    run(function() {
-      chapter.get('book').then(function(book) {
-        assert.equal(book.get('name'), "book title");
-
-        env.adapter.findRecord = function() {
-          return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
-        };
-
-        return chapter.belongsTo('book').reload();
-      }).then(function(book) {
-        assert.equal(book.get('name'), "updated book title");
-
-        done();
-      });
+    env.store.push({
+      data: {
+        type: 'book',
+        id: 1,
+        attributes: {
+          name: "book title"
+        }
+      }
     });
   });
 
-}
+  env.adapter.findRecord = function() {
+    return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+  };
+
+  run(function() {
+    var book = chapter.get('book');
+    assert.equal(book.get('name'), "book title");
+
+    chapter.belongsTo('book').reload().then(function(book) {
+      assert.equal(book.get('name'), "updated book title");
+
+      done();
+    });
+  });
+});
+
+test("A belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+  var done = assert.async();
+
+  Chapter.reopen({
+    book: DS.belongsTo({ async: true })
+  });
+
+  var chapter;
+  run(function() {
+    chapter = env.store.push({
+      data: {
+        type: 'chapter',
+        id: 1,
+        relationships: {
+          book: {
+            data: { type: 'book', id: 1 }
+          }
+        }
+      }
+    });
+  });
+
+  env.adapter.findRecord = function() {
+    return Ember.RSVP.resolve({ id: 1, name: "book title" });
+  };
+
+  run(function() {
+    chapter.get('book').then(function(book) {
+      assert.equal(book.get('name'), "book title");
+
+      env.adapter.findRecord = function() {
+        return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+      };
+
+      return chapter.belongsTo('book').reload();
+    }).then(function(book) {
+      assert.equal(book.get('name'), "updated book title");
+
+      done();
+    });
+  });
+});
