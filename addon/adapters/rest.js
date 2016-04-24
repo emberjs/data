@@ -426,9 +426,8 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       return this._makeRequest(request);
     } else {
       const url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
-      const query = this.buildQuery(snapshot);
 
-      return this.ajax(url, 'GET', { data: query });
+      return this.ajax(url, 'GET');
     }
   },
 
@@ -447,11 +446,9 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
-    const query = this.buildQuery(snapshotRecordArray);
-
     if (isEnabled('ds-improved-ajax')) {
       const request = this._requestFor({
-        store, type, sinceToken, query,
+        store, type, sinceToken,
         snapshots: snapshotRecordArray,
         requestType: 'findAll'
       });
@@ -459,12 +456,13 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       return this._makeRequest(request);
     } else {
       const url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
+      let options;
 
       if (sinceToken) {
-        query.since = sinceToken;
+        options = { data: { since: sinceToken } };
       }
 
-      return this.ajax(url, 'GET', { data: query });
+      return this.ajax(url, 'GET', options);
     }
   },
 
@@ -1149,20 +1147,6 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     return ['Ember Data Request ' + requestDescription + ' returned a ' + status,
             payloadDescription,
             shortenedPayload].join('\n');
-  },
-
-  buildQuery(snapshot) {
-    let query = {};
-
-    if (snapshot) {
-      const { include } = snapshot;
-
-      if (include) {
-        query.include = include;
-      }
-    }
-
-    return query;
   }
 });
 
@@ -1197,15 +1181,17 @@ if (isEnabled('ds-improved-ajax')) {
           break;
 
         case 'findRecord':
-          data = this.buildQuery(snapshot);
+          data = undefined;
           break;
 
         case 'findAll':
           if (params.sinceToken) {
             query = query || {};
             query.since = params.sinceToken;
+            data = query;
+          } else {
+            data = undefined;
           }
-          data = query;
           break;
 
         case 'query':

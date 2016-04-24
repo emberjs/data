@@ -1,6 +1,10 @@
 import Ember from 'ember';
+import isEnabled from 'ember-data/-private/features';
 
-var get = Ember.get;
+const {
+  $,
+  get
+} = Ember;
 
 /**
 
@@ -85,11 +89,12 @@ export default Ember.Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL(modelName, id) {
+  _buildURL(modelName, id, snapshot) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
     var path;
+    var queryParams = this._buildQueryParams(snapshot);
 
     if (modelName) {
       path = this.pathForType(modelName);
@@ -104,7 +109,21 @@ export default Ember.Mixin.create({
       url = '/' + url;
     }
 
+    if (queryParams) {
+      url = `${url}?${queryParams}`;
+    }
+
     return url;
+  },
+
+  _buildQueryParams(snapshot) {
+    let queryParams = {};
+
+    if (snapshot && snapshot.include) {
+      queryParams.include = snapshot.include;
+    }
+
+    return $.param(queryParams);
   },
 
   /**
@@ -115,7 +134,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForFindRecord(id, modelName, snapshot) {
-    return this._buildURL(modelName, id);
+    return this._buildURL(modelName, id, snapshot);
   },
 
   /**
@@ -125,7 +144,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForFindAll(modelName, snapshot) {
-    return this._buildURL(modelName);
+    return this._buildURL(modelName, null, snapshot);
   },
 
   /**
@@ -188,7 +207,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForCreateRecord(modelName, snapshot) {
-    return this._buildURL(modelName);
+    return this._buildURL(modelName, null, snapshot);
   },
 
   /**
@@ -199,7 +218,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForUpdateRecord(id, modelName, snapshot) {
-    return this._buildURL(modelName, id);
+    return this._buildURL(modelName, id, snapshot);
   },
 
   /**
@@ -210,7 +229,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForDeleteRecord(id, modelName, snapshot) {
-    return this._buildURL(modelName, id);
+    return this._buildURL(modelName, id, snapshot);
   },
 
   /**

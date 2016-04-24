@@ -66,7 +66,7 @@ test("findRecord - basic payload", function(assert) {
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -93,7 +93,7 @@ test("findRecord - basic payload (with legacy singular name)", function(assert) 
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -111,7 +111,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -131,7 +131,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -153,7 +153,7 @@ test("findRecord - payload with an serializer-specified primary key", function(a
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -177,7 +177,7 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
   run(store, 'findRecord', 'post', 1).then(assert.wait(function(post) {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
@@ -191,7 +191,7 @@ test("findRecord - passes `include` as a query parameter to ajax", function(asse
   });
 
   run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
-    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+    assert.deepEqual(passedUrl, '/posts/1?include=comments', '`include` parameter sent to adapter.ajax');
   }));
 });
 
@@ -590,6 +590,17 @@ test("createRecord - relationships are not duplicated", function(assert) {
   }));
 });
 
+test("createRecord - passes `include` as a query parameter to ajax", function(assert) {
+  ajaxResponse();
+
+  run(() => {
+    let post = store.createRecord('post');
+    post.save({ include: 'comments' }).then(assert.wait((post) => {
+      assert.equal(passedUrl, '/posts?include=comments', '`include` parameter sent to adapter.ajax');
+    }));
+  });
+});
+
 test("updateRecord - an empty payload is a basic success", function(assert) {
   run(function() {
     store.push({
@@ -852,6 +863,30 @@ test("updateRecord - hasMany relationships faithfully reflect simultaneous adds 
   }));
 });
 
+test("updateRecord - passes `include` as a query parameter to ajax", function(assert) {
+  run(() => {
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase'
+        }
+      }
+    });
+  });
+
+  ajaxResponse();
+
+  run(() => {
+    let post = store.peekRecord('post', '1');
+    post.set('name', 'Gimme the comments');
+    post.save({ include: 'comments' }).then(assert.wait((post) => {
+      assert.equal(passedUrl, '/posts/1?include=comments', '`include` parameter sent to adapter.ajax');
+    }));
+  });
+});
+
 test("deleteRecord - an empty payload is a basic success", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -992,6 +1027,30 @@ test("deleteRecord - deleting a newly created record should not throw an error",
   });
 });
 
+test("deleteRecord - passes `include` as a query parameter to ajax", function(assert) {
+  run(() => {
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: 'Rails is omakase'
+        }
+      }
+    });
+  });
+
+  ajaxResponse();
+
+  run(() => {
+    let post = store.peekRecord('post', '1');
+    post.deleteRecord();
+    post.save({ include: 'comments' }).then(assert.wait((post) => {
+      assert.equal(passedUrl, '/posts/1?include=comments', '`include` parameter sent to adapter.ajax');
+    }));
+  });
+});
+
 test("findAll - returning an array populates the array", function(assert) {
   ajaxResponse({
     posts: [
@@ -1003,7 +1062,7 @@ test("findAll - returning an array populates the array", function(assert) {
   store.findAll('post').then(assert.wait(function(posts) {
     assert.equal(passedUrl, "/posts");
     assert.equal(passedVerb, "GET");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
 
     var post1 = store.peekRecord('post', 1);
     var post2 = store.peekRecord('post', 2);
@@ -1057,7 +1116,7 @@ test("findAll - passed `include` as a query parameter to ajax", function(assert)
   });
 
   run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
-    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
+    assert.deepEqual(passedUrl, '/posts?include=comments', '`include` params sent to adapter.ajax');
   }));
 });
 
@@ -1474,7 +1533,7 @@ test("findMany - findMany does not coalesce by default", function(assert) {
   });
   run(post, 'get', 'comments').then(assert.wait(function(comments) {
     assert.equal(passedUrl, "/comments/3");
-    assert.deepEqual(passedHash.data, {});
+    assert.equal(passedHash, undefined);
   }));
 });
 

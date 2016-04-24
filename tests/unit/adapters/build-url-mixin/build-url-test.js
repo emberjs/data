@@ -28,7 +28,7 @@ test('buildURL - works with empty paths', function(assert) {
   assert.equal(adapter.buildURL('rootModel', 1), '/1');
 });
 
-test('buildURL - find requestType delegates to urlForFindRecord', function(assert) {
+test('buildURL - findRecord requestType delegates to urlForFindRecord', function(assert) {
   assert.expect(4);
   let snapshotStub = { snapshot: true };
   let originalMethod = adapter.urlForFindRecord;
@@ -41,6 +41,12 @@ test('buildURL - find requestType delegates to urlForFindRecord', function(asser
   assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'findRecord'), '/superUsers/1');
 });
 
+test('buildURL - findRecord with include query parameter', function(assert) {
+  assert.expect(1);
+  let snapshotStub = { snapshot: true, include: 'friends' };
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'findRecord'), '/superUsers/1?include=friends');
+});
+
 test('buildURL - findAll requestType delegates to urlForFindAll', function(assert) {
   assert.expect(3);
   let originalMethod = adapter.urlForFindAll;
@@ -51,6 +57,12 @@ test('buildURL - findAll requestType delegates to urlForFindAll', function(asser
     return originalMethod.apply(this, arguments);
   };
   assert.equal(adapter.buildURL('super-user', null, snapshotStub, 'findAll'), '/superUsers');
+});
+
+test('buildURL - findAll with include query parameter', function(assert) {
+  assert.expect(1);
+  let snapshotStub = { snapshot: true, include: 'enemies' };
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'findAll'), '/superUsers?include=enemies');
 });
 
 test('buildURL - query requestType delegates to urlForQuery', function(assert) {
@@ -127,6 +139,12 @@ test('buildURL - createRecord requestType delegates to urlForCreateRecord', func
   assert.equal(adapter.buildURL('super-user', null, snapshotStub, 'createRecord'), '/superUsers');
 });
 
+test('buildURL - createRecord with include query parameter', function(assert) {
+  assert.expect(1);
+  let snapshotStub = { snapshot: true, include: 'friends' };
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'createRecord'), '/superUsers?include=friends');
+});
+
 test('buildURL - updateRecord requestType delegates to urlForUpdateRecord', function(assert) {
   assert.expect(4);
   let snapshotStub = { snapshot: true };
@@ -140,6 +158,12 @@ test('buildURL - updateRecord requestType delegates to urlForUpdateRecord', func
   assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'updateRecord'), '/superUsers/1');
 });
 
+test('buildURL - updateRecord with include query parameter', function(assert) {
+  assert.expect(1);
+  let snapshotStub = { snapshot: true, include: 'friends' };
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'updateRecord'), '/superUsers/1?include=friends');
+});
+
 test('buildURL - deleteRecord requestType delegates to urlForDeleteRecord', function(assert) {
   assert.expect(4);
   let snapshotStub = { snapshot: true };
@@ -151,6 +175,12 @@ test('buildURL - deleteRecord requestType delegates to urlForDeleteRecord', func
     return originalMethod.apply(this, arguments);
   };
   assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'deleteRecord'), '/superUsers/1');
+});
+
+test('buildURL - deleteRecord with include query parameter', function(assert) {
+  assert.expect(1);
+  let snapshotStub = { snapshot: true, include: 'friends' };
+  assert.equal(adapter.buildURL('super-user', 1, snapshotStub, 'deleteRecord'), '/superUsers/1?include=friends');
 });
 
 test('buildURL - unknown requestType', function(assert) {
