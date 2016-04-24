@@ -20,13 +20,11 @@ test("buildQuery - doesn't fail without a snapshot", function(assert) {
   assert.deepEqual(query, {}, 'returns an empty query');
 });
 
-if (isEnabled('ds-finder-include')) {
-  test("buildQuery() returns query with `include` from snapshot", function(assert) {
-    const adapter = DS.RESTAdapter.create();
-    const snapshotStub = { include: 'comments' };
+test("buildQuery() returns query with `include` from snapshot", function(assert) {
+  const adapter = DS.RESTAdapter.create();
+  const snapshotStub = { include: 'comments' };
 
-    const query = adapter.buildQuery(snapshotStub);
+  const query = adapter.buildQuery(snapshotStub);
 
-    assert.deepEqual(query, { include: 'comments' }, 'query includes `include`');
-  });
-}
+  assert.deepEqual(query, { include: 'comments' }, 'query includes `include`');
+});

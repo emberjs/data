@@ -1,6 +1,5 @@
 {
   "ds-boolean-transform-allow-null": null,
-  "ds-finder-include": true,
   "ds-improved-ajax": null,
   "ds-references": true,
   "ds-transform-pass-options": true,

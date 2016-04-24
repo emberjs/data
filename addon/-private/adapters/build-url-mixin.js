@@ -83,9 +83,10 @@ export default Ember.Mixin.create({
     @private
     @param {String} modelName
     @param {String} id
+    @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
     @return {String} url
   */
-  _buildURL(modelName, id) {
+  _buildURL(modelName, id, snapshot) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
@@ -102,6 +103,10 @@ export default Ember.Mixin.create({
     url = url.join('/');
     if (!host && url && url.charAt(0) !== '/') {
       url = '/' + url;
+    }
+
+    if (snapshot && snapshot.include) {
+      url = url + `?include=` + snapshot.include;
     }
 
     return url;
@@ -188,7 +193,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForCreateRecord(modelName, snapshot) {
-    return this._buildURL(modelName);
+    return this._buildURL(modelName, null, snapshot);
   },
 
   /**
@@ -199,7 +204,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForUpdateRecord(id, modelName, snapshot) {
-    return this._buildURL(modelName, id);
+    return this._buildURL(modelName, id, snapshot);
   },
 
   /**

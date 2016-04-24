@@ -185,17 +185,56 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
   }));
 });
 
-if (isEnabled('ds-finder-include')) {
-  test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
-    ajaxResponse({
-      post: { id: 1, name: 'Rails is very expensive sushi' }
-    });
+test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
+  ajaxResponse({
+    post: { id: 1, name: 'Rails is very expensive sushi' }
+  });
 
-    run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+  run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+  }));
+});
+
+test("record.save - sends `include` as a queryParam when saving a new record", function(assert) {
+  var post;
+  ajaxResponse({
+    post: { id: "some-uuid", name: 'Rails is very expensive sushi' }
+  });
+
+  run(function() {
+    post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+    post.save({ include: 'comments' }).then(assert.wait(function() {
+      assert.equal(passedUrl, '/posts?include=comments', '`include` parameter is part of the URL');
     }));
   });
-}
+});
+
+test("record.save - sends `include` as a queryParam when saving a updating an existing record", function(assert) {
+  var post;
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: "Rails is omakase"
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    post: { id: "1", name: 'Rails is very expensive sushi' }
+  });
+
+  run(function() {
+    post = store.peekRecord('post', 1);
+    post.save({ include: 'comments' }).then(assert.wait(function() {
+      assert.equal(passedUrl, '/posts/1?include=comments', '`include` parameter is part of the URL');
+    }));
+  });
+});
 
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
   ajaxResponse();
@@ -1053,17 +1092,15 @@ test("findAll - passes buildURL the requestType and snapshot", function(assert) 
   }));
 });
 
-if (isEnabled('ds-finder-include')) {
-  test("findAll - passed `include` as a query parameter to ajax", function(assert) {
-    ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }]
-    });
-
-    run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
-    }));
+test("findAll - passed `include` as a query parameter to ajax", function(assert) {
+  ajaxResponse({
+    posts: [{ id: 1, name: 'Rails is very expensive sushi' }]
   });
-}
+
+  run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
+  }));
+});
 
 test("findAll - returning sideloaded data loads the data", function(assert) {
   ajaxResponse({
