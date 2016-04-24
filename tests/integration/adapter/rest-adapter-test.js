@@ -195,6 +195,23 @@ test("findRecord - passes `include` as a query parameter to ajax", function(asse
   }));
 });
 
+test("record.save - passes `include` as a query parameter to ajax", function(assert) {
+  var post;
+  ajaxResponse({
+    post: { id: "some-uuid", name: 'Rails is very expensive sushi' }
+  });
+
+  run(function() {
+    post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+    post.save({ include: 'comments' }).then(assert.wait(function() {
+      console.debug(passedUrl);
+      console.debug(passedVerb);
+      console.debug(passedHash);
+      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+    }));
+  });
+});
+
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
   ajaxResponse();
   var post;
