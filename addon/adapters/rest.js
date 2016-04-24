@@ -1189,6 +1189,7 @@ if (isEnabled('ds-improved-ajax')) {
 
       switch (requestType) {
         case 'createRecord':
+          debugger;
           serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
           break;
 

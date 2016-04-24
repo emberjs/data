@@ -195,7 +195,7 @@ test("findRecord - passes `include` as a query parameter to ajax", function(asse
   }));
 });
 
-test("record.save - passes `include` as a query parameter to ajax", function(assert) {
+test("record.save - sends `include` as a queryParam when saving a new record", function(assert) {
   var post;
   ajaxResponse({
     post: { id: "some-uuid", name: 'Rails is very expensive sushi' }
@@ -204,10 +204,34 @@ test("record.save - passes `include` as a query parameter to ajax", function(ass
   run(function() {
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
     post.save({ include: 'comments' }).then(assert.wait(function() {
-      console.debug(passedUrl);
-      console.debug(passedVerb);
-      console.debug(passedHash);
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+      assert.equal(passedUrl, '/posts?include=comments', '`include` parameter is part of the URL');
+    }));
+  });
+});
+
+test("record.save - sends `include` as a queryParam when saving a updating an existing record", function(assert) {
+  var post;
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          name: "Rails is omakase"
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    post: { id: "1", name: 'Rails is very expensive sushi' }
+  });
+
+  run(function() {
+    post = store.peekRecord('post', 1);
+    post.save({ include: 'comments' }).then(assert.wait(function() {
+      assert.equal(passedUrl, '/posts/1?include=comments', '`include` parameter is part of the URL');
     }));
   });
 });
