@@ -52,9 +52,7 @@ export default function SnapshotRecordArray(recordArray, meta, options = {}) {
   */
   this.adapterOptions = options.adapterOptions;
 
-  if (isEnabled('ds-finder-include')) {
-    this.include = options.include;
-  }
+  this.include = options.include;
 }
 
 /**

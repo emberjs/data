@@ -1154,13 +1154,11 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
   buildQuery(snapshot) {
     let query = {};
 
-    if (isEnabled('ds-finder-include')) {
-      if (snapshot) {
-        const { include } = snapshot;
+    if (snapshot) {
+      const { include } = snapshot;
 
-        if (include) {
-          query.include = include;
-        }
+      if (include) {
+        query.include = include;
       }
     }
 
