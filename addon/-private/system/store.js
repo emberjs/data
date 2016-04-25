@@ -440,6 +440,8 @@ Store = Service.extend({
     store, it depends on the reload behavior _when_ the returned promise
     resolves.
 
+    ### Reloading
+
     The reload behavior is configured either via the passed `options` hash or
     the result of the adapter's `shouldReloadRecord`.
 
@@ -471,6 +473,8 @@ Store = Service.extend({
 
     If no reload is indicated via the abovementioned ways, then the promise
     immediately resolves with the cached version in the store.
+
+    ### Background Reloading
 
     Optionally, if `adapter.shouldBackgroundReloadRecord` evaluates to `true`,
     then a background reload is started, which updates the records' data, once
@@ -516,6 +520,20 @@ Store = Service.extend({
     blogPost.get('revision'); // 2
     ```
 
+    If you would like to force or prevent background reloading, you can set a
+    boolean value for `backgroundReload` in the options object for
+    `findRecord`.
+
+    ```app/routes/post/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findRecord('post', params.post_id, { backgroundReload: false });
+      }
+    });
+    ```
+
     See [peekRecord](#method_peekRecord) to get the cached version of a record.
 
     @method findRecord
@@ -547,16 +565,21 @@ Store = Service.extend({
       return this.scheduleFetch(internalModel, options);
     }
 
-    // Refetch the record if the adapter thinks the record is stale
     var snapshot = internalModel.createSnapshot(options);
     var typeClass = internalModel.type;
     var adapter = this.adapterFor(typeClass.modelName);
+
+    // Refetch the record if the adapter thinks the record is stale
     if (adapter.shouldReloadRecord(this, snapshot)) {
       return this.scheduleFetch(internalModel, options);
     }
 
-    // Trigger the background refetch if all the previous checks fail
-    if (adapter.shouldBackgroundReloadRecord(this, snapshot)) {
+    if (options.backgroundReload === false) {
+      return Promise.resolve(internalModel);
+    }
+
+    // Trigger the background refetch if backgroundReload option is passed
+    if (options.backgroundReload || adapter.shouldBackgroundReloadRecord(this, snapshot)) {
       this.scheduleFetch(internalModel, options);
     }
 
@@ -1073,7 +1096,7 @@ Store = Service.extend({
   },
 
   /**
-    `findAll` ask the adapter's `findAll` method to find the records for the
+    `findAll` asks the adapter's `findAll` method to find the records for the
     given type, and returns a promise which will resolve with all records of
     this type present in the store, even if the adapter only returns a subset
     of them.
@@ -1091,6 +1114,8 @@ Store = Service.extend({
     _When_ the returned promise resolves depends on the reload behavior,
     configured via the passed `options` hash and the result of the adapter's
     `shouldReloadAll` method.
+
+    ### Reloading
 
     If `{ reload: true }` is passed or `adapter.shouldReloadAll` evaluates to
     `true`, then the returned promise resolves once the adapter returns data,
@@ -1118,6 +1143,9 @@ Store = Service.extend({
 
     If no reload is indicated via the abovementioned ways, then the promise
     immediately resolves with all the records currently loaded in the store.
+
+    ### Background Reloading
+
     Optionally, if `adapter.shouldBackgroundReloadAll` evaluates to `true`,
     then a background reload is started. Once this resolves, the array with
     which the promise resolves, is updated automatically so it contains all the
@@ -1162,6 +1190,20 @@ Store = Service.extend({
     allAuthors.getEach('id'); // ['first', 'second']
     ```
 
+    If you would like to force or prevent background reloading, you can set a
+    boolean value for `backgroundReload` in the options object for
+    `findAll`.
+
+    ```app/routes/post/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function() {
+        return this.store.findAll('post', { backgroundReload: false });
+      }
+    });
+    ```
+
     See [peekAll](#method_peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
@@ -1194,16 +1236,25 @@ Store = Service.extend({
 
     assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
+
     if (options.reload) {
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
+
     var snapshotArray = array.createSnapshot(options);
+
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
-    if (adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+
+    if (options.backgroundReload === false) {
+      return promiseArray(Promise.resolve(array));
+    }
+
+    if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       _findAll(adapter, this, typeClass, sinceToken, options);
     }
+
     return promiseArray(Promise.resolve(array));
   },
 
