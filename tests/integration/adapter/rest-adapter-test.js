@@ -185,17 +185,15 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
   }));
 });
 
-if (isEnabled('ds-finder-include')) {
-  test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
-    ajaxResponse({
-      post: { id: 1, name: 'Rails is very expensive sushi' }
-    });
-
-    run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
-    }));
+test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
+  ajaxResponse({
+    post: { id: 1, name: 'Rails is very expensive sushi' }
   });
-}
+
+  run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(assert.wait(function() {
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
+  }));
+});
 
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
   ajaxResponse();
@@ -1053,17 +1051,15 @@ test("findAll - passes buildURL the requestType and snapshot", function(assert) 
   }));
 });
 
-if (isEnabled('ds-finder-include')) {
-  test("findAll - passed `include` as a query parameter to ajax", function(assert) {
-    ajaxResponse({
-      posts: [{ id: 1, name: 'Rails is very expensive sushi' }]
-    });
-
-    run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
-      assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
-    }));
+test("findAll - passed `include` as a query parameter to ajax", function(assert) {
+  ajaxResponse({
+    posts: [{ id: 1, name: 'Rails is very expensive sushi' }]
   });
-}
+
+  run(store, 'findAll', 'post', { include: 'comments' }).then(assert.wait(function() {
+    assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` params sent to adapter.ajax');
+  }));
+});
 
 test("findAll - returning sideloaded data loads the data", function(assert) {
   ajaxResponse({
