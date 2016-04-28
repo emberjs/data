@@ -202,18 +202,12 @@ test("destroying the store correctly cleans everything up", function(assert) {
 });
 
 function ajaxResponse(value) {
-  var passedUrl, passedVerb, passedHash;
-
   if (isEnabled('ds-improved-ajax')) {
     env.adapter._makeRequest = function() {
       return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
     };
   } else {
     env.adapter.ajax = function(url, verb, hash) {
-      passedUrl = url;
-      passedVerb = verb;
-      passedHash = hash;
-
       return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
     };
   }
