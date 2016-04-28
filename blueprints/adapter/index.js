@@ -1,4 +1,4 @@
-/*jshint node:true*/
+/* eslint-env node */
 
 var extendFromApplicationEntity = require('../../lib/utilities/extend-from-application-entity');
 
