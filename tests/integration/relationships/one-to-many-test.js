@@ -255,9 +255,9 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
 });
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - sync", function(assert) {
-  var account, user;
+  var user;
   run(function () {
-    account = store.push({
+    store.push({
       data: {
         id: '2',
         type: 'account',
@@ -266,6 +266,7 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
         }
       }
     });
+
     user = store.push({
       data: {
         id: '1',
@@ -283,7 +284,8 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
         }
       }
     });
-    account = store.push({
+
+    store.push({
       data: {
         id: '2',
         type: 'account',

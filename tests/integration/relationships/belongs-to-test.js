@@ -6,7 +6,7 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store, User, Message, Post, Contact, Comment, Book, Chapter, Author, NewMessage;
+var env, store, User, Message, Post, Comment, Book, Chapter, Author, NewMessage;
 var get = Ember.get;
 var run = Ember.run;
 
@@ -451,9 +451,8 @@ test("A record can be created with a resolved belongsTo promise", function(asser
   env.registry.register('model:group', Group);
   env.registry.register('model:person', Person);
 
-  var group;
   run(function() {
-    group = store.push({
+    store.push({
       data: {
         id: 1,
         type: 'group'
@@ -623,9 +622,9 @@ test("relationship changes shouldn’t cause async fetches", function(assert) {
   env.store.modelFor('comment').reopen({
     post: DS.belongsTo('post', { async: false })
   });
-  var post, comment;
+  var comment;
   run(function() {
-    post = env.store.push({
+    env.store.push({
       data: {
         id: '1',
         type: 'post',
@@ -839,7 +838,7 @@ testInDebug("Passing a model as type to belongsTo should not work", function(ass
   assert.expectAssertion(function() {
     User = DS.Model.extend();
 
-    Contact = DS.Model.extend({
+    DS.Model.extend({
       user: belongsTo(User, { async: false })
     });
   }, /The first argument to DS.belongsTo must be a string/);
