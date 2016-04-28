@@ -29,11 +29,9 @@ module("unit/model/relationships - DS.Model", {
 });
 
 test("exposes a hash of the relationships on a model", function(assert) {
-  var person, occupation;
-
   run(function() {
-    person = store.createRecord('person');
-    occupation = store.createRecord('occupation');
+    store.createRecord('person');
+    store.createRecord('occupation');
   });
 
   var relationships = get(Person, 'relationships');

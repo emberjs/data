@@ -168,9 +168,7 @@ test("errorsArrayToHash for primary data object", function(assert) {
 });
 
 testInDebug("DS.InvalidError will normalize errors hash will assert", function(assert) {
-  var error;
-
   assert.expectAssertion(function() {
-    error = new DS.InvalidError({ name: ['is invalid'] });
+    new DS.InvalidError({ name: ['is invalid'] });
   }, /expects json-api formatted errors/);
 });
