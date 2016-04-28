@@ -1,3 +1,5 @@
+/* eslint no-extra-semi: "off" */
+
 ;(function() {
   /* globals Ember */
   /* globals DS */
