@@ -1,5 +1,4 @@
-/* global require, module */
-/* jshint node: true*/
+/* eslint-env node */
 var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
 var globals  = require('./lib/globals');
