@@ -5,7 +5,6 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
-import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
 var HomePlanet, SuperVillain, CommanderVillain, NormalMinion, EvilMinion, YellowMinion, RedMinion, SecretLab, SecretWeapon, BatCave, Comment,
@@ -1074,38 +1073,36 @@ test("serialize with embedded objects (hasMany relationships, including related 
   });
 });
 
-if (isEnabled("ds-serialize-ids-and-types")) {
-  test("serialize has many relationship using the `ids-and-types` strategy", function(assert) {
-    run(function() {
-      yellowMinion = env.store.createRecord('yellow-minion', { id: 1, name: "Yellowy" });
-      redMinion = env.store.createRecord('red-minion', { id: 1, name: "Reddy" });
-      commanderVillain = env.store.createRecord('commander-villain', { id: 1, name: "Jeff", minions: [yellowMinion, redMinion] });
-    });
-
-    env.registry.register('serializer:commander-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
-      attrs: {
-        minions: { serialize: 'ids-and-types' }
-      }
-    }));
-    var serializer, json;
-    run(function() {
-      serializer = env.container.lookup("serializer:commander-villain");
-      var snapshot = commanderVillain._createSnapshot();
-      json = serializer.serialize(snapshot);
-    });
-
-    assert.deepEqual(json, {
-      name: 'Jeff',
-      minions: [{
-        id: '1',
-        type: 'yellow-minion'
-      }, {
-        id: '1',
-        type: 'red-minion'
-      }]
-    });
+test("serialize has many relationship using the `ids-and-types` strategy", function(assert) {
+  run(function() {
+    yellowMinion = env.store.createRecord('yellow-minion', { id: 1, name: "Yellowy" });
+    redMinion = env.store.createRecord('red-minion', { id: 1, name: "Reddy" });
+    commanderVillain = env.store.createRecord('commander-villain', { id: 1, name: "Jeff", minions: [yellowMinion, redMinion] });
   });
-}
+
+  env.registry.register('serializer:commander-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      minions: { serialize: 'ids-and-types' }
+    }
+  }));
+  var serializer, json;
+  run(function() {
+    serializer = env.container.lookup("serializer:commander-villain");
+    var snapshot = commanderVillain._createSnapshot();
+    json = serializer.serialize(snapshot);
+  });
+
+  assert.deepEqual(json, {
+    name: 'Jeff',
+    minions: [{
+      id: '1',
+      type: 'yellow-minion'
+    }, {
+      id: '1',
+      type: 'red-minion'
+    }]
+  });
+});
 
 test("normalizeResponse with embedded object (belongsTo relationship)", function(assert) {
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
