@@ -48,7 +48,6 @@
     "broccoli-asset-rev": "^2.1.2",
     "broccoli-concat": "0.0.13",
     "broccoli-funnel": "^1.0.0",
-    "broccoli-jscs": "^1.1.0",
     "broccoli-stew": "^1.0.1",
     "broccoli-string-replace": "^0.1.1",
     "broccoli-uglify-sourcemap": "^1.0.1",
