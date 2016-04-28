@@ -429,32 +429,6 @@ testInDebug("Calling attr() throws a warning", function(assert) {
   });
 });
 
-if (!isEnabled('ds-references')) {
-  testInDebug("Calling belongsTo() throws a warning", function(assert) {
-    assert.expect(1);
-
-    run(function() {
-      var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
-
-      assert.throws(function() {
-        person.belongsTo();
-      }, /The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected/, "belongsTo() throws a warning");
-    });
-  });
-
-  testInDebug("Calling hasMany() throws a warning", function(assert) {
-    assert.expect(1);
-
-    run(function() {
-      var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
-
-      assert.throws(function() {
-        person.hasMany();
-      }, /The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected/, "hasMany() throws a warning");
-    });
-  });
-}
-
 test("supports pushedData in root.deleted.uncommitted", function(assert) {
   var record;
   var hash = {

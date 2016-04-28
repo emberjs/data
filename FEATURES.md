@@ -29,10 +29,6 @@ entry in `config/features.json`.
   `methodForRequest`, `urlForRequest`, `headersForRequest` and `bodyForRequest`
   in the `DS.RESTAdapter`.
 
-- `ds-references`
-
-  Adds references as described in [RFC 57](https://github.com/emberjs/rfcs/pull/57)
-
 - `ds-transform-pass-options`
 
   Pass options specified for a `DS.attr` to the `DS.Tranform`'s `serialize` and

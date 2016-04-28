@@ -704,6 +704,47 @@ Store = Service.extend({
   },
 
   /**
+    Get the reference for the specified record.
+
+    Example
+
+    ```javascript
+    var userRef = store.getReference('user', 1);
+
+    // check if the user is loaded
+    var isLoaded = userRef.value() !== null;
+
+    // get the record of the reference (null if not yet available)
+    var user = userRef.value();
+
+    // get the identifier of the reference
+    if (userRef.remoteType() === "id") {
+    var id = userRef.id();
+    }
+
+    // load user (via store.find)
+    userRef.load().then(...)
+
+    // or trigger a reload
+    userRef.reload().then(...)
+
+    // provide data for reference
+    userRef.push({ id: 1, username: "@user" }).then(function(user) {
+    userRef.value() === user;
+    });
+    ```
+
+    @method getReference
+    @param {String} type
+    @param {String|Integer} id
+    @since 2.5.0
+    @return {RecordReference}
+  */
+  getReference: function(type, id) {
+    return this._internalModelForId(type, id).recordReference;
+  },
+
+  /**
     Get a record by a given type and ID without triggering a fetch.
 
     This method will synchronously return the record if it is available in the store,
@@ -2005,52 +2046,6 @@ Store = Service.extend({
   }
 
 });
-
-if (isEnabled("ds-references")) {
-
-  Store.reopen({
-    /**
-      Get the reference for the specified record.
-
-      Example
-
-      ```javascript
-      var userRef = store.getReference('user', 1);
-
-      // check if the user is loaded
-      var isLoaded = userRef.value() !== null;
-
-      // get the record of the reference (null if not yet available)
-      var user = userRef.value();
-
-      // get the identifier of the reference
-      if (userRef.remoteType() === "id") {
-      var id = userRef.id();
-      }
-
-      // load user (via store.find)
-      userRef.load().then(...)
-
-      // or trigger a reload
-      userRef.reload().then(...)
-
-      // provide data for reference
-      userRef.push({ id: 1, username: "@user" }).then(function(user) {
-        userRef.value() === user;
-      });
-    ```
-
-    @method getReference
-    @param {String} type
-    @param {String|Integer} id
-    @return {RecordReference}
-    */
-    getReference: function(type, id) {
-      return this._internalModelForId(type, id).recordReference;
-    }
-  });
-
-}
 
 function deserializeRecordId(store, key, relationship, id) {
   if (isNone(id)) {

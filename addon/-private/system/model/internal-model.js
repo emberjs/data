@@ -4,7 +4,6 @@ import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
 import EmptyObject from "ember-data/-private/system/empty-object";
-import isEnabled from "ember-data/-private/features";
 
 import {
   getOwner
@@ -831,12 +830,9 @@ InternalModel.prototype = {
     } else {
       return `<${this.modelName}:${this.id}>`;
     }
-  }
-};
+  },
 
-if (isEnabled('ds-references')) {
-
-  InternalModel.prototype.referenceFor = function(type, name) {
+  referenceFor(type, name) {
     var reference = this.references[name];
 
     if (!reference) {
@@ -852,6 +848,5 @@ if (isEnabled('ds-references')) {
     }
 
     return reference;
-  };
-
-}
+  }
+};
