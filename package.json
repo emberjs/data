@@ -78,7 +78,6 @@
     "ember-resolver": "^2.0.3",
     "ember-try": "^0.1.2",
     "ember-watson": "^0.7.0",
-    "eslint-config-ember": "0.3.0",
     "github": "^0.2.4",
     "glob": "5.0.13",
     "loader.js": "^4.0.0",
