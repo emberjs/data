@@ -1,7 +1,6 @@
 {
   "ds-boolean-transform-allow-null": null,
   "ds-improved-ajax": null,
-  "ds-transform-pass-options": true,
   "ds-pushpayload-return": null,
   "ds-extended-errors": null,
   "ds-links-in-record-array": null

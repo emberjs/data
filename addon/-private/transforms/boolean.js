@@ -30,11 +30,9 @@ export default Transform.extend({
   deserialize(serialized, options) {
     var type = typeof serialized;
 
-    if (isEnabled('ds-transform-pass-options')) {
-      if (isEnabled('ds-boolean-transform-allow-null')) {
-        if (isNone(serialized) && options.allowNull === true) {
-          return null;
-        }
+    if (isEnabled('ds-boolean-transform-allow-null')) {
+      if (isNone(serialized) && options.allowNull === true) {
+        return null;
       }
     }
 
@@ -50,11 +48,9 @@ export default Transform.extend({
   },
 
   serialize(deserialized, options) {
-    if (isEnabled('ds-transform-pass-options')) {
-      if (isEnabled('ds-boolean-transform-allow-null')) {
-        if (isNone(deserialized) && options.allowNull === true) {
-          return null;
-        }
+    if (isEnabled('ds-boolean-transform-allow-null')) {
+      if (isNone(deserialized) && options.allowNull === true) {
+        return null;
       }
     }
 

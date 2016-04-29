@@ -45,13 +45,14 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    serialize: function(deserialized) {
+    serialize: function(deserialized, options) {
       return Ember.isEmpty(deserialized) ? null : Number(deserialized);
     }
     ```
 
     @method serialize
     @param deserialized The deserialized value
+    @param options hash of options passed to `DS.attr`
     @return The serialized value
   */
   serialize: null,
@@ -63,13 +64,14 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    deserialize: function(serialized) {
+    deserialize: function(serialized, options) {
       return empty(serialized) ? null : Number(serialized);
     }
     ```
 
     @method deserialize
     @param serialized The serialized value
+    @param options hash of options passed to `DS.attr`
     @return The deserialized value
   */
   deserialize: null

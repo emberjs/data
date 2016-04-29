@@ -8,7 +8,7 @@ module("unit/transform - DS.BooleanTransform");
 test("#serialize", function(assert) {
   var transform = new DS.BooleanTransform();
 
-  if (isEnabled('ds-transform-pass-options') && isEnabled('ds-boolean-transform-allow-null')) {
+  if (isEnabled('ds-boolean-transform-allow-null')) {
     assert.equal(transform.serialize(null, { allowNull: true }), null);
     assert.equal(transform.serialize(undefined, { allowNull: true }), null);
 
@@ -29,7 +29,7 @@ test("#serialize", function(assert) {
 test("#deserialize", function(assert) {
   var transform = new DS.BooleanTransform();
 
-  if (isEnabled('ds-transform-pass-options') && isEnabled('ds-boolean-transform-allow-null')) {
+  if (isEnabled('ds-boolean-transform-allow-null')) {
     assert.equal(transform.deserialize(null, { allowNull: true }), null);
     assert.equal(transform.deserialize(undefined, { allowNull: true }), null);
 
