@@ -417,13 +417,11 @@ Store = Service.extend({
   /**
     This method returns a record for a given type and id combination.
 
-    The `findRecord` method will always return a **promise** that will be
-    resolved with the record. If the record was already in the store,
-    the promise will be resolved immediately. Otherwise, the store
-    will ask the adapter's `find` method to find the necessary data.
-
     The `findRecord` method will always resolve its promise with the same
     object for a given type and `id`.
+
+    The `findRecord` method will always return a **promise** that will be
+    resolved with the record.
 
     Example
 
@@ -437,19 +435,88 @@ Store = Service.extend({
     });
     ```
 
-    If you would like to force the record to reload, instead of
-    loading it from the cache when present you can set `reload: true`
-    in the options object for `findRecord`.
+    If the record is not yet available, the store will ask the adapter's `find`
+    method to find the necessary data. If the record is already present in the
+    store, it depends on the reload behavior _when_ the returned promise
+    resolves.
 
-    ```app/routes/post/edit.js
-    import Ember from 'ember';
+    The reload behavior is configured either via the passed `options` hash or
+    the result of the adapter's `shouldReloadRecord`.
 
-    export default Ember.Route.extend({
-      model: function(params) {
-        return this.store.findRecord('post', params.post_id, { reload: true });
+    If `{ reload: true }` is passed or `adapter.shouldReloadRecord` evaluates
+    to `true`, then the returned promise resolves once the adapter returns
+    data, regardless if the requested record is already in the store:
+
+    ```js
+    store.push({
+      data: {
+        id: 1,
+        type: 'post',
+        revision: 1
       }
     });
+
+    // adapter#findRecord resolves with
+    // [
+    //   {
+    //     id: 1,
+    //     type: 'post',
+    //     revision: 2
+    //   }
+    // ]
+    store.findRecord('post', 1, { reload: true }).then(function(post) {
+      post.get("revision"); // 2
+    });
     ```
+
+    If no reload is indicated via the abovementioned ways, then the promise
+    immediately resolves with the cached version in the store.
+
+    Optionally, if `adapter.shouldBackgroundReloadRecord` evaluates to `true`,
+    then a background reload is started, which updates the records' data, once
+    it is available:
+
+    ```js
+    // app/adapters/post.js
+    import ApplicationAdapter from "./application";
+
+    export default ApplicationAdapter.extend({
+      shouldReloadRecord(store, snapshot) {
+        return false;
+      },
+
+      shouldBackgroundReloadRecord(store, snapshot) {
+        return true;
+      }
+    });
+
+    // ...
+
+    store.push({
+      data: {
+        id: 1,
+        type: 'post',
+        revision: 1
+      }
+    });
+
+    var blogPost = store.findRecord('post', 1).then(function(post) {
+      post.get('revision'); // 1
+    });
+
+    // later, once adapter#findRecord resolved with
+    // [
+    //   {
+    //     id: 1,
+    //     type: 'post',
+    //     revision: 2
+    //   }
+    // ]
+
+    blogPost.get('revision'); // 2
+    ```
+
+    See [peekRecord](#method_peekRecord) to get the cached version of a record.
 
     @method findRecord
     @param {String} modelName
@@ -1006,11 +1073,10 @@ Store = Service.extend({
   },
 
   /**
-    `findAll` ask the adapter's `findAll` method to find the records
-    for the given type, and return a promise that will be resolved
-    once the server returns the values. The promise will resolve into
-    all records of this type present in the store, even if the server
-    only returns a subset of them.
+    `findAll` ask the adapter's `findAll` method to find the records for the
+    given type, and returns a promise which will resolve with all records of
+    this type present in the store, even if the adapter only returns a subset
+    of them.
 
     ```app/routes/authors.js
     import Ember from 'ember';
@@ -1021,6 +1087,85 @@ Store = Service.extend({
       }
     });
     ```
+
+    _When_ the returned promise resolves depends on the reload behavior,
+    configured via the passed `options` hash and the result of the adapter's
+    `shouldReloadAll` method.
+
+    If `{ reload: true }` is passed or `adapter.shouldReloadAll` evaluates to
+    `true`, then the returned promise resolves once the adapter returns data,
+    regardless if there are already records in the store:
+
+    ```js
+    store.push({
+      data: {
+        id: 'first',
+        type: 'author'
+      }
+    });
+
+    // adapter#findAll resolves with
+    // [
+    //   {
+    //     id: 'second',
+    //     type: 'author'
+    //   }
+    // ]
+    store.findAll('author', { reload: true }).then(function(authors) {
+      authors.getEach("id"); // ['first', 'second']
+    });
+    ```
+
+    If no reload is indicated via the abovementioned ways, then the promise
+    immediately resolves with all the records currently loaded in the store.
+    Optionally, if `adapter.shouldBackgroundReloadAll` evaluates to `true`,
+    then a background reload is started. Once this resolves, the array with
+    which the promise resolves, is updated automatically so it contains all the
+    records in the store:
+
+    ```js
+    // app/adapters/application.js
+    export default DS.Adapter.extend({
+      shouldReloadAll(store, snapshotsArray) {
+        return false;
+      },
+
+      shouldBackgroundReloadAll(store, snapshotsArray) {
+        return true;
+      }
+    });
+
+    // ...
+
+    store.push({
+      data: {
+        id: 'first',
+        type: 'author'
+      }
+    });
+
+    var allAuthors;
+    store.findAll('author').then(function(authors) {
+      authors.getEach('id'); // ['first']
+
+      allAuthors = authors;
+    });
+
+    // later, once adapter#findAll resolved with
+    // [
+    //   {
+    //     id: 'second',
+    //     type: 'author'
+    //   }
+    // ]
+
+    allAuthors.getEach('id'); // ['first', 'second']
+    ```
+
+    See [peekAll](#method_peekAll) to get an array of current records in the
+    store, without waiting until a reload is finished.
+
+    See [query](#method_query) to only get a subset of records from the server.
 
     @method findAll
     @param {String} modelName
