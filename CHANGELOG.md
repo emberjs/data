@@ -2,6 +2,17 @@
 
 ### Master
 
+### Release 2.6.0-beta.2 (April 29, 2016)
+- [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
+- [#4324](https://github.com/emberjs/data/pull/4324) [DOC beta] Clarify DS.Model#changedAttributes()
+- [#4324](https://github.com/emberjs/data/pull/4324) [DOC beta] Clarify DS.Model#changedAttributes()
+- [#4327](https://github.com/emberjs/data/pull/4327) [DOC] Update CONTRIBUTING.md for feature flags
+- [#4328](https://github.com/emberjs/data/pull/4328) [BUGFIX release] Only setup babel options once.
+- [#4330](https://github.com/emberjs/data/pull/4330) [DOC beta] Make clear where `blog` is coming from
+- [#4331](https://github.com/emberjs/data/pull/4331) [BUGFIX beta] Overhaul attr/relationships imports in model blueprint
+- [#4338](https://github.com/emberjs/data/pull/4338) [DOC beta] Overhaul documentation for reload / background reload
+- [#4345](https://github.com/emberjs/data/pull/4345) [DOC] fix example syntax
+
 ### Release 2.6.0-beta.1 (April 12, 2016)
 - [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
 - [#3848](https://github.com/emberjs/data/pull/3848) [BUGFIX] EmbeddedRecordMixin should include the type serializing hasMany as ids
