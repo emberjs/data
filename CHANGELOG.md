@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.6.0-beta.3 (May 3, 2016)
+- [#4300](https://github.com/emberjs/data/pull/4300) [BUGFIX beta] Overhaul queryRecord
+- [#4363](https://github.com/emberjs/data/pull/4363) [DOC] Fix hard-coded "Customizing Adapters" link
+
 ### Release 2.6.0-beta.2 (April 29, 2016)
 - [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
 - [#4324](https://github.com/emberjs/data/pull/4324) [DOC beta] Clarify DS.Model#changedAttributes()
