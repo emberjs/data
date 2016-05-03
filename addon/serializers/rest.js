@@ -282,6 +282,16 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
+      runInDebug(function() {
+        let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
+        let message = "The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.";
+
+        deprecate(message, !isQueryRecordAnArray, {
+          id: 'ds.serializer.rest.queryRecord-array-response',
+          until: '3.0'
+        });
+      });
+
       /*
         Support primary data as an object instead of an array.
 

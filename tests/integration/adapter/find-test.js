@@ -141,16 +141,6 @@ testInDebug('When a single record is requested, and the payload is blank', (asse
   }, /You made a `findRecord` request for a person with id the-id, but the adapter's response did not have any data/);
 });
 
-testInDebug('When a single record is queried for, and the payload is blank', (assert) => {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    queryRecord: () => Ember.RSVP.resolve({})
-  }));
-
-  assert.expectAssertion(() => {
-    run(() => store.queryRecord('person', { name: 'the-name' }));
-  }, /You made a `queryRecord` request for a person, but the adapter's response did not have any data/);
-});
-
 testInDebug('When multiple records are requested, and the payload is blank', (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
     coalesceFindRequests: true,
