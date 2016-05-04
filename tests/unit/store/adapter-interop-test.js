@@ -101,6 +101,32 @@ test("Calling Store#findRecord multiple times coalesces the calls into a adapter
   });
 });
 
+test("Only unique ID's are passed to coalesced find requests", function(assert) {
+  assert.expect(1);
+  let done = assert.async();
+
+  var adapter = TestAdapter.extend({
+    findMany(store, type, ids, snapshots) {
+      assert.deepEqual(ids, ["1", "2"], 'Correct unique ids were passed in to findMany');
+      return Ember.RSVP.resolve([{ id: 1 }]);
+    },
+    coalesceFindRequests: true
+  });
+
+  var currentType = DS.Model.extend();
+  var currentStore = createStore({ adapter: adapter, test: currentType });
+
+  run(function() {
+    let promises = [
+      currentStore.findRecord('test', 1),
+      currentStore.findRecord('test', 1),
+      currentStore.findRecord('test', 2),
+      currentStore.findRecord('test', 2)
+    ];
+    Ember.RSVP.all(promises).finally(done);
+  });
+});
+
 test("Returning a promise from `findRecord` asynchronously loads data", function(assert) {
   assert.expect(1);
 
