@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import { warn } from "ember-data/-private/debug";
+import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
 var set = Ember.set;
@@ -364,6 +365,8 @@ export default Ember.Mixin.create({
     }
     ```
 
+    Note that the `ids-and-types` strategy is still behind the `ds-serialize-ids-and-types` feature flag.
+
     @method serializeHasMany
     @param {DS.Snapshot} snapshot
     @param {Object} json
@@ -381,12 +384,16 @@ export default Ember.Mixin.create({
       json[serializedKey] = snapshot.hasMany(attr, { ids: true });
     } else if (this.hasSerializeRecordsOption(attr)) {
       this._serializeEmbeddedHasMany(snapshot, json, relationship);
-    } else if (this.hasSerializeIdsAndTypesOption(attr)) {
-      this._serializeHasManyAsIdsAndTypes(snapshot, json, relationship);
+    } else {
+      if (isEnabled("ds-serialize-ids-and-types")) {
+        if (this.hasSerializeIdsAndTypesOption(attr)) {
+          this._serializeHasManyAsIdsAndTypes(snapshot, json, relationship);
+        }
+      }
     }
   },
 
-  /*
+  /**
     Serializes a hasMany relationship as an array of objects containing only `id` and `type`
     keys.
     This has its use case on polymorphic hasMany relationships where the server is not storing
