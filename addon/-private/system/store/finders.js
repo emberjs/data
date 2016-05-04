@@ -55,7 +55,8 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
 
 export function _findMany(adapter, store, typeClass, ids, internalModels) {
   let snapshots = Ember.A(internalModels).invoke('createSnapshot');
-  let promise = adapter.findMany(store, typeClass, ids, snapshots);
+  let unique_ids = Ember.A(ids).uniq();
+  let promise = adapter.findMany(store, typeClass, unique_ids, snapshots);
   let serializer = serializerForAdapter(store, adapter, typeClass.modelName);
   let label = "DS: Handle Adapter#findMany of " + typeClass;
 
@@ -67,7 +68,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    assert("You made a `findMany` request for " + typeClass.modelName + " records with ids " + ids + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
+    assert("You made a `findMany` request for " + typeClass.modelName + " records with ids " + unique_ids + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
       //TODO Optimize, no need to materialize here
