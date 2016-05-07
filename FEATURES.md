@@ -65,3 +65,7 @@ entry in `config/features.json`.
   * [404] `DS.NotFoundError`
   * [409] `DS.ConflictError`
   * [500] `DS.ServerError`
+
+- `ds-customizable-error-key`
+
+  Allows to specify a custom key by which the errors will be extracted by the `DS.RESTAdapter`.
