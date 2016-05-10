@@ -112,16 +112,23 @@ export default function attr(type, options) {
     set(key, value) {
       var internalModel = this._internalModel;
       var oldValue = getValue(internalModel, key);
+      var originalValue;
 
       if (value !== oldValue) {
         // Add the new value to the changed attributes hash; it will get deleted by
         // the 'didSetProperty' handler if it is no different from the original value
         internalModel._attributes[key] = value;
 
+        if (key in internalModel._inFlightAttributes) {
+          originalValue = internalModel._inFlightAttributes[key]
+        } else {
+          originalValue = internalModel._data[key]
+        }
+
         this._internalModel.send('didSetProperty', {
           name: key,
           oldValue: oldValue,
-          originalValue: internalModel._data[key],
+          originalValue: originalValue,
           value: value
         });
       }
