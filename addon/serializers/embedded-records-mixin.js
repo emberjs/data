@@ -226,7 +226,7 @@ export default Ember.Mixin.create({
     if (!embeddedSnapshot) {
       json[serializedKey] = null;
     } else {
-      json[serializedKey] = embeddedSnapshot.record.serialize({ includeId: true });
+      json[serializedKey] = embeddedSnapshot.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json[serializedKey]);
 
       if (relationship.options.polymorphic) {
@@ -440,7 +440,7 @@ export default Ember.Mixin.create({
 
     for (let i = 0; i < manyArray.length; i++) {
       let embeddedSnapshot = manyArray[i];
-      let embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
+      let embeddedJson = embeddedSnapshot.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
       ret[i] = embeddedJson;
     }
