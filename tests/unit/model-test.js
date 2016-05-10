@@ -97,6 +97,51 @@ test("resetting a property on a record cause it to become clean again", function
   });
 });
 
+test("resetting a property to the current in-flight value causes it to become clean when the save completes", function(assert) {
+  assert.expect(4);
+
+  var person, finishSaving;
+
+  env.adapter.updateRecord = function(store, type, snapshot) {
+    // Make sure the save is async
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      finishSaving = resolve;
+    });
+  };
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom'
+        }
+      }
+    });
+    person = store.peekRecord('person', 1);
+    person.set('name', "Thomas");
+
+    person.save();
+  });
+
+  run(function() {
+    assert.equal(person.get('name'), "Thomas");
+
+    person.set('name', 'Tomathy');
+    assert.equal(person.get('name'), "Tomathy");
+
+    person.set('name', 'Thomas');
+    assert.equal(person.get('name'), "Thomas");
+
+    finishSaving();
+  });
+
+  run(function() {
+    assert.equal(person.get('hasDirtyAttributes'), false, "The person is now clean");
+  });
+});
+
 test("a record becomes clean again only if all changed properties are reset", function(assert) {
   assert.expect(5);
   env.adapter.shouldBackgroundReloadRecord = () => false;
