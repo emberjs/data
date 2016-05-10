@@ -123,7 +123,7 @@ var RESTSerializer = JSONSerializer.extend({
     * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
 
     You can use this method, for example, to normalize underscored keys to camelized
-    or other general-purpose normalizations. You will only need to implement 
+    or other general-purpose normalizations. You will only need to implement
     `normalize` and manipulate the payload as desired.
 
     For example, if the `IDs` under `"comments"` are provided as `_id` instead of
@@ -136,7 +136,7 @@ var RESTSerializer = JSONSerializer.extend({
       normalize(model, hash, prop) {
         if (prop === 'comments') {
           hash.id = hash._id;
-          delete hash._id;   
+          delete hash._id;
         }
 
         return this._super(...arguments);
@@ -144,8 +144,8 @@ var RESTSerializer = JSONSerializer.extend({
     });
     ```
 
-    On each call to the `normalize` method, the third parameter (`prop`) is always 
-    one of the keys that were in the original payload or in the result of another 
+    On each call to the `normalize` method, the third parameter (`prop`) is always
+    one of the keys that were in the original payload or in the result of another
     normalization as `normalizeResponse`.
 
     @method normalize
@@ -795,7 +795,7 @@ var RESTSerializer = JSONSerializer.extend({
     var isPolymorphic = relationshipMeta.options.polymorphic;
     var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
-    if (isPolymorphic && resourceHash.hasOwnProperty(typeProperty) && typeof relationshipHash !== 'object') {
+    if (isPolymorphic && (resourceHash[typeProperty] !== undefined) && (typeof relationshipHash !== 'object')) {
       let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
         id: relationshipHash,

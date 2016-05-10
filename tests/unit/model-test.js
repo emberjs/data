@@ -880,18 +880,16 @@ AssertionPrototype.convertsWhenSet = function(type, provided, expected) {
 };
 
 test("a DS.Model can describe String attributes", function(assert) {
-  assert.expect(6);
+  assert.expect(4);
 
   assert.converts('string', "Scumbag Tom", "Scumbag Tom");
   assert.converts('string', 1, "1");
   assert.converts('string', "", "");
   assert.converts('string', null, null);
-  assert.converts('string', undefined, null);
-  assert.convertsFromServer('string', undefined, null);
 });
 
 test("a DS.Model can describe Number attributes", function(assert) {
-  assert.expect(9);
+  assert.expect(8);
 
   assert.converts('number', "1", 1);
   assert.converts('number', "0", 0);
@@ -899,7 +897,6 @@ test("a DS.Model can describe Number attributes", function(assert) {
   assert.converts('number', 0, 0);
   assert.converts('number', "", null);
   assert.converts('number', null, null);
-  assert.converts('number', undefined, null);
   assert.converts('number', true, 1);
   assert.converts('number', false, 0);
 });
@@ -912,18 +909,14 @@ test("a DS.Model can describe Boolean attributes", function(assert) {
 
   if (isEnabled('ds-boolean-transform-allow-null')) {
     assert.converts('boolean', null, null, { allowNull: true });
-    assert.converts('boolean', undefined, null, { allowNull: true });
 
     assert.converts('boolean', null, false, { allowNull: false });
-    assert.converts('boolean', undefined, false, { allowNull: false });
 
     // duplicating the tests from the else branch here, so once the feature is
     // enabled and the else branch is deleted, those assertions are kept
     assert.converts('boolean', null, false);
-    assert.converts('boolean', undefined, false);
   } else {
     assert.converts('boolean', null, false);
-    assert.converts('boolean', undefined, false);
   }
 
   assert.converts('boolean', true, true);
