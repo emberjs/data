@@ -1,5 +1,5 @@
 <%= importStatements %>
 
 export default Model.extend({
-  <%= attrs %>
+<%= attrs.length ? '  ' + attrs : '' %>
 });
