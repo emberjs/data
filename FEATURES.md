@@ -11,22 +11,22 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
-- `ds-boolean-transform-allow-null`
+- `ds-boolean-transform-allow-null` [#4022](https://github.com/emberjs/data/pull/4022)
 
   Allow `null`/`undefined` values for `boolean` attributes via `DS.attr('boolean', { allowNull: true })`
 
-- `ds-improved-ajax`
+- `ds-improved-ajax` [#3099](https://github.com/emberjs/data/pull/3099)
 
   This feature allows to customize how a request is formed by overwriting
   `methodForRequest`, `urlForRequest`, `headersForRequest` and `bodyForRequest`
   in the `DS.RESTAdapter`.
 
-- `ds-pushpayload-return`
+- `ds-pushpayload-return` [#4110](https://github.com/emberjs/data/pull/4110)
 
   Enables `pushPayload` to return the model(s) that are created or
-  updated via the internal `store.push`. [PR 4110](https://github.com/emberjs/data/pull/4110)
+  updated via the internal `store.push`.
 
-- `ds-serialize-ids-and-types`
+- `ds-serialize-ids-and-types` [#3848](https://github.com/emberjs/data/pull/3848)
 
   Enables a new `ids-and-type` strategy (in addition to the already existing `ids` and `records`) for
   serializing has many relationships using the `DS.EmbeddedRecordsMixin` that  will include both
@@ -50,7 +50,7 @@ entry in `config/features.json`.
   This is particularly useful for polymorphic relationships not backed by STI when just including the id
   of the records is not enough.
 
-- `ds-extended-errors`
+- `ds-extended-errors` [#3586](https://github.com/emberjs/data/pull/3586) [#4287](https://github.com/emberjs/data/pull/4287)
 
   Enables `extend` method on errors. It means you can extend from `DS.AdapterError`.
 
