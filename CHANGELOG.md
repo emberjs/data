@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.6.0-beta.4 (May 12, 2016)
+- [#4374](https://github.com/emberjs/data/pull/4374) Fix #4366: EmbeddedRecordsMixin embeds the record, not the snapshot
+- [#4379](https://github.com/emberjs/data/pull/4379) [BUGFIX beta] Fix resetting of properties to in-flight values
+- [#4380](https://github.com/emberjs/data/pull/4380) [BUGFIX beta] remove trailing whitespace from model blueprint
+
 ### Release 2.6.0-beta.3 (May 3, 2016)
 - [#4300](https://github.com/emberjs/data/pull/4300) [BUGFIX beta] Overhaul queryRecord
 - [#4363](https://github.com/emberjs/data/pull/4363) [DOC] Fix hard-coded "Customizing Adapters" link
