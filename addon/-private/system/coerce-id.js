@@ -5,5 +5,6 @@
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
 export default function coerceId(id) {
+  // eslint-disable-next-line no-eq-null, eqeqeq
   return id == null || id === '' ? null : id+'';
 }
