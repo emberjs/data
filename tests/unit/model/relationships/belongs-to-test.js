@@ -405,12 +405,12 @@ testInDebug("belongsTo gives a warning when provided with a serialize option", f
   });
 
   run(function() {
-      store.findRecord('person', 1).then(assert.wait(function(person) {
-        assert.expectWarning(function() {
-          get(person, 'hobby');
-        }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
-      }));
-    });
+    store.findRecord('person', 1).then(assert.wait(function(person) {
+      assert.expectWarning(function() {
+        get(person, 'hobby');
+      }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
+    }));
+  });
 });
 
 testInDebug("belongsTo gives a warning when provided with an embedded option", function(assert) {
@@ -457,12 +457,12 @@ testInDebug("belongsTo gives a warning when provided with an embedded option", f
   });
 
   run(function() {
-      store.findRecord('person', 1).then(assert.wait(function(person) {
-        assert.expectWarning(function() {
-          get(person, 'hobby');
-        }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
-      }));
-    });
+    store.findRecord('person', 1).then(assert.wait(function(person) {
+      assert.expectWarning(function() {
+        get(person, 'hobby');
+      }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
+    }));
+  });
 });
 
 test("DS.belongsTo should be async by default", function(assert) {

@@ -137,7 +137,8 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
         }
       }]
     });
-    var post = store.peekRecord('post', 3);
+
+    store.peekRecord('post', 3);
 
     store.push({
       data: {
@@ -157,7 +158,7 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
       }
     });
 
-    post = store.peekRecord('post', 3);
+    store.peekRecord('post', 3);
   });
   DS.ManyArray.reopen({
     arrayContentWillChange: originalArrayContentWillChange,

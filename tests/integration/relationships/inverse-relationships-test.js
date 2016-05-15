@@ -434,9 +434,9 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a has
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
-  var comment, post;
+  var post;
   run(function() {
-    comment = env.store.createRecord('comment');
+    env.store.createRecord('comment');
   });
 
   assert.expectAssertion(function() {
@@ -456,9 +456,9 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a bel
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
-  var user, post;
+  var post;
   run(function() {
-    user = env.store.createRecord('user');
+    env.store.createRecord('user');
   });
 
   assert.expectAssertion(function() {

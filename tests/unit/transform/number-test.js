@@ -2,8 +2,6 @@ import DS from 'ember-data';
 
 import {module, test} from 'qunit';
 
-/* jshint -W053 */
-
 module("unit/transform - DS.NumberTransform");
 
 test("#serialize", function(assert) {

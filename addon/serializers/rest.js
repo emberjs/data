@@ -123,7 +123,7 @@ var RESTSerializer = JSONSerializer.extend({
     * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
 
     You can use this method, for example, to normalize underscored keys to camelized
-    or other general-purpose normalizations. You will only need to implement 
+    or other general-purpose normalizations. You will only need to implement
     `normalize` and manipulate the payload as desired.
 
     For example, if the `IDs` under `"comments"` are provided as `_id` instead of
@@ -136,7 +136,7 @@ var RESTSerializer = JSONSerializer.extend({
       normalize(model, hash, prop) {
         if (prop === 'comments') {
           hash.id = hash._id;
-          delete hash._id;   
+          delete hash._id;
         }
 
         return this._super(...arguments);
@@ -144,8 +144,8 @@ var RESTSerializer = JSONSerializer.extend({
     });
     ```
 
-    On each call to the `normalize` method, the third parameter (`prop`) is always 
-    one of the keys that were in the original payload or in the result of another 
+    On each call to the `normalize` method, the third parameter (`prop`) is always
+    one of the keys that were in the original payload or in the result of another
     normalization as `normalizeResponse`.
 
     @method normalize
@@ -186,7 +186,6 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    /*jshint loopfunc:true*/
     Ember.makeArray(arrayHash).forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
@@ -319,7 +318,6 @@ var RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
-        /*jshint loopfunc:true*/
         data.forEach((resource) => {
 
           /*
@@ -407,7 +405,6 @@ var RESTSerializer = JSONSerializer.extend({
       var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type.modelName);
 
-      /*jshint loopfunc:true*/
       Ember.makeArray(payload[prop]).forEach((hash) => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);

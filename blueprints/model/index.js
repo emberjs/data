@@ -1,4 +1,4 @@
-/*jshint node:true*/
+/* eslint-env node */
 
 var inflection  = require('inflection');
 var stringUtils = require('ember-cli-string-utils');
