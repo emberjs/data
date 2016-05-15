@@ -325,6 +325,138 @@ test("store#findRecord { reload: true } ignores cached record and reloads record
   });
 });
 
+test("store#findRecord { backgroundReload: false } returns cached record and does not reload in the background", function(assert) {
+  assert.expect(2);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldBackgroundReloadRecord() {
+      assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: false }');
+    },
+
+    findRecord() {
+      assert.ok(false, 'findRecord() should not be called when { backgroundReload: false }');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  run(() => {
+    store.findRecord('car', 1, { backgroundReload: false }).then((car) => {
+      assert.equal(car.get('model'), 'Mini', 'cached car record is returned');
+    });
+  });
+
+  run(() => {
+    let car = store.peekRecord('car', 1);
+    assert.equal(car.get('model'), 'Mini', 'car record was not reloaded');
+  });
+});
+
+test("store#findRecord { backgroundReload: true } returns cached record and reloads record in background", function(assert) {
+  assert.expect(2);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldBackgroundReloadRecord() {
+      assert.ok(false, 'shouldBackgroundReloadRecord should not be called when { backgroundReload: true }');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'Princess'
+    }]
+  });
+
+  run(() => {
+    store.findRecord('car', 1, { backgroundReload: true }).then((car) => {
+      assert.equal(car.get('model'), 'Mini', 'cached car record is returned');
+    });
+  });
+
+  run(() => {
+    let car = store.peekRecord('car', 1);
+    assert.equal(car.get('model'), 'Princess', 'car record was reloaded');
+  });
+});
+
+test("store#findRecord { backgroundReload: false } is ignored if adapter.shouldReloadRecord is true", function(assert) {
+  assert.expect(2);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldReloadRecord() {
+      return true;
+    },
+
+    shouldBackgroundReloadRecord() {
+      assert.ok(false, 'shouldBackgroundReloadRecord should not be called when adapter.shouldReloadRecord = true');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'Princess'
+    }]
+  });
+
+  run(() => {
+    let car = store.peekRecord('car', 1);
+    assert.equal(car.get('model'), 'Mini', 'Car record is initially a Mini');
+  });
+
+  run(() => {
+    store.findRecord('car', 1, { backgroundReload: false }).then((car) => {
+      assert.equal(car.get('model'), 'Princess', 'Car record is reloaded immediately (not in the background)');
+    });
+  });
+});
+
 testInDebug('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', assert => {
   const badValues = ['', undefined, null, NaN, false];
   assert.expect(badValues.length);
@@ -415,6 +547,156 @@ test("Using store#findAll with existing records performs a query in the backgrou
     assert.equal(cars.get('length'), 2, 'There is 2 cars in the store now');
     var mini = cars.findBy('id', '1');
     assert.equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+  });
+});
+
+test("store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background", function(assert) {
+  assert.expect(4);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldBackgroundReloadAll() {
+      assert.ok(false, 'shouldBackgroundReloadAll should not be called when { backgroundReload: false }');
+    },
+
+    findAll() {
+      assert.ok(false, 'findAll() should not be called when { backgroundReload: true }');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  run(() => {
+    store.findAll('car', { backgroundReload: false }).then((cars) => {
+      assert.equal(cars.get('length'), 1, 'single cached car record is returned');
+      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
+    });
+  });
+
+  run(() => {
+    let cars = store.peekAll('car');
+    assert.equal(cars.get('length'), 1, 'single cached car record is returned again');
+    assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned again');
+  });
+});
+
+test("store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background", function(assert) {
+  assert.expect(5);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldBackgroundReloadAll() {
+      assert.ok(false, 'shouldBackgroundReloadAll should not be called when { backgroundReload: true }');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'New Mini'
+    },
+    {
+      id: 2,
+      make: 'BMCW',
+      model: 'Isetta'
+    }]
+  });
+
+  run(() => {
+    store.findAll('car', { backgroundReload: true }).then((cars) => {
+      assert.equal(cars.get('length'), 1, 'single cached car record is returned');
+      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
+    });
+  });
+
+  run(() => {
+    let cars = store.peekAll('car');
+    assert.equal(cars.get('length'), 2, 'multiple cars now in the store');
+    assert.equal(cars.get('firstObject.model'), 'New Mini', 'existing record updated correctly');
+    assert.equal(cars.get('lastObject.model'), 'Isetta', 'new record added to the store');
+  });
+});
+
+test("store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true", function(assert) {
+  assert.expect(5);
+
+  let testAdapter = DS.RESTAdapter.extend({
+    shouldReloadAll() {
+      return true;
+    },
+
+    shouldBackgroundReloadAll() {
+      assert.ok(false, 'shouldBackgroundReloadAll should not be called when adapter.shouldReloadAll = true');
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'New Mini'
+    },
+    {
+      id: 2,
+      make: 'BMCW',
+      model: 'Isetta'
+    }]
+  });
+
+  run(() => {
+    let cars = store.peekAll('car');
+    assert.equal(cars.get('length'), 1, 'one car in the store');
+    assert.equal(cars.get('firstObject.model'), 'Mini', 'correct car is in the store');
+  });
+
+  run(() => {
+    store.findAll('car', { backgroundReload: false }).then((cars) => {
+      assert.equal(cars.get('length'), 2, 'multiple car records are returned');
+      assert.equal(cars.get('firstObject.model'), 'New Mini', 'initial car record was updated');
+      assert.equal(cars.get('lastObject.model'), 'Isetta', 'second car record was loaded');
+    });
   });
 });
 
