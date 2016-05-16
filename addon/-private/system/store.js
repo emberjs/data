@@ -48,6 +48,7 @@ import coerceId from "ember-data/-private/system/coerce-id";
 
 import RecordArrayManager from "ember-data/-private/system/record-array-manager";
 import ContainerInstanceCache from 'ember-data/-private/system/store/container-instance-cache';
+import ModelInformationRegistry from 'ember-data/-private/system/model/model-information-registry';
 
 import InternalModel from "ember-data/-private/system/model/internal-model";
 
@@ -185,6 +186,7 @@ Store = Service.extend({
     this._instanceCache = new ContainerInstanceCache(getOwner(this));
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
+    this._modelInformation = ModelInformationRegistry.create({store: this});
   },
 
   /**
@@ -1795,6 +1797,7 @@ Store = Service.extend({
       throw new Ember.Error("No model was found for '" + modelName + "'");
     }
     factory.modelName = factory.modelName || normalizeModelName(modelName);
+    factory.modelInformation = this._modelInformation;
 
     return factory;
   },
