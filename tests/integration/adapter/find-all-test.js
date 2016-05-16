@@ -154,3 +154,89 @@ test('When all records are requested, assert the payload is not blank', (assert)
     run(() => store.findAll('person'));
   }, /the adapter's response did not have any data/);
 });
+
+test("isUpdating is true while records are fetched", function(assert) {
+  let done = assert.async();
+
+  let findAllDeferred = Ember.RSVP.defer();
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll() {
+      return findAllDeferred.promise;
+    },
+
+    shouldReloadAll: () => true
+  }));
+
+  run(function() {
+    store.push({
+      data: [{
+        type: 'person',
+        id: 1
+      }]
+    });
+  });
+
+  let persons = store.peekAll('person');
+  assert.equal(persons.get("length"), 1);
+
+  run(function() {
+    store.findAll('person').then(function(persons) {
+      assert.equal(persons.get("isUpdating"), false);
+      assert.equal(persons.get("length"), 2);
+
+      done();
+    });
+  });
+
+  assert.equal(persons.get("isUpdating"), true);
+
+  findAllDeferred.resolve([{ id: 2 }]);
+});
+
+test("isUpdating is true while records are fetched in the background", function(assert) {
+  let done = assert.async();
+
+  let findAllDeferred = Ember.RSVP.defer();
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll() {
+      return findAllDeferred.promise;
+    },
+
+    shouldReloadAll: () => false,
+    shouldBackgroundReloadAll: () => true
+  }));
+
+  run(function() {
+    store.push({
+      data: [{
+        type: 'person',
+        id: 1
+      }]
+    });
+  });
+
+  let persons = store.peekAll('person');
+  assert.equal(persons.get("length"), 1);
+
+  run(function() {
+    store.findAll('person').then(function(persons) {
+      assert.equal(persons.get("isUpdating"), true);
+      assert.equal(persons.get("length"), 1, "persons are updated in the background");
+    });
+  });
+
+  assert.equal(persons.get("isUpdating"), true);
+
+  run(function() {
+    findAllDeferred.resolve([{ id: 2 }]);
+  });
+
+  run(function() {
+    findAllDeferred.promise.then(function() {
+      assert.equal(persons.get("isUpdating"), false);
+      assert.equal(persons.get("length"), 2);
+
+      done();
+    });
+  });
+});

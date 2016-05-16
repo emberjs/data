@@ -1009,6 +1009,9 @@ Store = Service.extend({
 
     assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
+
+    set(array, 'isUpdating', true);
+
     if (options.reload) {
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
