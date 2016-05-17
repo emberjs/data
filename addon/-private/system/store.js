@@ -746,7 +746,7 @@ Store = Service.extend({
 
     function resolveFoundRecords(records) {
       records.forEach((record) => {
-        var pair = Ember.A(pendingFetchItems).findBy('record', record);
+        var pair = Ember.A(pendingFetchItems).findBy('record.id', record.id);
         if (pair) {
           var resolver = pair.resolver;
           resolver.resolve(record);
@@ -758,7 +758,7 @@ Store = Service.extend({
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
         resolvedRecords = Ember.A(resolvedRecords);
-        var missingRecords = requestedRecords.reject((record) => resolvedRecords.includes(record));
+        var missingRecords = requestedRecords.reject((record) => resolvedRecords.findBy('id', record.id));
         if (missingRecords.length) {
           warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false, {
             id: 'ds.store.missing-records-from-adapter'
