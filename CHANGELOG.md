@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+### Release 2.5.3 (May 17, 2016)
+- [#4386](https://github.com/emberjs/data/pull/4386) [BUGFIX release] `isUpdating` flag is set correctly for `store.findAll`
+
 ### Release 2.5.2 (April 14, 2016)
 - [#4328](https://github.com/emberjs/data/pull/4328) [BUGFIX release] Only setup babel options once.
 - [#4333](https://github.com/emberjs/data/pull/4333) [BUGFIX release] use es5 syntax for addon's index.js file
