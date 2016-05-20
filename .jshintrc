@@ -31,5 +31,6 @@
     "white": false,
     "eqnull": true,
     "esnext": true,
-    "unused": "vars"
+    "unused": "vars",
+    "loopfunc": true
 }
