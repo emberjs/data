@@ -26,6 +26,8 @@ module.exports = {
   },
 
   init: function() {
+    this._super.init && this._super.init.apply(this, arguments);
+
     var bowerDeps = this.project.bowerDependencies();
 
     var VersionChecker = require('ember-cli-version-checker');
