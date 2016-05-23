@@ -4,6 +4,7 @@ import Serializer from "ember-data/serializer";
 import coerceId from "ember-data/-private/system/coerce-id";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
+import isEnabled from 'ember-data/-private/features';
 
 import {
   getOwner
