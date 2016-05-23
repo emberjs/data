@@ -1996,7 +1996,7 @@ Store = Service.extend({
 
   _pushInternalModel(data) {
     var modelName = data.type;
-    assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id != null && data.id !== '');
+    assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id !== null && data.id !== undefined && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
     runInDebug(() => {
