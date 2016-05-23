@@ -65,3 +65,52 @@ entry in `config/features.json`.
   * [404] `DS.NotFoundError`
   * [409] `DS.ConflictError`
   * [500] `DS.ServerError`
+
+- `ds-payload-type-hooks`
+
+  Adds two new hooks `modelNameFromPayloadType` and `payloadTypeFromModelName`
+  hooks to the serializers. They are used to map a custom type in the payload
+  to the Ember-Data model name and vice versa.
+
+  It also deprecates `modelNameFromPayloadKey` and `payloadKeyFromModelName`
+  for the JSONSerializer and JSONAPISerializer: those payloads don't have
+  _keys_ which represent a model name. Only the keys in the payload for a
+  RESTSerializer represent model names, so the `payloadKeyFromModelName` and
+  `modelNameFromPayloadKey` are available in that serializer.
+
+  ```js
+  // rest reponse
+  {
+    "blog/post": {
+      "id": 1,
+      "user": 1,
+      "userType": "api::v1::administrator"
+    }
+  }
+
+  // RESTSerializer invokes the following hooks
+  restSerializer.modelNameFromPayloadKey("blog/post");
+  restSerializer.modelNameFromPayloadType("api::v1::administrator");
+  ```
+
+  ```js
+  // json-api reponse
+  {
+    "data": {
+      "id": 1,
+      "type": "api::v1::administrator",
+      "relationships": {
+        "supervisor": {
+          "data": {
+            "id": 1,
+            "type": "api::v1::super-user"
+          }
+        }
+      }
+    }
+  }
+
+  // JSONAPISerializer invokes the following hooks
+  jsonApiSerializer.modelNameFromPayloadType("api::v1::administrator");
+  jsonApiSerializer.modelNameFromPayloadType("api::v1::super-user");
+  ```

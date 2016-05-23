@@ -199,16 +199,36 @@ var RESTSerializer = JSONSerializer.extend({
   },
 
   _normalizePolymorphicRecord(store, hash, prop, primaryModelClass, primarySerializer) {
-    let serializer, modelClass;
+    let serializer = primarySerializer;
+    let modelClass = primaryModelClass;
+
     const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
-    // Support polymorphic records in async relationships
-    if (!primaryHasTypeAttribute && hash.type && store._hasModelFor(this.modelNameFromPayloadKey(hash.type))) {
-      serializer = store.serializerFor(this.modelNameFromPayloadKey(hash.type));
-      modelClass = store.modelFor(this.modelNameFromPayloadKey(hash.type));
-    } else {
-      serializer = primarySerializer;
-      modelClass = primaryModelClass;
+
+    if (!primaryHasTypeAttribute && hash.type) {
+      // Support polymorphic records in async relationships
+      let modelName;
+      if (isEnabled("ds-payload-type-hooks")) {
+        modelName = this.modelNameFromPayloadType(hash.type);
+        let deprecatedModelNameLookup = this.modelNameFromPayloadKey(hash.type);
+
+        if (modelName !== deprecatedModelNameLookup && !this._hasCustomModelNameFromPayloadType() && this._hasCustomModelNameFromPayloadKey()) {
+          deprecate("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType", false, {
+            id: 'ds.rest-serializer.deprecated-model-name-for-polymorphic-type',
+            until: '3.0.0'
+          });
+
+          modelName = deprecatedModelNameLookup;
+        }
+      } else {
+        modelName = this.modelNameFromPayloadKey(hash.type);
+      }
+
+      if (store._hasModelFor(modelName)) {
+        serializer = store.serializerFor(modelName);
+        modelClass = store.modelFor(modelName);
+      }
     }
+
     return serializer.normalize(modelClass, hash, prop);
   },
 
@@ -758,7 +778,11 @@ var RESTSerializer = JSONSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[typeKey] = null;
     } else {
-      json[typeKey] = camelize(belongsTo.modelName);
+      if (isEnabled("ds-payload-type-hooks")) {
+        json[typeKey] = this.payloadTypeFromModelName(belongsTo.modelName);
+      } else {
+        json[typeKey] = camelize(belongsTo.modelName);
+      }
     }
   },
 
@@ -796,16 +820,164 @@ var RESTSerializer = JSONSerializer.extend({
     var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
     if (isPolymorphic && resourceHash.hasOwnProperty(typeProperty) && typeof relationshipHash !== 'object') {
-      let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
-      return {
-        id: relationshipHash,
-        type: type
-      };
+
+      if (isEnabled("ds-payload-type-hooks")) {
+
+        let payloadType = resourceHash[typeProperty];
+        let type = this.modelNameFromPayloadType(payloadType);
+        let deprecatedTypeLookup = this.modelNameFromPayloadKey(payloadType);
+
+        if (payloadType !== deprecatedTypeLookup && !this._hasCustomModelNameFromPayloadType() && this._hasCustomModelNameFromPayloadKey()) {
+          deprecate("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
+            id: 'ds.rest-serializer.deprecated-model-name-for-polymorphic-type',
+            until: '3.0.0'
+          });
+
+          type = deprecatedTypeLookup;
+        }
+
+        return {
+          id: relationshipHash,
+          type: type
+        };
+
+      } else {
+
+        let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
+        return {
+          id: relationshipHash,
+          type: type
+        };
+
+      }
     }
 
     return this._super(...arguments);
   }
 });
+
+
+if (isEnabled("ds-payload-type-hooks")) {
+
+  RESTSerializer.reopen({
+
+    /**
+      `modelNameFromPayloadType` can be used to change the mapping for a DS model
+      name, taken from the value in the payload.
+
+      Say your API namespaces the type of a model and returns the following
+      payload for the `post` model, which has a polymorphic `user` relationship:
+
+      ```javascript
+      // GET /api/posts/1
+      {
+        "post": {
+          "id": 1,
+          "user": 1,
+          "userType: "api::v1::administrator"
+        }
+      }
+      ```
+
+      By overwriting `modelNameFromPayloadType` you can specify that the
+      `administrator` model should be used:
+
+      ```app/serializers/application.js
+      import RESTSerializer from "ember-data/serializers/rest";
+
+      export default RESTSerializer.extend({
+        modelNameFromPayloadType(payloadType) {
+          return payloadType.replace('api::v1::', '');
+        }
+      });
+      ```
+
+      By default the modelName for a model is its name in dasherized form.
+      Usually, Ember Data can use the correct inflection to do this for you. Most
+      of the time, you won't need to override `modelNameFromPayloadType` for this
+      purpose.
+
+      Also take a look at
+      [payloadTypeFromModelName](#method_payloadTypeFromModelName) to customize
+      how the type of a record should be serialized.
+
+      @method modelNameFromPayloadType
+      @public
+      @param {String} payloadType type from payload
+      @return {String} modelName
+    */
+    modelNameFromPayloadType(payloadType) {
+      return singularize(normalizeModelName(payloadType));
+    },
+
+    /**
+      `payloadTypeFromModelName` can be used to change the mapping for the type in
+      the payload, taken from the model name.
+
+      Say your API namespaces the type of a model and expects the following
+      payload when you update the `post` model, which has a polymorphic `user`
+      relationship:
+
+      ```javascript
+      // POST /api/posts/1
+      {
+        "post": {
+          "id": 1,
+          "user": 1,
+          "userType": "api::v1::administrator"
+        }
+      }
+      ```
+
+      By overwriting `payloadTypeFromModelName` you can specify that the
+      namespaces model name for the `administrator` should be used:
+
+      ```app/serializers/application.js
+      import RESTSerializer from "ember-data/serializers/rest";
+
+      export default RESTSerializer.extend({
+        payloadTypeFromModelName(modelName) {
+          return "api::v1::" + modelName;
+        }
+      });
+      ```
+
+      By default the payload type is the camelized model name. Usually, Ember
+      Data can use the correct inflection to do this for you. Most of the time,
+      you won't need to override `payloadTypeFromModelName` for this purpose.
+
+      Also take a look at
+      [modelNameFromPayloadType](#method_modelNameFromPayloadType) to customize
+      how the model name from should be mapped from the payload.
+
+      @method payloadTypeFromModelName
+      @public
+      @param {String} modelname modelName from the record
+      @return {String} payloadType
+    */
+    payloadTypeFromModelName(modelName) {
+      return camelize(modelName);
+    },
+
+    _hasCustomModelNameFromPayloadKey() {
+      return this.modelNameFromPayloadKey !== RESTSerializer.prototype.modelNameFromPayloadKey;
+    },
+
+    _hasCustomModelNameFromPayloadType() {
+      return this.modelNameFromPayloadType !== RESTSerializer.prototype.modelNameFromPayloadType;
+    },
+
+    _hasCustomPayloadTypeFromModelName() {
+      return this.payloadTypeFromModelName !== RESTSerializer.prototype.payloadTypeFromModelName;
+    },
+
+    _hasCustomPayloadKeyFromModelName() {
+      return this.payloadKeyFromModelName !== RESTSerializer.prototype.payloadKeyFromModelName;
+    },
+
+  });
+
+}
 
 runInDebug(function() {
   RESTSerializer.reopen({

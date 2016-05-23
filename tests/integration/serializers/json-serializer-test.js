@@ -1,6 +1,7 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -968,3 +969,77 @@ test('Serializer should respect the attrs hash in links', function(assert) {
   assert.equal(post.data.attributes.title, "Rails is omakase");
   assert.equal(post.data.relationships.comments.links.related, 'posts/1/comments');
 });
+
+if (isEnabled("ds-payload-type-hooks")) {
+
+  test("mapping of model name can be customized via modelNameFromPayloadType", function(assert) {
+    env.serializer.modelNameFromPayloadType = function(payloadType) {
+      return payloadType.replace("api::v1::", "");
+    };
+
+    let jsonHash = {
+      id: '1',
+      post: {
+        id: '1',
+        type: "api::v1::post"
+      }
+    };
+
+    assert.expectNoDeprecation();
+
+    let normalized = env.serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'favorite',
+        attributes: {},
+        relationships: {
+          post: {
+            data: {
+              id: '1',
+              type: 'post'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+  testInDebug("DEPRECATED - mapping of model name can be customized via modelNameFromPayloadKey", function(assert) {
+    env.serializer.modelNameFromPayloadKey = function(payloadType) {
+      return payloadType.replace("api::v1::", "");
+    };
+
+    let jsonHash = {
+      id: '1',
+      post: {
+        id: '1',
+        type: "api::v1::post"
+      }
+    };
+
+    assert.expectDeprecation("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead");
+
+    let normalized = env.serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
+
+    assert.deepEqual(normalized, {
+      data: {
+        id: '1',
+        type: 'favorite',
+        attributes: {},
+        relationships: {
+          post: {
+            data: {
+              id: '1',
+              type: 'post'
+            }
+          }
+        }
+      },
+      included: []
+    });
+  });
+
+}
