@@ -188,7 +188,7 @@ var JSONSerializer = Serializer.extend({
     let attributes = get(typeClass, 'attributes');
 
     typeClass.eachTransformedAttribute((key, typeClass) => {
-      if (!(key in data)) { return; }
+      if (data[key] === undefined) { return; }
 
       var transform = this.transformFor(typeClass);
       var transformMeta = attributes.get(key);
