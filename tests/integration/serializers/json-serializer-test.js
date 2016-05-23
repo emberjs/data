@@ -867,8 +867,7 @@ test('normalizeResponse respects `included` items (array response)', function(as
     comments: [
       { id: "1", body: "comment 1" }
     ]
-  },
-  {
+  }, {
     id: "2",
     title: "Post 2",
     comments: [

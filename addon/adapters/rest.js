@@ -914,18 +914,18 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     if (isEnabled('ds-extended-errors')) {
       switch (status) {
-      case 401:
-        return new UnauthorizedError(errors, detailedMessage);
-      case 403:
-        return new ForbiddenError(errors, detailedMessage);
-      case 404:
-        return new NotFoundError(errors, detailedMessage);
-      case 409:
-        return new ConflictError(errors, detailedMessage);
-      default:
-        if (status >= 500) {
-          return new ServerError(errors, detailedMessage);
-        }
+        case 401:
+          return new UnauthorizedError(errors, detailedMessage);
+        case 403:
+          return new ForbiddenError(errors, detailedMessage);
+        case 404:
+          return new NotFoundError(errors, detailedMessage);
+        case 409:
+          return new ConflictError(errors, detailedMessage);
+        default:
+          if (status >= 500) {
+            return new ServerError(errors, detailedMessage);
+          }
       }
     }
 
@@ -1090,13 +1090,12 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   parseErrorResponse(responseText) {
-    var json = responseText;
-
     try {
-      json = Ember.$.parseJSON(responseText);
-    } catch (e) {}
-
-    return json;
+      return Ember.$.parseJSON(responseText);
+    } catch (e) {
+      // JSON parsing error, return the responseText
+      return responseText;
+    }
   },
 
   /**
@@ -1265,20 +1264,23 @@ if (isEnabled('ds-improved-ajax')) {
       id = id || (snapshot && snapshot.id);
 
       switch (requestType) {
-        case 'findAll':
+        case 'findAll': {
           return this.buildURL(type.modelName, null, snapshots, requestType);
-
+        }
         case 'query':
-        case 'queryRecord':
+        case 'queryRecord': {
           return this.buildURL(type.modelName, null, null, requestType, query);
+        }
 
-        case 'findMany':
+        case 'findMany': {
           return this.buildURL(type.modelName, ids, snapshots, requestType);
+        }
 
         case 'findHasMany':
-        case 'findBelongsTo':
+        case 'findBelongsTo': {
           let url = this.buildURL(type.modelName, id, snapshot, requestType);
           return this.urlPrefix(params.url, url);
+        }
       }
 
       return this.buildURL(type.modelName, id, snapshot, requestType, query);
@@ -1308,7 +1310,7 @@ if (isEnabled('ds-improved-ajax')) {
      * @param {Object} params
      * @return {Object} request object
      */
-   _requestFor(params) {
+    _requestFor(params) {
       const method = this.methodForRequest(params);
       const url = this.urlForRequest(params);
       const headers = this.headersForRequest(params);

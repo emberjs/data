@@ -1,16 +1,12 @@
-/* global require, module */
-/* jshint node: true*/
+/* eslint-env node */
 var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
 var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
+var version  = require('./lib/version');
 
 module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
-    jscsOptions: {
-      enabled: true,
-      excludeFiles: ['tests/dummy/config']
-    }
     // Add options here
   });
 

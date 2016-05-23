@@ -4,7 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
 
-var store, container, Record, Storage;
+var store, Record, Storage;
 var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
@@ -69,7 +69,6 @@ module("unit/store/createRecord - Store with models by dash", {
       someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
     store = env.store;
-    container = env.container;
   }
 });
 

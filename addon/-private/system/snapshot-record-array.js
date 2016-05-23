@@ -2,8 +2,6 @@
   @module ember-data
 */
 
-import isEnabled from 'ember-data/-private/features';
-
 /**
   @class SnapshotRecordArray
   @namespace DS

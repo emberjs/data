@@ -1,4 +1,4 @@
-/*jshint node:true*/
+/* eslint-env node */
 
 var ModelBlueprint = require('../model');
 var testInfo = require('ember-cli-test-info');

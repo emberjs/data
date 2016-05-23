@@ -743,7 +743,6 @@ var RootState = {
 };
 
 function wireState(object, parent, name) {
-  /*jshint proto:true*/
   // TODO: Use Object.create and copy instead
   object = mixin(parent ? Object.create(parent) : {}, object);
   object.parentState = parent;

@@ -27,7 +27,7 @@ OrderedSet.prototype.addWithIndex = function(obj, idx) {
 
   presenceSet[guid] = true;
 
-  if (idx === undefined || idx == null) {
+  if (idx === undefined || idx === null) {
     list.push(obj);
   } else {
     list.splice(idx, 0, obj);
