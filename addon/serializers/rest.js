@@ -973,7 +973,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
     _hasCustomPayloadKeyFromModelName() {
       return this.payloadKeyFromModelName !== RESTSerializer.prototype.payloadKeyFromModelName;
-    },
+    }
 
   });
 
