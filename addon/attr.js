@@ -148,9 +148,9 @@ export default function attr(type, options) {
         internalModel._attributes[key] = value;
 
         if (key in internalModel._inFlightAttributes) {
-          originalValue = internalModel._inFlightAttributes[key]
+          originalValue = internalModel._inFlightAttributes[key];
         } else {
-          originalValue = internalModel._data[key]
+          originalValue = internalModel._data[key];
         }
 
         this._internalModel.send('didSetProperty', {

@@ -4,7 +4,6 @@
 
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
-import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
 

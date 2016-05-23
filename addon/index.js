@@ -1,5 +1,4 @@
 import Ember from "ember";
-import { warn } from "ember-data/-private/debug";
 import isEnabled from "ember-data/-private/features";
 /**
   Ember Data

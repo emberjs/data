@@ -88,8 +88,8 @@ export default Ember.Object.extend({
   /**
     The `findRecord()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `findRecord()` being called, you
-    should query your persistence layer for a record with the given ID. The `findRecord` 
-    method should return a promise that will resolve to a JavaScript object that will be 
+    should query your persistence layer for a record with the given ID. The `findRecord`
+    method should return a promise that will resolve to a JavaScript object that will be
     normalized by the serializer.
 
     Here is an example `findRecord` implementation:

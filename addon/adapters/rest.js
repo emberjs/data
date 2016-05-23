@@ -1308,7 +1308,7 @@ if (isEnabled('ds-improved-ajax')) {
      * @param {Object} params
      * @return {Object} request object
      */
-   _requestFor(params) {
+    _requestFor(params) {
       const method = this.methodForRequest(params);
       const url = this.urlForRequest(params);
       const headers = this.headersForRequest(params);
