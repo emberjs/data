@@ -2430,6 +2430,80 @@ if (isEnabled('ds-extended-errors')) {
   });
 }
 
+if (isEnabled('ds-customizable-error-key')) {
+  test('expected error key can be customized', (assert) => {
+    const defaultKey = adapter.errorKey;
+    const originalAjax = Ember.$.ajax;
+    const jqXHR = {
+      responseText: '',
+      getAllResponseHeaders() { return ''; }
+    };
+    const newKey = 'CustomErrorKey';
+    const errorMessage = 'oh no!';
+    const errorThrown = {
+      [newKey]: errorMessage
+    };
+
+    adapter.errorKey = newKey;
+
+    Ember.$.ajax = (hash) => {
+      hash.error(jqXHR, 'error', errorThrown);
+    };
+
+    try {
+      run(() => {
+        store.findRecord('post', '1').catch((err) => {
+          assert.equal(
+            err.errors,
+            errorMessage,
+            'the error was accessed by a custom key'
+          );
+        });
+      });
+    } finally {
+      adapter.errorKey = defaultKey;
+      Ember.$.ajax = originalAjax;
+    }
+  });
+
+  test('invalid responses can have a custom error key', (assert) => {
+    const { errorKey, isInvalid } = adapter;
+    const originalAjax = Ember.$.ajax;
+    const jqXHR = {
+      responseText: '',
+      getAllResponseHeaders() { return ''; }
+    };
+    const newKey = 'CustomErrorKey';
+    const errorData = [{ details: '*error here*' }];
+    const errorThrown = {
+      [newKey]: errorData
+    };
+
+    adapter.errorKey = newKey;
+    adapter.isInvalid = ()=>true;
+
+    Ember.$.ajax = (hash) => {
+      hash.error(jqXHR, 'error', errorThrown);
+    };
+
+    try {
+      run(() => {
+        store.findRecord('post', '1').catch(err => {
+          assert.deepEqual(
+            err.errors,
+            errorData,
+            'the error was accessed by a custom key'
+          );
+        });
+      });
+    } finally {
+      adapter.errorKey = errorKey;
+      adapter.isInvalid = isInvalid;
+      Ember.$.ajax = originalAjax;
+    }
+  });
+}
+
 test('on error wraps the error string in an DS.AdapterError object', function(assert) {
   assert.expect(2);
 

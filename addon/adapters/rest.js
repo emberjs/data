@@ -130,8 +130,9 @@ const {
 
   ### Errors
 
-  If a response is considered a failure, the JSON payload is expected to include
-  a top-level key `errors`, detailing any specific issues. For example:
+  If a response is considered a failure, the JSON payload by default is
+  expected to include a top-level key `errors`, detailing any specific issues.
+  For example:
 
   ```js
   {
@@ -226,6 +227,19 @@ const {
         "ANOTHER_HEADER": "Some header value"
       };
     }).volatile()
+  });
+  ```
+
+  ### Error key customization
+
+  An adapter can search for error object using the key
+  other than `errors` by setting the `errorKey` property.
+
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
+    errorKey: 'Err'
   });
   ```
 
@@ -399,6 +413,15 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @property headers
     @type {Object}
    */
+
+  /**
+    Will be used to get the error data from payload.
+
+    @property errorKey
+    @type {String}
+    @default 'errors'
+   */
+  errorKey: 'errors',
 
   /**
     Called by the store in order to fetch the JSON for a given
@@ -906,6 +929,9 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
+      if (isEnabled('ds-customizable-error-key')) {
+        return new InvalidError(payload[this.get('errorKey')]);
+      }
       return new InvalidError(payload.errors);
     }
 
@@ -1108,6 +1134,21 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Array} errors payload
   */
   normalizeErrorResponse(status, headers, payload) {
+    if (isEnabled('ds-customizable-error-key')) {
+      const errorKey = this.get('errorKey');
+
+      if (payload && typeof payload === 'object' && payload[errorKey]) {
+        return payload[errorKey];
+      }
+      return [
+        {
+          status: `${status}`,
+          title: "The backend responded with an error",
+          detail: `${payload}`
+        }
+      ];
+    }
+
     if (payload && typeof payload === 'object' && payload.errors) {
       return payload.errors;
     } else {
