@@ -975,7 +975,7 @@ test("a DS.Model can describe Date attributes", function(assert) {
   assert.converts('date', undefined, undefined);
 
   var dateString = "2011-12-31T00:08:16.000Z";
-  var date = new Date(Ember.Date.parse(dateString));
+  var date = new Date(Date.parse(dateString));
 
 
   var Person = DS.Model.extend({

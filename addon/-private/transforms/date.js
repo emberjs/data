@@ -28,7 +28,7 @@ export default Transform.extend({
     var type = typeof serialized;
 
     if (type === "string") {
-      return new Date(Ember.Date.parse(serialized));
+      return new Date(Date.parse(serialized));
     } else if (type === "number") {
       return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {
