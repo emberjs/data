@@ -167,6 +167,7 @@ Object.defineProperty(DS, 'normalizeModelName', {
 });
 
 Object.defineProperty(global, 'DS', {
+  configurable: true,
   get() {
     deprecate(
       'Using the global version of DS is deprecated. Please either import ' +
