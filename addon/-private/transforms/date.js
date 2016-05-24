@@ -1,4 +1,3 @@
-import Ember from 'ember';
 import { parseDate } from "ember-data/-private/ext/date";
 
 /**

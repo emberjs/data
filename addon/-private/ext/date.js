@@ -47,12 +47,12 @@ export const parseDate = function (date) {
 Ember.Date.parse = function (date) {
   // throw deprecation
   deprecate(`Ember.Date.parse is deprecated because Safari 5-, IE8-, and
-    Firefox 3.6- are no longer supported (see
-    https://github.com/csnover/js-iso8601 for the history of this issue).
-    Please use Date.parse instead`, false, {
-    id: 'ds.ember.date.parse-deprecate',
-    until: '3.0.0'
-  });
+      Firefox 3.6- are no longer supported (see
+      https://github.com/csnover/js-iso8601 for the history of this issue).
+      Please use Date.parse instead`, false, {
+        id: 'ds.ember.date.parse-deprecate',
+        until: '3.0.0'
+      });
 
   return parseDate(date);
 };
@@ -70,8 +70,8 @@ ENV = {
   }
 }
 `, false, {
-    id: 'ds.date.parse-deprecate',
-    until: '3.0.0'
-  });
+  id: 'ds.date.parse-deprecate',
+  until: '3.0.0'
+});
   Date.parse = parseDate;
 }
