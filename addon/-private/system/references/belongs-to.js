@@ -2,7 +2,8 @@ import Model from 'ember-data/model';
 import Ember from 'ember';
 import Reference from './reference';
 
-import { assertPolymorphicType } from "ember-data/-private/debug";
+import isEnabled from 'ember-data/-private/features';
+import { assertPolymorphicType, deprecate } from "ember-data/-private/debug";
 
 var BelongsToReference = function(store, parentInternalModel, belongsToRelationship) {
   this._super$constructor(store, parentInternalModel);
@@ -43,6 +44,12 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
     var record;
 
     if (data instanceof Model) {
+      if (isEnabled('ds-overhaul-references')) {
+        deprecate("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
+          id: 'ds.references.belongs-to.push-record',
+          until: '3.0'
+        });
+      }
       record = data;
     } else {
       record = this.store.push(data);

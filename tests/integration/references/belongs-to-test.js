@@ -2,6 +2,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import isEnabled from 'ember-data/-private/features';
 import { module, test } from 'qunit';
 
 var get = Ember.get;
@@ -163,7 +164,7 @@ test("push(object)", function(assert) {
   });
 });
 
-test("push(record)", function(assert) {
+testInDebug("push(record)", function(assert) {
   var done = assert.async();
 
   var person, family;
@@ -193,6 +194,10 @@ test("push(record)", function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
+    if (isEnabled('ds-overhaul-references')) {
+      assert.expectDeprecation("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
+    }
+
     familyReference.push(family).then(function(record) {
       assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
       assert.equal(get(record, 'name'), "Coreleone", "name is set");

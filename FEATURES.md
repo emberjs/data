@@ -114,3 +114,22 @@ entry in `config/features.json`.
   jsonApiSerializer.modelNameFromPayloadType("api::v1::administrator");
   jsonApiSerializer.modelNameFromPayloadType("api::v1::super-user");
   ```
+
+- `ds-overhaul-references` [#4398](https://github.com/emberjs/data/pull/4398)
+
+  This tackles some inconsistencies within `push()` on references. It should
+  only be used to push a JSON-API payload. The following use cases are
+  addressed and deprecated:
+
+  - `BelongsToReference#push()` accepts a `DS.Model`
+  - `HasManyReference#push()` accepts a plain array
+  - `HasManyReference#push()` accepts a pseudo-JSON-API format:
+
+      ```js
+      {
+        data: [
+          { data: { type: 'model', id: 1 } }
+        ]
+      }
+      ```
+
