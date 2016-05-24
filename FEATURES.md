@@ -66,7 +66,7 @@ entry in `config/features.json`.
   * [409] `DS.ConflictError`
   * [500] `DS.ServerError`
 
-- `ds-payload-type-hooks`
+- `ds-payload-type-hooks` [#4318](https://github.com/emberjs/data/pull/4318)
 
   Adds two new hooks `modelNameFromPayloadType` and `payloadTypeFromModelName`
   hooks to the serializers. They are used to map a custom type in the payload
