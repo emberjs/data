@@ -1,3 +1,5 @@
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
+
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 

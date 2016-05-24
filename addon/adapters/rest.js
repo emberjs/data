@@ -914,18 +914,18 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     if (isEnabled('ds-extended-errors')) {
       switch (status) {
-      case 401:
-        return new UnauthorizedError(errors, detailedMessage);
-      case 403:
-        return new ForbiddenError(errors, detailedMessage);
-      case 404:
-        return new NotFoundError(errors, detailedMessage);
-      case 409:
-        return new ConflictError(errors, detailedMessage);
-      default:
-        if (status >= 500) {
-          return new ServerError(errors, detailedMessage);
-        }
+        case 401:
+          return new UnauthorizedError(errors, detailedMessage);
+        case 403:
+          return new ForbiddenError(errors, detailedMessage);
+        case 404:
+          return new NotFoundError(errors, detailedMessage);
+        case 409:
+          return new ConflictError(errors, detailedMessage);
+        default:
+          if (status >= 500) {
+            return new ServerError(errors, detailedMessage);
+          }
       }
     }
 
@@ -1094,7 +1094,9 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     try {
       json = Ember.$.parseJSON(responseText);
-    } catch (e) {}
+    } catch (e) {
+      // ignored
+    }
 
     return json;
   },
@@ -1276,9 +1278,10 @@ if (isEnabled('ds-improved-ajax')) {
           return this.buildURL(type.modelName, ids, snapshots, requestType);
 
         case 'findHasMany':
-        case 'findBelongsTo':
+        case 'findBelongsTo': {
           let url = this.buildURL(type.modelName, id, snapshot, requestType);
           return this.urlPrefix(params.url, url);
+        }
       }
 
       return this.buildURL(type.modelName, id, snapshot, requestType, query);

@@ -580,13 +580,14 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     let knownKey = knownSide.key;
     let knownKind = knownSide.kind;
     let inverse = this.inverseFor(knownKey, store);
-    let key, otherKind;
+    // let key;
+    let otherKind;
 
     if (!inverse) {
       return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
     }
 
-    key = inverse.name;
+    // key = inverse.name;
     otherKind = inverse.kind;
 
     if (otherKind === 'belongsTo') {

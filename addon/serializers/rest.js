@@ -186,7 +186,6 @@ var RESTSerializer = JSONSerializer.extend({
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    /*jshint loopfunc:true*/
     Ember.makeArray(arrayHash).forEach((hash) => {
       let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
       documentHash.data.push(data);
@@ -339,7 +338,6 @@ var RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
-        /*jshint loopfunc:true*/
         data.forEach((resource) => {
 
           /*
@@ -427,7 +425,6 @@ var RESTSerializer = JSONSerializer.extend({
       var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type.modelName);
 
-      /*jshint loopfunc:true*/
       Ember.makeArray(payload[prop]).forEach((hash) => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);

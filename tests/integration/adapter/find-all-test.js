@@ -83,14 +83,11 @@ test("When all records for a type are requested, a rejection should reject the p
     }
   }));
 
-  let allRecords;
-
   run(() => {
     store.findAll('person').then(null, () => {
       assert.ok(true, "The rejection should get here");
       return store.findAll('person');
     }).then((all) => {
-      allRecords = all;
       assert.equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       assert.equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
     });

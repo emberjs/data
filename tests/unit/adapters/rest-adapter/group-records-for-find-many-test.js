@@ -74,7 +74,7 @@ test('groupRecordsForFindMany - findMany', function(assert) {
   });
 
   assert.ok(lengths.every(function(len) {
-      return len <= maxLength;
-    }), "Some URLs are longer than " + maxLength + " chars");
+    return len <= maxLength;
+  }), "Some URLs are longer than " + maxLength + " chars");
 
 });
