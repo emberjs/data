@@ -1,5 +1,8 @@
 import Ember from "ember";
+import { deprecate } from "ember-data/-private/debug";
 import isEnabled from "ember-data/-private/features";
+import global from "ember-data/-private/global";
+
 /**
   Ember Data
   @module ember-data
@@ -163,6 +166,18 @@ Object.defineProperty(DS, 'normalizeModelName', {
   value: normalizeModelName
 });
 
-Ember.lookup.DS = DS;
+Object.defineProperty(global, 'DS', {
+  configurable: true,
+  get() {
+    deprecate(
+      'Using the global version of DS is deprecated. Please either import ' +
+        'the specific modules needed or `import DS from \'ember-data\';`.',
+      false,
+      { id: 'ember-data.global-ds', until: '3.0.0' }
+    );
+
+    return DS;
+  }
+});
 
 export default DS;
