@@ -2,8 +2,11 @@ import Ember from 'ember';
 import Reference from './reference';
 import {
   assertPolymorphicType,
+  deprecate,
   runInDebug
 } from 'ember-data/-private/debug';
+
+import isEnabled from 'ember-data/-private/features';
 
 const get = Ember.get;
 
@@ -48,20 +51,54 @@ HasManyReference.prototype.meta = function() {
 HasManyReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((payload) => {
     var array = payload;
-    if (typeof payload === "object" && payload.data) {
-      array = payload.data;
+
+    if (isEnabled("ds-overhaul-references")) {
+      deprecate("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
+        id: 'ds.references.has-many.push-array',
+        until: '3.0'
+      });
     }
 
-    var internalModels = array.map((obj) => {
-      var record = this.store.push(obj);
+    let useLegacyArrayPush = true;
+    if (typeof payload === "object" && payload.data) {
+      array = payload.data;
+      useLegacyArrayPush = array.length && array[0].data;
+
+      if (isEnabled('ds-overhaul-references')) {
+        deprecate("HasManyReference#push() expects a valid JSON-API document.", !useLegacyArrayPush, {
+          id: 'ds.references.has-many.push-invalid-json-api',
+          until: '3.0'
+        });
+      }
+    }
+
+    if (!isEnabled('ds-overhaul-references')) {
+      useLegacyArrayPush = true;
+    }
+
+    let internalModels;
+    if (useLegacyArrayPush) {
+      internalModels = array.map((obj) => {
+        var record = this.store.push(obj);
+
+        runInDebug(() => {
+          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
+        });
+
+        return record._internalModel;
+      });
+    } else {
+      let records = this.store.push(payload);
+      internalModels = Ember.A(records).mapBy('_internalModel');
 
       runInDebug(() => {
-        var relationshipMeta = this.hasManyRelationship.relationshipMeta;
-        assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
+        internalModels.forEach((internalModel) => {
+          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
+        });
       });
-
-      return record._internalModel;
-    });
+    }
 
     this.hasManyRelationship.computeChanges(internalModels);
 
