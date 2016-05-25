@@ -5,6 +5,9 @@ import Reference from './reference';
 import isEnabled from '../../features';
 import { assertPolymorphicType, deprecate } from "ember-data/-private/debug";
 
+const {
+  RSVP: { resolve }
+} = Ember;
 
 /**
    A BelongsToReference is a low level API that allows users and
@@ -240,7 +243,7 @@ BelongsToReference.prototype.meta = function() {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
 */
 BelongsToReference.prototype.push = function(objectOrPromise) {
-  return Ember.RSVP.resolve(objectOrPromise).then((data) => {
+  return resolve(objectOrPromise).then((data) => {
     let record;
 
     if (data instanceof Model) {
@@ -358,13 +361,11 @@ BelongsToReference.prototype.value = function() {
 */
 BelongsToReference.prototype.load = function() {
   if (this.remoteType() === "id") {
-    return this.belongsToRelationship.getRecord();
+    return resolve(this.belongsToRelationship.getRecord());
   }
 
   if (this.remoteType() === "link") {
-    return this.belongsToRelationship.findLink().then((internalModel) => {
-      return this.value();
-    });
+    return this.belongsToRelationship.findLink().then(() => this.value());
   }
 };
 
@@ -403,9 +404,7 @@ BelongsToReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
 */
 BelongsToReference.prototype.reload = function() {
-  return this.belongsToRelationship.reload().then((internalModel) => {
-    return this.value();
-  });
+  return this.belongsToRelationship.reload().then(() => this.value());
 };
 
 export default BelongsToReference;

@@ -314,7 +314,10 @@ export default class Relationship {
     } else {
       let promise = this.fetchLink();
       this.linkPromise = promise;
-      return promise.then((result) => result);
+      return promise.then((result) => result, (error) => {
+        this.linkPromise = null;
+        throw error;
+      });
     }
   }
 

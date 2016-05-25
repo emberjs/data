@@ -452,7 +452,8 @@ test("push(promise)", function(assert) {
     push = personsReference.push(deferred.promise);
   });
 
-  assert.ok(push.then, 'HasManyReference.push returns a promise');
+
+  assert.ok(push.then && !(push instanceof DS.PromiseArray), 'BelongsToReference.push() should return a promise but not a DS.PromiseArray');
 
   run(function() {
     var payload = {
@@ -587,8 +588,18 @@ test("_isLoaded() returns an true array when the reference is loaded and empty",
 test("load() fetches the referenced records", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findMany = function(store, type, id) {
-    return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve([
+        { id: 1, name: "Vito" },
+        { id: 2, name: "Michael" }
+      ]);
+    }
   };
 
   var family;
@@ -610,10 +621,21 @@ test("load() fetches the referenced records", function(assert) {
   });
 
   var personsReference = family.hasMany('persons');
+  var load;
 
   run(function() {
+    load = personsReference.load();
+    load.catch(function() {});
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseArray), 'BelongsToReference.load() should return a promise but not a DS.PromiseArray');
+
+  load.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     personsReference.load().then(function(records) {
-      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.ok(records instanceof DS.ManyArray, "load resolves with the referenced records");
+      assert.equal(personsReference.value(), records);
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), "Vito");
       assert.equal(records.objectAt(1).get('name'), "Michael");
@@ -626,10 +648,20 @@ test("load() fetches the referenced records", function(assert) {
 test("load() fetches link when remoteType is link", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findHasMany = function(store, snapshot, link) {
     assert.equal(link, "/families/1/persons");
 
-    return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve([
+        { id: 1, name: "Vito" },
+        { id: 2, name: "Michael" }
+      ]);
+    }
   };
 
   var family;
@@ -648,11 +680,21 @@ test("load() fetches link when remoteType is link", function(assert) {
   });
 
   var personsReference = family.hasMany('persons');
+  var load;
   assert.equal(personsReference.remoteType(), "link");
 
   run(function() {
+    load = personsReference.load();
+    load.catch(function() {});
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseArray), 'BelongsToReference.load() should return a promise but not a DS.PromiseArray');
+
+  load.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     personsReference.load().then(function(records) {
-      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.equal(personsReference.value(), records);
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), "Vito");
       assert.equal(records.objectAt(1).get('name'), "Michael");
@@ -666,8 +708,8 @@ test("load() - only a single find is triggered", function(assert) {
   var done = assert.async();
 
   var deferred = Ember.RSVP.defer();
-  var count = 0;
 
+  var count = 0;
   env.adapter.findMany = function(store, type, id) {
     count++;
     assert.equal(count, 1);
@@ -694,12 +736,17 @@ test("load() - only a single find is triggered", function(assert) {
   });
 
   var personsReference = family.hasMany('persons');
+  var load;
 
   run(function() {
     personsReference.load();
-    personsReference.load().then(function(records) {
-      assert.equal(get(records, 'length'), 2);
-    });
+    load = personsReference.load();
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseArray), 'BelongsToReference.load() should return a promise but not a DS.PromiseArray');
+
+  load.then(function(records) {
+    assert.equal(get(records, 'length'), 2);
   });
 
   run(function() {
@@ -718,11 +765,18 @@ test("load() - only a single find is triggered", function(assert) {
 test("reload()", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findMany = function(store, type, id) {
-    return Ember.RSVP.resolve([
-      { id: 1, name: "Vito Coreleone" },
-      { id: 2, name: "Michael Coreleone" }
-    ]);
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve([
+        { id: 1, name: "Vito Coreleone" },
+        { id: 2, name: "Michael Coreleone" }
+      ]);
+    }
   };
 
   var family;
@@ -746,10 +800,21 @@ test("reload()", function(assert) {
   });
 
   var personsReference = family.hasMany('persons');
+  var reload;
 
   run(function() {
+    reload = personsReference.reload();
+    reload.catch(function() {});
+  });
+
+  assert.ok(reload.then && !(reload instanceof DS.PromiseArray), 'BelongsToReference.reload() should return a promise but not a DS.PromiseArray');
+
+  reload.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     personsReference.reload().then(function(records) {
-      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.ok(records instanceof DS.ManyArray, "reload resolves with the referenced records");
+      assert.equal(personsReference.value(), records);
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), "Vito Coreleone");
       assert.equal(records.objectAt(1).get('name'), "Michael Coreleone");
@@ -768,7 +833,12 @@ test("reload() fetches link when remoteType is link", function(assert) {
     assert.equal(link, "/families/1/persons");
 
     if (count === 1) {
-      return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+      return Ember.RSVP.resolve([
+        { id: 1, name: "Vito" },
+        { id: 2, name: "Michael" }
+      ]);
+    } else if (count === 2) {
+      return Ember.RSVP.reject(new DS.AdapterError());
     } else {
       return Ember.RSVP.resolve([
           { id: 1, name: "Vito Coreleone" },
@@ -797,9 +867,18 @@ test("reload() fetches link when remoteType is link", function(assert) {
 
   run(function() {
     personsReference.load().then(function() {
-      return personsReference.reload();
+      var reload = personsReference.reload();
+
+      assert.ok(reload.then && !(reload instanceof DS.PromiseArray), 'BelongsToReference.reload() should return a promise but not a DS.PromiseArray');
+
+      return reload.catch(function(error) {
+        assert.ok(error instanceof DS.AdapterError);
+
+        return personsReference.reload();
+      });
     }).then(function(records) {
-      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.ok(records instanceof DS.ManyArray, "reload resolves with the referenced records");
+      assert.equal(personsReference.value(), records);
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), "Vito Coreleone");
       assert.equal(records.objectAt(1).get('name'), "Michael Coreleone");

@@ -1,6 +1,10 @@
 import Ember from 'ember';
 import Reference from './reference';
 
+const {
+  RSVP: { resolve }
+} = Ember;
+
 /**
    An RecordReference is a low level API that allows users and
    addon author to perform meta-operations on a record.
@@ -90,9 +94,7 @@ RecordReference.prototype.remoteType = function() {
   @return Promise<record> a promise for the value (record or relationship)
 */
 RecordReference.prototype.push = function(objectOrPromise) {
-  return Ember.RSVP.resolve(objectOrPromise).then((data) => {
-    return this.store.push(data);
-  });
+  return resolve(objectOrPromise).then(data => this.store.push(data));
 };
 
 /**
@@ -115,6 +117,8 @@ RecordReference.prototype.value = function() {
   if (this.internalModel.hasRecord) {
     return this.internalModel.getRecord();
   }
+
+  return null;
 };
 
 /**
@@ -134,7 +138,7 @@ RecordReference.prototype.value = function() {
    @return {Promise<record>} the record for this RecordReference
 */
 RecordReference.prototype.load = function() {
-  return this.store.findRecord(this.type, this._id);
+  return updateInternalModel(this, this.store.findRecord(this.type, this._id));
 };
 
 /**
@@ -154,12 +158,18 @@ RecordReference.prototype.load = function() {
    @return {Promise<record>} the record for this RecordReference
 */
 RecordReference.prototype.reload = function() {
-  let record = this.value();
-  if (record) {
-    return record.reload();
+  if (this.internalModel.isLoaded()) {
+    return updateInternalModel(this, this.value().reload());
   }
 
   return this.load();
 };
+
+function updateInternalModel(reference, record) {
+  return record.then(record => {
+    reference.internalModel = record._internalModel;
+    return record;
+  });
+}
 
 export default RecordReference;

@@ -46,8 +46,8 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
     return store._push(payload);
   }, error => {
     internalModel.notFound();
-    if (internalModel.isEmpty()) {
-      internalModel.unloadRecord();
+    if (internalModel.isEmpty()) {    
+      internalModel.unloadRecord();   
     }
 
     throw error;
@@ -72,7 +72,13 @@ export function _findMany(adapter, store, modelName, ids, internalModels) {
     let serializer = serializerForAdapter(store, adapter, modelName);
     let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findMany');
     return store._push(payload);
-  }, null, `DS: Extract payload of ${modelName}`);
+  }, error => {
+    for (let i = 0; i < internalModels.length; i++) {
+      internalModels[i].notFound();
+    }
+
+    throw error;
+  }, `DS: Extract payload of ${modelName}`);
 }
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {

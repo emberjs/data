@@ -266,7 +266,8 @@ test("push(promise)", function(assert) {
     push = familyReference.push(deferred.promise);
   });
 
-  assert.ok(push.then, 'BelongsToReference.push returns a promise');
+  assert.ok(push.then, 'BelongsToReference.push() returns a promise');
+  assert.ok(!(push instanceof DS.PromiseObject), 'BelongsToReference.push() should not return a DS.PromiseObject');
 
   run(function() {
     deferred.resolve({
@@ -405,13 +406,12 @@ test("value() returns the referenced record when loaded", function(assert) {
   assert.equal(familyReference.value(), family);
 });
 
-test("load() fetches the record", function(assert) {
+test("value() is null when reference is loading", function(assert) {
   var done = assert.async();
+  var deferred = Ember.RSVP.defer();
 
-  env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
-    });
+  env.adapter.findRecord = function() {
+    return deferred.promise;
   };
 
   var person;
@@ -430,9 +430,70 @@ test("load() fetches the record", function(assert) {
   });
 
   var familyReference = person.belongsTo('family');
+  var load;
 
   run(function() {
+    load = familyReference.load();
+  });
+
+  assert.equal(familyReference.value(), null);
+
+  deferred.resolve({
+    id: 1, name: "Coreleone"
+  });
+
+  load.then(family => {
+    assert.equal(familyReference.value(), family);
+    done();
+  });
+});
+
+test("load() fetches the record", function(assert) {
+  var done = assert.async();
+
+  var count = 0;
+  env.adapter.findRecord = function(store, type, id) {
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve({
+        id: 1, name: "Coreleone"
+      });
+    }
+  };
+
+  var person;
+  run(function() {
+    person = env.store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            data: { type: 'family', id: 1 }
+          }
+        }
+      }
+    });
+  });
+
+  var familyReference = person.belongsTo('family');
+  var load;
+
+  run(function() {
+    load = familyReference.load();
+    load.catch(function() {});
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseObject), 'BelongsToReference.load() should return a promise but not a DS.PromiseObject');
+
+  load.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     familyReference.load().then(function(record) {
+      assert.equal(familyReference.value(), record);
       assert.equal(get(record, 'name'), "Coreleone");
 
       done();
@@ -443,12 +504,19 @@ test("load() fetches the record", function(assert) {
 test("load() fetches link when remoteType is link", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findBelongsTo = function(store, snapshot, link) {
     assert.equal(link, "/families/1");
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
-    });
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve({
+        id: 1, name: "Coreleone"
+      });
+    }
   };
 
   var person;
@@ -467,10 +535,21 @@ test("load() fetches link when remoteType is link", function(assert) {
   });
 
   var familyReference = person.belongsTo('family');
+  var load;
   assert.equal(familyReference.remoteType(), "link");
 
   run(function() {
+    load = familyReference.load();
+    load.catch(function() {});
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseObject), 'BelongsToReference.load() should return a promise but not a DS.PromiseObject');
+
+  load.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     familyReference.load().then(function(record) {
+      assert.equal(familyReference.value(), record);
       assert.equal(get(record, 'name'), "Coreleone");
 
       done();
@@ -484,11 +563,18 @@ test("reload() - loads the record when not yet loaded", function(assert) {
   var count = 0;
   env.adapter.findRecord = function(store, type, id) {
     count++;
-    assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
-    });
+    if (count === 1) {
+      assert.equal(count, 1);
+
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      assert.equal(count, 2);
+
+      return Ember.RSVP.resolve({
+        id: 1, name: "Coreleone"
+      });
+    }
   };
 
   var person;
@@ -507,8 +593,18 @@ test("reload() - loads the record when not yet loaded", function(assert) {
   });
 
   var familyReference = person.belongsTo('family');
+  var reload;
 
   run(function() {
+    reload = familyReference.reload();
+    reload.catch(function() {});
+  });
+
+  assert.ok(reload.then && !(reload instanceof DS.PromiseObject), 'BelongsToReference.reload() should return a promise but not a DS.PromiseObject');
+
+  reload.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     familyReference.reload().then(function(record) {
       assert.equal(get(record, 'name'), "Coreleone");
 
@@ -552,25 +648,37 @@ test("reload() - reloads the record when already loaded", function(assert) {
   });
 
   var familyReference = person.belongsTo('family');
+  var reload;
 
   run(function() {
-    familyReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+    reload = familyReference.reload();
+  });
 
-      done();
-    });
+  assert.ok(reload.then && !(reload instanceof DS.PromiseObject), 'BelongsToReference.reload() should return a promise but not a DS.PromiseObject');
+
+  reload.then(function(record) {
+    assert.equal(get(record, 'name'), "Coreleone");
+
+    done();
   });
 });
 
 test("reload() - uses link to reload record", function(assert) {
   var done = assert.async();
+  var count = 0;
 
   env.adapter.findBelongsTo = function(store, snapshot, link) {
     assert.equal(link, "/families/1");
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
-    });
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve({
+        id: 1, name: "Coreleone"
+      });
+    }
   };
 
   var person;
@@ -589,8 +697,18 @@ test("reload() - uses link to reload record", function(assert) {
   });
 
   var familyReference = person.belongsTo('family');
+  var reload;
 
   run(function() {
+    reload = familyReference.reload();
+    reload.catch(function() {});
+  });
+
+  assert.ok(reload.then && !(reload instanceof DS.PromiseObject), 'BelongsToReference.reload() should return a promise but not a DS.PromiseObject');
+
+  reload.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     familyReference.reload().then(function(record) {
       assert.equal(get(record, 'name'), "Coreleone");
 
