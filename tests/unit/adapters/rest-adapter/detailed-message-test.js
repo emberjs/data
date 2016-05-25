@@ -20,7 +20,7 @@ test("generating a wonderfully friendly error message should work", (assert) => 
 
   let friendlyMessage = adapter.generatedDetailedMessage(
     418,
-    { "Content-Type": "text/plain" },
+    { "content-type": "text/plain" },
     "I'm a little teapot, short and stout",
     {
       url: "/teapots/testing",

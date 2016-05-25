@@ -18,6 +18,16 @@ export default function parseResponseHeaders(headersString) {
     value = value.join(':').trim();
 
     if (value) {
+      // according to the spec header fields are case insensitive, that's why
+      // we are using the lowercase version here
+      //
+      // https://tools.ietf.org/html/rfc7230#section-3.2
+      let lowerCaseField = field.toLowerCase();
+      headers[lowerCaseField] = value;
+
+      // deprecated way since headers are case insensitive; this is kept here
+      // for backwards compatibility and should be remove in the next major
+      // release of ember-data
       headers[field] = value;
     }
   });

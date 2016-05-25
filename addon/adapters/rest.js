@@ -1137,7 +1137,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
     var shortenedPayload;
-    var payloadContentType = headers["Content-Type"] || "Empty Content-Type";
+    var payloadContentType = headers["content-type"] || "Empty Content-Type";
 
     if (payloadContentType === "text/html" && payload.length > 250) {
       shortenedPayload = "[Omitted Lengthy HTML]";
