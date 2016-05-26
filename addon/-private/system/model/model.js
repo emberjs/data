@@ -554,6 +554,26 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
 
+    If you pass an object on the `adapterOptions` property of the options
+    argument it will be passed to you adapter via the snapshot
+
+    ```js
+    record.destroyRecord({ adapterOptions: { subscribe: false } });
+    ```
+
+    ```app/adapters/post.js
+    import MyCustomAdapter from './custom-adapter';
+
+    export default MyCustomAdapter.extend({
+      deleteRecord: function(store, type, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    });
+    ```
+
     @method destroyRecord
     @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
@@ -699,6 +719,27 @@ var Model = Ember.Object.extend(Ember.Evented, {
       // Error callback
     });
     ```
+
+   If you pass an object on the `adapterOptions` property of the options
+   argument it will be passed to you adapter via the snapshot
+
+    ```js
+    record.save({ adapterOptions: { subscribe: false } });
+    ```
+
+    ```app/adapters/post.js
+    import MyCustomAdapter from './custom-adapter';
+
+    export default MyCustomAdapter.extend({
+      updateRecord: function(store, type, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    });
+    ```
+
     @method save
     @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
