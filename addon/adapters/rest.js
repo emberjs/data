@@ -794,10 +794,14 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
     var expandedURL = url.split('/');
-    //Case when the url is of the format ...something/:id
+    // Case when the url is of the format ...something/:id
+    // We are decodeURIComponent-ing the lastSegment because if it represents
+    // the id, it has been encodeURIComponent-ified within `buildURL`. If we
+    // don't do this, then records with id having special characters are not
+    // coalesced correctly (see GH #4190 for the reported bug)
     var lastSegment = expandedURL[expandedURL.length - 1];
     var id = snapshot.id;
-    if (lastSegment === id) {
+    if (decodeURIComponent(lastSegment) === id) {
       expandedURL[expandedURL.length - 1] = "";
     } else if (endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
