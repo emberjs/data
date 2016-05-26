@@ -534,6 +534,34 @@ Store = Service.extend({
     });
     ```
 
+   If you pass an object on the `adapterOptions` property of the options
+   argument it will be passed to you adapter via the snapshot
+
+    ```app/routes/post/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findRecord('post', params.post_id, {
+          adapterOptions: { subscribe: false }
+        });
+      }
+    });
+    ```
+
+    ```app/adapters/post.js
+    import MyCustomAdapter from './custom-adapter';
+
+    export default MyCustomAdapter.extend({
+      findRecord: function(store, type, id, snapshot) {
+        if (snapshot.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    });
+    ```
+
     See [peekRecord](#method_peekRecord) to get the cached version of a record.
 
     @method findRecord
@@ -1279,6 +1307,35 @@ Store = Service.extend({
       }
     });
     ```
+
+    If you pass an object on the `adapterOptions` property of the options
+    argument it will be passed to you adapter via the `snapshotRecordArray`
+
+    ```app/routes/posts.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findAll('post', {
+          adapterOptions: { subscribe: false }
+        });
+      }
+    });
+    ```
+
+    ```app/adapters/post.js
+    import MyCustomAdapter from './custom-adapter';
+
+    export default MyCustomAdapter.extend({
+      findAll: function(store, type, sinceToken, snapshotRecordArray) {
+        if (snapshotRecordArray.adapterOptions.subscribe) {
+          // ...
+        }
+        // ...
+      }
+    });
+    ```
+
 
     See [peekAll](#method_peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
