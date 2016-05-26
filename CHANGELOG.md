@@ -202,6 +202,11 @@
 - [#4066](https://github.com/emberjs/data/pull/4066) Use correct version number when used as an addon.
 
 ### Release 2.3.0 (January 12, 2016)
+
+Ember Data 2.3 is now published as and Ember CLI addon in addition to a bower package. 
+See the [release notes](http://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
+for instruction on how to upgrade your Ember CLI project to take advantage of the Ember Data addon.
+
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
 - [#4042](https://github.com/emberjs/data/pull/4042) [BUGFIX beta] prevent calls to store.query leaking
 - [#4048](https://github.com/emberjs/data/pull/4048) Strip stuff from addon before it is added to app
