@@ -6,5 +6,6 @@
   "ds-extended-errors": null,
   "ds-links-in-record-array": null,
   "ds-overhaul-references": null,
-  "ds-payload-type-hooks": null
+  "ds-payload-type-hooks": null,
+  "ds-adapter-jqxhr": null
 }

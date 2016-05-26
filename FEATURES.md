@@ -133,3 +133,9 @@ entry in `config/features.json`.
       }
       ```
 
+- `ds-adapter-jqxhr` [#4404](https://github.com/emberjs/data/pull/4404)
+
+  This provides access to the original jqXHR request in the data returned
+  to the `adapter.handleResponse` method.  It allows using any part of the request
+  to determine if the response is valid.  The `adapter.handleResponse`
+  requestData parameter will now include keys for `url`, `method`, and `jqXHR`.
