@@ -473,9 +473,9 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
 
     var relationshipsByName = Ember.get(Blog, 'relationshipsByName');
     relationshipsByName.get('users');
-    //=> { key: 'users', kind: 'hasMany', type: App.User }
+    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
     relationshipsByName.get('owner');
-    //=> { key: 'owner', kind: 'belongsTo', type: App.User }
+    //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
     ```
 
     @property relationshipsByName
@@ -622,7 +622,7 @@ export const RelationshipsInstanceMethodsMixin = Ember.Mixin.create({
    - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
    - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
    - **parentType** <span class="type">DS.Model</span> the type of the Model that owns this relationship
-   - **type** <span class="type">DS.Model</span> the type of the related Model
+   - **type** <span class="type">String</span> the type name of the related Model
 
     Note that in addition to a callback, you can also pass an optional target
     object that will be set as `this` on the context.
