@@ -461,7 +461,7 @@ testInDebug('store#findRecord call with `id` of type different than non-empty st
     badValues.map(item => {
       assert.expectAssertion(function() {
         store.findRecord('car', item);
-      }, '`id` has to be non-empty string or number');
+      }, '`id` passed to `findRecord()` has to be non-empty string or number');
     });
   });
 });
