@@ -58,7 +58,7 @@ import EmptyObject from "ember-data/-private/system/empty-object";
 
 import isEnabled from 'ember-data/-private/features';
 
-export let badIdFormatAssertion = '`id` has to be non-empty string or number';
+export let badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 var Map = Ember.Map;
