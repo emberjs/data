@@ -1,8 +1,9 @@
 /* eslint no-extra-semi: "off" */
 
+import DS from 'ember-data';
+
 ;(function() {
   /* globals Ember */
-  /* globals DS */
   var K = Ember.K;
   Ember.onLoad('Ember.Application', function(Application) {
 
