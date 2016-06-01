@@ -1000,6 +1000,9 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(payload, textStatus, jqXHR) {
+        if (isEnabled('ds-adapter-jqxhr')) {
+          requestData.jqXHR = jqXHR;
+        }
 
         let response = adapter.handleResponse(
           jqXHR.status,
@@ -1016,6 +1019,10 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
+        if (isEnabled('ds-adapter-jqxhr')) {
+          requestData.jqXHR = jqXHR;
+        }
+
         runInDebug(function() {
           let message = `The server returned an empty string for ${type} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
           let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
@@ -1377,6 +1384,10 @@ if (isEnabled('ds-improved-ajax')) {
       return new Ember.RSVP.Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
+          if (isEnabled('ds-adapter-jqxhr')) {
+            requestData.jqXHR = jqXHR;
+          }
+
           let response = adapter.handleResponse(
             jqXHR.status,
             parseResponseHeaders(jqXHR.getAllResponseHeaders()),
@@ -1392,6 +1403,10 @@ if (isEnabled('ds-improved-ajax')) {
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
+          if (isEnabled('ds-adapter-jqxhr')) {
+            requestData.jqXHR = jqXHR;
+          }
+
           runInDebug(function() {
             let message = `The server returned an empty string for ${method} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
             let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");

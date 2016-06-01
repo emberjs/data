@@ -2274,6 +2274,9 @@ test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', fun
     method: "GET",
     url:    "/posts/1"
   };
+  if (isEnabled('ds-adapter-jqxhr')) {
+    expectedRequestData.jqXHR = jqXHR;
+  }
 
   Ember.$.ajax = function(hash) {
     hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
