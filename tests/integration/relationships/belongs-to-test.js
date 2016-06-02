@@ -1010,6 +1010,7 @@ test("Related link should be fetched when no local data is present", function(as
         }
       }
     });
+
     book.get('author').then((author) => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
     });
@@ -1234,5 +1235,63 @@ test("A belongsTo relationship can be reloaded using a reference if it was fetch
 
       done();
     });
+  });
+});
+
+
+test("relationship assignment is tracked", function (assert) {
+  var book, author, anotherAuthor;
+
+  run(function() {
+    book = env.store.push({
+      data: {
+        id: '1',
+        type: 'book',
+        attributes: {
+          name: "A book with one true author?"
+        },
+        relationships: {
+          author: {
+            data: {
+              id: '2',
+              type: 'author'
+            }
+          }
+        }
+      }
+    });
+    author = env.store.push({
+      data: {
+        id: '2',
+        type: 'author',
+        attributes: {
+          name: 'Stanley'
+        }
+      }
+    });
+
+    anotherAuthor = env.store.push({
+      data: {
+        id: '3',
+        type: 'author',
+        attributes: {
+          name: 'Aaron'
+        }
+      }
+    });
+  });
+
+
+  run(function() {
+    assert.equal(book.hasDirtyRelationships(), false, "Book should not have dirty relationships on load");
+
+    book.set('author', anotherAuthor);
+    assert.equal(book.hasDirtyRelationships(), true, "Book has dirty relationships when new author is assigned");
+
+    assert.equal(book.get('author'), anotherAuthor, "Book has another author assigned");
+
+    book.rollback();
+    assert.equal(book.hasDirtyRelationships(), false, "Book does not have dirty relationships when new author assignment is rolled back");
+    assert.equal(book.get('author'), author, "Book rolls back author");
   });
 });

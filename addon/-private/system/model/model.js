@@ -129,6 +129,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
   hasDirtyAttributes: computed('currentState.isDirty', function() {
     return this.get('currentState.isDirty');
   }),
+
+  hasDirtyRelationships: function() {
+    return this._internalModel._relationships.isDirty();
+  },
+
   /**
     If this property is `true` the record is in the `saving` state. A
     record enters the saving state when `save` is called, but the
@@ -655,6 +660,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     return this._internalModel.changedAttributes();
   },
 
+
+  rollback: function() {
+    this._internalModel.rollback();
+  },
+
   //TODO discuss with tomhuda about events/hooks
   //Bring back as hooks?
   /**
@@ -693,6 +703,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
   rollbackAttributes() {
     this._internalModel.rollbackAttributes();
   },
+
+
+  rollbackRelationships: function() {
+    this._internalModel.rollbackRelationships();
+  },
+
 
   /*
     @method _createSnapshot

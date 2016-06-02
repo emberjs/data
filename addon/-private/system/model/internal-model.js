@@ -585,6 +585,21 @@ export default class InternalModel {
     this.record._notifyProperties(dirtyKeys);
   }
 
+
+  rollback() {
+    this.rollbackAttributes();
+    this.rollbackRelationships();
+  }
+
+  /*
+    @method rollbackRelationships
+    @private
+  */
+  rollbackRelationships() {
+    this.eachRelationship((name, relationship) => {
+      this._relationships.get(name).rollback();
+    });
+  }
   /*
     @method transitionTo
     @private

@@ -69,6 +69,7 @@ export default function Relationship(store, record, inverseKey, relationshipMeta
   this.meta = null;
   this.hasData = false;
   this.hasLoaded = false;
+  this.isDirty = false;
 }
 
 Relationship.prototype = {
@@ -316,5 +317,8 @@ Relationship.prototype = {
   setHasLoaded(value) {
     heimdall.increment(setHasLoaded);
     this.hasLoaded = value;
+  },
+
+  rollback: function() {
   }
 };
