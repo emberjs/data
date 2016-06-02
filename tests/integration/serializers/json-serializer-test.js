@@ -201,6 +201,32 @@ test("serializeHasMany omits unknown relationships on pushed record", function(a
   assert.ok(!json.hasOwnProperty("comments"), "Does not add the relationship key to json");
 });
 
+test("shouldSerializeHasMany", function(assert) {
+
+  run(function() {
+    post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
+    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post, id: "1" });
+  });
+
+  var snapshot = post._createSnapshot();
+  var relationship = snapshot.record.relationshipFor('comments');
+  var key = relationship.key;
+
+  var shouldSerialize = env.store.serializerFor("post").shouldSerializeHasMany(snapshot, relationship, key);
+
+  assert.ok(shouldSerialize, 'shouldSerializeHasMany correctly identifies with hasMany relationship');
+});
+
+if (isEnabled("ds-check-should-serialize-relationships")) {
+  testInDebug("_shouldSerializeHasMany deprecation", function(assert) {
+    env.store.serializerFor("post")._shouldSerializeHasMany = Ember.K;
+
+    assert.expectDeprecation(function() {
+      env.store.serializerFor("post").shouldSerializeHasMany();
+    }, /_shouldSerializeHasMany has been promoted to the public API/);
+  });
+}
+
 test("serializeIntoHash", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
