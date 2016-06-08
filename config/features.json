@@ -1,11 +1,11 @@
 {
-  "ds-boolean-transform-allow-null": null,
-  "ds-improved-ajax": null,
-  "ds-pushpayload-return": null,
+  "ds-boolean-transform-allow-null": true,
+  "ds-improved-ajax": true,
+  "ds-pushpayload-return": false,
   "ds-serialize-ids-and-types": true,
-  "ds-extended-errors": null,
-  "ds-links-in-record-array": null,
-  "ds-overhaul-references": null,
-  "ds-payload-type-hooks": null,
-  "ds-check-should-serialize-relationships": null
+  "ds-extended-errors": false,
+  "ds-links-in-record-array": true,
+  "ds-overhaul-references": false,
+  "ds-payload-type-hooks": false,
+  "ds-check-should-serialize-relationships": false
 }
