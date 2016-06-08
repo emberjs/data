@@ -2,16 +2,13 @@
 
 ### Master
 
-### Release 2.6.0-beta.4 (May 12, 2016)
+### Release 2.6.0 (June 8, 2016)
+- [#4386](https://github.com/emberjs/data/pull/4386) [BUGFIX release] `isUpdating` flag is set correctly for `store.findAll`
 - [#4374](https://github.com/emberjs/data/pull/4374) Fix #4366: EmbeddedRecordsMixin embeds the record, not the snapshot
 - [#4379](https://github.com/emberjs/data/pull/4379) [BUGFIX beta] Fix resetting of properties to in-flight values
 - [#4380](https://github.com/emberjs/data/pull/4380) [BUGFIX beta] remove trailing whitespace from model blueprint
-
-### Release 2.6.0-beta.3 (May 3, 2016)
 - [#4300](https://github.com/emberjs/data/pull/4300) [BUGFIX beta] Overhaul queryRecord
 - [#4363](https://github.com/emberjs/data/pull/4363) [DOC] Fix hard-coded "Customizing Adapters" link
-
-### Release 2.6.0-beta.2 (April 29, 2016)
 - [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
 - [#4324](https://github.com/emberjs/data/pull/4324) [DOC beta] Clarify DS.Model#changedAttributes()
 - [#4324](https://github.com/emberjs/data/pull/4324) [DOC beta] Clarify DS.Model#changedAttributes()
@@ -21,8 +18,6 @@
 - [#4331](https://github.com/emberjs/data/pull/4331) [BUGFIX beta] Overhaul attr/relationships imports in model blueprint
 - [#4338](https://github.com/emberjs/data/pull/4338) [DOC beta] Overhaul documentation for reload / background reload
 - [#4345](https://github.com/emberjs/data/pull/4345) [DOC] fix example syntax
-
-### Release 2.6.0-beta.1 (April 12, 2016)
 - [#4184](https://github.com/emberjs/data/pull/4184) blueprints: Use project.dependencies() to determine test framework
 - [#3848](https://github.com/emberjs/data/pull/3848) [BUGFIX] EmbeddedRecordMixin should include the type serializing hasMany as ids
 - [#4154](https://github.com/emberjs/data/pull/4154) Make sure new record are not pushed twice when parent is saved before.
