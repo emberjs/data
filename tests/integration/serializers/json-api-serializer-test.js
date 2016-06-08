@@ -263,6 +263,28 @@ test('Serializer should respect the attrs hash when serializing attributes with 
   assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });
 
+test('options are passed to transform for serialization', function(assert) {
+  assert.expect(1);
+
+  env.registry.register('transform:custom', DS.Transform.extend({
+    serialize: function(deserialized, options) {
+      assert.deepEqual(options, { custom: 'config' });
+    }
+  }));
+
+  User.reopen({
+    myCustomField: DS.attr('custom', {
+      custom: 'config'
+    })
+  });
+
+  var user;
+  run(function() {
+    user = env.store.createRecord('user', { myCustomField: 'value' });
+  });
+
+  env.store.serializerFor('user').serialize(user._createSnapshot());
+});
 
 testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
   assert.expectWarning(function() {
