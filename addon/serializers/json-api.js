@@ -499,7 +499,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       let value = snapshot.attr(key);
       if (type) {
         const transform = this.transformFor(type);
-        value = transform.serialize(value);
+        value = transform.serialize(value, attribute.options);
       }
 
       let payloadKey = this._getMappedKey(key, snapshot.type);
