@@ -129,3 +129,24 @@ test("ajaxOptions() empty data", function(assert) {
     url: 'example.com'
   });
 });
+
+if (isEnabled('ds-ember-ajax-support')) {
+  test("ajaxService injection", function(assert) {
+    let done = assert.async();
+    let ajaxOptions = {
+      data: {}
+    };
+    let ajaxUrl = 'https://example.com';
+    let ajaxType = 'POST';
+    let ajaxService = {
+      ajax(url, options) {
+        assert.deepEqual(options, Ember.merge(ajaxOptions, { type: ajaxType }));
+        assert.equal(url, ajaxUrl);
+        done();
+      }
+    };
+    adapter.set('ajaxService', ajaxService);
+
+    adapter.ajax(ajaxUrl, ajaxType, ajaxOptions);
+  });
+}
