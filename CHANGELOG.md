@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.6.1 (June 15, 2016)
+- [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
+- [#4389](https://github.com/emberjs/data/pull/4389) call super in addon#init
+
 ### Release 2.6.0 (June 8, 2016)
 - [#4386](https://github.com/emberjs/data/pull/4386) [BUGFIX release] `isUpdating` flag is set correctly for `store.findAll`
 - [#4374](https://github.com/emberjs/data/pull/4374) Fix #4366: EmbeddedRecordsMixin embeds the record, not the snapshot
