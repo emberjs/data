@@ -1137,7 +1137,7 @@ Store = Service.extend({
     ```
 
     Note: the primary use case for `store.queryRecord` is when a single record
-    is queried and the `id` is not kown beforehand. In all other cases
+    is queried and the `id` is not known beforehand. In all other cases
     `store.query` and using the first item of the array is likely the preferred
     way:
 
