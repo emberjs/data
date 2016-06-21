@@ -989,6 +989,15 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   ajax(url, type, options) {
+
+    if (isEnabled('ds-ember-ajax-support')) {
+      let ajaxService = this.get('ajaxService');
+      if (ajaxService) {
+        options.type = type;
+        return ajaxService.ajax(url, options);
+      }
+    }
+
     var adapter = this;
 
     var requestData = {
