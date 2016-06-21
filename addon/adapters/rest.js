@@ -619,6 +619,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @method findHasMany
     @param {DS.Store} store
     @param {DS.Snapshot} snapshot
+    @param {DS.Snapshot} relationship snapshot of the hasMany relationship
     @param {String} url
     @return {Promise} promise
   */
