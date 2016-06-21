@@ -1,10 +1,11 @@
 /* eslint no-extra-semi: "off" */
 
 ;(function() {
-  /* globals Ember */
-  /* globals DS */
+  /* globals Ember, require */
   var K = Ember.K;
   Ember.onLoad('Ember.Application', function(Application) {
+
+    var DS = require('ember-data').default;
 
     Application.initializer({
       name:       "ember-data",
