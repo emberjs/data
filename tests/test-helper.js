@@ -11,9 +11,10 @@ import {
   invokeAsync
 } from 'dummy/tests/helpers/async';
 import Ember from 'ember';
-import './ember-data-initializers';
+import loadInitializers from 'ember-load-initializers';
 
 setResolver(resolver);
+loadInitializers(Ember.Application, 'dummy');
 
 const { assert } = QUnit;
 
