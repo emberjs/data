@@ -133,3 +133,7 @@ entry in `config/features.json`.
       }
       ```
 
+- `ds-check-should-serialize-relationships`
+
+Adds public method for `shouldSerializeHasMany`, used to determine if a
+`hasMany` relationship can be serialized.

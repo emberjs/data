@@ -499,7 +499,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       let value = snapshot.attr(key);
       if (type) {
         const transform = this.transformFor(type);
-        value = transform.serialize(value);
+        value = transform.serialize(value, attribute.options);
       }
 
       let payloadKey = this._getMappedKey(key, snapshot.type);
@@ -571,8 +571,12 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   serializeHasMany(snapshot, json, relationship) {
     var key = relationship.key;
+    var shouldSerializeHasMany = '_shouldSerializeHasMany';
+    if (isEnabled("ds-check-should-serialize-relationships")) {
+      shouldSerializeHasMany = 'shouldSerializeHasMany';
+    }
 
-    if (this._shouldSerializeHasMany(snapshot, key, relationship)) {
+    if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
       var hasMany = snapshot.hasMany(key);
       if (hasMany !== undefined) {
 
