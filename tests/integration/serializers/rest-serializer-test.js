@@ -355,15 +355,15 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   assert.equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-test('normalizeHash normalizes specific parts of the payload', function(assert) {
+test('normalize normalizes specific parts of the payload', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizeHash: {
-      homePlanets(hash) {
-        hash.id = hash._id;
-        delete hash._id;
-        return hash;
-      }
+
+    normalize(typeClass, hash) {
+      hash.id = hash._id;
+      delete hash._id;
+      return this._super(...arguments);
     }
+
   }));
 
   var jsonHash = {
@@ -397,6 +397,7 @@ test('normalizeHash normalizes specific parts of the payload', function(assert) 
 
 testInDebug('normalizeHash has been deprecated', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
+
     normalizeHash: {
       homePlanets(hash) {
         hash.id = hash._id;
@@ -418,15 +419,15 @@ testInDebug('normalizeHash has been deprecated', function(assert) {
 });
 
 
-test('normalizeHash works with transforms', function(assert) {
+test('normalize works with transforms', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizeHash: {
-      evilMinions(hash) {
-        hash.condition = hash._condition;
-        delete hash._condition;
-        return hash;
-      }
+
+    normalize(typeClass, hash) {
+      hash.condition = hash._condition;
+      delete hash._condition;
+      return this._super(...arguments);
     }
+
   }));
 
   env.registry.register('transform:condition', DS.Transform.extend({
