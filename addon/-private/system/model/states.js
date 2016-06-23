@@ -223,7 +223,7 @@ function didSetProperty(internalModel, context) {
 // `inFlight`: the store has handed off the record to be saved,
 //   but the adapter has not yet acknowledged success.
 // `invalid`: the record has invalid information and cannot be
-//   send to the adapter yet.
+//   sent to the adapter yet.
 var DirtyState = {
   initialState: 'uncommitted',
 
