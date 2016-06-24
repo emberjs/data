@@ -137,3 +137,24 @@ entry in `config/features.json`.
 
 Adds public method for `shouldSerializeHasMany`, used to determine if a
 `hasMany` relationship can be serialized.
+
+- `ds-reset-attribute` [#4246](https://github.com/emberjs/data/pull/4246)
+
+  Adds a `resetAttribute` method to models. Similar to `rollbackAttributes`,
+  but for only a single attribute.
+
+  ```js
+    // { firstName: 'Tom', lastName: 'Dale' }
+    let tom = store.peekRecord('person', 1);
+
+    tom.setProperties({
+      firstName: 'Yehuda',
+      lastName: 'Katz'
+    });
+
+    tom.resetAttribute('firstName') // { firstName: 'Tom', lastName: 'Katz' }
+    tom.get('hasDirtyAttributes')   // true
+
+    tom.resetAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
+    tom.get('hasDirtyAttributes')   // false
+  ```

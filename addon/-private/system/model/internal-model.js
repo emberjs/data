@@ -4,6 +4,7 @@ import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
 import EmptyObject from "ember-data/-private/system/empty-object";
+import isEnabled from 'ember-data/-private/features';
 
 import {
   getOwner
@@ -434,6 +435,7 @@ InternalModel.prototype = {
     this.record._notifyProperties(dirtyKeys);
 
   },
+
   /*
     @method transitionTo
     @private
@@ -849,4 +851,21 @@ InternalModel.prototype = {
 
     return reference;
   }
-};
+}
+
+if (isEnabled('ds-reset-attribute')) {
+  /*
+     Returns the latest truth for an attribute - the canonical value, or the
+     in-flight value.
+
+     @method lastAcknowledgedValue
+     @private
+  */
+  InternalModel.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
+    if (key in this._inFlightAttributes) {
+      return this._inFlightAttributes[key];
+    } else {
+      return this._data[key];
+    }
+  };
+}
