@@ -2615,6 +2615,49 @@ test("createRecord - with EmbeddedRecordsMixin does not duplicate sideloaded rec
   });
 });
 
+test("createRecord - with EmbeddedRecordsMixin does not unload the wrong records", function(assert) {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: false })
+  });
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: false })
+  });
+  env.registry.register('serializer:post', DS.RESTSerializer.extend(
+    DS.EmbeddedRecordsMixin, {
+      attrs: {
+        comments: { embedded: 'always' }
+      }
+    })
+  );
+
+  ajaxResponse({
+    post: {
+      id: 1,
+      name: 'The Parley Letter',
+      comments: [{
+        id: 2,
+        name: 'First comment'
+      }]
+    }
+  });
+  var post, post2;
+
+  run(function() {
+    post = store.createRecord('post', { name: 'The Parley Letter' });
+    post2 = store.createRecord('post', { name: 'Another Parley Letter' });
+    store.createRecord('comment', { name: 'First comment', post: post });
+    store.createRecord('comment', { name: 'Unsaved comment', post: post2 });
+
+
+    post.save().then(function(post) {
+      var comments = get(post2, 'comments');
+
+      assert.equal(get(comments, 'length'), 1, 'comments.length is correct');
+      assert.equal(get(comments, 'firstObject.name'), 'Unsaved comment', 'comments.firstObject.name is correct');
+    });
+  });
+});
+
 testInDebug("warns when an empty response is returned, though a valid stringified JSON is expected", function(assert) {
   let done = assert.async();
   let server = new Pretender();
