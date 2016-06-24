@@ -2593,3 +2593,26 @@ testInDebug("warns when an empty response is returned, though a valid stringifie
 
   assert.expectWarning("The server returned an empty string for POST /posts, which cannot be parsed into a valid JSON. Return either null or {}.");
 });
+
+if (isEnabled('ds-improved-ajax')) {
+
+  test("_requestToJQueryAjaxHash works correctly for GET requests - GH-4445", function(assert) {
+    let done = assert.async();
+    let server = new Pretender();
+
+    server.get('/posts/1', function(request) {
+      assert.equal(request.url, "/posts/1", "no query param is added to the GET request");
+
+      return [201, { "Content-Type": "application/json" }, JSON.stringify({ post: { id: 1 } })];
+    });
+
+    run(function() {
+      let post = store.findRecord('post', 1);
+
+      post.then(function() {
+        server.shutdown();
+        done();
+      });
+    });
+  });
+}
