@@ -6,7 +6,7 @@ import VERSION from 'ember-data/version';
 */
 
 /**
-  All Ember Data methods and functions are defined inside of this namespace.
+  All Ember Data classes, methods and functions are defined inside of this namespace.
 
   @class DS
   @static

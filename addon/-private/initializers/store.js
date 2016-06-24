@@ -12,7 +12,7 @@ function has(applicationOrRegistry, fullName) {
   }
 }
 
-/**
+/*
   Configures a registry for use with an Ember-Data
   store. Accepts an optional namespace argument.
 

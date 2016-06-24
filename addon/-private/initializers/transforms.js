@@ -5,7 +5,7 @@ import {
   NumberTransform
 } from "ember-data/-private/transforms";
 
-/**
+/*
   Configures a registry for use with Ember-Data
   transforms.
 
