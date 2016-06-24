@@ -1341,7 +1341,7 @@ if (isEnabled('ds-improved-ajax')) {
       hash.context = this;
 
       if (request.data) {
-        if (hash.type !== 'GET') {
+        if (request.method !== 'GET') {
           hash.contentType = 'application/json; charset=utf-8';
           hash.data = JSON.stringify(request.data);
         } else {
