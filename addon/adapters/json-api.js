@@ -5,6 +5,7 @@
 import Ember from 'ember';
 import RESTAdapter from "ember-data/adapters/rest";
 import isEnabled from 'ember-data/-private/features';
+import { deprecate } from 'ember-data/-private/debug';
 
 /**
   @class JSONAPIAdapter
@@ -99,7 +100,7 @@ var JSONAPIAdapter = RESTAdapter.extend({
     @return {Promise} promise
   */
   findMany(store, type, ids, snapshots) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
     } else {
       var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
@@ -126,7 +127,7 @@ var JSONAPIAdapter = RESTAdapter.extend({
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
     } else {
       var data = {};
@@ -139,6 +140,26 @@ var JSONAPIAdapter = RESTAdapter.extend({
 
       return this.ajax(url, 'PATCH', { data: data });
     }
+  },
+
+  _hasCustomizedAjax() {
+    if (this.ajax !== JSONAPIAdapter.prototype.ajax) {
+      deprecate('JSONAPIAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
+        id: 'ds.json-api-adapter.ajax',
+        until: '3.0.0'
+      });
+      return true;
+    }
+
+    if (this.ajaxOptions !== JSONAPIAdapter.prototype.ajaxOptions) {
+      deprecate('JSONAPIAdapterr#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
+        id: 'ds.json-api-adapter.ajax-options',
+        until: '3.0.0'
+      });
+      return true;
+    }
+
+    return false;
   }
 });
 
