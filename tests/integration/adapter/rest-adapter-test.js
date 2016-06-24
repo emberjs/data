@@ -2614,5 +2614,6 @@ if (isEnabled('ds-improved-ajax')) {
         done();
       });
     });
+
   });
 }
