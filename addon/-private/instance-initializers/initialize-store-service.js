@@ -1,8 +1,8 @@
-/**
+/*
  Configures a registry for use with an Ember-Data
  store.
 
- @method initializeStore
+ @method initializeStoreService
  @param {Ember.ApplicationInstance} applicationOrRegistry
  */
 export default function initializeStoreService(application) {
