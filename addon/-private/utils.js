@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 const get = Ember.get;
 
-/**
+/*
   Check if the passed model has a `type` attribute or a relationship named `type`.
 
   @method modelHasAttributeOrRelationshipNamedType

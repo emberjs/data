@@ -40,7 +40,7 @@ function checkPolymorphic(typeClass, addedRecord) {
   return typeClass.detect(addedRecord.type);
 }
 
-/**
+/*
   Assert that `addedRecord` has a valid type so it can be added to the
   relationship of the `record`.
 
