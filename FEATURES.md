@@ -133,10 +133,10 @@ entry in `config/features.json`.
       }
       ```
 
-- `ds-check-should-serialize-relationships`
+- `ds-check-should-serialize-relationships` [#4279](https://github.com/emberjs/data/pull/4279)
 
-Adds public method for `shouldSerializeHasMany`, used to determine if a
-`hasMany` relationship can be serialized.
+  Adds public method for `shouldSerializeHasMany`, used to determine if a
+  `hasMany` relationship can be serialized.
 
 - `ds-reset-attribute` [#4246](https://github.com/emberjs/data/pull/4246)
 
