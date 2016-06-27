@@ -355,15 +355,15 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   assert.equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-test('normalize normalizes specific parts of the payload', function(assert) {
+test('normalizeHash normalizes specific parts of the payload (DEPRECATED)', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-
-    normalize(typeClass, hash) {
-      hash.id = hash._id;
-      delete hash._id;
-      return this._super(...arguments);
+    normalizeHash: {
+      homePlanets(hash) {
+        hash.id = hash._id;
+        delete hash._id;
+        return hash;
+      }
     }
-
   }));
 
   var jsonHash = {
@@ -372,7 +372,9 @@ test('normalize normalizes specific parts of the payload', function(assert) {
   var array;
 
   run(function() {
-    array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+    assert.expectDeprecation(function() {
+      array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+    }, /`RESTSerializer.normalizeHash` has been deprecated/);
   });
 
   assert.deepEqual(array, {
@@ -419,15 +421,15 @@ testInDebug('normalizeHash has been deprecated', function(assert) {
 });
 
 
-test('normalize works with transforms', function(assert) {
+test('normalizeHash works with transforms (DEPRECATED)', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-
-    normalize(typeClass, hash) {
-      hash.condition = hash._condition;
-      delete hash._condition;
-      return this._super(...arguments);
+    normalizeHash: {
+      evilMinions(hash) {
+        hash.condition = hash._condition;
+        delete hash._condition;
+        return hash;
+      }
     }
-
   }));
 
   env.registry.register('transform:condition', DS.Transform.extend({
@@ -455,7 +457,9 @@ test('normalize works with transforms', function(assert) {
   var array;
 
   run(function() {
-    array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+    assert.expectDeprecation(function() {
+      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
+    }, /`RESTSerializer.normalizeHash` has been deprecated/);
   });
 
   assert.equal(array.data[0].attributes.condition, "healing");
