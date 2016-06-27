@@ -26,30 +26,6 @@ entry in `config/features.json`.
   Enables `pushPayload` to return the model(s) that are created or
   updated via the internal `store.push`.
 
-- `ds-serialize-ids-and-types` [#3848](https://github.com/emberjs/data/pull/3848)
-
-  Enables a new `ids-and-type` strategy (in addition to the already existing `ids` and `records`) for
-  serializing has many relationships using the `DS.EmbeddedRecordsMixin` that  will include both
-  `id` and `type` of each model as an object.
-
-  For instance, if a use has many pets, which is a polymorphic relationship, the generated payload would be:
-
-  ```js
-  {
-    "user": {
-      "id": "1"
-      "name": "Bertin Osborne",
-      "pets": [
-        { "id": "1", "type": "Cat" },
-        { "id": "2", "type": "Parrot"}
-      ]
-    }
-  }
-  ```
-
-  This is particularly useful for polymorphic relationships not backed by STI when just including the id
-  of the records is not enough.
-
 - `ds-extended-errors` [#3586](https://github.com/emberjs/data/pull/3586) [#4287](https://github.com/emberjs/data/pull/4287)
 
   Enables `extend` method on errors. It means you can extend from `DS.AdapterError`.
