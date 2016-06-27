@@ -564,6 +564,7 @@ Store = Service.extend({
 
     See [peekRecord](#method_peekRecord) to get the cached version of a record.
 
+    @since 1.13.0
     @method findRecord
     @param {String} modelName
     @param {(String|Integer)} id
@@ -877,6 +878,7 @@ Store = Service.extend({
     post.get('id'); // 1
     ```
 
+    @since 1.13.0
     @method peekRecord
     @param {String} modelName
     @param {String|Integer} id
@@ -1068,6 +1070,7 @@ Store = Service.extend({
     This method returns a promise, which is resolved with a `RecordArray`
     once the server returns.
 
+    @since 1.13.0
     @method query
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
@@ -1180,6 +1183,7 @@ Store = Service.extend({
     });
     ```
 
+    @since 1.13.0
     @method queryRecord
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
@@ -1342,6 +1346,7 @@ Store = Service.extend({
 
     See [query](#method_query) to only get a subset of records from the server.
 
+    @since 1.13.0
     @method findAll
     @param {String} modelName
     @param {Object} options
@@ -1422,6 +1427,7 @@ Store = Service.extend({
     var localPosts = store.peekAll('post');
     ```
 
+    @since 1.13.0
     @method peekAll
     @param {String} modelName
     @return {DS.RecordArray}

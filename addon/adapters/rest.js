@@ -409,6 +409,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     This method performs an HTTP `GET` request with the id provided as part of the query string.
 
+    @since 1.13.0
     @method findRecord
     @param {DS.Store} store
     @param {DS.Model} type
@@ -515,6 +516,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.
 
+    @since 1.13.0
     @method queryRecord
     @param {DS.Store} store
     @param {DS.Model} type
@@ -899,6 +901,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     returned from the server using the serializer's `extractErrors`
     method.
 
+    @since 1.13.0
     @method handleResponse
     @param  {Number} status
     @param  {Object} headers
@@ -940,6 +943,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     Default `handleResponse` implementation uses this hook to decide if the
     response is a success.
 
+    @since 1.13.0
     @method isSuccess
     @param  {Number} status
     @param  {Object} headers
@@ -954,6 +958,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     Default `handleResponse` implementation uses this hook to decide if the
     response is a an invalid error.
 
+    @since 1.13.0
     @method isInvalid
     @param  {Number} status
     @param  {Object} headers
@@ -1157,6 +1162,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
             shortenedPayload].join('\n');
   },
 
+  // @since 2.5.0
   buildQuery(snapshot) {
     let query = {};
 

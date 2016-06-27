@@ -43,6 +43,7 @@ export default Ember.Object.extend({
 
     http://jsonapi.org/format/#document-structure
 
+    @since 1.13.0
     @method normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
