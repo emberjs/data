@@ -355,7 +355,7 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   assert.equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-test('normalizeHash normalizes specific parts of the payload (DEPRECATED)', function(assert) {
+testInDebug('normalizeHash normalizes specific parts of the payload (DEPRECATED)', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       homePlanets(hash) {
@@ -421,7 +421,7 @@ testInDebug('normalizeHash has been deprecated', function(assert) {
 });
 
 
-test('normalizeHash works with transforms (DEPRECATED)', function(assert) {
+testInDebug('normalizeHash works with transforms (DEPRECATED)', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       evilMinions(hash) {
