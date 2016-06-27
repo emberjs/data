@@ -513,6 +513,7 @@ export default Ember.Object.extend({
     By default this hook returns `false`, as most UIs should not block user
     interactions while waiting on data update.
 
+    @since 1.13.0
     @method shouldReloadRecord
     @param {DS.Store} store
     @param {DS.Snapshot} snapshot
@@ -560,6 +561,7 @@ export default Ember.Object.extend({
     is empty (meaning that there are no records locally available yet),
     otherwise it returns `false`.
 
+    @since 1.13.0
     @method shouldReloadAll
     @param {DS.Store} store
     @param {DS.SnapshotRecordArray} snapshotRecordArray
@@ -598,6 +600,7 @@ export default Ember.Object.extend({
     By default this hook returns `true` so the data for the record is updated
     in the background.
 
+    @since 1.13.0
     @method shouldBackgroundReloadRecord
     @param {DS.Store} store
     @param {DS.Snapshot} snapshot
@@ -636,6 +639,7 @@ export default Ember.Object.extend({
     By default this method returns `true`, indicating that a background reload
     should always be triggered.
 
+    @since 1.13.0
     @method shouldBackgroundReloadAll
     @param {DS.Store} store
     @param {DS.SnapshotRecordArray} snapshotRecordArray

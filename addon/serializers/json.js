@@ -225,6 +225,7 @@ var JSONSerializer = Serializer.extend({
     });
     ```
 
+    @since 1.13.0
     @method normalizeResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -259,6 +260,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeFindRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -272,6 +274,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeQueryRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -285,6 +288,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeFindAllResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -298,6 +302,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeFindBelongsToResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -311,6 +316,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeFindHasManyResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -324,6 +330,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeFindManyResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -337,6 +344,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeQueryResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -350,6 +358,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeCreateRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -363,6 +372,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeDeleteRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -376,6 +386,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeUpdateRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -389,6 +400,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeSaveResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -402,6 +414,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeSingleResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
@@ -415,6 +428,7 @@ var JSONSerializer = Serializer.extend({
   },
 
   /**
+    @since 1.13.0
     @method normalizeArrayResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass

@@ -7,6 +7,7 @@ import RESTAdapter from "ember-data/adapters/rest";
 import isEnabled from 'ember-data/-private/features';
 
 /**
+  @since 1.13.0
   @class JSONAPIAdapter
   @constructor
   @namespace DS
