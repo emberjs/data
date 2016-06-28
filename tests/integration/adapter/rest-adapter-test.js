@@ -2593,3 +2593,46 @@ testInDebug("warns when an empty response is returned, though a valid stringifie
 
   assert.expectWarning("The server returned an empty string for POST /posts, which cannot be parsed into a valid JSON. Return either null or {}.");
 });
+
+
+if (isEnabled('ds-improved-ajax')) {
+  testInDebug("The RESTAdapter should use `ajax` with a deprecation message when it is overridden by the user.", function(assert) {
+    assert.expect(2)
+
+    adapter.ajax = function(url, verb, hash) {
+      assert.ok(true, 'The ajax method should be called when it is overridden');
+      return { posts: { id: 1, name: "Rails is omakase" } };
+    };
+
+    assert.expectDeprecation(function() {
+      run(function() {
+        store.findRecord('post', 1);
+      });
+    }, /RESTAdapter#ajax has been deprecated/)
+  });
+
+
+  testInDebug("The RESTAdapter should use `ajaxOptions` with a deprecation message when it is overridden by the user.", function(assert) {
+    assert.expect(2)
+
+    adapter._ajaxRequest = function(hash) {
+      var jqXHR = {
+        status: 200,
+        getAllResponseHeaders() { return ''; }
+      };
+      hash.success({ posts: { id: 1, name: "Rails is omakase" } }, 'OK', jqXHR);
+    }
+
+    var oldAjaxOptions = adapter.ajaxOptions;
+    adapter.ajaxOptions = function() {
+      assert.ok(true, 'The ajaxOptions method should be called when it is overridden');
+      return oldAjaxOptions.apply(this, arguments);
+    };
+
+    assert.expectDeprecation(function() {
+      run(function() {
+        store.findRecord('post', 1);
+      });
+    }, /RESTAdapter#ajaxOptions has been deprecated/)
+  });
+}

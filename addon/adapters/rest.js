@@ -17,7 +17,7 @@ import {
 } from 'ember-data/adapters/errors';
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
 import isEnabled from 'ember-data/-private/features';
-import { runInDebug, warn } from 'ember-data/-private/debug';
+import { runInDebug, warn, deprecate } from 'ember-data/-private/debug';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
 
 const {
@@ -417,7 +417,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, id, snapshot,
         requestType: 'findRecord'
@@ -449,7 +449,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
   findAll(store, type, sinceToken, snapshotRecordArray) {
     const query = this.buildQuery(snapshotRecordArray);
 
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, sinceToken, query,
         snapshots: snapshotRecordArray,
@@ -486,7 +486,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query(store, type, query) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, query,
         requestType: 'query'
@@ -522,7 +522,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   queryRecord(store, type, query) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, query,
         requestType: 'queryRecord'
@@ -574,7 +574,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findMany(store, type, ids, snapshots) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, ids, snapshots,
         requestType: 'findMany'
@@ -623,7 +623,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findHasMany(store, snapshot, url, relationship) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, snapshot, url, relationship,
         requestType: 'findHasMany'
@@ -676,7 +676,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findBelongsTo(store, snapshot, url, relationship) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, snapshot, url, relationship,
         requestType: 'findBelongsTo'
@@ -709,7 +709,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   createRecord(store, type, snapshot) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, snapshot,
         requestType: 'createRecord'
@@ -744,7 +744,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   updateRecord(store, type, snapshot) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, snapshot,
         requestType: 'updateRecord'
@@ -776,7 +776,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   deleteRecord(store, type, snapshot) {
-    if (isEnabled('ds-improved-ajax')) {
+    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       const request = this._requestFor({
         store, type, snapshot,
         requestType: 'deleteRecord'
@@ -1169,6 +1169,26 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return query;
+  },
+
+  _hasCustomizedAjax() {
+    if (this.ajax !== RESTAdapter.prototype.ajax) {
+      deprecate('RESTAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
+        id: 'ds.rest-adapter.ajax',
+        until: '3.0.0'
+      });
+      return true;
+    }
+
+    if (this.ajaxOptions !== RESTAdapter.prototype.ajaxOptions) {
+      deprecate('RESTAdapter#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
+        id: 'ds.rest-adapter.ajax-options',
+        until: '3.0.0'
+      });
+      return true;
+    }
+
+    return false;
   }
 });
 
