@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 2.7.0-beta.2 (June 28, 2016)
+- [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
+- [#4433](https://github.com/emberjs/data/pull/4433) Remove JSHint directives from Mocha test blueprints
+- [#4435](https://github.com/emberjs/data/pull/4435) [DOC] typo fix for queryRecord (kown -> known)
+- [#4448](https://github.com/emberjs/data/pull/4448) [BUGFIX beta] The adapter should call `ajax` instead of the new metho…
+
+
 ### Release 2.7.0-beta.1 (June 8, 2016)
 - [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
 - [#4311](https://github.com/emberjs/data/pull/4311) Use property lookup in applyTransforms
