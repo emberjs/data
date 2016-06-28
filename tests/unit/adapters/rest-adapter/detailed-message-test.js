@@ -3,6 +3,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
+import HeadersPolyfill from 'ember-data/-private/utils/headers';
 
 let adapter, env;
 
@@ -20,7 +21,7 @@ test("generating a wonderfully friendly error message should work", (assert) => 
 
   let friendlyMessage = adapter.generatedDetailedMessage(
     418,
-    { "Content-Type": "text/plain" },
+    new HeadersPolyfill({ "content-type": "text/plain" }),
     "I'm a little teapot, short and stout",
     {
       url: "/teapots/testing",
@@ -37,7 +38,7 @@ test("generating a friendly error message with a missing content-type header sho
 
   let friendlyMessage = adapter.generatedDetailedMessage(
     418,
-    {},
+    new HeadersPolyfill({}),
     "I'm a little teapot, short and stout",
     {
       url: "/teapots/testing",
