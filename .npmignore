@@ -4,6 +4,7 @@
 /node-tests
 /tests
 /tmp
+/benchmarks
 
 **/.gitkeep
 .appveyor.yml
