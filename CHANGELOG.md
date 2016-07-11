@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.7.0-beta.3 (July 11, 2016)
+- [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
+- [#4466](https://github.com/emberjs/data/pull/4466) [BUGFIX beta] Fixes issue with GET requests appending ?{} to url
+
 ### Release 2.7.0-beta.2 (June 28, 2016)
 - [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
 - [#4433](https://github.com/emberjs/data/pull/4433) Remove JSHint directives from Mocha test blueprints
