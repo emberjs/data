@@ -2256,3 +2256,63 @@ test("serializing embedded hasMany respects remapped attrs key", function(assert
     }]
   });
 });
+
+test("serializing id belongsTo respects remapped attrs key", function(assert) {
+  run(function() {
+    homePlanet = env.store.createRecord('home-planet', { name: "Hoth" });
+    superVillain = env.store.createRecord('super-villain', { firstName: "Ice", lastName: "Creature", homePlanet: homePlanet });
+  });
+
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      homePlanet: { serialize: 'id', key: 'favorite_place' }
+    }
+  }));
+
+  var serializer = env.store.serializerFor("super-villain");
+  var json;
+
+  run(function() {
+    json = serializer.serialize(superVillain._createSnapshot());
+  });
+
+  assert.deepEqual(json, {
+    firstName: "Ice",
+    lastName: "Creature",
+    favorite_place: homePlanet.id,
+    secretLab: null
+  });
+});
+
+test("serializing ids hasMany respects remapped attrs key", function(assert) {
+  run(function() {
+    homePlanet = env.store.createRecord('home-planet', { name: "Hoth" });
+    superVillain = env.store.createRecord('super-villain', { firstName: "Ice", lastName: "Creature", homePlanet: homePlanet });
+  });
+
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: { serialize: 'ids', key: 'notable_persons' }
+    }
+  }));
+
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      homePlanet: { serialize: false },
+      secretLab: { serialize: false }
+    }
+  }));
+
+
+  var serializer = env.store.serializerFor("home-planet");
+  var json;
+
+  run(function() {
+    json = serializer.serialize(homePlanet._createSnapshot());
+  });
+
+  assert.deepEqual(json, {
+    name: "Hoth",
+    notable_persons: [superVillain.id]
+  });
+});
