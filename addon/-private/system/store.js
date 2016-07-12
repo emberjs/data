@@ -2437,7 +2437,7 @@ function _commit(adapter, store, operation, snapshot) {
           types.forEach(function (type) {
             var existingRecords = store.peekAll(type);
             var uncommitted = existingRecords.filter(function (record) {
-              return record.get('isNew') && !record.get('isSaving');
+              return record.get('id') === 'embedded';
             });
             // and remove them
             uncommitted.invoke('unloadRecord');

@@ -438,6 +438,10 @@ export default Ember.Mixin.create({
       let embeddedJson = embeddedSnapshot.serialize({ includeId: true });
       this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
       ret[i] = embeddedJson;
+
+      if (!embeddedSnapshot.record.id) {
+        embeddedSnapshot.record.set('id', 'embedded');
+      }
     }
 
     return ret;
