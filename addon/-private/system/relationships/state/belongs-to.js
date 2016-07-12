@@ -36,6 +36,7 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
   } else if (this.canonicalState) {
     this.removeCanonicalRecord(this.canonicalState);
   }
+  this.flushCanonicalLater();
   this.setHasData(true);
   this.setHasLoaded(true);
 };

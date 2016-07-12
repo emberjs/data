@@ -167,6 +167,50 @@ test("async belongsTo relationships work when the data hash has already been loa
   });
 });
 
+test("when response to saving a belongsTo is a success but includes changes that reset the users change", function(assert) {
+  var Tag = DS.Model.extend();
+  var User = DS.Model.extend({ tag: DS.belongsTo() });
+  var env = setupStore({ user: User, tag: Tag });
+  var store = env.store;
+
+  run(function() {
+    store.push({
+      data: [
+        { type: 'user',
+          id: '1',
+          relationships: {
+            tag: {
+              data: { type: 'tag', id: '1' }
+            }
+          }
+        },
+        { type: 'tag', id: '1' },
+        { type: 'tag', id: '2' }
+      ]
+    });
+  });
+
+  let user = store.peekRecord('user', '1');
+
+  run(function() {
+    user.set('tag', store.peekRecord('tag', '2'));
+  });
+
+  env.adapter.updateRecord = function() {
+    return {
+      type: 'user',
+      id: '1',
+      tag: { type: 'tag', id: '1' }
+    };
+  };
+
+  run(function() {
+    user.save().then(assert.wait(function(user) {
+      assert.equal(user.get('tag.id'), '1', 'expected new server state to be applied');
+    }));
+  });
+});
+
 test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function(assert) {
   assert.expect(1);
 
