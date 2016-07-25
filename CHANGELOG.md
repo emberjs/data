@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.6.2 (July 25, 2016)
+- [#4483](https://github.com/emberjs/data/pull/4483) [BUGFIX release] Update the blueprints to import the DS namespace
+
 ### Release 2.6.1 (June 15, 2016)
 - [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
 - [#4389](https://github.com/emberjs/data/pull/4389) call super in addon#init
