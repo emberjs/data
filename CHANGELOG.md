@@ -1,7 +1,10 @@
 # Ember Data Changelog
 
-### Release 2.5.4 (July 25, 2016)
+### Release 2.5.5 (July 25, 2016)
 - [#4483](https://github.com/emberjs/data/pull/4483) [BUGFIX release] Update the blueprints to import the DS namespace
+
+### Release 2.5.4 (July 25, 2016)
+- Due to an error in the release process no changes where published with this version bump.
 
 ### Release 2.5.3 (May 17, 2016)
 - [#4386](https://github.com/emberjs/data/pull/4386) [BUGFIX release] `isUpdating` flag is set correctly for `store.findAll`
