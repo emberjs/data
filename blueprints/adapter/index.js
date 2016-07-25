@@ -10,6 +10,6 @@ module.exports = {
   ],
 
   locals: function(options) {
-    return extendFromApplicationEntity('adapter', 'JSONAPIAdapter', 'ember-data/adapters/json-api', options);
+    return extendFromApplicationEntity('adapter', 'DS.JSONAPIAdapter', options);
   }
 };

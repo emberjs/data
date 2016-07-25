@@ -10,6 +10,6 @@ module.exports = {
   ],
 
   locals: function(options) {
-    return extendFromApplicationEntity('serializer', 'JSONAPISerializer', 'ember-data/serializers/json-api', options);
+    return extendFromApplicationEntity('serializer', 'DS.JSONAPISerializer', options);
   }
 };
