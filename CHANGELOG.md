@@ -2,18 +2,18 @@
 
 ### Master
 
-### Release 2.7.0-beta.3 (July 11, 2016)
+### Release 2.7.0 (July 25, 2016)
+- [#4482](https://github.com/emberjs/data/pull/4482) Disable ds-improved-ajax for the 2.7 release
+- [#4470](https://github.com/emberjs/data/pull/4470) Belongs to not updating when response contains a change with the previous value
+- [#4481](https://github.com/emberjs/data/pull/4481) [BUGFIX release] Revert blueprints to use the old import DS format
+- [#4484](https://github.com/emberjs/data/pull/4484) [BUGFIX beta] Update API docs to import DS from 'ember-data'
+- [#4454](https://github.com/emberjs/data/pull/4454) Add since tags for methods added in Ember Data 1.13
 - [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
 - [#4466](https://github.com/emberjs/data/pull/4466) [BUGFIX beta] Fixes issue with GET requests appending ?{} to url
-
-### Release 2.7.0-beta.2 (June 28, 2016)
 - [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
 - [#4433](https://github.com/emberjs/data/pull/4433) Remove JSHint directives from Mocha test blueprints
 - [#4435](https://github.com/emberjs/data/pull/4435) [DOC] typo fix for queryRecord (kown -> known)
 - [#4448](https://github.com/emberjs/data/pull/4448) [BUGFIX beta] The adapter should call `ajax` instead of the new metho…
-
-
-### Release 2.7.0-beta.1 (June 8, 2016)
 - [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
 - [#4311](https://github.com/emberjs/data/pull/4311) Use property lookup in applyTransforms
 - [#4318](https://github.com/emberjs/data/pull/4318) [FEATURE ds-payload-hooks] Add hooks to map type in payload to modelName
