@@ -2,6 +2,32 @@
 
 ### Master
 
+### Release 2.8.0-beta.1 (July 25, 2016)
+- [#4446](https://github.com/emberjs/data/pull/4446) `modelHasAttributeOrRelationshipNamedType` should not show up in the …
+- [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
+- [#4417](https://github.com/emberjs/data/pull/4417) Revert "Uses bin/start with friendly error message for npm start."
+- [#4408](https://github.com/emberjs/data/pull/4408) Log an assertion if the response from createRecord does not have an i…
+- [#4246](https://github.com/emberjs/data/pull/4246) [FEATURE ds-rollback-attribute] Add rolling back of a single model attribute
+- [#4418](https://github.com/emberjs/data/pull/4418) remove DEPRECATION: Using the global version of DS is deprecated when running tests
+- [#4448](https://github.com/emberjs/data/pull/4448) [BUGFIX beta] The adapter should call `ajax` instead of the new metho…
+- [#4442](https://github.com/emberjs/data/pull/4442) Fix typo in comment
+- [#4433](https://github.com/emberjs/data/pull/4433) Remove JSHint directives from Mocha test blueprints
+- [#4435](https://github.com/emberjs/data/pull/4435) [DOC] typo fix for queryRecord (kown -> known)
+- [#4431](https://github.com/emberjs/data/pull/4431) Update changelog for 2.6.1 release
+- [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
+- [#4447](https://github.com/emberjs/data/pull/4447) Remove initializer methods from the API docs
+- [#4444](https://github.com/emberjs/data/pull/4444) Update the API docs for the DS.Adapter class
+- [#4449](https://github.com/emberjs/data/pull/4449) Add link to PR for ds-check-should-serialize-relationships feature
+- [#4451](https://github.com/emberjs/data/pull/4451) [CLEANUP beta] Remove feature flag for ds-serialize-ids-and-types (shipped in 2.6) #4416
+- [#4454](https://github.com/emberjs/data/pull/4454) Add since tags for methods added in Ember Data 1.13
+- [#4455](https://github.com/emberjs/data/pull/4455) Do not display `normalize-link` in the API docs
+- [#4461](https://github.com/emberjs/data/pull/4461) Ember Data is no Dummy 😎
+- [#4466](https://github.com/emberjs/data/pull/4466) [BUGFIX beta] Fixes issue with GET requests appending ?{} to url
+- [#4470](https://github.com/emberjs/data/pull/4470) Belongs to not updating when response contains a change with the previous value
+- [#4481](https://github.com/emberjs/data/pull/4481) [BUGFIX release] Revert blueprints to use the old import DS format
+- [#4484](https://github.com/emberjs/data/pull/4484) [BUGFIX beta] Update API docs to import DS from 'ember-data'
+- [#4485](https://github.com/emberjs/data/pull/4485) Update changelog for the Ember Data 2.7.0 release
+
 ### Release 2.7.0 (July 25, 2016)
 - [#4482](https://github.com/emberjs/data/pull/4482) Disable ds-improved-ajax for the 2.7 release
 - [#4470](https://github.com/emberjs/data/pull/4470) Belongs to not updating when response contains a change with the previous value
