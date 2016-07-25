@@ -93,6 +93,7 @@ var dasherize = Ember.String.dasherize;
 
   to the format that the Ember Data store expects.
 
+  @since 1.13.0
   @class JSONAPISerializer
   @namespace DS
   @extends DS.JSONSerializer

@@ -117,6 +117,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
 
+    @since 1.13.0
     @property hasDirtyAttributes
     @type {Boolean}
     @readOnly
@@ -688,6 +689,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     record.get('name'); // 'Untitled Document'
     ```
 
+    @since 1.13.0
     @method rollbackAttributes
   */
   rollbackAttributes() {

@@ -8,6 +8,7 @@ import isEnabled from 'ember-data/-private/features';
 import { deprecate } from 'ember-data/-private/debug';
 
 /**
+  @since 1.13.0
   @class JSONAPIAdapter
   @constructor
   @namespace DS
