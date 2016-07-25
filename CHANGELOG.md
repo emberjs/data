@@ -2,6 +2,41 @@
 
 ### Master
 
+### Release 2.7.0 (July 25, 2016)
+- [#4482](https://github.com/emberjs/data/pull/4482) Disable ds-improved-ajax for the 2.7 release
+- [#4470](https://github.com/emberjs/data/pull/4470) Belongs to not updating when response contains a change with the previous value
+- [#4481](https://github.com/emberjs/data/pull/4481) [BUGFIX release] Revert blueprints to use the old import DS format
+- [#4484](https://github.com/emberjs/data/pull/4484) [BUGFIX beta] Update API docs to import DS from 'ember-data'
+- [#4454](https://github.com/emberjs/data/pull/4454) Add since tags for methods added in Ember Data 1.13
+- [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
+- [#4466](https://github.com/emberjs/data/pull/4466) [BUGFIX beta] Fixes issue with GET requests appending ?{} to url
+- [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
+- [#4433](https://github.com/emberjs/data/pull/4433) Remove JSHint directives from Mocha test blueprints
+- [#4435](https://github.com/emberjs/data/pull/4435) [DOC] typo fix for queryRecord (kown -> known)
+- [#4448](https://github.com/emberjs/data/pull/4448) [BUGFIX beta] The adapter should call `ajax` instead of the new metho…
+- [#4320](https://github.com/emberjs/data/pull/4320) Fixup feature flagging infrastructure.
+- [#4311](https://github.com/emberjs/data/pull/4311) Use property lookup in applyTransforms
+- [#4318](https://github.com/emberjs/data/pull/4318) [FEATURE ds-payload-hooks] Add hooks to map type in payload to modelName
+- [#4378](https://github.com/emberjs/data/pull/4378) [DOC] Add link to PR's for every feature
+- [#4327](https://github.com/emberjs/data/pull/4327) [DOC] Update CONTRIBUTING.md for feature flags
+- [#4389](https://github.com/emberjs/data/pull/4389) call super in addon#init
+- [#4337](https://github.com/emberjs/data/pull/4337) [DOC] Update README.md for improve ES6 syntax in example
+- [#4348](https://github.com/emberjs/data/pull/4348) [CLEANUP ds-finder-include]
+- [#4347](https://github.com/emberjs/data/pull/4347) [CLEANUP ds-references]
+- [#4345](https://github.com/emberjs/data/pull/4345) [DOC] fix example syntax
+- [#4334](https://github.com/emberjs/data/pull/4334) Port the 2.5.x changelog entires to master
+- [#4393](https://github.com/emberjs/data/pull/4393) During normalization, use property lookup instead of hasOwnProp checks
+- [#4363](https://github.com/emberjs/data/pull/4363) [DOC] Fix hard-coded "Customizing Adapters" link
+- [#4350](https://github.com/emberjs/data/pull/4350) [CLEANUP ds-transform-pass-options]
+- [#4374](https://github.com/emberjs/data/pull/4374) Fix #4366: EmbeddedRecordsMixin embeds the record, not the snapshot
+- [#4392](https://github.com/emberjs/data/pull/4392) Fix lint errors caused by merging an older pr
+- [#4396](https://github.com/emberjs/data/pull/4396) Deprecate date parse
+- [#4398](https://github.com/emberjs/data/pull/4398) [FEATURE ds-overhaul-references] Fix inconsistencies with Reference#push
+- [#4399](https://github.com/emberjs/data/pull/4399) Add link to PR of ds-payload-type-hooks feature
+- [#4403](https://github.com/emberjs/data/pull/4403) [BUGFIX beta] Correctly coalesce URI encoded ids
+- [#4405](https://github.com/emberjs/data/pull/4405) [BUGFIX beta] Document the adapterOptions property
+- [#4427](https://github.com/emberjs/data/pull/4427) Update changelog for the 2.6.0 release
+
 ### Release 2.6.1 (June 15, 2016)
 - [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
 - [#4389](https://github.com/emberjs/data/pull/4389) call super in addon#init
