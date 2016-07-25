@@ -647,9 +647,9 @@ if (isEnabled("ds-payload-type-hooks")) {
       `posr` model should be used:
 
       ```app/serializers/application.js
-      import JSONAPISerializer from "ember-data/serializers/json-api";
+      import DS from "ember-data";
 
-      export default JSONAPISerializer.extend({
+      export default DS.JSONAPISerializer.extend({
         modelNameFromPayloadType(payloadType) {
           return payloadType.replace('api::v1::', '');
         }
@@ -695,7 +695,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       namespaces model name for the `post` should be used:
 
       ```app/serializers/application.js
-      import JSONAPISerializer from "ember-data/serializers/json-api";
+      import DS from "ember-data";
 
       export default JSONAPISerializer.extend({
         payloadTypeFromModelName(modelName) {

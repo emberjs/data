@@ -880,9 +880,9 @@ if (isEnabled("ds-payload-type-hooks")) {
       `administrator` model should be used:
 
       ```app/serializers/application.js
-      import RESTSerializer from "ember-data/serializers/rest";
+      import DS from "ember-data";
 
-      export default RESTSerializer.extend({
+      export default DS.RESTSerializer.extend({
         modelNameFromPayloadType(payloadType) {
           return payloadType.replace('api::v1::', '');
         }
@@ -930,9 +930,9 @@ if (isEnabled("ds-payload-type-hooks")) {
       namespaces model name for the `administrator` should be used:
 
       ```app/serializers/application.js
-      import RESTSerializer from "ember-data/serializers/rest";
+      import DS from "ember-data";
 
-      export default RESTSerializer.extend({
+      export default DS.RESTSerializer.extend({
         payloadTypeFromModelName(modelName) {
           return "api::v1::" + modelName;
         }
