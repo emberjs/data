@@ -19,8 +19,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/serializers/foo.js'))
-          .to.contain('import JSONAPISerializer from \'ember-data/serializers/json-api\';')
-          .to.contain('export default JSONAPISerializer.extend(');
+          .to.contain('import DS from \'ember-data\';')
+          .to.contain('export default DS.JSONAPISerializer.extend(');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
           .to.contain('moduleForModel(\'foo\'');
@@ -70,8 +70,8 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/serializers/application.js'))
-          .to.contain('import JSONAPISerializer from \'ember-data/serializers/json-api\';')
-          .to.contain('export default JSONAPISerializer.extend({');
+          .to.contain('import DS from \'ember-data\';')
+          .to.contain('export default DS.JSONAPISerializer.extend({');
 
         expect(_file('tests/unit/serializers/application-test.js'))
           .to.contain('moduleForModel(\'application\'');

@@ -19,8 +19,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/adapters/foo.js'))
-          .to.contain('import JSONAPIAdapter from \'ember-data/adapters/json-api\';')
-          .to.contain('export default JSONAPIAdapter.extend({');
+          .to.contain('import DS from \'ember-data\';')
+          .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
           .to.contain('moduleFor(\'adapter:foo\'');
@@ -70,8 +70,8 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/adapters/application.js'))
-          .to.contain('import JSONAPIAdapter from \'ember-data/adapters/json-api\';')
-          .to.contain('export default JSONAPIAdapter.extend({');
+          .to.contain('import DS from \'ember-data\';')
+          .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/application-test.js'))
           .to.contain('moduleFor(\'adapter:application\'');
