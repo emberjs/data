@@ -11,8 +11,8 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
         {
           file: 'app/transforms/foo.js',
           contains: [
-            'import Transform from \'ember-data/transform\';',
-            'export default Transform.extend(',
+            'import DS from \'ember-data\';',
+            'export default DS.Transform.extend(',
             'deserialize(serialized) {',
             'serialize(deserialized) {'
           ]
