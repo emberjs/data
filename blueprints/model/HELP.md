@@ -14,16 +14,13 @@ For instance: <green>\`ember generate model taco filling:belongs-to:protein topp
 would result in the following model:
 
 ```js
-import Model from 'ember-data/model';
+import DS from 'ember-data';
 
-import attr from 'ember-data/attr';
-import { belongsTo, hasMany } from 'ember-data/relationships';
-
-export default Model.extend({
-  filling: belongsTo('protein'),
-  toppings: hasMany('topping'),
-  name: attr('string'),
-  price: attr('number'),
-  misc: attr()
+export default DS.Model.extend({
+  filling: DS.belongsTo('protein'),
+  toppings: DS.hasMany('topping'),
+  name: DS.attr('string'),
+  price: DS.attr('number'),
+  misc: DS.attr()
 });
 ```

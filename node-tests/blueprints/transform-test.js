@@ -16,8 +16,8 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/transforms/foo.js'))
-          .to.contain('import Transform from \'ember-data/transform\';')
-          .to.contain('export default Transform.extend(')
+          .to.contain('import DS from \'ember-data\';')
+          .to.contain('export default DS.Transform.extend(')
           .to.contain('deserialize(serialized) {')
           .to.contain('serialize(deserialized) {');
 
