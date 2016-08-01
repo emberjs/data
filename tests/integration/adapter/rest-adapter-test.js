@@ -2326,6 +2326,61 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
   Ember.$.ajax = originalAjax;
 });
 
+test("gracefully handles exceptions in handleResponse", function(assert) {
+  assert.expect(1);
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    status: 200,
+    getAllResponseHeaders() { return ''; }
+  };
+
+  Ember.$.ajax = function(hash) {
+    setTimeout(function() { hash.success({}, 'ok', jqXHR); }, 1)
+  };
+
+  adapter.handleResponse = function(status, headers, json) {
+    throw new Error('Unexpected error');
+  };
+
+  try {
+    return run(function() {
+      return store.findRecord('post', '1').catch(function(error) {
+        assert.ok(true, 'Unexpected error is captured by the promise chain');
+      });
+
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+});
+
+test("gracefully handles exceptions in handleResponse where the ajax request errors", function(assert) {
+  assert.expect(1);
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    status: 500,
+    getAllResponseHeaders() { return ''; }
+  };
+
+  Ember.$.ajax = function(hash) {
+    setTimeout(function() { hash.error({}, 'Internal Server Error', jqXHR); }, 1)
+  };
+
+  adapter.handleResponse = function(status, headers, json) {
+    throw new Error('Unexpected error');
+  };
+
+  try {
+    return run(function() {
+      return store.findRecord('post', '1').catch(function(error) {
+        assert.ok(true, 'Unexpected error is captured by the promise chain');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+});
+
 test('on error appends errorThrown for sanity', function(assert) {
   assert.expect(2);
 
