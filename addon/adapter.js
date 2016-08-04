@@ -102,10 +102,9 @@ export default Ember.Object.extend({
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}/${id}`).then(function(data) {
-            Ember.run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -134,10 +133,9 @@ export default Ember.Object.extend({
         var query = { since: sinceToken };
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-            Ember.run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -165,10 +163,9 @@ export default Ember.Object.extend({
       query: function(store, type, query) {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-            Ember.run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
@@ -204,10 +201,9 @@ export default Ember.Object.extend({
       queryRecord: function(store, type, query) {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
-            Ember.run(null, resolve, data);
+            resolve(data);
           }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            reject(jqXHR);
           });
         });
       }
