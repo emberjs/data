@@ -5,6 +5,8 @@
 /tests
 /tmp
 /benchmarks
+/bin
+/docs
 
 **/.gitkeep
 .appveyor.yml
