@@ -198,13 +198,16 @@ export default Ember.Mixin.create({
     var includeIds = this.hasSerializeIdsOption(attr);
     var includeRecords = this.hasSerializeRecordsOption(attr);
     var embeddedSnapshot = snapshot.belongsTo(attr);
-    var key;
     if (includeIds) {
-      key = this.keyForRelationship(attr, relationship.kind, 'serialize');
+      var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+      if (serializedKey === relationship.key && this.keyForRelationship) {
+        serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
+      }
+
       if (!embeddedSnapshot) {
-        json[key] = null;
+        json[serializedKey] = null;
       } else {
-        json[key] = embeddedSnapshot.id;
+        json[serializedKey] = embeddedSnapshot.id;
 
         if (relationship.options.polymorphic) {
           this.serializePolymorphicType(snapshot, json, relationship);
@@ -377,7 +380,11 @@ export default Ember.Mixin.create({
     }
 
     if (this.hasSerializeIdsOption(attr)) {
-      let serializedKey = this.keyForRelationship(attr, relationship.kind, 'serialize');
+      let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+      if (serializedKey === relationship.key && this.keyForRelationship) {
+        serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
+      }
+
       json[serializedKey] = snapshot.hasMany(attr, { ids: true });
     } else if (this.hasSerializeRecordsOption(attr)) {
       this._serializeEmbeddedHasMany(snapshot, json, relationship);
