@@ -25,6 +25,8 @@ const {
   get
 } = Ember;
 
+const Promise = Ember.RSVP.Promise;
+
 /**
   The REST adapter allows your store to communicate with an HTTP server by
   transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
@@ -1001,52 +1003,29 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       method: type
     };
 
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(payload, textStatus, jqXHR) {
-
-        let response = adapter.handleResponse(
-          jqXHR.status,
-          parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-          payload,
-          requestData
-        );
-
-        if (response && response.isAdapterError) {
-          Ember.run.join(null, reject, response);
-        } else {
+        try {
+          var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
           Ember.run.join(null, resolve, response);
+        } catch (error) {
+          Ember.run.join(null, reject, error);
         }
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        runInDebug(function() {
-          let message = `The server returned an empty string for ${type} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
-          let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
-          warn(message, validJSONString, {
-            id: 'ds.adapter.returned-empty-string-as-JSON'
-          });
-        });
-
-        let error;
-
-        if (errorThrown instanceof Error) {
-          error = errorThrown;
-        } else if (textStatus === 'timeout') {
-          error = new TimeoutError();
-        } else if (textStatus === 'abort') {
-          error = new AbortError();
-        } else {
-          error = adapter.handleResponse(
-            jqXHR.status,
-            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-            adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
-            requestData
-          );
+        try {
+          var responseData = {
+            textStatus,
+            errorThrown
+          };
+          var error = ajaxError(adapter, jqXHR, requestData, responseData);
+          Ember.run.join(null, reject, error);
+        } catch (error) {
+          Ember.run.join(null, reject, error);
         }
-
-        Ember.run.join(null, reject, error);
       };
 
       adapter._ajaxRequest(hash);
@@ -1403,47 +1382,26 @@ if (isEnabled('ds-improved-ajax')) {
       return new Ember.RSVP.Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
-          let response = adapter.handleResponse(
-            jqXHR.status,
-            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-            payload,
-            requestData
-          );
-
-          if (response instanceof AdapterError) {
-            Ember.run.join(null, reject, response);
-          } else {
+          try {
+            var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
             Ember.run.join(null, resolve, response);
+          } catch (error) {
+            Ember.run.join(null, reject, error);
           }
+
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
-          runInDebug(function() {
-            let message = `The server returned an empty string for ${method} ${url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
-            let validJSONString = !(textStatus === "parsererror" && jqXHR.responseText === "");
-            warn(message, validJSONString, {
-              id: 'ds.adapter.returned-empty-string-as-JSON'
-            });
-          });
-
-          let error;
-
-          if (errorThrown instanceof Error) {
-            error = errorThrown;
-          } else if (textStatus === 'timeout') {
-            error = new TimeoutError();
-          } else if (textStatus === 'abort') {
-            error = new AbortError();
-          } else {
-            error = adapter.handleResponse(
-              jqXHR.status,
-              parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-              adapter.parseErrorResponse(jqXHR.responseText) || errorThrown,
-              requestData
-            );
+          try {
+            var responseData = {
+              textStatus,
+              errorThrown
+            };
+            var error = ajaxError(adapter, jqXHR, requestData, responseData);
+            Ember.run.join(null, reject, error);
+          } catch (error) {
+            Ember.run.join(null, reject, error);
           }
-
-          Ember.run.join(null, reject, error);
         };
 
         adapter._ajaxRequest(hash);
@@ -1452,6 +1410,50 @@ if (isEnabled('ds-improved-ajax')) {
     }
   });
 
+}
+
+function ajaxSuccess(adapter, jqXHR, payload, requestData) {
+  let response = adapter.handleResponse(
+    jqXHR.status,
+    parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+    payload,
+    requestData
+  );
+
+  if (response && response.isAdapterError) {
+    return Promise.reject(response);
+  } else {
+    return response;
+  }
+}
+
+function ajaxError(adapter, jqXHR, requestData, responseData) {
+  runInDebug(function() {
+    let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
+    let validJSONString = !(responseData.textStatus === "parsererror" && jqXHR.responseText === "");
+    warn(message, validJSONString, {
+      id: 'ds.adapter.returned-empty-string-as-JSON'
+    });
+  });
+
+  let error;
+
+  if (responseData.errorThrown instanceof Error) {
+    error = responseData.errorThrown;
+  } else if (responseData.textStatus === 'timeout') {
+    error = new TimeoutError();
+  } else if (responseData.textStatus === 'abort') {
+    error = new AbortError();
+  } else {
+    error = adapter.handleResponse(
+      jqXHR.status,
+      parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+      adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown,
+      requestData
+    );
+  }
+
+  return error;
 }
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
