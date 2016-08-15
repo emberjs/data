@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.8.0-beta.2 (August 15, 2016)
+- [#4489](https://github.com/emberjs/data/pull/4489) [BUGFIX beta] Fix Brittle Promise Usage
+- [#4473](https://github.com/emberjs/data/pull/4473) Fix key remapping for id/ids belongsTo with embedded-records-mixin
+- [#4490](https://github.com/emberjs/data/pull/4490) [DOCS] No need to use Ember.run in succes and failure of wrapped getJSON
+
 ### Release 2.8.0-beta.1 (July 25, 2016)
 - [#4446](https://github.com/emberjs/data/pull/4446) `modelHasAttributeOrRelationshipNamedType` should not show up in the …
 - [#4425](https://github.com/emberjs/data/pull/4425) [BUGFIX] Pass options to transform for serialization in json-api
