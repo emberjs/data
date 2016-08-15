@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert } from "ember-data/-private/debug";
+import { assert, runInDebug } from "ember-data/-private/debug";
 import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
@@ -839,6 +839,14 @@ InternalModel.prototype = {
 
     if (!reference) {
       var relationship = this._relationships.get(name);
+
+      runInDebug(() => {
+        let modelName = this.modelName;
+        assert(`There is no ${type} relationship named '${name}' on a model of type '${modelName}'`, relationship);
+
+        let actualRelationshipKind = relationship.relationshipMeta.kind;
+        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${type}('${name}'), but the relationship is of type '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === type);
+      });
 
       if (type === "belongsTo") {
         reference = new BelongsToReference(this.store, this, relationship);
