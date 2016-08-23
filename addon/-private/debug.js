@@ -20,6 +20,10 @@ export function runInDebug() {
   return Ember.runInDebug(...arguments);
 }
 
+export function instrument() {
+  return Ember.runInDebug(...arguments);
+}
+
 export function warn() {
   return Ember.warn(...arguments);
 }

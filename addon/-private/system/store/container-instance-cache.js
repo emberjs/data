@@ -1,3 +1,4 @@
+/* global heimdall */
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
 const assign = Ember.assign || Ember.merge;
@@ -25,10 +26,19 @@ export default function ContainerInstanceCache(owner) {
   this._cache = new EmptyObject();
 }
 
+const  {
+  __get,
+  instanceFor
+} = heimdall.registerMonitor('system.store.container-instance-cache',
+  'get',
+  'instanceFor'
+);
+
 ContainerInstanceCache.prototype = new EmptyObject();
 
 assign(ContainerInstanceCache.prototype, {
   get(type, preferredKey, fallbacks) {
+    heimdall.increment(__get);
     let cache = this._cache;
     let preferredLookupKey = `${type}:${preferredKey}`;
 
@@ -54,6 +64,7 @@ assign(ContainerInstanceCache.prototype, {
   },
 
   instanceFor(key) {
+    heimdall.increment(instanceFor);
     let cache = this._cache;
     if (!cache[key]) {
       let instance = this._owner.lookup(key);

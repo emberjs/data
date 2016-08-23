@@ -1,3 +1,4 @@
+/* global heimdall */
 /**
   @module ember-data
 */
@@ -17,7 +18,7 @@ import {
 } from 'ember-data/adapters/errors';
 import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
 import isEnabled from 'ember-data/-private/features';
-import { runInDebug, warn, deprecate } from 'ember-data/-private/debug';
+import { instrument, runInDebug, warn, deprecate } from 'ember-data/-private/debug';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
 
 const {
@@ -996,6 +997,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   ajax(url, type, options) {
+    let token = heimdall.start('adapter.ajax');
     var adapter = this;
 
     var requestData = {
@@ -1007,11 +1009,13 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(payload, textStatus, jqXHR) {
+        heimdall.stop(token);
         var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
         Ember.run.join(null, resolve, response);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
+        heimdall.stop(token);
         var responseData = {
           textStatus,
           errorThrown
@@ -1047,6 +1051,22 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     hash.type = type;
     hash.dataType = 'json';
     hash.context = this;
+
+    instrument(function() {
+      hash.converters = {
+        'text json': function(payload) {
+          let token = heimdall.start('json.parse');
+          let json;
+          try {
+            json = Ember.$.parseJSON(payload);
+          } catch (e) {
+            json = payload;
+          }
+          heimdall.stop(token);
+          return json;
+        }
+      };
+    });
 
     if (hash.data && type !== 'GET') {
       hash.contentType = 'application/json; charset=utf-8';
@@ -1365,6 +1385,7 @@ if (isEnabled('ds-improved-ajax')) {
      * @return {Promise} promise
      */
     _makeRequest(request) {
+      let token = heimdall.start('adapter._makeRequest');
       const adapter = this;
       const hash = this._requestToJQueryAjaxHash(request);
 
@@ -1374,11 +1395,13 @@ if (isEnabled('ds-improved-ajax')) {
       return new Ember.RSVP.Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
+          heimdall.stop(token);
           var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
           Ember.run.join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
+          heimdall.stop(token);
           var responseData = {
             textStatus,
             errorThrown
@@ -1386,6 +1409,22 @@ if (isEnabled('ds-improved-ajax')) {
           var error = ajaxError(adapter, jqXHR, requestData, responseData);
           Ember.run.join(null, reject, error);
         };
+
+        instrument(function() {
+          hash.converters = {
+            'text json': function(payload) {
+              let token = heimdall.start('json.parse');
+              let json;
+              try {
+                json = Ember.$.parseJSON(payload);
+              } catch (e) {
+                json = payload;
+              }
+              heimdall.stop(token);
+              return json;
+            }
+          };
+        });
 
         adapter._ajaxRequest(hash);
 

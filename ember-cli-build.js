@@ -1,13 +1,18 @@
 /* eslint-env node */
-var EmberApp = require('ember-cli/lib/broccoli/ember-addon');
+var EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
+var Funnel   = require('broccoli-funnel');
 var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
 
 module.exports = function(defaults) {
-  var app = new EmberApp(defaults, {
-    // Add options here
+  var app = new EmberAddon(defaults);
+  var heimdallTree = new Funnel('node_modules/heimdalljs', {
+    destDir: 'heimdalljs'
   });
+
+  app.trees.vendor = merge([app.trees.vendor, heimdallTree]);
+  app.import('vendor/heimdalljs/dist/heimdalljs.iife.js', { prepend: true });
 
   /*
     This build file specifies the options for the dummy test app of this

@@ -248,11 +248,13 @@ var DirtyState = {
     },
 
     pushedData(internalModel) {
+      let token = heimdall.start('stats.uncommitted.pushedData');
       internalModel.updateChangedAttributes();
 
       if (!internalModel.hasChangedAttributes()) {
         internalModel.transitionTo('loaded.saved');
       }
+      heimdall.stop(token);
     },
 
     becomeDirty: Ember.K,
