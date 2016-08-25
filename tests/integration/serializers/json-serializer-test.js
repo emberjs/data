@@ -28,9 +28,9 @@ module("integration/serializer/json - JSONSerializer", {
       comment:  Comment,
       favorite: Favorite
     });
-    env.store.modelFor('post');
-    env.store.modelFor('comment');
-    env.store.modelFor('favorite');
+    Post = env.store.modelFor('post');
+    Comment = env.store.modelFor('comment');
+    Favorite = env.store.modelFor('favorite');
   },
 
   afterEach() {
@@ -325,7 +325,7 @@ test('Serializer should respect the attrs hash when extracting records', functio
 });
 
 test('Serializer should map `attrs` attributes directly when keyForAttribute also has a transform', function(assert) {
-  Post = DS.Model.extend({
+  Post.reopen({
     authorName: DS.attr('string')
   });
   env = setupStore({

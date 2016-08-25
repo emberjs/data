@@ -97,7 +97,17 @@ test("modelHasAttributeOrRelationshipNamedType", function(assert) {
     type: DS.hasMany()
   });
 
-  assert.equal(modelHasAttributeOrRelationshipNamedType(Model), false);
+  env.registry.register('model:model-with-type', ModelWithTypeAttribute);
+  env.registry.register('model:model-with-belongs-to', ModelWithTypeBelongsTo);
+  env.registry.register('model:model-with-has-many', ModelWithTypeBelongsTo);
+  env.registry.register('model:default', Model);
+
+  ModelWithTypeAttribute = env.store.modelFor('model-with-type');
+  ModelWithTypeBelongsTo = env.store.modelFor('model-with-belongs-to');
+  ModelWithTypeHasMany = env.store.modelFor('model-with-has-many');
+  let DefaultModel = env.store.modelFor('default');
+
+  assert.equal(modelHasAttributeOrRelationshipNamedType(DefaultModel), false);
 
   assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeAttribute), true);
   assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeBelongsTo), true);

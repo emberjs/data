@@ -8,80 +8,17 @@ import EmptyObject from "ember-data/-private/system/empty-object";
 
 var get = Ember.get;
 var Map = Ember.Map;
-var MapWithDefault = Ember.MapWithDefault;
 
 var relationshipsDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
-    relationshipsDescriptor._cacheable = false;
-  }
-
-  var map = new MapWithDefault({
-    defaultValue() { return []; }
-  });
-
-  // Loop through each computed property on the class
-  this.eachComputedProperty((name, meta) => {
-    // If the computed property is a relationship, add
-    // it to the map.
-    if (meta.isRelationship) {
-      meta.key = name;
-      var relationshipsForType = map.get(typeForRelationshipMeta(meta));
-
-      relationshipsForType.push({
-        name: name,
-        kind: meta.kind
-      });
-    }
-  });
-
-  return map;
+  return this.modelInformation.relationshipsFor(this.modelName);
 }).readOnly();
 
 var relatedTypesDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relatedTypesDescriptor._cacheable === true) {
-    relatedTypesDescriptor._cacheable = false;
-  }
-
-  var modelName;
-  var types = Ember.A();
-
-  // Loop through each computed property on the class,
-  // and create an array of the unique types involved
-  // in relationships
-  this.eachComputedProperty((name, meta) => {
-    if (meta.isRelationship) {
-      meta.key = name;
-      modelName = typeForRelationshipMeta(meta);
-
-      assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
-
-      if (!types.contains(modelName)) {
-        assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!modelName);
-        types.push(modelName);
-      }
-    }
-  });
-
-  return types;
+  return this.modelInformation.relatedTypesFor(this.modelName);
 }).readOnly();
 
 var relationshipsByNameDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relationshipsByNameDescriptor._cacheable === true) {
-    relationshipsByNameDescriptor._cacheable = false;
-  }
-
-  var map = Map.create();
-
-  this.eachComputedProperty((name, meta) => {
-    if (meta.isRelationship) {
-      meta.key = name;
-      var relationship = relationshipFromMeta(meta);
-      relationship.type = typeForRelationshipMeta(meta);
-      map.set(name, relationship);
-    }
-  });
-
-  return map;
+  return this.modelInformation.relationshipsByNameFor(this.modelName);
 }).readOnly();
 
 /**
@@ -180,8 +117,7 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     @return {DS.Model} the type of the relationship, or undefined
   */
   typeForRelationship(name, store) {
-    var relationship = get(this, 'relationshipsByName').get(name);
-    return relationship && store.modelFor(relationship.type);
+    return this.modelInformation.typeForRelationship(this.modelName, name, store);
   },
 
   inverseMap: Ember.computed(function() {
@@ -218,108 +154,7 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     @return {Object} the inverse relationship, or null
   */
   inverseFor(name, store) {
-    var inverseMap = get(this, 'inverseMap');
-    if (inverseMap[name]) {
-      return inverseMap[name];
-    } else {
-      var inverse = this._findInverseFor(name, store);
-      inverseMap[name] = inverse;
-      return inverse;
-    }
-  },
-
-  //Calculate the inverse, ignoring the cache
-  _findInverseFor(name, store) {
-
-    var inverseType = this.typeForRelationship(name, store);
-    if (!inverseType) {
-      return null;
-    }
-
-    var propertyMeta = this.metaForProperty(name);
-    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
-    var options = propertyMeta.options;
-    if (options.inverse === null) { return null; }
-
-    var inverseName, inverseKind, inverse;
-
-    //If inverse is specified manually, return the inverse
-    if (options.inverse) {
-      inverseName = options.inverse;
-      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
-
-      assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
-        "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
-
-      inverseKind = inverse.kind;
-    } else {
-      //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.type === propertyMeta.parentType.modelName) {
-        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
-          id: 'ds.model.reflexive-relationship-without-inverse'
-        });
-      }
-
-      var possibleRelationships = findPossibleInverses(this, inverseType);
-
-      if (possibleRelationships.length === 0) { return null; }
-
-      var filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-        var optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
-        return name === optionsForRelationship.inverse;
-      });
-
-      assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
-        inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
-        filteredRelationships.length < 2);
-
-      if (filteredRelationships.length === 1 ) {
-        possibleRelationships = filteredRelationships;
-      }
-
-      assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
-        this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
-        possibleRelationships.length === 1);
-
-      inverseName = possibleRelationships[0].name;
-      inverseKind = possibleRelationships[0].kind;
-    }
-
-    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
-      var possibleRelationships = relationshipsSoFar || [];
-
-      var relationshipMap = get(inverseType, 'relationships');
-      if (!relationshipMap) { return possibleRelationships; }
-
-      var relationships = relationshipMap.get(type.modelName);
-
-      relationships = relationships.filter((relationship) => {
-        var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
-
-        if (!optionsForRelationship.inverse) {
-          return true;
-        }
-
-        return name === optionsForRelationship.inverse;
-      });
-
-      if (relationships) {
-        possibleRelationships.push.apply(possibleRelationships, relationships);
-      }
-
-      //Recurse to support polymorphism
-      if (type.superclass) {
-        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
-      }
-
-      return possibleRelationships;
-    }
-
-    return {
-      type: inverseType,
-      name: inverseName,
-      kind: inverseKind
-    };
+    return this.modelInformation.inverseFor(this.modelName, name, store);
   },
 
   /**
