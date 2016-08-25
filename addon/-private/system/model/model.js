@@ -1003,6 +1003,7 @@ Model.reopenClass({
    @property modelName
    @type String
    @readonly
+   @static
   */
   modelName: null
 });

@@ -1839,9 +1839,12 @@ Store = Service.extend({
   },
 
   /**
-    Returns a model class for a particular key. Used by
-    methods that take a type key (like `find`, `createRecord`,
-    etc.)
+    Returns the model class for the particular `modelName`.
+
+    The class of a model might be useful if you want to get a list of all the
+    relationship names of the model, see
+    [`relationshipNames`](http://emberjs.com/api/data/classes/DS.Model.html#property_relationshipNames)
+    for example.
 
     @method modelFor
     @param {String} modelName
