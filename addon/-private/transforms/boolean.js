@@ -22,6 +22,20 @@ const { isNone } = Ember;
   });
   ```
 
+  By default the boolean transform only allows for values of `true` or
+  `false`. You can opt into allowing `null` values for
+  boolean attributes via `DS.attr('boolean', { allowNull: true })`
+
+  ```app/models/user.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    email: DS.attr('string'),
+    username: DS.attr('string'),
+    wantsWeeklyEmail: DS.attr('boolean', { allowNull: true })
+  });
+  ```
+
   @class BooleanTransform
   @extends DS.Transform
   @namespace DS
