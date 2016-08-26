@@ -2,7 +2,7 @@ import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
 const assign = Ember.assign || Ember.merge;
 
-/**
+/*
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
  * instances of serializers and adapters. It has some additional logic for
  * finding the 'fallback' adapter or serializer.
