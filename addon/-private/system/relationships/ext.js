@@ -55,7 +55,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
 
       assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
 
-      if (!types.contains(modelName)) {
+      if (!types.includes(modelName)) {
         assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!modelName);
         types.push(modelName);
       }

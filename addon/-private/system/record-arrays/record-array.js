@@ -146,7 +146,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     var content = get(this, 'content');
     if (idx === undefined) {
       content.addObject(internalModel);
-    } else if (!content.contains(internalModel)) {
+    } else if (!content.includes(internalModel)) {
       content.insertAt(idx, internalModel);
     }
   },
