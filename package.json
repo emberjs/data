@@ -36,6 +36,7 @@
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-version-checker": "^1.1.4",
     "ember-inflector": "^1.9.4",
+    "ember-runtime-enumerable-includes-polyfill": "^1.0.0",
     "exists-sync": "0.0.3",
     "git-repo-info": "^1.1.2",
     "inflection": "^1.8.0",
