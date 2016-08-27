@@ -83,6 +83,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   store: null,
 
+  replace() {
+    var type = get(this, 'type').toString();
+    throw new Error("The result of a server query (for all [" + type + "] types) is immutable.");
+  },
+
   /**
     Retrieves an object from the content by index.
 
