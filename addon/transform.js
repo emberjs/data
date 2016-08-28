@@ -14,11 +14,40 @@ import Ember from 'ember';
 
   // Converts centigrade in the JSON to fahrenheit in the app
   export default DS.Transform.extend({
-    deserialize: function(serialized) {
+    deserialize: function(serialized, options) {
       return (serialized *  1.8) + 32;
     },
-    serialize: function(deserialized) {
+    serialize: function(deserialized, options) {
       return (deserialized - 32) / 1.8;
+    }
+  });
+  ```
+
+  The options passed into the `DS.attr` function when the attribute is
+  declared on the model is also available in the transform.
+
+  ```app/models/post.js
+  export default DS.Model.extend({
+    title: DS.attr('string'),
+    markdown: DS.attr('markdown', {
+      markdown: {
+        gfm: false,
+        sanitize: true
+      }
+    })
+  });
+  ```
+
+  ```app/transforms/markdown.js
+  export default DS.Transform.extend({
+    serialize: function (deserialized, options) {
+      return deserialized.raw;
+    },
+
+    deserialize: function (serialized, options) {
+      var markdownOptions = options.markdown || {};
+
+      return marked(serialized, markdownOptions);
     }
   });
   ```
