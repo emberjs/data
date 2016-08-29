@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.8.0-beta.3 (August 29, 2016)
+- [#4519](https://github.com/emberjs/data/pull/4519) [BUGFIX beta] Prefer includes over contains
+
 ### Release 2.8.0-beta.2 (August 15, 2016)
 - [#4489](https://github.com/emberjs/data/pull/4489) [BUGFIX beta] Fix Brittle Promise Usage
 - [#4473](https://github.com/emberjs/data/pull/4473) Fix key remapping for id/ids belongsTo with embedded-records-mixin
