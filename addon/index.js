@@ -86,7 +86,6 @@ import {hasMany, belongsTo} from "ember-data/relationships";
 import setupContainer from "ember-data/setup-container";
 import initializeStoreService from 'ember-data/-private/instance-initializers/initialize-store-service';
 
-import ContainerProxy from "ember-data/-private/system/container-proxy";
 import Relationship from "ember-data/-private/system/relationships/state/relationship";
 
 DS.Store         = Store;
@@ -153,8 +152,6 @@ DS.belongsTo = belongsTo;
 DS.hasMany   = hasMany;
 
 DS.Relationship  = Relationship;
-
-DS.ContainerProxy = ContainerProxy;
 
 DS._setupContainer = setupContainer;
 DS._initializeStoreService = initializeStoreService;
