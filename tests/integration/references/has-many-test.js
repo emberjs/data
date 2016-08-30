@@ -29,6 +29,42 @@ module("integration/references/has-many", {
   }
 });
 
+testInDebug("record#hasMany asserts when specified relationship doesn't exist", function(assert) {
+  var family;
+  run(function() {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1
+      }
+    });
+  });
+
+  assert.expectAssertion(function() {
+    run(function() {
+      family.hasMany("unknown-relationship");
+    });
+  }, "There is no hasMany relationship named 'unknown-relationship' on a model of type 'family'");
+});
+
+testInDebug("record#hasMany asserts when the type of the specified relationship isn't the requested one", function(assert) {
+  var person;
+  run(function() {
+    person = env.store.push({
+      data: {
+        type: 'person',
+        id: 1
+      }
+    });
+  });
+
+  assert.expectAssertion(function() {
+    run(function() {
+      person.hasMany("family");
+    });
+  }, "You tried to get the 'family' relationship on a 'person' via record.hasMany('family'), but the relationship is of type 'belongsTo'. Use record.belongsTo('family') instead.");
+});
+
 test("record#hasMany", function(assert) {
   var family;
   run(function() {
