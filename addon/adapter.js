@@ -492,7 +492,7 @@ export default Ember.Object.extend({
 
     ```javascript
     shouldReloadRecord: function(store, ticketSnapshot) {
-      var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt')).minutes();
+      var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
       if (timeDiff > 20) {
         return true;
       } else {
@@ -508,6 +508,11 @@ export default Ember.Object.extend({
 
     By default this hook returns `false`, as most UIs should not block user
     interactions while waiting on data update.
+
+    Note that, with default settings, `shouldBackgroundReloadRecord` will always
+    re-fetch the records in the background even if `shouldReloadRecord` returns
+    `false`. You can override `shouldBackgroundReloadRecord` if this does not
+    suit your use case.
 
     @since 1.13.0
     @method shouldReloadRecord
@@ -538,7 +543,7 @@ export default Ember.Object.extend({
       var snapshots = snapshotArray.snapshots();
 
       return snapshots.any(function(ticketSnapshot) {
-        var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt')).minutes();
+        var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
         if (timeDiff > 20) {
           return true;
         } else {
@@ -556,6 +561,11 @@ export default Ember.Object.extend({
     By default this methods returns `true` if the passed `snapshotRecordArray`
     is empty (meaning that there are no records locally available yet),
     otherwise it returns `false`.
+
+    Note that, with default settings, `shouldBackgroundReloadAll` will always
+    re-fetch all the records in the background even if `shouldReloadAll` returns
+    `false`. You can override `shouldBackgroundReloadAll` if this does not suit
+    your use case.
 
     @since 1.13.0
     @method shouldReloadAll
