@@ -6,7 +6,6 @@ node_js:
 before_install:
   - "npm config set spin false"
   - "npm install -g npm@^2"
-  - npm install -g phantomjs-prebuilt@2
 
 install:
   - npm install --no-optional
