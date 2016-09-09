@@ -1375,15 +1375,15 @@ Store = Service.extend({
     assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
 
-    set(array, 'isUpdating', true);
-
     if (options.reload) {
+      set(array, 'isUpdating', true);
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
 
     var snapshotArray = array.createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
+      set(array, 'isUpdating', true);
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
 
@@ -1392,6 +1392,7 @@ Store = Service.extend({
     }
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+      set(array, 'isUpdating', true);
       _findAll(adapter, this, typeClass, sinceToken, options);
     }
 
