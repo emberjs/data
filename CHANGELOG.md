@@ -2,6 +2,16 @@
 
 ### Master
 
+### Release 2.9.0-beta.1 (September 10, 2016)
+- [#4490](https://github.com/emberjs/data/pull/4490) [DOCS] No need to use Ember.run in succes and failure of wrapped getJSON
+- [#4493](https://github.com/emberjs/data/pull/4493) Addresses #4492
+- [#4503](https://github.com/emberjs/data/pull/4503) Update ember-try config to test against alpha.
+- [#4515](https://github.com/emberjs/data/pull/4515) Document the allowNull property on the boolean transform
+- [#4516](https://github.com/emberjs/data/pull/4516) Update the docs for normalizeModelName so they explain the intent of …
+- [#4521](https://github.com/emberjs/data/pull/4521) Remove ContainerProxy
+- [#4522](https://github.com/emberjs/data/pull/4522) add license to bower.json
+
+
 ### Release 2.8.0 (September 8, 2016)
 
 - [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
