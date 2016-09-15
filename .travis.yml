@@ -17,7 +17,7 @@ script:
   - npm run test:try-ember-release
   - npm run test:try-ember-beta
   - npm run test:try-ember-canary
-  - npm run test:try-ember-alpha
+  # - npm run test:try-ember-alpha
   - npm run-script test:optional-features
   - npm run-script test:production
   - npm run-script node-tests
