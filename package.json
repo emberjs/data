@@ -14,6 +14,12 @@
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
     "test:production": "ember test --environment=production",
+    "test:try-default": "ember try:one default test",
+    "test:try-ember-1-13": "ember try:one ember-1-13 test",
+    "test:try-ember-release": "ember try:one ember-release test",
+    "test:try-ember-beta": "ember try:one ember-beta test ",
+    "test:try-ember-canary": "ember try:one ember-canary test",
+    "test:try-ember-alpha": "ember try:one ember-alpha test",
     "bower": "bower install",
     "production": "ember build --environment=production"
   },
