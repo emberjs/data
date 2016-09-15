@@ -468,5 +468,5 @@ test('recordArray.replace() throws error', function(assert) {
   assert.throws(function() {
     recordArray =  store.peekAll('person');
     recordArray.replace();
-  }, Error("The result of a server query (for all (subclass of DS.Model) types) is immutable."), 'throws error');
+  }, Error("The result of a server query (for all (subclass of DS.Model) types) is immutable. To modify contents, use toArray()"), 'throws error');
 });
