@@ -12,7 +12,12 @@ install:
   - ./node_modules/.bin/bower install
 script:
   - ./bin/lint-features
-  - npm run-script test
+  - npm run test:try-default
+  - npm run test:try-ember-1-13
+  - npm run test:try-ember-release
+  - npm run test:try-ember-beta
+  - npm run test:try-ember-canary
+  # - npm run test:try-ember-alpha
   - npm run-script test:optional-features
   - npm run-script test:production
   - npm run-script node-tests
