@@ -15,8 +15,8 @@
 .ember-cli
 .gitignore
 .eslintrc.js
-.travis.yml
 .watchmanconfig
+.travis.yml
 bower.json
 ember-cli-build.js
 testem.js
