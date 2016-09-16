@@ -55,7 +55,7 @@ entry in `config/features.json`.
   `modelNameFromPayloadKey` are available in that serializer.
 
   ```js
-  // rest reponse
+  // rest response
   {
     "blog/post": {
       "id": 1,
@@ -70,7 +70,7 @@ entry in `config/features.json`.
   ```
 
   ```js
-  // json-api reponse
+  // json-api response
   {
     "data": {
       "id": 1,
