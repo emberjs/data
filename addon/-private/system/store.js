@@ -4,7 +4,7 @@
 
 import Ember from 'ember';
 import Model from 'ember-data/model';
-import { assert, warn, runInDebug } from "ember-data/-private/debug";
+import { instrument, assert, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import {
