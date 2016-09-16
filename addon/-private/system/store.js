@@ -7,9 +7,7 @@ import Model from 'ember-data/model';
 import { instrument, assert, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import {
-  InvalidError
-} from 'ember-data/adapters/errors';
+import { InvalidError } from 'ember-data/adapters/errors';
 
 import {
   promiseArray,
@@ -22,13 +20,8 @@ import {
   _objectIsAlive
 } from "ember-data/-private/system/store/common";
 
-import {
-  normalizeResponseHelper
-} from "ember-data/-private/system/store/serializer-response";
-
-import {
-  serializerForAdapter
-} from "ember-data/-private/system/store/serializers";
+import { normalizeResponseHelper } from "ember-data/-private/system/store/serializer-response";
+import { serializerForAdapter } from "ember-data/-private/system/store/serializers";
 
 import {
   _find,
@@ -40,25 +33,27 @@ import {
   _queryRecord
 } from "ember-data/-private/system/store/finders";
 
-import {
-  getOwner
-} from 'ember-data/-private/utils';
-
+import { getOwner } from 'ember-data/-private/utils';
 import coerceId from "ember-data/-private/system/coerce-id";
-
 import RecordArrayManager from "ember-data/-private/system/record-array-manager";
 import ContainerInstanceCache from 'ember-data/-private/system/store/container-instance-cache';
-
 import InternalModel from "ember-data/-private/system/model/internal-model";
-
 import EmptyObject from "ember-data/-private/system/empty-object";
-
 import isEnabled from 'ember-data/-private/features';
 
 export let badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
-const Backburner = Ember._Backburner;
-var Map = Ember.Map;
+const {
+  _Backburner: Backburner,
+  copy,
+  get,
+  isNone,
+  isPresent,
+  Map,
+  run: emberRun,
+  set,
+  Service
+} = Ember;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -68,19 +63,9 @@ function promiseRecord(internalModel, label) {
   return promiseObject(toReturn, label);
 }
 
-var once = Ember.run.once;
-var Promise = Ember.RSVP.Promise;
-var Store;
+const Promise = Ember.RSVP.Promise;
 
-const {
-  copy,
-  get,
-  GUID_KEY,
-  isNone,
-  isPresent,
-  set,
-  Service
-} = Ember;
+let Store;
 
 // Implementors Note:
 //
@@ -807,7 +792,7 @@ Store = Service.extend({
     } else {
       this._pendingFetch.get(typeClass).push(pendingFetchItem);
     }
-    Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
+    emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;
   },
@@ -1784,7 +1769,7 @@ Store = Service.extend({
       snapshot: snapshot,
       resolver: resolver
     });
-    once(this, 'flushPendingSave');
+    emberRun.once(this, this.flushPendingSave);
   },
 
   /**
@@ -1839,7 +1824,7 @@ Store = Service.extend({
     }
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
+      this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
       this.updateId(internalModel, data);
     } else {
       assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
@@ -1893,7 +1878,7 @@ Store = Service.extend({
     var id = coerceId(data.id);
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-    assert(`'${internalModel.type.modelName}:${internalModel[GUID_KEY]}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
+    assert(`'${internalModel.type.modelName}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
 
     // ID absolutely can't be different than oldID if oldID is not null
     assert(`'${internalModel.type.modelName}:${oldId}' was saved to the server, but the response returned the new id '${id}'. The store cannot assign a new id to a record that already has an id.`, !(oldId !== null && id !== oldId));
@@ -2262,7 +2247,7 @@ Store = Service.extend({
     var internalModel = this._load(data);
 
     this._backburner.join(() => {
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
+      this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
     });
 
     return internalModel;
