@@ -228,14 +228,14 @@ InternalModel.prototype = {
     if (this.record) {
       this.record._notifyProperties(changedKeys);
     }
-    this.didInitalizeData();
+    this.didInitializeData();
   },
 
   becameReady() {
     Ember.run.schedule('actions', this.store.recordArrayManager, this.store.recordArrayManager.recordWasLoaded, this);
   },
 
-  didInitalizeData() {
+  didInitializeData() {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
@@ -271,7 +271,7 @@ InternalModel.prototype = {
   */
   loadedData() {
     this.send('loadedData');
-    this.didInitalizeData();
+    this.didInitializeData();
   },
 
   /*
