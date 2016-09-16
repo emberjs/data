@@ -3,8 +3,6 @@
   "dependencies": {
     "ember": "components/ember#release",
     "ember-cli-shims": "0.1.1",
-    "ember-cli-test-loader": "0.2.2",
-    "ember-qunit-notifications": "0.1.0",
     "pretender": "^0.12.0"
   },
   "resolutions": {
