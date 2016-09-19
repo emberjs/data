@@ -1007,25 +1007,17 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(payload, textStatus, jqXHR) {
-        try {
-          var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-          Ember.run.join(null, resolve, response);
-        } catch (error) {
-          Ember.run.join(null, reject, error);
-        }
+        var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+        Ember.run.join(null, resolve, response);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        try {
-          var responseData = {
-            textStatus,
-            errorThrown
-          };
-          var error = ajaxError(adapter, jqXHR, requestData, responseData);
-          Ember.run.join(null, reject, error);
-        } catch (error) {
-          Ember.run.join(null, reject, error);
-        }
+        var responseData = {
+          textStatus,
+          errorThrown
+        };
+        var error = ajaxError(adapter, jqXHR, requestData, responseData);
+        Ember.run.join(null, reject, error);
       };
 
       adapter._ajaxRequest(hash);
@@ -1382,26 +1374,17 @@ if (isEnabled('ds-improved-ajax')) {
       return new Ember.RSVP.Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
-          try {
-            var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-            Ember.run.join(null, resolve, response);
-          } catch (error) {
-            Ember.run.join(null, reject, error);
-          }
-
+          var response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+          Ember.run.join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
-          try {
-            var responseData = {
-              textStatus,
-              errorThrown
-            };
-            var error = ajaxError(adapter, jqXHR, requestData, responseData);
-            Ember.run.join(null, reject, error);
-          } catch (error) {
-            Ember.run.join(null, reject, error);
-          }
+          var responseData = {
+            textStatus,
+            errorThrown
+          };
+          var error = ajaxError(adapter, jqXHR, requestData, responseData);
+          Ember.run.join(null, reject, error);
         };
 
         adapter._ajaxRequest(hash);
@@ -1413,12 +1396,17 @@ if (isEnabled('ds-improved-ajax')) {
 }
 
 function ajaxSuccess(adapter, jqXHR, payload, requestData) {
-  let response = adapter.handleResponse(
-    jqXHR.status,
-    parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-    payload,
-    requestData
-  );
+  let response;
+  try {
+    response = adapter.handleResponse(
+      jqXHR.status,
+      parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+      payload,
+      requestData
+    );
+  } catch (error) {
+    return Promise.reject(error);
+  }
 
   if (response && response.isAdapterError) {
     return Promise.reject(response);
@@ -1445,12 +1433,16 @@ function ajaxError(adapter, jqXHR, requestData, responseData) {
   } else if (responseData.textStatus === 'abort') {
     error = new AbortError();
   } else {
-    error = adapter.handleResponse(
-      jqXHR.status,
-      parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-      adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown,
-      requestData
-    );
+    try {
+      error = adapter.handleResponse(
+        jqXHR.status,
+        parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+        adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown,
+        requestData
+      );
+    } catch (e) {
+      error = e;
+    }
   }
 
   return error;
