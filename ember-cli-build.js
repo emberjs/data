@@ -4,15 +4,26 @@ var merge    = require('broccoli-merge-trees');
 var Funnel   = require('broccoli-funnel');
 var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
+var stripClassCallCheck = require('babel5-plugin-strip-class-callcheck');
+var path = require('path');
 
 module.exports = function(defaults) {
-  var app = new EmberAddon(defaults);
+  var app = new EmberAddon(defaults, {
+    babel: {
+      plugins: [
+        // while ember-data strips itself, ember does not currently
+        { transformer: stripClassCallCheck, position: 'after' }
+      ]
+    }
+  });
   var heimdallTree = new Funnel('node_modules/heimdalljs', {
     destDir: 'heimdalljs'
   });
 
   app.trees.vendor = merge([app.trees.vendor, heimdallTree]);
   app.import('vendor/heimdalljs/dist/heimdalljs.iife.js', { prepend: true });
+
+  app.vendorFiles['ember.js'].development = path.join(app.bowerDirectory, 'ember/ember.prod.js');
 
   /*
     This build file specifies the options for the dummy test app of this

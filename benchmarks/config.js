@@ -1,5 +1,5 @@
 module.exports = {
-  runs: 1,
+  runs: 5,
   domain: 'http://localhost:4200/',
   slugs: [
     // simple returns a 1 simple record with no relationships per count in limit
@@ -18,7 +18,7 @@ module.exports = {
     // "query?modelName=complex&limit=2", // 14 total
     // "query?modelName=complex&limit=5", // 35 total
     // "query?modelName=complex&limit=17", // 119 total
-    "query?modelName=complex&limit=34", // 238 total
+    // "query?modelName=complex&limit=34", // 238 total
 
 
     // heavy returns 17 total records of 5 model types per count in limit
@@ -29,13 +29,16 @@ module.exports = {
     // "query?modelName=heavy&limit=1", // 17 total
     // "query?modelName=heavy&limit=2", // 34 total
     // "query?modelName=heavy&limit=7",  // 119 total
-    "query?modelName=heavy&limit=14" // 238 total
+    // "query?modelName=heavy&limit=14" // 238 total
 
   ],
   ignoreBranches: [
     'adapter._makeRequest',
     // 'InternalModel._materializeRecord'
   ],
+  buckets: {
+
+  },
   stats: [
     {
       key: "stats.self.selfTime",

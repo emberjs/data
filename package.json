@@ -26,6 +26,7 @@
     "amd-name-resolver": "0.0.5",
     "babel-plugin-feature-flags": "^0.2.1",
     "babel-plugin-filter-imports": "^0.2.0",
+    "babel5-plugin-strip-class-callcheck": "^5.1.0",
     "babel5-plugin-strip-heimdall": "^5.0.2",
     "broccoli-babel-transpiler": "^5.5.0",
     "broccoli-file-creator": "^1.0.0",
