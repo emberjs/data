@@ -1,5 +1,5 @@
 module.exports = {
-  runs: 5,
+  runs: 35,
   domain: 'http://localhost:4200/',
   slugs: [
     // simple returns a 1 simple record with no relationships per count in limit
