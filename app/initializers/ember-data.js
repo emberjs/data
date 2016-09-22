@@ -19,7 +19,7 @@ import 'ember-data/-private/core';
     adapter: 'custom'
   });
 
-  App.PostsController = Ember.ArrayController.extend({
+  App.PostsController = Ember.Controller.extend({
     // ...
   });
 
