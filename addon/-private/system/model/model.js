@@ -476,13 +476,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   rolledBack: Ember.K,
 
-  /**
-    @property data
-    @private
-    @type {Object}
-  */
-  data: Ember.computed.readOnly('_internalModel._data'),
-
   //TODO Do we want to deprecate these?
   /**
     @method send
@@ -949,6 +942,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
   setId: Ember.observer('id', function () {
     this._internalModel.setId(this.get('id'));
   })
+});
+
+/**
+ @property data
+ @private
+ @type {Object}
+ */
+Object.defineProperty(Model.prototype, 'data', {
+  get() {
+    return this._internalModel._data;
+  }
 });
 
 Model.reopenClass({
