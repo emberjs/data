@@ -342,7 +342,6 @@ test("A hasMany updated link should not remove new children", function(assert) {
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({
-      id: 1,
       links: {
         comments: '/some/link'
       }
@@ -383,7 +382,6 @@ test("A hasMany updated link should not remove new children when the parent reco
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({
-      id: 1,
       links: {
         comments: '/some/link'
       }
@@ -2209,7 +2207,6 @@ test("adding and removing records from hasMany relationship #2666", function(ass
     })
   });
 
-  var commentId = 4;
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
     deleteRecord(record) {
       return Ember.RSVP.resolve();
@@ -2218,7 +2215,7 @@ test("adding and removing records from hasMany relationship #2666", function(ass
       return Ember.RSVP.resolve();
     },
     createRecord() {
-      return Ember.RSVP.resolve({ comments: { id: commentId++ }});
+      return Ember.RSVP.resolve();
     }
   }));
 
