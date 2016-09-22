@@ -18,6 +18,7 @@ test("#serialize", function(assert) {
 
   assert.equal(transform.serialize(null), null);
   assert.equal(transform.serialize(undefined), null);
+  assert.equal(transform.serialize(new Date("invalid")), null);
 
   assert.equal(transform.serialize(date), dateString);
 });
