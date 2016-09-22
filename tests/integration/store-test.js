@@ -905,5 +905,3 @@ testInDebug('store#queryRecord should assert when normalized payload of adapter 
     });
   }, /Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array./);
 });
-
-
