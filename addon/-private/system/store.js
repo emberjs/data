@@ -1696,6 +1696,8 @@ Store = Service.extend({
       // normalize relationship IDs into records
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
       this.updateId(internalModel, data);
+    } else {
+      assert(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the id on the client side before saving the record.`, internalModel.id);
     }
 
     //We first make sure the primary data has been updated
@@ -1749,11 +1751,11 @@ Store = Service.extend({
     assert(`The store cannot assign an empty id to record '${internalModel.type.modelName}:${internalModel._id}', because it already has an empty ID.`, id !== null && oldId !== null);
 
     // ID absolutely can't be different than oldID if oldID is not null
-    assert("The store cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+    assert("The store cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId !== null && id === oldId);
 
     // ID can be null if oldID is not null (altered ID in response for a record)
-    if (id === null) {
-      warn(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the id on the client side before saving the record.`, id !== null);
+    if (oldId !== null && id === null) {
+      warn(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the id on the client side before saving the record.`, !(oldId !== null && id === null));
       return;
     }
 
