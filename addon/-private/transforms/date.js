@@ -41,7 +41,7 @@ export default Transform.extend({
   },
 
   serialize(date) {
-    if (date instanceof Date) {
+    if (date instanceof Date && !isNaN(date)) {
       return date.toISOString();
     } else {
       return null;
