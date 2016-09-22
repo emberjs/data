@@ -1697,7 +1697,7 @@ Store = Service.extend({
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
       this.updateId(internalModel, data);
     }
-    assert(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the on the client side before saving the record.`, internalModel.id !== null);
+
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
     internalModel.adapterDidCommit(data);

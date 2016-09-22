@@ -370,7 +370,7 @@ test("changedAttributes() works while the record is being saved", function(asser
       assert.deepEqual(toObj(cat.changedAttributes()), {
         name: [undefined, 'Argon'],
         likes: [undefined, 'Cheese'] });
-      return { id: 1 };
+      return {};
     }
   });
   var Mascot = DS.Model.extend({
