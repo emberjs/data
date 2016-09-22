@@ -1057,7 +1057,7 @@ test("createRecord receives a snapshot", function(assert) {
   var person;
 
   run(function() {
-    person = store.createRecord('person', { name: "Tom Dale", id: 1 });
+    person = store.createRecord('person', { name: "Tom Dale" });
     person.save();
   });
 });
