@@ -46,29 +46,29 @@ function retrieveFromCurrentState(key) {
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
-  new_InternalModel,
-  materializeRecord,
-  setupData,
+  _triggerDeferredTriggers,
+  changedAttributes,
   createSnapshot,
   flushChangedAttributes,
   hasChangedAttributes,
-  updateChangedAttributes,
-  changedAttributes,
+  materializeRecord,
+  new_InternalModel,
   send,
+  setupData,
   transitionTo,
-  _triggerDeferredTriggers
+  updateChangedAttributes
 } = heimdall.registerMonitor('InternalModel',
-  'new_InternalModel',
-  'materializeRecord',
-  'setupData',
+  '_triggerDeferredTriggers',
+  'changedAttributes',
   'createSnapshot',
   'flushChangedAttributes',
   'hasChangedAttributes',
-  'updateChangedAttributes',
-  'changedAttributes',
+  'materializeRecord',
+  'new_InternalModel',
   'send',
+  'setupData',
   'transitionTo',
-  '_triggerDeferredTriggers'
+  'updateChangedAttributes'
 );
 
 /*
