@@ -17,7 +17,6 @@ for (var i = 0; i < args.length; i++) {
     break;
   }
 }
-process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
 module.exports = function(defaults) {
   var app = new EmberAddon(defaults, {
@@ -30,6 +29,7 @@ module.exports = function(defaults) {
   });
 
   if (INSTRUMENT_HEIMDALL) {
+    console.warn('IMPORTED HEIMDALL & SET EMBER TO PRODUCTION');
     var heimdallTree = new Funnel('node_modules/heimdalljs', {
       destDir: 'heimdalljs'
     });
