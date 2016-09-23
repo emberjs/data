@@ -328,14 +328,14 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
 test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
   var post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
+    primarykey: '_id_',
+
     attrs: {
       name: '_name_'
     }
   }));
 
-  ajaxResponse({
-    post: { '_name_': "The Parley Letter", id: '1' }
-  });
+  ajaxResponse();
 
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
