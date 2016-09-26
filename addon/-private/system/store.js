@@ -1454,7 +1454,7 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String=} modelName
+   @param {String} modelName
   */
   unloadAll(modelName) {
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
