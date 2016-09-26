@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.8.1 (September 23, 2016)
+- [#4536](https://github.com/emberjs/data/pull/4536) bump to latest ember-cli, run ember init, cleanup post init
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an I…"
+- [#4537](https://github.com/emberjs/data/pull/4537) [BUGFIX beta] Ember Data should not swallow exceptions from the run loop
+- [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
+- [#4541](https://github.com/emberjs/data/pull/4541) [BUGFIX release] Include initializers for global production build
+
+
 ### Release 2.8.0 (September 8, 2016)
 
 - [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
