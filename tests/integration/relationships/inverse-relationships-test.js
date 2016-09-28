@@ -605,3 +605,18 @@ test("inverseFor is only called when inverse is not null", function(assert) {
     });
   });
 });
+
+test("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
+
+  User = DS.Model.extend({
+    post: DS.belongsTo('post', { inverse: null })
+  });
+
+  var env = setupStore({ user: User });
+
+  assert.throws(function() {
+    run(function() {
+      env.store.createRecord('user');
+    });
+  }, /No model was found for 'post'/);
+});
