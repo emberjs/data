@@ -15,6 +15,8 @@ function createRelationshipFor(record, relationshipMeta, store) {
   let inverse = null;
   if (shouldFindInverse(relationshipMeta)) {
     inverse = record.type.inverseFor(relationshipMeta.key, store);
+  } else {
+    record.type.typeForRelationship(relationshipMeta.key, store);
   }
 
   if (inverse) {
