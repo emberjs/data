@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.9.0-beta.2 (September 29, 2016)
+- [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
+- [#4541](https://github.com/emberjs/data/pull/4541) [DOC beta] Remove `Ember.ArrayController` from initializer example (#4540)
+- [#4540](https://github.com/emberjs/data/pull/4540) Add examples to the build-url-mixin API docs (#4512)
+- [#4537](https://github.com/emberjs/data/pull/4537) [BUGFIX beta] Ember Data should not swallow exceptions from the run loop
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
+- [#4536](https://github.com/emberjs/data/pull/4536) [DOC] fix features response typo (#4530)
+
 ### Release 2.9.0-beta.1 (September 10, 2016)
 - [#4490](https://github.com/emberjs/data/pull/4490) [DOCS] No need to use Ember.run in succes and failure of wrapped getJSON
 - [#4493](https://github.com/emberjs/data/pull/4493) Addresses #4492
