@@ -43,7 +43,6 @@ function retrieveFromCurrentState(key) {
   };
 }
 
-var guid = 0;
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
@@ -81,7 +80,7 @@ export default function InternalModel(type, id, store, _, data) {
   this.isError = false;
   this.error = null;
   this.__ember_meta__ = null;
-  this[Ember.GUID_KEY] = guid++ + 'internal-model';
+  this[Ember.GUID_KEY] = Ember.guidFor(this);
   /*
     implicit relationships are relationship which have not been declared but the inverse side exists on
     another record somewhere
