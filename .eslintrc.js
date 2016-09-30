@@ -9,6 +9,9 @@ module.exports = {
   env: {
     'browser': true,
   },
+  globals: {
+    'heimdall': true
+  },
   rules: {
     'no-unused-vars': ['error', {
       'args': 'none',

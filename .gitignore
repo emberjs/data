@@ -6,6 +6,8 @@ dist/
 .idea
 *.iml
 
+benchmarks/results/*.json
+
 .DS_Store
 .project
 

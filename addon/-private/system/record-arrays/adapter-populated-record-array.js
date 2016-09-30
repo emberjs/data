@@ -42,6 +42,7 @@ export default RecordArray.extend({
     @private
   */
   loadRecords(records, payload) {
+    let token = heimdall.start('AdapterPopulatedRecordArray.loadRecords');
     //TODO Optimize
     var internalModels = Ember.A(records).mapBy('_internalModel');
     this.setProperties({
@@ -61,5 +62,6 @@ export default RecordArray.extend({
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
+    heimdall.stop(token);
   }
 });

@@ -1,3 +1,4 @@
+/* global heimdall */
 /**
   @module ember-data
 */
@@ -5,7 +6,7 @@
 import Ember from 'ember';
 import RESTAdapter from "ember-data/adapters/rest";
 import isEnabled from 'ember-data/-private/features';
-import { deprecate } from 'ember-data/-private/debug';
+import { instrument, deprecate } from 'ember-data/-private/debug';
 
 /**
   @since 1.13.0
@@ -31,6 +32,22 @@ var JSONAPIAdapter = RESTAdapter.extend({
     if (hash.contentType) {
       hash.contentType = 'application/vnd.api+json';
     }
+
+    instrument(function() {
+      hash.converters = {
+        'text json': function(payload) {
+          let token = heimdall.start('json.parse');
+          let json;
+          try {
+            json = Ember.$.parseJSON(payload);
+          } catch (e) {
+            json = payload;
+          }
+          heimdall.stop(token);
+          return json;
+        }
+      };
+    });
 
     let beforeSend = hash.beforeSend;
     hash.beforeSend = function(xhr) {

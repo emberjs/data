@@ -4,7 +4,7 @@
 
 import Ember from 'ember';
 import Model from 'ember-data/model';
-import { assert, warn, runInDebug } from "ember-data/-private/debug";
+import { instrument, assert, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import {
@@ -93,6 +93,46 @@ const { Service } = Ember;
 //   * +internalModel+ means a record internalModel object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
 //   * +type+ means a DS.Model.
+
+const {
+  _generateId,
+  _internalModelForId,
+  _load,
+  _modelForMixin,
+  _pushInternalModel,
+  _setupRelationships,
+  adapterFor,
+  buildInternalModel,
+  didUpdateAll,
+  modelFactoryFor,
+  modelFor,
+  normalize,
+  peekAll,
+  peekRecord,
+  retrieveManagedInstance,
+  serializerFor,
+  typeMapFor,
+  typeMapFor_allocate
+} = heimdall.registerMonitor('store',
+  '_generateId',
+  '_internalModelForId',
+  '_load',
+  '_modelForMixin',
+  '_pushInternalModel',
+  '_setupRelationships',
+  'adapterFor',
+  'buildInternalModel',
+  'didUpdateAll',
+  'modelFactoryFor',
+  'modelFor',
+  'normalize',
+  'peekAll',
+  'peekRecord',
+  'retrieveManagedInstance',
+  'serializerFor',
+  'typeMapFor',
+  'typeMapFor_allocate'
+);
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -326,6 +366,7 @@ Store = Service.extend({
     @return {String} if the adapter can generate one, an ID
   */
   _generateId(modelName, properties) {
+    heimdall.increment(_generateId);
     var adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -885,6 +926,7 @@ Store = Service.extend({
     @return {DS.Model|null} record
   */
   peekRecord(modelName, id) {
+    heimdall.increment(peekRecord);
     assert("You need to pass a model name to the store's peekRecord method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
@@ -952,6 +994,7 @@ Store = Service.extend({
   },
 
   _internalModelForId(typeName, inputId) {
+    heimdall.increment(_internalModelForId);
     var typeClass = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
@@ -1081,6 +1124,7 @@ Store = Service.extend({
   },
 
   _query(modelName, query, array) {
+    let token = heimdall.start('store._query');
     assert("You need to pass a model name to the store's query method", isPresent(modelName));
     assert("You need to pass a query hash to the store's query method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
@@ -1093,7 +1137,11 @@ Store = Service.extend({
     assert("You tried to load a query but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function');
 
-    return promiseArray(_query(adapter, this, typeClass, query, array));
+    let pA = promiseArray(_query(adapter, this, typeClass, query, array));
+    instrument(() => {
+      pA.finally(() => { heimdall.stop(token); });
+    });
+    return pA;
   },
 
   /**
@@ -1355,9 +1403,17 @@ Store = Service.extend({
   findAll(modelName, options) {
     assert("You need to pass a model name to the store's findAll method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    let token = heimdall.start('store.findAll');
+
     var typeClass = this.modelFor(modelName);
 
-    return this._fetchAll(typeClass, this.peekAll(modelName), options);
+    let fetch = this._fetchAll(typeClass, this.peekAll(modelName), options);
+
+    instrument(() => {
+      fetch.finally(() => { heimdall.stop(token); });
+    });
+
+    return fetch;
   },
 
   /**
@@ -1404,6 +1460,7 @@ Store = Service.extend({
     @private
   */
   didUpdateAll(typeClass) {
+    heimdall.increment(didUpdateAll);
     var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
     set(liveRecordArray, 'isUpdating', false);
   },
@@ -1433,6 +1490,7 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   peekAll(modelName) {
+    heimdall.increment(peekAll);
     assert("You need to pass a model name to the store's peekAll method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
@@ -1761,12 +1819,14 @@ Store = Service.extend({
     @return {Object} typeMap
   */
   typeMapFor(typeClass) {
+    heimdall.increment(typeMapFor);
     var typeMaps = get(this, 'typeMaps');
     var guid = Ember.guidFor(typeClass);
     var typeMap = typeMaps[guid];
 
     if (typeMap) { return typeMap; }
 
+    heimdall.increment(typeMapFor_allocate);
     typeMap = {
       idToRecord: new EmptyObject(),
       records: [],
@@ -1792,6 +1852,7 @@ Store = Service.extend({
     @param {Object} data
   */
   _load(data) {
+    heimdall.increment(_load);
     var internalModel = this._internalModelForId(data.type, data.id);
 
     internalModel.setupData(data);
@@ -1818,6 +1879,7 @@ Store = Service.extend({
   */
 
   _modelForMixin(modelName) {
+    heimdall.increment(_modelForMixin);
     var normalizedModelName = normalizeModelName(modelName);
     // container.registry = 2.1
     // container._registry = 1.11 - 2.0
@@ -1851,6 +1913,7 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor(modelName) {
+    heimdall.increment(modelFor);
     assert("You need to pass a model name to the store's modelFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
@@ -1868,6 +1931,7 @@ Store = Service.extend({
   },
 
   modelFactoryFor(modelName) {
+    heimdall.increment(modelFactoryFor);
     assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var normalizedKey = normalizeModelName(modelName);
@@ -2028,6 +2092,7 @@ Store = Service.extend({
       updated.
   */
   push(data) {
+    let token = heimdall.start('store.push');
     var included = data.included;
     var i, length;
     if (included) {
@@ -2042,10 +2107,12 @@ Store = Service.extend({
       for (i = 0; i < length; i++) {
         internalModels[i] = this._pushInternalModel(data.data[i]).getRecord();
       }
+      heimdall.stop(token);
       return internalModels;
     }
 
     if (data.data === null) {
+      heimdall.stop(token);
       return null;
     }
 
@@ -2053,7 +2120,9 @@ Store = Service.extend({
 
     var internalModel = this._pushInternalModel(data.data);
 
-    return internalModel.getRecord();
+    var record = internalModel.getRecord();
+    heimdall.stop(token);
+    return record;
   },
 
   _hasModelFor(type) {
@@ -2061,6 +2130,7 @@ Store = Service.extend({
   },
 
   _pushInternalModel(data) {
+    heimdall.increment(_pushInternalModel);
     var modelName = data.type;
     assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id !== null && data.id !== undefined && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
@@ -2099,6 +2169,7 @@ Store = Service.extend({
   },
 
   _setupRelationships(record, data) {
+    heimdall.increment(_setupRelationships);
     // This will convert relationships specified as IDs into DS.Model instances
     // (possibly unloaded) and also create the data structures used to track
     // relationships.
@@ -2199,6 +2270,7 @@ Store = Service.extend({
     @return {Object} The normalized payload
   */
   normalize(modelName, payload) {
+    heimdall.increment(normalize);
     assert("You need to pass a model name to the store's normalize method", isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
     var serializer = this.serializerFor(modelName);
@@ -2218,6 +2290,7 @@ Store = Service.extend({
     @return {InternalModel} internal model
   */
   buildInternalModel(type, id, data) {
+    heimdall.increment(buildInternalModel);
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -2293,6 +2366,7 @@ Store = Service.extend({
     @return DS.Adapter
   */
   adapterFor(modelName) {
+    heimdall.increment(adapterFor);
     assert("You need to pass a model name to the store's adapterFor method", isPresent(modelName));
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
@@ -2329,6 +2403,7 @@ Store = Service.extend({
     @return {DS.Serializer}
   */
   serializerFor(modelName) {
+    heimdall.increment(serializerFor);
     assert("You need to pass a model name to the store's serializerFor method", isPresent(modelName));
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
@@ -2358,6 +2433,7 @@ Store = Service.extend({
     @return {Ember.Object}
   */
   retrieveManagedInstance(type, modelName, fallbacks) {
+    heimdall.increment(retrieveManagedInstance);
     var normalizedModelName = normalizeModelName(modelName);
 
     var instance = this._instanceCache.get(type, normalizedModelName, fallbacks);

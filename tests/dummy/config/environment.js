@@ -9,12 +9,13 @@ var featureFlags = JSON.parse(featuresJson);
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'dummy',
+    podModulePrefix: 'dummy/routes',
     environment: environment,
     rootURL: '/',
     locationType: 'auto',
     EmberENV: {
       FEATURES: featureFlags,
-      ENABLE_DS_FILTER: true,
+      ENABLE_DS_FILTER: true
 
       // don't raise on deprecation yet, since there are too many thrown errors;
       // this should be addressed in another PR

@@ -110,6 +110,27 @@ production builds automatically.
   Be sure to leave a description of the feature and possible example of how to
   use it (if necessary).
 
+## Benchmarking
+
+Ember Data is instrumented with [heimdalljs](https://github.com/heimdalljs/heimdalljs-lib) 
+ Top level scenarios for benchmarking are available via the `query` route in
+ the dummy app, and desired scenarios to be run can be configured via `benchmarks/config.js`.
+ 
+ The scenarios are configured to interop with [heimdall-query](https://github.com/heimdalljs/heimdall-query)
+ for analysis. To run scenarios:
+
+  1. Start the dummy app with instrumentation on: `ember s --instrument`
+  
+  2. Configure `benchmarks/config.js` with desired scenarios
+  
+  3. To run both the benchmarks and the analysis: `node ./benchmarks`
+  
+      a.) To just collect data (no analysis): `node ./benchmarks/bash-run.js`
+      b.) To just run analysis (w/cached data): `node ./benchmarks/bash-analyze.js`
+      c.) To cache a data set or use a cached data set, all commands accept `-c ./path/to/cache/dir`
+
+  4. Do not commit cached data results, these should be git ignored already.
+
 # Pull Requests
 
 We love pull requests. Here's a quick guide:

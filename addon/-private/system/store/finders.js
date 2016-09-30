@@ -177,8 +177,8 @@ export function _query(adapter, store, typeClass, query, recordArray) {
 
     assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(records));
     recordArray.loadRecords(records, payload);
-    return recordArray;
 
+    return recordArray;
   }, null, "DS: Extract payload of query " + typeClass);
 }
 

@@ -1,8 +1,58 @@
+/* global heimdall */
 import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
 import OrderedSet from "ember-data/-private/system/ordered-set";
 
+const {
+  addCanonicalRecord,
+  addCanonicalRecords,
+  addRecord,
+  addRecords,
+  clear,
+  findLink,
+  flushCanonical,
+  flushCanonicalLater,
+  newRelationship,
+  removeCanonicalRecord,
+  removeCanonicalRecordFromInverse,
+  removeCanonicalRecordFromOwn,
+  removeCanonicalRecords,
+  removeRecord,
+  removeRecordFromInverse,
+  removeRecordFromOwn,
+  removeRecords,
+  setHasData,
+  setHasLoaded,
+  updateLink,
+  updateMeta,
+  updateRecordsFromAdapter
+} = heimdall.registerMonitor('system.relationships.state.relationship',
+  'addCanonicalRecord',
+  'addCanonicalRecords',
+  'addRecord',
+  'addRecords',
+  'clear',
+  'findLink',
+  'flushCanonical',
+  'flushCanonicalLater',
+  'newRelationship',
+  'removeCanonicalRecord',
+  'removeCanonicalRecordFromInverse',
+  'removeCanonicalRecordFromOwn',
+  'removeCanonicalRecords',
+  'removeRecord',
+  'removeRecordFromInverse',
+  'removeRecordFromOwn',
+  'removeRecords',
+  'setHasData',
+  'setHasLoaded',
+  'updateLink',
+  'updateMeta',
+  'updateRecordsFromAdapter'
+);
+
 export default function Relationship(store, record, inverseKey, relationshipMeta) {
+  heimdall.increment(newRelationship);
   var async = relationshipMeta.options.async;
   this.members = new OrderedSet();
   this.canonicalMembers = new OrderedSet();
@@ -27,10 +77,12 @@ Relationship.prototype = {
   destroy: Ember.K,
 
   updateMeta(meta) {
+    heimdall.increment(updateMeta);
     this.meta = meta;
   },
 
   clear() {
+    heimdall.increment(clear);
     var members = this.members.list;
     var member;
 
@@ -41,10 +93,12 @@ Relationship.prototype = {
   },
 
   removeRecords(records) {
+    heimdall.increment(removeRecords);
     records.forEach((record) => this.removeRecord(record));
   },
 
   addRecords(records, idx) {
+    heimdall.increment(addRecords);
     records.forEach((record) => {
       this.addRecord(record, idx);
       if (idx !== undefined) {
@@ -54,6 +108,7 @@ Relationship.prototype = {
   },
 
   addCanonicalRecords(records, idx) {
+    heimdall.increment(addCanonicalRecords);
     for (var i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.addCanonicalRecord(records[i], i+idx);
@@ -64,6 +119,7 @@ Relationship.prototype = {
   },
 
   addCanonicalRecord(record, idx) {
+    heimdall.increment(addCanonicalRecord);
     if (!this.canonicalMembers.has(record)) {
       this.canonicalMembers.add(record);
       if (this.inverseKey) {
@@ -80,6 +136,7 @@ Relationship.prototype = {
   },
 
   removeCanonicalRecords(records, idx) {
+    heimdall.increment(removeCanonicalRecords);
     for (var i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.removeCanonicalRecord(records[i], i+idx);
@@ -90,6 +147,7 @@ Relationship.prototype = {
   },
 
   removeCanonicalRecord(record, idx) {
+    heimdall.increment(removeCanonicalRecord);
     if (this.canonicalMembers.has(record)) {
       this.removeCanonicalRecordFromOwn(record);
       if (this.inverseKey) {
@@ -104,6 +162,7 @@ Relationship.prototype = {
   },
 
   addRecord(record, idx) {
+    heimdall.increment(addRecord);
     if (!this.members.has(record)) {
       this.members.addWithIndex(record, idx);
       this.notifyRecordRelationshipAdded(record, idx);
@@ -121,6 +180,7 @@ Relationship.prototype = {
   },
 
   removeRecord(record) {
+    heimdall.increment(removeRecord);
     if (this.members.has(record)) {
       this.removeRecordFromOwn(record);
       if (this.inverseKey) {
@@ -134,6 +194,7 @@ Relationship.prototype = {
   },
 
   removeRecordFromInverse(record) {
+    heimdall.increment(removeRecordFromInverse);
     var inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -142,12 +203,14 @@ Relationship.prototype = {
   },
 
   removeRecordFromOwn(record) {
+    heimdall.increment(removeRecordFromOwn);
     this.members.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
   },
 
   removeCanonicalRecordFromInverse(record) {
+    heimdall.increment(removeCanonicalRecordFromInverse);
     var inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -156,11 +219,13 @@ Relationship.prototype = {
   },
 
   removeCanonicalRecordFromOwn(record) {
+    heimdall.increment(removeCanonicalRecordFromOwn);
     this.canonicalMembers.delete(record);
     this.flushCanonicalLater();
   },
 
   flushCanonical() {
+    heimdall.increment(flushCanonical);
     this.willSync = false;
     //a hack for not removing new records
     //TODO remove once we have proper diffing
@@ -178,6 +243,7 @@ Relationship.prototype = {
   },
 
   flushCanonicalLater() {
+    heimdall.increment(flushCanonicalLater);
     if (this.willSync) {
       return;
     }
@@ -186,6 +252,7 @@ Relationship.prototype = {
   },
 
   updateLink(link) {
+    heimdall.increment(updateLink);
     warn(`You have pushed a record of type '${this.record.type.modelName}' with '${this.key}' as a link, but the association is not an async relationship.`, this.isAsync, {
       id: 'ds.store.push-link-for-sync-relationship'
     });
@@ -199,6 +266,7 @@ Relationship.prototype = {
   },
 
   findLink() {
+    heimdall.increment(findLink);
     if (this.linkPromise) {
       return this.linkPromise;
     } else {
@@ -209,6 +277,7 @@ Relationship.prototype = {
   },
 
   updateRecordsFromAdapter(records) {
+    heimdall.increment(updateRecordsFromAdapter);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(records);
@@ -230,6 +299,7 @@ Relationship.prototype = {
     considered known (`hasData === true`).
    */
   setHasData(value) {
+    heimdall.increment(setHasData);
     this.hasData = value;
   },
 
@@ -244,6 +314,7 @@ Relationship.prototype = {
     Updating the link will automatically set `hasLoaded` to `false`.
    */
   setHasLoaded(value) {
+    heimdall.increment(setHasLoaded);
     this.hasLoaded = value;
   }
 };
