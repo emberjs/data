@@ -1469,7 +1469,7 @@ function ajaxError(adapter, jqXHR, requestData, responseData) {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
-  } else if (responseData.textStatus === 'abort') {
+  } else if (responseData.textStatus === 'abort' || jqXHR.status === 0) {
     error = new AbortError();
   } else {
     try {
