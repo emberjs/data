@@ -4,6 +4,7 @@
 
 import Ember from 'ember';
 import Model from 'ember-data/model';
+import FindCoalescer from './find-coalescer';
 import { instrument, assert, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
@@ -224,7 +225,9 @@ Store = Service.extend({
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this));
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Map.create();
+    this._pendingFetch = this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   /**
@@ -657,6 +660,10 @@ Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
+  _findMany(adapter, store, type, ids, records) {
+    return _findMany(adapter, store, type, ids, records);
+  },
+
   _findByInternalModel(internalModel, options) {
     options = options || {};
 
@@ -756,11 +763,7 @@ Store = Service.extend({
 
     internalModel.loadingData(promise);
 
-    if (!this._pendingFetch.get(typeClass)) {
-      this._pendingFetch.set(typeClass, [pendingFetchItem]);
-    } else {
-      this._pendingFetch.get(typeClass).push(pendingFetchItem);
-    }
+    this._pendingFetch.get(type).push(recordResolverPair);
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;
@@ -772,7 +775,9 @@ Store = Service.extend({
     }
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch = Map.create();
+    this._pendingFetch = this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   _flushPendingFetchForType(pendingFetchItems, typeClass) {
@@ -2594,6 +2599,8 @@ function normalizeRelationship(store, key, relationship, jsonPayload) {
     }
   }
 }
+
+Store.FindCoalescer = FindCoalescer;
 
 export { Store };
 export default Store;
