@@ -5,7 +5,7 @@ import {
 
 import coerceId from "./coerce-id";
 
-let get = { Ember };
+let { get } = Ember;
 
 /**
  * A class that coalesces find requests
@@ -71,9 +71,7 @@ FindCoalescer.prototype._findMany = function(map, type) {
     }
   });
 
-  let adapter = this.store.adapterFor({
-    typeKey: type
-  });
+  let adapter = this.store.adapterFor(type);
 
   let ids = missing.map(function(record) {
     return get(record, 'id');

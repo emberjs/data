@@ -244,6 +244,8 @@ test("store#findRecord fetches record from server when cached record is not pres
 test("store#findRecord returns cached record immediately and reloads record in the background", function(assert) {
   assert.expect(2);
 
+  initializeStore(DS.RESTAdapter.extend());
+
   run(function() {
     store.push({
       data: {
