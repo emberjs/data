@@ -763,7 +763,7 @@ Store = Service.extend({
 
     internalModel.loadingData(promise);
 
-    this._pendingFetch.get(type).push(recordResolverPair);
+    this._pendingFetch.get(typeClass).push(pendingFetchItem);
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;

@@ -1,12 +1,11 @@
+import Ember from 'ember';
 import {
   _findMany
-} from "ember-data/system/utils/finders";
+} from "./store/finders";
 
-import {
-  coerceId
-} from "ember-data/system/utils/common";
+import coerceId from "./coerce-id";
 
-var get = Ember.get;
+let get = { Ember };
 
 /**
  * A class that coalesces find requests
@@ -16,9 +15,7 @@ function FindCoalescer(store) {
   this.store = store;
 }
 
-var a_map = Ember.EnumerableUtils.map;
-var a_forEach = Ember.EnumerableUtils.forEach;
-var Promise = Ember.RSVP.Promise;
+let Promise = Ember.RSVP.Promise;
 
 /**
  * Set up the coalescer
@@ -58,13 +55,13 @@ FindCoalescer.prototype._end = function() {
  * @param  {Map} map  record id to promise map
  */
 FindCoalescer.prototype._findMany = function(map, type) {
-  var store = this.store;
-  var missing = [];
+  let store = this.store;
+  let missing = [];
 
   // For each item in map
-  a_forEach(map, function(deferred, id, map) {
+  map.forEach(function(deferred, id, map) {
     // Accumulate missing records
-    var record = store.recordForId(type, id);
+    let record = store.recordForId(type, id);
     if (!isLoaded(record)) {
       console.log("MISSING: " + type + ": " + id);
       missing.push(record);
@@ -74,20 +71,20 @@ FindCoalescer.prototype._findMany = function(map, type) {
     }
   });
 
-  var adapter = this.store.adapterFor({
+  let adapter = this.store.adapterFor({
     typeKey: type
   });
 
-  var ids = a_map(missing, function(record) {
+  let ids = missing.map(function(record) {
     return get(record, 'id');
   });
 
-  var grouped = adapter.groupRecordsForFindMany(this.store, missing);
+  let grouped = adapter.groupRecordsForFindMany(this.store, missing);
 
   // Iterate over all groups of ids
-  return Promise.all(a_map(grouped, function(group) {
+  return Promise.all(grouped.map(function(group) {
     return _findMany(adapter, store, type, ids, group).then(function() {
-      a_forEach(group, function(record) {
+      group.forEach(function(record) {
         if (isLoaded(record)) {
           map.get(record).resolve(record);
         } else {
@@ -106,15 +103,15 @@ FindCoalescer.prototype._findMany = function(map, type) {
  * @param  {String|Integer} id                  ID of record to find
  */
 FindCoalescer.prototype.find = function(type, id) {
-  var finder = this;
+  let finder = this;
 
   this._begin();
 
   // Check to see if this record has already been requested
-  var existingFind = finder._pending.get(type).get(record);
-  var promise = null;
+  let existingFind = finder._pending.get(type).get(record);
+  let promise = null;
 
-  var record = this.store.recordForId(type, id);
+  let record = this.store.recordForId(type, id);
 
   if (existingFind) {
     // Already requested, return the existing promise
