@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.9.0-beta.3 (October 3, 2016)
+- [#4559](https://github.com/emberjs/data/pull/4559) [BUGFIX beta] Use Ember.guidFor to set InternalModel's guid.
+- [#4560](https://github.com/emberjs/data/pull/4560) [BUGFIX beta] Ensure record array length is reset during willDestroy.
+
 ### Release 2.9.0-beta.2 (September 29, 2016)
 - [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
 - [#4541](https://github.com/emberjs/data/pull/4541) [DOC beta] Remove `Ember.ArrayController` from initializer example (#4540)
