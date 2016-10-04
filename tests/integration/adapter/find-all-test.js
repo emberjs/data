@@ -238,3 +238,34 @@ test("isUpdating is true while records are fetched in the background", function(
     });
   });
 });
+
+test("isUpdating is false if records are not fetched in the background", function(assert) {
+  let findAllDeferred = Ember.RSVP.defer();
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll() {
+      return findAllDeferred.promise;
+    },
+    shouldReloadAll: () => false,
+    shouldBackgroundReloadAll: () => false
+  }));
+
+  run(function() {
+    store.push({
+      data: [{
+        type: 'person',
+        id: 1
+      }]
+    });
+  });
+
+  let persons = store.peekAll('person');
+  assert.equal(persons.get("length"), 1);
+
+  run(function() {
+    store.findAll('person').then(function(persons) {
+      assert.equal(persons.get("isUpdating"), false);
+    });
+  });
+
+  assert.equal(persons.get("isUpdating"), false);
+});
