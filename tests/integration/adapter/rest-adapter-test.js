@@ -2381,6 +2381,34 @@ test("gracefully handles exceptions in handleResponse where the ajax request err
   }
 });
 
+test('treats status code 0 as an abort', function(assert) {
+  assert.expect(1);
+
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    status: 0,
+    getAllResponseHeaders() { return ''; }
+  };
+
+  Ember.$.ajax = function(hash) {
+    hash.error(jqXHR, 'error');
+  };
+
+  adapter.handleResponse = function(status, headers, payload) {
+    assert.ok(false);
+  };
+
+  try {
+    run(function() {
+      store.findRecord('post', '1').catch(function(err) {
+        assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+});
+
 test('on error appends errorThrown for sanity', function(assert) {
   assert.expect(2);
 
