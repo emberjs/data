@@ -459,3 +459,14 @@ test("a record array should return a promise when updating", function(assert) {
   });
   assert.ok(promise.then && typeof promise.then === "function", "#update returns a promise");
 });
+
+test('recordArray.replace() throws error', function(assert) {
+  var recordArray;
+  var env = setupStore({ person: Person });
+  var store = env.store;
+
+  assert.throws(function() {
+    recordArray =  store.peekAll('person');
+    recordArray.replace();
+  }, Error("The result of a server query (for all (subclass of DS.Model) types) is immutable. To modify contents, use toArray()"), 'throws error');
+});
