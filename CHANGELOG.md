@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.9.0-beta.4 (October 10, 2016)
+- [#4529](https://github.com/emberjs/data/pull/4529) isUpdating should be true only if a reload happens
+- [#4566](https://github.com/emberjs/data/pull/4566) Properly cleanup store and env in store integration test
+- [#4567](https://github.com/emberjs/data/pull/4567) [bugfix beta] Treat status code 0 as an abort
+
 ### Release 2.9.0-beta.3 (October 3, 2016)
 - [#4559](https://github.com/emberjs/data/pull/4559) [BUGFIX beta] Use Ember.guidFor to set InternalModel's guid.
 - [#4560](https://github.com/emberjs/data/pull/4560) [BUGFIX beta] Ensure record array length is reset during willDestroy.
