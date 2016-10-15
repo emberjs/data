@@ -138,11 +138,10 @@ Data store for a record of type `person` with an ID of `123`, the
 adapter translates that into an XHR request to (for example)
 `api.example.com/v3/person/123.json`.
 
-By default, Ember Data will use the `RESTAdapter`, which adheres to a
-set of RESTful JSON conventions.
+By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON-API spec](http://jsonapi.org/).
 
 To learn more about adapters, including what conventions the
-`RESTAdapter` follows and how to build your own, see the Ember.js
+various adapters follow and how to build your own, see the Ember.js
 Guides: [Customizing Adapters](http://emberjs.com/guides/models/customizing-adapters).
 
 ### Fetching a Collection of Models
