@@ -1756,7 +1756,7 @@ Store = Service.extend({
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, data);
       this.updateId(internalModel, data);
     } else {
-      assert(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the id on the client side before saving the record.`, internalModel.id);
+      assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
     assert(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the on the client side before saving the record.`, internalModel.id !== null);
     //We first make sure the primary data has been updated
@@ -1813,8 +1813,9 @@ Store = Service.extend({
     assert("The store cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId !== null && id === oldId);
 
     // ID can be null if oldID is not null (altered ID in response for a record)
+    // however, this is more than likely a developer error.
     if (oldId !== null && id === null) {
-      warn(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the id on the client side before saving the record.`, !(oldId !== null && id === null));
+      warn(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id.`, !(oldId !== null && id === null));
       return;
     }
 
