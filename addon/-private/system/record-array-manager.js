@@ -8,9 +8,8 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "ember-data/-private/system/record-arrays";
-var  MapWithDefault = Ember.MapWithDefault;
+const { get, MapWithDefault } = Ember;
 import OrderedSet from "ember-data/-private/system/ordered-set";
-var get = Ember.get;
 
 const {
   _addRecordToRecordArray,
@@ -68,9 +67,7 @@ export default Ember.Object.extend({
     });
 
     this.liveRecordArrays = MapWithDefault.create({
-      defaultValue: (typeClass) => {
-        return this.createRecordArray(typeClass);
-      }
+      defaultValue: typeClass => this.createRecordArray(typeClass)
     });
 
     this.changedRecords = [];
@@ -102,8 +99,9 @@ export default Ember.Object.extend({
   */
   updateRecordArrays() {
     heimdall.increment(updateRecordArrays);
-    this.changedRecords.forEach((internalModel) => {
-      if (get(internalModel, 'record.isDestroyed') || get(internalModel, 'record.isDestroying') ||
+    this.changedRecords.forEach(internalModel => {
+      if (get(internalModel, 'record.isDestroyed') ||
+           get(internalModel, 'record.isDestroying') ||
            (get(internalModel, 'currentState.stateName') === 'root.deleted.saved')) {
         this._recordWasDeleted(internalModel);
       } else {
@@ -116,11 +114,11 @@ export default Ember.Object.extend({
 
   _recordWasDeleted(record) {
     heimdall.increment(_recordWasDeleted);
-    var recordArrays = record._recordArrays;
+    let recordArrays = record._recordArrays;
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach((array) => array.removeInternalModel(record));
+    recordArrays.forEach(array => array.removeInternalModel(record));
 
     record._recordArrays = null;
   },
@@ -128,10 +126,10 @@ export default Ember.Object.extend({
 
   _recordWasChanged(record) {
     heimdall.increment(_recordWasChanged);
-    var typeClass = record.type;
-    var recordArrays = this.filteredRecordArrays.get(typeClass);
-    var filter;
-    recordArrays.forEach((array) => {
+    let typeClass = record.type;
+    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let filter;
+    recordArrays.forEach(array => {
       filter = get(array, 'filterFunction');
       this.updateFilterRecordArray(array, filter, typeClass, record);
     });
@@ -140,17 +138,17 @@ export default Ember.Object.extend({
   //Need to update live arrays on loading
   recordWasLoaded(record) {
     heimdall.increment(recordWasLoaded);
-    var typeClass = record.type;
-    var recordArrays = this.filteredRecordArrays.get(typeClass);
-    var filter;
+    let typeClass = record.type;
+    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let filter;
 
-    recordArrays.forEach((array) => {
+    recordArrays.forEach(array => {
       filter = get(array, 'filterFunction');
       this.updateFilterRecordArray(array, filter, typeClass, record);
     });
 
     if (this.liveRecordArrays.has(typeClass)) {
-      var liveRecordArray = this.liveRecordArrays.get(typeClass);
+      let liveRecordArray = this.liveRecordArrays.get(typeClass);
       this._addRecordToRecordArray(liveRecordArray, record);
     }
   },
@@ -165,8 +163,8 @@ export default Ember.Object.extend({
   */
   updateFilterRecordArray(array, filter, typeClass, record) {
     heimdall.increment(updateFilterRecordArray);
-    var shouldBeInArray = filter(record.getRecord());
-    var recordArrays = this.recordArraysForRecord(record);
+    let shouldBeInArray = filter(record.getRecord());
+    let recordArrays = this.recordArraysForRecord(record);
     if (shouldBeInArray) {
       this._addRecordToRecordArray(array, record);
     } else {
@@ -177,7 +175,7 @@ export default Ember.Object.extend({
 
   _addRecordToRecordArray(array, record) {
     heimdall.increment(_addRecordToRecordArray);
-    var recordArrays = this.recordArraysForRecord(record);
+    let recordArrays = this.recordArraysForRecord(record);
     if (!recordArrays.has(array)) {
       array.addInternalModel(record);
       recordArrays.add(array);
@@ -186,11 +184,11 @@ export default Ember.Object.extend({
 
   populateLiveRecordArray(array, modelName) {
     heimdall.increment(populateLiveRecordArray);
-    var typeMap = this.store.typeMapFor(modelName);
-    var records = typeMap.records;
-    var record;
+    let typeMap = this.store.typeMapFor(modelName);
+    let records = typeMap.records;
+    let record;
 
-    for (var i = 0; i < records.length; i++) {
+    for (let i = 0; i < records.length; i++) {
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
@@ -213,11 +211,11 @@ export default Ember.Object.extend({
   */
   updateFilter(array, modelName, filter) {
     heimdall.increment(updateFilter);
-    var typeMap = this.store.typeMapFor(modelName);
-    var records = typeMap.records;
-    var record;
+    let typeMap = this.store.typeMapFor(modelName);
+    let records = typeMap.records;
+    let record;
 
-    for (var i = 0; i < records.length; i++) {
+    for (let i = 0; i < records.length; i++) {
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
@@ -248,15 +246,13 @@ export default Ember.Object.extend({
   */
   createRecordArray(typeClass) {
     heimdall.increment(createRecordArray);
-    var array = RecordArray.create({
+    return RecordArray.create({
       type: typeClass,
       content: Ember.A(),
       store: this.store,
       isLoaded: true,
       manager: this
     });
-
-    return array;
   },
 
   /**
@@ -270,7 +266,7 @@ export default Ember.Object.extend({
   */
   createFilteredRecordArray(typeClass, filter, query) {
     heimdall.increment(createFilteredRecordArray);
-    var array = FilteredRecordArray.create({
+    let array = FilteredRecordArray.create({
       query: query,
       type: typeClass,
       content: Ember.A(),
@@ -294,7 +290,7 @@ export default Ember.Object.extend({
   */
   createAdapterPopulatedRecordArray(typeClass, query) {
     heimdall.increment(createAdapterPopulatedRecordArray);
-    var array = AdapterPopulatedRecordArray.create({
+    let array = AdapterPopulatedRecordArray.create({
       type: typeClass,
       query: query,
       content: Ember.A(),
@@ -320,7 +316,7 @@ export default Ember.Object.extend({
   */
   registerFilteredRecordArray(array, typeClass, filter) {
     heimdall.increment(registerFilteredRecordArray);
-    var recordArrays = this.filteredRecordArrays.get(typeClass);
+    let recordArrays = this.filteredRecordArrays.get(typeClass);
     recordArrays.push(array);
 
     this.updateFilter(array, typeClass, filter);
@@ -335,32 +331,32 @@ export default Ember.Object.extend({
   */
   unregisterRecordArray(array) {
     heimdall.increment(unregisterRecordArray);
-    var typeClass = array.type;
+
+    let typeClass = array.type;
 
     // unregister filtered record array
-    const recordArrays = this.filteredRecordArrays.get(typeClass);
-    const removedFromFiltered = remove(recordArrays, array);
+    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let removedFromFiltered = remove(recordArrays, array);
 
     // remove from adapter populated record array
-    const removedFromAdapterPopulated = remove(this._adapterPopulatedRecordArrays, array);
+    let removedFromAdapterPopulated = remove(this._adapterPopulatedRecordArrays, array);
 
     if (!removedFromFiltered && !removedFromAdapterPopulated) {
 
       // unregister live record array
       if (this.liveRecordArrays.has(typeClass)) {
-        var liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
+        let liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
         if (array === liveRecordArrayForType) {
           this.liveRecordArrays.delete(typeClass);
         }
       }
-
     }
   },
 
   willDestroy() {
     this._super(...arguments);
 
-    this.filteredRecordArrays.forEach((value) => flatten(value).forEach(destroy));
+    this.filteredRecordArrays.forEach(value => flatten(value).forEach(destroy));
     this.liveRecordArrays.forEach(destroy);
     this._adapterPopulatedRecordArrays.forEach(destroy);
   }
@@ -372,10 +368,10 @@ function destroy(entry) {
 
 function flatten(list) {
   heimdall.increment(array_flatten);
-  var length = list.length;
-  var result = Ember.A();
+  let length = list.length;
+  let result = [];
 
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     result = result.concat(list[i]);
   }
 
@@ -384,7 +380,7 @@ function flatten(list) {
 
 function remove(array, item) {
   heimdall.increment(array_remove);
-  const index = array.indexOf(item);
+  let index = array.indexOf(item);
 
   if (index !== -1) {
     array.splice(index, 1);
