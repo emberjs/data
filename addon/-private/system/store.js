@@ -1761,7 +1761,7 @@ Store = Service.extend({
     } else {
       assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
-    assert(`Your ${internalModel.type.modelName} record was saved but it does not have an id. Please make the server provides an id in the createRecord response or you are setting the on the client side before saving the record.`, internalModel.id !== null);
+
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
     internalModel.adapterDidCommit(data);
@@ -1810,10 +1810,10 @@ Store = Service.extend({
     var id = coerceId(data.id);
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-    assert(`The store cannot assign an empty id to record '${internalModel.type.modelName}:${internalModel[GUID_KEY]}', because it already has an empty ID.`, id !== null && oldId !== null);
+    assert(`'${internalModel.type.modelName}:${internalModel[GUID_KEY]}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
 
     // ID absolutely can't be different than oldID if oldID is not null
-    assert("The store cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId !== null && id === oldId);
+    assert(`'${internalModel.type.modelName}:${oldId}' was saved to the server, but the response returned the new id '${id}'. The store cannot assign a new id to a record that already has an id.`, !(oldId !== null && id !== oldId));
 
     // ID can be null if oldID is not null (altered ID in response for a record)
     // however, this is more than likely a developer error.

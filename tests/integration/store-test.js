@@ -883,7 +883,7 @@ testInDebug('store#didSaveRecord should assert when the response to a save does 
       var car = store.createRecord('car');
       car.save();
     });
-  }, /record was saved but it does not have an id. Please make the server provides an id in the createRecord/);
+  }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 });
 
 module("integration/store - queryRecord", {
