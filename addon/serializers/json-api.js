@@ -645,7 +645,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       ```
 
       By overwriting `modelNameFromPayloadType` you can specify that the
-      `posr` model should be used:
+      `post` model should be used:
 
       ```app/serializers/application.js
       import DS from "ember-data";
