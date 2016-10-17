@@ -68,16 +68,19 @@ function promiseRecord(internalModel, label) {
   return promiseObject(toReturn, label);
 }
 
-var get = Ember.get;
-var set = Ember.set;
 var once = Ember.run.once;
-var isNone = Ember.isNone;
-var isPresent = Ember.isPresent;
 var Promise = Ember.RSVP.Promise;
-var copy = Ember.copy;
 var Store;
 
-const { Service } = Ember;
+const {
+  copy,
+  get,
+  GUID_KEY,
+  isNone,
+  isPresent,
+  set,
+  Service
+} = Ember;
 
 // Implementors Note:
 //
@@ -1807,7 +1810,7 @@ Store = Service.extend({
     var id = coerceId(data.id);
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-    assert(`The store cannot assign an empty id to record '${internalModel.type.modelName}:${internalModel._id}', because it already has an empty ID.`, id !== null && oldId !== null);
+    assert(`The store cannot assign an empty id to record '${internalModel.type.modelName}:${internalModel[GUID_KEY]}', because it already has an empty ID.`, id !== null && oldId !== null);
 
     // ID absolutely can't be different than oldID if oldID is not null
     assert("The store cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId !== null && id === oldId);
