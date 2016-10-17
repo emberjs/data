@@ -87,15 +87,39 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     );
     toSet = toSet.concat(newRecords);
     var oldLength = this.length;
-    this.arrayContentWillChange(0, this.length, toSet.length);
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (_objectIsAlive(this)) {
-      this.set('length', toSet.length);
+    var newLength = toSet.length;
+
+    var shortestLength = Math.min(oldLength, newLength);
+
+    var firstChangeIndex = -1; // -1 signifies no changes
+    // find the first change
+    var currentArray = this.currentState;
+    for (var i=0; i<shortestLength; i++) {
+      // compare each item in the array
+      if (currentArray[i] !== toSet[i]) {
+        firstChangeIndex = i;
+        break;
+      }
     }
-    this.currentState = toSet;
-    this.arrayContentDidChange(0, oldLength, this.length);
-    //TODO Figure out to notify only on additions and maybe only if unloaded
-    this.relationship.notifyHasManyChanged();
+    if (firstChangeIndex === -1) {
+      // no change found in the matching part of the arrays
+      if (newLength !== oldLength) {
+        firstChangeIndex = shortestLength;
+      }
+    }
+    if (firstChangeIndex !== -1) {
+      // we found a change
+      var added = newLength - firstChangeIndex;
+      var removed = oldLength - firstChangeIndex;
+      this.arrayContentWillChange(firstChangeIndex, added, removed);
+      // It’s possible the parent side of the relationship may have been unloaded by this point
+      if (_objectIsAlive(this)) {
+        this.set('length', toSet.length);
+      }
+      this.currentState = toSet;
+      this.arrayContentDidChange(firstChangeIndex, added, removed);
+      this.relationship.notifyHasManyChanged();
+    }
     this.record.updateRecordArrays();
   },
   /**
