@@ -2,6 +2,7 @@ import Ember from 'ember';
 import Reference from './reference';
 import {
   assertPolymorphicType,
+  assert,
   deprecate,
   runInDebug
 } from 'ember-data/-private/debug';
@@ -10,7 +11,9 @@ import isEnabled from 'ember-data/-private/features';
 
 const {
   RSVP: { resolve },
-  get
+  get,
+  isArray,
+  isEmpty
 } = Ember;
 
 var HasManyReference = function(store, parentInternalModel, hasManyRelationship) {
@@ -52,60 +55,116 @@ HasManyReference.prototype.meta = function() {
 };
 
 HasManyReference.prototype.push = function(objectOrPromise) {
-  return resolve(objectOrPromise).then((payload) => {
-    var array = payload;
+  let { store, hasManyRelationship, internalModel } = this;
 
-    if (isEnabled("ds-overhaul-references")) {
-      deprecate("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
-        id: 'ds.references.has-many.push-array',
-        until: '3.0'
-      });
+  // [ { data: { … }, { data: { … } } ]
+  function pushArrayOfResourceObjects(array) {
+    let pushedRecords = array.map((data) => store.push(data) );
+
+    return pushRecords(pushedRecords);
+  }
+
+  // { data: [ { … }, { … } ] }
+  function pushJsonApiDocument(doc) {
+    let pushedRecords = store.push(doc);
+
+    // TODO update link & meta using hasManyRelationship.push() once #4599 is merged
+    if (doc.meta) {
+      hasManyRelationship.updateMeta(doc.meta);
+    }
+    if (doc.links && doc.links.related) {
+      hasManyRelationship.link = doc.links.related.href;
     }
 
-    let useLegacyArrayPush = true;
-    if (typeof payload === "object" && payload.data) {
-      array = payload.data;
-      useLegacyArrayPush = array.length && array[0].data;
+    return pushRecords(pushedRecords);
+  }
 
-      if (isEnabled('ds-overhaul-references')) {
-        deprecate("HasManyReference#push() expects a valid JSON-API document.", !useLegacyArrayPush, {
-          id: 'ds.references.has-many.push-invalid-json-api',
+  // [ <DS.Model>, <DS.Model> ]
+  function pushRecords(models) {
+    let internalModels = models.map((model) => model._internalModel );
+
+    runInDebug(() => {
+      internalModels.forEach((pushedInternalModel) => {
+        var relationshipMeta = hasManyRelationship.relationshipMeta;
+        assertPolymorphicType(internalModel, relationshipMeta, pushedInternalModel);
+      });
+    });
+
+    hasManyRelationship.computeChanges(internalModels);
+
+    return hasManyRelationship.getManyArray();
+  }
+
+  function isArrayOfResourceObjects(array) {
+    return isArray(array) && array[0].hasOwnProperty('data');
+  }
+
+  function isArrayOfModels(array) {
+    return isArray(array) && array.every((model) => model._internalModel );
+  }
+
+  function isObject(obj) {
+    return typeof obj === "object";
+  }
+
+  function isEmptyArray(possibleArray) {
+    return isArray(possibleArray) && isEmpty(possibleArray);
+  }
+
+  return resolve(objectOrPromise).then((payload) => {
+    // push([])
+    if (isEmptyArray(payload)) {
+      return pushRecords(payload);
+    }
+
+    // push([ { data: { … } }, { data: { … } } ])
+    if (isArrayOfResourceObjects(payload)) {
+      if (isEnabled("ds-overhaul-references")) {
+        deprecate("Calling HasManyReference#push() with an array of the resource objects `[{ data: {} }, { data: {} }]` is deprecated. Push a JSON-API document for a resource collection or an array of records instead.", false, {
+          id: 'ds.references.has-many.push.array-of-resource-objects',
           until: '3.0'
         });
       }
+
+      return pushArrayOfResourceObjects(payload);
     }
 
-    if (!isEnabled('ds-overhaul-references')) {
-      useLegacyArrayPush = true;
+    // push({ data: [ … ] }) without meta and links properties, as an object of
+    // that structure is only supported by ds-overhaul references
+    if (isObject(payload) && isArray(payload.data) && !payload.meta && !payload.links) {
+      if (!isEmptyArray(payload.data) && isArrayOfResourceObjects(payload.data)) {
+        // { data: [ { data: { … } } ] }
+        if (isEnabled("ds-overhaul-references")) {
+          deprecate("Calling HasManyReference#push() with an argument of the structure `{ data: [{ data: {} }, { data: {} }] }` is deprecated. Push a JSON-API document for a resource collection or an array of records instead.", false, {
+            id: 'ds.references.has-many.push.pseudo-json-api-document',
+            until: '3.0'
+          });
+        }
+
+        return pushArrayOfResourceObjects(payload.data);
+      }
+
+      // push({ data: [] })
+      if (isEmptyArray(payload.data) && !isEnabled("ds-overhaul-references")) {
+        return pushRecords([]);
+      }
     }
 
-    let internalModels;
-    if (useLegacyArrayPush) {
-      internalModels = array.map((obj) => {
-        var record = this.store.push(obj);
+    if (isEnabled("ds-overhaul-references")) {
+      // push([<DS.Model:x>, <DS.Model:y>, …])
+      if (isArrayOfModels(payload)) {
+        return pushRecords(payload);
+      }
 
-        runInDebug(() => {
-          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
-        });
+      // push({ data: [ … ] }) with optional meta and links
+      if (isObject(payload)) {
+        return pushJsonApiDocument(payload);
+      }
 
-        return record._internalModel;
-      });
+      assert("The passed argument to HasManyReference#push() isn't supported. Push a JSON-API document for a resource collection or an array of records instead.");
     } else {
-      let records = this.store.push(payload);
-      internalModels = Ember.A(records).mapBy('_internalModel');
-
-      runInDebug(() => {
-        internalModels.forEach((internalModel) => {
-          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
-        });
-      });
+      assert("The passed argument to HasManyReference#push() isn't supported. Push an argument with the structure of `{ data: [{ data: {} }] }` or `[{ data: {} }]` instead.");
     }
-
-    this.hasManyRelationship.computeChanges(internalModels);
-
-    return this.hasManyRelationship.getManyArray();
   });
 };
 

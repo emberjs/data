@@ -2,8 +2,8 @@ import DS from 'ember-data';
 import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import isEnabled from 'ember-data/-private/features';
 import { module, test } from 'qunit';
+import isEnabled from 'ember-data/-private/features';
 
 var get = Ember.get;
 var run = Ember.run;
@@ -200,7 +200,89 @@ test("push(object)", function(assert) {
   });
 });
 
-testInDebug("push(record)", function(assert) {
+if (isEnabled("ds-overhaul-references")) {
+  test("push(object) - can set meta", function(assert) {
+    var done = assert.async();
+
+    var person;
+    run(function() {
+      person = env.store.push({
+        data: {
+          type: 'person',
+          id: 1,
+          relationships: {
+            family: {
+              data: { type: 'family', id: 1 }
+            }
+          }
+        }
+      });
+    });
+
+    var familyReference = person.belongsTo('family');
+
+    run(function() {
+      var data = {
+        data: {
+          type: 'family',
+          id: 1
+        },
+        meta: {
+          foo: true
+        }
+      };
+
+      familyReference.push(data).then(function(record) {
+        assert.deepEqual(familyReference.meta(), { foo: true }, "meta is updated");
+
+        done();
+      });
+    });
+  });
+
+  test("push(object) - can set link", function(assert) {
+    var done = assert.async();
+
+    var person;
+    run(function() {
+      person = env.store.push({
+        data: {
+          type: 'person',
+          id: 1,
+          relationships: {
+            family: {
+              data: { type: 'family', id: 1 }
+            }
+          }
+        }
+      });
+    });
+
+    var familyReference = person.belongsTo('family');
+
+    run(function() {
+      var data = {
+        data: {
+          type: 'family',
+          id: 1
+        },
+        links: {
+          related: {
+            href: '/family/1'
+          }
+        }
+      };
+
+      familyReference.push(data).then(function(record) {
+        assert.equal(familyReference.link(), '/family/1', "link is set");
+
+        done();
+      });
+    });
+  });
+}
+
+test("push(record)", function(assert) {
   var done = assert.async();
 
   var person, family;
@@ -230,10 +312,6 @@ testInDebug("push(record)", function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
-    }
-
     familyReference.push(family).then(function(record) {
       assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
       assert.equal(get(record, 'name'), "Coreleone", "name is set");
