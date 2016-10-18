@@ -608,6 +608,49 @@ Store = Service.extend({
 
     See [peekRecord](#method_peekRecord) to get the cached version of a record.
 
+    ### Retrieving Related Model Records
+
+    If you use an adapter such as Ember's default
+    [`JSONAPIAdapter`](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    that supports the [JSON API specification](http://jsonapi.org/) and if your server
+    endpoint supports the use of an
+    ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
+    you can use `findRecord()` to automatically retrieve additional records related to
+    the one you request by supplying an `include` parameter in the `options` object.
+
+    For example, given a `post` model that has a `hasMany` relationship with a `comment`
+    model, when we retrieve a specific post we can have the server also return that post's
+    comments in the same request:
+
+    ```app/routes/post.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+       return this.store.findRecord('post', params.post_id, {include: 'comments'});
+      }
+    });
+
+    ```
+    In this case, the post's comments would then be available in your template as
+    `model.comments`.
+
+    Multiple relationships can be requested using an `include` parameter consisting of a
+    comma-separated list (without white-space) while nested relationships can be specified
+    using a dot-separated sequence of relationship names. So to request both the post's
+    comments and the authors of those comments the request would look like this:
+
+    ```app/routes/post.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+       return this.store.findRecord('post', params.post_id, {include: 'comments,comments.author'});
+      }
+    });
+
+    ```
+
     @since 1.13.0
     @method findRecord
     @param {String} modelName
@@ -1394,6 +1437,46 @@ Store = Service.extend({
 
     See [peekAll](#method_peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
+
+    ### Retrieving Related Model Records
+
+    If you use an adapter such as Ember's default
+    [`JSONAPIAdapter`](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+    that supports the [JSON API specification](http://jsonapi.org/) and if your server
+    endpoint supports the use of an
+    ['include' query parameter](http://jsonapi.org/format/#fetching-includes),
+    you can use `findAll()` to automatically retrieve additional records related to
+    those requested by supplying an `include` parameter in the `options` object.
+
+    For example, given a `post` model that has a `hasMany` relationship with a `comment`
+    model, when we retrieve all of the post records we can have the server also return
+    all of the posts' comments in the same request:
+
+    ```app/routes/posts.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function() {
+       return this.store.findAll('post', {include: 'comments'});
+      }
+    });
+
+    ```
+    Multiple relationships can be requested using an `include` parameter consisting of a
+    comma-separated list (without white-space) while nested relationships can be specified
+    using a dot-separated sequence of relationship names. So to request both the posts'
+    comments and the authors of those comments the request would look like this:
+
+    ```app/routes/posts.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function() {
+       return this.store.findAll('post', {include: 'comments,comments.author'});
+      }
+    });
+
+    ```
 
     See [query](#method_query) to only get a subset of records from the server.
 
