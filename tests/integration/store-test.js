@@ -873,6 +873,19 @@ testInDebug('store#findRecord that returns an array should assert', assert => {
   }, /expected the primary data returned from a `findRecord` response to be an object but instead it found an array/);
 });
 
+testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(assert) {
+  env.adapter.createRecord = function() {
+    return {};
+  };
+
+  assert.expectAssertion(function() {
+    run(function() {
+      var car = store.createRecord('car');
+      car.save();
+    });
+  }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
+});
+
 module("integration/store - queryRecord", {
   beforeEach() {
     initializeStore(DS.Adapter.extend());
@@ -898,3 +911,5 @@ testInDebug('store#queryRecord should assert when normalized payload of adapter 
     });
   }, /Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array./);
 });
+
+
