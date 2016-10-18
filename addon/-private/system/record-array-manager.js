@@ -100,9 +100,9 @@ export default Ember.Object.extend({
   updateRecordArrays() {
     heimdall.increment(updateRecordArrays);
     this.changedRecords.forEach(internalModel => {
-      if (get(internalModel, 'record.isDestroyed') ||
-           get(internalModel, 'record.isDestroying') ||
-           (get(internalModel, 'currentState.stateName') === 'root.deleted.saved')) {
+
+      if (internalModel.isDestroyed ||
+           internalModel.currentState.stateName === 'root.deleted.saved') {
         this._recordWasDeleted(internalModel);
       } else {
         this._recordWasChanged(internalModel);
