@@ -106,6 +106,7 @@ export default function InternalModel(type, id, store, _, data) {
   this.recordReference = new RecordReference(store, this);
   this.references = {};
   this.isReloading = false;
+  this._isDestroyed = false;
   this.isError = false;
   this.error = null;
   this.__ember_meta__ = null;
@@ -272,7 +273,12 @@ InternalModel.prototype = {
     }
   },
 
+  get isDestroyed() {
+    return this._isDestroyed;
+  },
+
   destroy() {
+    this._isDestroyed = true;
     if (this.record) {
       return this.record.destroy();
     }
