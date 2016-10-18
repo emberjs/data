@@ -619,8 +619,7 @@ Store = Service.extend({
     model, when we retrieve a specific post we can have the server also return that post's
     comments in the same request:
 
-    ```
-    // app/routes/post.js
+    ```app/routes/post.js
     import Ember from 'ember';
 
     export default Ember.Route.extend({
@@ -638,8 +637,7 @@ Store = Service.extend({
     using a dot-separated sequence of relationship names. So to request both the post's
     comments and the authors of those comments the request would look like this:
 
-    ```
-    // app/routes/post.js
+    ```app/routes/post.js
     import Ember from 'ember';
 
     export default Ember.Route.extend({
@@ -1451,8 +1449,7 @@ Store = Service.extend({
     model, when we retrieve all of the post records we can have the server also return
     all of the posts' comments in the same request:
 
-    ```
-    // app/routes/posts.js
+    ```app/routes/posts.js
     import Ember from 'ember';
 
     export default Ember.Route.extend({
@@ -1467,8 +1464,7 @@ Store = Service.extend({
     using a dot-separated sequence of relationship names. So to request both the posts'
     comments and the authors of those comments the request would look like this:
 
-    ```
-    // app/routes/posts.js
+    ```app/routes/posts.js
     import Ember from 'ember';
 
     export default Ember.Route.extend({
