@@ -4,7 +4,7 @@
 
 import Ember from 'ember';
 import Model from 'ember-data/model';
-import { instrument, assert, warn, runInDebug } from "ember-data/-private/debug";
+import { instrument, assert, deprecate, warn, runInDebug } from "ember-data/-private/debug";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import { InvalidError } from 'ember-data/adapters/errors';
@@ -97,7 +97,6 @@ const {
   normalize,
   peekAll,
   peekRecord,
-  retrieveManagedInstance,
   serializerFor,
   typeMapFor,
   typeMapFor_allocate
@@ -116,7 +115,6 @@ const {
   'normalize',
   'peekAll',
   'peekRecord',
-  'retrieveManagedInstance',
   'serializerFor',
   'typeMapFor',
   'typeMapFor_allocate'
@@ -210,7 +208,8 @@ Store = Service.extend({
       store: this
     });
     this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(getOwner(this));
+    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
   },
@@ -267,13 +266,11 @@ Store = Service.extend({
     @return DS.Adapter
   */
   defaultAdapter: Ember.computed('adapter', function() {
-    var adapter = get(this, 'adapter');
+    let adapter = get(this, 'adapter');
 
     assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name', typeof adapter === 'string');
 
-    adapter = this.retrieveManagedInstance('adapter', adapter);
-
-    return adapter;
+    return this.adapterFor(adapter);
   }),
 
   // .....................
@@ -2456,7 +2453,9 @@ Store = Service.extend({
     assert("You need to pass a model name to the store's adapterFor method", isPresent(modelName));
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
-    return this.lookupAdapter(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
+
+    return this._instanceCache.get('adapter', normalizedModelName);
   },
 
   _adapterRun(fn) {
@@ -2493,60 +2492,34 @@ Store = Service.extend({
     assert("You need to pass a model name to the store's serializerFor method", isPresent(modelName));
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
 
-    var fallbacks = [
-      'application',
-      this.adapterFor(modelName).get('defaultSerializer'),
-      '-default'
-    ];
+    let normalizedModelName = normalizeModelName(modelName);
 
-    var serializer = this.lookupSerializer(modelName, fallbacks);
-    return serializer;
-  },
-
-  /**
-    Retrieve a particular instance from the
-    container cache. If not found, creates it and
-    placing it in the cache.
-
-    Enabled a store to manage local instances of
-    adapters and serializers.
-
-    @method retrieveManagedInstance
-    @private
-    @param {String} modelName the object modelName
-    @param {String} name the object name
-    @param {Array} fallbacks the fallback objects to lookup if the lookup for modelName or 'application' fails
-    @return {Ember.Object}
-  */
-  retrieveManagedInstance(type, modelName, fallbacks) {
-    heimdall.increment(retrieveManagedInstance);
-    var normalizedModelName = normalizeModelName(modelName);
-
-    var instance = this._instanceCache.get(type, normalizedModelName, fallbacks);
-    set(instance, 'store', this);
-    return instance;
+    return this._instanceCache.get('serializer', normalizedModelName);
   },
 
   lookupAdapter(name) {
-    return this.retrieveManagedInstance('adapter', name, this.get('_adapterFallbacks'));
+    deprecate(`Use of lookupAdapter is deprecated, use adapterFor instead.`, {
+      id: 'ds.store.lookupAdapter',
+      until: '3.0'
+    });
+    return this.adapterFor(name);
   },
 
-  _adapterFallbacks: Ember.computed('adapter', function() {
-    var adapter = this.get('adapter');
-    return ['application', adapter, '-json-api'];
-  }),
-
-  lookupSerializer(name, fallbacks) {
-    return this.retrieveManagedInstance('serializer', name, fallbacks);
+  lookupSerializer(name) {
+    deprecate(`Use of lookupSerializer is deprecated, use serializerFor instead.`, {
+      id: 'ds.store.lookupSerializer',
+      until: '3.0'
+    });
+    return this.serializerFor(name);
   },
 
   willDestroy() {
     this._super(...arguments);
     this.recordArrayManager.destroy();
+    this._instanceCache.destroy();
 
     this.unloadAll();
   }
-
 });
 
 function deserializeRecordId(store, key, relationship, id) {
