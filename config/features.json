@@ -1,5 +1,4 @@
 {
-  "ds-boolean-transform-allow-null": true,
   "ds-improved-ajax": true,
   "ds-pushpayload-return": null,
   "ds-extended-errors": null,

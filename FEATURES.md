@@ -11,10 +11,6 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
-- `ds-boolean-transform-allow-null` [#4022](https://github.com/emberjs/data/pull/4022)
-
-  Allow `null`/`undefined` values for `boolean` attributes via `DS.attr('boolean', { allowNull: true })`
-
 - `ds-improved-ajax` [#3099](https://github.com/emberjs/data/pull/3099)
 
   This feature allows to customize how a request is formed by overwriting

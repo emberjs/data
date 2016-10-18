@@ -1131,17 +1131,11 @@ test("a DS.Model can describe Boolean attributes", function(assert) {
   assert.converts('boolean', 1, true);
   assert.converts('boolean', 0, false);
 
-  if (isEnabled('ds-boolean-transform-allow-null')) {
-    assert.converts('boolean', null, null, { allowNull: true });
+  assert.converts('boolean', null, null, { allowNull: true });
 
-    assert.converts('boolean', null, false, { allowNull: false });
+  assert.converts('boolean', null, false, { allowNull: false });
 
-    // duplicating the tests from the else branch here, so once the feature is
-    // enabled and the else branch is deleted, those assertions are kept
-    assert.converts('boolean', null, false);
-  } else {
-    assert.converts('boolean', null, false);
-  }
+  assert.converts('boolean', null, false);
 
   assert.converts('boolean', true, true);
   assert.converts('boolean', false, false);
