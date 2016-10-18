@@ -4,7 +4,7 @@
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 
-var get = Ember.get;
+const { get } = Ember;
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -224,7 +224,7 @@ function didSetProperty(internalModel, context) {
 //   but the adapter has not yet acknowledged success.
 // `invalid`: the record has invalid information and cannot be
 //   sent to the adapter yet.
-var DirtyState = {
+const DirtyState = {
   initialState: 'uncommitted',
 
   // FLAGS
@@ -237,11 +237,11 @@ var DirtyState = {
   // have not yet begun to be saved, and are not invalid.
   uncommitted: {
     // EVENTS
-    didSetProperty: didSetProperty,
+    didSetProperty,
 
     //TODO(Igor) reloading now triggers a
     //loadingData event, though it seems fine?
-    loadingData: Ember.K,
+    loadingData() { },
 
     propertyWasReset(internalModel, name) {
       if (!internalModel.hasChangedAttributes()) { internalModel.send('rolledBack'); }
@@ -257,7 +257,7 @@ var DirtyState = {
       heimdall.stop(token);
     },
 
-    becomeDirty: Ember.K,
+    becomeDirty() { },
 
     willCommit(internalModel) {
       internalModel.transitionTo('inFlight');
@@ -289,20 +289,18 @@ var DirtyState = {
     isSaving: true,
 
     // EVENTS
-    didSetProperty: didSetProperty,
-    becomeDirty: Ember.K,
-    pushedData: Ember.K,
+    didSetProperty,
+    becomeDirty() { },
+    pushedData() { },
 
     unloadRecord: assertAgainstUnloadRecord,
 
     // TODO: More robust semantics around save-while-in-flight
-    willCommit: Ember.K,
+    willCommit() { },
 
     didCommit(internalModel) {
-      var dirtyType = get(this, 'dirtyType');
-
       internalModel.transitionTo('saved');
-      internalModel.send('invokeLifecycleCallbacks', dirtyType);
+      internalModel.send('invokeLifecycleCallbacks', this.dirtyType);
     },
 
     becameInvalid(internalModel) {
@@ -337,9 +335,9 @@ var DirtyState = {
       }
     },
 
-    becameInvalid: Ember.K,
-    becomeDirty: Ember.K,
-    pushedData: Ember.K,
+    becameInvalid() { },
+    becomeDirty() { },
+    pushedData() { },
 
     willCommit(internalModel) {
       internalModel.clearErrorMessages();
@@ -367,10 +365,10 @@ var DirtyState = {
 // necessary.
 
 function deepClone(object) {
-  var clone = {};
-  var value;
+  const clone = {};
+  let value;
 
-  for (var prop in object) {
+  for (let prop in object) {
     value = object[prop];
     if (value && typeof value === 'object') {
       clone[prop] = deepClone(value);
@@ -383,7 +381,7 @@ function deepClone(object) {
 }
 
 function mixin(original, hash) {
-  for (var prop in hash) {
+  for (let prop in hash) {
     original[prop] = hash[prop];
   }
 
@@ -395,7 +393,7 @@ function dirtyState(options) {
   return mixin(newState, options);
 }
 
-var createdState = dirtyState({
+const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
   isNew: true
@@ -404,11 +402,12 @@ var createdState = dirtyState({
 createdState.invalid.rolledBack = function(internalModel) {
   internalModel.transitionTo('deleted.saved');
 };
+
 createdState.uncommitted.rolledBack = function(internalModel) {
   internalModel.transitionTo('deleted.saved');
 };
 
-var updatedState = dirtyState({
+const updatedState = dirtyState({
   dirtyType: 'updated'
 });
 
@@ -443,7 +442,7 @@ updatedState.uncommitted.deleteRecord = function(internalModel) {
   internalModel.transitionTo('deleted.uncommitted');
 };
 
-var RootState = {
+const RootState = {
   // FLAGS
   isEmpty: false,
   isLoading: false,
@@ -460,7 +459,7 @@ var RootState = {
   // doesn't change your state. For example, if you're in the
   // in-flight state, rolling back the record doesn't move
   // you out of the in-flight state.
-  rolledBack: Ember.K,
+  rolledBack() { },
   unloadRecord(internalModel) {
     // clear relationships before moving to deleted state
     // otherwise it fails
@@ -468,8 +467,7 @@ var RootState = {
     internalModel.transitionTo('deleted.saved');
   },
 
-
-  propertyWasReset: Ember.K,
+  propertyWasReset() { },
 
   // SUBSTATES
 
@@ -542,7 +540,7 @@ var RootState = {
 
     //TODO(Igor) Reloading now triggers a loadingData event,
     //but it should be ok?
-    loadingData: Ember.K,
+    loadingData() { },
 
     // SUBSTATES
 
@@ -556,9 +554,9 @@ var RootState = {
       },
 
       // EVENTS
-      didSetProperty: didSetProperty,
+      didSetProperty,
 
-      pushedData: Ember.K,
+      pushedData() { },
 
       becomeDirty(internalModel) {
         internalModel.transitionTo('updated.uncommitted');
@@ -589,8 +587,7 @@ var RootState = {
 
       // loaded.saved.notFound would be triggered by a failed
       // `reload()` on an unchanged record
-      notFound: Ember.K
-
+      notFound() { }
     },
 
     // A record is in this state after it has been locally
@@ -637,9 +634,9 @@ var RootState = {
         internalModel.triggerLater('ready');
       },
 
-      pushedData: Ember.K,
-      becomeDirty: Ember.K,
-      deleteRecord: Ember.K,
+      pushedData()   { },
+      becomeDirty()  { },
+      deleteRecord() { },
 
       rolledBack(internalModel) {
         internalModel.transitionTo('loaded.saved');
@@ -660,7 +657,7 @@ var RootState = {
       unloadRecord: assertAgainstUnloadRecord,
 
       // TODO: More robust semantics around save-while-in-flight
-      willCommit: Ember.K,
+      willCommit() { },
       didCommit(internalModel) {
         internalModel.transitionTo('saved');
 
@@ -696,9 +693,8 @@ var RootState = {
         internalModel.triggerLater('didCommit', internalModel);
       },
 
-      willCommit: Ember.K,
-
-      didCommit: Ember.K
+      willCommit() { },
+      didCommit()  { }
     },
 
     invalid: {
@@ -714,10 +710,10 @@ var RootState = {
         }
       },
 
-      becameInvalid: Ember.K,
-      becomeDirty: Ember.K,
-      deleteRecord: Ember.K,
-      willCommit: Ember.K,
+      becameInvalid() { },
+      becomeDirty()   { },
+      deleteRecord()  { },
+      willCommit()    { },
 
 
       rolledBack(internalModel) {
@@ -750,16 +746,14 @@ function wireState(object, parent, name) {
   object.parentState = parent;
   object.stateName = name;
 
-  for (var prop in object) {
+  for (let prop in object) {
     if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') { continue; }
     if (typeof object[prop] === 'object') {
-      object[prop] = wireState(object[prop], object, name + "." + prop);
+      object[prop] = wireState(object[prop], object, name + '.' + prop);
     }
   }
 
   return object;
 }
 
-RootState = wireState(RootState, null, "root");
-
-export default RootState;
+export default wireState(RootState, null, 'root');
