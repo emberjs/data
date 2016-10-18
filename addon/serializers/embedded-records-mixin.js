@@ -395,7 +395,7 @@ export default Ember.Mixin.create({
     }
   },
 
-  /**
+  /*
     Serializes a hasMany relationship as an array of objects containing only `id` and `type`
     keys.
     This has its use case on polymorphic hasMany relationships where the server is not storing

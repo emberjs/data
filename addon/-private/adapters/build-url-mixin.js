@@ -360,11 +360,11 @@ export default Ember.Mixin.create({
    });
    ```
 
-   * @method urlForDeleteRecord
-   * @param {String} id
-   * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
-   * @return {String} url
+   @method urlForDeleteRecord
+   @param {String} id
+   @param {String} modelName
+   @param {DS.Snapshot} snapshot
+   @return {String} url
    */
   urlForDeleteRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
