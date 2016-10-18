@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import RecordArray from "ember-data/-private/system/record-arrays/record-array";
 import cloneNull from "ember-data/-private/system/clone-null";
-import isEnabled from 'ember-data/-private/features';
 
 /**
   @module ember-data
@@ -52,9 +51,7 @@ export default RecordArray.extend({
       meta: cloneNull(payload.meta)
     });
 
-    if (isEnabled('ds-links-in-record-array')) {
-      this.set('links', cloneNull(payload.links));
-    }
+    this.set('links', cloneNull(payload.links));
 
     internalModels.forEach((record) => {
       this.manager.recordArraysForRecord(record).add(this);
