@@ -459,6 +459,60 @@ test("store#findRecord { backgroundReload: false } is ignored if adapter.shouldR
   });
 });
 
+test('store#findRecord with a background reload promise returns the existing promise', assert => {
+  assert.expect(2);
+
+  let findCalls = 0;
+
+  let testAdapter = DS.RESTAdapter.extend({
+    findRecord() {
+      ++findCalls;
+      return this._super(...arguments);
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'Tesla',
+          model: 'S'
+        }
+      }
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'Tesla',
+      model: '3'
+    }]
+  });
+
+  run(() => {
+    let car = store.peekRecord('car', 1);
+    assert.equal(car.get('model'), 'S', 'Car record is initially a Model S');
+  });
+
+  let promise = run(() => {
+    store.findRecord('car', 1, { backgroundReload: true });
+    return store.findRecord('car', 1, { backgroundReload: true });
+  });
+
+  run(() => {
+    promise.then(car => {
+      assert.equal(car.get('model'), '3', 'Car is reloaded');
+
+      assert.equal(findCalls, 1, 'findRecord is not called twice');
+    });
+  });
+});
+
 testInDebug('store#findRecord call with `id` of type different than non-empty string or number should trigger an assertion', assert => {
   const badValues = ['', undefined, null, NaN, false];
   assert.expect(badValues.length);
