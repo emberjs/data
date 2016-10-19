@@ -7,21 +7,21 @@ const {
 } = Ember;
 
 const MUTATION_METHODS = [
-  'clear',
-  'popObject',
-  'removeAt',
-  'insertAt',
   'addObject',
   'addObjects',
-  'removeObject',
-  'removeObjects',
-  'unshiftObject',
-  'unshiftObjects',
+  'clear',
+  'insertAt',
+  'popObject',
   'pushObject',
   'pushObjects',
+  'removeAt',
+  'removeObject',
+  'removeObjects',
   'reverseObjects',
   'setObjects',
-  'shiftObject'
+  'shiftObject',
+  'unshiftObject',
+  'unshiftObjects'
 ];
 
 function useToArray() {
