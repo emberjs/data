@@ -74,7 +74,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @property isUpdating
     @type Boolean
     */
-    this.isUpdating = this.isUpdating || false;
+    this.isUpdating = false;
 
       /**
     The store that created this record array.
@@ -84,6 +84,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @type DS.Store
     */
     this.store = this.store || null;
+    this._updatingPromise = null;
   },
   replace() {
     let type = get(this, 'type').toString();
@@ -123,10 +124,19 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method update
   */
   update() {
-    if (get(this, 'isUpdating')) { return; }
+    if (get(this, 'isUpdating')) { return this._updatingPromise; }
 
     this.set('isUpdating', true);
-    return this._update();
+
+    let updatingPromise = this._update().finally(() => {
+      this._updatingPromise = null;
+      if (this.get('isDestroying') || this.get('isDestroyed')) { return }
+      this.set('isUpdating', false);
+    });
+
+    this._updatingPromise = updatingPromise;
+
+    return updatingPromise;
   },
 
   /*
