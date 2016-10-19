@@ -179,7 +179,10 @@ test('#removeInternalModel', function(assert) {
 function internalModelFor(record) {
   return {
     _recordArrays: undefined,
-    getRecord() { return record; }
+    getRecord() { return record; },
+    createSnapshot() {
+      return record;
+    }
   };
 }
 
@@ -255,3 +258,29 @@ test('#destroy', function(assert) {
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });
 
+test('#_createSnapshot', function(assert) {
+  let model1 = {
+    id: 1
+  };
+
+  let model2 = {
+    id: 2
+  };
+
+  let content = Ember.A([
+    internalModelFor(model1),
+    internalModelFor(model2)
+  ]);
+
+  let recordArray = RecordArray.create({
+    content
+  });
+
+  let snapshot = recordArray._createSnapshot();
+  let snapshots = snapshot.snapshots();
+
+  assert.deepEqual(snapshots, [
+    model1,
+    model2
+  ], 'record array snapshot should contain the internalModel.createSnapshot result');
+});

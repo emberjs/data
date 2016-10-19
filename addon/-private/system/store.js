@@ -1439,7 +1439,7 @@ Store = Service.extend({
       return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
     }
 
-    var snapshotArray = array.createSnapshot(options);
+    var snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);

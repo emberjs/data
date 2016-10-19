@@ -230,7 +230,20 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  createSnapshot(options) {
+  /**
+r   @method _createSnapshot
+    @private
+  */
+  _createSnapshot(options) {
+    // this is private for users, but public for ember-data internals
     return new SnapshotRecordArray(this, this.get('meta'), options);
+  },
+
+  /**
+r   @method _takeSnapshot
+    @private
+  */
+  _takeSnapshot() {
+    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
   }
 });
