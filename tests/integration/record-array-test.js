@@ -26,9 +26,9 @@ const Tool = DS.Model.extend({
 module('unit/record_array - DS.RecordArray', {
   beforeEach() {
     array = Ember.A([
-      { id: '1', name: "Scumbag Dale" },
-      { id: '2', name: "Scumbag Katz" },
-      { id: '3', name: "Scumbag Bryn" }
+      { id: '1', name: 'Scumbag Dale' },
+      { id: '2', name: 'Scumbag Katz' },
+      { id: '3', name: 'Scumbag Bryn' }
     ]);
   }
 });
@@ -332,7 +332,8 @@ test("a loaded record is not removed from both the record array and from the bel
 // GitHub Issue #168
 test('a newly created record is removed from a record array when it is deleted', function(assert) {
   let store = createStore({
-    person: Person
+    person: Person,
+    tag: Tag
   });
   let recordArray = store.peekAll('person');
   let scumbag;
