@@ -530,10 +530,12 @@ test("value() returns the referenced records when all records are loaded", funct
     env.store.push({ data: { type: 'person', id: 2, attributes: { name: "Michael" } } });
   });
 
-  var personsReference = family.hasMany('persons');
-  var records = personsReference.value();
-  assert.equal(get(records, 'length'), 2);
-  assert.equal(records.isEvery('isLoaded'), true);
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var records = personsReference.value();
+    assert.equal(get(records, 'length'), 2);
+    assert.equal(records.isEvery('isLoaded'), true);
+  });
 });
 
 test("load() fetches the referenced records", function(assert) {

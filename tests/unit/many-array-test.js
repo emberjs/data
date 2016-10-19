@@ -94,6 +94,7 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
   var willChangeAddAmt;
   var originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
   var originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
+
   DS.ManyArray.reopen({
     arrayContentWillChange(startIdx, removeAmt, addAmt) {
       willChangeStartIdx = startIdx;
@@ -138,7 +139,7 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
       }]
     });
 
-    store.peekRecord('post', 3);
+    store.peekRecord('post', 3).get('tags');
 
     store.push({
       data: {
@@ -158,7 +159,6 @@ test("manyArray trigger arrayContentChange functions with the correct values", f
       }
     });
 
-    store.peekRecord('post', 3);
   });
   DS.ManyArray.reopen({
     arrayContentWillChange: originalArrayContentWillChange,

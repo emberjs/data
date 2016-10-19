@@ -155,7 +155,9 @@ test("destroying the store correctly cleans everything up", function(assert) {
 
   var personWillDestroy = tap(person, 'willDestroy');
   var carWillDestroy = tap(car, 'willDestroy');
-  var carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
+  var carsWillDestroy = run(function() {
+    return tap(car.get('person.cars'), 'willDestroy');
+  });
 
   env.adapter.query = function() {
     return [{
