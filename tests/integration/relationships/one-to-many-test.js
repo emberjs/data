@@ -1449,6 +1449,6 @@ test("Rollbacking attributes of a created record works correctly when the belong
     user.get('accounts').pushObject(account);
   });
   run(user, 'rollbackAttributes');
-  assert.equal(user.get('accounts.length'), undefined, "User does not have the account anymore");
+  assert.equal(user.get('accounts.length'), 0, "User does not have the account anymore");
   assert.equal(account.get('user'), null, 'Account does not have the user anymore');
 });

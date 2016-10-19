@@ -30,8 +30,10 @@ export default class ManyRelationship extends Relationship {
   }
 
   destroy() {
+    super.destroy();
     if (this._manyArray) {
       this._manyArray.destroy();
+      this._manyArray = null;
     }
   }
 
@@ -52,6 +54,14 @@ export default class ManyRelationship extends Relationship {
       this.canonicalState.push(record);
     }
     super.addCanonicalRecord(record, idx);
+  }
+
+  inverseDidDematerialize() {
+    if (this._manyArray) {
+      this._manyArray.destroy();
+      this._manyArray = null;
+    }
+    this.notifyHasManyChanged();
   }
 
   addRecord(record, idx) {

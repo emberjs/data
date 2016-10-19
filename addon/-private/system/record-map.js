@@ -120,7 +120,6 @@ export default class RecordMap {
       for (let i = 0; i < records.length; i++) {
         record = records[i];
         record.unloadRecord();
-        record.destroy(); // maybe within unloadRecord
       }
     }
 

@@ -19,6 +19,7 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
       firstName: attr('string'),
       lastName: attr('string')
     });
+    Person.reopenClass({ toString() { return 'Person'; } });
 
     allRecords = null;
 

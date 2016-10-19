@@ -807,14 +807,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  willDestroy() {
-    //TODO Move!
-    this._super(...arguments);
-    this._internalModel.clearRelationships();
-    this._internalModel.recordObjectWillDestroy();
-    //TODO should we set internalModel to null here?
-  },
-
   // This is a temporary solution until we refactor DS.Model to not
   // rely on the data property.
   willMergeMixin(props) {

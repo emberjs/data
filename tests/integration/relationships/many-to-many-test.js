@@ -525,7 +525,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
     user.rollbackAttributes();
   });
   assert.equal(account.get('users.length'), 0, 'Users got removed');
-  assert.equal(user.get('accounts.length'), undefined, 'Accounts got rolledback correctly');
+  assert.equal(user.get('accounts.length'), 0, 'Accounts got rolledback correctly');
 });
 
 

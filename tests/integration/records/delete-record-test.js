@@ -17,6 +17,7 @@ module("integration/deletedRecord - Deleting Records", {
     Person = DS.Model.extend({
       name: attr('string')
     });
+    Person.toString = () => { return 'Person'; };
 
     env = setupStore({
       person: Person
@@ -78,6 +79,7 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
   const Group = DS.Model.extend({
     people: DS.hasMany('person', { inverse: null, async: false })
   });
+  Group.toString = () => { return 'Group'; }
 
   env.adapter.deleteRecord = function() {
     return Ember.RSVP.Promise.resolve();

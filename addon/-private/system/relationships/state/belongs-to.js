@@ -46,6 +46,10 @@ export default class BelongsToRelationship extends Relationship {
     super.addCanonicalRecord(newRecord);
   }
 
+  inverseDidDematerialize() {
+    this.notifyBelongsToChanged();
+  }
+
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
@@ -54,7 +58,7 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseRecord !== this.canonicalState) {
       this.inverseRecord = this.canonicalState;
-      this.internalModel.notifyBelongsToChanged(this.key);
+      this.notifyBelongsToChanged();
     }
 
     super.flushCanonical();
@@ -71,7 +75,7 @@ export default class BelongsToRelationship extends Relationship {
 
     this.inverseRecord = newRecord;
     super.addRecord(newRecord);
-    this.internalModel.notifyBelongsToChanged(this.key);
+    this.notifyBelongsToChanged();
   }
 
   setRecordPromise(newPromise) {
@@ -84,6 +88,10 @@ export default class BelongsToRelationship extends Relationship {
     if (!this.members.has(record)) { return;}
     this.inverseRecord = null;
     super.removeRecordFromOwn(record);
+    this.notifyBelongsToChanged();
+  }
+
+  notifyBelongsToChanged() {
     this.internalModel.notifyBelongsToChanged(this.key);
   }
 

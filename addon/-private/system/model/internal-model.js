@@ -59,6 +59,16 @@ function extractPivotName(name) {
   );
 }
 
+function areAllModelsUnloaded(internalModels) {
+  for (let i=0; i<internalModels.length; ++i) {
+    let record = internalModels[i].record;
+    if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
@@ -88,6 +98,7 @@ const {
 );
 
 let InternalModelReferenceId = 1;
+let nextBfsId = 1;
 
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
@@ -111,17 +122,25 @@ export default class InternalModel {
     this.id = id;
     this._internalId = InternalModelReferenceId++;
     this.store = store;
-    this._data = data || new EmptyObject();
     this.modelName = modelName;
-    this.dataHasInitialized = false;
     this._loadingPromise = null;
     this._record = null;
-    this.currentState = RootState.empty;
-    this.isReloading = false;
     this._isDestroyed = false;
     this.isError = false;
-    this.error = null;
     this._isUpdatingRecordArrays = false;
+
+    // During dematerialization we don't want to rematerialize the record.  The
+    // reason this might happen is that dematerialization removes records from
+    // record arrays,  and Ember arrays will always `objectAt(0)` and
+    // `objectAt(len - 1)` to test whether or not `firstObject` or `lastObject`
+    // have changed.
+    this._isDematerializing = false;
+
+    this.resetRecord();
+
+    if (data) {
+      this.__data = data;
+    }
 
     // caches for lazy getters
     this._modelClass = null;
@@ -129,10 +148,12 @@ export default class InternalModel {
     this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
-    this.__inFlightAttributes = null;
     this.__relationships = null;
-    this.__attributes = null;
     this.__implicitRelationships = null;
+
+    // Used during the mark phase of unloading to avoid checking the same internal
+    // model twice in the same scan
+    this._bfsId = 0;
   }
 
   get modelClass() {
@@ -145,7 +166,7 @@ export default class InternalModel {
 
   get recordReference() {
     if (this._recordReference === null) {
-      this._recordReference = new RecordReference(this.store, this)
+      this._recordReference = new RecordReference(this.store, this);
     }
     return this._recordReference;
   }
@@ -199,6 +220,17 @@ export default class InternalModel {
 
   set _inFlightAttributes(v) {
     this.__inFlightAttributes = v;
+  }
+
+  get _data() {
+    if (this.__data === null) {
+      this.__data = new EmptyObject();
+    }
+    return this.__data;
+  }
+
+  set _data(v) {
+    this.__data = v;
   }
 
   /*
@@ -276,7 +308,7 @@ export default class InternalModel {
   }
 
   getRecord() {
-    if (!this._record) {
+    if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
 
@@ -307,8 +339,25 @@ export default class InternalModel {
     return this._record;
   }
 
-  recordObjectWillDestroy() {
+  resetRecord() {
     this._record = null;
+    this.dataHasInitialized = false;
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
+    this.__attributes = null;
+    this.__inFlightAttributes = null;
+    this._data = null;
+  }
+
+  dematerializeRecord() {
+    if (this.record) {
+      this._isDematerializing = true;
+      this.record.destroy();
+      this.destroyRelationships();
+      this.updateRecordArrays();
+      this.resetRecord();
+    }
   }
 
   deleteRecord() {
@@ -356,12 +405,107 @@ export default class InternalModel {
     });
   }
 
+  /**
+    Computes the set of internal models reachable from `this` across exactly one
+    relationship.
+
+    @return {Array} An array containing the internal models that `this` belongs
+    to or has many.
+  */
+  _directlyRelatedInternalModels() {
+    let array = [];
+    this.type.eachRelationship((key, relationship) => {
+      if (this._relationships.has(key)) {
+        let relationship = this._relationships.get(key);
+        let localRelationships = relationship.members.toArray();
+        let serverRelationships = relationship.canonicalMembers.toArray();
+
+        array = array.concat(localRelationships, serverRelationships);
+      }
+    });
+    return array;
+  }
+
+
+  /**
+    Computes the set of internal models reachable from this internal model.
+
+    Reachability is determined over the relationship graph (ie a graph where
+    nodes are internal models and edges are belongs to or has many
+    relationships).
+
+    @return {Array} An array including `this` and all internal models reachable
+    from `this`.
+  */
+  _allRelatedInternalModels() {
+    let array = [];
+    let queue = [];
+    let bfsId = nextBfsId++;
+    queue.push(this);
+    this._bfsId = bfsId;
+    while (queue.length > 0) {
+      let node = queue.shift();
+      array.push(node);
+      let related = node._directlyRelatedInternalModels();
+      for (let i=0; i<related.length; ++i) {
+        let internalModel = related[i];
+        assert('Internal Error: seen a future bfs iteration', internalModel._bfsId <= bfsId);
+        if (internalModel._bfsId < bfsId) {
+          queue.push(internalModel);
+          internalModel._bfsId = bfsId;
+        }
+      }
+    }
+    return array;
+  }
+
+
+  /**
+    Unload the record for this internal model. This will cause the record to be
+    destroyed and freed up for garbage collection. It will also do a check
+    for cleaning up internal models.
+
+    This check is performed by first computing the set of related internal
+    models. If all records in this set are unloaded, then the entire set is
+    destroyed. Otherwise, nothing in the set is destroyed.
+
+    This means that this internal model will be freed up for garbage collection
+    once all models that refer to it via some relationship are also unloaded.
+  */
   unloadRecord() {
     this.send('unloadRecord');
+    this.dematerializeRecord();
+    Ember.run.schedule('destroy', this, '_checkForOrphanedInternalModels');
+  }
+
+  _checkForOrphanedInternalModels() {
+    this._isDematerializing = false;
+    if (this.isDestroyed) { return; }
+
+    this._cleanupOrphanedInternalModels();
+  }
+
+  _cleanupOrphanedInternalModels() {
+    let relatedInternalModels = this._allRelatedInternalModels();
+    if (areAllModelsUnloaded(relatedInternalModels)) {
+      for (let i=0; i<relatedInternalModels.length; ++i) {
+        let internalModel = relatedInternalModels[i];
+        if (!internalModel.isDestroyed) {
+          internalModel.destroy();
+        }
+      }
+    }
   }
 
   eachRelationship(callback, binding) {
     return this.modelClass.eachRelationship(callback, binding);
+  }
+
+  destroy() {
+    assert("Cannot destroy an internalModel while its record is materialized", !this.record || this.record.get('isDestroyed') || this.record.get('isDestroying'));
+
+    this.store._removeFromIdMap(this);
+    this._isDestroyed = true;
   }
 
   eachAttribute(callback, binding) {
@@ -400,13 +544,6 @@ export default class InternalModel {
 
   get hasRecord() {
     return !!this._record;
-  }
-
-  destroy() {
-    this._isDestroyed = true;
-    if (this.hasRecord) {
-      return this.record.destroy();
-    }
   }
 
   /*
@@ -714,6 +851,18 @@ export default class InternalModel {
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       this._implicitRelationships[key].clear();
+      this._implicitRelationships[key].destroy();
+    });
+  }
+
+  destroyRelationships() {
+    this.eachRelationship((name, relationship) => {
+      if (this._relationships.has(name)) {
+        let rel = this._relationships.get(name);
+        rel.destroy();
+      }
+    });
+    Object.keys(this._implicitRelationships).forEach((key) => {
       this._implicitRelationships[key].destroy();
     });
   }
