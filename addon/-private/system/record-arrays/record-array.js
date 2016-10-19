@@ -198,8 +198,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   _dissociateFromOwnRecords() {
-    this.get('content').forEach(record => {
-      let recordArrays = record._recordArrays;
+    this.get('content').forEach(internalModel => {
+      let recordArrays = internalModel._recordArrays;
 
       if (recordArrays) {
         recordArrays.delete(this);
@@ -218,7 +218,14 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   willDestroy() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
-    set(this, 'content', undefined);
+    // TODO: we should not do work during destroy:
+    //   * when objects are destroyed, they should simply be left to do
+    //   * if logic errors do to this, that logic needs to be more careful during
+    //    teardown (ember provides isDestroying/isDestroyed) for this reason
+    //   * the exception being: if an dominator has a reference to this object,
+    //     and must be informed to release e.g. e.g. removing itself from th
+    //     recordArrayMananger
+    set(this, 'content', null);
     set(this, 'length', 0);
     this._super(...arguments);
   },

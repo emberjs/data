@@ -2,7 +2,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 import { module, test } from 'qunit';
 
-const { get, RSVP } = Ember;
+const { get, RSVP, run } = Ember;
 const { RecordArray } = DS;
 
 module('unit/record-arrays/record-array - DS.RecordArray');
@@ -178,6 +178,7 @@ test('#removeInternalModel', function(assert) {
 
 function internalModelFor(record) {
   return {
+    _recordArrays: undefined,
     getRecord() { return record; }
   };
 }
@@ -207,5 +208,50 @@ test('#save', function(assert) {
 
   return result.then(result => {
     assert.equal(result, result, 'save promise should fulfill with the original recordArray');
-  })
+  });
 });
+
+test('#destroy', function(assert) {
+  let didUnregisterRecordArray = 0;
+  let didDissociatieFromOwnRecords  = 0;
+  let model1 = { };
+  let internalModel1 = internalModelFor(model1);
+
+  // TODO: this will be removed once we fix ownership related memory leaks.
+  internalModel1._recordArrays = {
+    delete(array) {
+      didDissociatieFromOwnRecords++;
+      assert.equal(array, recordArray);
+    }
+  };
+  // end TODO:
+
+  let recordArray = RecordArray.create({
+    content: Ember.A([internalModel1]),
+    manager: {
+      unregisterRecordArray(_recordArray) {
+        didUnregisterRecordArray++;
+        assert.equal(recordArray, _recordArray);
+      }
+    }
+  });
+
+  assert.equal(get(recordArray, 'isDestroyed'), false, 'should not be destroyed');
+  assert.equal(get(recordArray, 'isDestroying'), false, 'should not be destroying');
+
+  run(() => {
+    assert.equal(get(recordArray, 'length'), 1, 'before destroy, length should be 1');
+    assert.equal(didUnregisterRecordArray, 0, 'before destroy, we should not yet have unregisterd the record array');
+    assert.equal(didDissociatieFromOwnRecords, 0, 'before destroy, we should not yet have dissociated from own record array');
+    recordArray.destroy();
+  });
+
+  assert.equal(didUnregisterRecordArray, 1, 'after destroy we should have unregistered the record array');
+  assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
+  recordArray.destroy();
+
+  assert.equal(get(recordArray, 'content'), null);
+  assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
+  assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
+});
+
