@@ -13,6 +13,7 @@ var Person = DS.Model.extend({
   name: DS.attr('string'),
   cars: DS.hasMany('car', { async: false })
 });
+Person.reopenClass({ toString: () => 'Person' });
 
 var run = Ember.run;
 
@@ -21,6 +22,7 @@ var Car = DS.Model.extend({
   model: DS.attr('string'),
   person: DS.belongsTo('person', { async: false })
 });
+Car.reopenClass({ toString: () => 'Car' });
 
 function initializeStore(adapter) {
   env = setupStore({
