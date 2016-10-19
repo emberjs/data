@@ -5,7 +5,7 @@ import RecordArray from "ember-data/-private/system/record-arrays/record-array";
   @module ember-data
 */
 
-var get = Ember.get;
+const { get } = Ember;
 
 /**
   Represents a list of records whose membership is determined by the
@@ -18,6 +18,12 @@ var get = Ember.get;
   @extends DS.RecordArray
 */
 export default RecordArray.extend({
+  init() {
+    this._super(...arguments);
+
+    this.filterFunction = this.filterFunction || null;
+    this.isLoaded = true;
+  },
   /**
     The filterFunction is a function used to test records from the store to
     determine if they should be part of the record array.
@@ -44,12 +50,10 @@ export default RecordArray.extend({
     @param {DS.Model} record
     @return {Boolean} `true` if the record should be in the array
   */
-  filterFunction: null,
-  isLoaded: true,
 
   replace() {
-    var type = get(this, 'type').toString();
-    throw new Error("The result of a client-side filter (on " + type + ") is immutable.");
+    let type = get(this, 'type').toString();
+    throw new Error(`The result of a client-side filter (on ${type}) is immutable.`);
   },
 
   /**
@@ -57,8 +61,7 @@ export default RecordArray.extend({
     @private
   */
   _updateFilter() {
-    var manager = get(this, 'manager');
-    manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
+    get(this, 'manager').updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   },
 
   updateFilter: Ember.observer('filterFunction', function() {
