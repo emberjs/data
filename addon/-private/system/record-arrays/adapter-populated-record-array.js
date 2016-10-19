@@ -23,6 +23,7 @@ export default RecordArray.extend({
   init() {
     this._super(...arguments);
     this.query = this.query || null;
+    this.links = null;
   },
 
   replace() {
