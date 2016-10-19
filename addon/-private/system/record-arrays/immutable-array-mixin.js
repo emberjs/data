@@ -7,6 +7,10 @@ const {
 } = Ember;
 
 const MUTATION_METHODS = [
+  'clear',
+  'popObject',
+  'removeAt',
+  'insertAt',
   'addObject',
   'addObjects',
   'removeObject',

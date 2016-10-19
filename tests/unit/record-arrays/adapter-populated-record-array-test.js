@@ -279,6 +279,10 @@ if (isEnabled('ds-better-adapter-populated-record-array-error-messages')) {
     let recordArray = AdapterPopulatedRecordArray.create({ type: 'recordType' });
 
     const MUTATION_METHODS = [
+      'clear',
+      'popObject',
+      'removeAt',
+      'insertAt',
       'addObject',
       'addObjects',
       'removeObject',
