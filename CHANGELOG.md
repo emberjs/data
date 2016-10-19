@@ -2,6 +2,27 @@
 
 ### Master
 
+### Release 2.9.0 (October 18, 2016)
+- [#4577](https://github.com/emberjs/data/pull/4577) [DOC] fix typo
+- [#4529](https://github.com/emberjs/data/pull/4529) isUpdating should be true only if a reload happens
+- [#4566](https://github.com/emberjs/data/pull/4566) Properly cleanup store and env in store integration test
+- [#4567](https://github.com/emberjs/data/pull/4567) [bugfix beta] Treat status code 0 as an abort
+- [#4559](https://github.com/emberjs/data/pull/4559) [BUGFIX beta] Use Ember.guidFor to set InternalModel's guid.
+- [#4560](https://github.com/emberjs/data/pull/4560) [BUGFIX beta] Ensure record array length is reset during willDestroy.
+- [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
+- [#4541](https://github.com/emberjs/data/pull/4541) [DOC beta] Remove `Ember.ArrayController` from initializer example (#4540)
+- [#4540](https://github.com/emberjs/data/pull/4540) Add examples to the build-url-mixin API docs (#4512)
+- [#4537](https://github.com/emberjs/data/pull/4537) [BUGFIX beta] Ember Data should not swallow exceptions from the run loop
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
+- [#4536](https://github.com/emberjs/data/pull/4536) [DOC] fix features response typo (#4530)
+- [#4490](https://github.com/emberjs/data/pull/4490) [DOCS] No need to use Ember.run in succes and failure of wrapped getJSON
+- [#4493](https://github.com/emberjs/data/pull/4493) Addresses #4492
+- [#4503](https://github.com/emberjs/data/pull/4503) Update ember-try config to test against alpha.
+- [#4515](https://github.com/emberjs/data/pull/4515) Document the allowNull property on the boolean transform
+- [#4516](https://github.com/emberjs/data/pull/4516) Update the docs for normalizeModelName so they explain the intent of …
+- [#4521](https://github.com/emberjs/data/pull/4521) Remove ContainerProxy
+- [#4522](https://github.com/emberjs/data/pull/4522) add license to bower.json
+
 ### Release 2.8.1 (September 23, 2016)
 - [#4536](https://github.com/emberjs/data/pull/4536) bump to latest ember-cli, run ember init, cleanup post init
 - [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an I…"
