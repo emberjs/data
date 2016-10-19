@@ -136,3 +136,19 @@ test('#update while updating', function(assert) {
     assert.equal(get(recordArray, 'isUpdating'), false, 'should no longer be updating');
   });
 });
+
+test('#addInternalMdoel', function(assert) {
+  let content = Ember.A();
+  let recordArray = RecordArray.create({
+    content
+  });
+
+  let model1 = { getRecord() { return 'model-1'; } };
+
+  assert.equal(recordArray.addInternalModel(model1), undefined, 'addInternalModel has no return value');
+  assert.deepEqual(content, [model1]);
+
+  // cannot add duplicates
+  recordArray.addInternalModel(model1);
+  assert.deepEqual(content, [model1]);
+});

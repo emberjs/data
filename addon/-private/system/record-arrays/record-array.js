@@ -156,15 +156,9 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method addInternalModel
     @private
     @param {InternalModel} internalModel
-    @param {number} an optional index to insert at
   */
-  addInternalModel(internalModel, idx) {
-    let content = get(this, 'content');
-    if (idx === undefined) {
-      content.addObject(internalModel);
-    } else if (!content.includes(internalModel)) {
-      content.insertAt(idx, internalModel);
-    }
+  addInternalModel(internalModel) {
+    get(this, 'content').addObject(internalModel);
   },
 
   /**
