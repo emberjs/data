@@ -25,17 +25,16 @@ const MUTATION_METHODS = [
 ];
 
 function useToArray() {
-  if (isEnabled('ds-better-adapter-populated-record-array-error-messages')) {
-    let type = get(this, 'type').toString();
-    throw new EmberError(`The result of a server query (on ${type}) is immutable. Use .toArray() to copy the array instead.`);
-  } else {
-    return this._super(...arguments);
-  }
+  let type = get(this, 'type').toString();
+  throw new EmberError(`The result of a server query (on ${type}) is immutable. Use .toArray() to copy the array instead.`);
 }
 
-const ImmutableArrayMixin = MUTATION_METHODS.reduce((mixin, method) => {
-  mixin[method] = useToArray;
-  return mixin;
-}, {});
+let ImmutableArrayMixin = {};
+
+if (isEnabled('ds-better-adapter-populated-record-array-error-messages')) {
+  MUTATION_METHODS.forEach((method) => {
+    ImmutableArrayMixin[method] = useToArray;
+  });
+}
 
 export default Ember.Mixin.create(ImmutableArrayMixin);
