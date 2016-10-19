@@ -86,6 +86,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this.store = this.store || null;
     this._updatingPromise = null;
   },
+
   replace() {
     let type = get(this, 'type').toString();
     throw new Error(`The result of a server query (for all ${type} types) is immutable. To modify contents, use toArray()`);
