@@ -59,11 +59,11 @@ export default function SnapshotRecordArray(recordArray, meta, options = {}) {
   @return {Array} Array of snapshots
 */
 SnapshotRecordArray.prototype.snapshots = function() {
-  if (this._snapshots) {
+  if (this._snapshots !== null) {
     return this._snapshots;
   }
-  var recordArray = this._recordArray;
-  this._snapshots = recordArray.invoke('createSnapshot');
+
+  this._snapshots = this._recordArray._takeSnapshot();
 
   return this._snapshots;
 };

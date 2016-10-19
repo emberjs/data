@@ -136,7 +136,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 export function _findAll(adapter, store, typeClass, sinceToken, options) {
   var modelName = typeClass.modelName;
   var recordArray = store.peekAll(modelName);
-  var snapshotArray = recordArray.createSnapshot(options);
+  var snapshotArray = recordArray._createSnapshot(options);
   var promise = adapter.findAll(store, typeClass, sinceToken, snapshotArray);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findAll of " + typeClass;

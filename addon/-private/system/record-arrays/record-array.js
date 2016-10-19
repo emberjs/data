@@ -6,8 +6,7 @@ import Ember from 'ember';
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
 import SnapshotRecordArray from "ember-data/-private/system/snapshot-record-array";
 
-var get = Ember.get;
-var set = Ember.set;
+const { get, set, RSVP: { Promise } } = Ember;
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -23,27 +22,30 @@ var set = Ember.set;
 */
 
 export default Ember.ArrayProxy.extend(Ember.Evented, {
-  /**
-    The model type contained by this record array.
+  init() {
+    this._super(...arguments);
 
-    @property type
-    @type DS.Model
-  */
-  type: null,
+    /**
+      The model type contained by this record array.
 
-  /**
-    The array of client ids backing the record array. When a
-    record is requested from the record array, the record
-    for the client id at the same index is materialized, if
-    necessary, by the store.
+      @property type
+      @type DS.Model
+      */
+    this.type = this.type || null;
 
-    @property content
-    @private
-    @type Ember.Array
-  */
-  content: null,
+    /**
+      The array of client ids backing the record array. When a
+      record is requested from the record array, the record
+      for the client id at the same index is materialized, if
+      necessary, by the store.
 
-  /**
+      @property content
+      @private
+      @type Ember.Array
+      */
+    this.set('content', this.content || null);
+
+    /**
     The flag to signal a `RecordArray` is finished loading data.
 
     Example
@@ -55,9 +57,9 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     @property isLoaded
     @type Boolean
-  */
-  isLoaded: false,
-  /**
+    */
+    this.isLoaded = this.isLoaded || false;
+      /**
     The flag to signal a `RecordArray` is currently loading data.
 
     Example
@@ -71,21 +73,23 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     @property isUpdating
     @type Boolean
-  */
-  isUpdating: false,
+    */
+    this.isUpdating = false;
 
-  /**
+      /**
     The store that created this record array.
 
     @property store
     @private
     @type DS.Store
-  */
-  store: null,
+    */
+    this.store = this.store || null;
+    this._updatingPromise = null;
+  },
 
   replace() {
-    var type = get(this, 'type').toString();
-    throw new Error("The result of a server query (for all " + type + " types) is immutable. To modify contents, use toArray()");
+    let type = get(this, 'type').toString();
+    throw new Error(`The result of a server query (for all ${type} types) is immutable. To modify contents, use toArray()`);
   },
 
   /**
@@ -97,8 +101,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @return {DS.Model} record
   */
   objectAtContent(index) {
-    var content = get(this, 'content');
-    var internalModel = content.objectAt(index);
+    let internalModel = get(this, 'content').objectAt(index);
     return internalModel && internalModel.getRecord();
   },
 
@@ -122,10 +125,19 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method update
   */
   update() {
-    if (get(this, 'isUpdating')) { return; }
+    if (get(this, 'isUpdating')) { return this._updatingPromise; }
 
     this.set('isUpdating', true);
-    return this._update();
+
+    let updatingPromise = this._update().finally(() => {
+      this._updatingPromise = null;
+      if (this.get('isDestroying') || this.get('isDestroyed')) { return }
+      this.set('isUpdating', false);
+    });
+
+    this._updatingPromise = updatingPromise;
+
+    return updatingPromise;
   },
 
   /*
@@ -145,15 +157,9 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method addInternalModel
     @private
     @param {InternalModel} internalModel
-    @param {number} an optional index to insert at
   */
-  addInternalModel(internalModel, idx) {
-    var content = get(this, 'content');
-    if (idx === undefined) {
-      content.addObject(internalModel);
-    } else if (!content.includes(internalModel)) {
-      content.insertAt(idx, internalModel);
-    }
+  addInternalModel(internalModel) {
+    get(this, 'content').addObject(internalModel);
   },
 
   /**
@@ -184,18 +190,16 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    var recordArray = this;
-    var promiseLabel = "DS: RecordArray#save " + get(this, 'type');
-    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return recordArray;
-    }, null, "DS: RecordArray#save return RecordArray");
+    let promiseLabel = 'DS: RecordArray#save ' + get(this, 'type');
+    let promise = Promise.all(this.invoke('save'), promiseLabel).
+      then(() => this, null, 'DS: RecordArray#save return RecordArray');
 
-    return PromiseArray.create({ promise: promise });
+    return PromiseArray.create({ promise });
   },
 
   _dissociateFromOwnRecords() {
-    this.get('content').forEach((record) => {
-      var recordArrays = record._recordArrays;
+    this.get('content').forEach(internalModel => {
+      let recordArrays = internalModel._recordArrays;
 
       if (recordArrays) {
         recordArrays.delete(this);
@@ -208,20 +212,38 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
   */
   _unregisterFromManager() {
-    var manager = get(this, 'manager');
-    manager.unregisterRecordArray(this);
+    get(this, 'manager').unregisterRecordArray(this);
   },
 
   willDestroy() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
-    set(this, 'content', undefined);
+    // TODO: we should not do work during destroy:
+    //   * when objects are destroyed, they should simply be left to do
+    //   * if logic errors do to this, that logic needs to be more careful during
+    //    teardown (ember provides isDestroying/isDestroyed) for this reason
+    //   * the exception being: if an dominator has a reference to this object,
+    //     and must be informed to release e.g. e.g. removing itself from th
+    //     recordArrayMananger
+    set(this, 'content', null);
     set(this, 'length', 0);
-    this._super.apply(this, arguments);
+    this._super(...arguments);
   },
 
-  createSnapshot(options) {
-    const meta = this.get('meta');
-    return new SnapshotRecordArray(this, meta, options);
+  /**
+r   @method _createSnapshot
+    @private
+  */
+  _createSnapshot(options) {
+    // this is private for users, but public for ember-data internals
+    return new SnapshotRecordArray(this, this.get('meta'), options);
+  },
+
+  /**
+r   @method _takeSnapshot
+    @private
+  */
+  _takeSnapshot() {
+    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
   }
 });

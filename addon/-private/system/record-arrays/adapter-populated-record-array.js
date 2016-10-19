@@ -6,7 +6,7 @@ import cloneNull from "ember-data/-private/system/clone-null";
   @module ember-data
 */
 
-var get = Ember.get;
+const { get } = Ember;
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -19,11 +19,15 @@ var get = Ember.get;
   @extends DS.RecordArray
 */
 export default RecordArray.extend({
-  query: null,
+  init() {
+    this._super(...arguments);
+    this.query = this.query || null;
+    this.links = null;
+  },
 
   replace() {
-    var type = get(this, 'type').toString();
-    throw new Error("The result of a server query (on " + type + ") is immutable.");
+    let type = get(this, 'type').toString();
+    throw new Error(`The result of a server query (on ${type}) is immutable.`);
   },
 
   _update() {
@@ -43,7 +47,7 @@ export default RecordArray.extend({
   loadRecords(records, payload) {
     let token = heimdall.start('AdapterPopulatedRecordArray.loadRecords');
     //TODO Optimize
-    var internalModels = Ember.A(records).mapBy('_internalModel');
+    let internalModels = records.map(record => get(record, '_internalModel'));
     this.setProperties({
       content: Ember.A(internalModels),
       isLoaded: true,
@@ -53,7 +57,7 @@ export default RecordArray.extend({
 
     this.set('links', cloneNull(payload.links));
 
-    internalModels.forEach((record) => {
+    internalModels.forEach(record => {
       this.manager.recordArraysForRecord(record).add(this);
     });
 
