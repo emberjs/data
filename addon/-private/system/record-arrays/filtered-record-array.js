@@ -61,6 +61,9 @@ export default RecordArray.extend({
     @private
   */
   _updateFilter() {
+    if (get(this, 'isDestroying') || get(this, 'isDestroyed')) {
+      return;
+    }
     get(this, 'manager').updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   },
 
