@@ -102,7 +102,7 @@ export default Ember.Object.extend({
     this.changedRecords.forEach(internalModel => {
 
       if (internalModel.isDestroyed ||
-           internalModel.currentState.stateName === 'root.deleted.saved') {
+          internalModel.currentState.stateName === 'root.deleted.saved') {
         this._recordWasDeleted(internalModel);
       } else {
         this._recordWasChanged(internalModel);
@@ -122,7 +122,6 @@ export default Ember.Object.extend({
 
     record._recordArrays = null;
   },
-
 
   _recordWasChanged(record) {
     heimdall.increment(_recordWasChanged);
@@ -152,6 +151,7 @@ export default Ember.Object.extend({
       this._addRecordToRecordArray(liveRecordArray, record);
     }
   },
+
   /**
     Update an individual filter.
 
