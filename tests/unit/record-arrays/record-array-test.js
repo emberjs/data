@@ -181,3 +181,31 @@ function internalModelFor(record) {
     getRecord() { return record; }
   };
 }
+
+test('#save', function(assert) {
+  let model1 = { save() { model1Saved++; return this;} };
+  let model2 = { save() { model2Saved++; return this;} };
+  let content = Ember.A([
+    internalModelFor(model1),
+    internalModelFor(model2)
+  ]);
+
+  let recordArray = RecordArray.create({
+    content
+  });
+
+  let model1Saved = 0;
+  let model2Saved = 0;
+
+  assert.equal(model1Saved, 0);
+  assert.equal(model2Saved, 0);
+
+  let result = recordArray.save();
+
+  assert.equal(model1Saved, 1);
+  assert.equal(model2Saved, 1);
+
+  return result.then(result => {
+    assert.equal(result, result, 'save promise should fulfill with the original recordArray');
+  })
+});
