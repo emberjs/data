@@ -14,6 +14,33 @@ var get = Ember.get;
   may trigger a search on the server, whose results would be loaded
   into an instance of the `AdapterPopulatedRecordArray`.
 
+  ---
+
+  If you want to update the array and get the latest records from the
+  adapter, you can invoke [`update()`](#method_update):
+
+  Example
+
+  ```javascript
+  // GET /users?isAdmin=true
+  var admins = store.query('user', { isAdmin: true });
+
+  admins.then(function() {
+    console.log(admins.get("length")); // 42
+  });
+
+  // somewhere later in the app code, when new admins have been created
+  // in the meantime
+  //
+  // GET /users?isAdmin=true
+  admins.update().then(function() {
+    admins.get('isUpdating'); // false
+    console.log(admins.get("length")); // 123
+  });
+
+  admins.get('isUpdating'); // true
+  ```
+
   @class AdapterPopulatedRecordArray
   @namespace DS
   @extends DS.RecordArray
