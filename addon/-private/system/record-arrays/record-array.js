@@ -43,7 +43,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
       @private
       @type Ember.Array
       */
-    this.content = this.content || null;
+    this.set('content', this.content || null);
 
     /**
     The flag to signal a `RecordArray` is finished loading data.

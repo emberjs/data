@@ -21,7 +21,7 @@ export default RecordArray.extend({
   init() {
     this._super(...arguments);
 
-    this.filterFunction = this.filterFunction || null;
+    this.set('filterFunction', this.get('filterFunction') || null);
     this.isLoaded = true;
   },
   /**

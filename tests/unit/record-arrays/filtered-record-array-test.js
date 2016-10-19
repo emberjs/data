@@ -19,7 +19,7 @@ test('default initial state', function(assert) {
 });
 
 test('custom initial state', function(assert) {
-  let content = [];
+  let content = Ember.A();
   let store = {};
   let filterFunction = () => true;
   let recordArray = FilteredRecordArray.create({
