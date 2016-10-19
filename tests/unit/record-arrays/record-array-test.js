@@ -152,3 +152,32 @@ test('#addInternalMdoel', function(assert) {
   recordArray.addInternalModel(model1);
   assert.deepEqual(content, [model1]);
 });
+
+test('#removeInternalModel', function(assert) {
+  let content = Ember.A();
+  let recordArray = RecordArray.create({
+    content
+  });
+
+  let model1 = { getRecord() { return 'model-1'; } };
+  let model2 = { getRecord() { return 'model-2'; } };
+
+  assert.equal(content.length, 0);
+  assert.equal(recordArray.removeInternalModel(model1), undefined, 'removeInternalModel has no return value');
+  assert.deepEqual(content, []);
+
+  recordArray.addInternalModel(model1);
+  recordArray.addInternalModel(model2);
+
+  assert.deepEqual(content, [model1, model2]);
+  assert.equal(recordArray.removeInternalModel(model1), undefined, 'removeInternalModel has no return value');
+  assert.deepEqual(content, [model2]);
+  assert.equal(recordArray.removeInternalModel(model2), undefined, 'removeInternalModel has no return value');
+  assert.deepEqual(content, []);
+});
+
+function internalModelFor(record) {
+  return {
+    getRecord() { return record; }
+  };
+}
