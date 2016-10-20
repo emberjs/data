@@ -102,7 +102,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.ok(true, "The adapter's find method should be called");
     return Ember.RSVP.resolve({
-      id: 1
+      id
     });
   };
 
