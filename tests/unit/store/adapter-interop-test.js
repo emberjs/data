@@ -128,7 +128,7 @@ test("IDs provided as numbers are coerced to strings", function(assert) {
   var adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(typeof id, 'string', "id has been normalized to a string");
-      return resolve({ id: 1, name: "Scumbag Sylvain" });
+      return resolve({ id, name: "Scumbag Sylvain" });
     }
   });
 

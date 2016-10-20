@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert } from "ember-data/-private/debug";
+import { assert, warn } from "ember-data/-private/debug";
 import {
   _bind,
   _guard,
@@ -38,6 +38,11 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
     return store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'findRecord');
       assert('Ember Data expected the primary data returned from a `findRecord` response to be an object but instead it found an array.', !Array.isArray(payload.data));
+
+      warn(`You requested a record of type '${typeClass.modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Looks like you want to use store.queryRecord instead http://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`, payload.data.id === id, {
+        id: 'ds.store.findRecord.id-mismatch'
+      });
+
       //TODO Optimize
       var record = store.push(payload);
       return record._internalModel;

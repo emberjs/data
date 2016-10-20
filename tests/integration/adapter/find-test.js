@@ -154,3 +154,17 @@ testInDebug('When multiple records are requested, and the payload is blank', (as
     });
   }, /You made a `findMany` request for person records with ids 1,2, but the adapter's response did not have any data/);
 });
+
+testInDebug("warns when returned record has different id", function(assert) {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findRecord() {
+      return { id: 1, name: "Braaaahm Dale" };
+    }
+  }));
+
+  assert.expectWarning(/You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
+
+  run(function() {
+    env.store.findRecord('person', 'me');
+  });
+});
