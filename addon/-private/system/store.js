@@ -1156,7 +1156,8 @@ Store = Service.extend({
     Parameters: { "ids" => ["1", "2", "3"] }
     ```
 
-    This method returns a promise, which is resolved with a `RecordArray`
+    This method returns a promise, which is resolved with an
+    [`AdapterPopulatedRecordArray`](http://emberjs.com/api/data/classes/DS.AdapterPopulatedRecordArray.html)
     once the server returns.
 
     @since 1.13.0
