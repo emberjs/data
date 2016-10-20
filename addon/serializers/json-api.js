@@ -93,6 +93,39 @@ var dasherize = Ember.String.dasherize;
 
   to the format that the Ember Data store expects.
 
+  ### Customizing meta
+
+  Since a JSON API Document can have meta defined in multiple locations you can
+  use the specific serializer hooks if you need to customize the meta.
+
+  One scenario would be to camelCase the meta keys of your payload. The example
+  below shows how this could be done using `normalizeArrayResponse` and
+  `extractRelationship`.
+
+  ```app/serializers/application.js
+  export default JSONAPISerializer.extend({
+
+    normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
+      let normalizedDocument = this._super(...arguments);
+
+      // Customize document meta
+      normalizedDocument.meta = camelCaseKeys(normalizedDocument.meta);
+
+      return normalizedDocument;
+    },
+
+    extractRelationship(relationshipHash) {
+      let normalizedRelationship = this._super(...arguments);
+
+      // Customize relationship meta
+      normalizedRelationship.meta = camelCaseKeys(normalizedRelationship.meta);
+
+      return normalizedRelationship;
+    }
+
+  });
+  ```
+
   @since 1.13.0
   @class JSONAPISerializer
   @namespace DS
@@ -737,6 +770,10 @@ if (isEnabled("ds-payload-type-hooks")) {
 runInDebug(function() {
   JSONAPISerializer.reopen({
     willMergeMixin(props) {
+      var constructor = this.constructor;
+      warn(`You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at http://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#toc_customizing-meta on how to customize meta when using JSON API.`, Ember.isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta, {
+        id: 'ds.serializer.json-api.extractMeta'
+      });
       warn('The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.', !props.isEmbeddedRecordsMixin, {
         id: 'ds.serializer.embedded-records-mixin-not-supported'
       });
@@ -745,7 +782,7 @@ runInDebug(function() {
       return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
     },
     warnMessageNoModelForType(modelName, originalType, usedLookup) {
-      return `Encountered a resource object with type "${originalType}", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${originalType}")).`;
+      return `Encountered a resource object with type "${originalType}", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${originalType}")').`;
     }
   });
 });
