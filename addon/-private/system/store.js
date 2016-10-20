@@ -2612,27 +2612,27 @@ Store = Service.extend({
     this.unloadAll();
   },
 
-  _pushResourceIdentity(relationship, resourceIdentity) {
-    if (isNone(resourceIdentity)) {
+  _pushResourceIdentifier(relationship, resourceIdentifier) {
+    if (isNone(resourceIdentifier)) {
       return;
     }
 
-    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentity)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentity));
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
 
     //TODO:Better asserts
-    return this._internalModelForId(resourceIdentity.type, resourceIdentity.id);
+    return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
   },
 
-  _pushResourceIdentities(relationship, resourceIdentities) {
-    if (isNone(resourceIdentities)) {
+  _pushResourceIdentifiers(relationship, resourceIdentifiers) {
+    if (isNone(resourceIdentifiers)) {
       return;
     }
 
-    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentities)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentities));
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
 
-    let _internalModels = new Array(resourceIdentities.length);
-    for (let i = 0; i < resourceIdentities.length; i++) {
-      _internalModels[i] = this._pushResourceIdentity(relationship, resourceIdentities[i]);
+    let _internalModels = new Array(resourceIdentifiers.length);
+    for (let i = 0; i < resourceIdentifiers.length; i++) {
+      _internalModels[i] = this._pushResourceIdentifier(relationship, resourceIdentifiers[i]);
     }
     return _internalModels;
   }

@@ -483,21 +483,56 @@ test('calling push without data argument as an object raises an error', function
   });
 });
 
-testInDebug('Calling push with a link for a non async relationship should warn', function(assert) {
+testInDebug('Calling push with a link for a non async relationship should warn if no data', function(assert) {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: false })
   });
 
   assert.expectWarning(function() {
     run(function() {
-      store.push(store.normalize('person', {
-        id: '1',
-        links: {
-          phoneNumbers: '/api/people/1/phone-numbers'
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              links: {
+                related: '/api/people/1/phone-numbers'
+              }
+            }
+          }
         }
-      }));
+      });
     });
-  }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
+  }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload./);
+});
+
+testInDebug('Calling push with a link for a non async relationship should not warn when data is present', function(assert) {
+  Person.reopen({
+    phoneNumbers: hasMany('phone-number', { async: false })
+  });
+
+  assert.expectNoWarning(function() {
+    run(function() {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              data: [
+                { type: 'phone-number', id: '2' },
+                { type: 'phone-number', id: '3' }
+              ],
+              links: {
+                related: '/api/people/1/phone-numbers'
+              }
+            }
+          }
+        }
+      });
+    });
+  });
 });
 
 testInDebug('Calling push with an unknown model name throws an assertion error', function(assert) {

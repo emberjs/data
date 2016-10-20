@@ -162,6 +162,6 @@ BelongsToRelationship.prototype.reload = function() {
 };
 
 BelongsToRelationship.prototype.updateData = function(data) {
-  let internalModel = this.store._pushResourceIdentity(this, data);
+  let internalModel = this.store._pushResourceIdentifier(this, data);
   this.setCanonicalRecord(internalModel);
 };
