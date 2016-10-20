@@ -1,6 +1,7 @@
 /* global heimdall */
 import { assert, warn } from "ember-data/-private/debug";
 import OrderedSet from "ember-data/-private/system/ordered-set";
+import _normalizeLink from "ember-data/-private/system/normalize-link";
 
 const {
   addCanonicalRecord,
@@ -12,6 +13,7 @@ const {
   flushCanonical,
   flushCanonicalLater,
   newRelationship,
+  push,
   removeCanonicalRecord,
   removeCanonicalRecordFromInverse,
   removeCanonicalRecordFromOwn,
@@ -35,6 +37,7 @@ const {
   'flushCanonical',
   'flushCanonicalLater',
   'newRelationship',
+  'push',
   'removeCanonicalRecord',
   'removeCanonicalRecordFromInverse',
   'removeCanonicalRecordFromOwn',
@@ -256,12 +259,10 @@ Relationship.prototype = {
       id: 'ds.store.push-link-for-sync-relationship'
     });
     assert("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
-    if (link !== this.link) {
-      this.link = link;
-      this.linkPromise = null;
-      this.setHasLoaded(false);
-      this.record.notifyPropertyChange(this.key);
-    }
+
+    this.link = link;
+    this.linkPromise = null;
+    this.record.notifyPropertyChange(this.key);
   },
 
   findLink() {
@@ -280,8 +281,6 @@ Relationship.prototype = {
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(records);
-    this.setHasData(true);
-    this.setHasLoaded(true);
   },
 
   notifyRecordRelationshipAdded() { },
@@ -315,5 +314,58 @@ Relationship.prototype = {
   setHasLoaded(value) {
     heimdall.increment(setHasLoaded);
     this.hasLoaded = value;
-  }
+  },
+
+  /*
+    `push` for a relationship allows the store to push a JSON API Relationship
+    Object onto the relationship. The relationship will then extract and set the
+    meta, data and links of that relationship.
+
+    `push` use `updateMeta`, `updateData` and `updateLink` to update the state
+    of the relationship.
+   */
+  push(payload) {
+    heimdall.increment(push);
+
+    let hasData = false;
+    let hasLink = false;
+
+    if (payload.meta) {
+      this.updateMeta(payload.meta);
+    }
+
+    if (payload.data !== undefined) {
+      hasData = true;
+      this.updateData(payload.data);
+    }
+
+    if (payload.links && payload.links.related) {
+      let relatedLink = _normalizeLink(payload.links.related);
+      if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
+        hasLink = true;
+        this.updateLink(relatedLink.href);
+      }
+    }
+
+    /*
+      Data being pushed into the relationship might contain only data or links,
+      or a combination of both.
+
+      If we got data we want to set both hasData and hasLoaded to true since
+      this would indicate that we should prefer the local state instead of
+      trying to fetch the link or call findRecord().
+
+      If we have no data but a link is present we want to set hasLoaded to false
+      without modifying the hasData flag. This will ensure we fetch the updated
+      link next time the relationship is accessed.
+     */
+    if (hasData) {
+      this.setHasData(true);
+      this.setHasLoaded(true);
+    } else if (hasLink) {
+      this.setHasLoaded(false);
+    }
+  },
+
+  updateData() {}
 };
