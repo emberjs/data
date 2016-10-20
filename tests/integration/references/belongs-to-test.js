@@ -45,7 +45,7 @@ testInDebug("record#belongsTo asserts when specified relationship doesn't exist"
     run(function() {
       person.belongsTo("unknown-relationship");
     });
-  }, "There is no belongsTo relationship named 'unknown-relationship' on a model of type 'person'");
+  }, "There is no belongsTo relationship named 'unknown-relationship' on a model of modelClass 'person'");
 });
 
 testInDebug("record#belongsTo asserts when the type of the specified relationship isn't the requested one", function(assert) {
@@ -63,7 +63,7 @@ testInDebug("record#belongsTo asserts when the type of the specified relationshi
     run(function() {
       family.belongsTo("persons");
     });
-  }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of type 'hasMany'. Use record.hasMany('persons') instead.");
+  }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of kind 'hasMany'. Use record.hasMany('persons') instead.");
 });
 
 test("record#belongsTo", function(assert) {
@@ -290,7 +290,7 @@ test("push(promise)", function(assert) {
   });
 });
 
-testInDebug("push(record) asserts for invalid type", function(assert) {
+testInDebug("push(record) asserts for invalid modelClass", function(assert) {
   var person, anotherPerson;
   run(function() {
     person = env.store.push({
@@ -318,10 +318,10 @@ testInDebug("push(record) asserts for invalid type", function(assert) {
     run(function() {
       familyReference.push(anotherPerson);
     });
-  }, "You cannot add a record of type 'person' to the 'person.family' relationship (only 'family' allowed)");
+  }, "You cannot add a record of modelClass 'person' to the 'person.family' relationship (only 'family' allowed)");
 });
 
-test("push(record) works with polymorphic type", function(assert) {
+test("push(record) works with polymorphic modelClass", function(assert) {
   var done = assert.async();
 
   var person, mafiaFamily;

@@ -2214,9 +2214,9 @@ Store = Service.extend({
   */
   _push(data) {
     let token = heimdall.start('store._push');
+    let included = data.included;
+    let i, length;
 
-    var included = data.included;
-    var i, length;
     if (included) {
       for (i = 0, length = included.length; i < length; i++) {
         this._pushInternalModel(included[i]);
@@ -2225,12 +2225,13 @@ Store = Service.extend({
 
     if (Array.isArray(data.data)) {
       length = data.data.length;
-      var internalModels = new Array(length);
+      let records = new Array(length);
+
       for (i = 0; i < length; i++) {
         internalModels[i] = this._pushInternalModel(data.data[i]);
       }
       heimdall.stop(token);
-      return internalModels;
+      return records;
     }
 
     if (data.data === null) {
@@ -2240,7 +2241,8 @@ Store = Service.extend({
 
     assert(`Expected an object in the 'data' property in a call to 'push' for ${data.type}, but was ${Ember.typeOf(data.data)}`, Ember.typeOf(data.data) === 'object');
 
-    var internalModel = this._pushInternalModel(data.data);
+    let internalModel = this._pushInternalModel(data.data);
+
     heimdall.stop(token);
     return internalModel;
   },
@@ -2419,7 +2421,7 @@ Store = Service.extend({
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    var internalModel = new InternalModel(type, id, this, null, data);
+    var internalModel = new InternalModel(type, id, this, data);
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.

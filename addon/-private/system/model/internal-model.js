@@ -44,8 +44,8 @@ const assign = Ember.assign || Ember.merge;
  */
 const TransitionChainMap = new EmptyObject();
 
-var _extractPivotNameCache = new EmptyObject();
-var _splitOnDotCache = new EmptyObject();
+const _extractPivotNameCache = new EmptyObject();
+const _splitOnDotCache = new EmptyObject();
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -104,16 +104,17 @@ const {
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(type, id, store, _, data) {
+  constructor(modelClass, id, store, data) {
     heimdall.increment(new_InternalModel);
-    this.type = type;
+    this.modelClass = modelClass;
     this.id = id;
     this.store = store;
     this._data = data || new EmptyObject();
-    this.modelName = type.modelName;
+    this.modelName = modelClass.modelName;
     this.dataHasInitialized = false;
     this._loadingPromise = null;
     this._recordArrays = undefined;
+    this._record = null;
     this.currentState = RootState.empty;
     this.isReloading = false;
     this._isDestroyed = false;
@@ -128,6 +129,10 @@ export default class InternalModel {
     this.__relationships = null;
     this.__attributes = null;
     this.__implicitRelationships = null;
+  }
+
+  get type() {
+    return this.modelClass;
   }
 
   get recordReference() {
@@ -251,35 +256,38 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  materializeRecord() {
-    heimdall.increment(materializeRecord);
-    assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
+  get record() {
+    if (!this.hasRecord) {
+      heimdall.increment(materializeRecord);
 
-    // lookupFactory should really return an object that creates
-    // instances with the injections applied
-    var createOptions = {
-      store: this.store,
-      _internalModel: this,
-      id: this.id,
-      currentState: this.currentState,
-      isError: this.isError,
-      adapterError: this.error
-    };
+      // lookupFactory should really return an object that creates
+      // instances with the injections applied
+      let createOptions = {
+        store: this.store,
+        _internalModel: this,
+        id: this.id,
+        currentState: this.currentState,
+        isError: this.isError,
+        adapterError: this.error
+      };
 
-    if (setOwner) {
-      // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(this.store));
-    } else {
-      createOptions.container = this.store.container;
+      if (setOwner) {
+        // ensure that `getOwner(this)` works inside a model instance
+        setOwner(createOptions, getOwner(this.store));
+      } else {
+        createOptions.container = this.store.container;
+      }
+
+      this._record = this.modelClass._create(createOptions);
+
+      this._triggerDeferredTriggers();
     }
 
-    this.record = this.type._create(createOptions);
-
-    this._triggerDeferredTriggers();
+    return this._record;
   }
 
   recordObjectWillDestroy() {
-    this.record = null;
+    this._record = null;
   }
 
   deleteRecord() {
@@ -287,8 +295,8 @@ export default class InternalModel {
   }
 
   save(options) {
-    var promiseLabel = "DS: Model#save " + this;
-    var resolver = RSVP.defer(promiseLabel);
+    let promiseLabel = "DS: Model#save " + this;
+    let resolver = RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
     return resolver.promise;
@@ -296,40 +304,38 @@ export default class InternalModel {
 
   startedReloading() {
     this.isReloading = true;
-    if (this.record) {
+    if (this.hasRecord) {
       set(this.record, 'isReloading', true);
     }
   }
 
   finishedReloading() {
     this.isReloading = false;
-    if (this.record) {
+    if (this.hasRecord) {
       set(this.record, 'isReloading', false);
     }
   }
 
   reload() {
     this.startedReloading();
-    var record = this;
-    var promiseLabel = "DS: Model#reload of " + this;
+    let internalModel = this;
+    let promiseLabel = "DS: Model#reload of " + this;
+
     return new Promise(function(resolve) {
-      record.send('reloadRecord', resolve);
+      internalModel.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
-      record.didCleanError();
-      return record;
+      internalModel.didCleanError();
+      return internalModel;
     }, function(error) {
-      record.didError(error);
+      internalModel.didError(error);
       throw error;
     }, "DS: Model#reload complete, update flags").finally(function () {
-      record.finishedReloading();
-      record.updateRecordArrays();
+      internalModel.finishedReloading();
+      internalModel.updateRecordArrays();
     });
   }
 
   getRecord() {
-    if (!this.record) {
-      this.materializeRecord();
-    }
     return this.record;
   }
 
@@ -338,23 +344,23 @@ export default class InternalModel {
   }
 
   eachRelationship(callback, binding) {
-    return this.type.eachRelationship(callback, binding);
+    return this.modelClass.eachRelationship(callback, binding);
   }
 
   eachAttribute(callback, binding) {
-    return this.type.eachAttribute(callback, binding);
+    return this.modelClass.eachAttribute(callback, binding);
   }
 
   inverseFor(key) {
-    return this.type.inverseFor(key);
+    return this.modelClass.inverseFor(key);
   }
 
   setupData(data) {
     heimdall.increment(setupData);
-    var changedKeys = this._changedKeys(data.attributes);
+    let changedKeys = this._changedKeys(data.attributes);
     assign(this._data, data.attributes);
     this.pushedData();
-    if (this.record) {
+    if (this.hasRecord) {
       this.record._notifyProperties(changedKeys);
     }
     this.didInitializeData();
@@ -375,9 +381,13 @@ export default class InternalModel {
     return this._isDestroyed;
   }
 
+  get hasRecord() {
+    return !!this._record;
+  }
+
   destroy() {
     this._isDestroyed = true;
-    if (this.record) {
+    if (this.hasRecord) {
       return this.record.destroy();
     }
   }
@@ -448,8 +458,8 @@ export default class InternalModel {
    */
   updateChangedAttributes() {
     heimdall.increment(updateChangedAttributes);
-    var changedAttributes = this.changedAttributes();
-    var changedAttributeNames = Object.keys(changedAttributes);
+    let changedAttributes = this.changedAttributes();
+    let changedAttributeNames = Object.keys(changedAttributes);
     let attrs = this._attributes;
 
     for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
@@ -471,13 +481,12 @@ export default class InternalModel {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
-    var oldData = this._data;
-    var currentData = this._attributes;
-    var inFlightData = this._inFlightAttributes;
-    var newData = assign(copy(inFlightData), currentData);
-    var diffData = new EmptyObject();
-
-    var newDataKeys = Object.keys(newData);
+    let oldData = this._data;
+    let currentData = this._attributes;
+    let inFlightData = this._inFlightAttributes;
+    let newData = assign(copy(inFlightData), currentData);
+    let diffData = new EmptyObject();
+    let newDataKeys = Object.keys(newData);
 
     for (let i = 0, length = newDataKeys.length; i < length; i++) {
       let key = newDataKeys[i];
@@ -512,7 +521,7 @@ export default class InternalModel {
   */
   send(name, context) {
     heimdall.increment(send);
-    var currentState = this.currentState;
+    let currentState = this.currentState;
 
     if (!currentState[name]) {
       this._unhandledEvent(currentState, name, context);
@@ -522,31 +531,31 @@ export default class InternalModel {
   }
 
   notifyHasManyAdded(key, record, idx) {
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.notifyHasManyAdded(key, record, idx);
     }
   }
 
   notifyHasManyRemoved(key, record, idx) {
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.notifyHasManyRemoved(key, record, idx);
     }
   }
 
   notifyBelongsToChanged(key, record) {
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.notifyBelongsToChanged(key, record);
     }
   }
 
   notifyPropertyChange(key) {
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.notifyPropertyChange(key);
     }
   }
 
   rollbackAttributes() {
-    var dirtyKeys = Object.keys(this._attributes);
+    let dirtyKeys = Object.keys(this._attributes);
 
     this._attributes = new EmptyObject();
 
@@ -586,8 +595,8 @@ export default class InternalModel {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
 
-    var pivotName = extractPivotName(name);
-    var state = this.currentState;
+    let pivotName = extractPivotName(name);
+    let state = this.currentState;
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
@@ -626,7 +635,7 @@ export default class InternalModel {
     }
 
     this.currentState = state;
-    if (this.record) {
+    if (this.hasRecord) {
       set(this.record, 'currentState', state);
     }
 
@@ -638,7 +647,7 @@ export default class InternalModel {
   }
 
   _unhandledEvent(state, name, context) {
-    var errorMessage = "Attempted to handle event `" + name + "` ";
+    let errorMessage = "Attempted to handle event `" + name + "` ";
     errorMessage    += "on " + String(this) + " while in state ";
     errorMessage    += state.stateName + ". ";
 
@@ -649,14 +658,7 @@ export default class InternalModel {
     throw new EmberError(errorMessage);
   }
 
-  triggerLater() {
-    var length = arguments.length;
-    var args = new Array(length);
-
-    for (var i = 0; i < length; i++) {
-      args[i] = arguments[i];
-    }
-
+  triggerLater(...args) {
     if (this._deferredTriggers.push(args) !== 1) {
       return;
     }
@@ -668,10 +670,10 @@ export default class InternalModel {
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record
-    if (!this.record) {
+    if (!this.hasRecord) {
       return;
     }
-    for (var i = 0, l= this._deferredTriggers.length; i<l; i++) {
+    for (let i = 0, l= this._deferredTriggers.length; i<l; i++) {
       this.record.trigger.apply(this.record, this._deferredTriggers[i]);
     }
 
@@ -685,7 +687,7 @@ export default class InternalModel {
   clearRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
-        var rel = this._relationships.get(name);
+        let rel = this._relationships.get(name);
         rel.clear();
         rel.destroy();
       }
@@ -714,8 +716,8 @@ export default class InternalModel {
   _preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
-      var preloadValue = get(preload, key);
-      var relationshipMeta = this.type.metaForProperty(key);
+      let preloadValue = get(preload, key);
+      let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         this._preloadRelationship(key, preloadValue);
       } else {
@@ -725,22 +727,22 @@ export default class InternalModel {
   }
 
   _preloadRelationship(key, preloadValue) {
-    var relationshipMeta = this.type.metaForProperty(key);
-    var type = relationshipMeta.type;
+    let relationshipMeta = this.modelClass.metaForProperty(key);
+    let modelClass = relationshipMeta.type;
     if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, type);
+      this._preloadHasMany(key, preloadValue, modelClass);
     } else {
-      this._preloadBelongsTo(key, preloadValue, type);
+      this._preloadBelongsTo(key, preloadValue, modelClass);
     }
   }
 
-  _preloadHasMany(key, preloadValue, type) {
+  _preloadHasMany(key, preloadValue, modelClass) {
     assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
     let recordsToSet = new Array(preloadValue.length);
 
     for (let i = 0; i < preloadValue.length; i++) {
       let recordToPush = preloadValue[i];
-      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, type);
+      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
     }
 
     //We use the pathway of setting the hasMany as if it came from the adapter
@@ -748,17 +750,17 @@ export default class InternalModel {
     this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
   }
 
-  _preloadBelongsTo(key, preloadValue, type) {
-    var recordToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, type);
+  _preloadBelongsTo(key, preloadValue, modelClass) {
+    let recordToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
     this._relationships.get(key).setRecord(recordToSet);
   }
 
-  _convertStringOrNumberIntoInternalModel(value, type) {
+  _convertStringOrNumberIntoInternalModel(value, modelClass) {
     if (typeof value === 'string' || typeof value === 'number') {
-      return this.store._internalModelForId(type, value);
+      return this.store._internalModelForId(modelClass, value);
     }
     if (value._internalModel) {
       return value._internalModel;
@@ -772,7 +774,7 @@ export default class InternalModel {
   */
   updateRecordArrays() {
     this._updatingRecordArraysLater = false;
-    this.store.dataWasUpdated(this.type, this);
+    this.store.dataWasUpdated(this.modelClass, this);
   }
 
   setId(id) {
@@ -787,7 +789,7 @@ export default class InternalModel {
     this.error = error;
     this.isError = true;
 
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.setProperties({
         isError: true,
         adapterError: error
@@ -799,7 +801,7 @@ export default class InternalModel {
     this.error = null;
     this.isError = false;
 
-    if (this.record) {
+    if (this.hasRecord) {
       this.record.setProperties({
         isError: false,
         adapterError: null
@@ -820,7 +822,7 @@ export default class InternalModel {
     }
 
     this.didCleanError();
-    var changedKeys = this._changedKeys(data);
+    let changedKeys = this._changedKeys(data);
 
     assign(this._data, this._inFlightAttributes);
     if (data) {
@@ -849,23 +851,19 @@ export default class InternalModel {
   }
 
   addErrorMessageToAttribute(attribute, message) {
-    var record = this.getRecord();
-    get(record, 'errors')._add(attribute, message);
+    get(this.record, 'errors')._add(attribute, message);
   }
 
   removeErrorMessageFromAttribute(attribute) {
-    var record = this.getRecord();
-    get(record, 'errors')._remove(attribute);
+    get(this.record, 'errors')._remove(attribute);
   }
 
   clearErrorMessages() {
-    var record = this.getRecord();
-    get(record, 'errors')._clear();
+    get(this.record, 'errors')._clear();
   }
 
   hasErrors() {
-    var record = this.getRecord();
-    var errors = get(record, 'errors');
+    let errors = get(this.record, 'errors');
 
     return !isEmpty(errors);
   }
@@ -877,7 +875,7 @@ export default class InternalModel {
     @private
   */
   adapterDidInvalidate(errors) {
-    var attribute;
+    let attribute;
 
     for (attribute in errors) {
       // TODO @runspired we probably dont need hasOwnProperty
@@ -902,9 +900,9 @@ export default class InternalModel {
   }
 
   _saveWasRejected() {
-    var keys = Object.keys(this._inFlightAttributes);
-    var attrs = this._attributes;
-    for (var i=0; i < keys.length; i++) {
+    let keys = Object.keys(this._inFlightAttributes);
+    let attrs = this._attributes;
+    for (let i=0; i < keys.length; i++) {
       if (attrs[keys[i]] === undefined) {
         attrs[keys[i]] = this._inFlightAttributes[keys[i]];
       }
@@ -954,13 +952,13 @@ export default class InternalModel {
     @private
   */
   _changedKeys(updates) {
-    var changedKeys = [];
+    let changedKeys = [];
 
     if (updates) {
-      var original, i, value, key;
-      var keys = Object.keys(updates);
-      var length = keys.length;
-      var attrs = this._attributes;
+      let original, i, value, key;
+      let keys = Object.keys(updates);
+      let length = keys.length;
+      let attrs = this._attributes;
 
       original = assign(new EmptyObject(), this._data);
       original = assign(original, this._inFlightAttributes);
@@ -990,23 +988,23 @@ export default class InternalModel {
     return `<${this.modelName}:${this.id}>`;
   }
 
-  referenceFor(type, name) {
-    var reference = this.references[name];
+  referenceFor(kind, name) {
+    let reference = this.references[name];
 
     if (!reference) {
-      var relationship = this._relationships.get(name);
+      let relationship = this._relationships.get(name);
 
       runInDebug(() => {
         let modelName = this.modelName;
-        assert(`There is no ${type} relationship named '${name}' on a model of type '${modelName}'`, relationship);
+        assert(`There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`, relationship);
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
-        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${type}('${name}'), but the relationship is of type '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === type);
+        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === kind);
       });
 
-      if (type === "belongsTo") {
+      if (kind === "belongsTo") {
         reference = new BelongsToReference(this.store, this, relationship);
-      } else if (type === "hasMany") {
+      } else if (kind === "hasMany") {
         reference = new HasManyReference(this.store, this, relationship);
       }
 
