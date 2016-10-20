@@ -21,7 +21,7 @@ export default function Snapshot(internalModel, options = {}) {
   this._hasManyRelationships = new EmptyObject();
   this._hasManyIds = new EmptyObject();
 
-  var record = internalModel.getRecord();
+  let record = internalModel.getRecord();
   this.record = record;
   record.eachAttribute((keyName) => this._attributes[keyName] = get(record, keyName));
 

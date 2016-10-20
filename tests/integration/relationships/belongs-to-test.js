@@ -130,7 +130,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 });
 
-testInDebug("Only a record of the same type can be used with a monomorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same modelClass can be used with a monomorphic belongsTo relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -156,12 +156,12 @@ testInDebug("Only a record of the same type can be used with a monomorphic belon
     }).then(function(records) {
       assert.expectAssertion(function() {
         records.post.set('user', records.comment);
-      }, /You cannot add a record of type 'comment' to the 'post.user' relationship/);
+      }, /You cannot add a record of modelClass 'comment' to the 'post.user' relationship/);
     });
   });
 });
 
-testInDebug("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same base modelClass can be used with a polymorphic belongsTo relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   assert.expect(1);
   run(function() {
@@ -207,7 +207,7 @@ testInDebug("Only a record of the same base type can be used with a polymorphic 
 
       assert.expectAssertion(function() {
         comment.set('message', records.user);
-      }, /You cannot add a record of type 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of modelClass 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
     });
   });
 });
@@ -469,7 +469,7 @@ test("A record can be created with a resolved belongsTo promise", function(asser
   }));
 });
 
-test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
+test("polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
   assert.expect(1);
 
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;

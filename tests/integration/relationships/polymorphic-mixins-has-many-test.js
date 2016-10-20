@@ -164,7 +164,7 @@ testInDebug("Pushing a an object that does not implement the mixin to the mixin 
     user.get('messages').then(function(fetchedMessages) {
       assert.expectAssertion(function() {
         fetchedMessages.pushObject(notMessage);
-      }, /You cannot add a record of type 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of modelClass 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
     });
   });
 });
@@ -251,7 +251,7 @@ testInDebug("Pushing a an object that does not implement the mixin to the mixin 
       user.get('messages').then(function(fetchedMessages) {
         assert.expectAssertion(function() {
           fetchedMessages.pushObject(notMessage);
-        }, /You cannot add a record of type 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
+        }, /You cannot add a record of modelClass 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
       });
     });
   } finally {
