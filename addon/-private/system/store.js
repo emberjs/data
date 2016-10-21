@@ -1178,7 +1178,8 @@ Store = Service.extend({
 
   /**
     This method makes a request for one record, where the `id` is not known
-    beforehand (if the `id` is known, use `findRecord` instead).
+    beforehand (if the `id` is known, use [`findRecord`](#method_findRecord)
+    instead).
 
     This method can be used when it is certain that the server will return a
     single object for the primary data.
@@ -1208,8 +1209,7 @@ Store = Service.extend({
 
     The request is made through the adapters' `queryRecord`:
 
-    ```javascript
-    // app/adapters/user.js
+    ```app/adapters/user.js
     import DS from "ember-data";
 
     export default DS.Adapter.extend({
