@@ -65,7 +65,7 @@ export default function setupStore(options) {
   return env;
 }
 
-export {setupStore};
+export { setupStore };
 
 export function createStore(options) {
   return setupStore(options).store;
