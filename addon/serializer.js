@@ -27,10 +27,21 @@ import Ember from 'ember';
 export default Ember.Object.extend({
 
   /**
-    The `store` property is the application's `store` that contains all records.
-    It's injected as a service.
-    It can be used to push records from a non flat data structure server
-    response.
+    The `store` property is the application's `store` that contains
+    all records.  It can be used to look up serializer for other model
+    type that may be nested inside the payload response.
+
+    Example:
+
+    ```js
+    Serializer.extend({
+      extractRelationship: function(relationshipModelName, relationshipHash) {
+        var modelClass = this.store.modelFor(relationshipModelName);
+        var relationshipSerializer = this.store.serializerFor(relationshipModelName);
+        return relationshipSerializer.normalize(modelClass, relationshipHash);
+      }
+    });
+    ```
 
     @property store
     @type {DS.Store}
@@ -42,6 +53,25 @@ export default Ember.Object.extend({
     server to a JSON-API Document.
 
     http://jsonapi.org/format/#document-structure
+
+    Example:
+
+    ```js
+    Serializer.extend({
+      normalizeResponse(store, primaryModelClass, payload, id, requestType) {
+        if (requestType === 'findRecord') {
+          return this.normalize(primaryModelClass, payload);
+        } else {
+          return payload.reduce(function(documentHash, item) {
+            let { data, included } = this.normalize(primaryModelClass, item);
+            documentHash.included.push(...included);
+            documentHash.data.push(data);
+            return documentHash;
+          }, { data: [], included: [] })
+        }
+      }
+    });
+    ```
 
     @since 1.13.0
     @method normalizeResponse
@@ -63,8 +93,34 @@ export default Ember.Object.extend({
     - `includeId`: If this is `true`, `serialize` should include the ID
       in the serialized object it builds.
 
+    Example:
+
+    ```js
+    Serializer.extend({
+      serialize(snapshot, options) {
+        var json = {
+          id: snapshot.id
+        };
+
+        snapshot.eachAttribute((key, attribute) => {
+          json[key] = snapshot.attr(key);
+        });
+
+        snapshot.eachRelationship((key, relationship) => {
+          if (relationship.kind === 'belongsTo') {
+            json[key] = snapshot.belongsTo(key, { id: true });
+          } else if (relationship.kind === 'hasMany') {
+            json[key] = snapshot.hasMany(key, { ids: true });
+          }
+        });
+
+        return json;
+      },
+    });
+    ```
+
     @method serialize
-    @param {DS.Model} record
+    @param {DS.Snapshot} record
     @param {Object} [options]
     @return {Object}
   */
@@ -75,6 +131,21 @@ export default Ember.Object.extend({
     external data source into the normalized form `store.push()` expects. You
     should override this method, munge the hash and return the normalized
     payload.
+
+    Example:
+
+    ```js
+    Serializer.extend({
+      normalize(modelClass, resourceHash) {
+        var data = {
+          id:            resourceHash.id,
+          type:          modelClass.modelName,
+          attributes:    resourceHash
+        };
+        return { data: data };
+      }
+    })
+    ```
 
     @method normalize
     @param {DS.Model} typeClass
