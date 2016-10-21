@@ -8,8 +8,13 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "ember-data/-private/system/record-arrays";
-const { get, MapWithDefault } = Ember;
 import OrderedSet from "ember-data/-private/system/ordered-set";
+
+const {
+  get,
+  MapWithDefault,
+  run: emberRun
+} = Ember;
 
 const {
   _addRecordToRecordArray,
@@ -78,7 +83,7 @@ export default Ember.Object.extend({
     heimdall.increment(recordDidChange);
     if (this.changedRecords.push(record) !== 1) { return; }
 
-    Ember.run.schedule('actions', this, this.updateRecordArrays);
+    emberRun.schedule('actions', this, this.updateRecordArrays);
   },
 
   recordArraysForRecord(record) {

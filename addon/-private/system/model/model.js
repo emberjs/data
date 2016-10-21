@@ -8,12 +8,16 @@ import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many'
 import { DidDefinePropertyMixin, RelationshipsClassMethodsMixin, RelationshipsInstanceMethodsMixin } from 'ember-data/-private/system/relationships/ext';
 import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
+import RootState from 'ember-data/-private/system/model/states';
+
+const {
+  get,
+  computed
+} = Ember;
 
 /**
   @module ember-data
 */
-
-var get = Ember.get;
 
 function intersection (array1, array2) {
   var result = [];
@@ -30,7 +34,7 @@ var RESERVED_MODEL_PROPS = [
   'currentState', 'data', 'store'
 ];
 
-var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
+var retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
 
@@ -122,7 +126,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {Boolean}
     @readOnly
   */
-  hasDirtyAttributes: Ember.computed('currentState.isDirty', function() {
+  hasDirtyAttributes: computed('currentState.isDirty', function() {
     return this.get('currentState.isDirty');
   }),
   /**
@@ -305,6 +309,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @type {Object}
   */
+  currentState: RootState.empty,
 
   /**
     When the record is in the `invalid` state this object will contain
@@ -357,7 +362,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @property errors
     @type {DS.Errors}
   */
-  errors: Ember.computed(function() {
+  errors: computed(function() {
     let errors = Errors.create();
 
     errors._registerHandlers(this._internalModel,

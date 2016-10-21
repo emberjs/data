@@ -55,7 +55,7 @@ testInDebug("unload a dirty record asserts", function(assert) {
 
       assert.expectAssertion(function() {
         record.unloadRecord();
-      }, "You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", "can not unload dirty record");
+      }, "You can only unload a record which is not inFlight. `" + record._internalModel.toString() + "`", "can not unload dirty record");
 
       // force back into safe to unload mode.
       run(function() {

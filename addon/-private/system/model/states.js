@@ -1,10 +1,8 @@
 /**
   @module ember-data
 */
-import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 
-const { get } = Ember;
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -257,7 +255,7 @@ const DirtyState = {
       heimdall.stop(token);
     },
 
-    becomeDirty() { },
+    becomeDirty() {},
 
     willCommit(internalModel) {
       internalModel.transitionTo('inFlight');
@@ -430,7 +428,7 @@ createdState.uncommitted.pushedData = function(internalModel) {
   internalModel.triggerLater('didLoad');
 };
 
-createdState.uncommitted.propertyWasReset = Ember.K;
+createdState.uncommitted.propertyWasReset = function() {};
 
 function assertAgainstUnloadRecord(internalModel) {
   assert("You can only unload a record which is not inFlight. `" + internalModel + "`", false);
@@ -581,9 +579,7 @@ const RootState = {
         internalModel.transitionTo('deleted.saved');
       },
 
-      didCommit(internalModel) {
-        internalModel.send('invokeLifecycleCallbacks', get(internalModel, 'lastDirtyType'));
-      },
+      didCommit() {},
 
       // loaded.saved.notFound would be triggered by a failed
       // `reload()` on an unchanged record
@@ -714,7 +710,6 @@ const RootState = {
       becomeDirty()   { },
       deleteRecord()  { },
       willCommit()    { },
-
 
       rolledBack(internalModel) {
         internalModel.clearErrorMessages();
