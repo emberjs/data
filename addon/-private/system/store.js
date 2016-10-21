@@ -58,8 +58,9 @@ const {
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
 //from find methods
-function promiseRecord(internalModel, label) {
-  var toReturn = internalModel.then((model) => model.getRecord());
+function promiseRecord(internalModelPromise, label) {
+  let toReturn = internalModelPromise.then((internalModel) => internalModel.record);
+
   return promiseObject(toReturn, label);
 }
 
@@ -308,8 +309,8 @@ Store = Service.extend({
   createRecord(modelName, inputProperties) {
     assert("You need to pass a model name to the store's createRecord method", isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${Ember.inspect(modelName)}`, typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    var properties = copy(inputProperties) || new EmptyObject();
+    let modelClass = this.modelFor(modelName);
+    let properties = copy(inputProperties) || new EmptyObject();
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -323,16 +324,19 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var internalModel = this.buildInternalModel(typeClass, properties.id);
-    var record = internalModel.getRecord();
+    let internalModel = this.buildInternalModel(modelClass, properties.id);
+    let record = internalModel.record;
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
+    // TODO @runspired this seems really bad, store should not be changing the state
     internalModel.loadedData();
 
     // Set the properties specified on the record.
+    // TODO @runspired this is probably why we do the bad thing above
     record.setProperties(properties);
 
+    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {
       internalModel._relationships.get(key).setHasData(true);
     });
@@ -758,6 +762,8 @@ Store = Service.extend({
   scheduleFetchMany(records) {
     let internalModels = new Array(records.length);
     let fetches = new Array(records.length);
+
+    // TODO @runspired this is a needless for loop
     for (let i = 0; i < records.length; i++) {
       internalModels[i] = records[i]._internalModel;
     }
@@ -958,7 +964,7 @@ Store = Service.extend({
     assert("You need to pass a model name to the store's peekRecord method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
-      return this._internalModelForId(modelName, id).getRecord();
+      return this._internalModelForId(modelName, id).record;
     } else {
       return null;
     }
@@ -999,9 +1005,9 @@ Store = Service.extend({
   hasRecordForId(modelName, inputId) {
     assert("You need to pass a model name to the store's hasRecordForId method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-    var id = coerceId(inputId);
-    var internalModel = this.typeMapFor(typeClass).idToRecord[id];
+    let modelClass = this.modelFor(modelName);
+    let id = coerceId(inputId);
+    let internalModel = this.typeMapFor(modelClass).idToRecord[id];
     return !!internalModel && internalModel.isLoaded();
   },
 
@@ -1018,18 +1024,18 @@ Store = Service.extend({
   recordForId(modelName, id) {
     assert("You need to pass a model name to the store's recordForId method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    return this._internalModelForId(modelName, id).getRecord();
+    return this._internalModelForId(modelName, id).record;
   },
 
-  _internalModelForId(typeName, inputId) {
+  _internalModelForId(modelName, inputId) {
     heimdall.increment(_internalModelForId);
-    var typeClass = this.modelFor(typeName);
+    var modelClass = this.modelFor(modelName);
     var id = coerceId(inputId);
-    var idToRecord = this.typeMapFor(typeClass).idToRecord;
+    var idToRecord = this.typeMapFor(modelClass).idToRecord;
     var record = idToRecord[id];
 
     if (!record || !idToRecord[id]) {
-      record = this.buildInternalModel(typeClass, id);
+      record = this.buildInternalModel(modelClass, id);
     }
 
     return record;
@@ -1271,17 +1277,17 @@ Store = Service.extend({
     assert("You need to pass a query hash to the store's queryRecord method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
-    var typeClass = this.modelFor(modelName);
+    var modelClass = this.modelFor(modelName);
     var adapter = this.adapterFor(modelName);
 
-    assert("You tried to make a query but you have no adapter (for " + typeClass + ")", adapter);
+    assert("You tried to make a query but you have no adapter (for " + modelName + ")", adapter);
     assert("You tried to make a query but your adapter does not implement `queryRecord`", typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, typeClass, query).then((internalModel) => {
+    return promiseObject(_queryRecord(adapter, this, modelClass, query).then((internalModel) => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {
-        return internalModel.getRecord();
+        return internalModel.record;
       }
 
       return null;
@@ -2188,7 +2194,7 @@ Store = Service.extend({
 
     if (Array.isArray(pushed)) {
       let records = pushed.map(function(internalModel) {
-        return internalModel.getRecord();
+        return internalModel.record;
       });
       heimdall.stop(token);
       return records;
@@ -2199,7 +2205,7 @@ Store = Service.extend({
       return null;
     }
 
-    var record = pushed.getRecord();
+    let record = pushed.record;
     heimdall.stop(token);
     return record;
   },
