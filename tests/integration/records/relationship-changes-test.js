@@ -5,19 +5,19 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store, Person;
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var run = Ember.run;
+var env, store;
+const attr = DS.attr;
+const hasMany = DS.hasMany;
+const run = Ember.run;
+
+const Person = DS.Model.extend({
+  firstName: attr('string'),
+  lastName: attr('string'),
+  siblings: hasMany('person')
+});
 
 module('integration/records/relationship-changes - Relationship changes', {
   beforeEach() {
-    Person = DS.Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      siblings: hasMany('person')
-    });
-
     env = setupStore({
       person: Person
     });
@@ -33,8 +33,8 @@ module('integration/records/relationship-changes - Relationship changes', {
 
 test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function(assert) {
   assert.expect(1);
-  var person;
-  var observerCount = 0;
+  let person = null;
+  let observerCount = 0;
 
   run(function() {
     store.push({
@@ -92,8 +92,8 @@ test('Calling push with relationship triggers observers once if the relationship
 
 test('Calling push with relationship triggers observers once if the relationship was not empty and was added to', function(assert) {
   assert.expect(1);
-  var person;
-  var observerCount = 0;
+  let person = null;
+  let observerCount = 0;
 
   run(function() {
     store.push({
@@ -169,8 +169,8 @@ test('Calling push with relationship triggers observers once if the relationship
 
 test('Calling push with relationship triggers observers once if the relationship was made shorter', function(assert) {
   assert.expect(1);
-  var person;
-  var observerCount = 0;
+  let person = null;
+  let observerCount = 0;
 
   run(function() {
     store.push({
@@ -229,8 +229,8 @@ test('Calling push with relationship triggers observers once if the relationship
 
 test('Calling push with relationship triggers observers once if the relationship was reordered', function(assert) {
   assert.expect(1);
-  var person;
-  var observerCount = 0;
+  let person = null;
+  let observerCount = 0;
 
   run(function() {
     store.push({
@@ -298,8 +298,8 @@ test('Calling push with relationship triggers observers once if the relationship
 
 test('Calling push with relationship does not trigger observers if the relationship was not changed', function(assert) {
   assert.expect(1);
-  var person;
-  var observerCount = 0;
+  let person = null;
+  let observerCount = 0;
 
   run(function() {
     store.push({
