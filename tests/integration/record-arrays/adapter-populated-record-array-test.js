@@ -74,7 +74,7 @@ test('when a record is deleted in an adapter populated record array, it should b
 
 test('stores the metadata off the payload', function(assert) {
   let recordArray = store.recordArrayManager
-    .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+    .createAdapterPopulatedRecordArray(Person, null);
 
   let payload = {
     data: [
