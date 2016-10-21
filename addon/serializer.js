@@ -28,8 +28,8 @@ export default Ember.Object.extend({
 
   /**
     The `store` property is the application's `store` that contains
-    all records.  It can be used to look up serializer for other model
-    type that may be nested inside the payload response.
+    all records. It can be used to look up serializers for other model
+    types that may be nested inside the payload response.
 
     Example:
 
@@ -120,7 +120,7 @@ export default Ember.Object.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} record
+    @param {DS.Snapshot} snapshot
     @param {Object} [options]
     @return {Object}
   */
