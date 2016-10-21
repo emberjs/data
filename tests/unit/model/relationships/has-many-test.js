@@ -721,18 +721,16 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
 
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
-  var person, tag1, tag2, tag3;
+  var person, tag1, tag2, tag3, tags;
 
   run(function() {
     person = store.createRecord('person');
     tag1 = store.createRecord('tag');
     tag2 = store.createRecord('tag');
     tag3 = store.createRecord('tag');
-  });
 
-  var tags = get(person, 'tags');
+    tags = get(person, 'tags');
 
-  run(function() {
     tags.pushObjects([tag1, tag2, tag3]);
     tags.removeObject(tag2);
   });
@@ -769,6 +767,29 @@ test("DS.hasMany is async by default", function(assert) {
     var tag = store.createRecord('tag');
     assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
   });
+});
+
+test("DS.ManyArray is lazy", function(assert) {
+  let Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+
+  let Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let tag = run(function() {
+    return env.store.createRecord('tag');
+  });
+  let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
+  assert.ok(!hasManyRelationship._manyArray);
+  run(function() {
+    tag.get('people');
+  });
+  assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
 });
 
 testInDebug("throws assertion if of not set with an array", function(assert) {

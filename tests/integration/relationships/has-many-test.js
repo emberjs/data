@@ -1678,8 +1678,9 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
     post = env.store.peekRecord('post', 1);
+
+    assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
   });
-  assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
 
   run(function() {
     env.store.push({

@@ -10,29 +10,40 @@ export default function ManyRelationship(store, record, inverseKey, relationship
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.belongsToType = relationshipMeta.type;
   this.canonicalState = [];
-  this.manyArray = ManyArray.create({
-    canonicalState: this.canonicalState,
-    store: this.store,
-    relationship: this,
-    type: this.store.modelFor(this.belongsToType),
-    record: record
-  });
   this.isPolymorphic = relationshipMeta.options.polymorphic;
-  this.manyArray.isPolymorphic = this.isPolymorphic;
 }
 
 ManyRelationship.prototype = Object.create(Relationship.prototype);
+ManyRelationship.prototype.getManyArray = function() {
+  if (!this._manyArray) {
+    this._manyArray = ManyArray.create({
+      canonicalState: this.canonicalState,
+      store: this.store,
+      relationship: this,
+      type: this.store.modelFor(this.belongsToType),
+      record: this.record,
+      meta: this.meta,
+      isPolymorphic: this.isPolymorphic
+    });
+  }
+  return this._manyArray;
+};
+
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
 ManyRelationship.prototype.destroy = function() {
-  this.manyArray.destroy();
+  if (this._manyArray) {
+    this._manyArray.destroy();
+  }
 };
 
 ManyRelationship.prototype._super$updateMeta = Relationship.prototype.updateMeta;
 ManyRelationship.prototype.updateMeta = function(meta) {
   this._super$updateMeta(meta);
-  this.manyArray.set('meta', meta);
+  if (this._manyArray) {
+    this._manyArray.set('meta', meta);
+  }
 };
 
 ManyRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
@@ -54,7 +65,8 @@ ManyRelationship.prototype.addRecord = function(record, idx) {
     return;
   }
   this._super$addRecord(record, idx);
-  this.manyArray.internalAddRecords([record], idx);
+  // make lazy later
+  this.getManyArray().internalAddRecords([record], idx);
 };
 
 ManyRelationship.prototype._super$removeCanonicalRecordFromOwn = Relationship.prototype.removeCanonicalRecordFromOwn;
@@ -74,7 +86,9 @@ ManyRelationship.prototype.removeCanonicalRecordFromOwn = function(record, idx) 
 
 ManyRelationship.prototype._super$flushCanonical = Relationship.prototype.flushCanonical;
 ManyRelationship.prototype.flushCanonical = function() {
-  this.manyArray.flushCanonical();
+  if (this._manyArray) {
+    this._manyArray.flushCanonical();
+  }
   this._super$flushCanonical();
 };
 
@@ -84,11 +98,12 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
     return;
   }
   this._super$removeRecordFromOwn(record, idx);
+  let manyArray = this.getManyArray();
   if (idx !== undefined) {
     //TODO(Igor) not used currently, fix
-    this.manyArray.currentState.removeAt(idx);
+    manyArray.currentState.removeAt(idx);
   } else {
-    this.manyArray.internalRemoveRecords([record]);
+    manyArray.internalRemoveRecords([record]);
   }
 };
 
@@ -99,14 +114,15 @@ ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx)
 };
 
 ManyRelationship.prototype.reload = function() {
-  var manyArrayLoadedState = this.manyArray.get('isLoaded');
+  let manyArray = this.getManyArray();
+  let manyArrayLoadedState = manyArray.get('isLoaded');
 
   if (this._loadingPromise) {
     if (this._loadingPromise.get('isPending')) {
       return this._loadingPromise;
     }
     if (this._loadingPromise.get('isRejected')) {
-      this.manyArray.set('isLoaded', manyArrayLoadedState);
+      manyArray.set('isLoaded', manyArrayLoadedState);
     }
   }
 
@@ -114,8 +130,8 @@ ManyRelationship.prototype.reload = function() {
     this._loadingPromise = promiseManyArray(this.fetchLink(), 'Reload with link');
     return this._loadingPromise;
   } else {
-    this._loadingPromise = promiseManyArray(this.store.scheduleFetchMany(this.manyArray.toArray()).then(() => {
-      return this.manyArray;
+    this._loadingPromise = promiseManyArray(this.store.scheduleFetchMany(manyArray.toArray()).then(() => {
+      return manyArray;
     }), 'Reload with ids');
     return this._loadingPromise;
   }
@@ -158,27 +174,28 @@ ManyRelationship.prototype.fetchLink = function() {
     }
     this.store._backburner.join(() => {
       this.updateRecordsFromAdapter(records);
-      this.manyArray.set('isLoaded', true);
+      this.getManyArray().set('isLoaded', true);
     });
-    return this.manyArray;
+    return this.getManyArray();
   });
 };
 
 ManyRelationship.prototype.findRecords = function() {
-  let manyArray = this.manyArray.toArray();
-  let internalModels = new Array(manyArray.length);
+  let manyArray = this.getManyArray()
+  let array = manyArray.toArray();
+  let internalModels = new Array(array.length);
 
-  for (let i = 0; i < manyArray.length; i++) {
-    internalModels[i] = manyArray[i]._internalModel;
+  for (let i = 0; i < array.length; i++) {
+    internalModels[i] = array[i]._internalModel;
   }
 
   //TODO CLEANUP
   return this.store.findMany(internalModels).then(() => {
-    if (!this.manyArray.get('isDestroyed')) {
+    if (!manyArray.get('isDestroyed')) {
       //Goes away after the manyArray refactor
-      this.manyArray.set('isLoaded', true);
+      manyArray.set('isLoaded', true);
     }
-    return this.manyArray;
+    return manyArray;
   });
 };
 ManyRelationship.prototype.notifyHasManyChanged = function() {
@@ -187,6 +204,7 @@ ManyRelationship.prototype.notifyHasManyChanged = function() {
 
 ManyRelationship.prototype.getRecords = function() {
   //TODO(Igor) sync server here, once our syncing is not stupid
+  let manyArray = this.getManyArray();
   if (this.isAsync) {
     var promise;
     if (this.link) {
@@ -199,18 +217,18 @@ ManyRelationship.prototype.getRecords = function() {
       promise = this.findRecords();
     }
     this._loadingPromise = PromiseManyArray.create({
-      content: this.manyArray,
+      content: manyArray,
       promise: promise
     });
     return this._loadingPromise;
   } else {
-    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
+    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", manyArray.isEvery('isEmpty', false));
 
     //TODO(Igor) WTF DO I DO HERE?
-    if (!this.manyArray.get('isDestroyed')) {
-      this.manyArray.set('isLoaded', true);
+    if (!manyArray.get('isDestroyed')) {
+      manyArray.set('isLoaded', true);
     }
-    return this.manyArray;
+    return manyArray;
   }
 };
 

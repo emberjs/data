@@ -8,7 +8,10 @@ import {
 
 import isEnabled from 'ember-data/-private/features';
 
-const get = Ember.get;
+const {
+  RSVP: { resolve },
+  get
+} = Ember;
 
 var HasManyReference = function(store, parentInternalModel, hasManyRelationship) {
   this._super$constructor(store, parentInternalModel);
@@ -45,11 +48,11 @@ HasManyReference.prototype.ids = function() {
 };
 
 HasManyReference.prototype.meta = function() {
-  return this.hasManyRelationship.manyArray.meta;
+  return this.hasManyRelationship.meta;
 };
 
 HasManyReference.prototype.push = function(objectOrPromise) {
-  return Ember.RSVP.resolve(objectOrPromise).then((payload) => {
+  return resolve(objectOrPromise).then((payload) => {
     var array = payload;
 
     if (isEnabled("ds-overhaul-references")) {
@@ -102,7 +105,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
     this.hasManyRelationship.computeChanges(internalModels);
 
-    return this.hasManyRelationship.manyArray;
+    return this.hasManyRelationship.getManyArray();
   });
 };
 
@@ -122,7 +125,7 @@ HasManyReference.prototype._isLoaded = function() {
 
 HasManyReference.prototype.value = function() {
   if (this._isLoaded()) {
-    return this.hasManyRelationship.manyArray;
+    return this.hasManyRelationship.getManyArray();
   }
 
   return null;
@@ -133,8 +136,7 @@ HasManyReference.prototype.load = function() {
     return this.hasManyRelationship.getRecords();
   }
 
-  var manyArray = this.hasManyRelationship.manyArray;
-  return Ember.RSVP.resolve(manyArray);
+  return resolve(this.hasManyRelationship.getManyArray());
 };
 
 HasManyReference.prototype.reload = function() {

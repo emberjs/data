@@ -56,6 +56,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init() {
     this._super(...arguments);
     this.currentState = Ember.A([]);
+    this.flushCanonical();
   },
 
   record: null,
@@ -74,19 +75,18 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   flushCanonical() {
-    //TODO make this smarter, currently its plenty stupid
-    var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
+    let toSet = this.canonicalState;
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    var newRecords = this.currentState.filter(
+    let newRecords = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    var oldLength = this.length;
+    let oldLength = this.length;
     this.arrayContentWillChange(0, this.length, toSet.length);
     // It’s possible the parent side of the relationship may have been unloaded by this point
     if (_objectIsAlive(this)) {

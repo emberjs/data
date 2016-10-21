@@ -291,9 +291,12 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
   run(function() {
     comment = store.createRecord('comment', { name: "The Parley Letter" });
   });
-  post.get('comments').pushObject(comment);
 
-  assert.equal(comment.get('post'), post, "the post has been set correctly");
+  run(function() {
+    post.get('comments').pushObject(comment);
+
+    assert.equal(comment.get('post'), post, "the post has been set correctly");
+  });
 
   run(function() {
     comment.save().then(assert.wait(function(comment) {
@@ -482,7 +485,10 @@ test("createRecord - a record on the many side of a hasMany relationship should 
   });
 
   var post = store.peekRecord('post', 1);
-  var commentCount = post.get('comments.length');
+  var commentCount = run(function() {
+    return post.get('comments.length');
+  });
+
   assert.equal(commentCount, 1, "the post starts life with a comment");
 
   run(function() {

@@ -180,7 +180,7 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
   });
 });
 
-test("Fetching a hasMany where a record was removed reflects on the other hasMany side - async", function(assert) {
+test("Fetching a hasMany where a record was removed reflects on the other hasMany side - sync", function(assert) {
   var account, user;
   run(function() {
     account = store.push({
@@ -225,8 +225,10 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
     });
   });
 
-  assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
-  assert.equal(account.get('users.length'), 0, 'Users were removed correctly');
+  run(function() {
+    assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
+    assert.equal(account.get('users.length'), 0, 'Users were removed correctly');
+  });
 });
 
 /*
@@ -297,7 +299,9 @@ test("Pushing to a hasMany reflects on the other hasMany side - sync", function(
     stanley.get('accounts').pushObject(account);
   });
 
-  assert.equal(account.get('users.length'), 1, 'User relationship was set up correctly');
+  run(function() {
+    assert.equal(account.get('users.length'), 1, 'User relationship was set up correctly');
+  });
 });
 
 test("Removing a record from a hasMany reflects on the other hasMany side - async", function(assert) {
@@ -374,12 +378,12 @@ test("Removing a record from a hasMany reflects on the other hasMany side - sync
     });
   });
 
-  assert.equal(account.get('users.length'), 1, 'Users were setup correctly');
   run(function() {
+    assert.equal(account.get('users.length'), 1, 'Users were setup correctly');
     account.get('users').removeObject(user);
+    assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
+    assert.equal(account.get('users.length'), 0, 'Users were removed correctly');
   });
-  assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
-  assert.equal(account.get('users.length'), 0, 'Users were removed correctly');
 });
 
 /*
@@ -465,9 +469,9 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   run(function() {
     account.deleteRecord();
     account.rollbackAttributes();
+    assert.equal(account.get('users.length'), 1, 'Users are still there');
+    assert.equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
   });
-  assert.equal(account.get('users.length'), 1, 'Users are still there');
-  assert.equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
 });
 
 test("Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async", function(assert) {

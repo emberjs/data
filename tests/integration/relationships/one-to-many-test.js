@@ -189,7 +189,9 @@ test("Relationship is available from the hasMany side even if only loaded from t
       }
     });
   });
-  assert.equal(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
+  run(function() {
+    assert.equal(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
+  });
 });
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - async", function(assert) {
@@ -300,7 +302,10 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
       }
     });
   });
-  assert.equal(user.get('accounts').objectAt(0), null, 'Account was sucesfully removed');
+
+  run(function() {
+    assert.equal(user.get('accounts').objectAt(0), null, 'Account was sucesfully removed');
+  });
 });
 
 test("Fetching a belongsTo that is not defined does not remove the record from a relationship - async", function(assert) {
@@ -398,7 +403,10 @@ test("Fetching a belongsTo that is not defined does not remove the record from a
       }
     });
   });
-  assert.equal(user.get('accounts').objectAt(0), account, 'Account was sucesfully removed');
+
+  run(function() {
+    assert.equal(user.get('accounts').objectAt(0), account, 'Account was sucesfully removed');
+  });
 });
 
 test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - async", function(assert) {
@@ -542,7 +550,10 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
       }
     });
   });
-  assert.equal(account.get('user'), null, 'User was removed correctly');
+
+  run(function() {
+    assert.equal(account.get('user'), null, 'User was removed correctly');
+  });
 });
 
 test("Fetching the hasMany side where the hasMany is undefined does not change the belongsTo side - async", function(assert) {
@@ -657,7 +668,9 @@ test("Fetching the hasMany side where the hasMany is undefined does not change t
     });
   });
 
-  assert.equal(account.get('user'), user, 'User was not removed');
+  run(function() {
+    assert.equal(account.get('user'), user, 'User was not removed');
+  });
 });
 
 /*
@@ -1249,9 +1262,9 @@ test("Rollbacking attributes of a deleted record works correctly when the hasMan
   run(function() {
     account.deleteRecord();
     account.rollbackAttributes();
+    assert.equal(user.get('accounts.length'), 1, "Accounts are rolled back");
+    assert.equal(account.get('user'), user, 'Account still has the user');
   });
-  assert.equal(user.get('accounts.length'), 1, "Accounts are rolled back");
-  assert.equal(account.get('user'), user, 'Account still has the user');
 });
 
 test("Rollbacking attributes of deleted record works correctly when the belongsTo side has been deleted - async", function(assert) {
@@ -1331,9 +1344,9 @@ test("Rollbacking attributes of a deleted record works correctly when the belong
   run(function() {
     user.deleteRecord();
     user.rollbackAttributes();
+    assert.equal(user.get('accounts.length'), 1, "User still has the accounts");
+    assert.equal(account.get('user'), user, 'Account has the user again');
   });
-  assert.equal(user.get('accounts.length'), 1, "User still has the accounts");
-  assert.equal(account.get('user'), user, 'Account has the user again');
 });
 
 /*
