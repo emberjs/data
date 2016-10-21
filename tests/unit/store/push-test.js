@@ -728,6 +728,7 @@ test("_push returns an instance of InternalModel if an object is pushed", functi
   });
 
   assert.ok(pushResult instanceof DS.InternalModel);
+  assert.notOk(pushResult.record, 'InternalModel is not materialized');
 });
 
 test("_push returns an array of InternalModels if an array is pushed", function(assert) {
@@ -744,6 +745,7 @@ test("_push returns an array of InternalModels if an array is pushed", function(
 
   assert.ok(pushResult instanceof Array);
   assert.ok(pushResult[0] instanceof DS.InternalModel);
+  assert.notOk(pushResult[0].record, 'InternalModel is not materialized');
 });
 
 
