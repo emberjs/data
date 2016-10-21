@@ -9,8 +9,12 @@ let store;
 const { run, RSVP: { Promise } } = Ember;
 
 const Person = DS.Model.extend({
-  name: DS.attr('string')
+  name: DS.attr('string'),
+  toString() {
+    return `<Person#${this.get('id')}>`;
+  }
 });
+
 
 const adapter = DS.Adapter.extend({
   deleteRecord() {
@@ -58,8 +62,7 @@ test('when a record is deleted in an adapter populated record array, it should b
   };
 
   run(() => {
-    let records = store.push(payload);
-    recordArray.loadRecords(records, payload);
+    recordArray._setInternalModels(store._push(payload), payload);
   });
 
   assert.equal(recordArray.get('length'), 3, "expected recordArray to contain exactly 3 records");
@@ -103,8 +106,7 @@ test('stores the metadata off the payload', function(assert) {
   };
 
   run(() => {
-    let records = store.push(payload);
-    recordArray.loadRecords(records, payload);
+    recordArray._setInternalModels(store._push(payload), payload);
   });
 
   assert.equal(recordArray.get('meta.foo'), 'bar', 'expected meta.foo to be bar from payload');
@@ -144,8 +146,7 @@ test('stores the links off the payload', function(assert) {
   };
 
   run(() => {
-    let records = store.push(payload);
-    recordArray.loadRecords(records, payload);
+    recordArray._setInternalModels(store._push(payload), payload);
   });
 
   assert.equal(recordArray.get('links.first'), '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');
@@ -158,6 +159,35 @@ test('recordArray.replace() throws error', function(assert) {
   assert.throws(() => {
     recordArray.replace();
   }, Error('The result of a server query (on (subclass of DS.Model)) is immutable.'), 'throws error');
+});
+
+test('loadRecord re-syncs internalModels recordArrays', function(assert) {
+  let env = setupStore({ person: Person });
+  let store = env.store;
+
+  let payload = [
+    { id: '1', name: 'Scumbag Dale' },
+    { id: '2', name: 'Scumbag Katz' }
+  ];
+
+  env.adapter.query = function(store, type, query, recordArray) {
+    return payload;
+  };
+
+  return store.query('person', { }).then(recordArray => {
+    return recordArray.update().then(recordArray => {
+      assert.deepEqual(recordArray.getEach('name'), ['Scumbag Dale', 'Scumbag Katz'], 'expected query to contain specific records');
+
+      payload = [
+        { id: '1', name: 'Scumbag Dale' },
+        { id: '3', name: 'Scumbag Penner' }
+      ];
+
+      return recordArray.update();
+    }).then(recordArray => {
+      assert.deepEqual(recordArray.getEach('name'), ['Scumbag Dale', 'Scumbag Penner']);
+    });
+  });
 });
 
 test('when an adapter populated record gets updated the array contents are also updated', function(assert) {

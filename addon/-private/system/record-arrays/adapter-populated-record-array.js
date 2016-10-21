@@ -69,15 +69,15 @@ export default RecordArray.extend({
   },
 
   /**
-    @method loadRecords
+    @method _setInternalModels
     @param {Array} internalModels
     @param {Object} payload normalized payload
     @private
   */
-  loadRecords(internalModels, payload) {
-    let token = heimdall.start('AdapterPopulatedRecordArray.loadRecords');
+  _setInternalModels(internalModels, payload) {
+    let token = heimdall.start('AdapterPopulatedRecordArray._setInternalModels');
 
-      // TODO: initial load should not cause change events at all, only
+    // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
     this.get('content').setObjects(internalModels);
@@ -89,9 +89,7 @@ export default RecordArray.extend({
       links: cloneNull(payload.links)
     });
 
-    internalModels.forEach(record => {
-      this.manager.recordArraysForRecord(record).add(this);
-    });
+    internalModels.forEach(record => this.manager.recordArraysForRecord(record).add(this));
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');

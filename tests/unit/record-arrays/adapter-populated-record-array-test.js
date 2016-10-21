@@ -8,18 +8,18 @@ const { AdapterPopulatedRecordArray } = DS;
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray');
 
-function recordFor(record) {
+function internalModelFor(record) {
   let _internalModel = {
+    get id() {
+      return record.id;
+    },
     getRecord() {
-      record._internalModel = _internalModel
       return record;
     }
-  }
-
-  return {
-    id: record.id,
-    _internalModel
   };
+
+  record._internalModel = _internalModel
+  return _internalModel;
 }
 
 test('default initial state', function(assert) {
@@ -102,7 +102,7 @@ test('#update uses _update enabling query specific behavior', function(assert) {
 });
 
 // TODO: is this method required, i suspect store._query should be refactor so this is not needed
-test('#loadRecords', function(assert) {
+test('#_setInternalModels', function(assert) {
   let didAddRecord = 0;
   const manager = {
     recordArraysForRecord(record) {
@@ -120,8 +120,8 @@ test('#loadRecords', function(assert) {
     manager
   });
 
-  let model1 = recordFor({ id: 1 });
-  let model2 = recordFor({ id: 2 });
+  let model1 = internalModelFor({ id: 1 });
+  let model2 = internalModelFor({ id: 2 });
 
   assert.equal(didAddRecord, 0, 'no records should have been added yet');
 
@@ -130,21 +130,21 @@ test('#loadRecords', function(assert) {
     didLoad++;
   });
 
-  let links = { foo:1 };
-  let meta = { bar:2 };
+  let links = { foo: 1 };
+  let meta = { bar: 2 };
 
   run(() => {
-    assert.equal(recordArray.loadRecords([model1._internalModel, model2._internalModel], {
+    assert.equal(recordArray._setInternalModels([model1, model2], {
       links,
       meta
-    }), undefined, 'loadRecords should have no return value');
+    }), undefined, '_setInternalModels should have no return value');
 
-    assert.equal(didAddRecord, 2, 'two records should have been adde');
+    assert.equal(didAddRecord, 2, 'two records should have been added');
 
     assert.deepEqual(recordArray.toArray(), [
       model1,
       model2
-    ], 'should now contain the loaded records');
+    ].map(x => x.getRecord()), 'should now contain the loaded records');
 
     assert.equal(didLoad, 0, 'didLoad event should not have fired');
     assert.equal(recordArray.get('links').foo, 1);
@@ -166,8 +166,11 @@ test('change events when receiving a new query payload', function(assert) {
         add(array) {
           didAddRecord++;
           assert.equal(array, recordArray);
+        },
+        delete(array) {
+          assert.equal(array, recordArray);
         }
-      }
+      };
     }
   };
 
@@ -177,9 +180,9 @@ test('change events when receiving a new query payload', function(assert) {
   });
 
   run(() => {
-    recordArray.loadRecords([
-      recordFor({ id: '1', name: 'Scumbag Dale' }),
-      recordFor({ id: '2', name: 'Scumbag Katz' })
+    recordArray._setInternalModels([
+      internalModelFor({ id: '1', name: 'Scumbag Dale' }),
+      internalModelFor({ id: '2', name: 'Scumbag Katz' })
     ], {});
   });
 
@@ -215,9 +218,9 @@ test('change events when receiving a new query payload', function(assert) {
 
   run(() => {
     // re-query
-    recordArray.loadRecords([
-      recordFor({ id: '3', name: 'Scumbag Penner' }),
-      recordFor({ id: '4', name: 'Scumbag Hamilton' })
+    recordArray._setInternalModels([
+      internalModelFor({ id: '3', name: 'Scumbag Penner' }),
+      internalModelFor({ id: '4', name: 'Scumbag Hamilton' })
     ], {});
   });
 
@@ -252,12 +255,12 @@ test('change events when receiving a new query payload', function(assert) {
   assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
   run(() => {
-    recordArray.loadRecords([
-      recordFor({ id: '3', name: 'Scumbag Penner' })
+    recordArray._setInternalModels([
+      internalModelFor({ id: '3', name: 'Scumbag Penner' })
     ], {});
   });
 
-  assert.equal(didAddRecord, 1, 'expected 1 didAddRecord');
+  assert.equal(didAddRecord, 1, 'expected 0 didAddRecord');
 
   assert.equal(recordArray.get('isLoaded'), true, 'should be considered loaded');
   assert.equal(recordArray.get('isUpdating'), false, 'should not longer be updating');
