@@ -47,6 +47,9 @@ const { get } = Ember;
 */
 export default RecordArray.extend({
   init() {
+    // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
+    this.set('content', this.get('content') || Ember.A());
+
     this._super(...arguments);
     this.query = this.query || null;
     this.links = null;
@@ -73,14 +76,18 @@ export default RecordArray.extend({
   */
   loadRecords(internalModels, payload) {
     let token = heimdall.start('AdapterPopulatedRecordArray.loadRecords');
+
+      // TODO: initial load should not cause change events at all, only
+    // subsequent. This requires changing the public api of adapter.query, but
+    // hopefully we can do that soon.
+    this.get('content').setObjects(internalModels);
+
     this.setProperties({
-      content: Ember.A(internalModels),
       isLoaded: true,
       isUpdating: false,
-      meta: cloneNull(payload.meta)
+      meta: cloneNull(payload.meta),
+      links: cloneNull(payload.links)
     });
-
-    this.set('links', cloneNull(payload.links));
 
     internalModels.forEach(record => {
       this.manager.recordArraysForRecord(record).add(this);
