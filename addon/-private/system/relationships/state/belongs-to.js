@@ -60,8 +60,10 @@ BelongsToRelationship.prototype.flushCanonical = function() {
   if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
     return;
   }
-  this.inverseRecord = this.canonicalState;
-  this.record.notifyBelongsToChanged(this.key);
+  if (this.inverseRecord !== this.canonicalState) {
+    this.inverseRecord = this.canonicalState;
+    this.record.notifyBelongsToChanged(this.key);
+  }
   this._super$flushCanonical();
 };
 
