@@ -6,8 +6,7 @@ import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
 import { _objectIsAlive } from "ember-data/-private/system/store/common";
 
-var get = Ember.get;
-var set = Ember.set;
+const { get, set } = Ember;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -74,27 +73,31 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   flushCanonical() {
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (!_objectIsAlive(this)) {
+      return;
+    }
     //TODO make this smarter, currently its plenty stupid
-    var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
+    let toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    var newRecords = this.currentState.filter(
+    const newRecords = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    var oldLength = this.length;
-    var newLength = toSet.length;
+    const oldLength = this.length;
+    const newLength = toSet.length;
 
-    var shortestLength = Math.min(oldLength, newLength);
+    const shortestLength = Math.min(oldLength, newLength);
 
-    var firstChangeIndex = -1; // -1 signifies no changes
+    let firstChangeIndex = -1; // -1 signifies no changes
     // find the first change
-    var currentArray = this.currentState;
-    for (var i=0; i<shortestLength; i++) {
+    const currentArray = this.currentState;
+    for (let i=0; i<shortestLength; i++) {
       // compare each item in the array
       if (currentArray[i] !== toSet[i]) {
         firstChangeIndex = i;
@@ -109,13 +112,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     if (firstChangeIndex !== -1) {
       // we found a change
-      var added = newLength - firstChangeIndex;
-      var removed = oldLength - firstChangeIndex;
+      const added = newLength - firstChangeIndex;
+      const removed = oldLength - firstChangeIndex;
       this.arrayContentWillChange(firstChangeIndex, added, removed);
-      // It’s possible the parent side of the relationship may have been unloaded by this point
-      if (_objectIsAlive(this)) {
-        this.set('length', toSet.length);
-      }
+      set(this, 'length', toSet.length);
       this.currentState = toSet;
       this.arrayContentDidChange(firstChangeIndex, added, removed);
       this.relationship.notifyHasManyChanged();
@@ -191,7 +191,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     this.arrayContentWillChange(idx, amt, objects.length);
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
-    this.set('length', this.currentState.length);
+    set(this, 'length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
     if (objects) {
       //TODO(Igor) probably needed only for unloaded records
@@ -202,8 +202,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   //TODO(Igor) optimize
   internalRemoveRecords(records) {
-    var index;
-    for (var i=0; i < records.length; i++) {
+    let index;
+    for (let i=0; i < records.length; i++) {
       index = this.currentState.indexOf(records[i]);
       this.internalReplace(index, 1);
     }
@@ -218,13 +218,12 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   replace(idx, amt, objects) {
-    var records;
     if (amt > 0) {
-      records = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeRecords(records);
+      let records = this.currentState.slice(idx, idx+amt);
+      get(this, 'relationship').removeRecords(records);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
+      get(this, 'relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
     }
   },
   /**
@@ -285,9 +284,9 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    var manyArray = this;
-    var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
-    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
+    const manyArray = this;
+    const promiseLabel = `DS: ManyArray#save ${get(this, 'type')}`;
+    const promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
       return manyArray;
     }, null, "DS: ManyArray#save return ManyArray");
 
@@ -303,12 +302,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    var store = get(this, 'store');
-    var type = get(this, 'type');
-    var record;
+    const store = get(this, 'store');
+    const type = get(this, 'type');
 
-    assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
-    record = store.createRecord(type.modelName, hash);
+    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
+    let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;

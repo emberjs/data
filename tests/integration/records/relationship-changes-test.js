@@ -5,16 +5,43 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store;
-const attr = DS.attr;
-const hasMany = DS.hasMany;
-const run = Ember.run;
+let env, store;
+const { attr, hasMany } = DS;
+const { run } = Ember;
 
 const Person = DS.Model.extend({
   firstName: attr('string'),
   lastName: attr('string'),
   siblings: hasMany('person')
 });
+
+const sibling1 = {
+  type: 'person',
+  id: '1',
+  attributes: {
+    firstName: 'Dogzn',
+    lastName: 'Katz'
+  }
+};
+
+const sibling1Ref = {
+  type: 'person',
+  id: '1'
+};
+
+const sibling2 = {
+  type: 'person',
+  id: '2',
+  attributes: {
+    firstName: 'Katzn',
+    lastName: 'Dogz'
+  }
+};
+
+const sibling2Ref = {
+  type: 'person',
+  id: '2'
+};
 
 module('integration/records/relationship-changes - Relationship changes', {
   beforeEach() {
@@ -68,19 +95,12 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}]
+            data: [sibling1Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Katzn',
-            lastName: 'Dogz'
-          }
-        }
+        sibling1
       ]
     });
   });
@@ -106,27 +126,12 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}]
+            data: [sibling1Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Dogzn',
-            lastName: 'Katz'
-          }
-        },
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            firstName: 'Katzn',
-            lastName: 'Dogz'
-          }
-        }
+        sibling1
       ]
     });
     person = store.peekRecord('person', 'wat');
@@ -145,19 +150,12 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}, {id: '2', type: 'person'}]
+            data: [sibling1Ref, sibling2Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            firstName: 'Katzn',
-            lastName: 'Dogz'
-          }
-        }
+        sibling2
       ]
     });
   });
@@ -183,19 +181,12 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}]
+            data: [sibling1Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Dogzn',
-            lastName: 'Katz'
-          }
-        }
+        sibling1
       ]
     });
     person = store.peekRecord('person', 'wat');
@@ -243,27 +234,13 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}, {id: '2', type: 'person'}]
+            data: [sibling1Ref, sibling2Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Dogzn',
-            lastName: 'Katz'
-          }
-        },
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            firstName: 'Katzn',
-            lastName: 'Dogz'
-          }
-        }
+        sibling1,
+        sibling2
       ]
 
     });
@@ -283,7 +260,7 @@ test('Calling push with relationship triggers observers once if the relationship
         },
         relationships: {
           siblings: {
-            data: [{id: '2', type: 'person'}, {id: '1', type: 'person'}]
+            data: [sibling2Ref, sibling1Ref]
           }
         }
       },
@@ -312,19 +289,12 @@ test('Calling push with relationship does not trigger observers if the relations
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}]
+            data: [sibling1Ref]
           }
         }
       },
       included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            firstName: 'Dogzn',
-            lastName: 'Katz'
-          }
-        }
+        sibling1
       ]
 
     });
@@ -344,7 +314,7 @@ test('Calling push with relationship does not trigger observers if the relations
         },
         relationships: {
           siblings: {
-            data: [{id: '1', type: 'person'}]
+            data: [sibling1Ref]
           }
         }
       },
@@ -354,5 +324,77 @@ test('Calling push with relationship does not trigger observers if the relations
 
   run(function() {
     assert.equal(observerCount, 0, 'siblings observer should not be triggered');
+  });
+});
+
+test('Calling push with relationship triggers willChange and didChange with detail when appending', function(assert) {
+  assert.expect(1);
+  let person = null;
+  let willChangeCount = 0;
+  let didChangeCount = 0;
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref]
+          }
+        }
+      },
+      included: [
+        sibling1
+      ]
+
+    });
+    person = store.peekRecord('person', 'wat');
+  });
+
+  person.get('siblings')
+  .then(siblings => {
+    siblings.addEnumerableObserver(this, {
+      willChange: function(array, start, removing, adding) {
+        willChangeCount++;
+        assert.equal(start, 1);
+        assert.equal(removing, 0);
+        assert.equal(adding, 1);
+      },
+      didChange:function(array, start, removed, added) {
+        didChangeCount++;
+        assert.equal(start, 1);
+        assert.equal(removed, 0);
+        assert.equal(added, 1);
+      }
+    });
+  });
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref]
+          }
+        }
+      },
+      included: [
+        sibling2
+      ]
+    });
+  });
+
+  run(function() {
+    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
   });
 });
