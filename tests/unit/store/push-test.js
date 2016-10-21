@@ -715,6 +715,50 @@ if (isEnabled('ds-pushpayload-return')) {
   });
 }
 
+test("_push returns an instance of InternalModel if an object is pushed", function(assert) {
+  let pushResult;
+
+  run(function() {
+    pushResult = store._push({
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    });
+  });
+
+  assert.ok(pushResult instanceof DS.InternalModel);
+});
+
+test("_push returns an array of InternalModels if an array is pushed", function(assert) {
+  let pushResult;
+
+  run(function() {
+    pushResult = store._push({
+      data: [{
+        id: 1,
+        type: 'person'
+      }]
+    });
+  });
+
+  assert.ok(pushResult instanceof Array);
+  assert.ok(pushResult[0] instanceof DS.InternalModel);
+});
+
+
+test("_push returns null if no data is pushed", function(assert) {
+  let pushResult;
+
+  run(function() {
+    pushResult = store._push({
+      data: null
+    });
+  });
+
+  assert.strictEqual(pushResult, null);
+});
+
 module("unit/store/push - DS.Store#push with JSON-API", {
   beforeEach() {
     var Person = DS.Model.extend({

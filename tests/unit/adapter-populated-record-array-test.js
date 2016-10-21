@@ -53,7 +53,7 @@ test("when a record is deleted in an adapter populated record array, it should b
   };
 
   run(function() {
-    var records = store.push(payload);
+    var records = store._push(payload);
     recordArray.loadRecords(records, payload);
   });
 
@@ -95,7 +95,7 @@ test("stores the metadata off the payload", function(assert) {
   };
 
   run(function() {
-    var records = store.push(payload);
+    var records = store._push(payload);
     recordArray.loadRecords(records, payload);
   });
 
@@ -131,8 +131,8 @@ test('stores the links off the payload', function(assert) {
   };
 
   run(function() {
-    var records = store.push(payload);
-    recordArray.loadRecords(records, payload);
+    var internalModels = store._push(payload);
+    recordArray.loadRecords(internalModels, payload);
   });
 
   assert.equal(recordArray.get('links.first'), '/foo?page=1', 'expected links.first to be "/foo?page=1" from payload');

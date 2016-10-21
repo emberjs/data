@@ -43,9 +43,8 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
         id: 'ds.store.findRecord.id-mismatch'
       });
 
-      //TODO Optimize
-      var record = store.push(payload);
-      return record._internalModel;
+      var internalModel = store._push(payload);
+      return internalModel;
     });
   }, function(error) {
     internalModel.notFound();
@@ -75,14 +74,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
     assert("You made a `findMany` request for " + typeClass.modelName + " records with ids " + ids + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
-      //TODO Optimize, no need to materialize here
-      let records = store.push(payload);
-      let internalModels = new Array(records.length);
-
-      for (let i = 0; i < records.length; i++) {
-        internalModels[i] = records[i]._internalModel;
-      }
-
+      let internalModels = store._push(payload);
       return internalModels;
     });
   }, null, "DS: Extract payload of " + typeClass);
@@ -131,9 +123,8 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      //TODO Optimize
-      var record = store.push(payload);
-      return record._internalModel;
+      var internalModel = store._push(payload);
+      return internalModel;
     });
   }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
 }
@@ -153,8 +144,7 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
     assert("You made a `findAll` request for " + typeClass.modelName + " records, but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findAll');
-      //TODO Optimize
-      store.push(payload);
+      store._push(payload);
     });
 
     store.didUpdateAll(typeClass);
@@ -173,15 +163,14 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    var records, payload;
+    var internalModels, payload;
     store._adapterRun(function() {
       payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'query');
-      //TODO Optimize
-      records = store.push(payload);
+      internalModels = store._push(payload);
     });
 
-    assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(records));
-    recordArray.loadRecords(records, payload);
+    assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(internalModels));
+    recordArray.loadRecords(internalModels, payload);
 
     return recordArray;
   }, null, "DS: Extract payload of query " + typeClass);
@@ -197,7 +186,7 @@ export function _queryRecord(adapter, store, typeClass, query) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    var record;
+    var internalModel;
     store._adapterRun(function() {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'queryRecord');
 
@@ -205,11 +194,10 @@ export function _queryRecord(adapter, store, typeClass, query) {
         id: 'ds.store.queryRecord-array-response'
       });
 
-      //TODO Optimize
-      record = store.push(payload);
+      internalModel = store._push(payload);
     });
 
-    return record;
+    return internalModel;
 
   }, null, "DS: Extract payload of queryRecord " + typeClass);
 }

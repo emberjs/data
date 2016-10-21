@@ -1280,7 +1280,15 @@ Store = Service.extend({
     assert("You tried to make a query but you have no adapter (for " + typeClass + ")", adapter);
     assert("You tried to make a query but your adapter does not implement `queryRecord`", typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, typeClass, query));
+    return promiseObject(_queryRecord(adapter, this, typeClass, query).then((internalModel) => {
+      // the promise returned by store.queryRecord is expected to resolve with
+      // an instance of DS.Model
+      if (internalModel) {
+        return internalModel.getRecord();
+      }
+
+      return null;
+    }));
   },
 
   /**
@@ -2179,6 +2187,37 @@ Store = Service.extend({
   */
   push(data) {
     let token = heimdall.start('store.push');
+    let pushed = this._push(data);
+
+    if (Array.isArray(pushed)) {
+      let records = pushed.map(function(internalModel) {
+        return internalModel.getRecord();
+      });
+      heimdall.stop(token);
+      return records;
+    }
+
+    if (pushed === null) {
+      heimdall.stop(token);
+      return null;
+    }
+
+    var record = pushed.getRecord();
+    heimdall.stop(token);
+    return record;
+  },
+
+  /*
+    Push some data into the store, without creating materialized records.
+
+    @method _push
+    @private
+    @param {Object} data
+    @return {DS.InternalModel|Array<DS.InternalModel>} pushed InternalModel(s)
+  */
+  _push(data) {
+    let token = heimdall.start('store._push');
+
     var included = data.included;
     var i, length;
     if (included) {
@@ -2191,7 +2230,7 @@ Store = Service.extend({
       length = data.data.length;
       var internalModels = new Array(length);
       for (i = 0; i < length; i++) {
-        internalModels[i] = this._pushInternalModel(data.data[i]).getRecord();
+        internalModels[i] = this._pushInternalModel(data.data[i]);
       }
       heimdall.stop(token);
       return internalModels;
@@ -2205,10 +2244,8 @@ Store = Service.extend({
     assert(`Expected an object in the 'data' property in a call to 'push' for ${data.type}, but was ${Ember.typeOf(data.data)}`, Ember.typeOf(data.data) === 'object');
 
     var internalModel = this._pushInternalModel(data.data);
-
-    var record = internalModel.getRecord();
     heimdall.stop(token);
-    return record;
+    return internalModel;
   },
 
   _hasModelFor(type) {
