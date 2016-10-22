@@ -71,7 +71,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     if (!this.currentState[index]) {
       return undefined;
     }
-    return this.currentState[index].getRecord();
+
+    return this.currentState[index].record;
   },
 
   flushCanonical() {

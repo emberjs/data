@@ -130,6 +130,7 @@ ManyRelationship.prototype.reload = function() {
     this._loadingPromise = promiseManyArray(this.fetchLink(), 'Reload with link');
     return this._loadingPromise;
   } else {
+    // TODO @runspired don't materialize as the scheduleFetch just needs internalModels
     this._loadingPromise = promiseManyArray(this.store.scheduleFetchMany(manyArray.toArray()).then(() => {
       return manyArray;
     }), 'Reload with ids');

@@ -66,8 +66,8 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
 BelongsToReference.prototype.value = function() {
   var inverseRecord = this.belongsToRelationship.inverseRecord;
 
-  if (inverseRecord && inverseRecord.isLoaded()) {
-    return inverseRecord.getRecord();
+  if (inverseRecord && inverseRecord.hasRecord) {
+    return inverseRecord._record;
   }
 
   return null;

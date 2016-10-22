@@ -143,7 +143,7 @@ BelongsToRelationship.prototype.getRecord = function() {
       return null;
     }
     var toReturn = this.inverseRecord.getRecord();
-    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
     return toReturn;
   }
 };
@@ -156,8 +156,8 @@ BelongsToRelationship.prototype.reload = function() {
   }
 
   // reload record, if it is already loaded
-  if (this.inverseRecord && this.inverseRecord.record) {
-    return this.inverseRecord.record.reload();
+  if (this.inverseRecord && this.inverseRecord._record) {
+    return this.inverseRecord._record.reload();
   }
 
   return this.findRecord();
