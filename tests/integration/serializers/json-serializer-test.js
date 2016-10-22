@@ -68,6 +68,66 @@ test("serialize includes id when includeId is true", function(assert) {
   });
 });
 
+if (isEnabled("ds-serialize-id")) {
+  test("serializeId", function(assert) {
+    run(function() {
+      post = env.store.createRecord('post');
+      post.set('id', 'test');
+    });
+    var json = {};
+
+    env.serializer.serializeId(post._createSnapshot(), json, 'id');
+
+    assert.deepEqual(json, {
+      id: 'test'
+    });
+  });
+
+  test("modified serializeId is called from serialize", function(assert) {
+    env.registry.register('serializer:post', DS.JSONSerializer.extend({
+      serializeId(snapshot, json, primaryKey) {
+        var id = snapshot.id;
+        json[primaryKey] = id.toUpperCase();
+      }
+    }));
+
+    run(function() {
+      post = env.store.createRecord('post', { title: 'Rails is omakase' });
+      post.set('id', 'test');
+    });
+    var json = {};
+
+    json = env.store.serializerFor("post").serialize(post._createSnapshot(), { includeId: true });
+
+    assert.deepEqual(json, {
+      id: 'TEST',
+      title: 'Rails is omakase',
+      comments: []
+    });
+  });
+
+  test("serializeId respects `primaryKey` serializer property", function(assert) {
+    env.registry.register('serializer:post', DS.JSONSerializer.extend({
+      primaryKey: '_ID_'
+    }));
+
+    run(function() {
+      post = env.store.createRecord('post', {  title: 'Rails is omakase' });
+      post.set('id', 'test');
+    });
+    var json = {};
+
+    json = env.store.serializerFor("post").serialize(post._createSnapshot(), { includeId: true });
+
+    assert.deepEqual(json, {
+      _ID_: 'test',
+      title: 'Rails is omakase',
+      comments: []
+    });
+  });
+
+}
+
 test("serializeAttribute", function(assert) {
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
