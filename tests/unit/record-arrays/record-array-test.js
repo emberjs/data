@@ -137,43 +137,59 @@ test('#update while updating', function(assert) {
   });
 });
 
-test('#addInternalMdoel', function(assert) {
+test('#_pushInternalModels', function(assert) {
   let content = Ember.A();
   let recordArray = RecordArray.create({
     content
   });
 
-  let model1 = { getRecord() { return 'model-1'; } };
+  let model1 = { id: 1, getRecord() { return 'model-1'; } };
+  let model2 = { id: 2, getRecord() { return 'model-2'; } };
+  let model3 = { id: 3, getRecord() { return 'model-3'; } };
 
-  assert.equal(recordArray.addInternalModel(model1), undefined, 'addInternalModel has no return value');
-  assert.deepEqual(content, [model1]);
+  assert.equal(recordArray._pushInternalModels([model1]), undefined, '_pushInternalModels has no return value');
+  assert.deepEqual(content, [model1], 'now contains model1');
 
-  // cannot add duplicates
-  recordArray.addInternalModel(model1);
-  assert.deepEqual(content, [model1]);
+  recordArray._pushInternalModels([model1]);
+  assert.deepEqual(content, [model1, model1], 'allows duplicates, because record-array-manager via internalModel._recordArrays ensures no duplicates, this layer should not double check');
+
+  recordArray._removeInternalModels([model1]);
+  recordArray._pushInternalModels([model1]);
+
+  // can add multiple models at once
+  recordArray._pushInternalModels([model2, model3]);
+  assert.deepEqual(content, [model1, model2, model3], 'now contains model1, model2, model3');
 });
 
-test('#removeInternalModel', function(assert) {
+test('#_removeInternalModels', function(assert) {
   let content = Ember.A();
   let recordArray = RecordArray.create({
     content
   });
 
-  let model1 = { getRecord() { return 'model-1'; } };
-  let model2 = { getRecord() { return 'model-2'; } };
+  let model1 = { id: 1, getRecord() { return 'model-1'; } };
+  let model2 = { id: 2, getRecord() { return 'model-2'; } };
+  let model3 = { id: 3, getRecord() { return 'model-3'; } };
 
   assert.equal(content.length, 0);
-  assert.equal(recordArray.removeInternalModel(model1), undefined, 'removeInternalModel has no return value');
-  assert.deepEqual(content, []);
+  assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
+  assert.deepEqual(content, [], 'now contains no models');
 
-  recordArray.addInternalModel(model1);
-  recordArray.addInternalModel(model2);
+  recordArray._pushInternalModels([model1, model2]);
 
-  assert.deepEqual(content, [model1, model2]);
-  assert.equal(recordArray.removeInternalModel(model1), undefined, 'removeInternalModel has no return value');
-  assert.deepEqual(content, [model2]);
-  assert.equal(recordArray.removeInternalModel(model2), undefined, 'removeInternalModel has no return value');
-  assert.deepEqual(content, []);
+  assert.deepEqual(content, [model1, model2], 'now contains model1, model2,');
+  assert.equal(recordArray._removeInternalModels([model1]), undefined, '_removeInternalModels has no return value');
+  assert.deepEqual(content, [model2], 'now only contains model2');
+  assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
+  assert.deepEqual(content, [], 'now contains no models');
+
+  recordArray._pushInternalModels([model1, model2, model3])
+
+  assert.equal(recordArray._removeInternalModels([model1, model3]), undefined, '_removeInternalModels has no return value');
+
+  assert.deepEqual(content, [model2], 'now contains model2');
+  assert.equal(recordArray._removeInternalModels([model2]), undefined, '_removeInternalModels has no return value');
+  assert.deepEqual(content, [], 'now contains no models');
 });
 
 function internalModelFor(record) {

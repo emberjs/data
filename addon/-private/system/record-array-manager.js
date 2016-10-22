@@ -123,7 +123,7 @@ export default Ember.Object.extend({
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach(array => array.removeInternalModel(record));
+    recordArrays.forEach(array => array._removeInternalModels([record]));
 
     record._recordArrays = null;
   },
@@ -174,7 +174,7 @@ export default Ember.Object.extend({
       this._addRecordToRecordArray(array, record);
     } else {
       recordArrays.delete(array);
-      array.removeInternalModel(record);
+      array._removeInternalModels([record]);
     }
   },
 
@@ -182,7 +182,7 @@ export default Ember.Object.extend({
     heimdall.increment(_addRecordToRecordArray);
     let recordArrays = this.recordArraysForRecord(record);
     if (!recordArrays.has(array)) {
-      array.addInternalModel(record);
+      array._pushInternalModels([record]);
       recordArrays.add(array);
     }
   },

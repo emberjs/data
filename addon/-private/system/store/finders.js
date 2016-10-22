@@ -153,27 +153,27 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
 }
 
 export function _query(adapter, store, typeClass, query, recordArray) {
-  var modelName = typeClass.modelName;
-  var promise = adapter.query(store, typeClass, query, recordArray);
+  let modelName = typeClass.modelName;
+  let promise = adapter.query(store, typeClass, query, recordArray);
 
-  var serializer = serializerForAdapter(store, adapter, modelName);
-  var label = "DS: Handle Adapter#query of " + typeClass;
+  let serializer = serializerForAdapter(store, adapter, modelName);
+  let label = 'DS: Handle Adapter#query of ' + typeClass;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
-  return promise.then(function(adapterPayload) {
-    var internalModels, payload;
-    store._adapterRun(function() {
+  return promise.then(adapterPayload => {
+    let internalModels, payload;
+    store._adapterRun(() => {
       payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'query');
       internalModels = store._push(payload);
     });
 
     assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(internalModels));
-    recordArray.loadRecords(internalModels, payload);
+    recordArray._setInternalModels(internalModels, payload);
 
     return recordArray;
-  }, null, "DS: Extract payload of query " + typeClass);
+  }, null, 'DS: Extract payload of query ' + typeClass);
 }
 
 export function _queryRecord(adapter, store, typeClass, query) {

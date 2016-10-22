@@ -158,8 +158,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
     @param {InternalModel} internalModel
   */
-  addInternalModel(internalModel) {
-    get(this, 'content').addObject(internalModel);
+  _pushInternalModels(internalModels) {
+    // pushObjects because the internalModels._recordArrays set was already
+    // consulted for inclusion, so addObject and its on .contains call is not
+    // required.
+    get(this, 'content').pushObjects(internalModels);
   },
 
   /**
@@ -169,8 +172,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
     @param {InternalModel} internalModel
   */
-  removeInternalModel(internalModel) {
-    get(this, 'content').removeObject(internalModel);
+  _removeInternalModels(internalModels) {
+    get(this, 'content').removeObjects(internalModels);
   },
 
   /**
