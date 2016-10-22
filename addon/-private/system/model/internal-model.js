@@ -709,11 +709,11 @@ export default class InternalModel {
     Preloaded data can be attributes and relationships passed in either as IDs or as actual
     models.
 
-    @method _preloadData
+    @method preloadData
     @private
     @param {Object} preload
   */
-  _preloadData(preload) {
+  preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
       let preloadValue = get(preload, key);
