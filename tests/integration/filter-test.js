@@ -304,11 +304,11 @@ test('a Record Array can update its filter and notify array observers', function
     ];
   });
 
-  store.filter('person', hash => {
+  return store.filter('person', hash => {
     if (hash.get('name').match(/Scumbag [KD]/)) {
       return true;
     }
-  }).then(assert.wait(recordArray => {
+  }).then(recordArray => {
 
     let didChangeIdx;
     let didChangeRemoved = 0;
@@ -381,7 +381,7 @@ test('a Record Array can update its filter and notify array observers', function
       assert.equal(recordArray.objectAt(didChangeIdx).get('name'), 'Scumbag Demon');
       assert.equal(recordArray.objectAt(didChangeIdx-1).get('name'), 'Scumbag Dale');
     });
-  }));
+  });
 });
 
 test('it is possible to filter by computed properties', function(assert) {
@@ -440,7 +440,10 @@ test('a filter created after a record is already loaded works', function(assert)
   });
 
   assert.equal(filter.get('length'), 1, 'the filter now has a record in it');
-  assert.asyncEqual(filter.objectAt(0), store.findRecord('person', 1));
+
+  return store.findRecord('person', 1).then(person => {
+    assert.equal(filter.objectAt(0), person);
+  });
 });
 
 test('filter with query persists query on the resulting filteredRecordArray', function(assert) {
@@ -494,7 +497,7 @@ test('it is possible to filter by state flags', function(assert) {
 
   return person.then(person => {
     assert.equal(filter.get('length'), 1, 'the now-loaded record is in the filter');
-    assert.asyncEqual(filter.objectAt(0), store.findRecord('person', 1));
+    assert.equal(filter.objectAt(0), person);
   });
 });
 
@@ -586,9 +589,9 @@ test('it is possible to filter created records by isReloading', function(assert)
     name: 'Tom Dale'
   });
 
-  return person.reload().then(assert.wait(person => {
+  return person.reload().then(person => {
     assert.equal(filter.get('length'), 1, 'the filter correctly returned a reloaded object');
-  }));
+  });
 });
 
 // SERVER SIDE TESTS
