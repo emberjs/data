@@ -111,9 +111,18 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       }
     }
     if (firstChangeIndex !== -1) {
-      // we found a change
-      const added = newLength - firstChangeIndex;
-      const removed = oldLength - firstChangeIndex;
+      // we found a change, find the end of the change
+      let unchangedEndBlockLength = 0;
+      // walk back from the end of both arrays until we find a change
+      for (let i=1; i<shortestLength; i++) {
+        // compare each item in the array
+        if (currentArray[oldLength-i] !== toSet[newLength-i]) {
+          unchangedEndBlockLength = i-1;
+          break;
+        }
+      }
+      const added = newLength - unchangedEndBlockLength - firstChangeIndex;
+      const removed = oldLength - unchangedEndBlockLength - firstChangeIndex;
       this.arrayContentWillChange(firstChangeIndex, added, removed);
       set(this, 'length', toSet.length);
       this.currentState = toSet;
