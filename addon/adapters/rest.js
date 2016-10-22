@@ -1136,8 +1136,12 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {String} detailed error message
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
-    var shortenedPayload;
-    var payloadContentType = headers["Content-Type"] || "Empty Content-Type";
+    var shortenedPayload, payloadContentType;
+    if (isEnabled('ds-headers-api')) {
+      payloadContentType = headers.get("Content-Type") || "Empty Content-Type";
+    } else {
+      payloadContentType = headers["Content-Type"] || "Empty Content-Type";
+    }
 
     if (payloadContentType === "text/html" && payload.length > 250) {
       shortenedPayload = "[Omitted Lengthy HTML]";

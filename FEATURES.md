@@ -130,3 +130,22 @@ entry in `config/features.json`.
     tom.resetAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
     tom.get('hasDirtyAttributes')   // false
   ```
+
+
+- `ds-response-headers-api`
+
+The headers object passed by Ember Data into the `handleResponse` not
+is not an object with the same API as the `Headers` object from the
+`fetch` API. See
+https://developer.mozilla.org/en-US/docs/Web/API/Headers for the full
+API. The main advantage of using this Headers API over the previous
+headers object is it allows for case insensitive access of header
+values.
+
+  ```js
+  DS.RESTAdapter.extend({
+    isInvalid(status, headers, payload) {
+      return headers.get('Validation-Status') === 'error';
+    }
+  });
+  ```

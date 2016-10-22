@@ -1,16 +1,26 @@
-import EmptyObject from 'ember-data/-private/system/empty-object';
+import HeadersPolyfill from 'ember-data/-private/utils/headers';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
+import isEnabled from 'ember-data/-private/features';
+import EmptyObject from "ember-data/-private/system/empty-object";
 import { module, test } from 'qunit';
 
 const CRLF = '\u000d\u000a';
 
 module('unit/adapters/parse-response-headers');
 
-test('returns an EmptyObject when headersString is undefined', function(assert) {
-  let headers = parseResponseHeaders(undefined);
+if (isEnabled('ds-headers-api')) {
+  test('returns a HeadersPolyfill when headersString is undefined', function(assert) {
+    let headers = parseResponseHeaders(undefined);
 
-  assert.deepEqual(headers, new EmptyObject(), 'EmptyObject is returned');
-});
+    assert.deepEqual(headers, new HeadersPolyfill(), 'HeadersPolyfill is returned');
+  });
+} else {
+  test('returns a HeadersPolyfill when headersString is undefined', function(assert) {
+    let headers = parseResponseHeaders(undefined);
+
+    assert.deepEqual(headers, new EmptyObject(), 'HeadersPolyfill is returned');
+  });
+}
 
 test('header parsing', function(assert) {
   let headersString = [
@@ -54,14 +64,42 @@ test('field-value parsing', function(assert) {
   assert.equal(headers['value-with-trailing-whitespace'], 'banana', 'strips trailing whitespace from field-value');
 });
 
-test('ignores headers that do not contain a colon', function(assert) {
-  let headersString = [
-    'Content-Encoding: gzip',
-    'I am ignored because I do not contain a colon'
-  ].join(CRLF);
 
-  let headers = parseResponseHeaders(headersString);
+if (isEnabled('ds-headers-api')) {
+  test('ignores headers that do not contain a colon', function(assert) {
+    let headersString = [
+      'Content-Encoding: gzip',
+      'I am ignored because I do not contain a colon'
+    ].join(CRLF);
 
-  assert.deepEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
-  assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
-});
+    let headers = parseResponseHeaders(headersString);
+    assert.deepEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+    assert.equal(Object.keys(headers.headers).length, 1, 'only has the one valid header');
+  });
+} else {
+  test('ignores headers that do not contain a colon', function(assert) {
+    let headersString = [
+      'Content-Encoding: gzip',
+      'I am ignored because I do not contain a colon'
+    ].join(CRLF);
+
+    let headers = parseResponseHeaders(headersString);
+    assert.deepEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+    assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
+  });
+}
+
+
+if (isEnabled('ds-headers-api')) {
+  test('accessing headers by property name is deprecated', function(assert) {
+    let headersString = [
+      'Content-Encoding: gzip',
+    ].join(CRLF);
+
+    let headers = parseResponseHeaders(headersString);
+
+    assert.expectDeprecation(function() {
+      assert.equal(headers['Content-Encoding'], 'gzip');
+    }, /Usage of `headers['Content-Encoding']` is deprecated/);
+  });
+}
