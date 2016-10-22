@@ -286,6 +286,35 @@ test('options are passed to transform for serialization', function(assert) {
   env.store.serializerFor('user').serialize(user._createSnapshot());
 });
 
+test('a belongsTo relationship with a new record is serialized as { data: null }', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+
+    let user = store.createRecord('user');
+    handle.set('user', user);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+        relationships: {
+          user: {
+            data: null
+          }
+        }
+      }
+    });
+  });
+});
+
 testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
   assert.expectWarning(function() {
     DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();

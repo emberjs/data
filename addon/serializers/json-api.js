@@ -534,7 +534,7 @@ const JSONAPISerializer = JSONSerializer.extend({
         }
 
         let data = null;
-        if (belongsTo) {
+        if (belongsTo && !belongsTo.record.get("isNew")) {
           let payloadType;
 
           if (isEnabled("ds-payload-type-hooks")) {
