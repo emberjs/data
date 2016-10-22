@@ -658,6 +658,12 @@ Store = Service.extend({
   },
 
   _findRecord(internalModel, options) {
+    // we can reach this code path when a new record is created with a client
+    // side id and this record is requested via `#findRecord(modelName, newRecord.get('id'))
+    if (internalModel.isNew()) {
+      return Promise.resolve(internalModel);
+    }
+
     // Refetch if the reload option is passed
     if (options.reload) {
       return this.scheduleFetch(internalModel, options);
