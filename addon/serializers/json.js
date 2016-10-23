@@ -1050,10 +1050,13 @@ var JSONSerializer = Serializer.extend({
     var json = {};
 
     if (options && options.includeId) {
-      var id = snapshot.id;
-
-      if (id) {
-        json[get(this, 'primaryKey')] = id;
+      if (isEnabled('ds-serialize-id')) {
+        this.serializeId(snapshot, json, get(this, 'primaryKey'));
+      } else {
+        var id = snapshot.id;
+        if (id) {
+          json[get(this, 'primaryKey')] = id;
+        }
       }
     }
 
@@ -1533,6 +1536,43 @@ if (isEnabled("ds-payload-type-hooks")) {
 
   });
 
+}
+
+if (isEnabled("ds-serialize-id")) {
+
+  JSONSerializer.reopen({
+
+    /**
+     serializeId can be used to customize how id is serialized
+     For example, your server may expect integer datatype of id
+
+     By default the snapshot's id (String) is set on the json hash via json[primaryKey] = snapshot.id.
+
+     ```app/serializers/application.js
+     import DS from 'ember-data';
+
+     export default DS.JSONSerializer.extend({
+     serializeId(snapshot, json, primaryKey) {
+         var id = snapshot.id;
+         json[primaryKey] = parseInt(id, 10);
+       }
+     });
+     ```
+
+     @method serializeId
+     @public
+     @param {DS.Snapshot} snapshot
+     @param {Object} json
+     @param {String} primaryKey
+     */
+    serializeId(snapshot, json, primaryKey) {
+      var id = snapshot.id;
+
+      if (id) {
+        json[primaryKey] = id;
+      }
+    }
+  });
 }
 
 export default JSONSerializer;
