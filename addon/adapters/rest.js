@@ -915,12 +915,22 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
   handleResponse(status, headers, payload, requestData) {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
-    } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(payload.errors);
     }
 
-    let errors          = this.normalizeErrorResponse(status, headers, payload);
     let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
+    let errors;
+
+    if (this.isInvalid(status, headers, payload)) {
+      if (isEnabled('ds-normalize-invalid-errors')) {
+        errors = this.normalizeInvalidErrorResponse(status, headers, payload);
+      } else {
+        errors = payload.errors;
+      }
+
+      return new InvalidError(errors, detailedMessage);
+    } else {
+      errors = this.normalizeErrorResponse(status, headers, payload);
+    }
 
     if (isEnabled('ds-extended-errors')) {
       switch (status) {
@@ -1103,7 +1113,6 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   /**
     @method normalizeErrorResponse
-    @private
     @param  {Number} status
     @param  {Object} headers
     @param  {Object} payload
@@ -1494,6 +1503,21 @@ function endsWith(string, suffix) {
   } else {
     return string.endsWith(suffix);
   }
+}
+
+if (isEnabled('ds-normalize-invalid-errors')) {
+  RESTAdapter.reopen({
+    /**
+      @method normalizeInvalidErrorResponse
+      @param  {Number} status
+      @param  {Object} headers
+      @param  {Object} payload
+      @return {Array} errors payload
+    */
+    normalizeInvalidErrorResponse(status, headers, payload) {
+      return payload.errors;
+    }
+  });
 }
 
 export default RESTAdapter;

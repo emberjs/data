@@ -130,3 +130,6 @@ entry in `config/features.json`.
     tom.resetAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
     tom.get('hasDirtyAttributes')   // false
   ```
+
+- `ds-normalize-invalid-errors` [#4409](https://github.com/emberjs/data/pull/4409)
+  Adds normalizeInvalidErrorResponse hook to the adapter
