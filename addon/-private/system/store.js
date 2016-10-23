@@ -749,7 +749,7 @@ Store = Service.extend({
     var adapter = this.adapterFor(typeClass.modelName);
 
     assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
-    assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
+    assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
 
     var promise = _find(adapter, this, typeClass, id, internalModel, options);
     return promise;
@@ -2597,6 +2597,8 @@ function _commit(adapter, store, operation, snapshot) {
   var internalModel = snapshot._internalModel;
   var modelName = snapshot.modelName;
   var typeClass = store.modelFor(modelName);
+  assert(`You tried to update a record but you have no adapter (for ${typeClass})`, adapter);
+  assert(`You tried to update a record but your adapter (for ${typeClass}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
   var promise = adapter[operation](store, typeClass, snapshot);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
