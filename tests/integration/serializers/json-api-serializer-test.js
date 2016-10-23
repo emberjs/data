@@ -286,6 +286,14 @@ test('options are passed to transform for serialization', function(assert) {
   env.store.serializerFor('user').serialize(user._createSnapshot());
 });
 
+testInDebug('Warns when defining extractMeta()', function(assert) {
+  assert.expectWarning(function() {
+    DS.JSONAPISerializer.extend({
+      extractMeta() {}
+    }).create();
+  }, /You've defined 'extractMeta' in/);
+});
+
 testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
   assert.expectWarning(function() {
     DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
