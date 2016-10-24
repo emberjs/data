@@ -130,10 +130,10 @@ entry in `config/features.json`.
     tom.resetAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
     tom.get('hasDirtyAttributes')   // false
   ```
-  
+
 - `ds-serialize-id` [#4620](https://github.com/emberjs/data/pull/4620)
 
-  Adds a `serializeId` method to JSONSerializer. 
+  Adds a `serializeId` method to JSONSerializer.
 
   ```js
    // app/serializers/application.js
