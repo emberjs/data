@@ -1581,6 +1581,7 @@ Store = Service.extend({
 
   /**
    This method unloads all records in the store.
+   It schedules unloading to happen during the next run loop.
 
    Optionally you can pass a type which unload all records for a given type.
 
