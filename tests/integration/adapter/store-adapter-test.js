@@ -24,6 +24,15 @@ var set = Ember.set;
 var run = Ember.run;
 var Person, Dog, env, store, adapter;
 
+function moveRecordOutOfInFlight(record) {
+  run(function() {
+    // move record out of the inflight state so the tests can clean up
+    // correctly
+    let { store, _internalModel } = record;
+    store.recordWasError(_internalModel, new Error());
+  });
+}
+
 module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration test", {
   beforeEach() {
     Person = DS.Model.extend({
@@ -1404,7 +1413,6 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
   }));
 });
 
-
 testInDebug("There should be a friendly error for if the adapter does not implement createRecord", function(assert) {
   adapter.createRecord = null;
 
@@ -1415,9 +1423,35 @@ testInDebug("There should be a friendly error for if the adapter does not implem
       tom.save();
     });
   }, /does not implement 'createRecord'/);
-  run(function() {
-    // move record out of the inflight state so the tests can clean up
-    // correctly
-    store.recordWasError(tom._internalModel, new Error());
-  });
+
+  moveRecordOutOfInFlight(tom);
+});
+
+testInDebug("There should be a friendly error for if the adapter does not implement updateRecord", function(assert) {
+  adapter.updateRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.push({ data: { type: 'person', id: 1 } });
+      tom.save();
+    });
+  }, /does not implement 'updateRecord'/);
+
+  moveRecordOutOfInFlight(tom);
+});
+
+testInDebug("There should be a friendly error for if the adapter does not implement deleteRecord", function(assert) {
+  adapter.deleteRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.push({ data: { type: 'person', id: 1 } });
+      tom.deleteRecord();
+      tom.save();
+    });
+  }, /does not implement 'deleteRecord'/);
+
+  moveRecordOutOfInFlight(tom);
 });
