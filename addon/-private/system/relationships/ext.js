@@ -171,7 +171,7 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     });
    ```
 
-    Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
+    Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
 
     @method typeForRelationship
     @static
@@ -209,12 +209,13 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     });
     ```
 
-    App.Post.inverseFor('comments') -> { type: App.Message, name: 'owner', kind: 'belongsTo' }
-    App.Message.inverseFor('owner') -> { type: App.Post, name: 'comments', kind: 'hasMany' }
+    store.modelFor('post').inverseFor('comments', store) -> { type: App.Message, name: 'owner', kind: 'belongsTo' }
+    store.modelFor('message').inverseFor('owner', store) -> { type: App.Post, name: 'comments', kind: 'hasMany' }
 
     @method inverseFor
     @static
     @param {String} name the name of the relationship
+    @param {DS.Store} store
     @return {Object} the inverse relationship, or null
   */
   inverseFor(name, store) {
@@ -346,12 +347,14 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     ```javascript
     import Ember from 'ember';
     import Blog from 'app/models/blog';
+    import User from 'app/models/user';
+    import Post from 'app/models/post';
 
     var relationships = Ember.get(Blog, 'relationships');
-    relationships.get(App.User);
+    relationships.get(User);
     //=> [ { name: 'users', kind: 'hasMany' },
     //     { name: 'owner', kind: 'belongsTo' } ]
-    relationships.get(App.Post);
+    relationships.get(Post);
     //=> [ { name: 'posts', kind: 'hasMany' } ]
     ```
 
@@ -437,7 +440,7 @@ export const RelationshipsClassMethodsMixin = Ember.Mixin.create({
     import Blog from 'app/models/blog';
 
     var relatedTypes = Ember.get(Blog, 'relatedTypes');
-    //=> [ App.User, App.Post ]
+    //=> [ User, Post ]
     ```
 
     @property relatedTypes
