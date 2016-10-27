@@ -166,8 +166,50 @@ export const ServerError = extendedErrorsEnabled ?
   extend(AdapterError, 'The adapter operation failed due to a server error') : null;
 
 /**
+  Convert an hash of errors into an array with errors in JSON-API format.
+
+  ```javascript
+  import DS from 'ember-data';
+
+  const { errorsHashToArray } = DS;
+
+  let errors = {
+    base: "Invalid attributes on saving this record",
+    name: "Must be present",
+    age: ["Must be present", "Must be a number"]
+  };
+
+  let errorsArray = errorsHashToArray(errors);
+  // [
+  //   {
+  //     title: "Invalid Document",
+  //     detail: "Invalid attributes on saving this record",
+  //     source: { pointer: "/data" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be present",
+  //     source: { pointer: "/data/attributes/name" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be present",
+  //     source: { pointer: "/data/attributes/age" }
+  //   },
+  //   {
+  //     title: "Invalid Attribute",
+  //     detail: "Must be a number",
+  //     source: { pointer: "/data/attributes/age" }
+  //   }
+  // ]
+  ```
+
   @method errorsHashToArray
-  @private
+  @public
+  @namespace
+  @for DS
+  @param {Object} errors hash with errors as properties
+  @return {Array} array of errors in JSON-API format
 */
 export function errorsHashToArray(errors) {
   let out = [];
@@ -197,8 +239,44 @@ export function errorsHashToArray(errors) {
 }
 
 /**
+  Convert an array of errors in JSON-API format into an object.
+
+  ```javascript
+  import DS from 'ember-data';
+
+  const { errorsArrayToHash } = DS;
+
+  let errorsArray = [
+    {
+      title: "Invalid Attribute",
+      detail: "Must be present",
+      source: { pointer: "/data/attributes/name" }
+    },
+    {
+      title: "Invalid Attribute",
+      detail: "Must be present",
+      source: { pointer: "/data/attributes/age" }
+    },
+    {
+      title: "Invalid Attribute",
+      detail: "Must be a number",
+      source: { pointer: "/data/attributes/age" }
+    }
+  ];
+
+  let errors = errorsArrayToHash(errorsArray);
+  // {
+  //   "name": ["Must be present"],
+  //   "age":  ["Must be present", "must be a number"]
+  // }
+  ```
+
   @method errorsArrayToHash
-  @private
+  @public
+  @namespace
+  @for DS
+  @param {Array} errors array of errors in JSON-API format
+  @return {Object}
 */
 export function errorsArrayToHash(errors) {
   let out = {};
