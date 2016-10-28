@@ -21,8 +21,7 @@ RecordReference.prototype.remoteType = function() {
 
 RecordReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((data) => {
-    var record = this.store.push(data);
-    return record;
+    return this.store.push(data);
   });
 };
 

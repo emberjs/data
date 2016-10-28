@@ -37,7 +37,7 @@ const {
   updateFilterRecordArray,
   updateRecordArrays
 } = heimdall.registerMonitor('recordArrayManager',
-  '_addRecordToRecordArray',
+  '_addInternalModelToRecordArray',
   '_recordWasChanged',
   '_recordWasDeleted',
   'array_fatten',
@@ -153,7 +153,7 @@ export default Ember.Object.extend({
 
     if (this.liveRecordArrays.has(typeClass)) {
       let liveRecordArray = this.liveRecordArrays.get(typeClass);
-      this._addRecordToRecordArray(liveRecordArray, record);
+      this._addInternalModelToRecordArray(liveRecordArray, record);
     }
   },
 
@@ -163,26 +163,26 @@ export default Ember.Object.extend({
     @method updateFilterRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
-    @param {DS.Model} typeClass
-    @param {InternalModel} record
+    @param {DS.Model} modelClass
+    @param {InternalModel} internalModel
   */
-  updateFilterRecordArray(array, filter, typeClass, record) {
+  updateFilterRecordArray(array, filter, modelClass, internalModel) {
     heimdall.increment(updateFilterRecordArray);
-    let shouldBeInArray = filter(record.getRecord());
-    let recordArrays = this.recordArraysForRecord(record);
+    let shouldBeInArray = filter(internalModel.getRecord());
+    let recordArrays = this.recordArraysForRecord(internalModel);
     if (shouldBeInArray) {
-      this._addRecordToRecordArray(array, record);
+      this._addInternalModelToRecordArray(array, internalModel);
     } else {
       recordArrays.delete(array);
-      array._removeInternalModels([record]);
+      array._removeInternalModels([internalModel]);
     }
   },
 
-  _addRecordToRecordArray(array, record) {
+  _addInternalModelToRecordArray(array, internalModel) {
     heimdall.increment(_addRecordToRecordArray);
-    let recordArrays = this.recordArraysForRecord(record);
+    let recordArrays = this.recordArraysForRecord(internalModel);
     if (!recordArrays.has(array)) {
-      array._pushInternalModels([record]);
+      array._pushInternalModels([internalModel]);
       recordArrays.add(array);
     }
   },
@@ -197,7 +197,7 @@ export default Ember.Object.extend({
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
-        this._addRecordToRecordArray(array, record);
+        this._addInternalModelToRecordArray(array, record);
       }
     }
   },

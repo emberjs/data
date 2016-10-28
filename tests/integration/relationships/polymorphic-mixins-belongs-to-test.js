@@ -148,7 +148,7 @@ testInDebug("Setting the polymorphic belongsTo with an object that does not impl
   run(function() {
     assert.expectAssertion(function() {
       user.set('bestMessage', video);
-    }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
+    }, /You cannot add a record of modelClass 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
   });
 });
 
@@ -223,7 +223,7 @@ testInDebug("Setting the polymorphic belongsTo with an object that does not impl
     run(function() {
       assert.expectAssertion(function() {
         user.set('bestMessage', video);
-      }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of modelClass 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
     });
   } finally {
     Ember.MODEL_FACTORY_INJECTIONS = injectionValue;

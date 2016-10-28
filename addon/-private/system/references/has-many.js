@@ -39,12 +39,11 @@ HasManyReference.prototype.link = function() {
 };
 
 HasManyReference.prototype.ids = function() {
-  var members = this.hasManyRelationship.members;
-  var ids = members.toArray().map(function(internalModel) {
+  let members = this.hasManyRelationship.members.toArray();
+
+  return members.map(function(internalModel) {
     return internalModel.id;
   });
-
-  return ids;
 };
 
 HasManyReference.prototype.meta = function() {
@@ -115,12 +114,11 @@ HasManyReference.prototype._isLoaded = function() {
     return false;
   }
 
-  var members = this.hasManyRelationship.members.toArray();
-  var isEveryLoaded = members.every(function(internalModel) {
+  let members = this.hasManyRelationship.members.toArray();
+
+  return members.every(function(internalModel) {
     return internalModel.isLoaded() === true;
   });
-
-  return isEveryLoaded;
 };
 
 HasManyReference.prototype.value = function() {
