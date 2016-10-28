@@ -22,7 +22,8 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
       lastName: DS.attr('string'),
       title: DS.attr('string'),
       handles: DS.hasMany('handle', { async: true, polymorphic: true }),
-      company: DS.belongsTo('company', { async: true })
+      company: DS.belongsTo('company', { async: true }),
+      reportsTo: DS.belongsTo('user', { async: true, inverse: null })
     });
 
     Handle = DS.Model.extend({
@@ -300,6 +301,38 @@ testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(asser
   }, /The JSONAPISerializer does not work with the EmbeddedRecordsMixin/);
 });
 
+testInDebug('Asserts when normalized attribute key is not found in payload but original key is', function(assert) {
+  var jsonHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'firstName': 'Yehuda'
+      }
+    }
+  };
+  assert.expectAssertion(function() {
+    env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+  }, /Your payload for 'user' contains 'firstName', but your serializer is setup to look for 'first-name'/);
+});
+
+testInDebug('Asserts when normalized relationship key is not found in payload but original key is', function(assert) {
+  var jsonHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      relationships: {
+        'reportsTo': {
+          data: null
+        }
+      }
+    }
+  };
+  assert.expectAssertion(function() {
+    env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
+  }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
+});
+
 if (isEnabled("ds-payload-type-hooks")) {
   test('mapping of payload type can be customized via modelNameFromPayloadType', function(assert) {
     env.registry.register('serializer:user', DS.JSONAPISerializer.extend({
@@ -417,7 +450,8 @@ if (isEnabled("ds-payload-type-hooks")) {
         handles: { serialize: true },
         firstName: { serialize: false },
         lastName: { serialize: false },
-        title: { serialize: false }
+        title: { serialize: false },
+        reportsTo: { serialize: false }
       },
       payloadTypeFromModelName: function(modelName) {
         return `api::v1::${modelName}`;
@@ -478,7 +512,8 @@ if (isEnabled("ds-payload-type-hooks")) {
         handles: { serialize: true },
         firstName: { serialize: false },
         lastName: { serialize: false },
-        title: { serialize: false }
+        title: { serialize: false },
+        reportsTo: { serialize: false }
       },
       payloadKeyFromModelName: function(modelName) {
         return `api::v1::${modelName}`;
