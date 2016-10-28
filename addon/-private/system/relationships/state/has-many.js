@@ -130,9 +130,7 @@ ManyRelationship.prototype.reload = function() {
     this._loadingPromise = promiseManyArray(this.fetchLink(), 'Reload with link');
     return this._loadingPromise;
   } else {
-    this._loadingPromise = promiseManyArray(this.store.scheduleFetchMany(manyArray.toArray()).then(() => {
-      return manyArray;
-    }), 'Reload with ids');
+    this._loadingPromise = promiseManyArray(this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray), 'Reload with ids');
     return this._loadingPromise;
   }
 };

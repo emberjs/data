@@ -49,7 +49,7 @@ const {
   get,
   isNone,
   isPresent,
-  Map,
+  MapWithDefault,
   run: emberRun,
   set,
   Service
@@ -212,7 +212,7 @@ Store = Service.extend({
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
 
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Map.create();
+    this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
   },
 
   /**
@@ -664,7 +664,7 @@ Store = Service.extend({
   _findRecord(internalModel, options) {
     // Refetch if the reload option is passed
     if (options.reload) {
-      return this.scheduleFetch(internalModel, options);
+      return this._scheduleFetch(internalModel, options);
     }
 
     var snapshot = internalModel.createSnapshot(options);
@@ -673,7 +673,7 @@ Store = Service.extend({
 
     // Refetch the record if the adapter thinks the record is stale
     if (adapter.shouldReloadRecord(this, snapshot)) {
-      return this.scheduleFetch(internalModel, options);
+      return this._scheduleFetch(internalModel, options);
     }
 
     if (options.backgroundReload === false) {
@@ -682,7 +682,7 @@ Store = Service.extend({
 
     // Trigger the background refetch if backgroundReload option is passed
     if (options.backgroundReload || adapter.shouldBackgroundReloadRecord(this, snapshot)) {
-      this.scheduleFetch(internalModel, options);
+      this._scheduleFetch(internalModel, options);
     }
 
     // Return the cached record
@@ -693,7 +693,7 @@ Store = Service.extend({
     options = options || {};
 
     if (options.preload) {
-      internalModel._preloadData(options.preload);
+      internalModel.preloadData(options.preload);
     }
 
     var fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
@@ -703,7 +703,7 @@ Store = Service.extend({
 
   _findEmptyInternalModel(internalModel, options) {
     if (internalModel.isEmpty()) {
-      return this.scheduleFetch(internalModel, options);
+      return this._scheduleFetch(internalModel, options);
     }
 
     //TODO double check about reloading
@@ -741,59 +741,47 @@ Store = Service.extend({
     type/id pair hasn't been loaded yet to kick off a request to the
     adapter.
 
-    @method fetchRecord
+    @method _fetchRecord
     @private
     @param {InternalModel} internalModel model
     @return {Promise} promise
    */
-  // TODO rename this to have an underscore
-  fetchRecord(internalModel, options) {
-    var typeClass = internalModel.type;
-    var id = internalModel.id;
-    var adapter = this.adapterFor(typeClass.modelName);
+  _fetchRecord(internalModel, options) {
+    let modelClass = internalModel.type;
+    let id = internalModel.id;
+    let adapter = this.adapterFor(modelClass.modelName);
 
-    assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
-    assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
+    assert("You tried to find a record but you have no adapter (for " + modelClass.modelName + ")", adapter);
+    assert("You tried to find a record but your adapter (for " + modelClass.modelName + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
 
-    var promise = _find(adapter, this, typeClass, id, internalModel, options);
-    return promise;
+    return _find(adapter, this, modelClass, id, internalModel, options);
   },
 
-  scheduleFetchMany(records) {
-    let internalModels = new Array(records.length);
-    let fetches = new Array(records.length);
-
-    for (let i = 0; i < records.length; i++) {
-      internalModels[i] = records[i]._internalModel;
-    }
+  _scheduleFetchMany(internalModels) {
+    let fetches = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      fetches[i] = this.scheduleFetch(internalModels[i]);
+      fetches[i] = this._scheduleFetch(internalModels[i]);
     }
 
-    return Ember.RSVP.Promise.all(fetches);
+    return Promise.all(fetches);
   },
 
-  scheduleFetch(internalModel, options) {
-    var typeClass = internalModel.type;
-
+  _scheduleFetch(internalModel, options) {
     if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
 
-    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + internalModel.id);
-    var pendingFetchItem = {
-      record: internalModel,
-      resolver: resolver,
-      options: options
+    let modelClass = internalModel.type;
+    let resolver = Ember.RSVP.defer('Fetching ' + modelClass.modelName + ' with id: ' + internalModel.id);
+    let pendingFetchItem = {
+      internalModel,
+      resolver,
+      options
     };
-    var promise = resolver.promise;
+    let promise = resolver.promise;
 
     internalModel.loadingData(promise);
+    this._pendingFetch.get(modelClass).push(pendingFetchItem);
 
-    if (!this._pendingFetch.get(typeClass)) {
-      this._pendingFetch.set(typeClass, [pendingFetchItem]);
-    } else {
-      this._pendingFetch.get(typeClass).push(pendingFetchItem);
-    }
     emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;
@@ -805,63 +793,77 @@ Store = Service.extend({
     }
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch = Map.create();
+    this._pendingFetch.clear();
   },
 
-  _flushPendingFetchForType(pendingFetchItems, typeClass) {
-    var store = this;
-    var adapter = store.adapterFor(typeClass.modelName);
-    var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    var records = Ember.A(pendingFetchItems).mapBy('record');
+  _flushPendingFetchForType(pendingFetchItems, modelClass) {
+    let store = this;
+    let adapter = store.adapterFor(modelClass.modelName);
+    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
+    let totalItems = pendingFetchItems.length;
+    let internalModels = new Array(totalItems);
+    let seeking = new EmptyObject();
+
+    for (let i = 0; i < totalItems; i++) {
+      let pendingItem = pendingFetchItems[i];
+      let internalModel = pendingItem.internalModel;
+      internalModels[i] = internalModel;
+      seeking[internalModel.id] = pendingItem;
+    }
 
     function _fetchRecord(recordResolverPair) {
-      recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record, recordResolverPair.options)); // TODO adapter options
+      let recordFetch = store._fetchRecord(
+        recordResolverPair.internalModel,
+        recordResolverPair.options
+      );  // TODO adapter options
+
+      recordResolverPair.resolver.resolve(recordFetch);
     }
 
-    function resolveFoundRecords(records) {
-      records.forEach((record) => {
-        var pair = Ember.A(pendingFetchItems).findBy('record', record);
+    function handleFoundRecords(foundInternalModels, expectedInternalModels) {
+      // resolve found records
+      let found = new EmptyObject();
+      for (let i = 0, l = foundInternalModels.length; i < l; i++) {
+        let internalModel = foundInternalModels[i];
+        let pair = seeking[internalModel.id];
+        found[internalModel.id] = internalModel;
+
         if (pair) {
-          var resolver = pair.resolver;
-          resolver.resolve(record);
+          let resolver = pair.resolver;
+          resolver.resolve(internalModel);
         }
-      });
-      return records;
-    }
+      }
 
-    function makeMissingRecordsRejector(requestedRecords) {
-      return function rejectMissingRecords(resolvedRecords) {
-        resolvedRecords = Ember.A(resolvedRecords);
-        var missingRecords = requestedRecords.reject((record) => resolvedRecords.includes(record));
-        if (missingRecords.length) {
-          warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false, {
-            id: 'ds.store.missing-records-from-adapter'
-          });
+      // reject missing records
+      let missingInternalModels = [];
+
+      for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
+        let internalModel = expectedInternalModels[i];
+
+        if (!found[internalModel.id]) {
+          missingInternalModels.push(internalModel);
         }
-        rejectRecords(missingRecords);
-      };
+      }
+
+      if (missingInternalModels.length) {
+        warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(missingInternalModels.map(r => r.id)), false, {
+          id: 'ds.store.missing-records-from-adapter'
+        });
+        rejectInternalModels(missingInternalModels);
+      }
     }
 
-    function makeRecordsRejector(records) {
-      return function (error) {
-        rejectRecords(records, error);
-      };
-    }
+    function rejectInternalModels(internalModels, error) {
+      for (let i = 0, l = internalModels.length; i < l; i++) {
+        let pair = seeking[internalModels[i].id];
 
-    function rejectRecords(records, error) {
-      records.forEach((record) => {
-        var pair = Ember.A(pendingFetchItems).findBy('record', record);
         if (pair) {
-          var resolver = pair.resolver;
-          resolver.reject(error);
+          pair.resolver.reject(error);
         }
-      });
+      }
     }
 
-    if (pendingFetchItems.length === 1) {
-      _fetchRecord(pendingFetchItems[0]);
-    } else if (shouldCoalesce) {
-
+    if (shouldCoalesce) {
       // TODO: Improve records => snapshots => records => snapshots
       //
       // We want to provide records to all store methods and snapshots to all
@@ -872,27 +874,45 @@ Store = Service.extend({
       // But since the _findMany() finder is a store method we need to get the
       // records from the grouped snapshots even though the _findMany() finder
       // will once again convert the records to snapshots for adapter.findMany()
+      let snapshots = new Array(totalItems);
+      for (let i = 0; i < totalItems; i++) {
+        snapshots[i] = internalModels[i].createSnapshot();
+      }
 
-      var snapshots = Ember.A(records).invoke('createSnapshot');
-      var groups = adapter.groupRecordsForFindMany(this, snapshots);
-      groups.forEach((groupOfSnapshots) => {
-        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('_internalModel');
-        var requestedRecords = Ember.A(groupOfRecords);
-        var ids = requestedRecords.mapBy('id');
-        if (ids.length > 1) {
-          _findMany(adapter, store, typeClass, ids, requestedRecords).
-            then(resolveFoundRecords).
-            then(makeMissingRecordsRejector(requestedRecords)).
-            then(null, makeRecordsRejector(requestedRecords));
+      let groups = adapter.groupRecordsForFindMany(this, snapshots);
+
+      for (let i = 0, l = groups.length; i < l; i++) {
+        let group = groups[i];
+        let totalInGroup = groups[i].length;
+        let ids = new Array(totalInGroup);
+        let groupedInternalModels = new Array(totalInGroup);
+
+        for (let j = 0; j < totalInGroup; j++) {
+          let internalModel = group[j]._internalModel;
+
+          groupedInternalModels[j] = internalModel;
+          ids[j] = internalModel.id;
+        }
+
+        if (totalInGroup > 1) {
+          _findMany(adapter, store, modelClass, ids, groupedInternalModels)
+            .then(function(foundInternalModels) {
+              handleFoundRecords(foundInternalModels, groupedInternalModels);
+            })
+            .catch(function(error) {
+              rejectInternalModels(groupedInternalModels, error);
+            });
         } else if (ids.length === 1) {
-          var pair = Ember.A(pendingFetchItems).findBy('record', groupOfRecords[0]);
+          let pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
           assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
         }
-      });
+      }
     } else {
-      pendingFetchItems.forEach(_fetchRecord);
+      for (let i = 0; i < totalItems; i++) {
+        _fetchRecord(pendingFetchItems[i]);
+      }
     }
   },
 
@@ -990,7 +1010,7 @@ Store = Service.extend({
     assert("You tried to reload a record but you have no adapter (for " + modelName + ")", adapter);
     assert("You tried to reload a record but your adapter does not implement `findRecord`", typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
-    return this.scheduleFetch(internalModel);
+    return this._scheduleFetch(internalModel);
   },
 
   /**
@@ -1028,16 +1048,16 @@ Store = Service.extend({
 
   _internalModelForId(modelName, inputId) {
     heimdall.increment(_internalModelForId);
-    var modelClass = this.modelFor(modelName);
-    var id = coerceId(inputId);
-    var idToRecord = this.typeMapFor(modelClass).idToRecord;
-    var record = idToRecord[id];
+    let modelClass = this.modelFor(modelName);
+    let id = coerceId(inputId);
+    let idToRecord = this.typeMapFor(modelClass).idToRecord;
+    let internalModel = idToRecord[id];
 
-    if (!record || !idToRecord[id]) {
-      record = this.buildInternalModel(modelClass, id);
+    if (!internalModel || !idToRecord[id]) {
+      internalModel = this.buildInternalModel(modelClass, id);
     }
 
-    return record;
+    return internalModel;
   },
 
 

@@ -36,7 +36,6 @@ export default function Snapshot(internalModel, options = {}) {
     @type {Object}
   */
   this.adapterOptions = options.adapterOptions;
-
   this.include = options.include;
 
   this._changedAttributes = record.changedAttributes();

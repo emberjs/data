@@ -945,11 +945,11 @@ test("snapshot.eachRelationship() proxies to record", function(assert) {
   });
 });
 
-test("snapshot.belongsTo() does not trigger a call to store.scheduleFetch", function(assert) {
+test("snapshot.belongsTo() does not trigger a call to store._scheduleFetch", function(assert) {
   assert.expect(0);
 
-  env.store.scheduleFetch = function() {
-    assert.ok(false, 'store.scheduleFetch should not be called');
+  env.store._scheduleFetch = function() {
+    assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
   run(function() {
@@ -974,11 +974,11 @@ test("snapshot.belongsTo() does not trigger a call to store.scheduleFetch", func
   });
 });
 
-test("snapshot.hasMany() does not trigger a call to store.scheduleFetch", function(assert) {
+test("snapshot.hasMany() does not trigger a call to store._scheduleFetch", function(assert) {
   assert.expect(0);
 
-  env.store.scheduleFetch = function() {
-    assert.ok(false, 'store.scheduleFetch should not be called');
+  env.store._scheduleFetch = function() {
+    assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
   run(function() {

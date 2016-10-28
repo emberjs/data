@@ -614,21 +614,21 @@ test("store.fetchMany should always return a promise", function(assert) {
   run(function() {
     store.createRecord('person');
   });
-  var records = Ember.A([]);
+  var records = [];
   var results;
 
   run(function() {
-    results = store.scheduleFetchMany(records);
+    results = store._scheduleFetchMany(records);
   });
-  assert.ok(results, "A call to store.scheduleFetchMany() should return a result");
-  assert.ok(results.then, "A call to store.scheduleFetchMany() should return a promise");
+  assert.ok(results, "A call to store._scheduleFetchMany() should return a result");
+  assert.ok(results.then, "A call to store._scheduleFetchMany() should return a promise");
 
   results.then(assert.wait(function(returnedRecords) {
     assert.deepEqual(returnedRecords, [], "The correct records are returned");
   }));
 });
 
-test("store.scheduleFetchMany should not resolve until all the records are resolved", function(assert) {
+test("store._scheduleFetchMany should not resolve until all the records are resolved", function(assert) {
   assert.expect(1);
 
   var Person = DS.Model.extend();
@@ -672,15 +672,16 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
     store.createRecord('test');
   });
 
-  var records = Ember.A([
-    store.recordForId('test', 10),
-    store.recordForId('phone', 20),
-    store.recordForId('phone', 21)
-  ]);
+  let internalModels = [
+    store._internalModelForId('test', 10),
+    store._internalModelForId('phone', 20),
+    store._internalModelForId('phone', 21)
+  ];
 
   run(function() {
-    store.scheduleFetchMany(records).then(assert.wait(function() {
-      var unloadedRecords = records.filterBy('isEmpty');
+    store._scheduleFetchMany(internalModels).then(assert.wait(function() {
+      var unloadedRecords = Ember.A(internalModels.map(r => r.record)).filterBy('isEmpty');
+
       assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
     }));
   });
@@ -722,21 +723,21 @@ test("the store calls adapter.findMany according to groupings returned by adapte
     test: Person
   });
 
-  var records = Ember.A([
-    store.recordForId('test', 10),
-    store.recordForId('test', 20),
-    store.recordForId('test', 21)
-  ]);
+  var internalModels = [
+    store._internalModelForId('test', 10),
+    store._internalModelForId('test', 20),
+    store._internalModelForId('test', 21)
+  ];
 
   run(function() {
-    store.scheduleFetchMany(records).then(assert.wait(function() {
-      var ids = records.mapBy('id');
+    store._scheduleFetchMany(internalModels).then(assert.wait(function() {
+      var ids = Ember.A(internalModels).mapBy('id');
       assert.deepEqual(ids, ["10", "20", "21"], "The promise fulfills with the records");
     }));
   });
 });
 
-test("the promise returned by `scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `scheduleFetch` that are in the same run loop, but different groups", function(assert) {
+test("the promise returned by `_scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `_scheduleFetch` that are in the same run loop, but different groups", function(assert) {
   assert.expect(2);
 
   var Person = DS.Model.extend();
@@ -785,7 +786,7 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
   });
 });
 
-test("the promise returned by `scheduleFetch`, when it rejects, does not depend on the promises returned to other calls to `scheduleFetch` that are in the same run loop, but different groups", function(assert) {
+test("the promise returned by `_scheduleFetch`, when it rejects, does not depend on the promises returned to other calls to `_scheduleFetch` that are in the same run loop, but different groups", function(assert) {
   assert.expect(2);
 
   var Person = DS.Model.extend();
@@ -834,7 +835,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
   });
 });
 
-test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
+test("store._fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
   assert.expect(2);
 
   var Person = DS.Model.extend();
@@ -872,7 +873,7 @@ test("store.fetchRecord reject records that were not found, even when those requ
   });
 });
 
-testInDebug("store.fetchRecord warns when records are missing", function(assert) {
+testInDebug("store._fetchRecord warns when records are missing", function(assert) {
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
