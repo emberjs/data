@@ -347,6 +347,26 @@ Snapshot.prototype = {
   },
 
   /**
+    Serializes the snapshot using the serializer for the model.
+
+    Example
+
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
+      createRecord(store, type, snapshot) {
+        var data = snapshot.serialize({ includeId: true });
+        var url = `/${type.modelName}`;
+
+        return fetch(url, {
+          method: 'POST',
+          body: data,
+        }).then((response) => response.json())
+      }
+    });
+    ```
+
     @method serialize
     @param {Object} options
     @return {Object} an object whose values are primitive JSON values only
