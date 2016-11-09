@@ -227,6 +227,25 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   /**
+    Reloads all of the records in the manyArray. If the manyArray
+    holds a relationship that was originally fetched using a links url
+    Ember Data will revisit the original links url to repopulate the
+    relationship.
+
+    If the manyArray holds the result of a `store.query()` reload will
+    re-run the original query.
+
+    Example
+
+    ```javascript
+    var user = store.peekRecord('user', 1)
+    user.login().then(function() {
+      user.get('permissions').then(function(permissions) {
+        return permissions.reload();
+      });
+    });
+    ```
+
     @method reload
     @public
   */
