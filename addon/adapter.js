@@ -3,7 +3,6 @@
 */
 
 import Ember from 'ember';
-var get = Ember.get;
 
 /**
   An adapter is an object that receives requests from a store and
@@ -276,7 +275,7 @@ export default Ember.Object.extend({
     @return {Object} serialized snapshot
   */
   serialize(snapshot, options) {
-    return get(snapshot.record, 'store').serializerFor(snapshot.modelName).serialize(snapshot, options);
+    return snapshot.serialize(options)
   },
 
   /**
