@@ -840,7 +840,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
       type: 'blog',
       id: 1,
       relationships: {
-        user: { type: 'user', id: 1 }
+        user: {
+          data: { type: 'user', id: 1 }
+        }
       }
     });
     var userRef = blog.belongsTo('user');
