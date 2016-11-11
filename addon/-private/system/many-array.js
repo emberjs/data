@@ -174,7 +174,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       //TODO(Igor) probably needed only for unloaded records
       this.relationship.notifyHasManyChanged();
     }
-    this.record.updateRecordArrays();
   },
 
   //TODO(Igor) optimize
