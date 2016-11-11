@@ -74,7 +74,7 @@ export default function Relationship(store, record, inverseKey, relationshipMeta
 Relationship.prototype = {
   constructor: Relationship,
 
-  destroy: Ember.K,
+  destroy() { },
 
   updateMeta(meta) {
     heimdall.increment(updateMeta);
@@ -285,8 +285,8 @@ Relationship.prototype = {
     this.setHasLoaded(true);
   },
 
-  notifyRecordRelationshipAdded: Ember.K,
-  notifyRecordRelationshipRemoved: Ember.K,
+  notifyRecordRelationshipAdded() { },
+  notifyRecordRelationshipRemoved() { },
 
   /*
     `hasData` for a relationship is a flag to indicate if we consider the
