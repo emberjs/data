@@ -6,8 +6,7 @@ import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
 import { _objectIsAlive } from "ember-data/-private/system/store/common";
 
-var get = Ember.get;
-var set = Ember.set;
+const { get, set } = Ember;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -55,16 +54,83 @@ var set = Ember.set;
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init() {
     this._super(...arguments);
+
+    /**
+    The loading state of this array
+
+    @property {Boolean} isLoaded
+    */
+    this.isLoaded = false;
+    this.length = 0;
+
+    /**
+    Used for async `hasMany` arrays
+    to keep track of when they will resolve.
+
+    @property {Ember.RSVP.Promise} promise
+    @private
+    */
+    this.promise = null;
+
+    /**
+    Metadata associated with the request for async hasMany relationships.
+
+    Example
+
+    Given that the server returns the following JSON payload when fetching a
+    hasMany relationship:
+
+    ```js
+    {
+      "comments": [{
+        "id": 1,
+        "comment": "This is the first comment",
+      }, {
+    // ...
+      }],
+
+      "meta": {
+        "page": 1,
+        "total": 5
+      }
+    }
+    ```
+
+    You can then access the metadata via the `meta` property:
+
+    ```js
+    post.get('comments').then(function(comments) {
+      var meta = comments.get('meta');
+
+    // meta.page => 1
+    // meta.total => 5
+    });
+    ```
+
+    @property {Object} meta
+    @public
+    */
+    this.meta = this.meta ||  null;
+
+    /**
+    `true` if the relationship is polymorphic, `false` otherwise.
+
+    @property {Boolean} isPolymorphic
+    @private
+    */
+    this.isPolymorphic = this.isPolymorphic || false;
+
+    /**
+    The relationship which manages this array.
+
+    @property {ManyRelationship} relationship
+    @private
+    */
+    this.relationship = this.relationship || null;
+
     this.currentState = Ember.A([]);
     this.flushCanonical();
   },
-
-  record: null,
-
-  canonicalState: null,
-  currentState: null,
-
-  length: 0,
 
   objectAt(index) {
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
@@ -97,70 +163,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.arrayContentDidChange(0, oldLength, this.length);
     //TODO Figure out to notify only on additions and maybe only if unloaded
     this.relationship.notifyHasManyChanged();
-    this.record.updateRecordArrays();
   },
-  /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property {Boolean} isPolymorphic
-    @private
-  */
-  isPolymorphic: false,
-
-  /**
-    The loading state of this array
-
-    @property {Boolean} isLoaded
-  */
-  isLoaded: false,
-
-  /**
-    The relationship which manages this array.
-
-    @property {ManyRelationship} relationship
-    @private
-  */
-  relationship: null,
-
-  /**
-    Metadata associated with the request for async hasMany relationships.
-
-    Example
-
-    Given that the server returns the following JSON payload when fetching a
-    hasMany relationship:
-
-    ```js
-    {
-      "comments": [{
-        "id": 1,
-        "comment": "This is the first comment",
-      }, {
-        // ...
-      }],
-
-      "meta": {
-        "page": 1,
-        "total": 5
-      }
-    }
-    ```
-
-    You can then access the metadata via the `meta` property:
-
-    ```js
-    post.get('comments').then(function(comments) {
-      var meta = comments.get('meta');
-
-      // meta.page => 1
-      // meta.total => 5
-    });
-    ```
-
-    @property {Object} meta
-    @public
-  */
-  meta: null,
 
   internalReplace(idx, amt, objects) {
     if (!objects) {
@@ -179,9 +182,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   //TODO(Igor) optimize
   internalRemoveRecords(records) {
-    var index;
-    for (var i=0; i < records.length; i++) {
-      index = this.currentState.indexOf(records[i]);
+    for (let i=0; i < records.length; i++) {
+      let index = this.currentState.indexOf(records[i]);
       this.internalReplace(index, 1);
     }
   },
@@ -195,23 +197,15 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   replace(idx, amt, objects) {
-    var records;
+    let records;
     if (amt > 0) {
       records = this.currentState.slice(idx, idx+amt);
       this.get('relationship').removeRecords(records);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
+      this.get('relationship').addRecords(objects.map(obj => obj._internalModel), idx);
     }
   },
-  /**
-    Used for async `hasMany` arrays
-    to keep track of when they will resolve.
-
-    @property {Ember.RSVP.Promise} promise
-    @private
-  */
-  promise: null,
 
   /**
     @method loadingRecordsCount
@@ -262,11 +256,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    var manyArray = this;
-    var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
-    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return manyArray;
-    }, null, "DS: ManyArray#save return ManyArray");
+    let manyArray = this;
+    let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
+    let promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).
+      then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
 
     return PromiseArray.create({ promise });
   },
@@ -284,7 +277,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     var type = get(this, 'type');
     var record;
 
-    assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
     record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
