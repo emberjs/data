@@ -97,6 +97,7 @@ export default function belongsTo(modelName, options) {
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',
+    name: 'Belongs To',
     key: null
   };
 
