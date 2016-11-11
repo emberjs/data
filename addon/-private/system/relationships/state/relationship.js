@@ -1,5 +1,4 @@
 /* global heimdall */
-import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
 import OrderedSet from "ember-data/-private/system/ordered-set";
 
