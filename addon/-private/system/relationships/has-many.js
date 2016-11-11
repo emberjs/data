@@ -137,6 +137,7 @@ export default function hasMany(type, options) {
     isRelationship: true,
     options: options,
     kind: 'hasMany',
+    name: 'Has Many',
     key: null
   };
 

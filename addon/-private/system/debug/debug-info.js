@@ -19,38 +19,39 @@ export default Ember.Mixin.create({
     @private
   */
   _debugInfo() {
-    var attributes = ['id'];
-    var relationships = { belongsTo: [], hasMany: [] };
-    var expensiveProperties = [];
+    let attributes = ['id'];
+    let relationships = { };
+    let expensiveProperties = [];
 
     this.eachAttribute((name, meta) => attributes.push(name));
 
-    this.eachRelationship((name, relationship) => {
-      relationships[relationship.kind].push(name);
-      expensiveProperties.push(name);
-    });
-
-    var groups = [
+    let groups = [
       {
         name: 'Attributes',
         properties: attributes,
         expand: true
-      },
-      {
-        name: 'Belongs To',
-        properties: relationships.belongsTo,
-        expand: true
-      },
-      {
-        name: 'Has Many',
-        properties: relationships.hasMany,
-        expand: true
-      },
-      {
-        name: 'Flags',
-        properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid']
       }
     ];
+
+    this.eachRelationship((name, relationship) => {
+      let properties = relationships[relationship.kind];
+
+      if (properties === undefined) {
+        properties = relationships[relationship.kind] = [];
+        groups.push({
+          name: relationship.name,
+          properties,
+          expand: true
+        });
+      }
+      properties.push(name);
+      expensiveProperties.push(name);
+    });
+
+    groups.push({
+      name: 'Flags',
+      properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid']
+    });
 
     return {
       propertyInfo: {

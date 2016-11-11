@@ -46,3 +46,84 @@ test("_debugInfo groups the attributes and relationships correctly", function(as
   assert.deepEqual(propertyInfo.groups[1].properties, ['maritalStatus']);
   assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
 });
+
+
+test("_debugInfo supports arbitray relationship types", function(assert) {
+  let MaritalStatus = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  let Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  let User = DS.Model.extend({
+    name: DS.attr('string'),
+    isDrugAddict: DS.attr('boolean'),
+    maritalStatus: DS.belongsTo('marital-status', { async: false }),
+    posts: Ember.computed(() => [1, 2, 3] )
+      .readOnly().meta({
+        options: { inverse: null },
+        isRelationship: true,
+        kind: 'customRelationship',
+        name: 'Custom Relationship'
+      })
+  });
+
+  let store = createStore({
+    adapter: TestAdapter.extend(),
+    maritalStatus: MaritalStatus,
+    post: Post,
+    user: User
+  });
+
+  let record = run(() => store.createRecord('user'));
+
+  let propertyInfo = record._debugInfo().propertyInfo;
+
+  assert.deepEqual(propertyInfo, {
+    includeOtherProperties: true,
+    groups: [
+      {
+        name: 'Attributes',
+        properties: [
+          'id',
+          'name',
+          'isDrugAddict'
+        ],
+        expand: true
+      },
+      {
+        name: 'Belongs To',
+        properties: [
+          'maritalStatus'
+        ],
+        expand: true
+      },
+      {
+        name: 'Custom Relationship',
+        properties: [
+          'posts'
+        ],
+        expand: true
+      },
+      {
+        name: 'Flags',
+        properties: [
+          'isLoaded',
+          'hasDirtyAttributes',
+          'isSaving',
+          'isDeleted',
+          'isError',
+          'isNew',
+          'isValid'
+        ]
+      }
+    ],
+    expensiveProperties: [
+      'maritalStatus',
+      'posts'
+    ]
+  }
+  )
+});
