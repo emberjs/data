@@ -218,6 +218,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     A record will be in the `valid` state when the adapter did not report any
     server-side validation failures.
 
+    Example
+
+    ```handlebars
+    <form>
+      <label>Field: {{input value=input.field}} </label>
+      <button {{action 'saveRecord' record}} disabled={{not record.isValid}}>Save</button>
+    </form>
+    ```
+
     @property isValid
     @type {Boolean}
     @readOnly
