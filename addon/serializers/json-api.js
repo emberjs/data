@@ -283,12 +283,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return normalized;
   },
 
-  /**
-    @method extractAttributes
-    @param {DS.Model} modelClass
-    @param {Object} resourceHash
-    @return {Object}
-  */
   extractAttributes(modelClass, resourceHash) {
     var attributes = {};
 
@@ -309,11 +303,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return attributes;
   },
 
-  /**
-    @method extractRelationship
-    @param {Object} relationshipHash
-    @return {Object}
-  */
   extractRelationship(relationshipHash) {
 
     if (Ember.typeOf(relationshipHash.data) === 'object') {
@@ -334,12 +323,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return relationshipHash;
   },
 
-  /**
-    @method extractRelationships
-    @param {Object} modelClass
-    @param {Object} resourceHash
-    @return {Object}
-  */
   extractRelationships(modelClass, resourceHash) {
     let relationships = {};
 
@@ -391,6 +374,12 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
+    Dasherizes and singularizes the model name in the payload to match
+    the format Ember Data uses internally for the model name.
+
+    For example the key `posts` would be converted to `post` and the
+    key `studentAssesments` would be converted to `student-assesment`.
+
     @method modelNameFromPayloadKey
     @param {String} key
     @return {String} the model's modelName
@@ -401,6 +390,11 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   /**
+    Converts the model name to a pluralized version of the model name.
+
+    For example `post` would be converted to `posts` and
+    `student-assesment` would be converted to `student-assesments`.
+
     @method payloadKeyFromModelName
     @param {String} modelName
     @return {String}
@@ -410,12 +404,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return pluralize(modelName);
   },
 
-  /**
-    @method normalize
-    @param {DS.Model} modelClass
-    @param {Object} resourceHash the resource hash from the adapter
-    @return {Object} the normalized resource hash
-  */
   normalize(modelClass, resourceHash) {
     if (resourceHash.attributes) {
       this.normalizeUsingDeclaredMapping(modelClass, resourceHash.attributes);
@@ -497,12 +485,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return dasherize(key);
   },
 
-  /**
-    @method serialize
-    @param {DS.Snapshot} snapshot
-    @param {Object} options
-    @return {Object} json
-  */
   serialize(snapshot, options) {
     let data = this._super(...arguments);
 
@@ -527,13 +509,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     return { data };
   },
 
-  /**
-   @method serializeAttribute
-   @param {DS.Snapshot} snapshot
-   @param {Object} json
-   @param {String} key
-   @param {Object} attribute
-  */
   serializeAttribute(snapshot, json, key, attribute) {
     const type = attribute.type;
 
@@ -556,12 +531,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
   },
 
-  /**
-   @method serializeBelongsTo
-   @param {DS.Snapshot} snapshot
-   @param {Object} json
-   @param {Object} relationship
-  */
   serializeBelongsTo(snapshot, json, relationship) {
     var key = relationship.key;
 
@@ -607,12 +576,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
   },
 
-  /**
-   @method serializeHasMany
-   @param {DS.Snapshot} snapshot
-   @param {Object} json
-   @param {Object} relationship
-  */
   serializeHasMany(snapshot, json, relationship) {
     var key = relationship.key;
     var shouldSerializeHasMany = '_shouldSerializeHasMany';
