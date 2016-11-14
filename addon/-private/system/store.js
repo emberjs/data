@@ -226,19 +226,23 @@ Store = Service.extend({
   },
 
   /**
-    The adapter to use to communicate to a backend server or other persistence layer.
-
-    This can be specified as an instance, class, or string.
+    The default adapter to use to communicate to a backend server or
+    other persistence layer. This will be overridden by an application
+    adapter if present.
 
     If you want to specify `app/adapters/custom.js` as a string, do:
 
     ```js
-    adapter: 'custom'
+    import DS from 'ember-data';
+
+    export default DS.Store.extend({
+      adapter: 'custom',
+    });
     ```
 
     @property adapter
-    @default DS.JSONAPIAdapter
-    @type {(DS.Adapter|String)}
+    @default '-json-api'
+    @type {String}
   */
   adapter: '-json-api',
 
@@ -1046,7 +1050,7 @@ Store = Service.extend({
    ```
 
     @method hasRecordForId
-    @param {(String|DS.Model)} modelName
+    @param {String} modelName
     @param {(String|Integer)} id
     @return {Boolean}
   */
