@@ -129,7 +129,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.relationship = this.relationship || null;
 
     this.currentState = Ember.A([]);
-    this.flushCanonical();
+    this.flushCanonical(false);
   },
 
   objectAt(index) {
@@ -141,7 +141,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     return this.currentState[index].getRecord();
   },
 
-  flushCanonical() {
+  flushCanonical(isInitialized = true) {
     let toSet = this.canonicalState;
 
     //a hack for not removing new records
@@ -161,8 +161,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     this.currentState = toSet;
     this.arrayContentDidChange(0, oldLength, this.length);
-    //TODO Figure out to notify only on additions and maybe only if unloaded
-    this.relationship.notifyHasManyChanged();
+
+    if (isInitialized) {
+      //TODO Figure out to notify only on additions and maybe only if unloaded
+      this.relationship.notifyHasManyChanged();
+    }
   },
 
   internalReplace(idx, amt, objects) {
@@ -173,10 +176,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     this.set('length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
-    if (objects) {
-      //TODO(Igor) probably needed only for unloaded records
-      this.relationship.notifyHasManyChanged();
-    }
   },
 
   //TODO(Igor) optimize

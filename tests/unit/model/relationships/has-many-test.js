@@ -770,9 +770,13 @@ test("DS.hasMany is async by default", function(assert) {
 });
 
 test("DS.ManyArray is lazy", function(assert) {
+  let peopleDidChange = 0;
   let Tag = DS.Model.extend({
     name: DS.attr('string'),
-    people: DS.hasMany('person')
+    people: DS.hasMany('person'),
+    peopleDidChange: Ember.observer('people', function() {
+      peopleDidChange++;
+    })
   });
 
   let Person = DS.Model.extend({
@@ -787,9 +791,20 @@ test("DS.ManyArray is lazy", function(assert) {
   let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
   assert.ok(!hasManyRelationship._manyArray);
   run(function() {
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
     tag.get('people');
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (sync after access)');
   });
+  assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (after access, but after the current run loop)');
   assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
+
+  let person = Ember.run(() => env.store.createRecord('person'));
+
+  Ember.run(() => {
+    assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
+    tag.get('people').addObject(person);
+    assert.equal(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');
+  });
 });
 
 testInDebug("throws assertion if of not set with an array", function(assert) {
