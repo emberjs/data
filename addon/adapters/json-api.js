@@ -9,6 +9,135 @@ import isEnabled from 'ember-data/-private/features';
 import { instrument, deprecate } from 'ember-data/-private/debug';
 
 /**
+  The `JSONAPIAdapter` is the default adapter used by Ember Data. It
+  is responsible for transforming the store's requests into HTTP
+  requests that follow the [JSON API](http://jsonapi.org/format/)
+  format.
+
+  ## JSON API Conventions
+
+  The JSONAPIAdapter uses JSON API conventions for building the url
+  for a record and selecting the HTTP verb to use with a request. The
+  actions you can take on a record map onto the following URLs in the
+  JSON API adapter:
+
+<table>
+  <tr>
+    <th>
+      Action
+    </th>
+    <th>
+      HTTP Verb
+    </th>
+    <th>
+      URL
+    </th>
+  </tr>
+  <tr>
+    <th>
+      `store.findRecord('post', 123)`
+    </th>
+    <td>
+      GET
+    </td>
+    <td>
+      /posts/123
+    </td>
+  </tr>
+  <tr>
+    <th>
+      `store.findAll('post')`
+    </th>
+    <td>
+      GET
+    </td>
+    <td>
+      /posts
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Update `postRecord.save()`
+    </th>
+    <td>
+      PATCH
+    </td>
+    <td>
+      /posts/123
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Create `store.createRecord('post').save()`
+    </th>
+    <td>
+      POST
+    </td>
+    <td>
+      /posts
+    </td>
+  </tr>
+  <tr>
+    <th>
+      Delete `postRecord.destroyRecord()`
+    </th>
+    <td>
+      DELETE
+    </td>
+    <td>
+      /posts/123
+    </td>
+  </tr>
+</table>
+
+  ## Success and failure
+
+  The JSONAPIAdapter will consider a success any response with a
+  status code of the 2xx family ("Success"), as well as 304 ("Not
+  Modified"). Any other status code will be considered a failure.
+
+  On success, the request promise will be resolved with the full
+  response payload.
+
+  Failed responses with status code 422 ("Unprocessable Entity") will
+  be considered "invalid". The response will be discarded, except for
+  the `errors` key. The request promise will be rejected with a
+  `DS.InvalidError`. This error object will encapsulate the saved
+  `errors` value.
+
+  Any other status codes will be treated as an adapter error. The
+  request promise will be rejected, similarly to the invalid case,
+  but with an instance of `DS.AdapterError` instead.
+
+  ### Endpoint path customization
+
+  Endpoint paths can be prefixed with a `namespace` by setting the
+  namespace property on the adapter:
+
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.JSONAPIAdapter.extend({
+    namespace: 'api/1'
+  });
+  ```
+  Requests for the `person` model would now target `/api/1/people/1`.
+
+  ### Host customization
+
+  An adapter can target other hosts by setting the `host` property.
+
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.JSONAPIAdapter.extend({
+    host: 'https://api.example.com'
+  });
+  ```
+
+  Requests for the `person` model would now target
+  `https://api.example.com/people/1`.
+
   @since 1.13.0
   @class JSONAPIAdapter
   @constructor
@@ -70,9 +199,17 @@ var JSONAPIAdapter = RESTAdapter.extend({
 
     ```javascript
     {
-      post: {
+      data: {
         id: 1,
-        comments: [1, 2]
+        type: 'post',
+        relationship: {
+          comments: {
+            data: [
+              { id: 1, type: 'comment' },
+              { id: 2, type: 'comment' }
+            ]
+          }
+        }
       }
     }
     ```
@@ -109,14 +246,6 @@ var JSONAPIAdapter = RESTAdapter.extend({
   */
   coalesceFindRequests: false,
 
-  /**
-    @method findMany
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {Array} ids
-    @param {Array} snapshots
-    @return {Promise} promise
-  */
   findMany(store, type, ids, snapshots) {
     if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
@@ -126,24 +255,12 @@ var JSONAPIAdapter = RESTAdapter.extend({
     }
   },
 
-  /**
-    @method pathForType
-    @param {String} modelName
-    @return {String} path
-  **/
   pathForType(modelName) {
     var dasherized = Ember.String.dasherize(modelName);
     return Ember.String.pluralize(dasherized);
   },
 
   // TODO: Remove this once we have a better way to override HTTP verbs.
-  /**
-    @method updateRecord
-    @param {DS.Store} store
-    @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
-    @return {Promise} promise
-  */
   updateRecord(store, type, snapshot) {
     if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
