@@ -2595,7 +2595,7 @@ function deserializeRecordId(store, key, relationship, id) {
   assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${Ember.inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(id));
 
   //TODO:Better asserts
-  return store._internalModelForId(id.type, id.id);
+  return store._internalModelForId((id.type || relationship.type), id.id);
 }
 
 function deserializeRecordIds(store, key, relationship, ids) {
