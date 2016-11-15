@@ -349,7 +349,9 @@ InternalModel.prototype = {
 
     for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
       let attribute = changedAttributeNames[i];
-      let [oldData, newData] = changedAttributes[attribute];
+      let data = changedAttributes[attribute];
+      let oldData = data[0];
+      let newData = data[1];
 
       if (oldData === newData) {
         delete this._attributes[attribute];
