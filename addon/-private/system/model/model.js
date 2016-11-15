@@ -399,7 +399,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize(options) {
-    return this.store.serialize(this, options);
+    return this._internalModel.createSnapshot().serialize(options);
   },
 
   /**

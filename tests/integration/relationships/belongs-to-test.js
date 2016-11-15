@@ -279,7 +279,7 @@ test("The store can serialize a polymorphic belongsTo association", function(ass
     });
 
     store.findRecord('comment', 2).then(function(comment) {
-      var serialized = store.serialize(comment, { includeId: true });
+      var serialized = comment.serialize({ includeId: true });
       assert.equal(serialized['message'], 1);
       assert.equal(serialized['message_type'], 'post');
     });
