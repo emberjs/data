@@ -466,7 +466,7 @@ export default class InternalModel {
       let attribute = changedAttributeNames[i];
       let data = changedAttributes[attribute];
       let oldData = data[0];
-      let newData = data[0];
+      let newData = data[1];
 
       if (oldData === newData) {
         delete attrs[attribute];
