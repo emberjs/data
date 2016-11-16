@@ -72,7 +72,7 @@ export default Ember.Object.extend({
     });
 
     this.liveRecordArrays = MapWithDefault.create({
-      defaultValue: typeClass => this.createRecordArray(typeClass)
+      defaultValue: modelClass => this.createRecordArray(modelClass)
     });
 
     this.changedRecords = [];
@@ -187,9 +187,27 @@ export default Ember.Object.extend({
     }
   },
 
-  populateLiveRecordArray(array, modelName) {
+  syncLiveRecordArray(array, modelClass) {
+    let hasNoPotentialDeletions = this.changedRecords.length === 0;
+    let typeMap = this.store.typeMapFor(modelClass);
+    let hasNoInsertionsOrRemovals = typeMap.records.length === array.length;
+
+    /*
+      Ideally the recordArrayManager has knowledge of the changes to be applied to
+      liveRecordArrays, and is capable of strategically flushing those changes and applying
+      small diffs if desired.  However, until we've refactored recordArrayManager, this dirty
+      check prevents us from unnecessarily wiping out live record arrays returned by peekAll.
+     */
+    if (hasNoPotentialDeletions && hasNoInsertionsOrRemovals) {
+      return;
+    }
+
+    this.populateLiveRecordArray(array, modelClass);
+  },
+
+  populateLiveRecordArray(array, modelClass) {
     heimdall.increment(populateLiveRecordArray);
-    let typeMap = this.store.typeMapFor(modelName);
+    let typeMap = this.store.typeMapFor(modelClass);
     let records = typeMap.records;
     let record;
 
@@ -211,12 +229,12 @@ export default Ember.Object.extend({
 
     @method updateFilter
     @param {Array} array
-    @param {String} modelName
+    @param {Class} modelClass
     @param {Function} filter
   */
-  updateFilter(array, modelName, filter) {
+  updateFilter(array, modelClass, filter) {
     heimdall.increment(updateFilter);
-    let typeMap = this.store.typeMapFor(modelName);
+    let typeMap = this.store.typeMapFor(modelClass);
     let records = typeMap.records;
     let record;
 
@@ -224,7 +242,7 @@ export default Ember.Object.extend({
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
-        this.updateFilterRecordArray(array, filter, modelName, record);
+        this.updateFilterRecordArray(array, filter, modelClass, record);
       }
     }
   },
@@ -246,13 +264,13 @@ export default Ember.Object.extend({
     Create a `DS.RecordArray` for a type.
 
     @method createRecordArray
-    @param {Class} typeClass
+    @param {Class} modelClass
     @return {DS.RecordArray}
   */
-  createRecordArray(typeClass) {
+  createRecordArray(modelClass) {
     heimdall.increment(createRecordArray);
     return RecordArray.create({
-      type: typeClass,
+      type: modelClass,
       content: Ember.A(),
       store: this.store,
       isLoaded: true,
