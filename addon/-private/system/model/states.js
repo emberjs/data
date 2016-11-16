@@ -162,7 +162,7 @@ import { assert } from "ember-data/-private/debug";
    * [isEmpty](DS.Model.html#property_isEmpty)
    * [isLoading](DS.Model.html#property_isLoading)
    * [isLoaded](DS.Model.html#property_isLoaded)
-   * [isDirty](DS.Model.html#property_isDirty)
+   * [hasDirtyAttributes](DS.Model.html#property_hasDirtyAttributes)
    * [isSaving](DS.Model.html#property_isSaving)
    * [isDeleted](DS.Model.html#property_isDeleted)
    * [isNew](DS.Model.html#property_isNew)
