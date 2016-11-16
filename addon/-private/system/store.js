@@ -1596,10 +1596,10 @@ Store = Service.extend({
     heimdall.increment(peekAll);
     assert("You need to pass a model name to the store's peekAll method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
+    let modelClass = this.modelFor(modelName);
+    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(modelClass);
 
-    var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
-    this.recordArrayManager.populateLiveRecordArray(liveRecordArray, typeClass);
+    this.recordArrayManager.syncLiveRecordArray(liveRecordArray, modelClass);
 
     return liveRecordArray;
   },
