@@ -33,7 +33,7 @@ module('integration/record-arrays/adapter_populated_record_array - DS.AdapterPop
 
 test('when a record is deleted in an adapter populated record array, it should be removed', function(assert) {
   let recordArray = store.recordArrayManager
-    .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+    .createAdapterPopulatedRecordArray('person', null);
 
   let payload = {
     data: [
@@ -74,7 +74,7 @@ test('when a record is deleted in an adapter populated record array, it should b
 
 test('stores the metadata off the payload', function(assert) {
   let recordArray = store.recordArrayManager
-    .createAdapterPopulatedRecordArray(Person, null);
+    .createAdapterPopulatedRecordArray('person', null);
 
   let payload = {
     data: [
@@ -114,7 +114,7 @@ test('stores the metadata off the payload', function(assert) {
 
 test('stores the links off the payload', function(assert) {
   let recordArray = store.recordArrayManager
-      .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
+      .createAdapterPopulatedRecordArray('person', null);
 
   let payload = {
     data: [
@@ -154,11 +154,11 @@ test('stores the links off the payload', function(assert) {
 
 test('recordArray.replace() throws error', function(assert) {
   let recordArray = store.recordArrayManager
-    .createAdapterPopulatedRecordArray(Person, null);
+    .createAdapterPopulatedRecordArray('person', null);
 
   assert.throws(() => {
     recordArray.replace();
-  }, Error('The result of a server query (on (subclass of DS.Model)) is immutable.'), 'throws error');
+  }, Error('The result of a server query (on person) is immutable.'), 'throws error');
 });
 
 test('loadRecord re-syncs internalModels recordArrays', function(assert) {

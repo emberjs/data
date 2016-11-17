@@ -8,11 +8,11 @@ const { RecordArray } = DS;
 module('unit/record-arrays/record-array - DS.RecordArray');
 
 test('default initial state', function(assert) {
-  let recordArray = RecordArray.create({ type: 'recordType' });
+  let recordArray = RecordArray.create({ modelName: 'recordType' });
 
   assert.equal(get(recordArray, 'isLoaded'), false);
   assert.equal(get(recordArray, 'isUpdating'), false);
-  assert.equal(get(recordArray, 'type'), 'recordType');
+  assert.equal(get(recordArray, 'modelName'), 'recordType');
   assert.equal(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'store'), null);
 });
@@ -21,21 +21,21 @@ test('custom initial state', function(assert) {
   let content = Ember.A();
   let store = {};
   let recordArray = RecordArray.create({
-    type: 'apple',
+    modelName: 'apple',
     isLoaded: true,
     isUpdating: true,
     content,
     store
-  })
+  });
   assert.equal(get(recordArray, 'isLoaded'), true);
   assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
-  assert.equal(get(recordArray, 'type'), 'apple');
+  assert.equal(get(recordArray, 'modelName'), 'apple');
   assert.equal(get(recordArray, 'content'), content);
   assert.equal(get(recordArray, 'store'), store);
 });
 
 test('#replace() throws error', function(assert) {
-  let recordArray = RecordArray.create({ type: 'recordType' });
+  let recordArray = RecordArray.create({ modelName: 'recordType' });
 
   assert.throws(function() {
     recordArray.replace();
@@ -50,7 +50,7 @@ test('#objectAtContent', function(assert) {
   ]);
 
   let recordArray = RecordArray.create({
-    type: 'recordType',
+    modelName: 'recordType',
     content
   });
 
@@ -76,7 +76,7 @@ test('#update', function(assert) {
   };
 
   let recordArray = RecordArray.create({
-    type: { modelName: 'recordType' },
+    modelName: 'recordType',
     store
   });
 
@@ -110,7 +110,7 @@ test('#update while updating', function(assert) {
   };
 
   let recordArray = RecordArray.create({
-    type: { modelName: 'recordType' },
+    modelName: { modelName: 'recordType' },
     store
   });
 

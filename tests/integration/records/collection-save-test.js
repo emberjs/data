@@ -24,6 +24,7 @@ module("integration/records/collection_save - Save Collection of Records", {
 
 test("Collection will resolve save on success", function(assert) {
   assert.expect(1);
+  let id = 1;
   run(function() {
     env.store.createRecord('post', { title: 'Hello' });
     env.store.createRecord('post', { title: 'World' });
@@ -32,7 +33,7 @@ test("Collection will resolve save on success", function(assert) {
   var posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 123 });
+    return Ember.RSVP.resolve({ id: id++ });
   };
 
   run(function() {
@@ -70,25 +71,31 @@ test("Retry is allowed in a failure handler", function(assert) {
   var posts = env.store.peekAll('post');
 
   var count = 0;
+  let id = 1;
 
   env.adapter.createRecord = function(store, type, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
-      return Ember.RSVP.resolve({ id: 123 });
+      return Ember.RSVP.resolve({ id: id++ });
     }
   };
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 123 });
+    return Ember.RSVP.resolve({ id: snapshot.id });
   };
 
   run(function() {
-    posts.save().then(function() {}, assert.wait(function() {
-      return posts.save();
-    })).then(assert.wait(function(post) {
-      assert.equal(posts.get('firstObject.id'), '123', "The post ID made it through");
-    }));
+    posts.save()
+      .then(
+        function() {},
+        assert.wait(function() { return posts.save(); }))
+      .then(
+        assert.wait(function(post) {
+          // the ID here is '2' because the second post saves on the first attempt,
+          // while the first post saves on the second attempt
+          assert.equal(posts.get('firstObject.id'), '2', "The post ID made it through");
+        }));
   });
 });
 

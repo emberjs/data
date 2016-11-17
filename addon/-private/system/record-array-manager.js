@@ -9,6 +9,7 @@ import {
   AdapterPopulatedRecordArray
 } from "ember-data/-private/system/record-arrays";
 import OrderedSet from "ember-data/-private/system/ordered-set";
+import { assert } from 'ember-data/-private/debug';
 
 const {
   get,
@@ -72,7 +73,10 @@ export default Ember.Object.extend({
     });
 
     this.liveRecordArrays = MapWithDefault.create({
-      defaultValue: modelClass => this.createRecordArray(modelClass)
+      defaultValue: modelName => {
+        assert(`liveRecordArrays.get expects modelName not modelClass as the param`, typeof modelName === 'string');
+        return this.createRecordArray(modelName);
+      }
     });
 
     this.changedRecords = [];
@@ -86,10 +90,10 @@ export default Ember.Object.extend({
     emberRun.schedule('actions', this, this.updateRecordArrays);
   },
 
-  recordArraysForRecord(record) {
+  recordArraysForRecord(internalModel) {
     heimdall.increment(recordArraysForRecord);
-    record._recordArrays = record._recordArrays || OrderedSet.create();
-    return record._recordArrays;
+    internalModel._recordArrays = internalModel._recordArrays || OrderedSet.create();
+    return internalModel._recordArrays;
   },
 
   /**
@@ -117,43 +121,43 @@ export default Ember.Object.extend({
     this.changedRecords.length = 0;
   },
 
-  _recordWasDeleted(record) {
+  _recordWasDeleted(internalModel) {
     heimdall.increment(_recordWasDeleted);
-    let recordArrays = record._recordArrays;
+    let recordArrays = internalModel._recordArrays;
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach(array => array._removeInternalModels([record]));
+    recordArrays.forEach(array => array._removeInternalModels([internalModel]));
 
-    record._recordArrays = null;
+    internalModel._recordArrays = null;
   },
 
-  _recordWasChanged(record) {
+  _recordWasChanged(internalModel) {
     heimdall.increment(_recordWasChanged);
-    let typeClass = record.type;
-    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let modelName = internalModel.modelName;
+    let recordArrays = this.filteredRecordArrays.get(modelName);
     let filter;
     recordArrays.forEach(array => {
       filter = get(array, 'filterFunction');
-      this.updateFilterRecordArray(array, filter, typeClass, record);
+      this.updateFilterRecordArray(array, filter, modelName, internalModel);
     });
   },
 
   //Need to update live arrays on loading
-  recordWasLoaded(record) {
+  recordWasLoaded(internalModel) {
     heimdall.increment(recordWasLoaded);
-    let typeClass = record.type;
-    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let modelName = internalModel.modelName;
+    let recordArrays = this.filteredRecordArrays.get(modelName);
     let filter;
 
     recordArrays.forEach(array => {
       filter = get(array, 'filterFunction');
-      this.updateFilterRecordArray(array, filter, typeClass, record);
+      this.updateFilterRecordArray(array, filter, modelName, internalModel);
     });
 
-    if (this.liveRecordArrays.has(typeClass)) {
-      let liveRecordArray = this.liveRecordArrays.get(typeClass);
-      this._addInternalModelToRecordArray(liveRecordArray, record);
+    if (this.liveRecordArrays.has(modelName)) {
+      let liveRecordArray = this.liveRecordArrays.get(modelName);
+      this._addInternalModelToRecordArray(liveRecordArray, internalModel);
     }
   },
 
@@ -163,10 +167,10 @@ export default Ember.Object.extend({
     @method updateFilterRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
-    @param {DS.Model} modelClass
+    @param {String} modelName
     @param {InternalModel} internalModel
   */
-  updateFilterRecordArray(array, filter, modelClass, internalModel) {
+  updateFilterRecordArray(array, filter, modelName, internalModel) {
     heimdall.increment(updateFilterRecordArray);
     let shouldBeInArray = filter(internalModel.getRecord());
     let recordArrays = this.recordArraysForRecord(internalModel);
@@ -187,10 +191,11 @@ export default Ember.Object.extend({
     }
   },
 
-  syncLiveRecordArray(array, modelClass) {
+  syncLiveRecordArray(array, modelName) {
+    assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
     let hasNoPotentialDeletions = this.changedRecords.length === 0;
-    let typeMap = this.store.typeMapFor(modelClass);
-    let hasNoInsertionsOrRemovals = typeMap.records.length === array.length;
+    let recordMap = this.store._recordMapFor(modelName);
+    let hasNoInsertionsOrRemovals = recordMap.length === array.length;
 
     /*
       Ideally the recordArrayManager has knowledge of the changes to be applied to
@@ -202,13 +207,14 @@ export default Ember.Object.extend({
       return;
     }
 
-    this.populateLiveRecordArray(array, modelClass);
+    this.populateLiveRecordArray(array, modelName);
   },
 
-  populateLiveRecordArray(array, modelClass) {
+  populateLiveRecordArray(array, modelName) {
+    assert(`recordArrayManger.populateLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
     heimdall.increment(populateLiveRecordArray);
-    let typeMap = this.store.typeMapFor(modelClass);
-    let records = typeMap.records;
+    let recordMap = this.store._recordMapFor(modelName);
+    let records = recordMap.records;
     let record;
 
     for (let i = 0; i < records.length; i++) {
@@ -229,48 +235,52 @@ export default Ember.Object.extend({
 
     @method updateFilter
     @param {Array} array
-    @param {Class} modelClass
+    @param {String} modelName
     @param {Function} filter
   */
-  updateFilter(array, modelClass, filter) {
+  updateFilter(array, modelName, filter) {
+    assert(`recordArrayManger.updateFilter expects modelName not modelClass as the second param, received ${modelName}`, typeof modelName === 'string');
     heimdall.increment(updateFilter);
-    let typeMap = this.store.typeMapFor(modelClass);
-    let records = typeMap.records;
+    let recordMap = this.store._recordMapFor(modelName);
+    let records = recordMap.records;
     let record;
 
     for (let i = 0; i < records.length; i++) {
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
-        this.updateFilterRecordArray(array, filter, modelClass, record);
+        this.updateFilterRecordArray(array, filter, modelName, record);
       }
     }
   },
 
   /**
-    Get the `DS.RecordArray` for a type, which contains all loaded records of
-    given type.
+    Get the `DS.RecordArray` for a modelName, which contains all loaded records of
+    given modelName.
 
     @method liveRecordArrayFor
-    @param {Class} typeClass
+    @param {String} modelName
     @return {DS.RecordArray}
   */
-  liveRecordArrayFor(typeClass) {
+  liveRecordArrayFor(modelName) {
+    assert(`recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`, typeof modelName === 'string');
+
     heimdall.increment(liveRecordArrayFor);
-    return this.liveRecordArrays.get(typeClass);
+    return this.liveRecordArrays.get(modelName);
   },
 
   /**
-    Create a `DS.RecordArray` for a type.
+    Create a `DS.RecordArray` for a modelName.
 
     @method createRecordArray
-    @param {Class} modelClass
+    @param {String} modelName
     @return {DS.RecordArray}
   */
-  createRecordArray(modelClass) {
+  createRecordArray(modelName) {
+    assert(`recordArrayManger.createRecordArray expects modelName not modelClass as the param`, typeof modelName === 'string');
     heimdall.increment(createRecordArray);
     return RecordArray.create({
-      type: modelClass,
+      modelName,
       content: Ember.A(),
       store: this.store,
       isLoaded: true,
@@ -279,42 +289,46 @@ export default Ember.Object.extend({
   },
 
   /**
-    Create a `DS.FilteredRecordArray` for a type and register it for updates.
+    Create a `DS.FilteredRecordArray` for a modelName and register it for updates.
 
     @method createFilteredRecordArray
-    @param {DS.Model} typeClass
+    @param {String} modelName
     @param {Function} filter
     @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray(typeClass, filter, query) {
+  createFilteredRecordArray(modelName, filter, query) {
+    assert(`recordArrayManger.createFilteredRecordArray expects modelName not modelClass as the first param, received ${modelName}`, typeof modelName === 'string');
+
     heimdall.increment(createFilteredRecordArray);
     let array = FilteredRecordArray.create({
-      query: query,
-      type: typeClass,
+      query,
+      modelName,
       content: Ember.A(),
       store: this.store,
       manager: this,
       filterFunction: filter
     });
 
-    this.registerFilteredRecordArray(array, typeClass, filter);
+    this.registerFilteredRecordArray(array, modelName, filter);
 
     return array;
   },
 
   /**
-    Create a `DS.AdapterPopulatedRecordArray` for a type with given query.
+    Create a `DS.AdapterPopulatedRecordArray` for a modelName with given query.
 
     @method createAdapterPopulatedRecordArray
-    @param {DS.Model} typeClass
+    @param {String} modelName
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray(typeClass, query) {
+  createAdapterPopulatedRecordArray(modelName, query) {
     heimdall.increment(createAdapterPopulatedRecordArray);
+    assert(`recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`, typeof modelName === 'string');
+
     let array = AdapterPopulatedRecordArray.create({
-      type: typeClass,
+      modelName,
       query: query,
       content: Ember.A(),
       store: this.store,
@@ -327,22 +341,24 @@ export default Ember.Object.extend({
   },
 
   /**
-    Register a RecordArray for a given type to be backed by
+    Register a RecordArray for a given modelName to be backed by
     a filter function. This will cause the array to update
-    automatically when records of that type change attribute
+    automatically when records of that modelName change attribute
     values or states.
 
     @method registerFilteredRecordArray
     @param {DS.RecordArray} array
-    @param {DS.Model} typeClass
+    @param {String} modelName
     @param {Function} filter
   */
-  registerFilteredRecordArray(array, typeClass, filter) {
+  registerFilteredRecordArray(array, modelName, filter) {
     heimdall.increment(registerFilteredRecordArray);
-    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    assert(`recordArrayManger.registerFilteredRecordArray expects modelName not modelClass as the second param, received ${modelName}`, typeof modelName === 'string');
+
+    let recordArrays = this.filteredRecordArrays.get(modelName);
     recordArrays.push(array);
 
-    this.updateFilter(array, typeClass, filter);
+    this.updateFilter(array, modelName, filter);
   },
 
   /**
@@ -355,10 +371,10 @@ export default Ember.Object.extend({
   unregisterRecordArray(array) {
     heimdall.increment(unregisterRecordArray);
 
-    let typeClass = array.type;
+    let modelName = array.modelName;
 
     // unregister filtered record array
-    let recordArrays = this.filteredRecordArrays.get(typeClass);
+    let recordArrays = this.filteredRecordArrays.get(modelName);
     let removedFromFiltered = remove(recordArrays, array);
 
     // remove from adapter populated record array
@@ -367,10 +383,10 @@ export default Ember.Object.extend({
     if (!removedFromFiltered && !removedFromAdapterPopulated) {
 
       // unregister live record array
-      if (this.liveRecordArrays.has(typeClass)) {
-        let liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
+      if (this.liveRecordArrays.has(modelName)) {
+        let liveRecordArrayForType = this.liveRecordArrayFor(modelName);
         if (array === liveRecordArrayForType) {
-          this.liveRecordArrays.delete(typeClass);
+          this.liveRecordArrays.delete(modelName);
         }
       }
     }

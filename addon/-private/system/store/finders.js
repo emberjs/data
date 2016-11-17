@@ -73,8 +73,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
     assert("You made a `findMany` request for " + typeClass.modelName + " records with ids " + ids + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
-      let internalModels = store._push(payload);
-      return internalModels;
+      return store._push(payload);
     });
   }, null, "DS: Extract payload of " + typeClass);
 }
@@ -94,10 +93,10 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
     assert("You made a `findHasMany` request for a " + internalModel.modelName + "'s `" + relationship.key + "` relationship, using link " + link + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
       let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
-      let recordArray = store._push(payload);
+      let internalModelArray = store._push(payload);
 
-      recordArray.meta = payload.meta;
-      return recordArray;
+      internalModelArray.meta = payload.meta;
+      return internalModelArray;
     });
   }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship.type);
 }
@@ -121,8 +120,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      var internalModel = store._push(payload);
-      return internalModel;
+      return store._push(payload);
     });
   }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
 }
@@ -145,7 +143,7 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
       store._push(payload);
     });
 
-    store.didUpdateAll(typeClass);
+    store.didUpdateAll(modelName);
     return store.peekAll(modelName);
   }, null, "DS: Extract payload of findAll " + typeClass);
 }

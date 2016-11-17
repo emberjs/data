@@ -87,6 +87,8 @@ const {
   'updateChangedAttributes'
 );
 
+let InternalModelReferenceId = 1;
+
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
@@ -104,13 +106,13 @@ const {
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelClass, id, store, data) {
+  constructor(modelName, id, store, data) {
     heimdall.increment(new_InternalModel);
-    this.modelClass = modelClass;
     this.id = id;
+    this._internalId = InternalModelReferenceId++;
     this.store = store;
     this._data = data || new EmptyObject();
-    this.modelName = modelClass.modelName;
+    this.modelName = modelName;
     this.dataHasInitialized = false;
     this._loadingPromise = null;
     this._recordArrays = undefined;
@@ -122,6 +124,7 @@ export default class InternalModel {
     this.error = null;
 
     // caches for lazy getters
+    this._modelClass = null;
     this.__deferredTriggers = null;
     this._references = null;
     this._recordReference = null;
@@ -129,6 +132,10 @@ export default class InternalModel {
     this.__relationships = null;
     this.__attributes = null;
     this.__implicitRelationships = null;
+  }
+
+  get modelClass() {
+    return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
   }
 
   get type() {
@@ -778,7 +785,7 @@ export default class InternalModel {
   */
   updateRecordArrays() {
     this._updatingRecordArraysLater = false;
-    this.store.dataWasUpdated(this.modelClass, this);
+    this.store._dataWasUpdated(this);
   }
 
   setId(id) {
