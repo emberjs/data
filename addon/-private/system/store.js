@@ -1666,7 +1666,7 @@ Store = Service.extend({
       let keys = Object.keys(this._schemas);
       keys.forEach(this.unloadAll, this);
     } else {
-      let schema = this._schemas[modelName];
+      let schema = this._schemas[modelName] || this._schemas[guidFor(this.modelFor(modelName))];
 
       if (schema) {
         let recordMap = schema.recordMap;
@@ -1984,25 +1984,28 @@ Store = Service.extend({
     if (this._schemas === null) {
       this._schemas = new EmptyObject();
     }
-    if (!this._schemas[modelName]) {
-      let modelClass = this.modelFor(modelName);
-      this._schemas[modelName] = new Schema(modelClass, this);
+
+    let modelClass = this.modelFor(modelName);
+    let schemaKey = guidFor(modelClass);
+
+    if (!this._schemas[schemaKey]) {
+      this._schemas[schemaKey] = new Schema(modelClass, this);
     }
 
-    return this._schemas[modelName];
+    return this._schemas[schemaKey];
   },
 
   _schemaForModelClass(modelClass) {
-    let modelName = modelClass.modelName;
+    let schemaKey = guidFor(modelClass);
 
     if (this._schemas === null) {
       this._schemas = new EmptyObject();
     }
-    if (!this._schemas[modelName]) {
-      this._schemas[modelName] = new Schema(modelClass, this);
+    if (!this._schemas[schemaKey]) {
+      this._schemas[schemaKey] = new Schema(modelClass, this);
     }
 
-    return this._schemas[modelName];
+    return this._schemas[schemaKey];
   },
 
   // ................
