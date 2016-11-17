@@ -2,7 +2,7 @@
 import Ember from 'ember';
 import EmberTestHelpers from "ember-dev/test-helper/index";
 
-const AVAILABLE_ASSERTIONS = ['expectAssertion', 'expectDeprecation', 'expectNoDeprecation', 'expectWarning', 'expectNoWarning'];
+const AVAILABLE_ASSERTIONS = ['expectAssertion', 'expectDeprecation', 'expectNoDeprecation', 'expectWarning', 'expectNoWarning', 'ignoreDeprecation'];
 
 // Maintain backwards compatiblity with older versions of ember.
 var emberDebugModule;

@@ -835,8 +835,8 @@ test("the promise returned by `_scheduleFetch`, when it rejects, does not depend
   });
 });
 
-test("store._fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
-  assert.expect(2);
+testInDebug("store._fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function(assert) {
+  assert.expect(3);
 
   var Person = DS.Model.extend();
 
@@ -859,18 +859,20 @@ test("store._fetchRecord reject records that were not found, even when those req
     test: Person
   });
 
-  run(function () {
-    var davidPromise = store.findRecord('test', 'david');
-    var igorPromise = store.findRecord('test', 'igor');
+  assert.expectWarning(function() {
+    run(function () {
+      var davidPromise = store.findRecord('test', 'david');
+      var igorPromise = store.findRecord('test', 'igor');
 
-    davidPromise.then(assert.wait(function () {
-      assert.ok(true, "David resolved");
-    }));
+      davidPromise.then(function () {
+        assert.ok(true, "David resolved");
+      });
 
-    igorPromise.then(null, assert.wait(function () {
-      assert.ok(true, "Igor rejected");
-    }));
-  });
+      igorPromise.then(null, function () {
+        assert.ok(true, "Igor rejected");
+      });
+    });
+  }, /expected to find records with the following ids/);
 });
 
 testInDebug("store._fetchRecord warns when records are missing", function(assert) {
