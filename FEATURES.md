@@ -146,3 +146,7 @@ entry in `config/features.json`.
      }
    });
   ```
+- `ds-deprecate-store-serialize` [#4654](https://github.com/emberjs/data/pull/4654)
+
+  Adds a deprecation warning when using Store#serialize(record) method.
+  You can use record.serialize() instead.
