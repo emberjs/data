@@ -953,10 +953,10 @@ module("unit/model - with a simple Person model", {
 });
 
 test("can ask if record with a given id is loaded", function(assert) {
-  assert.equal(store.recordIsLoaded('person', 1), true, 'should have person with id 1');
-  assert.equal(store.recordIsLoaded('person', 1), true, 'should have person with id 1');
-  assert.equal(store.recordIsLoaded('person', 4), false, 'should not have person with id 4');
-  assert.equal(store.recordIsLoaded('person', 4), false, 'should not have person with id 4');
+  assert.equal(store.hasRecordForId('person', 1), true, 'should have person with id 1');
+  assert.equal(store.hasRecordForId('person', 1), true, 'should have person with id 1');
+  assert.equal(store.hasRecordForId('person', 4), false, 'should not have person with id 4');
+  assert.equal(store.hasRecordForId('person', 4), false, 'should not have person with id 4');
 });
 
 test("a listener can be added to a record", function(assert) {
