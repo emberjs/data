@@ -67,7 +67,7 @@ const Promise = Ember.RSVP.Promise;
 
   ```js
   {
-    "post": {
+    "posts": {
       "id": 1,
       "title": "I'm Running to Reform the W3C's Tag",
       "author": "Yehuda Katz"
@@ -122,11 +122,56 @@ const Promise = Ember.RSVP.Promise;
 
   ```js
   {
-    "person": {
+    "people": {
       "id": 5,
       "firstName": "Barack",
       "lastName": "Obama",
       "occupation": "President"
+    }
+  }
+  ```
+
+  #### Relationships
+
+  Relationships are usually represented by ids to the record in the
+  relationship. The related records can then be sideloaded in the
+  response under a key for the type.
+
+  ```js
+  {
+    "posts": {
+      "id": 5,
+      "title": "I'm Running to Reform the W3C's Tag",
+      "author": "Yehuda Katz",
+      "comments": [1, 2]
+    },
+    "comments": [{
+      "id": 1,
+      "author": "User 1",
+      "message": "First!",
+    }, {
+      "id": 2,
+      "author": "User 2",
+      "message": "Good Luck!",
+    }]
+  }
+  ```
+
+  If the records in the relationship are not known when the response
+  is serialized its also possible to represent the relationship as a
+  url using the `links` key in the response. Ember Data will fetch
+  this url to resolve the relationship when it is accessed for the
+  first time.
+
+  ```js
+  {
+    "posts": {
+      "id": 5,
+      "title": "I'm Running to Reform the W3C's Tag",
+      "author": "Yehuda Katz",
+      "links": {
+        "comments": "/posts/5/comments"
+      }
     }
   }
   ```
