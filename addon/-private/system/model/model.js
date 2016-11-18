@@ -506,8 +506,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
    Fired when the record is ready to be interacted with,
    that is either loaded from the server or created locally.
 
-    @event ready
-  */
+   @event ready
+   */
   ready() {},
 
   /**
@@ -541,8 +541,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
   /**
    Fired when the record becomes invalid.
 
-    @event becameInvalid
-  */
+   @event becameInvalid
+   */
   becameInvalid() {},
 
   /**
@@ -1290,7 +1290,7 @@ if (isEnabled('ds-reset-attribute')) {
  extensively.
  */
 
-const ClassMixin = Ember.Mixin.create({
+Model.reopenClass({
   /**
    Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
    instances from within the store, but if end users accidentally call `create()`
@@ -1990,7 +1990,5 @@ const ClassMixin = Ember.Mixin.create({
     });
   }
 });
-
-Model.reopenClass(ClassMixin);
 
 export default Model;
