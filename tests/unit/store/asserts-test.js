@@ -16,7 +16,6 @@ const MODEL_NAME_METHODS = [
   'findAll',
   'peekAll',
   'filter',
-  'recordIsLoaded',
   'modelFor',
   'modelFactoryFor',
   'normalize',
@@ -24,7 +23,7 @@ const MODEL_NAME_METHODS = [
   'serializerFor'
 ];
 
-testInDebug("Calling Store methods with no type asserts", function(assert) {
+testInDebug("Calling Store methods with no modelName asserts", function(assert) {
   assert.expect(MODEL_NAME_METHODS.length);
   let store = createStore();
 

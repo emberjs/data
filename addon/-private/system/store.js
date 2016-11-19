@@ -1032,20 +1032,31 @@ Store = Service.extend({
   },
 
   /**
-    Returns true if a record for a given type and ID is already loaded.
+   This method returns true if a record for a given modelName and id is already
+   loaded in the store. Use this function to know beforehand if a findRecord()
+   will result in a request or that it will be a cache hit.
+
+   Example
+
+   ```javascript
+   store.hasRecordForId('post', 1); // false
+   store.findRecord('post', 1).then(function() {
+      store.hasRecordForId('post', 1); // true
+    });
+   ```
 
     @method hasRecordForId
     @param {(String|DS.Model)} modelName
-    @param {(String|Integer)} inputId
+    @param {(String|Integer)} id
     @return {Boolean}
   */
-  hasRecordForId(modelName, inputId) {
+  hasRecordForId(modelName, id) {
     assert("You need to pass a model name to the store's hasRecordForId method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
 
-    let id = coerceId(inputId);
+    let trueId = coerceId(id);
     let modelClass = this.modelFor(modelName);
-    let internalModel = this.typeMapFor(modelClass).idToRecord[id];
+    let internalModel = this.typeMapFor(modelClass).idToRecord[trueId];
 
     return !!internalModel && internalModel.isLoaded();
   },
@@ -1757,27 +1768,20 @@ Store = Service.extend({
   },
 
   /**
-    This method returns if a certain record is already loaded
-    in the store. Use this function to know beforehand if a findRecord()
-    will result in a request or that it will be a cache hit.
+    This method has been deprecated and is an alias for store.hasRecordForId, which should
+    be used instead.
 
-     Example
-
-    ```javascript
-    store.recordIsLoaded('post', 1); // false
-    store.findRecord('post', 1).then(function() {
-      store.recordIsLoaded('post', 1); // true
-    });
-    ```
-
+    @deprecated
     @method recordIsLoaded
     @param {String} modelName
     @param {string} id
     @return {boolean}
   */
   recordIsLoaded(modelName, id) {
-    assert("You need to pass a model name to the store's recordIsLoaded method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    deprecate(`Use of recordIsLoaded is deprecated, use hasRecordForId instead.`, {
+      id: 'ds.store.recordIsLoaded',
+      until: '3.0'
+    });
     return this.hasRecordForId(modelName, id);
   },
 
