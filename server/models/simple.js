@@ -1,7 +1,7 @@
 var faker = require('faker');
-var props = require('../store/props');
+var props = require('json-api-mock-server/lib/store/props');
 var attr = props.attr;
-var between = require('../utils/between');
+var between = require('json-api-mock-server/lib/utils/between');
 
 module.exports = {
   title: attr('string', { defaultValue: function() { return faker.lorem.words(between(3, 7)); }}),
