@@ -1286,7 +1286,7 @@ var JSONSerializer = Serializer.extend({
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: Ember.K,
+  serializePolymorphicType() {},
 
   /**
     `extractMeta` is used to deserialize any meta information in the
