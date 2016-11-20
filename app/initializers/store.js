@@ -10,5 +10,5 @@ import Ember from 'ember';
 export default {
   name: 'store',
   after: 'ember-data',
-  initialize: Ember.K
+  initialize() {}
 };

@@ -430,56 +430,56 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @event ready
   */
-  ready: Ember.K,
+  ready() {},
 
   /**
     Fired when the record is loaded from the server.
 
     @event didLoad
   */
-  didLoad: Ember.K,
+  didLoad() {},
 
   /**
     Fired when the record is updated.
 
     @event didUpdate
   */
-  didUpdate: Ember.K,
+  didUpdate() {},
 
   /**
     Fired when a new record is commited to the server.
 
     @event didCreate
   */
-  didCreate: Ember.K,
+  didCreate() {},
 
   /**
     Fired when the record is deleted.
 
     @event didDelete
   */
-  didDelete: Ember.K,
+  didDelete() {},
 
   /**
     Fired when the record becomes invalid.
 
     @event becameInvalid
   */
-  becameInvalid: Ember.K,
+  becameInvalid() {},
 
   /**
     Fired when the record enters the error state.
 
     @event becameError
   */
-  becameError: Ember.K,
+  becameError() {},
 
   /**
     Fired when the record is rolled back.
 
     @event rolledBack
   */
-  rolledBack: Ember.K,
+  rolledBack() {},
 
   //TODO Do we want to deprecate these?
   /**

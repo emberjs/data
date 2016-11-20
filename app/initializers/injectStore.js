@@ -10,5 +10,5 @@ import Ember from 'ember';
 export default {
   name: 'injectStore',
   before: 'store',
-  initialize: Ember.K
+  initialize() {}
 };

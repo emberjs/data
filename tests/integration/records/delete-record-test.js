@@ -1,4 +1,4 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
+3/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
 
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
@@ -232,7 +232,7 @@ test("Deleting an invalid newly created record should remove it from the store",
   run(function() {
     record = store.createRecord('person', { name: 'pablobm' });
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
-    record.save().catch(Ember.K);
+    record.save().catch(() => {});
   });
 
   // Preconditions
@@ -272,7 +272,7 @@ test("Destroying an invalid newly created record should remove it from the store
   run(function() {
     record = store.createRecord('person', { name: 'pablobm' });
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
-    record.save().catch(Ember.K);
+    record.save().catch(() => {});
   });
 
   // Preconditions
