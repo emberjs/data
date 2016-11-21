@@ -600,7 +600,7 @@ test("inverseFor is only called when inverse is not null", function(assert) {
   });
 });
 
-test("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
+testInDebug("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
 
   User = DS.Model.extend({
     post: DS.belongsTo('post', { inverse: null })
