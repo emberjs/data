@@ -37,8 +37,6 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
     this.removeCanonicalRecord(this.canonicalState);
   }
   this.flushCanonicalLater();
-  this.setHasData(true);
-  this.setHasLoaded(true);
 };
 
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
@@ -161,4 +159,9 @@ BelongsToRelationship.prototype.reload = function() {
   }
 
   return this.findRecord();
+};
+
+BelongsToRelationship.prototype.updateData = function(data) {
+  let internalModel = this.store._pushResourceIdentifier(this, data);
+  this.setCanonicalRecord(internalModel);
 };

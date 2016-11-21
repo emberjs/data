@@ -1052,8 +1052,63 @@ test("Local data should take precedence over related link", function(assert) {
   });
 });
 
-test("Updated related link should take precedence over local data", function(assert) {
+test("New related link should take precedence over local data", function(assert) {
   assert.expect(3);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    assert.equal(url, 'author-new-link', 'url is correct');
+    assert.ok(true, "The adapter's findBelongsTo method should be called");
+    return Ember.RSVP.resolve(
+      { id: 1, name: 'This is author' }
+    );
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            data: {
+              type: 'author',
+              id: '1'
+            }
+          }
+        }
+      }
+    });
+
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author-new-link'
+            }
+          }
+        }
+      }
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});
+
+test("Updated related link should take precedence over local data", function(assert) {
+  assert.expect(4);
 
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
@@ -1063,7 +1118,7 @@ test("Updated related link should take precedence over local data", function(ass
     assert.equal(url, 'author-updated-link', 'url is correct');
     assert.ok(true, "The adapter's findBelongsTo method should be called");
     return Ember.RSVP.resolve(
-      { id: 1, name: 'This is author' }
+      { id: 1, name: 'This is updated author' }
     );
   };
 
@@ -1084,7 +1139,18 @@ test("Updated related link should take precedence over local data", function(ass
             data: { type: 'author', id: '1' }
           }
         }
-      }
+      },
+      included: [{
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: 'This is author'
+        }
+      }]
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
     });
 
     env.store.push({
@@ -1095,6 +1161,68 @@ test("Updated related link should take precedence over local data", function(ass
           author: {
             links: {
               related: 'author-updated-link'
+            }
+          }
+        }
+      }
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is updated author', 'author name is correct');
+    });
+  });
+});
+
+test("Updated identical related link should not take precedence over local data", function(assert) {
+  assert.expect(2);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function() {
+    assert.ok(false, "The adapter's findBelongsTo method should not be called");
+  };
+
+  env.adapter.findRecord = function() {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            },
+            data: { type: 'author', id: '1' }
+          }
+        }
+      },
+      included: [{
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: 'This is author'
+        }
+      }]
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
             }
           }
         }

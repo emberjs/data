@@ -230,6 +230,11 @@ ManyRelationship.prototype.getRecords = function() {
   }
 };
 
+ManyRelationship.prototype.updateData = function(data) {
+  let internalModels = this.store._pushResourceIdentifiers(this, data);
+  this.updateRecordsFromAdapter(internalModels);
+};
+
 function setForArray(array) {
   var set = new OrderedSet();
 

@@ -5,7 +5,6 @@
 import Ember from 'ember';
 import Model from 'ember-data/model';
 import { instrument, assert, deprecate, warn, runInDebug } from "ember-data/-private/debug";
-import _normalizeLink from "ember-data/-private/system/normalize-link";
 import normalizeModelName from "ember-data/-private/system/normalize-model-name";
 import { InvalidError } from 'ember-data/adapters/errors';
 
@@ -2611,34 +2610,33 @@ Store = Service.extend({
     this._instanceCache.destroy();
 
     this.unloadAll();
+  },
+
+  _pushResourceIdentifier(relationship, resourceIdentifier) {
+    if (isNone(resourceIdentifier)) {
+      return;
+    }
+
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+
+    //TODO:Better asserts
+    return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
+  },
+
+  _pushResourceIdentifiers(relationship, resourceIdentifiers) {
+    if (isNone(resourceIdentifiers)) {
+      return;
+    }
+
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
+
+    let _internalModels = new Array(resourceIdentifiers.length);
+    for (let i = 0; i < resourceIdentifiers.length; i++) {
+      _internalModels[i] = this._pushResourceIdentifier(relationship, resourceIdentifiers[i]);
+    }
+    return _internalModels;
   }
 });
-
-function deserializeRecordId(store, key, relationship, id) {
-  if (isNone(id)) {
-    return;
-  }
-
-  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being ${inspect(id)}, but ${key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(id));
-
-  //TODO:Better asserts
-  return store._internalModelForId(id.type, id.id);
-}
-
-function deserializeRecordIds(store, key, relationship, ids) {
-  if (isNone(ids)) {
-    return;
-  }
-
-  assert(`A ${relationship.parentType} record was pushed into the store with the value of ${key} being '${inspect(ids)}', but ${key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(ids));
-  let _ids = new Array(ids.length);
-
-  for (let i = 0; i < ids.length; i++) {
-    _ids[i] = deserializeRecordId(store, key, relationship, ids[i]);
-  }
-
-  return _ids;
-}
 
 // Delegation to the adapter and promise management
 
@@ -2697,56 +2695,13 @@ function setupRelationships(store, record, data) {
   }
 
   record.type.eachRelationship((key, descriptor) => {
-    let kind = descriptor.kind;
-
     if (!data.relationships[key]) {
       return;
     }
 
-    let relationship;
-
-    if (data.relationships[key].links && data.relationships[key].links.related) {
-      let relatedLink = _normalizeLink(data.relationships[key].links.related);
-      if (relatedLink && relatedLink.href) {
-        relationship = record._relationships.get(key);
-        relationship.updateLink(relatedLink.href);
-      }
-    }
-
-    if (data.relationships[key].meta) {
-      relationship = record._relationships.get(key);
-      relationship.updateMeta(data.relationships[key].meta);
-    }
-
-    // If the data contains a relationship that is specified as an ID (or IDs),
-    // normalizeRelationship will convert them into DS.Model instances
-    // (possibly unloaded) before we push the payload into the store.
-    normalizeRelationship(store, key, descriptor, data.relationships[key]);
-
-    let value = data.relationships[key].data;
-
-    if (value !== undefined) {
-      if (kind === 'belongsTo') {
-        relationship = record._relationships.get(key);
-        relationship.setCanonicalRecord(value);
-      } else if (kind === 'hasMany') {
-        relationship = record._relationships.get(key);
-        relationship.updateRecordsFromAdapter(value);
-      }
-    }
+    let relationship = record._relationships.get(key);
+    relationship.push(data.relationships[key]);
   });
-}
-
-function normalizeRelationship(store, key, relationship, jsonPayload) {
-  let data = jsonPayload.data;
-  if (data) {
-    let kind = relationship.kind;
-    if (kind === 'belongsTo') {
-      jsonPayload.data = deserializeRecordId(store, key, relationship, data);
-    } else if (kind === 'hasMany') {
-      jsonPayload.data = deserializeRecordIds(store, key, relationship, data);
-    }
-  }
 }
 
 export { Store };
