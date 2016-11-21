@@ -158,7 +158,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       let ret = new Array(documentHash.included.length);
 
       for (let i = 0; i < documentHash.included.length; i++) {
-        let included = documentHash.included[i];
+        let included = documentHash.included[i].data;
         ret[i] = this._normalizeResourceHelper(included);
       }
 
