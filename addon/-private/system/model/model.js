@@ -1041,7 +1041,7 @@ if (Ember.setOwner) {
 if (isEnabled('ds-reset-attribute')) {
   Model.reopen({
     /**
-      Discards any unsaved changes to the given attribute.
+      Discards any unsaved changes to the given attribute. This feature is not enabled by default. You must enable `reset-attribute`and be running a canary build.
 
       Example
 
