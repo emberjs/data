@@ -337,7 +337,8 @@ var RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && Ember.typeOf(value) !== 'array') {
-        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
+        let primaryHasTypeAttribute = get(primaryModelClass, 'attributes').get('type');
+        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this, primaryHasTypeAttribute);
         documentHash.data = data;
         if (included) {
           documentHash.included.push(...included);
