@@ -2,6 +2,17 @@
 
 ### Master
 
+### Release 2.10.0 (November 28, 2016)
+- [#4656](https://github.com/emberjs/data/pull/4656) [PERF backport to beta] fix sub-optimal compiler output ([#4655](https://github.com/emberjs/data/pull/4655))
+- [#4592](https://github.com/emberjs/data/pull/4592) [DOC] Add documentation for query#update() to refresh query
+- [#4510](https://github.com/emberjs/data/pull/4510) Heimdall instrumentation
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
+- [#4553](https://github.com/emberjs/data/pull/4553) [DOCS] Fix store.unloadAll modelName param type
+- [#4566](https://github.com/emberjs/data/pull/4566) Properly cleanup store and env in store integration test
+- [#4574](https://github.com/emberjs/data/pull/4574) Move heimdalljs to dependencies
+- [#4576](https://github.com/emberjs/data/pull/4576) [DOC] Update Readme to reflect new default adapter
+- [#4578](https://github.com/emberjs/data/pull/4578) Improved null id assertions
+
 ### Release 2.9.0 (October 18, 2016)
 - [#4577](https://github.com/emberjs/data/pull/4577) [DOC] fix typo
 - [#4529](https://github.com/emberjs/data/pull/4529) isUpdating should be true only if a reload happens
