@@ -2,13 +2,9 @@
 
 ### Master
 
-### Release 2.10.0-beta.3 (November 21, 2016)
+### Release 2.10.0 (November 28, 2016)
 - [#4656](https://github.com/emberjs/data/pull/4656) [PERF backport to beta] fix sub-optimal compiler output ([#4655](https://github.com/emberjs/data/pull/4655))
-
-### Release 2.10.0-beta.2 (October 24, 2016)
 - [#4592](https://github.com/emberjs/data/pull/4592) [DOC] Add documentation for query#update() to refresh query
-
-### Release 2.10.0-beta.1 (October 18, 2016)
 - [#4510](https://github.com/emberjs/data/pull/4510) Heimdall instrumentation
 - [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
 - [#4553](https://github.com/emberjs/data/pull/4553) [DOCS] Fix store.unloadAll modelName param type
