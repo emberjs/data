@@ -53,35 +53,42 @@ const {
   'updateRecordsFromAdapter'
 );
 
-export default function Relationship(store, record, inverseKey, relationshipMeta) {
-  heimdall.increment(newRelationship);
-  var async = relationshipMeta.options.async;
-  this.members = new OrderedSet();
-  this.canonicalMembers = new OrderedSet();
-  this.store = store;
-  this.key = relationshipMeta.key;
-  this.inverseKey = inverseKey;
-  this.record = record;
-  this.isAsync = typeof async === 'undefined' ? true : async;
-  this.relationshipMeta = relationshipMeta;
-  //This probably breaks for polymorphic relationship in complex scenarios, due to
-  //multiple possible modelNames
-  this.inverseKeyForImplicit = this.record.constructor.modelName + this.key;
-  this.linkPromise = null;
-  this.meta = null;
-  this.hasData = false;
-  this.hasLoaded = false;
-}
+export default class Relationship {
+  constructor(store, internalModel, inverseKey, relationshipMeta) {
+    heimdall.increment(newRelationship);
+    var async = relationshipMeta.options.async;
+    this.members = new OrderedSet();
+    this.canonicalMembers = new OrderedSet();
+    this.store = store;
+    this.key = relationshipMeta.key;
+    this.inverseKey = inverseKey;
+    this.internalModel = internalModel;
+    this.isAsync = typeof async === 'undefined' ? true : async;
+    this.relationshipMeta = relationshipMeta;
+    //This probably breaks for polymorphic relationship in complex scenarios, due to
+    //multiple possible modelNames
+    this.inverseKeyForImplicit = this.internalModel.modelName + this.key;
+    this.linkPromise = null;
+    this.meta = null;
+    this.hasData = false;
+    this.hasLoaded = false;
+  }
 
-Relationship.prototype = {
-  constructor: Relationship,
+  // TODO @runspired deprecate this as it was never truly a record instance
+  get record() {
+    return this.internalModel;
+  }
 
-  destroy() { },
+  get parentType() {
+    return this.internalModel.modelName;
+  }
+
+  destroy() { }
 
   updateMeta(meta) {
     heimdall.increment(updateMeta);
     this.meta = meta;
-  },
+  }
 
   clear() {
     heimdall.increment(clear);
@@ -92,12 +99,12 @@ Relationship.prototype = {
       member = members[0];
       this.removeRecord(member);
     }
-  },
+  }
 
   removeRecords(records) {
     heimdall.increment(removeRecords);
     records.forEach((record) => this.removeRecord(record));
-  },
+  }
 
   addRecords(records, idx) {
     heimdall.increment(addRecords);
@@ -107,7 +114,7 @@ Relationship.prototype = {
         idx++;
       }
     });
-  },
+  }
 
   addCanonicalRecords(records, idx) {
     heimdall.increment(addCanonicalRecords);
@@ -118,7 +125,7 @@ Relationship.prototype = {
         this.addCanonicalRecord(records[i]);
       }
     }
-  },
+  }
 
   addCanonicalRecord(record, idx) {
     heimdall.increment(addCanonicalRecord);
@@ -135,7 +142,7 @@ Relationship.prototype = {
     }
     this.flushCanonicalLater();
     this.setHasData(true);
-  },
+  }
 
   removeCanonicalRecords(records, idx) {
     heimdall.increment(removeCanonicalRecords);
@@ -146,7 +153,7 @@ Relationship.prototype = {
         this.removeCanonicalRecord(records[i]);
       }
     }
-  },
+  }
 
   removeCanonicalRecord(record, idx) {
     heimdall.increment(removeCanonicalRecord);
@@ -161,7 +168,7 @@ Relationship.prototype = {
       }
     }
     this.flushCanonicalLater();
-  },
+  }
 
   addRecord(record, idx) {
     heimdall.increment(addRecord);
@@ -179,7 +186,7 @@ Relationship.prototype = {
       this.record.updateRecordArraysLater();
     }
     this.setHasData(true);
-  },
+  }
 
   removeRecord(record) {
     heimdall.increment(removeRecord);
@@ -193,7 +200,7 @@ Relationship.prototype = {
         }
       }
     }
-  },
+  }
 
   removeRecordFromInverse(record) {
     heimdall.increment(removeRecordFromInverse);
@@ -202,14 +209,14 @@ Relationship.prototype = {
     if (inverseRelationship) {
       inverseRelationship.removeRecordFromOwn(this.record);
     }
-  },
+  }
 
   removeRecordFromOwn(record) {
     heimdall.increment(removeRecordFromOwn);
     this.members.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
-  },
+  }
 
   removeCanonicalRecordFromInverse(record) {
     heimdall.increment(removeCanonicalRecordFromInverse);
@@ -218,13 +225,13 @@ Relationship.prototype = {
     if (inverseRelationship) {
       inverseRelationship.removeCanonicalRecordFromOwn(this.record);
     }
-  },
+  }
 
   removeCanonicalRecordFromOwn(record) {
     heimdall.increment(removeCanonicalRecordFromOwn);
     this.canonicalMembers.delete(record);
     this.flushCanonicalLater();
-  },
+  }
 
   flushCanonical() {
     heimdall.increment(flushCanonical);
@@ -232,17 +239,17 @@ Relationship.prototype = {
     //a hack for not removing new records
     //TODO remove once we have proper diffing
     var newRecords = [];
-    for (var i=0; i<this.members.list.length; i++) {
+    for (var i = 0; i < this.members.list.length; i++) {
       if (this.members.list[i].isNew()) {
         newRecords.push(this.members.list[i]);
       }
     }
     //TODO(Igor) make this less abysmally slow
     this.members = this.canonicalMembers.copy();
-    for (i=0; i<newRecords.length; i++) {
+    for (i = 0; i < newRecords.length; i++) {
       this.members.add(newRecords[i]);
     }
-  },
+  }
 
   flushCanonicalLater() {
     heimdall.increment(flushCanonicalLater);
@@ -251,7 +258,7 @@ Relationship.prototype = {
     }
     this.willSync = true;
     this.store._backburner.join(() => this.store._backburner.schedule('syncRelationships', this, this.flushCanonical));
-  },
+  }
 
   updateLink(link) {
     heimdall.increment(updateLink);
@@ -263,7 +270,7 @@ Relationship.prototype = {
     this.link = link;
     this.linkPromise = null;
     this.record.notifyPropertyChange(this.key);
-  },
+  }
 
   findLink() {
     heimdall.increment(findLink);
@@ -274,55 +281,55 @@ Relationship.prototype = {
       this.linkPromise = promise;
       return promise.then((result) => result);
     }
-  },
+  }
 
   updateRecordsFromAdapter(records) {
     heimdall.increment(updateRecordsFromAdapter);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(records);
-  },
+  }
 
-  notifyRecordRelationshipAdded() { },
-  notifyRecordRelationshipRemoved() { },
+  notifyRecordRelationshipAdded() { }
+  notifyRecordRelationshipRemoved() { }
 
   /*
-    `hasData` for a relationship is a flag to indicate if we consider the
-    content of this relationship "known". Snapshots uses this to tell the
-    difference between unknown (`undefined`) or empty (`null`). The reason for
-    this is that we wouldn't want to serialize unknown relationships as `null`
-    as that might overwrite remote state.
+   `hasData` for a relationship is a flag to indicate if we consider the
+   content of this relationship "known". Snapshots uses this to tell the
+   difference between unknown (`undefined`) or empty (`null`). The reason for
+   this is that we wouldn't want to serialize unknown relationships as `null`
+   as that might overwrite remote state.
 
-    All relationships for a newly created (`store.createRecord()`) are
-    considered known (`hasData === true`).
+   All relationships for a newly created (`store.createRecord()`) are
+   considered known (`hasData === true`).
    */
   setHasData(value) {
     heimdall.increment(setHasData);
     this.hasData = value;
-  },
+  }
 
   /*
-    `hasLoaded` is a flag to indicate if we have gotten data from the adapter or
-    not when the relationship has a link.
+   `hasLoaded` is a flag to indicate if we have gotten data from the adapter or
+   not when the relationship has a link.
 
-    This is used to be able to tell when to fetch the link and when to return
-    the local data in scenarios where the local state is considered known
-    (`hasData === true`).
+   This is used to be able to tell when to fetch the link and when to return
+   the local data in scenarios where the local state is considered known
+   (`hasData === true`).
 
-    Updating the link will automatically set `hasLoaded` to `false`.
+   Updating the link will automatically set `hasLoaded` to `false`.
    */
   setHasLoaded(value) {
     heimdall.increment(setHasLoaded);
     this.hasLoaded = value;
-  },
+  }
 
   /*
-    `push` for a relationship allows the store to push a JSON API Relationship
-    Object onto the relationship. The relationship will then extract and set the
-    meta, data and links of that relationship.
+   `push` for a relationship allows the store to push a JSON API Relationship
+   Object onto the relationship. The relationship will then extract and set the
+   meta, data and links of that relationship.
 
-    `push` use `updateMeta`, `updateData` and `updateLink` to update the state
-    of the relationship.
+   `push` use `updateMeta`, `updateData` and `updateLink` to update the state
+   of the relationship.
    */
   push(payload) {
     heimdall.increment(push);
@@ -348,16 +355,16 @@ Relationship.prototype = {
     }
 
     /*
-      Data being pushed into the relationship might contain only data or links,
-      or a combination of both.
+     Data being pushed into the relationship might contain only data or links,
+     or a combination of both.
 
-      If we got data we want to set both hasData and hasLoaded to true since
-      this would indicate that we should prefer the local state instead of
-      trying to fetch the link or call findRecord().
+     If we got data we want to set both hasData and hasLoaded to true since
+     this would indicate that we should prefer the local state instead of
+     trying to fetch the link or call findRecord().
 
-      If we have no data but a link is present we want to set hasLoaded to false
-      without modifying the hasData flag. This will ensure we fetch the updated
-      link next time the relationship is accessed.
+     If we have no data but a link is present we want to set hasLoaded to false
+     without modifying the hasData flag. This will ensure we fetch the updated
+     link next time the relationship is accessed.
      */
     if (hasData) {
       this.setHasData(true);
@@ -365,7 +372,7 @@ Relationship.prototype = {
     } else if (hasLink) {
       this.setHasLoaded(false);
     }
-  },
+  }
 
   updateData() {}
-};
+}
