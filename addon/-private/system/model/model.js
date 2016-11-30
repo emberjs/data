@@ -1043,7 +1043,7 @@ if (Ember.setOwner) {
   });
 }
 
-if (isEnabled('ds-reset-attribute')) {
+if (isEnabled('ds-rollback-attribute')) {
   Model.reopen({
     /**
       Discards any unsaved changes to the given attribute.
@@ -1054,13 +1054,13 @@ if (isEnabled('ds-reset-attribute')) {
       record.get('name'); // 'Untitled Document'
       record.set('name', 'Doc 1');
       record.get('name'); // 'Doc 1'
-      record.resetAttribute('name');
+      record.rollbackAttribute('name');
       record.get('name'); // 'Untitled Document'
       ```
 
-      @method resetAttribute
+      @method rollbackAttribute
     */
-    resetAttribute(attributeName) {
+    rollbackAttribute(attributeName) {
       if (attributeName in this._internalModel._attributes) {
         this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
       }

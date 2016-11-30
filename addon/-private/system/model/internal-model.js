@@ -1016,7 +1016,7 @@ export default class InternalModel {
   }
 }
 
-if (isEnabled('ds-reset-attribute')) {
+if (isEnabled('ds-rollback-attribute')) {
   /*
      Returns the latest truth for an attribute - the canonical value, or the
      in-flight value.
