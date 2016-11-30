@@ -43,8 +43,7 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
         id: 'ds.store.findRecord.id-mismatch'
       });
 
-      var internalModel = store._push(payload);
-      return internalModel;
+      return store._push(payload);
     });
   }, function(error) {
     internalModel.notFound();
@@ -180,19 +179,19 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   }, null, 'DS: Extract payload of query ' + typeClass);
 }
 
-export function _queryRecord(adapter, store, typeClass, query) {
-  var modelName = typeClass.modelName;
-  var promise = adapter.queryRecord(store, typeClass, query);
-  var serializer = serializerForAdapter(store, adapter, modelName);
-  var label = "DS: Handle Adapter#queryRecord of " + typeClass;
+export function _queryRecord(adapter, store, modelClass, query) {
+  let modelName = modelClass.modelName;
+  let promise = adapter.queryRecord(store, modelClass, query);
+  let serializer = serializerForAdapter(store, adapter, modelName);
+  let label = `DS: Handle Adapter#queryRecord of ${modelName}`;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    var internalModel;
+    let internalModel;
     store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'queryRecord');
+      let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'queryRecord');
 
       assert("Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array.", !Array.isArray(payload.data), {
         id: 'ds.store.queryRecord-array-response'
@@ -203,5 +202,5 @@ export function _queryRecord(adapter, store, typeClass, query) {
 
     return internalModel;
 
-  }, null, "DS: Extract payload of queryRecord " + typeClass);
+  }, null, "DS: Extract payload of queryRecord " + modelClass);
 }

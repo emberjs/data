@@ -13,6 +13,7 @@ function shouldFindInverse(relationshipMeta) {
 function createRelationshipFor(internalModel, relationshipMeta, store) {
   let inverseKey;
   let inverse = null;
+
   if (shouldFindInverse(relationshipMeta)) {
     inverse = internalModel.type.inverseFor(relationshipMeta.key, store);
   }
