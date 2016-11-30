@@ -147,8 +147,8 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   });
 });
 
-test("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
-  assert.expect(2);
+testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
+  assert.expect(isEnabled("ds-payload-type-hooks") ? 3 : 2);
 
   var homePlanetNormalizeCount = 0;
 
@@ -168,6 +168,10 @@ test("normalizeResponse with type and custom modelNameFromPayloadKey", function(
   };
   var array;
 
+
+  if (isEnabled("ds-payload-type-hooks")) {
+    assert.expectDeprecation('You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType');
+  }
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
   });

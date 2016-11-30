@@ -973,7 +973,7 @@ test('normalizeResponse respects `included` items (array response)', function(as
   ]);
 });
 
-test('normalizeResponse ignores unmapped attributes', function(assert) {
+testInDebug('normalizeResponse ignores unmapped attributes', function(assert) {
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: { serialize: false },
@@ -987,9 +987,10 @@ test('normalizeResponse ignores unmapped attributes', function(assert) {
     title: "Rails is omakase"
   };
 
-  var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
-
-  assert.equal(post.data.attributes.title, "Rails is omakase");
+  assert.expectWarning(function() {
+    var post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
+    assert.equal(post.data.attributes.title, "Rails is omakase");
+  }, /There is no attribute or relationship with the name/);
 });
 
 test('options are passed to transform for serialization', function(assert) {

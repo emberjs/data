@@ -15,11 +15,8 @@ module.exports = function(environment) {
     locationType: 'auto',
     EmberENV: {
       FEATURES: featureFlags,
-      ENABLE_DS_FILTER: true
-
-      // don't raise on deprecation yet, since there are too many thrown errors;
-      // this should be addressed in another PR
-      // RAISE_ON_DEPRECATION: true
+      ENABLE_DS_FILTER: true,
+      RAISE_ON_DEPRECATION: true
     },
 
     APP: {

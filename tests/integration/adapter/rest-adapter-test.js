@@ -1349,17 +1349,21 @@ test("queryRecord - returning sideloaded data loads the data", function(assert) 
   }));
 });
 
-test("queryRecord - returning an array picks the first one but saves all records to the store", function(assert) {
+testInDebug("queryRecord - returning an array picks the first one but saves all records to the store", function(assert) {
   ajaxResponse({
     post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
   });
 
-  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
-    var post2 = store.peekRecord('post', 2);
+  assert.expectDeprecation('The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
 
-    assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
-    assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
-  }));
+  run(function() {
+    store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
+      var post2 = store.peekRecord('post', 2);
+
+      assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
+      assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
+    }));
+  });
 });
 
 testInDebug("queryRecord - returning an array is deprecated", function(assert) {
