@@ -5,7 +5,7 @@
   "ds-overhaul-references": null,
   "ds-payload-type-hooks": null,
   "ds-check-should-serialize-relationships": null,
-  "ds-reset-attribute": null,
+  "ds-rollback-attribute": null,
   "ds-serialize-id": null,
   "ds-deprecate-store-serialize": true
 }

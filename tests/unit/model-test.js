@@ -428,8 +428,8 @@ test("changedAttributes() works while the record is being updated", function(ass
   });
 });
 
-if (isEnabled('ds-reset-attribute')) {
-  test("resetAttribute() reverts a single attribute to its canonical value", function(assert) {
+if (isEnabled('ds-rollback-attribute')) {
+  test("rollbackAttribute() reverts a single attribute to its canonical value", function(assert) {
     assert.expect(5);
 
     run(function() {
@@ -452,14 +452,14 @@ if (isEnabled('ds-reset-attribute')) {
         isDrugAddict: false
       });
       assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
-      person.resetAttribute('isDrugAddict');
+      person.rollbackAttribute('isDrugAddict');
       assert.equal(person.get('isDrugAddict'), true, "The specified attribute is rolled back");
       assert.equal(person.get('name'), 'Piper', "Unspecified attributes are not rolled back");
       assert.equal(person.get('hasDirtyAttributes'), true, "record with changed attributes is still dirty");
     });
   });
 
-  test("calling resetAttribute() on an unmodified property has no effect", function(assert) {
+  test("calling rollbackAttribute() on an unmodified property has no effect", function(assert) {
     assert.expect(5);
 
     run(function() {
@@ -479,14 +479,14 @@ if (isEnabled('ds-reset-attribute')) {
       assert.equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
       person.set('name', 'Piper');
       assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
-      person.resetAttribute('isDrugAddict');
+      person.rollbackAttribute('isDrugAddict');
       assert.equal(person.get('isDrugAddict'), true, "The specified attribute does not change value");
       assert.equal(person.get('name'), 'Piper', "Unspecified attributes are not rolled back");
       assert.equal(person.get('hasDirtyAttributes'), true, "record with changed attributes is still dirty");
     });
   });
 
-  test("Rolling back the final value with resetAttribute() causes the record to become clean again", function(assert) {
+  test("Rolling back the final value with rollbackAttribute() causes the record to become clean again", function(assert) {
     assert.expect(3);
 
     run(function() {
@@ -506,12 +506,12 @@ if (isEnabled('ds-reset-attribute')) {
       assert.equal(person.get('hasDirtyAttributes'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
       assert.equal(person.get('hasDirtyAttributes'), true, "record becomes dirty after setting property to a new value");
-      person.resetAttribute('isDrugAddict');
+      person.rollbackAttribute('isDrugAddict');
       assert.equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting property to the old value");
     });
   });
 
-  test("Using resetAttribute on an in-flight record reverts to the latest in-flight value", function(assert) {
+  test("Using rollbackAttribute on an in-flight record reverts to the latest in-flight value", function(assert) {
     assert.expect(4);
 
     var person, finishSaving;
@@ -546,14 +546,14 @@ if (isEnabled('ds-reset-attribute')) {
       person.set('name', "Tomathy");
       assert.equal(person.get('name'), "Tomathy");
 
-      person.resetAttribute('name');
+      person.rollbackAttribute('name');
       assert.equal(person.get('name'), "Thomas");
 
       finishSaving();
     });
   });
 
-  test("Saving an in-flight record updates the in-flight value resetAttribute will use", function(assert) {
+  test("Saving an in-flight record updates the in-flight value rollbackAttribute will use", function(assert) {
     assert.expect(7);
 
     var person, finishSaving;
@@ -598,7 +598,7 @@ if (isEnabled('ds-reset-attribute')) {
       person.set('name', "Tomny");
       assert.equal(person.get('name'), "Tomny");
 
-      person.resetAttribute('name');
+      person.rollbackAttribute('name');
       assert.equal(person.get('name'), 'Tomathy');
 
       finishSaving();
