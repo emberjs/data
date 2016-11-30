@@ -1046,7 +1046,7 @@ if (Ember.setOwner) {
 if (isEnabled('ds-rollback-attribute')) {
   Model.reopen({
     /**
-      Discards any unsaved changes to the given attribute.
+      Discards any unsaved changes to the given attribute. This feature is not enabled by default. You must enable `ds-rollback-attribute` and be running a canary build.
 
       Example
 
