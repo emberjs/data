@@ -830,18 +830,21 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     Example
 
-    ```javascript
-    // models/blog.js
+    ```app/models/blog.js
     export default DS.Model.extend({
       user: DS.belongsTo({ async: true })
     });
+    ```
 
+    ```javascript
     var blog = store.push({
-      type: 'blog',
-      id: 1,
-      relationships: {
-        user: {
-          data: { type: 'user', id: 1 }
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: {
+            data: { type: 'user', id: 1 }
+          }
         }
       }
     });
@@ -899,14 +902,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
 
     var blog = store.push({
-      type: 'blog',
-      id: 1,
-      relationships: {
-        comments: {
-          data: [
-            { type: 'comment', id: 1 },
-            { type: 'comment', id: 2 }
-          ]
+      data: {
+        type: 'blog',
+        id: 1,
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: 1 },
+              { type: 'comment', id: 2 }
+            ]
+          }
         }
       }
     });
