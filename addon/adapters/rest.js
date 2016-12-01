@@ -1005,7 +1005,7 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   /**
     Default `handleResponse` implementation uses this hook to decide if the
-    response is a an invalid error.
+    response is an invalid error.
 
     @since 1.13.0
     @method isInvalid
