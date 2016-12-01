@@ -267,7 +267,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   isError: false,
 
   /**
-    If `true` the store is attempting to reload the record form the adapter.
+    If `true` the store is attempting to reload the record from the adapter.
 
     Example
 
