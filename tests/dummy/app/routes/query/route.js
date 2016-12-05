@@ -27,6 +27,7 @@ export default Route.extend({
     let token = heimdall.start('ember-data');
     return this.get('store').query(modelName, params)
       .then((records) => {
+        records.toArray();
         heimdall.stop(token);
         window.result = heimdall.toString();
 

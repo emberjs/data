@@ -263,6 +263,7 @@ export default class InternalModel {
   getRecord() {
     if (!this._record) {
       heimdall.increment(materializeRecord);
+      let token = heimdall.start('InternalModel.getRecord');
 
       // lookupFactory should really return an object that creates
       // instances with the injections applied
@@ -285,6 +286,7 @@ export default class InternalModel {
       this._record = this.modelClass._create(createOptions);
 
       this._triggerDeferredTriggers();
+      heimdall.stop(token);
     }
 
     return this._record;
