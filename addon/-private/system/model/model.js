@@ -995,7 +995,7 @@ Model.reopenClass({
   },
 
   /**
-   Represents the model's class name as a string. This can be used to look up the model through
+   Represents the model's class name as a string. This can be used to look up the model's class name through
    DS.Store's modelFor method.
 
    `modelName` is generated for you by Ember Data. It will be a lowercased, dasherized string.
