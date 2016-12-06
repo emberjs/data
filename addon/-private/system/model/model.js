@@ -3,7 +3,6 @@ import { assert, deprecate, warn } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
 import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many';
-import { RelationshipsInstanceMethodsMixin } from 'ember-data/-private/system/relationships/ext';
 import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
@@ -1057,10 +1056,73 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
       meta.parentType = proto.constructor;
     }
+  },
+
+  /**
+   Given a callback, iterates over each of the relationships in the model,
+   invoking the callback with the name of each relationship and its relationship
+   descriptor.
+
+
+   The callback method you provide should have the following signature (all
+   parameters are optional):
+
+   ```javascript
+   function(name, descriptor);
+   ```
+
+   - `name` the name of the current property in the iteration
+   - `descriptor` the meta object that describes this relationship
+
+   The relationship descriptor argument is an object with the following properties.
+
+   - **key** <span class="type">String</span> the name of this relationship on the Model
+   - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
+   - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
+   - **parentType** <span class="type">DS.Model</span> the type of the Model that owns this relationship
+   - **type** <span class="type">String</span> the type name of the related Model
+
+   Note that in addition to a callback, you can also pass an optional target
+   object that will be set as `this` on the context.
+
+   Example
+
+   ```app/serializers/application.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
+    serialize: function(record, options) {
+      var json = {};
+
+      record.eachRelationship(function(name, descriptor) {
+        if (descriptor.kind === 'hasMany') {
+          var serializedHasManyName = name.toUpperCase() + '_IDS';
+          json[serializedHasManyName] = record.get(name).mapBy('id');
+        }
+      });
+
+      return json;
+    }
+  });
+   ```
+
+   @method eachRelationship
+   @param {Function} callback the callback to invoke
+   @param {any} binding the value to which the callback's `this` should be bound
+   */
+  eachRelationship(callback, binding) {
+    this.constructor.eachRelationship(callback, binding);
+  },
+
+  relationshipFor(name) {
+    return get(this.constructor, 'relationshipsByName').get(name);
+  },
+
+  inverseFor(key) {
+    return this.constructor.inverseFor(key, this.store);
   }
+
 },
-  DidDefinePropertyMixin,
-  RelationshipsInstanceMethodsMixin,
   HasManyMixin,
   AttrInstanceMethodsMixin
 );
