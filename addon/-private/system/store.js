@@ -1216,12 +1216,17 @@ Store = Service.extend({
     assert("You need to pass a model name to the store's query method", isPresent(modelName));
     assert("You need to pass a query hash to the store's query method", query);
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+
+    let modelToken = heimdall.start('initial-modelFor-lookup');
     let modelClass = this.modelFor(modelName);
+    heimdall.stop(modelToken);
 
     array = array || this.recordArrayManager
       .createAdapterPopulatedRecordArray(modelClass, query);
 
+    let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
+    heimdall.stop(adapterToken);
 
     assert("You tried to load a query but you have no adapter (for " + modelClass.modelName + ")", adapter);
     assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function');

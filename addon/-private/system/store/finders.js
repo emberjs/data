@@ -156,7 +156,9 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   let modelName = typeClass.modelName;
   let promise = adapter.query(store, typeClass, query, recordArray);
 
+  let serializerToken = heimdall.start('initial-serializerFor-lookup');
   let serializer = serializerForAdapter(store, adapter, modelName);
+  heimdall.stop(serializerToken);
   let label = 'DS: Handle Adapter#query of ' + typeClass;
 
   promise = Promise.resolve(promise, label);
@@ -165,7 +167,9 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   return promise.then(adapterPayload => {
     let internalModels, payload;
     store._adapterRun(() => {
+      let normalizeToken = heimdall.start('finders#_query::normalizeResponseHelper');
       payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'query');
+      heimdall.stop(normalizeToken);
       internalModels = store._push(payload);
     });
 
