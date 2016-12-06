@@ -13,6 +13,9 @@ export default Route.extend({
     },
     modelName: {
       refreshModel: true
+    },
+    included: {
+      refreshModel: true
     }
   },
 
