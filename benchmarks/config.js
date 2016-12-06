@@ -8,7 +8,7 @@ module.exports = {
     // "query?modelName=simple&limit=2",  // 2 total
     // "query?modelName=simple&limit=34",  // 34 total
     // "query?modelName=simple&limit=119",  // 119 total
-    "query?modelName=simple&limit=238",  // 238 total
+    // "query?modelName=simple&limit=238",  // 238 total
 
 
     // complex returns 7 total records of 3 model types per count in limit
@@ -18,7 +18,7 @@ module.exports = {
     // "query?modelName=complex&limit=2", // 14 total
     // "query?modelName=complex&limit=5", // 35 total
     // "query?modelName=complex&limit=17", // 119 total
-    // "query?modelName=complex&limit=34", // 238 total
+    "query?modelName=complex&limit=34&included=foo,baz", // 238 total
 
 
     // heavy returns 17 total records of 5 model types per count in limit
