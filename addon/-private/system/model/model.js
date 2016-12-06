@@ -30,11 +30,11 @@ function intersection (array1, array2) {
   return result;
 }
 
-var RESERVED_MODEL_PROPS = [
+const RESERVED_MODEL_PROPS = [
   'currentState', 'data', 'store'
 ];
 
-var retrieveFromCurrentState = computed('currentState', function(key) {
+const retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
 
@@ -51,7 +51,7 @@ var retrieveFromCurrentState = computed('currentState', function(key) {
   @extends Ember.Object
   @uses Ember.Evented
 */
-var Model = Ember.Object.extend(Ember.Evented, {
+const Model = Ember.Object.extend(Ember.Evented, {
   _internalModel: null,
   store: null,
 
@@ -886,7 +886,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
   */
-  belongsTo: function(name) {
+  belongsTo(name) {
     return this._internalModel.referenceFor('belongsTo', name);
   },
 
@@ -947,14 +947,21 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
   */
-  hasMany: function(name) {
+  hasMany(name) {
     return this._internalModel.referenceFor('hasMany', name);
   },
 
   setId: Ember.observer('id', function () {
     this._internalModel.setId(this.get('id'));
   })
-});
+},
+  DebuggerInfoMixin,
+  BelongsToMixin,
+  DidDefinePropertyMixin,
+  RelationshipsInstanceMethodsMixin,
+  HasManyMixin,
+  AttrInstanceMethodsMixin
+);
 
 /**
  @property data
@@ -1022,7 +1029,7 @@ Model.reopenClass({
    @static
   */
   modelName: null
-});
+}, RelationshipsClassMethodsMixin, AttrClassMethodsMixin);
 
 // if `Ember.setOwner` is defined, accessing `this.container` is
 // deprecated (but functional). In "standard" Ember usage, this
@@ -1068,14 +1075,4 @@ if (isEnabled('ds-rollback-attribute')) {
   });
 }
 
-
-Model.reopenClass(RelationshipsClassMethodsMixin);
-Model.reopenClass(AttrClassMethodsMixin);
-
-export default Model.extend(
-  DebuggerInfoMixin,
-  BelongsToMixin,
-  DidDefinePropertyMixin,
-  RelationshipsInstanceMethodsMixin,
-  HasManyMixin,
-  AttrInstanceMethodsMixin);
+export default Model;
