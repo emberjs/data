@@ -92,52 +92,6 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
   add support for one-to-many relationships.
 */
 
-/**
-  @class Model
-  @namespace DS
-*/
-export const DidDefinePropertyMixin = Ember.Mixin.create({
-
-  /**
-    This Ember.js hook allows an object to be notified when a property
-    is defined.
-
-    In this case, we use it to be notified when an Ember Data user defines a
-    belongs-to relationship. In that case, we need to set up observers for
-    each one, allowing us to track relationship changes and automatically
-    reflect changes in the inverse has-many array.
-
-    This hook passes the class being set up, as well as the key and value
-    being defined. So, for example, when the user does this:
-
-    ```javascript
-    DS.Model.extend({
-      parent: DS.belongsTo('user')
-    });
-    ```
-
-    This hook would be called with "parent" as the key and the computed
-    property returned by `DS.belongsTo` as the value.
-
-    @method didDefineProperty
-    @param {Object} proto
-    @param {String} key
-    @param {Ember.ComputedProperty} value
-  */
-  didDefineProperty(proto, key, value) {
-    // Check if the value being set is a computed property.
-    if (value instanceof Ember.ComputedProperty) {
-
-      // If it is, get the metadata for the relationship. This is
-      // populated by the `DS.belongsTo` helper when it is creating
-      // the computed property.
-      var meta = value.meta();
-
-      meta.parentType = proto.constructor;
-    }
-  }
-});
-
 export const RelationshipsInstanceMethodsMixin = Ember.Mixin.create({
   /**
     Given a callback, iterates over each of the relationships in the model,
