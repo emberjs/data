@@ -3,7 +3,7 @@ import { assert } from "ember-data/-private/debug";
 import {
   typeForRelationshipMeta,
   relationshipFromMeta
-} from "ember-data/-private/system/relationship-meta";
+} from "../relationship-meta";
 
 const Map = Ember.Map;
 const MapWithDefault = Ember.MapWithDefault;

@@ -1,4 +1,4 @@
-import EmptyObject from 'ember-data/-private/system/empty-object';
+import EmptyObject from '../system/empty-object';
 
 const CLRF = '\u000d\u000a';
 

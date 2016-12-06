@@ -1,3 +1,3 @@
-import Store from "ember-data/-private/system/store";
+import Store from "./-private/system/store";
 
 export default Store;

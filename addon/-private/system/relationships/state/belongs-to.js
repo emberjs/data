@@ -1,11 +1,12 @@
 import Ember from 'ember';
-import { assert } from "ember-data/-private/debug";
+import {
+  assertPolymorphicType,
+  assert
+} from "ember-data/-private/debug";
 import {
   PromiseObject
-} from "ember-data/-private/system/promise-proxies";
-
-import { assertPolymorphicType } from "ember-data/-private/debug";
-import Relationship from "ember-data/-private/system/relationships/state/relationship";
+} from "../../promise-proxies";
+import Relationship from "./relationship";
 
 export default class BelongsToRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {

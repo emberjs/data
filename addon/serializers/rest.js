@@ -3,13 +3,13 @@
 */
 
 import Ember from 'ember';
+import { singularize } from "ember-inflector";
 import { assert, deprecate, runInDebug, warn } from "ember-data/-private/debug";
-import JSONSerializer from "ember-data/serializers/json";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import {singularize} from "ember-inflector";
-import coerceId from "ember-data/-private/system/coerce-id";
-import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
-import isEnabled from 'ember-data/-private/features';
+import JSONSerializer from "../serializers/json";
+import normalizeModelName from "../-private/system/normalize-model-name";
+import coerceId from "../-private/system/coerce-id";
+import { modelHasAttributeOrRelationshipNamedType } from "../-private/utils";
+import isEnabled from '../-private/features';
 
 let camelize = Ember.String.camelize;
 
@@ -880,7 +880,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       `administrator` model should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default DS.RESTSerializer.extend({
         modelNameFromPayloadType(payloadType) {
@@ -930,7 +930,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       namespaces model name for the `administrator` should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default DS.RESTSerializer.extend({
         payloadTypeFromModelName(modelName) {

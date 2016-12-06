@@ -1,11 +1,11 @@
 import Ember from 'ember';
 import { assert, runInDebug } from "ember-data/-private/debug";
-import RootState from "ember-data/-private/system/model/states";
-import Relationships from "ember-data/-private/system/relationships/state/create";
-import Snapshot from "ember-data/-private/system/snapshot";
-import EmptyObject from "ember-data/-private/system/empty-object";
-import isEnabled from 'ember-data/-private/features';
-import OrderedSet from "ember-data/-private/system/ordered-set";
+import RootState from "./states";
+import Relationships from "../relationships/state/create";
+import Snapshot from "../snapshot";
+import EmptyObject from "../empty-object";
+import isEnabled from '../../features';
+import OrderedSet from "../ordered-set";
 
 import {
   getOwner
@@ -15,7 +15,7 @@ import {
   RecordReference,
   BelongsToReference,
   HasManyReference
-} from "ember-data/-private/system/references";
+} from "../references";
 
 const {
   get,

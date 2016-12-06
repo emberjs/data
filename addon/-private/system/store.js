@@ -3,24 +3,31 @@
 */
 
 import Ember from 'ember';
-import Model from 'ember-data/model';
-import { instrument, assert, deprecate, warn, runInDebug } from "ember-data/-private/debug";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import { InvalidError } from 'ember-data/adapters/errors';
-import IdentityMap from 'ember-data/-private/system/identity-map';
+import {
+  instrument,
+  assert,
+  deprecate,
+  warn,
+  runInDebug
+} from "ember-data/-private/debug";
+import Model from '../../model';
+import normalizeModelName from "./normalize-model-name";
+import { InvalidError } from '../../adapters/errors';
+import IdentityMap from './identity-map';
+
 import {
   promiseArray,
   promiseObject
-} from "ember-data/-private/system/promise-proxies";
+} from "./promise-proxies";
 
 import {
   _bind,
   _guard,
   _objectIsAlive
-} from "ember-data/-private/system/store/common";
+} from "./store/common";
 
-import { normalizeResponseHelper } from "ember-data/-private/system/store/serializer-response";
-import { serializerForAdapter } from "ember-data/-private/system/store/serializers";
+import { normalizeResponseHelper } from "./store/serializer-response";
+import { serializerForAdapter } from "./store/serializers";
 
 import {
   _find,
@@ -30,15 +37,15 @@ import {
   _findAll,
   _query,
   _queryRecord
-} from "ember-data/-private/system/store/finders";
+} from "./store/finders";
 
-import { getOwner } from 'ember-data/-private/utils';
-import coerceId from "ember-data/-private/system/coerce-id";
-import RecordArrayManager from "ember-data/-private/system/record-array-manager";
-import ContainerInstanceCache from 'ember-data/-private/system/store/container-instance-cache';
-import InternalModel from "ember-data/-private/system/model/internal-model";
-import EmptyObject from "ember-data/-private/system/empty-object";
-import isEnabled from 'ember-data/-private/features';
+import { getOwner } from '../utils';
+import coerceId from "./coerce-id";
+import RecordArrayManager from "./record-array-manager";
+import ContainerInstanceCache from './store/container-instance-cache';
+import InternalModel from "./model/internal-model";
+import EmptyObject from "./empty-object";
+import isEnabled from '../features';
 
 export let badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 

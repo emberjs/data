@@ -1,6 +1,6 @@
 import Ember from 'ember';
-import RecordArray from "ember-data/-private/system/record-arrays/record-array";
-import cloneNull from "ember-data/-private/system/clone-null";
+import RecordArray from "./record-array";
+import cloneNull from "../clone-null";
 
 /**
   @module ember-data

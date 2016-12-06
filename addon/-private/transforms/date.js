@@ -1,4 +1,4 @@
-import { parseDate } from "ember-data/-private/ext/date";
+import { parseDate } from "../ext/date";
 
 /**
   The `DS.DateTransform` class is used to serialize and deserialize

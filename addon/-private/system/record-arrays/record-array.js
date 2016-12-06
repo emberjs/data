@@ -3,8 +3,9 @@
 */
 
 import Ember from 'ember';
-import { PromiseArray } from "ember-data/-private/system/promise-proxies";
-import SnapshotRecordArray from "ember-data/-private/system/snapshot-record-array";
+import { PromiseArray } from "../promise-proxies";
+import SnapshotRecordArray from "../snapshot-record-array";
+
 const { computed, get, set, RSVP: { Promise } } = Ember;
 
 /**

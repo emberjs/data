@@ -2,11 +2,10 @@
   @module ember-data
 */
 import Ember from 'ember';
-import Model from "ember-data/model";
-const get = Ember.get;
+import Model from "../../../model";
 const capitalize = Ember.String.capitalize;
 const underscore = Ember.String.underscore;
-const { assert } = Ember;
+const { assert, get } = Ember;
 
 /*
   Extend `Ember.DataAdapter` with ED specific code.

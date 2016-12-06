@@ -2,7 +2,7 @@ import Model from 'ember-data/model';
 import Ember from 'ember';
 import Reference from './reference';
 
-import isEnabled from 'ember-data/-private/features';
+import isEnabled from '../../features';
 import { assertPolymorphicType, deprecate } from "ember-data/-private/debug";
 
 

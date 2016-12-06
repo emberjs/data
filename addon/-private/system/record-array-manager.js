@@ -7,7 +7,7 @@ import {
   RecordArray,
   FilteredRecordArray,
   AdapterPopulatedRecordArray
-} from "ember-data/-private/system/record-arrays";
+} from "./record-arrays";
 import { assert } from 'ember-data/-private/debug';
 
 const {

@@ -5,8 +5,8 @@
 
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import isArrayLike from "ember-data/-private/system/is-array-like";
+import normalizeModelName from "../normalize-model-name";
+import isArrayLike from "../is-array-like";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many

@@ -3,7 +3,7 @@ import {
   DateTransform,
   StringTransform,
   NumberTransform
-} from "ember-data/-private/transforms";
+} from "../transforms";
 
 /*
   Configures a registry for use with Ember-Data
