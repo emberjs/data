@@ -7,6 +7,11 @@ import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-pri
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
 import EmptyObject from "ember-data/-private/system/empty-object";
+import {
+  relationshipsByNameDescriptor,
+  relatedTypesDescriptor,
+  relationshipsDescriptor
+} from 'ember-data/-private/system/relationships/ext';
 
 const {
   get,

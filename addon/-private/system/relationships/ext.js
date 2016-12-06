@@ -5,11 +5,10 @@ import {
   relationshipFromMeta
 } from "ember-data/-private/system/relationship-meta";
 
-var get = Ember.get;
 var Map = Ember.Map;
 var MapWithDefault = Ember.MapWithDefault;
 
-var relationshipsDescriptor = Ember.computed(function() {
+export const relationshipsDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
     relationshipsDescriptor._cacheable = false;
   }
@@ -36,7 +35,7 @@ var relationshipsDescriptor = Ember.computed(function() {
   return map;
 }).readOnly();
 
-var relatedTypesDescriptor = Ember.computed(function() {
+export const relatedTypesDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relatedTypesDescriptor._cacheable === true) {
     relatedTypesDescriptor._cacheable = false;
   }
@@ -64,7 +63,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
   return types;
 }).readOnly();
 
-var relationshipsByNameDescriptor = Ember.computed(function() {
+export const relationshipsByNameDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsByNameDescriptor._cacheable === true) {
     relationshipsByNameDescriptor._cacheable = false;
   }
@@ -82,16 +81,3 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
 
   return map;
 }).readOnly();
-
-/**
-  @module ember-data
-*/
-
-/*
-  This file defines several extensions to the base `DS.Model` class that
-  add support for one-to-many relationships.
-*/
-
-export const RelationshipsInstanceMethodsMixin = Ember.Mixin.create({
-
-});
