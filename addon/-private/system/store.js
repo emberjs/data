@@ -2275,37 +2275,36 @@ Store = Service.extend({
   */
   _push(data) {
     let token = heimdall.start('store._push');
-    let included = data.included;
-    let i, length;
+    let internalModelOrModels = this._backburner.join(() => {
+      let included = data.included;
+      let i, length;
 
-    if (included) {
-      for (i = 0, length = included.length; i < length; i++) {
-        this._pushInternalModel(included[i]);
+      if (included) {
+        for (i = 0, length = included.length; i < length; i++) {
+          this._pushInternalModel(included[i]);
+        }
       }
-    }
 
-    if (Array.isArray(data.data)) {
-      length = data.data.length;
-      let internalModels = new Array(length);
+      if (Array.isArray(data.data)) {
+        length = data.data.length;
+        let internalModels = new Array(length);
 
-      for (i = 0; i < length; i++) {
-        internalModels[i] = this._pushInternalModel(data.data[i]);
+        for (i = 0; i < length; i++) {
+          internalModels[i] = this._pushInternalModel(data.data[i]);
+        }
+        return internalModels;
       }
-      heimdall.stop(token);
-      return internalModels;
-    }
 
-    if (data.data === null) {
-      heimdall.stop(token);
-      return null;
-    }
+      if (data.data === null) {
+        return null;
+      }
 
-    assert(`Expected an object in the 'data' property in a call to 'push' for ${data.type}, but was ${typeOf(data.data)}`, typeOf(data.data) === 'object');
+      assert(`Expected an object in the 'data' property in a call to 'push' for ${data.type}, but was ${typeOf(data.data)}`, typeOf(data.data) === 'object');
 
-    let internalModel = this._pushInternalModel(data.data);
-
+      return this._pushInternalModel(data.data);
+    });
     heimdall.stop(token);
-    return internalModel;
+    return internalModelOrModels;
   },
 
   _hasModelFor(modelName) {
@@ -2344,9 +2343,7 @@ Store = Service.extend({
     // Actually load the record into the store.
     let internalModel = this._load(data);
 
-    this._backburner.join(() => {
-      this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
-    });
+    this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
 
     return internalModel;
   },
