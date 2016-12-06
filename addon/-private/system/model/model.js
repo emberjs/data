@@ -15,7 +15,8 @@ import {
 
 const {
   get,
-  computed
+  computed,
+  Map
 } = Ember;
 
 /**
