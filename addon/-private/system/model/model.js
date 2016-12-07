@@ -22,7 +22,7 @@ const {
 */
 
 function intersection (array1, array2) {
-  var result = [];
+  let result = [];
   array1.forEach((element) => {
     if (array2.indexOf(element) >= 0) {
       result.push(element);
@@ -91,7 +91,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isLoaded'); // true
 
     store.findRecord('model', 1).then(function(model) {
@@ -113,7 +113,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('hasDirtyAttributes'); // true
 
     store.findRecord('model', 1).then(function(model) {
@@ -140,9 +140,9 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isSaving'); // false
-    var promise = record.save();
+    let promise = record.save();
     record.get('isSaving'); // true
     promise.then(function() {
       record.get('isSaving'); // false
@@ -165,7 +165,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isDeleted');    // false
     record.deleteRecord();
 
@@ -175,7 +175,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     record.get('isSaving');            // false
 
     // Persisting the deletion
-    var promise = record.save();
+    let promise = record.save();
     record.get('isDeleted');    // true
     record.get('isSaving');     // true
 
@@ -201,7 +201,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isNew'); // true
 
     record.save().then(function(model) {
@@ -237,7 +237,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('dirtyType'); // 'created'
     ```
 
@@ -293,7 +293,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     attribute.
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('id'); // null
 
     store.findRecord('model', 1).then(function(model) {
@@ -420,8 +420,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    var serializer = this.store.serializerFor('-default');
-    var snapshot = this._internalModel.createSnapshot();
+    let serializer = this.store.serializerFor('-default');
+    let snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
   },
@@ -547,7 +547,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     export default Ember.Route.extend({
       actions: {
         delete: function() {
-          var controller = this.controller;
+          let controller = this.controller;
           controller.get('model').destroyRecord().then(function() {
             controller.transitionToRoute('model.index');
           });
@@ -601,8 +601,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
   */
   _notifyProperties(keys) {
     Ember.beginPropertyChanges();
-    var key;
-    for (var i = 0, length = keys.length; i < length; i++) {
+    let key;
+    for (let i = 0, length = keys.length; i < length; i++) {
       key = keys[i];
       this.notifyPropertyChange(key);
     }
@@ -631,7 +631,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     ```javascript
-    var mascot = store.createRecord('mascot');
+    let mascot = store.createRecord('mascot');
 
     mascot.changedAttributes(); // {}
 
@@ -796,10 +796,10 @@ const Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
   */
   trigger(name) {
-    var length = arguments.length;
-    var args = new Array(length - 1);
+    let length = arguments.length;
+    let args = new Array(length - 1);
 
-    for (var i = 1; i < length; i++) {
+    for (let i = 1; i < length; i++) {
       args[i - 1] = arguments[i];
     }
 
@@ -818,7 +818,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
   // This is a temporary solution until we refactor DS.Model to not
   // rely on the data property.
   willMergeMixin(props) {
-    var constructor = this.constructor;
+    let constructor = this.constructor;
     assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
     assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
   },
@@ -839,7 +839,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     ```javascript
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -850,19 +850,19 @@ const Model = Ember.Object.extend(Ember.Evented, {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // check if the user relationship is loaded
-    var isLoaded = userRef.value() !== null;
+    let isLoaded = userRef.value() !== null;
 
     // get the record of the reference (null if not yet available)
-    var user = userRef.value();
+    let user = userRef.value();
 
     // get the identifier of the reference
     if (userRef.remoteType() === "id") {
-      var id = userRef.id();
+      let id = userRef.id();
     } else if (userRef.remoteType() === "link") {
-      var link = userRef.link();
+      let link = userRef.link();
     }
 
     // load user (via store.findRecord or store.findBelongsTo)
@@ -903,7 +903,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
       comments: DS.hasMany({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -917,19 +917,19 @@ const Model = Ember.Object.extend(Ember.Evented, {
         }
       }
     });
-    var commentsRef = blog.hasMany('comments');
+    let commentsRef = blog.hasMany('comments');
 
     // check if the comments are loaded already
-    var isLoaded = commentsRef.value() !== null;
+    let isLoaded = commentsRef.value() !== null;
 
     // get the records of the reference (null if not yet available)
-    var comments = commentsRef.value();
+    let comments = commentsRef.value();
 
     // get the identifier of the reference
     if (commentsRef.remoteType() === "ids") {
-      var ids = commentsRef.ids();
+      let ids = commentsRef.ids();
     } else if (commentsRef.remoteType() === "link") {
-      var link = commentsRef.link();
+      let link = commentsRef.link();
     }
 
     // load comments (via store.findMany or store.findHasMany)
@@ -1056,7 +1056,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
       // If it is, get the metadata for the relationship. This is
       // populated by the `DS.belongsTo` helper when it is creating
       // the computed property.
-      var meta = value.meta();
+      let meta = value.meta();
 
       meta.parentType = proto.constructor;
     }
@@ -1096,11 +1096,11 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
    export default DS.JSONSerializer.extend({
     serialize: function(record, options) {
-      var json = {};
+      let json = {};
 
       record.eachRelationship(function(name, descriptor) {
         if (descriptor.kind === 'hasMany') {
-          var serializedHasManyName = name.toUpperCase() + '_IDS';
+          let serializedHasManyName = name.toUpperCase() + '_IDS';
           json[serializedHasManyName] = record.get(name).mapBy('id');
         }
       });
@@ -1194,7 +1194,7 @@ Model.reopenClass({
    keys to underscore (instead of dasherized), you might use the following code:
 
    ```javascript
-   export default var PostSerializer = DS.RESTSerializer.extend({
+   export default const PostSerializer = DS.RESTSerializer.extend({
      payloadKeyFromModelName: function(modelName) {
        return Ember.String.underscore(modelName);
      }
@@ -1246,7 +1246,7 @@ Model.reopenClass({
    @return {DS.Model} the type of the relationship, or undefined
    */
   typeForRelationship(name, store) {
-    var relationship = get(this, 'relationshipsByName').get(name);
+    let relationship = get(this, 'relationshipsByName').get(name);
     return relationship && store.modelFor(relationship.type);
   },
 
@@ -1285,11 +1285,11 @@ Model.reopenClass({
    @return {Object} the inverse relationship, or null
    */
   inverseFor(name, store) {
-    var inverseMap = get(this, 'inverseMap');
+    let inverseMap = get(this, 'inverseMap');
     if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      var inverse = this._findInverseFor(name, store);
+      let inverse = this._findInverseFor(name, store);
       inverseMap[name] = inverse;
       return inverse;
     }
@@ -1298,17 +1298,17 @@ Model.reopenClass({
   //Calculate the inverse, ignoring the cache
   _findInverseFor(name, store) {
 
-    var inverseType = this.typeForRelationship(name, store);
+    let inverseType = this.typeForRelationship(name, store);
     if (!inverseType) {
       return null;
     }
 
-    var propertyMeta = this.metaForProperty(name);
+    let propertyMeta = this.metaForProperty(name);
     //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
-    var options = propertyMeta.options;
+    let options = propertyMeta.options;
     if (options.inverse === null) { return null; }
 
-    var inverseName, inverseKind, inverse;
+    let inverseName, inverseKind, inverse;
 
     //If inverse is specified manually, return the inverse
     if (options.inverse) {
@@ -1327,12 +1327,12 @@ Model.reopenClass({
         });
       }
 
-      var possibleRelationships = findPossibleInverses(this, inverseType);
+      let possibleRelationships = findPossibleInverses(this, inverseType);
 
       if (possibleRelationships.length === 0) { return null; }
 
-      var filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-        var optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
+      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+        let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
         return name === optionsForRelationship.inverse;
       });
 
@@ -1353,15 +1353,15 @@ Model.reopenClass({
     }
 
     function findPossibleInverses(type, inverseType, relationshipsSoFar) {
-      var possibleRelationships = relationshipsSoFar || [];
+      let possibleRelationships = relationshipsSoFar || [];
 
-      var relationshipMap = get(inverseType, 'relationships');
+      let relationshipMap = get(inverseType, 'relationships');
       if (!relationshipMap) { return possibleRelationships; }
 
-      var relationships = relationshipMap.get(type.modelName);
+      let relationships = relationshipMap.get(type.modelName);
 
       relationships = relationships.filter((relationship) => {
-        var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
         if (!optionsForRelationship.inverse) {
           return true;
@@ -1416,7 +1416,7 @@ Model.reopenClass({
    import User from 'app/models/user';
    import Post from 'app/models/post';
 
-   var relationships = Ember.get(Blog, 'relationships');
+   let relationships = Ember.get(Blog, 'relationships');
    relationships.get(User);
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
@@ -1454,7 +1454,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Blog from 'app/models/blog';
 
-   var relationshipNames = Ember.get(Blog, 'relationshipNames');
+   let relationshipNames = Ember.get(Blog, 'relationshipNames');
    relationshipNames.hasMany;
    //=> ['users', 'posts']
    relationshipNames.belongsTo;
@@ -1467,7 +1467,7 @@ Model.reopenClass({
    @readOnly
    */
   relationshipNames: Ember.computed(function() {
-    var names = {
+    let names = {
       hasMany: [],
       belongsTo: []
     };
@@ -1505,7 +1505,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Blog from 'app/models/blog';
 
-   var relatedTypes = Ember.get(Blog, 'relatedTypes');
+   let relatedTypes = Ember.get(Blog, 'relatedTypes');
    //=> [ User, Post ]
    ```
 
@@ -1540,7 +1540,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Blog from 'app/models/blog';
 
-   var relationshipsByName = Ember.get(Blog, 'relationshipsByName');
+   let relationshipsByName = Ember.get(Blog, 'relationshipsByName');
    relationshipsByName.get('users');
    //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
    relationshipsByName.get('owner');
@@ -1578,7 +1578,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Blog from 'app/models/blog';
 
-   var fields = Ember.get(Blog, 'fields');
+   let fields = Ember.get(Blog, 'fields');
    fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
@@ -1596,7 +1596,7 @@ Model.reopenClass({
    @readOnly
    */
   fields: Ember.computed(function() {
-    var map = Map.create();
+    let map = Map.create();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isRelationship) {
@@ -1687,7 +1687,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Person from 'app/models/person';
 
-   var attributes = Ember.get(Person, 'attributes')
+   let attributes = Ember.get(Person, 'attributes')
 
    attributes.forEach(function(meta, name) {
       console.log(name, meta);
@@ -1705,7 +1705,7 @@ Model.reopenClass({
    @readOnly
    */
   attributes: Ember.computed(function() {
-    var map = Map.create();
+    let map = Map.create();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
@@ -1741,7 +1741,7 @@ Model.reopenClass({
    import Ember from 'ember';
    import Person from 'app/models/person';
 
-   var transformedAttributes = Ember.get(Person, 'transformedAttributes')
+   let transformedAttributes = Ember.get(Person, 'transformedAttributes')
 
    transformedAttributes.forEach(function(field, type) {
       console.log(field, type);
@@ -1758,7 +1758,7 @@ Model.reopenClass({
    @readOnly
    */
   transformedAttributes: Ember.computed(function() {
-    var map = Map.create();
+    let map = Map.create();
 
     this.eachAttribute((key, meta) => {
       if (meta.type) {
@@ -1791,7 +1791,7 @@ Model.reopenClass({
    ```javascript
    import DS from 'ember-data';
 
-   var Person = DS.Model.extend({
+   let Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
       birthday: attr('date')
@@ -1842,7 +1842,7 @@ Model.reopenClass({
    ```javascript
    import DS from 'ember-data';
 
-   var Person = DS.Model.extend({
+   let Person = DS.Model.extend({
       firstName: attr(),
       lastName: attr('string'),
       birthday: attr('date')
