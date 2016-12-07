@@ -133,13 +133,3 @@ export default function belongsTo(modelName, options) {
     }
   }).meta(meta);
 }
-
-/*
-  These observers observe all `belongsTo` relationships on the record. See
-  `relationships/ext` to see how these observers get their dependencies.
-*/
-export const BelongsToMixin = Ember.Mixin.create({
-  notifyBelongsToChanged(key) {
-    this.notifyPropertyChange(key);
-  }
-});

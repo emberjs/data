@@ -1,18 +1,20 @@
 import Ember from 'ember';
-import { assert, deprecate } from "ember-data/-private/debug";
+import { assert, deprecate, warn } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
-import DebuggerInfoMixin from 'ember-data/-private/system/debug/debug-info';
-import { BelongsToMixin } from 'ember-data/-private/system/relationships/belongs-to';
-import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many';
-import { DidDefinePropertyMixin, RelationshipsClassMethodsMixin, RelationshipsInstanceMethodsMixin } from 'ember-data/-private/system/relationships/ext';
-import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
+import EmptyObject from "ember-data/-private/system/empty-object";
+import {
+  relationshipsByNameDescriptor,
+  relatedTypesDescriptor,
+  relationshipsDescriptor
+} from 'ember-data/-private/system/relationships/ext';
 
 const {
   get,
-  computed
+  computed,
+  Map
 } = Ember;
 
 /**
@@ -20,7 +22,7 @@ const {
 */
 
 function intersection (array1, array2) {
-  var result = [];
+  let result = [];
   array1.forEach((element) => {
     if (array2.indexOf(element) >= 0) {
       result.push(element);
@@ -30,11 +32,11 @@ function intersection (array1, array2) {
   return result;
 }
 
-var RESERVED_MODEL_PROPS = [
+const RESERVED_MODEL_PROPS = [
   'currentState', 'data', 'store'
 ];
 
-var retrieveFromCurrentState = computed('currentState', function(key) {
+const retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
 
@@ -51,7 +53,7 @@ var retrieveFromCurrentState = computed('currentState', function(key) {
   @extends Ember.Object
   @uses Ember.Evented
 */
-var Model = Ember.Object.extend(Ember.Evented, {
+const Model = Ember.Object.extend(Ember.Evented, {
   _internalModel: null,
   store: null,
 
@@ -89,7 +91,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isLoaded'); // true
 
     store.findRecord('model', 1).then(function(model) {
@@ -111,7 +113,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('hasDirtyAttributes'); // true
 
     store.findRecord('model', 1).then(function(model) {
@@ -138,9 +140,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isSaving'); // false
-    var promise = record.save();
+    let promise = record.save();
     record.get('isSaving'); // true
     promise.then(function() {
       record.get('isSaving'); // false
@@ -163,7 +165,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isDeleted');    // false
     record.deleteRecord();
 
@@ -173,7 +175,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     record.get('isSaving');            // false
 
     // Persisting the deletion
-    var promise = record.save();
+    let promise = record.save();
     record.get('isDeleted');    // true
     record.get('isSaving');     // true
 
@@ -199,7 +201,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('isNew'); // true
 
     record.save().then(function(model) {
@@ -235,7 +237,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('dirtyType'); // 'created'
     ```
 
@@ -291,7 +293,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     attribute.
 
     ```javascript
-    var record = store.createRecord('model');
+    let record = store.createRecord('model');
     record.get('id'); // null
 
     store.findRecord('model', 1).then(function(model) {
@@ -418,8 +420,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    var serializer = this.store.serializerFor('-default');
-    var snapshot = this._internalModel.createSnapshot();
+    let serializer = this.store.serializerFor('-default');
+    let snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
   },
@@ -545,7 +547,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     export default Ember.Route.extend({
       actions: {
         delete: function() {
-          var controller = this.controller;
+          let controller = this.controller;
           controller.get('model').destroyRecord().then(function() {
             controller.transitionToRoute('model.index');
           });
@@ -599,8 +601,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   _notifyProperties(keys) {
     Ember.beginPropertyChanges();
-    var key;
-    for (var i = 0, length = keys.length; i < length; i++) {
+    let key;
+    for (let i = 0, length = keys.length; i < length; i++) {
       key = keys[i];
       this.notifyPropertyChange(key);
     }
@@ -629,7 +631,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     ```javascript
-    var mascot = store.createRecord('mascot');
+    let mascot = store.createRecord('mascot');
 
     mascot.changedAttributes(); // {}
 
@@ -794,10 +796,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
   */
   trigger(name) {
-    var length = arguments.length;
-    var args = new Array(length - 1);
+    let length = arguments.length;
+    let args = new Array(length - 1);
 
-    for (var i = 1; i < length; i++) {
+    for (let i = 1; i < length; i++) {
       args[i - 1] = arguments[i];
     }
 
@@ -816,7 +818,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   // This is a temporary solution until we refactor DS.Model to not
   // rely on the data property.
   willMergeMixin(props) {
-    var constructor = this.constructor;
+    let constructor = this.constructor;
     assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
     assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
   },
@@ -837,7 +839,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     ```javascript
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -848,19 +850,19 @@ var Model = Ember.Object.extend(Ember.Evented, {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // check if the user relationship is loaded
-    var isLoaded = userRef.value() !== null;
+    let isLoaded = userRef.value() !== null;
 
     // get the record of the reference (null if not yet available)
-    var user = userRef.value();
+    let user = userRef.value();
 
     // get the identifier of the reference
     if (userRef.remoteType() === "id") {
-      var id = userRef.id();
+      let id = userRef.id();
     } else if (userRef.remoteType() === "link") {
-      var link = userRef.link();
+      let link = userRef.link();
     }
 
     // load user (via store.findRecord or store.findBelongsTo)
@@ -886,7 +888,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @since 2.5.0
     @return {BelongsToReference} reference for this relationship
   */
-  belongsTo: function(name) {
+  belongsTo(name) {
     return this._internalModel.referenceFor('belongsTo', name);
   },
 
@@ -901,7 +903,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       comments: DS.hasMany({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -915,19 +917,19 @@ var Model = Ember.Object.extend(Ember.Evented, {
         }
       }
     });
-    var commentsRef = blog.hasMany('comments');
+    let commentsRef = blog.hasMany('comments');
 
     // check if the comments are loaded already
-    var isLoaded = commentsRef.value() !== null;
+    let isLoaded = commentsRef.value() !== null;
 
     // get the records of the reference (null if not yet available)
-    var comments = commentsRef.value();
+    let comments = commentsRef.value();
 
     // get the identifier of the reference
     if (commentsRef.remoteType() === "ids") {
-      var ids = commentsRef.ids();
+      let ids = commentsRef.ids();
     } else if (commentsRef.remoteType() === "link") {
-      var link = commentsRef.link();
+      let link = commentsRef.link();
     }
 
     // load comments (via store.findMany or store.findHasMany)
@@ -947,13 +949,195 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @since 2.5.0
     @return {HasManyReference} reference for this relationship
   */
-  hasMany: function(name) {
+  hasMany(name) {
     return this._internalModel.referenceFor('hasMany', name);
   },
 
   setId: Ember.observer('id', function () {
     this._internalModel.setId(this.get('id'));
-  })
+  }),
+
+  /**
+   Provides info about the model for debugging purposes
+   by grouping the properties into more semantic groups.
+
+   Meant to be used by debugging tools such as the Chrome Ember Extension.
+
+   - Groups all attributes in "Attributes" group.
+   - Groups all belongsTo relationships in "Belongs To" group.
+   - Groups all hasMany relationships in "Has Many" group.
+   - Groups all flags in "Flags" group.
+   - Flags relationship CPs as expensive properties.
+
+   @method _debugInfo
+   @for DS.Model
+   @private
+   */
+  _debugInfo() {
+    let attributes = ['id'];
+    let relationships = { };
+    let expensiveProperties = [];
+
+    this.eachAttribute((name, meta) => attributes.push(name));
+
+    let groups = [
+      {
+        name: 'Attributes',
+        properties: attributes,
+        expand: true
+      }
+    ];
+
+    this.eachRelationship((name, relationship) => {
+      let properties = relationships[relationship.kind];
+
+      if (properties === undefined) {
+        properties = relationships[relationship.kind] = [];
+        groups.push({
+          name: relationship.name,
+          properties,
+          expand: true
+        });
+      }
+      properties.push(name);
+      expensiveProperties.push(name);
+    });
+
+    groups.push({
+      name: 'Flags',
+      properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid']
+    });
+
+    return {
+      propertyInfo: {
+        // include all other mixins / properties (not just the grouped ones)
+        includeOtherProperties: true,
+        groups: groups,
+        // don't pre-calculate unless cached
+        expensiveProperties: expensiveProperties
+      }
+    };
+  },
+
+  notifyBelongsToChanged(key) {
+    this.notifyPropertyChange(key);
+  },
+
+  /**
+   This Ember.js hook allows an object to be notified when a property
+   is defined.
+
+   In this case, we use it to be notified when an Ember Data user defines a
+   belongs-to relationship. In that case, we need to set up observers for
+   each one, allowing us to track relationship changes and automatically
+   reflect changes in the inverse has-many array.
+
+   This hook passes the class being set up, as well as the key and value
+   being defined. So, for example, when the user does this:
+
+   ```javascript
+   DS.Model.extend({
+    parent: DS.belongsTo('user')
+  });
+   ```
+
+   This hook would be called with "parent" as the key and the computed
+   property returned by `DS.belongsTo` as the value.
+
+   @method didDefineProperty
+   @param {Object} proto
+   @param {String} key
+   @param {Ember.ComputedProperty} value
+   */
+  didDefineProperty(proto, key, value) {
+    // Check if the value being set is a computed property.
+    if (value instanceof Ember.ComputedProperty) {
+
+      // If it is, get the metadata for the relationship. This is
+      // populated by the `DS.belongsTo` helper when it is creating
+      // the computed property.
+      let meta = value.meta();
+
+      meta.parentType = proto.constructor;
+    }
+  },
+
+  /**
+   Given a callback, iterates over each of the relationships in the model,
+   invoking the callback with the name of each relationship and its relationship
+   descriptor.
+
+
+   The callback method you provide should have the following signature (all
+   parameters are optional):
+
+   ```javascript
+   function(name, descriptor);
+   ```
+
+   - `name` the name of the current property in the iteration
+   - `descriptor` the meta object that describes this relationship
+
+   The relationship descriptor argument is an object with the following properties.
+
+   - **key** <span class="type">String</span> the name of this relationship on the Model
+   - **kind** <span class="type">String</span> "hasMany" or "belongsTo"
+   - **options** <span class="type">Object</span> the original options hash passed when the relationship was declared
+   - **parentType** <span class="type">DS.Model</span> the type of the Model that owns this relationship
+   - **type** <span class="type">String</span> the type name of the related Model
+
+   Note that in addition to a callback, you can also pass an optional target
+   object that will be set as `this` on the context.
+
+   Example
+
+   ```app/serializers/application.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
+    serialize: function(record, options) {
+      let json = {};
+
+      record.eachRelationship(function(name, descriptor) {
+        if (descriptor.kind === 'hasMany') {
+          let serializedHasManyName = name.toUpperCase() + '_IDS';
+          json[serializedHasManyName] = record.get(name).mapBy('id');
+        }
+      });
+
+      return json;
+    }
+  });
+   ```
+
+   @method eachRelationship
+   @param {Function} callback the callback to invoke
+   @param {any} binding the value to which the callback's `this` should be bound
+   */
+  eachRelationship(callback, binding) {
+    this.constructor.eachRelationship(callback, binding);
+  },
+
+  relationshipFor(name) {
+    return get(this.constructor, 'relationshipsByName').get(name);
+  },
+
+  inverseFor(key) {
+    return this.constructor.inverseFor(key, this.store);
+  },
+
+  notifyHasManyAdded(key) {
+    //We need to notifyPropertyChange in the adding case because we need to make sure
+    //we fetch the newly added record in case it is unloaded
+    //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+
+    //Goes away once hasMany is double promisified
+    this.notifyPropertyChange(key);
+  },
+
+  eachAttribute(callback, binding) {
+    this.constructor.eachAttribute(callback, binding);
+  }
 });
 
 /**
@@ -1010,7 +1194,7 @@ Model.reopenClass({
    keys to underscore (instead of dasherized), you might use the following code:
 
    ```javascript
-   export default var PostSerializer = DS.RESTSerializer.extend({
+   export default const PostSerializer = DS.RESTSerializer.extend({
      payloadKeyFromModelName: function(modelName) {
        return Ember.String.underscore(modelName);
      }
@@ -1021,7 +1205,668 @@ Model.reopenClass({
    @readonly
    @static
   */
-  modelName: null
+  modelName: null,
+
+  /*
+   These class methods below provide relationship
+   introspection abilities about relationships.
+
+   A note about the computed properties contained here:
+
+   **These properties are effectively sealed once called for the first time.**
+   To avoid repeatedly doing expensive iteration over a model's fields, these
+   values are computed once and then cached for the remainder of the runtime of
+   your application.
+
+   If your application needs to modify a class after its initial definition
+   (for example, using `reopen()` to add additional attributes), make sure you
+   do it before using your model with the store, which uses these properties
+   extensively.
+   */
+
+  /**
+   For a given relationship name, returns the model type of the relationship.
+
+   For example, if you define a model like this:
+
+   ```app/models/post.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      comments: DS.hasMany('comment')
+    });
+   ```
+
+   Calling `store.modelFor('post').typeForRelationship('comments', store)` will return `Comment`.
+
+   @method typeForRelationship
+   @static
+   @param {String} name the name of the relationship
+   @param {store} store an instance of DS.Store
+   @return {DS.Model} the type of the relationship, or undefined
+   */
+  typeForRelationship(name, store) {
+    let relationship = get(this, 'relationshipsByName').get(name);
+    return relationship && store.modelFor(relationship.type);
+  },
+
+  inverseMap: Ember.computed(function() {
+    return new EmptyObject();
+  }),
+
+  /**
+   Find the relationship which is the inverse of the one asked for.
+
+   For example, if you define models like this:
+
+   ```app/models/post.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      comments: DS.hasMany('message')
+    });
+   ```
+
+   ```app/models/message.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      owner: DS.belongsTo('post')
+    });
+   ```
+
+   store.modelFor('post').inverseFor('comments', store) -> { type: App.Message, name: 'owner', kind: 'belongsTo' }
+   store.modelFor('message').inverseFor('owner', store) -> { type: App.Post, name: 'comments', kind: 'hasMany' }
+
+   @method inverseFor
+   @static
+   @param {String} name the name of the relationship
+   @param {DS.Store} store
+   @return {Object} the inverse relationship, or null
+   */
+  inverseFor(name, store) {
+    let inverseMap = get(this, 'inverseMap');
+    if (inverseMap[name]) {
+      return inverseMap[name];
+    } else {
+      let inverse = this._findInverseFor(name, store);
+      inverseMap[name] = inverse;
+      return inverse;
+    }
+  },
+
+  //Calculate the inverse, ignoring the cache
+  _findInverseFor(name, store) {
+
+    let inverseType = this.typeForRelationship(name, store);
+    if (!inverseType) {
+      return null;
+    }
+
+    let propertyMeta = this.metaForProperty(name);
+    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
+    let options = propertyMeta.options;
+    if (options.inverse === null) { return null; }
+
+    let inverseName, inverseKind, inverse;
+
+    //If inverse is specified manually, return the inverse
+    if (options.inverse) {
+      inverseName = options.inverse;
+      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
+
+      assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
+        "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
+
+      inverseKind = inverse.kind;
+    } else {
+      //No inverse was specified manually, we need to use a heuristic to guess one
+      if (propertyMeta.type === propertyMeta.parentType.modelName) {
+        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
+          id: 'ds.model.reflexive-relationship-without-inverse'
+        });
+      }
+
+      let possibleRelationships = findPossibleInverses(this, inverseType);
+
+      if (possibleRelationships.length === 0) { return null; }
+
+      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+        let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
+        return name === optionsForRelationship.inverse;
+      });
+
+      assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
+        inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        filteredRelationships.length < 2);
+
+      if (filteredRelationships.length === 1 ) {
+        possibleRelationships = filteredRelationships;
+      }
+
+      assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
+        this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        possibleRelationships.length === 1);
+
+      inverseName = possibleRelationships[0].name;
+      inverseKind = possibleRelationships[0].kind;
+    }
+
+    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
+      let possibleRelationships = relationshipsSoFar || [];
+
+      let relationshipMap = get(inverseType, 'relationships');
+      if (!relationshipMap) { return possibleRelationships; }
+
+      let relationships = relationshipMap.get(type.modelName);
+
+      relationships = relationships.filter((relationship) => {
+        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+
+        if (!optionsForRelationship.inverse) {
+          return true;
+        }
+
+        return name === optionsForRelationship.inverse;
+      });
+
+      if (relationships) {
+        possibleRelationships.push.apply(possibleRelationships, relationships);
+      }
+
+      //Recurse to support polymorphism
+      if (type.superclass) {
+        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
+      }
+
+      return possibleRelationships;
+    }
+
+    return {
+      type: inverseType,
+      name: inverseName,
+      kind: inverseKind
+    };
+  },
+
+  /**
+   The model's relationships as a map, keyed on the type of the
+   relationship. The value of each entry is an array containing a descriptor
+   for each relationship with that type, describing the name of the relationship
+   as well as the type.
+
+   For example, given the following model definition:
+
+   ```app/models/blog.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+      posts: DS.hasMany('post')
+    });
+   ```
+
+   This computed property would return a map describing these
+   relationships, like this:
+
+   ```javascript
+   import Ember from 'ember';
+   import Blog from 'app/models/blog';
+   import User from 'app/models/user';
+   import Post from 'app/models/post';
+
+   let relationships = Ember.get(Blog, 'relationships');
+   relationships.get(User);
+   //=> [ { name: 'users', kind: 'hasMany' },
+   //     { name: 'owner', kind: 'belongsTo' } ]
+   relationships.get(Post);
+   //=> [ { name: 'posts', kind: 'hasMany' } ]
+   ```
+
+   @property relationships
+   @static
+   @type Ember.Map
+   @readOnly
+   */
+
+  relationships: relationshipsDescriptor,
+
+  /**
+   A hash containing lists of the model's relationships, grouped
+   by the relationship kind. For example, given a model with this
+   definition:
+
+   ```app/models/blog.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+
+      posts: DS.hasMany('post')
+    });
+   ```
+
+   This property would contain the following:
+
+   ```javascript
+   import Ember from 'ember';
+   import Blog from 'app/models/blog';
+
+   let relationshipNames = Ember.get(Blog, 'relationshipNames');
+   relationshipNames.hasMany;
+   //=> ['users', 'posts']
+   relationshipNames.belongsTo;
+   //=> ['owner']
+   ```
+
+   @property relationshipNames
+   @static
+   @type Object
+   @readOnly
+   */
+  relationshipNames: Ember.computed(function() {
+    let names = {
+      hasMany: [],
+      belongsTo: []
+    };
+
+    this.eachComputedProperty((name, meta) => {
+      if (meta.isRelationship) {
+        names[meta.kind].push(name);
+      }
+    });
+
+    return names;
+  }),
+
+  /**
+   An array of types directly related to a model. Each type will be
+   included once, regardless of the number of relationships it has with
+   the model.
+
+   For example, given a model with this definition:
+
+   ```app/models/blog.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+
+      posts: DS.hasMany('post')
+    });
+   ```
+
+   This property would contain the following:
+
+   ```javascript
+   import Ember from 'ember';
+   import Blog from 'app/models/blog';
+
+   let relatedTypes = Ember.get(Blog, 'relatedTypes');
+   //=> [ User, Post ]
+   ```
+
+   @property relatedTypes
+   @static
+   @type Ember.Array
+   @readOnly
+   */
+  relatedTypes: relatedTypesDescriptor,
+
+  /**
+   A map whose keys are the relationships of a model and whose values are
+   relationship descriptors.
+
+   For example, given a model with this
+   definition:
+
+   ```app/models/blog.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+
+      posts: DS.hasMany('post')
+    });
+   ```
+
+   This property would contain the following:
+
+   ```javascript
+   import Ember from 'ember';
+   import Blog from 'app/models/blog';
+
+   let relationshipsByName = Ember.get(Blog, 'relationshipsByName');
+   relationshipsByName.get('users');
+   //=> { key: 'users', kind: 'hasMany', type: 'user', options: Object, isRelationship: true }
+   relationshipsByName.get('owner');
+   //=> { key: 'owner', kind: 'belongsTo', type: 'user', options: Object, isRelationship: true }
+   ```
+
+   @property relationshipsByName
+   @static
+   @type Ember.Map
+   @readOnly
+   */
+  relationshipsByName: relationshipsByNameDescriptor,
+
+  /**
+   A map whose keys are the fields of the model and whose values are strings
+   describing the kind of the field. A model's fields are the union of all of its
+   attributes and relationships.
+
+   For example:
+
+   ```app/models/blog.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+
+      posts: DS.hasMany('post'),
+
+      title: DS.attr('string')
+    });
+   ```
+
+   ```js
+   import Ember from 'ember';
+   import Blog from 'app/models/blog';
+
+   let fields = Ember.get(Blog, 'fields');
+   fields.forEach(function(kind, field) {
+      console.log(field, kind);
+    });
+
+   // prints:
+   // users, hasMany
+   // owner, belongsTo
+   // posts, hasMany
+   // title, attribute
+   ```
+
+   @property fields
+   @static
+   @type Ember.Map
+   @readOnly
+   */
+  fields: Ember.computed(function() {
+    let map = Map.create();
+
+    this.eachComputedProperty((name, meta) => {
+      if (meta.isRelationship) {
+        map.set(name, meta.kind);
+      } else if (meta.isAttribute) {
+        map.set(name, 'attribute');
+      }
+    });
+
+    return map;
+  }).readOnly(),
+
+  /**
+   Given a callback, iterates over each of the relationships in the model,
+   invoking the callback with the name of each relationship and its relationship
+   descriptor.
+
+   @method eachRelationship
+   @static
+   @param {Function} callback the callback to invoke
+   @param {any} binding the value to which the callback's `this` should be bound
+   */
+  eachRelationship(callback, binding) {
+    get(this, 'relationshipsByName').forEach((relationship, name) => {
+      callback.call(binding, name, relationship);
+    });
+  },
+
+  /**
+   Given a callback, iterates over each of the types related to a model,
+   invoking the callback with the related type's class. Each type will be
+   returned just once, regardless of how many different relationships it has
+   with a model.
+
+   @method eachRelatedType
+   @static
+   @param {Function} callback the callback to invoke
+   @param {any} binding the value to which the callback's `this` should be bound
+   */
+  eachRelatedType(callback, binding) {
+    let relationshipTypes = get(this, 'relatedTypes');
+
+    for (let i = 0; i < relationshipTypes.length; i++) {
+      let type = relationshipTypes[i];
+      callback.call(binding, type);
+    }
+  },
+
+  determineRelationshipType(knownSide, store) {
+    let knownKey = knownSide.key;
+    let knownKind = knownSide.kind;
+    let inverse = this.inverseFor(knownKey, store);
+    // let key;
+    let otherKind;
+
+    if (!inverse) {
+      return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
+    }
+
+    // key = inverse.name;
+    otherKind = inverse.kind;
+
+    if (otherKind === 'belongsTo') {
+      return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
+    } else {
+      return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
+    }
+  },
+
+  /**
+   A map whose keys are the attributes of the model (properties
+   described by DS.attr) and whose values are the meta object for the
+   property.
+
+   Example
+
+   ```app/models/person.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+   ```
+
+   ```javascript
+   import Ember from 'ember';
+   import Person from 'app/models/person';
+
+   let attributes = Ember.get(Person, 'attributes')
+
+   attributes.forEach(function(meta, name) {
+      console.log(name, meta);
+    });
+
+   // prints:
+   // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
+   // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
+   // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+   ```
+
+   @property attributes
+   @static
+   @type {Ember.Map}
+   @readOnly
+   */
+  attributes: Ember.computed(function() {
+    let map = Map.create();
+
+    this.eachComputedProperty((name, meta) => {
+      if (meta.isAttribute) {
+        assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
+
+        meta.name = name;
+        map.set(name, meta);
+      }
+    });
+
+    return map;
+  }).readOnly(),
+
+  /**
+   A map whose keys are the attributes of the model (properties
+   described by DS.attr) and whose values are type of transformation
+   applied to each attribute. This map does not include any
+   attributes that do not have an transformation type.
+
+   Example
+
+   ```app/models/person.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+   ```
+
+   ```javascript
+   import Ember from 'ember';
+   import Person from 'app/models/person';
+
+   let transformedAttributes = Ember.get(Person, 'transformedAttributes')
+
+   transformedAttributes.forEach(function(field, type) {
+      console.log(field, type);
+    });
+
+   // prints:
+   // lastName string
+   // birthday date
+   ```
+
+   @property transformedAttributes
+   @static
+   @type {Ember.Map}
+   @readOnly
+   */
+  transformedAttributes: Ember.computed(function() {
+    let map = Map.create();
+
+    this.eachAttribute((key, meta) => {
+      if (meta.type) {
+        map.set(key, meta.type);
+      }
+    });
+
+    return map;
+  }).readOnly(),
+
+  /**
+   Iterates through the attributes of the model, calling the passed function on each
+   attribute.
+
+   The callback method you provide should have the following signature (all
+   parameters are optional):
+
+   ```javascript
+   function(name, meta);
+   ```
+
+   - `name` the name of the current property in the iteration
+   - `meta` the meta object for the attribute property in the iteration
+
+   Note that in addition to a callback, you can also pass an optional target
+   object that will be set as `this` on the context.
+
+   Example
+
+   ```javascript
+   import DS from 'ember-data';
+
+   let Person = DS.Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+   Person.eachAttribute(function(name, meta) {
+      console.log(name, meta);
+    });
+
+   // prints:
+   // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
+   // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
+   // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+   ```
+
+   @method eachAttribute
+   @param {Function} callback The callback to execute
+   @param {Object} [binding] the value to which the callback's `this` should be bound
+   @static
+   */
+  eachAttribute(callback, binding) {
+    get(this, 'attributes').forEach((meta, name) => {
+      callback.call(binding, name, meta);
+    });
+  },
+
+  /**
+   Iterates through the transformedAttributes of the model, calling
+   the passed function on each attribute. Note the callback will not be
+   called for any attributes that do not have an transformation type.
+
+   The callback method you provide should have the following signature (all
+   parameters are optional):
+
+   ```javascript
+   function(name, type);
+   ```
+
+   - `name` the name of the current property in the iteration
+   - `type` a string containing the name of the type of transformed
+   applied to the attribute
+
+   Note that in addition to a callback, you can also pass an optional target
+   object that will be set as `this` on the context.
+
+   Example
+
+   ```javascript
+   import DS from 'ember-data';
+
+   let Person = DS.Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+   Person.eachTransformedAttribute(function(name, type) {
+      console.log(name, type);
+    });
+
+   // prints:
+   // lastName string
+   // birthday date
+   ```
+
+   @method eachTransformedAttribute
+   @param {Function} callback The callback to execute
+   @param {Object} [binding] the value to which the callback's `this` should be bound
+   @static
+   */
+  eachTransformedAttribute(callback, binding) {
+    get(this, 'transformedAttributes').forEach((type, name) => {
+      callback.call(binding, name, type);
+    });
+  }
 });
 
 // if `Ember.setOwner` is defined, accessing `this.container` is
@@ -1068,14 +1913,4 @@ if (isEnabled('ds-rollback-attribute')) {
   });
 }
 
-
-Model.reopenClass(RelationshipsClassMethodsMixin);
-Model.reopenClass(AttrClassMethodsMixin);
-
-export default Model.extend(
-  DebuggerInfoMixin,
-  BelongsToMixin,
-  DidDefinePropertyMixin,
-  RelationshipsInstanceMethodsMixin,
-  HasManyMixin,
-  AttrInstanceMethodsMixin);
+export default Model;

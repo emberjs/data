@@ -159,14 +159,3 @@ export default function hasMany(type, options) {
     }
   }).meta(meta);
 }
-
-export const HasManyMixin = Ember.Mixin.create({
-  notifyHasManyAdded(key) {
-    //We need to notifyPropertyChange in the adding case because we need to make sure
-    //we fetch the newly added record in case it is unloaded
-    //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-
-    //Goes away once hasMany is double promisified
-    this.notifyPropertyChange(key);
-  }
-});
