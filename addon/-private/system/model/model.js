@@ -2,7 +2,6 @@ import Ember from 'ember';
 import { assert, deprecate, warn } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
-import { HasManyMixin } from 'ember-data/-private/system/relationships/has-many';
 import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
@@ -1126,12 +1125,18 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
   inverseFor(key) {
     return this.constructor.inverseFor(key, this.store);
+  },
+
+  notifyHasManyAdded(key) {
+    //We need to notifyPropertyChange in the adding case because we need to make sure
+    //we fetch the newly added record in case it is unloaded
+    //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+
+    //Goes away once hasMany is double promisified
+    this.notifyPropertyChange(key);
   }
 
-},
-  HasManyMixin,
-  AttrInstanceMethodsMixin
-);
+}, AttrInstanceMethodsMixin);
 
 /**
  @property data
