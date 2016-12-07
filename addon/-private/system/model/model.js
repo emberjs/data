@@ -2,7 +2,7 @@ import Ember from 'ember';
 import { assert, deprecate, warn } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
-import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
+import { AttrClassMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
 import EmptyObject from "ember-data/-private/system/empty-object";
@@ -1134,9 +1134,12 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
     //Goes away once hasMany is double promisified
     this.notifyPropertyChange(key);
-  }
+  },
 
-}, AttrInstanceMethodsMixin);
+  eachAttribute(callback, binding) {
+    this.constructor.eachAttribute(callback, binding);
+  }
+});
 
 /**
  @property data

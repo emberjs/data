@@ -217,10 +217,3 @@ export const AttrClassMethodsMixin = Ember.Mixin.create({
     });
   }
 });
-
-
-export const AttrInstanceMethodsMixin = Ember.Mixin.create({
-  eachAttribute(callback, binding) {
-    this.constructor.eachAttribute(callback, binding);
-  }
-});
