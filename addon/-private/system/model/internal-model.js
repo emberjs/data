@@ -135,7 +135,7 @@ export default class InternalModel {
   }
 
   get modelClass() {
-    return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
+    return this._modelClass || (this._modelClass = this.store._modelFor(this.modelName));
   }
 
   get type() {

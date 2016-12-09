@@ -92,7 +92,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     if (!this.modelName) {
       return null;
     }
-    return this.store.modelFor(this.modelName);
+    return this.store._modelFor(this.modelName);
   }).readOnly(),
 
   /**

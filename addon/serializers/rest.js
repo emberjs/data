@@ -183,7 +183,7 @@ var RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    let modelClass = store.modelFor(modelName);
+    let modelClass = store._modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
     Ember.makeArray(arrayHash).forEach((hash) => {
