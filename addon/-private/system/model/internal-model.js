@@ -5,6 +5,7 @@ import Relationships from "ember-data/-private/system/relationships/state/create
 import Snapshot from "ember-data/-private/system/snapshot";
 import EmptyObject from "ember-data/-private/system/empty-object";
 import isEnabled from 'ember-data/-private/features';
+import OrderedSet from "ember-data/-private/system/ordered-set";
 
 import {
   getOwner
@@ -114,7 +115,6 @@ export default class InternalModel {
     this.modelName = modelName;
     this.dataHasInitialized = false;
     this._loadingPromise = null;
-    this._recordArrays = undefined;
     this._record = null;
     this.currentState = RootState.empty;
     this.isReloading = false;
@@ -126,6 +126,7 @@ export default class InternalModel {
     // caches for lazy getters
     this._modelClass = null;
     this.__deferredTriggers = null;
+    this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
     this.__inFlightAttributes = null;
@@ -147,6 +148,13 @@ export default class InternalModel {
       this._recordReference = new RecordReference(this.store, this)
     }
     return this._recordReference;
+  }
+
+  get _recordArrays() {
+    if (this.__recordArrays === null) {
+      this.__recordArrays = OrderedSet.create();
+    }
+    return this.__recordArrays;
   }
 
   get references() {

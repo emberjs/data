@@ -87,7 +87,10 @@ export default RecordArray.extend({
       links: cloneNull(payload.links)
     });
 
-    internalModels.forEach(internalModel => this.manager.recordArraysForRecord(internalModel).add(this));
+    for (let i = 0, l = internalModels.length; i < l; i++) {
+      let internalModel = internalModels[i];
+      this.manager.recordArraysForRecord(internalModel).add(this)
+    }
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');

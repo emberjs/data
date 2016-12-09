@@ -8,7 +8,6 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "ember-data/-private/system/record-arrays";
-import OrderedSet from "ember-data/-private/system/ordered-set";
 import { assert } from 'ember-data/-private/debug';
 
 const {
@@ -65,11 +64,13 @@ const {
   @class RecordArrayManager
   @namespace DS
   @private
-  @extends Ember.Object
 */
-export default Ember.Object.extend({
-  init() {
+export default class RecordArrayManager {
+  constructor(options) {
     heimdall.increment(create);
+    this.store = options.store;
+    this.isDestroying = false;
+    this.isDestroyed = false;
     this.filteredRecordArrays = MapWithDefault.create({
       defaultValue() { return []; }
     });
@@ -84,20 +85,20 @@ export default Ember.Object.extend({
     this.changedRecords = [];
     this.loadedRecords = [];
     this._adapterPopulatedRecordArrays = [];
-  },
+  }
 
   recordDidChange(internalModel) {
     heimdall.increment(recordDidChange);
     if (this.changedRecords.push(internalModel) !== 1) { return; }
 
     emberRun.schedule('actions', this, this.updateRecordArrays);
-  },
+  }
 
   recordArraysForRecord(internalModel) {
     heimdall.increment(recordArraysForRecord);
-    internalModel._recordArrays = internalModel._recordArrays || OrderedSet.create();
+
     return internalModel._recordArrays;
-  },
+  }
 
   /**
     This method is invoked whenever data is loaded into the store by the
@@ -127,18 +128,18 @@ export default Ember.Object.extend({
     }
 
     updated.length = 0;
-  },
+  }
 
   _recordWasDeleted(internalModel) {
     heimdall.increment(_recordWasDeleted);
-    let recordArrays = internalModel._recordArrays;
+    let recordArrays = internalModel.__recordArrays;
 
     if (!recordArrays) { return; }
 
     recordArrays.forEach(array => array._removeInternalModels([internalModel]));
 
-    internalModel._recordArrays = null;
-  },
+    internalModel.__recordArrays = null;
+  }
 
   _recordWasChanged(internalModel) {
     heimdall.increment(_recordWasChanged);
@@ -149,7 +150,7 @@ export default Ember.Object.extend({
       filter = get(array, 'filterFunction');
       this.updateFilterRecordArray(array, filter, modelName, internalModel);
     });
-  },
+  }
 
   //Need to update live arrays on loading
   recordWasLoaded(internalModel) {
@@ -157,7 +158,7 @@ export default Ember.Object.extend({
     if (this.loadedRecords.push(internalModel) !== 1) { return; }
 
     emberRun.schedule('actions', this, this._flushLoadedRecords);
-  },
+  }
 
   _flushLoadedRecords() {
     heimdall.increment(_flushLoadedRecords);
@@ -183,7 +184,7 @@ export default Ember.Object.extend({
     }
 
     this.loadedRecords.length = 0;
-  },
+  }
 
   /**
     Update an individual filter.
@@ -204,7 +205,7 @@ export default Ember.Object.extend({
       recordArrays.delete(array);
       array._removeInternalModels([internalModel]);
     }
-  },
+  }
 
   _addInternalModelToRecordArray(array, internalModel) {
     heimdall.increment(_addRecordToRecordArray);
@@ -213,7 +214,7 @@ export default Ember.Object.extend({
       array._pushInternalModels([internalModel]);
       recordArrays.add(array);
     }
-  },
+  }
 
   syncLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
@@ -232,7 +233,7 @@ export default Ember.Object.extend({
     }
 
     this.populateLiveRecordArray(array, modelName);
-  },
+  }
 
   populateLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.populateLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
@@ -248,7 +249,7 @@ export default Ember.Object.extend({
         this._addInternalModelToRecordArray(array, record);
       }
     }
-  },
+  }
 
   /**
     This method is invoked if the `filterFunction` property is
@@ -276,7 +277,7 @@ export default Ember.Object.extend({
         this.updateFilterRecordArray(array, filter, modelName, record);
       }
     }
-  },
+  }
 
   /**
     Get the `DS.RecordArray` for a modelName, which contains all loaded records of
@@ -291,7 +292,7 @@ export default Ember.Object.extend({
 
     heimdall.increment(liveRecordArrayFor);
     return this.liveRecordArrays.get(modelName);
-  },
+  }
 
   /**
     Create a `DS.RecordArray` for a modelName.
@@ -310,7 +311,7 @@ export default Ember.Object.extend({
       isLoaded: true,
       manager: this
     });
-  },
+  }
 
   /**
     Create a `DS.FilteredRecordArray` for a modelName and register it for updates.
@@ -337,7 +338,7 @@ export default Ember.Object.extend({
     this.registerFilteredRecordArray(array, modelName, filter);
 
     return array;
-  },
+  }
 
   /**
     Create a `DS.AdapterPopulatedRecordArray` for a modelName with given query.
@@ -362,7 +363,7 @@ export default Ember.Object.extend({
     this._adapterPopulatedRecordArrays.push(array);
 
     return array;
-  },
+  }
 
   /**
     Register a RecordArray for a given modelName to be backed by
@@ -383,7 +384,7 @@ export default Ember.Object.extend({
     recordArrays.push(array);
 
     this.updateFilter(array, modelName, filter);
-  },
+  }
 
   /**
     Unregister a RecordArray.
@@ -414,16 +415,20 @@ export default Ember.Object.extend({
         }
       }
     }
-  },
+  }
 
   willDestroy() {
-    this._super(...arguments);
-
     this.filteredRecordArrays.forEach(value => flatten(value).forEach(destroy));
     this.liveRecordArrays.forEach(destroy);
     this._adapterPopulatedRecordArrays.forEach(destroy);
+    this.isDestroyed = true;
   }
-});
+
+  destroy() {
+    this.isDestroying = true;
+    Ember.run.schedule('actions', this, this.willDestroy);
+  }
+}
 
 function destroy(entry) {
   entry.destroy();
