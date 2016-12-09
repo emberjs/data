@@ -277,6 +277,13 @@ var JSONAPIAdapter = RESTAdapter.extend({
     }
   },
 
+  generatedDetailedMessage: function(status, headers, payload, requestData) {
+    if ('errors' in payload)
+      payload = payload.errors.map(error => JSON.stringify(error, null, 1)).join("\n");
+
+    return this._super(status, headers, payload, requestData);
+  },
+
   _hasCustomizedAjax() {
     if (this.ajax !== JSONAPIAdapter.prototype.ajax) {
       deprecate('JSONAPIAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
