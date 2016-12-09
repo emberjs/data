@@ -262,7 +262,7 @@ const DirtyState = {
     },
 
     reloadRecord(internalModel, resolve) {
-      resolve(internalModel.store.reloadRecord(internalModel));
+      resolve(internalModel.store._reloadRecord(internalModel));
     },
 
     rolledBack(internalModel) {
@@ -565,7 +565,7 @@ const RootState = {
       },
 
       reloadRecord(internalModel, resolve) {
-        resolve(internalModel.store.reloadRecord(internalModel));
+        resolve(internalModel.store._reloadRecord(internalModel));
       },
 
       deleteRecord(internalModel) {

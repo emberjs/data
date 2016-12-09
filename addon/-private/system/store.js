@@ -1021,8 +1021,7 @@ Store = Service.extend({
     @param {DS.Model} internalModel
     @return {Promise} promise
   */
-  // TODO @runspired this should be underscored
-  reloadRecord(internalModel) {
+  _reloadRecord(internalModel) {
     let modelName = internalModel.type.modelName;
     let adapter = this.adapterFor(modelName);
     let id = internalModel.id;
