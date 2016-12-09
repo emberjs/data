@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, runInDebug } from "ember-data/-private/debug";
+import { assert, deprecate, runInDebug } from "ember-data/-private/debug";
 import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
@@ -110,6 +110,7 @@ export default class InternalModel {
     this.id = id;
     this.store = store;
     this._data = data || new EmptyObject();
+    this._schema = null;
     this.modelName = modelClass.modelName;
     this.dataHasInitialized = false;
     this._loadingPromise = null;
@@ -131,7 +132,19 @@ export default class InternalModel {
     this.__implicitRelationships = null;
   }
 
+  get schema() {
+    if (this._schema === null) {
+      this._schema = this.store._schemaForModelClass(this.modelClass);
+    }
+
+    return this._schema;
+  }
+
   get type() {
+    deprecate(`InternalModel.type has been deprecated in favor of InternalModel.modelClass`, {
+      id: 'ember-data.private.type-to-modelClass'
+    });
+
     return this.modelClass;
   }
 
@@ -284,7 +297,6 @@ export default class InternalModel {
       }
 
       this._record = this.modelClass._create(createOptions);
-
       this._triggerDeferredTriggers();
       heimdall.stop(token);
     }
@@ -345,16 +357,16 @@ export default class InternalModel {
     this.send('unloadRecord');
   }
 
-  eachRelationship(callback, binding) {
-    return this.modelClass.eachRelationship(callback, binding);
+  eachRelationship(callback, context) {
+    this.schema.eachRelationship(callback, context);
   }
 
-  eachAttribute(callback, binding) {
-    return this.modelClass.eachAttribute(callback, binding);
+  eachAttribute(callback, context) {
+    this.schema.eachAttribute(callback, context);
   }
 
   inverseFor(key) {
-    return this.modelClass.inverseFor(key);
+    return this.schema.inverseFor(key);
   }
 
   setupData(data) {
@@ -721,8 +733,9 @@ export default class InternalModel {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
       let preloadValue = get(preload, key);
-      let relationshipMeta = this.modelClass.metaForProperty(key);
-      if (relationshipMeta.isRelationship) {
+      let relationshipMeta = this.schema.relationships && this.schema.relationships[key];
+
+      if (relationshipMeta) {
         this._preloadRelationship(key, preloadValue);
       } else {
         this._data[key] = preloadValue;
@@ -731,12 +744,16 @@ export default class InternalModel {
   }
 
   _preloadRelationship(key, preloadValue) {
-    let relationshipMeta = this.modelClass.metaForProperty(key);
-    let modelClass = relationshipMeta.type;
-    if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, modelClass);
-    } else {
-      this._preloadBelongsTo(key, preloadValue, modelClass);
+    let relationshipMeta = this.schema.relationships[key];
+
+    if (relationshipMeta) {
+      let modelClass = relationshipMeta.type;
+
+      if (relationshipMeta.kind === 'hasMany') {
+        this._preloadHasMany(key, preloadValue, modelClass);
+      } else {
+        this._preloadBelongsTo(key, preloadValue, modelClass);
+      }
     }
   }
 
