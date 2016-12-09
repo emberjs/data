@@ -94,10 +94,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
   return promise.then(function(adapterPayload) {
     assert("You made a `findHasMany` request for a " + internalModel.modelName + "'s `" + relationship.key + "` relationship, using link " + link + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     return store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
-      //TODO Use a non record creating push
-      var records = store.push(payload);
-      var recordArray = records.map((record) => record._internalModel);
+      let payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
+      let recordArray = store._push(payload);
+
       recordArray.meta = payload.meta;
       return recordArray;
     });
