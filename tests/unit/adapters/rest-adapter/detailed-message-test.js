@@ -33,6 +33,20 @@ test("generating a wonderfully friendly error message should work", (assert) => 
                                  "I'm a little teapot, short and stout"].join("\n"));
 });
 
+test("generating a wonderfully friendly error message with missing requestData should work", (assert) => {
+  assert.expect(1);
+
+  let friendlyMessage = adapter.generatedDetailedMessage(
+    418,
+    { "Content-Type": "text/plain" },
+    "I'm a little teapot, short and stout"
+  );
+
+  assert.equal(friendlyMessage, ["Ember Data Request returned a 418",
+                                 "Payload (text/plain)",
+                                 "I'm a little teapot, short and stout"].join("\n"));
+});
+
 test("generating a friendly error message with a missing content-type header should work", (assert) => {
 
   let friendlyMessage = adapter.generatedDetailedMessage(

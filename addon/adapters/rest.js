@@ -1191,10 +1191,13 @@ var RESTAdapter = Adapter.extend(BuildURLMixin, {
       shortenedPayload = payload;
     }
 
-    var requestDescription = requestData.method + ' ' + requestData.url;
+    var requestDescription = ' '
+    if (requestData && typeof requestData === 'object') {
+        requestDescription = ' ' + requestData.method + ' ' + requestData.url + ' ';
+    }
     var payloadDescription = 'Payload (' + payloadContentType + ')';
 
-    return ['Ember Data Request ' + requestDescription + ' returned a ' + status,
+    return ['Ember Data Request' + requestDescription + 'returned a ' + status,
             payloadDescription,
             shortenedPayload].join('\n');
   },
