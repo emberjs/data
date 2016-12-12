@@ -88,12 +88,12 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
    @property type
    @type DS.Model
    */
-  type: computed.readOnly('modelName', function() {
+  type: computed('modelName', function() {
     if (!this.modelName) {
       return null;
     }
     return this.store.modelFor(this.modelName);
-  }),
+  }).readOnly(),
 
   /**
     Retrieves an object from the content by index.
