@@ -217,11 +217,24 @@ Store = Service.extend({
     this.recordArrayManager = RecordArrayManager.create({
       store: this
     });
-    this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
 
-    //Used to keep track of all the find requests that need to be coalesced
+    /*
+      Ember Data uses several specialized micro-queues for organizing
+      and coalescing similar async work.
+
+      These queues are currently controlled by a flush scheduled into
+      ember-data's custom backburner instance.
+     */
+    // used for coalescing record save requests
+    this._pendingSave = [];
+    // used for coalescing relationship setup needs
+    this._pushedInternalModels = [];
+    // stores a reference to the flush for relationship setup
+    this._relationshipFlush = null;
+    // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
+
+    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
   },
 
   /**
@@ -1849,25 +1862,27 @@ Store = Service.extend({
     let pending = this._pendingSave.slice();
     this._pendingSave = [];
 
-    pending.forEach((pendingItem) => {
+    for (let i = 0, j = pending.length; i < j; i++) {
+      let pendingItem = pending[i];
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
-      let record = snapshot._internalModel;
-      let adapter = this.adapterFor(record.modelClass.modelName);
+      let internalModel = snapshot._internalModel;
+      let adapter = this.adapterFor(internalModel.modelClass.modelName);
       let operation;
 
-      if (get(record, 'currentState.stateName') === 'root.deleted.saved') {
+      if (get(internalModel, 'currentState.stateName') === 'root.deleted.saved') {
         return resolver.resolve();
-      } else if (record.isNew()) {
+      } else if (internalModel.isNew()) {
         operation = 'createRecord';
-      } else if (record.isDeleted()) {
+      } else if (internalModel.isDeleted()) {
         operation = 'deleteRecord';
       } else {
         operation = 'updateRecord';
       }
 
       resolver.resolve(_commit(adapter, this, operation, snapshot));
-    });
+    }
+
   },
 
   /**
@@ -1890,8 +1905,8 @@ Store = Service.extend({
     }
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
       this.updateId(internalModel, data);
+      this._setupRelationshipsForModel(internalModel, data);
     } else {
       assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
@@ -2006,6 +2021,7 @@ Store = Service.extend({
     heimdall.increment(_load);
     let internalModel = this._internalModelForId(data.type, data.id);
 
+    // TODO @runspired move this out of here
     internalModel.setupData(data);
 
     this.recordArrayManager.recordDidChange(internalModel);
@@ -2265,17 +2281,18 @@ Store = Service.extend({
   },
 
   /*
-    Push some data into the store, without creating materialized records.
+    Push some data in the form of a json-api document into the store,
+    without creating materialized records.
 
     @method _push
     @private
-    @param {Object} data
+    @param {Object} jsonApiDoc
     @return {DS.InternalModel|Array<DS.InternalModel>} pushed InternalModel(s)
   */
-  _push(data) {
+  _push(jsonApiDoc) {
     let token = heimdall.start('store._push');
     let internalModelOrModels = this._backburner.join(() => {
-      let included = data.included;
+      let included = jsonApiDoc.included;
       let i, length;
 
       if (included) {
@@ -2284,23 +2301,23 @@ Store = Service.extend({
         }
       }
 
-      if (Array.isArray(data.data)) {
-        length = data.data.length;
+      if (Array.isArray(jsonApiDoc.data)) {
+        length = jsonApiDoc.data.length;
         let internalModels = new Array(length);
 
         for (i = 0; i < length; i++) {
-          internalModels[i] = this._pushInternalModel(data.data[i]);
+          internalModels[i] = this._pushInternalModel(jsonApiDoc.data[i]);
         }
         return internalModels;
       }
 
-      if (data.data === null) {
+      if (jsonApiDoc.data === null) {
         return null;
       }
 
-      assert(`Expected an object in the 'data' property in a call to 'push' for ${data.type}, but was ${typeOf(data.data)}`, typeOf(data.data) === 'object');
+      assert(`Expected an object in the 'data' property in a call to 'push' for ${jsonApiDoc.type}, but was ${typeOf(jsonApiDoc.data)}`, typeOf(jsonApiDoc.data) === 'object');
 
-      return this._pushInternalModel(data.data);
+      return this._pushInternalModel(jsonApiDoc.data);
     });
     heimdall.stop(token);
     return internalModelOrModels;
@@ -2342,17 +2359,32 @@ Store = Service.extend({
     // Actually load the record into the store.
     let internalModel = this._load(data);
 
-    this._backburner.schedule('normalizeRelationships', this, this._setupRelationships, internalModel, data);
+    this._setupRelationshipsForModel(internalModel, data);
 
     return internalModel;
   },
 
-  _setupRelationships(record, data) {
+  _setupRelationshipsForModel(internalModel, data) {
+    this._pushedInternalModels.push(internalModel, data);
+    if (this._relationshipFlush === null) {
+      this._relationshipFlush = this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
+    }
+  },
+
+  _setupRelationships() {
     heimdall.increment(_setupRelationships);
-    // This will convert relationships specified as IDs into DS.Model instances
-    // (possibly unloaded) and also create the data structures used to track
-    // relationships.
-    setupRelationships(this, record, data);
+    let pushed = this._pushedInternalModels;
+    this._pushedInternalModels = [];
+    this._relationshipFlush = null;
+
+    for (let i = 0, l = pushed.length; i < l; i += 2) {
+      // This will convert relationships specified as IDs into DS.Model instances
+      // (possibly unloaded) and also create the data structures used to track
+      // relationships.
+      let internalModel = pushed[i];
+      let data = pushed[i + 1];
+      setupRelationships(this, internalModel, data);
+    }
   },
 
   /**
@@ -2611,6 +2643,9 @@ Store = Service.extend({
 
   willDestroy() {
     this._super(...arguments);
+    this._pushedInternalModels = null;
+    this._backburner.cancel(this._relationshipFlush);
+    this._relationshipFlush = null;
     this.recordArrayManager.destroy();
     this._instanceCache.destroy();
 
@@ -2622,7 +2657,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
 
     //TODO:Better asserts
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
@@ -2633,7 +2668,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
+    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
 
     let _internalModels = new Array(resourceIdentifiers.length);
     for (let i = 0; i < resourceIdentifiers.length; i++) {
@@ -2673,7 +2708,7 @@ function _commit(adapter, store, operation, snapshot) {
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         if (payload.included) {
-          store.push({ data: payload.included });
+          store._push({ data: null, included: payload.included });
         }
         data = payload.data;
       }
@@ -2694,17 +2729,17 @@ function _commit(adapter, store, operation, snapshot) {
   }, label);
 }
 
-function setupRelationships(store, record, data) {
+function setupRelationships(store, internalModel, data) {
   if (!data.relationships) {
     return;
   }
 
-  record.type.eachRelationship((key, descriptor) => {
+  internalModel.type.eachRelationship((key, descriptor) => {
     if (!data.relationships[key]) {
       return;
     }
 
-    let relationship = record._relationships.get(key);
+    let relationship = internalModel._relationships.get(key);
     relationship.push(data.relationships[key]);
   });
 }
