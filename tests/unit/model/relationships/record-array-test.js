@@ -12,16 +12,17 @@ var run = Ember.run;
 module("unit/model/relationships - RecordArray");
 
 test("updating the content of a RecordArray updates its content", function(assert) {
-  var Tag = DS.Model.extend({
+  let Tag = DS.Model.extend({
     name: DS.attr('string')
   });
 
-  var env = setupStore({ tag: Tag });
-  var store = env.store;
-  var records, tags, internalModel;
+  let env = setupStore({ tag: Tag });
+  let store = env.store;
+  let tags;
+  let internalModels;
 
   run(function() {
-    store.push({
+    internalModels = store._push({
       data: [{
         type: 'tag',
         id: '5',
@@ -42,16 +43,18 @@ test("updating the content of a RecordArray updates its content", function(asser
         }
       }]
     });
-    records = store.peekAll('tag');
-    internalModel = Ember.A(records).mapBy('_internalModel');
-    tags = DS.RecordArray.create({ content: Ember.A(internalModel.slice(0, 2)), store: store, type: Tag });
+    tags = DS.RecordArray.create({
+      content: Ember.A(internalModels.slice(0, 2)),
+      store: store,
+      modelName: 'tag'
+    });
   });
 
-  var tag = tags.objectAt(0);
+  let tag = tags.objectAt(0);
   assert.equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
   run(function() {
-    set(tags, 'content', Ember.A(internalModel.slice(1, 3)));
+    set(tags, 'content', Ember.A(internalModels.slice(1, 3)));
   });
 
   tag = tags.objectAt(0);
