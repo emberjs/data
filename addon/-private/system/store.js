@@ -215,6 +215,7 @@ Store = Service.extend({
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+    this._modelClassCache = new EmptyObject();
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -1231,7 +1232,7 @@ Store = Service.extend({
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
 
     let modelToken = heimdall.start('initial-modelFor-lookup');
-    let modelClass = this.modelFor(modelName);
+    let modelClass = this._modelFor(modelName);
     heimdall.stop(modelToken);
 
     array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
@@ -1349,7 +1350,7 @@ Store = Service.extend({
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
     let trueModelName = this._classKeyFor(modelName);
 
-    let modelClass = this.modelFor(trueModelName);
+    let modelClass = this._modelFor(trueModelName);
     let adapter = this.adapterFor(trueModelName);
 
     assert(`You tried to make a query but you have no adapter (for ${trueModelName})`, adapter);
@@ -1560,7 +1561,7 @@ Store = Service.extend({
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
     let token = heimdall.start('store.findAll');
     let trueModelName = this._classKeyFor(modelName);
-    let modelClass = this.modelFor(trueModelName);
+    let modelClass = this._modelFor(trueModelName);
     let fetch = this._fetchAll(modelClass, this.peekAll(trueModelName), options);
 
     instrument(() => {
@@ -2023,8 +2024,9 @@ Store = Service.extend({
     relationship metadata. Thus, we look up the mixin and create a mock
     DS.Model, so we can access the relationship CPs of the mixin (`comments`)
     in this case
-  */
 
+    @private
+  */
   _modelForMixin(modelName) {
     heimdall.increment(_modelForMixin);
     let normalizedModelName = normalizeModelName(modelName);
@@ -2060,28 +2062,45 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor(modelName) {
-    heimdall.increment(modelFor);
     assert("You need to pass a model name to the store's modelFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
 
     let trueModelName = this._classKeyFor(modelName);
 
-    let factory = this.modelFactoryFor(trueModelName);
-    if (!factory) {
-      //Support looking up mixins as base types for polymorphic relationships
-      factory = this._modelForMixin(trueModelName);
-    }
-    if (!factory) {
-      throw new EmberError(`No model was found for '${trueModelName}'`);
-    }
+    return this._modelFor(trueModelName);
+  },
 
-    assert(`'${inspect(factory)}' does not appear to be an ember-data model`, (typeof factory._create === 'function') );
+  /*
+    @private
+   */
+  _modelFor(modelName) {
+    heimdall.increment(modelFor);
+    let factory = this._modelClassCache[modelName];
 
-    factory.modelName = factory.modelName || trueModelName;
+    if (!factory) {
+      factory = this.modelFactoryFor(modelName);
+
+      if (!factory) {
+        //Support looking up mixins as base types for polymorphic relationships
+        factory = this._modelForMixin(modelName);
+      }
+      if (!factory) {
+        throw new EmberError(`No model was found for '${modelName}'`);
+      }
+
+      assert(`'${inspect(factory)}' does not appear to be an ember-data model`, (typeof factory._create === 'function') );
+
+      factory.modelName = factory.modelName || modelName;
+
+      this._modelClassCache[modelName] = factory;
+    }
 
     return factory;
   },
 
+  /*
+   @private
+   */
   modelFactoryFor(modelName) {
     heimdall.increment(modelFactoryFor);
     assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
@@ -2322,7 +2341,7 @@ Store = Service.extend({
       // contains unknown attributes or relationships, log a warning.
 
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-        let modelClass = this.modelFor(modelName);
+        let modelClass = this._modelFor(modelName);
 
         // Check unknown attributes
         let unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
@@ -2471,7 +2490,7 @@ Store = Service.extend({
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
     let trueModelName = this._classKeyFor(modelName);
     let serializer = this.serializerFor(trueModelName);
-    let model = this.modelFor(trueModelName);
+    let model = this._modelFor(trueModelName);
     return serializer.normalize(model, payload);
   },
 
@@ -2658,7 +2677,7 @@ function defaultSerializer(store) {
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
   let modelName = snapshot.modelName;
-  let modelClass = store.modelFor(modelName);
+  let modelClass = store._modelFor(modelName);
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(`You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
   let promise = adapter[operation](store, modelClass, snapshot);
