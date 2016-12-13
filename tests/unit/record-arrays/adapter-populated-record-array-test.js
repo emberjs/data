@@ -23,10 +23,10 @@ function internalModelFor(record) {
 }
 
 test('default initial state', function(assert) {
-  let recordArray = AdapterPopulatedRecordArray.create({ type: 'recordType' });
+  let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
 
   assert.equal(recordArray.get('isLoaded'), false, 'expected isLoaded to be false');
-  assert.equal(recordArray.get('type'), 'recordType');
+  assert.equal(recordArray.get('modelName'), 'recordType');
   assert.deepEqual(recordArray.get('content'), []);
   assert.equal(recordArray.get('query'), null);
   assert.equal(recordArray.get('store'), null);
@@ -37,17 +37,17 @@ test('custom initial state', function(assert) {
   let content = Ember.A([]);
   let store = {};
   let recordArray = AdapterPopulatedRecordArray.create({
-    type: 'apple',
+    modelName: 'apple',
     isLoaded: true,
     isUpdating: true,
     content,
     store,
     query: 'some-query',
     links: 'foo'
-  })
+  });
   assert.equal(recordArray.get('isLoaded'), true);
   assert.equal(recordArray.get('isUpdating'), false);
-  assert.equal(recordArray.get('type'), 'apple');
+  assert.equal(recordArray.get('modelName'), 'apple');
   assert.equal(recordArray.get('content'), content);
   assert.equal(recordArray.get('store'), store);
   assert.equal(recordArray.get('query'), 'some-query');
@@ -55,7 +55,7 @@ test('custom initial state', function(assert) {
 });
 
 test('#replace() throws error', function(assert) {
-  let recordArray = AdapterPopulatedRecordArray.create({ type: 'recordType' });
+  let recordArray = AdapterPopulatedRecordArray.create({ modelName: 'recordType' });
 
   assert.throws(() => {
     recordArray.replace();
@@ -78,7 +78,7 @@ test('#update uses _update enabling query specific behavior', function(assert) {
   };
 
   let recordArray = AdapterPopulatedRecordArray.create({
-    type: { modelName: 'recordType' },
+    modelName: 'recordType',
     store,
     query: 'some-query'
   });

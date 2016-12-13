@@ -9,10 +9,10 @@ const { FilteredRecordArray } = DS;
 module('unit/record-arrays/filtered-record-array - DS.FilteredRecordArray');
 
 test('default initial state', function(assert) {
-  let recordArray = FilteredRecordArray.create({ type: 'recordType' });
+  let recordArray = FilteredRecordArray.create({ modelName: 'recordType' });
 
   assert.equal(get(recordArray, 'isLoaded'), true);
-  assert.equal(get(recordArray, 'type'), 'recordType');
+  assert.equal(get(recordArray, 'modelName'), 'recordType');
   assert.equal(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'filterFunction'), null);
   assert.equal(get(recordArray, 'store'), null);
@@ -23,23 +23,23 @@ test('custom initial state', function(assert) {
   let store = {};
   let filterFunction = () => true;
   let recordArray = FilteredRecordArray.create({
-    type: 'apple',
+    modelName: 'apple',
     isLoaded: false, // ignored
     isUpdating: true,
     content,
     store,
     filterFunction
-  })
+  });
   assert.equal(get(recordArray, 'isLoaded'), true);
   assert.equal(get(recordArray, 'isUpdating'), false); // cannot set as default value:
-  assert.equal(get(recordArray, 'type'), 'apple');
+  assert.equal(get(recordArray, 'modelName'), 'apple');
   assert.equal(get(recordArray, 'content'), content);
   assert.equal(get(recordArray, 'store'), store);
   assert.equal(get(recordArray, 'filterFunction'), filterFunction);
 });
 
 test('#replace() throws error', function(assert) {
-  let recordArray = FilteredRecordArray.create({ type: 'recordType' });
+  let recordArray = FilteredRecordArray.create({ modelName: 'recordType' });
 
   assert.throws(function() {
     recordArray.replace();
@@ -51,17 +51,17 @@ test('updateFilter', function(assert) {
   const updatedFilterFunction = () => true;
 
   const manager = {
-    updateFilter(array, type, filterFunction) {
+    updateFilter(array, modelName, filterFunction) {
       didUpdateFilter++;
       assert.equal(recordArray, array);
-      assert.equal(type, 'recordType');
+      assert.equal(modelName, 'recordType');
       assert.equal(filterFunction, updatedFilterFunction);
     },
     unregisterRecordArray() {}
   };
 
   let recordArray = FilteredRecordArray.create({
-    type: 'recordType',
+    modelName: 'recordType',
     manager,
     content: Ember.A()
   });
@@ -86,4 +86,4 @@ test('updateFilter', function(assert) {
   });
 
   assert.equal(didUpdateFilter, 0, 'record array manager should not be informed of this change');
-})
+});

@@ -93,10 +93,10 @@ test('destroying the store correctly cleans everything up', function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  let filterd = manager.createFilteredRecordArray(Person, () => true);
-  let filterd2 = manager.createFilteredRecordArray(Person, () => true);
+  let filterd = manager.createFilteredRecordArray('person', () => true);
+  let filterd2 = manager.createFilteredRecordArray('person', () => true);
   let all = store.peekAll('person');
-  let adapterPopulated = manager.createAdapterPopulatedRecordArray(Person, query);
+  let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
 
   let filterdSummary = tap(filterd, 'willDestroy');
   let filterd2Summary = tap(filterd2, 'willDestroy');
@@ -117,13 +117,13 @@ test('destroying the store correctly cleans everything up', function(assert) {
   assert.equal(manager.recordArraysForRecord(internalPersonModel).size, 2, 'expected the person to be a member of 2 recordArrays');
   assert.equal(filterd2Summary.called.length, 1);
 
-  assert.equal(manager.liveRecordArrays.has(all.type), true);
+  assert.equal(manager.liveRecordArrays.has('person'), true);
 
   Ember.run(all, all.destroy);
 
   assert.equal(manager.recordArraysForRecord(internalPersonModel).size, 1, 'expected the person to be a member of 1 recordArrays');
   assert.equal(allSummary.called.length, 1);
-  assert.equal(manager.liveRecordArrays.has(all.type), false);
+  assert.equal(manager.liveRecordArrays.has('person'), false);
 
   Ember.run(manager, manager.destroy);
 
@@ -185,7 +185,7 @@ test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their m
 
   const query = {};
 
-  let adapterPopulated = manager.createAdapterPopulatedRecordArray(Car, query);
+  let adapterPopulated = manager.createAdapterPopulatedRecordArray('car', query);
 
   run(() => adapterPopulated.destroy());
 

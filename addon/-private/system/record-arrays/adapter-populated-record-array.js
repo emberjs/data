@@ -56,16 +56,14 @@ export default RecordArray.extend({
   },
 
   replace() {
-    let type = get(this, 'type').toString();
-    throw new Error(`The result of a server query (on ${type}) is immutable.`);
+    throw new Error(`The result of a server query (on ${this.modelName}) is immutable.`);
   },
 
   _update() {
     let store = get(this, 'store');
-    let modelName = get(this, 'type.modelName');
     let query = get(this, 'query');
 
-    return store._query(modelName, query, this);
+    return store._query(this.modelName, query, this);
   },
 
   /**
@@ -89,7 +87,7 @@ export default RecordArray.extend({
       links: cloneNull(payload.links)
     });
 
-    internalModels.forEach(record => this.manager.recordArraysForRecord(record).add(this));
+    internalModels.forEach(internalModel => this.manager.recordArraysForRecord(internalModel).add(this));
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');

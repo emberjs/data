@@ -77,6 +77,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
   assert.expect(6);
   var comment, post;
   var idCount = 0;
+  let id = 1;
   var ids = [undefined, ''];
   env.adapter.generateIdForRecord = function(passedStore, record) {
     assert.equal(env.store, passedStore, "store is the first parameter");
@@ -86,7 +87,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
 
   env.adapter.createRecord = function(store, type, record) {
     assert.equal(typeof get(record, 'id'), 'object', 'correct type');
-    return Ember.RSVP.resolve({ id: 1 });
+    return Ember.RSVP.resolve({ id: id++ });
   };
 
   run(function() {

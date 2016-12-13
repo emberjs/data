@@ -766,6 +766,23 @@ test("_push returns an instance of InternalModel if an object is pushed", functi
   assert.notOk(pushResult.record, 'InternalModel is not materialized');
 });
 
+test("_push does not require a modelName to resolve to a modelClass", function(assert) {
+  let originalCall = store.modelFor;
+  store.modelFor = () => { assert.notOk('modelFor was triggered as a result of a call to store._push'); };
+
+  run(function() {
+    store._push({
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    });
+  });
+
+  store.modelFor = originalCall;
+  assert.ok('We made it');
+});
+
 test("_push returns an array of InternalModels if an array is pushed", function(assert) {
   let pushResult;
 

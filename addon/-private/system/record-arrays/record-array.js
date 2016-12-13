@@ -5,11 +5,10 @@
 import Ember from 'ember';
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
 import SnapshotRecordArray from "ember-data/-private/system/snapshot-record-array";
-
-const { get, set, RSVP: { Promise } } = Ember;
+const { computed, get, set, RSVP: { Promise } } = Ember;
 
 /**
-  A record array is an array that contains records of a certain type. The record
+  A record array is an array that contains records of a certain modelName. The record
   array materializes records as needed when they are retrieved for the first
   time. You should not create record arrays yourself. Instead, an instance of
   `DS.RecordArray` or its subclasses will be returned by your application's store
@@ -24,14 +23,6 @@ const { get, set, RSVP: { Promise } } = Ember;
 export default Ember.ArrayProxy.extend(Ember.Evented, {
   init() {
     this._super(...arguments);
-
-    /**
-      The model type contained by this record array.
-
-      @property type
-      @type DS.Model
-      */
-    this.type = this.type || null;
 
     /**
       The array of client ids backing the record array. When a
@@ -88,9 +79,21 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   replace() {
-    let type = get(this, 'type').toString();
-    throw new Error(`The result of a server query (for all ${type} types) is immutable. To modify contents, use toArray()`);
+    throw new Error(`The result of a server query (for all ${this.modelName} types) is immutable. To modify contents, use toArray()`);
   },
+
+  /**
+   The modelClass represented by this record array.
+
+   @property type
+   @type DS.Model
+   */
+  type: computed('modelName', function() {
+    if (!this.modelName) {
+      return null;
+    }
+    return this.store.modelFor(this.modelName);
+  }).readOnly(),
 
   /**
     Retrieves an object from the content by index.
@@ -145,10 +148,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     is finished.
    */
   _update() {
-    let store = get(this, 'store');
-    let modelName = get(this, 'type.modelName');
-
-    return store.findAll(modelName, { reload: true });
+    return this.store.findAll(this.modelName, { reload: true });
   },
 
   /**
@@ -193,9 +193,9 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    let promiseLabel = 'DS: RecordArray#save ' + get(this, 'type');
-    let promise = Promise.all(this.invoke('save'), promiseLabel).
-      then(() => this, null, 'DS: RecordArray#save return RecordArray');
+    let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
+    let promise = Promise.all(this.invoke('save'), promiseLabel)
+      .then(() => this, null, 'DS: RecordArray#save return RecordArray');
 
     return PromiseArray.create({ promise });
   },

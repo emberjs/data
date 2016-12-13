@@ -52,8 +52,7 @@ export default RecordArray.extend({
   */
 
   replace() {
-    let type = get(this, 'type').toString();
-    throw new Error(`The result of a client-side filter (on ${type}) is immutable.`);
+    throw new Error(`The result of a client-side filter (on ${this.modelName}) is immutable.`);
   },
 
   /**
@@ -64,7 +63,7 @@ export default RecordArray.extend({
     if (get(this, 'isDestroying') || get(this, 'isDestroyed')) {
       return;
     }
-    get(this, 'manager').updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
+    get(this, 'manager').updateFilter(this, this.modelName, get(this, 'filterFunction'));
   },
 
   updateFilter: Ember.observer('filterFunction', function() {
