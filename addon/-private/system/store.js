@@ -2440,9 +2440,9 @@ Store = Service.extend({
       serializer = this.serializerFor(trueModelName);
     }
     if (isEnabled('ds-pushpayload-return')) {
-      return this._adapterRun(() => { return serializer.pushPayload(this, payload); });
+      return serializer.pushPayload(this, payload);
     } else {
-      this._adapterRun(() => serializer.pushPayload(this, payload));
+      serializer.pushPayload(this, payload);
     }
   },
 
@@ -2560,10 +2560,6 @@ Store = Service.extend({
     return this._instanceCache.get('adapter', trueModelName);
   },
 
-  _adapterRun(fn) {
-    return this._backburner.run(fn);
-  },
-
   // ..............................
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
@@ -2676,7 +2672,16 @@ function _commit(adapter, store, operation, snapshot) {
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then((adapterPayload) => {
-    store._adapterRun(() => {
+    /*
+      Note to future spelunkers hoping to optimize.
+      We rely on this `run` to create a run loop if needed
+      that `store._push` and `store.didSaveRecord` will both share.
+
+      We use `join` because it is often the case that we
+      have an outer run loop available still from the first
+      call to `store._push`;
+     */
+    store._backburner.join(() => {
       let payload, data;
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
