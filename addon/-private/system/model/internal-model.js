@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, runInDebug } from "ember-data/-private/debug";
+import { assert, deprecate, runInDebug } from "ember-data/-private/debug";
 import RootState from "ember-data/-private/system/model/states";
 import Relationships from "ember-data/-private/system/relationships/state/create";
 import Snapshot from "ember-data/-private/system/snapshot";
@@ -139,7 +139,9 @@ export default class InternalModel {
   }
 
   get type() {
-    return this.modelClass;
+    deprecate(`InternalModel.type has been deprecated in favor of InternalModel.modelClass`, {
+      id: 'ember-data.private.type-to-modelClass'
+    });
   }
 
   get recordReference() {

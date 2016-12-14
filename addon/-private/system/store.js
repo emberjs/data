@@ -694,8 +694,7 @@ Store = Service.extend({
     }
 
     let snapshot = internalModel.createSnapshot(options);
-    let modelClass = internalModel.type;
-    let adapter = this.adapterFor(modelClass.modelName);
+    let adapter = this.adapterFor(internalModel.modelName);
 
     // Refetch the record if the adapter thinks the record is stale
     if (adapter.shouldReloadRecord(this, snapshot)) {
@@ -724,7 +723,7 @@ Store = Service.extend({
 
     let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
 
-    return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
+    return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.modelName + " with id: " + get(internalModel, 'id'));
   },
 
   _findEmptyInternalModel(internalModel, options) {
@@ -775,14 +774,14 @@ Store = Service.extend({
     @return {Promise} promise
    */
   _fetchRecord(internalModel, options) {
-    let modelClass = internalModel.type;
+    let modelName = internalModel.modelName;
     let id = internalModel.id;
-    let adapter = this.adapterFor(modelClass.modelName);
+    let adapter = this.adapterFor(modelName);
 
-    assert("You tried to find a record but you have no adapter (for " + modelClass.modelName + ")", adapter);
-    assert("You tried to find a record but your adapter (for " + modelClass.modelName + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
+    assert("You tried to find a record but you have no adapter (for " + modelName + ")", adapter);
+    assert("You tried to find a record but your adapter (for " + modelName + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
 
-    return _find(adapter, this, modelClass, id, internalModel, options);
+    return _find(adapter, this, internalModel.modelClass, id, internalModel, options);
   },
 
   _scheduleFetchMany(internalModels) {
@@ -798,8 +797,7 @@ Store = Service.extend({
   _scheduleFetch(internalModel, options) {
     if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
 
-    let modelClass = internalModel.type;
-    let resolver = RSVP.defer('Fetching ' + modelClass.modelName + ' with id: ' + internalModel.id);
+    let resolver = RSVP.defer('Fetching ' + internalModel.modelName + ' with id: ' + internalModel.id);
     let pendingFetchItem = {
       internalModel,
       resolver,
@@ -808,7 +806,7 @@ Store = Service.extend({
     let promise = resolver.promise;
 
     internalModel.loadingData(promise);
-    this._pendingFetch.get(modelClass).push(pendingFetchItem);
+    this._pendingFetch.get(internalModel.modelClass).push(pendingFetchItem);
 
     emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
@@ -1034,7 +1032,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _reloadRecord(internalModel) {
-    let modelName = internalModel.type.modelName;
+    let modelName = internalModel.modelName;
     let adapter = this.adapterFor(modelName);
     let id = internalModel.id;
 
@@ -1141,9 +1139,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findHasMany(owner, link, relationship) {
-    let adapter = this.adapterFor(owner.type.modelName);
+    let adapter = this.adapterFor(owner.modelName);
 
-    assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
+    assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.modelClass + ")", adapter);
     assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
     return _findHasMany(adapter, this, owner, link, relationship);
@@ -1158,9 +1156,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo(owner, link, relationship) {
-    let adapter = this.adapterFor(owner.type.modelName);
+    let adapter = this.adapterFor(owner.modelName);
 
-    assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
+    assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.modelClass + ")", adapter);
     assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
 
     return _findBelongsTo(adapter, this, owner, link, relationship);
@@ -1851,7 +1849,7 @@ Store = Service.extend({
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
       let internalModel = snapshot._internalModel;
-      let adapter = this.adapterFor(internalModel.modelClass.modelName);
+      let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
       if (get(internalModel, 'currentState.stateName') === 'root.deleted.saved') {
@@ -1892,7 +1890,7 @@ Store = Service.extend({
       this.updateId(internalModel, data);
       this._setupRelationshipsForModel(internalModel, data);
     } else {
-      assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
+      assert(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
 
     //We first make sure the primary data has been updated
@@ -2645,7 +2643,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
 
     //TODO:Better asserts
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
@@ -2656,7 +2654,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
+    assert(`A ${relationship.parentType} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
 
     let _internalModels = new Array(resourceIdentifiers.length);
     for (let i = 0; i < resourceIdentifiers.length; i++) {
@@ -2731,7 +2729,7 @@ function setupRelationships(store, internalModel, data) {
     return;
   }
 
-  internalModel.type.eachRelationship((key, descriptor) => {
+  internalModel.modelClass.eachRelationship((key, descriptor) => {
     if (!data.relationships[key]) {
       return;
     }

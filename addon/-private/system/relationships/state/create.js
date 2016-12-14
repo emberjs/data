@@ -15,7 +15,7 @@ function createRelationshipFor(internalModel, relationshipMeta, store) {
   let inverse = null;
 
   if (shouldFindInverse(relationshipMeta)) {
-    inverse = internalModel.type.inverseFor(relationshipMeta.key, store);
+    inverse = internalModel.modelClass.inverseFor(relationshipMeta.key, store);
   }
 
   if (inverse) {
@@ -47,7 +47,7 @@ export default class Relationships {
   get(key) {
     let relationships = this.initializedRelationships;
     let internalModel = this.internalModel;
-    let relationshipsByName = get(internalModel.type, 'relationshipsByName');
+    let relationshipsByName = get(internalModel.modelClass, 'relationshipsByName');
 
     if (!relationships[key] && relationshipsByName.get(key)) {
       relationships[key] = createRelationshipFor(internalModel, relationshipsByName.get(key), internalModel.store);
