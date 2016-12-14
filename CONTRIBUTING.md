@@ -25,13 +25,13 @@ this bug already.
 
 3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
 demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better. A preconfigured [JSBin (RESTAdapter)][rest] | [JSBIN (JSONAPIAdapter)][json-api] |
-[JSFiddle][2] with mocked requests is available.
+demonstrate. The more pared down, the better. A preconfigured [EmberTwiddle (RESTAdapter)][rest] | [EmberTwiddle (JSONAPIAdapter)][json-api] |
+[EmberTwiddle][2] with mocked requests is available.
 
 
-[rest]: http://emberjs.jsbin.com/nunico/1/edit?html,js,output
-[json-api]: http://emberjs.jsbin.com/sarobu/1/edit?html,js,output
-[2]: http://jsfiddle.net/842xesgc/
+[rest]: https://ember-twiddle.com/aa257da01fe4fde3c1a502538e2e4902/copy
+[json-api]: https://ember-twiddle.com/c0beed7d3c0bed65ac8ed018dcc57894/copy
+[2]: https://ember-twiddle.com/0e1a24aabb8fa7c1fdd8/copy?fileTreeShown=false&numColumns=2&openFiles=routes.application.js%2Ctemplates.application.hbs
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
 a stab at fixing the bug yourself if you can!
