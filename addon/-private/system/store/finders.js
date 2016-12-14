@@ -27,18 +27,18 @@ function payloadIsNotBlank(adapterPayload) {
 export function _find(adapter, store, modelClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
   var promise = adapter.findRecord(store, modelClass, id, snapshot);
-  var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
+  var serializer = serializerForAdapter(store, adapter, internalModel.modelName);
   var label = "DS: Handle Adapter#findRecord of " + modelClass + " with id: " + id;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    assert("You made a `findRecord` request for a " + modelClass.modelName + " with id " + id + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
+    assert("You made a `findRecord` request for a " + internalModel.modelName + " with id " + id + ", but the adapter's response did not have any data", payloadIsNotBlank(adapterPayload));
     let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, id, 'findRecord');
     assert('Ember Data expected the primary data returned from a `findRecord` response to be an object but instead it found an array.', !Array.isArray(payload.data));
 
-    warn(`You requested a record of type '${modelClass.modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead http://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`, payload.data.id === id, {
+    warn(`You requested a record of type '${internalModel.modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${payload.data.id}'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead http://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`, payload.data.id === id, {
       id: 'ds.store.findRecord.id-mismatch'
     });
 

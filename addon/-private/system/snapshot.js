@@ -27,8 +27,8 @@ export default function Snapshot(internalModel, options = {}) {
 
   this.id = internalModel.id;
   this._internalModel = internalModel;
-  this.type = internalModel.type;
-  this.modelName = internalModel.type.modelName;
+  this.type = internalModel.modelClass;
+  this.modelName = internalModel.modelName;
 
   /**
     A hash of adapter options

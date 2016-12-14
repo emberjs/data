@@ -133,7 +133,7 @@ export default class BelongsToRelationship extends Relationship {
         return null;
       }
       var toReturn = this.inverseRecord.getRecord();
-      assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+      assert("You looked up the '" + this.key + "' relationship on a '" + this.parentType + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }
   }
