@@ -2,6 +2,7 @@ import Ember from 'ember';
 import ManyRelationship from "ember-data/-private/system/relationships/state/has-many";
 import BelongsToRelationship from "ember-data/-private/system/relationships/state/belongs-to";
 import EmptyObject from "ember-data/-private/system/empty-object";
+import { runInDebug } from 'ember-data/-private/debug';
 
 const { get } = Ember;
 
@@ -16,6 +17,10 @@ function createRelationshipFor(internalModel, relationshipMeta, store) {
 
   if (shouldFindInverse(relationshipMeta)) {
     inverse = internalModel.type.inverseFor(relationshipMeta.key, store);
+  } else {
+    runInDebug(() => {
+      internalModel.type.typeForRelationship(relationshipMeta.key, store);
+    });
   }
 
   if (inverse) {
