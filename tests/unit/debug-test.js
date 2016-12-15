@@ -66,7 +66,8 @@ test("_debugInfo supports arbitray relationship types", function(assert) {
         options: { inverse: null },
         isRelationship: true,
         kind: 'customRelationship',
-        name: 'Custom Relationship'
+        name: 'Custom Relationship',
+        type: 'post'
       })
   });
 
