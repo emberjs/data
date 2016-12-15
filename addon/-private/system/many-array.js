@@ -123,10 +123,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       }
       const added = newLength - unchangedEndBlockLength - firstChangeIndex;
       const removed = oldLength - unchangedEndBlockLength - firstChangeIndex;
-      this.arrayContentWillChange(firstChangeIndex, added, removed);
+      this.arrayContentWillChange(firstChangeIndex, removed, added);
       set(this, 'length', toSet.length);
       this.currentState = toSet;
-      this.arrayContentDidChange(firstChangeIndex, added, removed);
+      this.arrayContentDidChange(firstChangeIndex, removed, added);
       this.relationship.notifyHasManyChanged();
     }
     this.record.updateRecordArrays();
