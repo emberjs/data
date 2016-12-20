@@ -141,11 +141,10 @@ export function _findAll(adapter, store, modelClass, sinceToken, options) {
 
 export function _query(adapter, store, modelClass, query, recordArray) {
   let modelName = modelClass.modelName;
-  let promise = adapter.query(store, modelClass, query, recordArray);
-
   let serializerToken = heimdall.start('initial-serializerFor-lookup');
   let serializer = serializerForAdapter(store, adapter, modelName);
   heimdall.stop(serializerToken);
+  let promise = adapter.query(store, modelClass, query, recordArray);
   let label = 'DS: Handle Adapter#query of ' + modelClass;
 
   promise = Promise.resolve(promise, label);
