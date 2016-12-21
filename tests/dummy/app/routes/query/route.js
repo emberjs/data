@@ -24,6 +24,10 @@ export default Route.extend({
     let modelName = params.modelName;
     delete params.modelName;
 
+    // Once heimdall 0.4.x is released we can uncomment this
+    // to have nice timeline and trace events integration
+    // heimdall.enableTimelineFeatures();
+
     let token = heimdall.start('ember-data');
     return this.get('store').query(modelName, params)
       .then((records) => {
