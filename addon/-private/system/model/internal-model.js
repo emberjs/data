@@ -122,6 +122,7 @@ export default class InternalModel {
     this._isDestroyed = false;
     this.isError = false;
     this.error = null;
+    this._isUpdatingRecordArrays = false;
 
     // caches for lazy getters
     this._modelClass = null;
@@ -366,6 +367,7 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
+    let token = heimdall.start('setupData');
     let changedKeys = this._changedKeys(data.attributes);
     assign(this._data, data.attributes);
     this.pushedData();
@@ -373,10 +375,11 @@ export default class InternalModel {
       this.record._notifyProperties(changedKeys);
     }
     this.didInitializeData();
+    heimdall.stop(token);
   }
 
   becameReady() {
-    emberRun.schedule('actions', this.store.recordArrayManager, this.store.recordArrayManager.recordWasLoaded, this);
+    this.store.recordArrayManager.recordWasLoaded(this);
   }
 
   didInitializeData() {
@@ -521,7 +524,7 @@ export default class InternalModel {
   */
   adapterDidDirty() {
     this.send('becomeDirty');
-    this.updateRecordArraysLater();
+    this.updateRecordArrays();
   }
 
   /*
@@ -654,7 +657,7 @@ export default class InternalModel {
       setups[i].setup(this);
     }
 
-    this.updateRecordArraysLater();
+    this.updateRecordArrays();
   }
 
   _unhandledEvent(state, name, context) {
@@ -673,7 +676,8 @@ export default class InternalModel {
     if (this._deferredTriggers.push(args) !== 1) {
       return;
     }
-    emberRun.schedule('actions', this, this._triggerDeferredTriggers);
+
+    this.store._updateInternalModel(this);
   }
 
   _triggerDeferredTriggers() {
@@ -784,8 +788,9 @@ export default class InternalModel {
     @private
   */
   updateRecordArrays() {
-    this._updatingRecordArraysLater = false;
-    this.store._dataWasUpdated(this);
+    if (this._isUpdatingRecordArrays) { return; }
+    this._isUpdatingRecordArrays = true;
+    this.store.recordArrayManager.recordDidChange(this);
   }
 
   setId(id) {
@@ -843,22 +848,11 @@ export default class InternalModel {
     this._inFlightAttributes = new EmptyObject();
 
     this.send('didCommit');
-    this.updateRecordArraysLater();
+    this.updateRecordArrays();
 
     if (!data) { return; }
 
     this.record._notifyProperties(changedKeys);
-  }
-
-  /*
-    @method updateRecordArraysLater
-    @private
-  */
-  updateRecordArraysLater() {
-    // quick hack (something like this could be pushed into run.once
-    if (this._updatingRecordArraysLater) { return; }
-    this._updatingRecordArraysLater = true;
-    emberRun.schedule('actions', this, this.updateRecordArrays);
   }
 
   addErrorMessageToAttribute(attribute, message) {

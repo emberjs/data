@@ -226,10 +226,13 @@ Store = Service.extend({
      */
     // used for coalescing record save requests
     this._pendingSave = [];
+    // used for coalescing relationship updates
+    this._updatedRelationships = [];
     // used for coalescing relationship setup needs
     this._pushedInternalModels = [];
-    // stores a reference to the flush for relationship setup
-    this._relationshipFlush = null;
+    // used for coalescing internal model updates
+    this._updatedInternalModels = [];
+
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
 
@@ -1805,6 +1808,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _dataWasUpdated(internalModel) {
+    throw new Error('dont');
     this.recordArrayManager.recordDidChange(internalModel);
   },
 
@@ -2002,7 +2006,6 @@ Store = Service.extend({
     heimdall.increment(_load);
     let internalModel = this._internalModelForId(data.type, data.id);
 
-    // TODO @runspired move this out of here
     internalModel.setupData(data);
 
     this.recordArrayManager.recordDidChange(internalModel);
@@ -2368,17 +2371,17 @@ Store = Service.extend({
   },
 
   _setupRelationshipsForModel(internalModel, data) {
-    this._pushedInternalModels.push(internalModel, data);
-    if (this._relationshipFlush === null) {
-      this._relationshipFlush = this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
+    if (this._pushedInternalModels.push(internalModel, data) !== 2) {
+      return;
     }
+
+    this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
   },
 
   _setupRelationships() {
     heimdall.increment(_setupRelationships);
+    let setupToken = heimdall.start('store._setupRelationships');
     let pushed = this._pushedInternalModels;
-    this._pushedInternalModels = [];
-    this._relationshipFlush = null;
 
     for (let i = 0, l = pushed.length; i < l; i += 2) {
       // This will convert relationships specified as IDs into DS.Model instances
@@ -2388,6 +2391,9 @@ Store = Service.extend({
       let data = pushed[i + 1];
       setupRelationships(this, internalModel, data);
     }
+
+    pushed.length = 0;
+    heimdall.stop(setupToken);
   },
 
   /**
@@ -2632,12 +2638,48 @@ Store = Service.extend({
   willDestroy() {
     this._super(...arguments);
     this._pushedInternalModels = null;
-    this._backburner.cancel(this._relationshipFlush);
-    this._relationshipFlush = null;
     this.recordArrayManager.destroy();
     this._instanceCache.destroy();
 
     this.unloadAll();
+  },
+
+  _updateRelationshipState(relationship) {
+    if (this._updatedRelationships.push(relationship) !== 1) {
+      return;
+    }
+
+    this._backburner.join(() => {
+      this._backburner.schedule('syncRelationships', this, this._flushUpdatedRelationships);
+    });
+  },
+
+  _flushUpdatedRelationships() {
+    let updated = this._updatedRelationships;
+
+    for (let i = 0, l = updated.length; i < l; i++) {
+      updated[i].flushCanonical();
+    }
+
+    updated.length = 0;
+  },
+
+  _updateInternalModel(internalModel) {
+    if (this._updatedInternalModels.push(internalModel) !== 1) {
+      return;
+    }
+
+    emberRun.schedule('actions', this, this._flushUpdatedInternalModels);
+  },
+
+  _flushUpdatedInternalModels() {
+    let updated = this._updatedInternalModels;
+
+    for (let i = 0, l = updated.length; i < l; i++) {
+      updated[i]._triggerDeferredTriggers();
+    }
+
+    updated.length = 0;
   },
 
   _pushResourceIdentifier(relationship, resourceIdentifier) {
