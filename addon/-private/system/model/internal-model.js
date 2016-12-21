@@ -366,7 +366,6 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    let token = heimdall.start('setupData');
     let changedKeys = this._changedKeys(data.attributes);
     assign(this._data, data.attributes);
     this.pushedData();
@@ -374,7 +373,6 @@ export default class InternalModel {
       this.record._notifyProperties(changedKeys);
     }
     this.didInitializeData();
-    heimdall.stop(token);
   }
 
   becameReady() {
