@@ -127,30 +127,20 @@ export default class ManyRelationship extends Relationship {
   }
 
   computeChanges(records) {
-    var members = this.canonicalMembers;
-    var recordsToRemove = [];
-    var length;
-    var record;
-    var i;
-
-    records = setForArray(records);
+    let members = this.canonicalMembers;
+    let recordsToRemove = [];
+    let recordSet = setForArray(records);
 
     members.forEach(function(member) {
-      if (records.has(member)) { return; }
+      if (recordSet.has(member)) { return; }
 
       recordsToRemove.push(member);
     });
 
     this.removeCanonicalRecords(recordsToRemove);
 
-    // Using records.toArray() since currently using
-    // removeRecord can modify length, messing stuff up
-    // forEach since it directly looks at "length" each
-    // iteration
-    records = records.toArray();
-    length = records.length;
-    for (i = 0; i < length; i++) {
-      record = records[i];
+    for (let i = 0, l = records.length; i < l; i++) {
+      let record = records[i];
       this.removeCanonicalRecord(record);
       this.addCanonicalRecord(record, i);
     }
