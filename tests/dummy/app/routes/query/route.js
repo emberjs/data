@@ -31,7 +31,9 @@ export default Route.extend({
         // We call toArray() to force materialization for benchmarking
         // otherwise we would need to consume the RecordArray in our UI
         // and clutter our benchmarks and make it harder to time.
+        let toArrayToken = heimdall.start('queryResult.toArray');
         records.toArray();
+        heimdall.stop(toArrayToken);
         heimdall.stop(token);
         window.result = heimdall.toString();
 
