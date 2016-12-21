@@ -1793,24 +1793,6 @@ Store = Service.extend({
     return this.hasRecordForId(modelName, id);
   },
 
-  // ............
-  // . UPDATING .
-  // ............
-
-  /**
-    If the adapter updates attributes the record will notify
-    the store to update its  membership in any filters.
-    To avoid thrashing, this method is invoked only once per
-    run loop per record.
-
-    @method _dataWasUpdated
-    @private
-    @param {InternalModel} internalModel
-  */
-  _dataWasUpdated(internalModel) {
-    throw new Error('dont');
-    this.recordArrayManager.recordDidChange(internalModel);
-  },
 
   // ..............
   // . PERSISTING .

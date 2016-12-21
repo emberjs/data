@@ -24,7 +24,6 @@ const {
   inspect,
   isEmpty,
   isEqual,
-  run: emberRun,
   setOwner,
   RSVP,
   RSVP: { Promise }
