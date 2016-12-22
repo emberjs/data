@@ -12,16 +12,31 @@ test('returns an EmptyObject when headersString is undefined', function(assert) 
   assert.deepEqual(headers, new EmptyObject(), 'EmptyObject is returned');
 });
 
+test('field is lowercased', function(assert) {
+  let headersString = [
+    'Content-Type: application/json',
+    'CONTENT-ENCODING: gzip'
+  ].join(CRLF);
+
+  let headers = parseResponseHeaders(headersString);
+
+  assert.ok(headers['content-type']);
+  assert.ok(headers['Content-Type'], 'original cased field is present for backwards compatibility');
+
+  assert.ok(headers['content-encoding']);
+  assert.ok(headers['CONTENT-ENCODING'], 'original cased field is present for backwards compatibility');
+});
+
 test('header parsing', function(assert) {
   let headersString = [
-    'Content-Encoding: gzip',
+    'content-encoding: gzip',
     'content-type: application/json; charset=utf-8',
     'date: Fri, 05 Feb 2016 21:47:56 GMT'
   ].join(CRLF);
 
   let headers = parseResponseHeaders(headersString);
 
-  assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+  assert.equal(headers['content-encoding'], 'gzip', 'parses basic header pair');
   assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
   assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
 });
@@ -56,12 +71,12 @@ test('field-value parsing', function(assert) {
 
 test('ignores headers that do not contain a colon', function(assert) {
   let headersString = [
-    'Content-Encoding: gzip',
+    'content-encoding: gzip',
     'I am ignored because I do not contain a colon'
   ].join(CRLF);
 
   let headers = parseResponseHeaders(headersString);
 
-  assert.deepEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+  assert.deepEqual(headers['content-encoding'], 'gzip', 'parses basic header pair');
   assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
 });
