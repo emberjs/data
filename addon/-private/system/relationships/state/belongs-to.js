@@ -5,9 +5,9 @@ import {
 } from "ember-data/-private/system/promise-proxies";
 
 import { assertPolymorphicType } from "ember-data/-private/debug";
-import Relationship from "ember-data/-private/system/relationships/state/relationship";
+import { ExpandedRelationship } from "ember-data/-private/system/relationships/state/relationship";
 
-export default class BelongsToRelationship extends Relationship {
+export default class BelongsToRelationship extends ExpandedRelationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.internalModel = internalModel;

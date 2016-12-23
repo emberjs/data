@@ -2,6 +2,7 @@
 import { assert, warn } from "ember-data/-private/debug";
 import OrderedSet from "ember-data/-private/system/ordered-set";
 import _normalizeLink from "ember-data/-private/system/normalize-link";
+import Relationship from './-relationship';
 
 const {
   addCanonicalRecord,
@@ -53,8 +54,11 @@ const {
   'updateRecordsFromAdapter'
 );
 
-export default class Relationship {
+export default Relationship;
+
+export class ExpandedRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
+    super(store, internalModel, inverseKey, relationshipMeta);
     heimdall.increment(newRelationship);
     var async = relationshipMeta.options.async;
     this.members = new OrderedSet();
