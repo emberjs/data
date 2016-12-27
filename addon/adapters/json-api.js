@@ -144,7 +144,7 @@ import { instrument, deprecate } from 'ember-data/-private/debug';
   @namespace DS
   @extends DS.RESTAdapter
 */
-var JSONAPIAdapter = RESTAdapter.extend({
+const JSONAPIAdapter = RESTAdapter.extend({
   defaultSerializer: '-json-api',
 
   /**
@@ -250,13 +250,13 @@ var JSONAPIAdapter = RESTAdapter.extend({
     if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
     } else {
-      var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+      let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
       return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
     }
   },
 
   pathForType(modelName) {
-    var dasherized = Ember.String.dasherize(modelName);
+    let dasherized = Ember.String.dasherize(modelName);
     return Ember.String.pluralize(dasherized);
   },
 
@@ -265,13 +265,12 @@ var JSONAPIAdapter = RESTAdapter.extend({
     if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
       return this._super(...arguments);
     } else {
-      var data = {};
-      var serializer = store.serializerFor(type.modelName);
+      let data = {};
+      let serializer = store.serializerFor(type.modelName);
 
       serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-      var id = snapshot.id;
-      var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+      let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
       return this.ajax(url, 'PATCH', { data: data });
     }
@@ -311,7 +310,7 @@ if (isEnabled('ds-improved-ajax')) {
     },
 
     dataForRequest(params) {
-      const { requestType, ids } = params;
+      let { requestType, ids } = params;
 
       if (requestType === 'findMany') {
         return {
@@ -320,9 +319,9 @@ if (isEnabled('ds-improved-ajax')) {
       }
 
       if (requestType === 'updateRecord') {
-        const { store, type, snapshot } = params;
-        const data = {};
-        const serializer = store.serializerFor(type.modelName);
+        let { store, type, snapshot } = params;
+        let data = {};
+        let serializer = store.serializerFor(type.modelName);
 
         serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
@@ -333,7 +332,7 @@ if (isEnabled('ds-improved-ajax')) {
     },
 
     headersForRequest() {
-      const headers = this._super(...arguments) || {};
+      let headers = this._super(...arguments) || {};
 
       headers['Accept'] = 'application/vnd.api+json';
 
@@ -341,7 +340,7 @@ if (isEnabled('ds-improved-ajax')) {
     },
 
     _requestToJQueryAjaxHash() {
-      const hash = this._super(...arguments);
+      let hash = this._super(...arguments);
 
       if (hash.contentType) {
         hash.contentType = 'application/vnd.api+json';

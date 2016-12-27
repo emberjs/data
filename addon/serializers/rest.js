@@ -11,7 +11,7 @@ import coerceId from "ember-data/-private/system/coerce-id";
 import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
 import isEnabled from 'ember-data/-private/features';
 
-var camelize = Ember.String.camelize;
+let camelize = Ember.String.camelize;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
@@ -55,7 +55,7 @@ var camelize = Ember.String.camelize;
   @namespace DS
   @extends DS.JSONSerializer
 */
-var RESTSerializer = JSONSerializer.extend({
+let RESTSerializer = JSONSerializer.extend({
 
   /**
    `keyForPolymorphicType` can be used to define a custom key when
@@ -83,7 +83,7 @@ var RESTSerializer = JSONSerializer.extend({
    @return {String} normalized key
   */
   keyForPolymorphicType(key, typeClass, method) {
-    var relationshipKey = this.keyForRelationship(key);
+    let relationshipKey = this.keyForRelationship(key);
 
     return `${relationshipKey}Type`;
   },
@@ -201,7 +201,7 @@ var RESTSerializer = JSONSerializer.extend({
     let serializer = primarySerializer;
     let modelClass = primaryModelClass;
 
-    const primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
+    let primaryHasTypeAttribute = modelHasAttributeOrRelationshipNamedType(primaryModelClass);
 
     if (!primaryHasTypeAttribute && hash.type) {
       // Support polymorphic records in async relationships
@@ -254,12 +254,12 @@ var RESTSerializer = JSONSerializer.extend({
       documentHash.meta = meta;
     }
 
-    var keys = Object.keys(payload);
+    let keys = Object.keys(payload);
 
     for (let i = 0, length = keys.length; i < length; i++) {
       let prop = keys[i];
-      var modelName = prop;
-      var forcedSecondary = false;
+      let modelName = prop;
+      let forcedSecondary = false;
 
       /*
         If you want to provide sideloaded records of the same type that the
@@ -286,7 +286,7 @@ var RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      var typeName = this.modelNameFromPayloadKey(modelName);
+      let typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing'
@@ -294,8 +294,8 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
-      var value = payload[prop];
+      let isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
+      let value = payload[prop];
 
       if (value === null) {
         continue;
@@ -349,8 +349,8 @@ var RESTSerializer = JSONSerializer.extend({
             2. If it's a newly created record without an ID, the first record
                in the array
            */
-          var isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
-          var isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
+          let isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
+          let isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
 
           if (isFirstCreatedRecord || isUpdatedRecord) {
             documentHash.data = resource;
@@ -373,7 +373,7 @@ var RESTSerializer = JSONSerializer.extend({
   },
 
   isPrimaryType(store, typeName, primaryTypeClass) {
-    var typeClass = store.modelFor(typeName);
+    let typeClass = store.modelFor(typeName);
     return typeClass.modelName === primaryTypeClass.modelName;
   },
 
@@ -414,16 +414,16 @@ var RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    for (var prop in payload) {
-      var modelName = this.modelNameFromPayloadKey(prop);
+    for (let prop in payload) {
+      let modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type.modelName);
+      let type = store.modelFor(modelName);
+      let typeSerializer = store.serializerFor(type.modelName);
 
       Ember.makeArray(payload[prop]).forEach((hash) => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
@@ -686,7 +686,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    var normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
+    let normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
 
@@ -750,9 +750,9 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} relationship
   */
   serializePolymorphicType(snapshot, json, relationship) {
-    var key = relationship.key;
-    var belongsTo = snapshot.belongsTo(key);
-    var typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
+    let key = relationship.key;
+    let typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
+    let belongsTo = snapshot.belongsTo(key);
 
     // old way of getting the key for the polymorphic type
     key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
@@ -794,7 +794,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object}
    */
   extractPolymorphicRelationship(relationshipType, relationshipHash, relationshipOptions) {
-    var { key, resourceHash, relationshipMeta } = relationshipOptions;
+    let { key, resourceHash, relationshipMeta } = relationshipOptions;
 
     // A polymorphic belongsTo relationship can be present in the payload
     // either in the form where the `id` and the `type` are given:
@@ -813,8 +813,8 @@ var RESTSerializer = JSONSerializer.extend({
     // The next code checks if the latter case is present and returns the
     // corresponding JSON-API representation. The former case is handled within
     // the base class JSONSerializer.
-    var isPolymorphic = relationshipMeta.options.polymorphic;
-    var typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
+    let isPolymorphic = relationshipMeta.options.polymorphic;
+    let typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
     if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
 
@@ -949,7 +949,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
       @method payloadTypeFromModelName
       @public
-      @param {String} modelname modelName from the record
+      @param {String} modelName modelName from the record
       @return {String} payloadType
     */
     payloadTypeFromModelName(modelName) {
