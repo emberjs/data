@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import Transform from "ember-data/transform";
 
-var none = Ember.isNone;
+const none = Ember.isNone;
 
 /**
   The `DS.StringTransform` class is used to serialize and deserialize

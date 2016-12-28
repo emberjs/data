@@ -18,7 +18,7 @@ function modelHasAttributeOrRelationshipNamedType(modelClass) {
   triggering deprecations.
  */
 function getOwner(context) {
-  var owner;
+  let owner;
 
   if (Ember.getOwner) {
     owner = Ember.getOwner(context);
@@ -32,7 +32,7 @@ function getOwner(context) {
     // `owner` is a container, we are just making this work
     owner._lookupFactory = owner.lookupFactory;
     owner.register = function() {
-      var registry = owner.registry || owner._registry || owner;
+      let registry = owner.registry || owner._registry || owner;
 
       return registry.register(...arguments);
     };

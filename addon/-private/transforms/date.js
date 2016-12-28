@@ -25,7 +25,7 @@ import Transform from "ember-data/transform";
 
 export default Transform.extend({
   deserialize(serialized) {
-    var type = typeof serialized;
+    let type = typeof serialized;
 
     if (type === "string") {
       return new Date(parseDate(serialized));

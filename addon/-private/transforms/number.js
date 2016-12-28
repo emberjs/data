@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import Transform from "ember-data/transform";
 
-var empty = Ember.isEmpty;
+const empty = Ember.isEmpty;
 
 function isNumber(value) {
   return value === value && value !== Infinity && value !== -Infinity;
@@ -31,7 +31,7 @@ function isNumber(value) {
  */
 export default Transform.extend({
   deserialize(serialized) {
-    var transformed;
+    let transformed;
 
     if (empty(serialized)) {
       return null;
@@ -43,7 +43,7 @@ export default Transform.extend({
   },
 
   serialize(deserialized) {
-    var transformed;
+    let transformed;
 
     if (empty(deserialized)) {
       return null;
