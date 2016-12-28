@@ -1,5 +1,5 @@
 export function serializerForAdapter(store, adapter, type) {
-  var serializer = adapter.serializer;
+  let serializer = adapter.serializer;
 
   if (serializer === undefined) {
     serializer = store.serializerFor(type);

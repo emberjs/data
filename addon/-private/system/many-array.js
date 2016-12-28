@@ -211,7 +211,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @private
   */
   loadingRecordsCount(count) {
-    this.loadingRecordsCount = count;
+    this._loadingRecordsCount = count;
   },
 
   /**
@@ -219,8 +219,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @private
   */
   loadedRecord() {
-    this.loadingRecordsCount--;
-    if (this.loadingRecordsCount === 0) {
+    this._loadingRecordsCount--;
+    if (this._loadingRecordsCount === 0) {
       set(this, 'isLoaded', true);
       this.trigger('didLoad');
     }
@@ -290,9 +290,9 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    var store = get(this, 'store');
-    var type = get(this, 'type');
-    var record;
+    let store = get(this, 'store');
+    let type = get(this, 'type');
+    let record;
 
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
     record = store.createRecord(type.modelName, hash);

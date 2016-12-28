@@ -20,7 +20,7 @@ const {
    @class HasManyReference
    @namespace DS
 */
-var HasManyReference = function(store, parentInternalModel, hasManyRelationship) {
+const HasManyReference = function(store, parentInternalModel, hasManyRelationship) {
   this._super$constructor(store, parentInternalModel);
   this.hasManyRelationship = hasManyRelationship;
   this.type = hasManyRelationship.relationshipMeta.type;
@@ -47,7 +47,7 @@ HasManyReference.prototype._super$constructor = Reference;
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -59,13 +59,13 @@ HasManyReference.prototype._super$constructor = Reference;
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    // get the identifier of the reference
    if (commentsRef.remoteType() === "ids") {
-     var ids = commentsRef.ids();
+     let ids = commentsRef.ids();
    } else if (commentsRef.remoteType() === "link") {
-     var link = commentsRef.link();
+     let link = commentsRef.link();
    }
    ```
 
@@ -93,7 +93,7 @@ HasManyReference.prototype.remoteType = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -107,7 +107,7 @@ HasManyReference.prototype.remoteType = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.link(); // '/posts/1/comments'
    ```
@@ -131,7 +131,7 @@ HasManyReference.prototype.link = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -143,7 +143,7 @@ HasManyReference.prototype.link = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.ids(); // ['1']
    ```
@@ -172,7 +172,7 @@ HasManyReference.prototype.ids = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -191,7 +191,7 @@ HasManyReference.prototype.ids = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.meta(); // { count: 10 }
    ```
@@ -217,7 +217,7 @@ HasManyReference.prototype.meta = function() {
    ```
 
    ```
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -229,7 +229,7 @@ HasManyReference.prototype.meta = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.ids(); // ['1']
 
@@ -247,7 +247,7 @@ HasManyReference.prototype.meta = function() {
 */
 HasManyReference.prototype.push = function(objectOrPromise) {
   return resolve(objectOrPromise).then((payload) => {
-    var array = payload;
+    let array = payload;
 
     if (isEnabled("ds-overhaul-references")) {
       deprecate("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
@@ -276,10 +276,10 @@ HasManyReference.prototype.push = function(objectOrPromise) {
     let internalModels;
     if (useLegacyArrayPush) {
       internalModels = array.map((obj) => {
-        var record = this.store.push(obj);
+        let record = this.store.push(obj);
 
         runInDebug(() => {
-          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          let relationshipMeta = this.hasManyRelationship.relationshipMeta;
           assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
         });
 
@@ -291,7 +291,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
       runInDebug(() => {
         internalModels.forEach((internalModel) => {
-          var relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          let relationshipMeta = this.hasManyRelationship.relationshipMeta;
           assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
         });
       });
@@ -304,7 +304,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 };
 
 HasManyReference.prototype._isLoaded = function() {
-  var hasData = get(this.hasManyRelationship, 'hasData');
+  let hasData = get(this.hasManyRelationship, 'hasData');
   if (!hasData) {
     return false;
   }
@@ -332,7 +332,7 @@ HasManyReference.prototype._isLoaded = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -344,7 +344,7 @@ HasManyReference.prototype._isLoaded = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    post.get('comments').then(function(comments) {
      commentsRef.value() === comments
@@ -376,7 +376,7 @@ HasManyReference.prototype.value = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -388,7 +388,7 @@ HasManyReference.prototype.value = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.load().then(function(comments) {
      //...
@@ -419,7 +419,7 @@ HasManyReference.prototype.load = function() {
    ```
 
    ```javascript
-   var post = store.push({
+   let post = store.push({
      data: {
        type: 'post',
        id: 1,
@@ -431,7 +431,7 @@ HasManyReference.prototype.load = function() {
      }
    });
 
-   var commentsRef = post.hasMany('comments');
+   let commentsRef = post.hasMany('comments');
 
    commentsRef.reload().then(function(comments) {
      //...

@@ -5,15 +5,15 @@ import {
   relationshipFromMeta
 } from "ember-data/-private/system/relationship-meta";
 
-var Map = Ember.Map;
-var MapWithDefault = Ember.MapWithDefault;
+const Map = Ember.Map;
+const MapWithDefault = Ember.MapWithDefault;
 
 export const relationshipsDescriptor = Ember.computed(function() {
   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
     relationshipsDescriptor._cacheable = false;
   }
 
-  var map = new MapWithDefault({
+  let map = new MapWithDefault({
     defaultValue() { return []; }
   });
 
@@ -23,7 +23,7 @@ export const relationshipsDescriptor = Ember.computed(function() {
     // it to the map.
     if (meta.isRelationship) {
       meta.key = name;
-      var relationshipsForType = map.get(typeForRelationshipMeta(meta));
+      let relationshipsForType = map.get(typeForRelationshipMeta(meta));
 
       relationshipsForType.push({
         name: name,
@@ -40,8 +40,8 @@ export const relatedTypesDescriptor = Ember.computed(function() {
     relatedTypesDescriptor._cacheable = false;
   }
 
-  var modelName;
-  var types = Ember.A();
+  let modelName;
+  let types = Ember.A();
 
   // Loop through each computed property on the class,
   // and create an array of the unique types involved
@@ -68,12 +68,12 @@ export const relationshipsByNameDescriptor = Ember.computed(function() {
     relationshipsByNameDescriptor._cacheable = false;
   }
 
-  var map = Map.create();
+  let map = Map.create();
 
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
-      var relationship = relationshipFromMeta(meta);
+      let relationship = relationshipFromMeta(meta);
       relationship.type = typeForRelationshipMeta(meta);
       map.set(name, relationship);
     }

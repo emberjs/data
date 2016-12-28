@@ -132,7 +132,7 @@ export default function hasMany(type, options) {
   // the relationship. This is used for introspection and
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
-  var meta = {
+  let meta = {
     type: type,
     isRelationship: true,
     options: options,
@@ -143,7 +143,7 @@ export default function hasMany(type, options) {
 
   return Ember.computed({
     get(key) {
-      var relationship = this._internalModel._relationships.get(key);
+      let relationship = this._internalModel._relationships.get(key);
       return relationship.getRecords();
     },
     set(key, records) {
@@ -152,7 +152,7 @@ export default function hasMany(type, options) {
         return Ember.A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
       })());
 
-      var relationship = this._internalModel._relationships.get(key);
+      let relationship = this._internalModel._relationships.get(key);
       relationship.clear();
       relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
       return relationship.getRecords();

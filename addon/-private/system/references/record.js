@@ -8,7 +8,7 @@ import Reference from './reference';
    @class RecordReference
    @namespace DS
 */
-var RecordReference = function(store, internalModel) {
+const RecordReference = function(store, internalModel) {
   this._super$constructor(store, internalModel);
   this.type = internalModel.modelName;
   this._id = internalModel.id;
@@ -27,7 +27,7 @@ RecordReference.prototype._super$constructor = Reference;
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   let userRef = store.getReference('user', 1);
 
    userRef.id(); // '1'
    ```
@@ -47,7 +47,7 @@ RecordReference.prototype.id = function() {
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   const userRef = store.getReference('user', 1);
 
    userRef.remoteType(); // 'identity'
    ```
@@ -77,7 +77,7 @@ RecordReference.prototype.remoteType = function() {
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   let userRef = store.getReference('user', 1);
 
    // provide data for reference
    userRef.push({ data: { id: 1, username: "@user" }}).then(function(user) {
@@ -103,7 +103,7 @@ RecordReference.prototype.push = function(objectOrPromise) {
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   let userRef = store.getReference('user', 1);
 
    userRef.value(); // user
    ```
@@ -122,7 +122,7 @@ RecordReference.prototype.value = function() {
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   let userRef = store.getReference('user', 1);
 
    // load user (via store.find)
    userRef.load().then(...)
@@ -142,7 +142,7 @@ RecordReference.prototype.load = function() {
    Example
 
    ```javascript
-   var userRef = store.getReference('user', 1);
+   let userRef = store.getReference('user', 1);
 
    // or trigger a reload
    userRef.reload().then(...)
@@ -152,7 +152,7 @@ RecordReference.prototype.load = function() {
    @return {Promise<record>} the record for this RecordReference
 */
 RecordReference.prototype.reload = function() {
-  var record = this.value();
+  let record = this.value();
   if (record) {
     return record.reload();
   }

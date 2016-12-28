@@ -2,7 +2,7 @@ import {singularize} from 'ember-inflector';
 import normalizeModelName from 'ember-data/-private/system/normalize-model-name';
 
 export function typeForRelationshipMeta(meta) {
-  var modelName;
+  let modelName;
 
   modelName = meta.type || meta.key;
   if (meta.kind === 'hasMany') {
