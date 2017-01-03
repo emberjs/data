@@ -508,7 +508,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     Marks the record as deleted but does not save it. You must call
     `save` afterwards if you want to persist it. You might use this
     method if you want to allow the user to still `rollbackAttributes()`
-    after a delete it was made.
+    after a delete was made.
 
     Example
 
@@ -557,7 +557,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     If you pass an object on the `adapterOptions` property of the options
-    argument it will be passed to you adapter via the snapshot
+    argument it will be passed to your adapter via the snapshot
 
     ```js
     record.destroyRecord({ adapterOptions: { subscribe: false } });
