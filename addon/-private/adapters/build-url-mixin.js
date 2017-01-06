@@ -143,7 +143,7 @@ export default Ember.Mixin.create({
    import DS from 'ember-data';
 
    export default DS.JSONAPIAdapter.extend({
-     urlForFindAll(id, modelName, snapshot) {
+     urlForFindAll(modelName, snapshot) {
        return 'data/comments.json';
      }
    });
