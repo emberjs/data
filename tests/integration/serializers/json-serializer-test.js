@@ -279,7 +279,7 @@ test("shouldSerializeHasMany", function(assert) {
 
 if (isEnabled("ds-check-should-serialize-relationships")) {
   testInDebug("_shouldSerializeHasMany deprecation", function(assert) {
-    env.store.serializerFor("post")._shouldSerializeHasMany = Ember.K;
+    env.store.serializerFor("post")._shouldSerializeHasMany = function() {};
 
     assert.expectDeprecation(function() {
       env.store.serializerFor("post").shouldSerializeHasMany();
