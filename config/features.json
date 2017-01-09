@@ -6,6 +6,6 @@
   "ds-payload-type-hooks": null,
   "ds-check-should-serialize-relationships": true,
   "ds-rollback-attribute": null,
-  "ds-serialize-id": null,
+  "ds-serialize-id": true,
   "ds-deprecate-store-serialize": true
 }
