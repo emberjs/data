@@ -1504,7 +1504,6 @@ Store = Service.extend({
     });
     ```
 
-
     See [peekAll](#method_peekAll) to get an array of current records in the
     store, without waiting until a reload is finished.
 
