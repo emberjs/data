@@ -233,8 +233,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  /**
-r   @method _createSnapshot
+  /*
+    @method _createSnapshot
     @private
   */
   _createSnapshot(options) {
@@ -242,8 +242,8 @@ r   @method _createSnapshot
     return new SnapshotRecordArray(this, this.get('meta'), options);
   },
 
-  /**
-r   @method _takeSnapshot
+  /*
+    @method _takeSnapshot
     @private
   */
   _takeSnapshot() {

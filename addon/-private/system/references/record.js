@@ -85,9 +85,9 @@ RecordReference.prototype.remoteType = function() {
    });
    ```
 
-  @method
+  @method push
   @param {Promise|Object}
-  @returns Promise<record> a promise for the value (record or relationship)
+  @return Promise<record> a promise for the value (record or relationship)
 */
 RecordReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((data) => {
