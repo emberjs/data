@@ -2033,8 +2033,15 @@ Store = Service.extend({
     // container._registry = 1.11 - 2.0
     // container = < 1.11
     let owner = getOwner(this);
+    let mixin;
 
-    let mixin = owner._lookupFactory('mixin:' + normalizedModelName);
+    if (owner.factoryFor) {
+      let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+      mixin = MaybeMixin && MaybeMixin.class;
+    } else {
+      mixin = owner._lookupFactory(`mixin:${normalizedModelName}`);
+    }
+
     if (mixin) {
       //Cache the class as a model
       owner.register('model:' + normalizedModelName, Model.extend(mixin));
@@ -2107,7 +2114,14 @@ Store = Service.extend({
     let trueModelName = this._classKeyFor(modelName);
     let owner = getOwner(this);
 
-    return owner._lookupFactory(`model:${trueModelName}`);
+    if (owner.factoryFor) {
+      let MaybeModel = owner.factoryFor(`model:${trueModelName}`);
+      let MaybeModelFactory = MaybeModel && MaybeModel.class;
+
+      return MaybeModelFactory;
+    } else {
+      return owner._lookupFactory(`model:${trueModelName}`);
+    }
   },
 
   /**
@@ -2326,7 +2340,13 @@ Store = Service.extend({
   },
 
   _hasModelFor(modelName) {
-    return !!getOwner(this)._lookupFactory(`model:${modelName}`);
+    let owner = getOwner(this);
+
+    if (owner.factoryFor) {
+      return !!owner.factoryFor(`model:${modelName}`);
+    } else {
+      return !!owner._lookupFactory(`model:${modelName}`);
+    }
   },
 
   _pushInternalModel(data) {
