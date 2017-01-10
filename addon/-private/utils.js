@@ -16,7 +16,7 @@ function modelHasAttributeOrRelationshipNamedType(modelClass) {
   ember-container-inject-owner is a new feature in Ember 2.3 that finally provides a public
   API for looking items up.  This function serves as a super simple polyfill to avoid
   triggering deprecations.
-*/
+ */
 function getOwner(context) {
   var owner;
 
