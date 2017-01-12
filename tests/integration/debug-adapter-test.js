@@ -33,9 +33,17 @@ module("DS.DebugAdapter", {
     store = App.__container__.lookup('service:store');
     debugAdapter = App.__container__.lookup('data-adapter:main');
 
+    let klass;
+
+    if (App.__container__.factoryFor) {
+      klass = App.__container__.factoryFor('model:post').class;
+    } else {
+      klass = App.__container__.lookupFactory('model:post');
+    }
+
     debugAdapter.reopen({
       getModelTypes() {
-        return Ember.A([{ klass: App.__container__.lookupFactory('model:post'), name: 'post' }]);
+        return Ember.A([{ klass, name: 'post' }]);
       }
     });
   },
