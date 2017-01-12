@@ -125,7 +125,7 @@ const Promise = Ember.RSVP.Promise;
     "people": {
       "id": 5,
       "firstName": "Zaphod",
-      "lastName": "Beetlebrox",
+      "lastName": "Beeblebrox",
       "occupation": "President"
     }
   }
