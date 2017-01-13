@@ -209,9 +209,7 @@ Store = Service.extend({
     this._super(...arguments);
     this._backburner = new Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
     // internal bookkeeping; not observable
-    this.recordArrayManager = RecordArrayManager.create({
-      store: this
-    });
+    this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);

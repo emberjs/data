@@ -192,14 +192,25 @@ test('#_removeInternalModels', function(assert) {
   assert.deepEqual(content, [], 'now contains no models');
 });
 
+class FakeInternalModel {
+  constructor(record) {
+    this._record = record;
+    this.__recordArrays = null;
+  }
+
+  get _recordArrays() {
+    return this.__recordArrays;
+  }
+
+  getRecord() { return this._record; }
+
+  createSnapshot() {
+    return this._record;
+  }
+}
+
 function internalModelFor(record) {
-  return {
-    _recordArrays: undefined,
-    getRecord() { return record; },
-    createSnapshot() {
-      return record;
-    }
-  };
+  return new FakeInternalModel(record);
 }
 
 test('#save', function(assert) {
@@ -237,7 +248,7 @@ test('#destroy', function(assert) {
   let internalModel1 = internalModelFor(model1);
 
   // TODO: this will be removed once we fix ownership related memory leaks.
-  internalModel1._recordArrays = {
+  internalModel1.__recordArrays = {
     delete(array) {
       didDissociatieFromOwnRecords++;
       assert.equal(array, recordArray);
@@ -308,7 +319,7 @@ test('#destroy', function(assert) {
   let internalModel1 = internalModelFor(model1);
 
   // TODO: this will be removed once we fix ownership related memory leaks.
-  internalModel1._recordArrays = {
+  internalModel1.__recordArrays = {
     delete(array) {
       didDissociatieFromOwnRecords++;
       assert.equal(array, recordArray);

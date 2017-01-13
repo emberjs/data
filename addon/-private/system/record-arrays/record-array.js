@@ -202,7 +202,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
   _dissociateFromOwnRecords() {
     this.get('content').forEach(internalModel => {
-      let recordArrays = internalModel._recordArrays;
+      let recordArrays = internalModel.__recordArrays;
 
       if (recordArrays) {
         recordArrays.delete(this);
@@ -215,7 +215,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
   */
   _unregisterFromManager() {
-    get(this, 'manager').unregisterRecordArray(this);
+    this.manager.unregisterRecordArray(this);
   },
 
   willDestroy() {
