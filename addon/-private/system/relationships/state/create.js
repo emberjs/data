@@ -51,13 +51,18 @@ export default class Relationships {
 
   get(key) {
     let relationships = this.initializedRelationships;
-    let internalModel = this.internalModel;
-    let relationshipsByName = get(internalModel.type, 'relationshipsByName');
+    let relationship = relationships[key];
 
-    if (!relationships[key] && relationshipsByName.get(key)) {
-      relationships[key] = createRelationshipFor(internalModel, relationshipsByName.get(key), internalModel.store);
+    if (!relationship) {
+      let internalModel = this.internalModel;
+      let relationshipsByName = get(internalModel.type, 'relationshipsByName');
+      let rel = relationshipsByName.get(key);
+
+      if (rel) {
+        relationship = relationships[key] = createRelationshipFor(internalModel, rel, internalModel.store);
+      }
     }
 
-    return relationships[key];
+    return relationship;
   }
 }

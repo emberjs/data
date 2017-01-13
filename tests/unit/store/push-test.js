@@ -600,20 +600,25 @@ testInDebug('calling push with hasMany relationship the value must be an array',
 
   invalidValues.forEach(function(invalidValue) {
     assert.throws(function() {
-      run(function() {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              phoneNumbers: {
-                data: invalidValue
+      try {
+        run(function () {
+          store.push({
+            data: {
+              type: 'person',
+              id: '1',
+              relationships: {
+                phoneNumbers: {
+                  data: invalidValue
+                }
               }
             }
-          }
+          });
         });
-      });
-    }, /must be an array/);
+      } catch (e) {
+        store._pushedInternalModels.length = 0;
+        throw e;
+      }
+    }, /must be an array/, `Expect that '${Ember.inspect(invalidValue)}' is not an array`);
   });
 });
 
