@@ -9,7 +9,7 @@ import normalizeModelName from 'ember-data/-private/system/normalize-model-name'
 import { pluralize, singularize } from 'ember-inflector';
 import isEnabled from 'ember-data/-private/features';
 
-var dasherize = Ember.String.dasherize;
+const dasherize = Ember.String.dasherize;
 
 /**
   Ember Data 2.0 Serializer:
@@ -190,8 +190,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
       relationshipDataHash.type = modelName;
     } else {
-      let type = this.modelNameFromPayloadKey(relationshipDataHash.type);
-      relationshipDataHash.type = type;
+      relationshipDataHash.type = this.modelNameFromPayloadKey(relationshipDataHash.type);
     }
 
     return relationshipDataHash;
@@ -284,7 +283,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   extractAttributes(modelClass, resourceHash) {
-    var attributes = {};
+    let attributes = {};
 
     if (resourceHash.attributes) {
       modelClass.eachAttribute((key) => {
@@ -510,14 +509,14 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeAttribute(snapshot, json, key, attribute) {
-    const type = attribute.type;
+    let type = attribute.type;
 
     if (this._canSerialize(key)) {
       json.attributes = json.attributes || {};
 
       let value = snapshot.attr(key);
       if (type) {
-        const transform = this.transformFor(type);
+        let transform = this.transformFor(type);
         value = transform.serialize(value, attribute.options);
       }
 
@@ -532,15 +531,15 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeBelongsTo(snapshot, json, relationship) {
-    var key = relationship.key;
+    let key = relationship.key;
 
     if (this._canSerialize(key)) {
-      var belongsTo = snapshot.belongsTo(key);
+      let belongsTo = snapshot.belongsTo(key);
       if (belongsTo !== undefined) {
 
         json.relationships = json.relationships || {};
 
-        var payloadKey = this._getMappedKey(key, snapshot.type);
+        let payloadKey = this._getMappedKey(key, snapshot.type);
         if (payloadKey === key) {
           payloadKey = this.keyForRelationship(key, 'belongsTo', 'serialize');
         }
@@ -577,19 +576,19 @@ const JSONAPISerializer = JSONSerializer.extend({
   },
 
   serializeHasMany(snapshot, json, relationship) {
-    var key = relationship.key;
-    var shouldSerializeHasMany = '_shouldSerializeHasMany';
+    let key = relationship.key;
+    let shouldSerializeHasMany = '_shouldSerializeHasMany';
     if (isEnabled("ds-check-should-serialize-relationships")) {
       shouldSerializeHasMany = 'shouldSerializeHasMany';
     }
 
     if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
-      var hasMany = snapshot.hasMany(key);
+      let hasMany = snapshot.hasMany(key);
       if (hasMany !== undefined) {
 
         json.relationships = json.relationships || {};
 
-        var payloadKey = this._getMappedKey(key, snapshot.type);
+        let payloadKey = this._getMappedKey(key, snapshot.type);
         if (payloadKey === key && this.keyForRelationship) {
           payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
         }
@@ -743,7 +742,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 runInDebug(function() {
   JSONAPISerializer.reopen({
     willMergeMixin(props) {
-      var constructor = this.constructor;
+      let constructor = this.constructor;
       warn(`You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at http://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#toc_customizing-meta on how to customize meta when using JSON API.`, Ember.isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta, {
         id: 'ds.serializer.json-api.extractMeta'
       });

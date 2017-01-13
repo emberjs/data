@@ -109,7 +109,7 @@ function getValue(record, key) {
   @namespace
   @method attr
   @for DS
-  @param {String} type the attribute type
+  @param {String|Object} type the attribute type
   @param {Object} options a hash of options
   @return {Attribute}
 */
@@ -122,7 +122,7 @@ export default function attr(type, options) {
     options = options || {};
   }
 
-  var meta = {
+  let meta = {
     type: type,
     isAttribute: true,
     options: options
@@ -130,7 +130,7 @@ export default function attr(type, options) {
 
   return Ember.computed({
     get(key) {
-      var internalModel = this._internalModel;
+      let internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {
         return getValue(internalModel, key);
       } else {
@@ -138,9 +138,9 @@ export default function attr(type, options) {
       }
     },
     set(key, value) {
-      var internalModel = this._internalModel;
-      var oldValue = getValue(internalModel, key);
-      var originalValue;
+      let internalModel = this._internalModel;
+      let oldValue = getValue(internalModel, key);
+      let originalValue;
 
       if (value !== oldValue) {
         // Add the new value to the changed attributes hash; it will get deleted by
