@@ -24,6 +24,10 @@ export default Route.extend({
     let modelName = params.modelName;
     delete params.modelName;
 
+    // Once heimdall 0.4.x is released we can uncomment this
+    // to have nice timeline and trace events integration
+    // heimdall.enableTimelineFeatures();
+
     let token = heimdall.start('ember-data');
     return this.get('store').query(modelName, params)
       .then((records) => {
@@ -31,7 +35,9 @@ export default Route.extend({
         // We call toArray() to force materialization for benchmarking
         // otherwise we would need to consume the RecordArray in our UI
         // and clutter our benchmarks and make it harder to time.
+        let toArrayToken = heimdall.start('queryResult.toArray');
         records.toArray();
+        heimdall.stop(toArrayToken);
         heimdall.stop(token);
         window.result = heimdall.toString();
 

@@ -180,7 +180,7 @@ function didSetProperty(internalModel, context) {
     internalModel.send('becomeDirty');
   }
 
-  internalModel.updateRecordArraysLater();
+  internalModel.updateRecordArrays();
 }
 
 // Implementation notes:

@@ -21,6 +21,7 @@ const {
   _addRecordToRecordArray,
   _recordWasChanged,
   _recordWasDeleted,
+  _flushLoadedRecords,
   array_flatten,
   array_remove,
   create,
@@ -41,6 +42,7 @@ const {
   '_addInternalModelToRecordArray',
   '_recordWasChanged',
   '_recordWasDeleted',
+  '_flushLoadedRecords',
   'array_fatten',
   'array_remove',
   'create',
@@ -80,12 +82,13 @@ export default Ember.Object.extend({
     });
 
     this.changedRecords = [];
+    this.loadedRecords = [];
     this._adapterPopulatedRecordArrays = [];
   },
 
-  recordDidChange(record) {
+  recordDidChange(internalModel) {
     heimdall.increment(recordDidChange);
-    if (this.changedRecords.push(record) !== 1) { return; }
+    if (this.changedRecords.push(internalModel) !== 1) { return; }
 
     emberRun.schedule('actions', this, this.updateRecordArrays);
   },
@@ -108,17 +111,22 @@ export default Ember.Object.extend({
   */
   updateRecordArrays() {
     heimdall.increment(updateRecordArrays);
-    this.changedRecords.forEach(internalModel => {
+    let updated = this.changedRecords;
+
+    for (let i = 0, l = updated.length; i < l; i++) {
+      let internalModel = updated[i];
 
       if (internalModel.isDestroyed ||
-          internalModel.currentState.stateName === 'root.deleted.saved') {
+        internalModel.currentState.stateName === 'root.deleted.saved') {
         this._recordWasDeleted(internalModel);
       } else {
         this._recordWasChanged(internalModel);
       }
-    });
 
-    this.changedRecords.length = 0;
+      internalModel._isUpdatingRecordArrays = false;
+    }
+
+    updated.length = 0;
   },
 
   _recordWasDeleted(internalModel) {
@@ -146,19 +154,35 @@ export default Ember.Object.extend({
   //Need to update live arrays on loading
   recordWasLoaded(internalModel) {
     heimdall.increment(recordWasLoaded);
-    let modelName = internalModel.modelName;
-    let recordArrays = this.filteredRecordArrays.get(modelName);
-    let filter;
+    if (this.loadedRecords.push(internalModel) !== 1) { return; }
 
-    recordArrays.forEach(array => {
-      filter = get(array, 'filterFunction');
-      this.updateFilterRecordArray(array, filter, modelName, internalModel);
-    });
+    emberRun.schedule('actions', this, this._flushLoadedRecords);
+  },
 
-    if (this.liveRecordArrays.has(modelName)) {
-      let liveRecordArray = this.liveRecordArrays.get(modelName);
-      this._addInternalModelToRecordArray(liveRecordArray, internalModel);
+  _flushLoadedRecords() {
+    heimdall.increment(_flushLoadedRecords);
+    let internalModels = this.loadedRecords;
+
+    for (let i = 0, l = internalModels.length; i < l; i++) {
+      let internalModel = internalModels[i];
+      let modelName = internalModel.modelName;
+
+      let recordArrays = this.filteredRecordArrays.get(modelName);
+      let filter;
+
+      for (let j = 0, rL = recordArrays.length; j < rL; j++) {
+        let array = recordArrays[j];
+        filter = get(array, 'filterFunction');
+        this.updateFilterRecordArray(array, filter, modelName, internalModel);
+      }
+
+      if (this.liveRecordArrays.has(modelName)) {
+        let liveRecordArray = this.liveRecordArrays.get(modelName);
+        this._addInternalModelToRecordArray(liveRecordArray, internalModel);
+      }
     }
+
+    this.loadedRecords.length = 0;
   },
 
   /**

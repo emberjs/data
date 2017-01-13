@@ -33,7 +33,8 @@ module.exports = {
 
   ],
   ignoreBranches: [
-    'adapter._makeRequest',
+    // 'adapter._makeRequest', // used when ds-improved-ajax is on
+    // 'adapter.ajax', // used when ds-improved-ajax is off
     // 'InternalModel._materializeRecord'
   ],
   buckets: {

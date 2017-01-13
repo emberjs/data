@@ -52,6 +52,13 @@ export default Ember.Mixin.create({
     @return {String} url
   */
   buildURL(modelName, id, snapshot, requestType, query) {
+    let token = heimdall.start('adapter.buildUrl');
+    let ret = this.__measuredBuildURL(modelName, id, snapshot, requestType, query);
+    heimdall.stop(token);
+    return ret;
+  },
+
+  __measuredBuildURL(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
       case 'findRecord':
         return this.urlForFindRecord(id, modelName, snapshot);

@@ -226,6 +226,8 @@ Store = Service.extend({
      */
     // used for coalescing record save requests
     this._pendingSave = [];
+    // used for coalescing relationship updates
+    this._updatedRelationships = [];
     // used for coalescing relationship setup needs
     this._pushedInternalModels = [];
     // stores a reference to the flush for relationship setup
@@ -1235,7 +1237,9 @@ Store = Service.extend({
     let modelClass = this._modelFor(modelName);
     heimdall.stop(modelToken);
 
+    let arrayToken = heimdall.start('_query:createAdapterPopulatedRecordArray');
     array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
+    heimdall.stop(arrayToken);
 
     let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
@@ -1244,7 +1248,10 @@ Store = Service.extend({
     assert("You tried to load a query but you have no adapter (for " + modelName + ")", adapter);
     assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function');
 
-    let pA = promiseArray(_query(adapter, this, modelClass, query, array));
+    let promise = _query(adapter, this, modelClass, query, array);
+    let promiseArrayToken = heimdall.start('promiseArray()');
+    let pA = promiseArray(promise);
+    heimdall.stop(promiseArrayToken);
     instrument(() => {
       pA.finally(() => { heimdall.stop(token); });
     });
@@ -2395,6 +2402,7 @@ Store = Service.extend({
 
   _setupRelationships() {
     heimdall.increment(_setupRelationships);
+    let setupToken = heimdall.start('store._setupRelationships');
     let pushed = this._pushedInternalModels;
     this._pushedInternalModels = [];
     this._relationshipFlush = null;
@@ -2407,6 +2415,7 @@ Store = Service.extend({
       let data = pushed[i + 1];
       setupRelationships(this, internalModel, data);
     }
+    heimdall.stop(setupToken);
   },
 
   /**
@@ -2657,6 +2666,24 @@ Store = Service.extend({
     this._instanceCache.destroy();
 
     this.unloadAll();
+  },
+
+  _updateRelationshipState(relationship) {
+    if (this._updatedRelationships.push(relationship) !== 1) {
+      return;
+    }
+
+    this._backburner.schedule('syncRelationships', this, this._flushUpdatedRelationships);
+  },
+
+  _flushUpdatedRelationships() {
+    let updated = this._updatedRelationships;
+
+    for (let i = 0, l = updated.length; i < l; i++) {
+      updated[i].flushCanonical();
+    }
+
+    updated.length = 0;
   },
 
   _pushResourceIdentifier(relationship, resourceIdentifier) {

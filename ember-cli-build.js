@@ -12,7 +12,7 @@ var INSTRUMENT_HEIMDALL = false;
 var args = process.argv;
 
 for (var i = 0; i < args.length; i++) {
-  if (args[i] === '--instrument') {
+  if (args[i] === '--instrument' || args[i] === '--instrument-dummy') {
     INSTRUMENT_HEIMDALL = true;
     break;
   }

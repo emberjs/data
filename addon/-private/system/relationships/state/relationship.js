@@ -183,7 +183,7 @@ export default class Relationship {
         }
         record._implicitRelationships[this.inverseKeyForImplicit].addRecord(this.record);
       }
-      this.record.updateRecordArraysLater();
+      this.record.updateRecordArrays();
     }
     this.setHasData(true);
   }
@@ -257,7 +257,7 @@ export default class Relationship {
       return;
     }
     this.willSync = true;
-    this.store._backburner.join(() => this.store._backburner.schedule('syncRelationships', this, this.flushCanonical));
+    this.store._updateRelationshipState(this);
   }
 
   updateLink(link) {
