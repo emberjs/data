@@ -115,21 +115,21 @@ export default function belongsTo(modelName, options) {
         });
       }
 
-      return this._internalModel._relationships.get(key).getRecord();
+      return this._internalModel._relationships.get(key).getInverse();
     },
     set(key, value) {
       if (value === undefined) {
         value = null;
       }
       if (value && value.then) {
-        this._internalModel._relationships.get(key).setRecordPromise(value);
+        this._internalModel._relationships.get(key).setInversePromise(value);
       } else if (value) {
-        this._internalModel._relationships.get(key).setRecord(value._internalModel);
+        this._internalModel._relationships.get(key).setInverse(value._internalModel);
       } else {
-        this._internalModel._relationships.get(key).setRecord(value);
+        this._internalModel._relationships.get(key).setInverse(value);
       }
 
-      return this._internalModel._relationships.get(key).getRecord();
+      return this._internalModel._relationships.get(key).getInverse();
     }
   }).meta(meta);
 }

@@ -12,90 +12,90 @@ export default class BelongsToRelationship extends Relationship {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.internalModel = internalModel;
     this.key = relationshipMeta.key;
-    this.inverseRecord = null;
+    this.inverseInternalModel = null;
     this.canonicalState = null;
   }
 
-  setRecord(newRecord) {
-    if (newRecord) {
-      this.addRecord(newRecord);
-    } else if (this.inverseRecord) {
-      this.removeRecord(this.inverseRecord);
+  setInverse(newInverse) {
+    if (newInverse) {
+      this.addInverse(newInverse);
+    } else if (this.inverseInternalModel) {
+      this.removeInverse(this.inverseInternalModel);
     }
     this.setHasData(true);
     this.setHasLoaded(true);
   }
 
-  setCanonicalRecord(newRecord) {
-    if (newRecord) {
-      this.addCanonicalRecord(newRecord);
+  setCanonicalInverse(newInverse) {
+    if (newInverse) {
+      this.addCanonicalInverse(newInverse);
     } else if (this.canonicalState) {
-      this.removeCanonicalRecord(this.canonicalState);
+      this.removeCanonicalInverse(this.canonicalState);
     }
     this.flushCanonicalLater();
   }
 
-  addCanonicalRecord(newRecord) {
-    if (this.canonicalMembers.has(newRecord)) { return;}
+  addCanonicalInverse(newInverse) {
+    if (this.canonicalMembers.has(newInverse)) { return;}
 
     if (this.canonicalState) {
-      this.removeCanonicalRecord(this.canonicalState);
+      this.removeCanonicalInverse(this.canonicalState);
     }
 
-    this.canonicalState = newRecord;
-    super.addCanonicalRecord(newRecord);
+    this.canonicalState = newInverse;
+    super.addCanonicalInverse(newInverse);
   }
 
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
-    if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
+    if (this.inverseInternalModel && this.inverseInternalModel.isNew() && !this.canonicalState) {
       return;
     }
-    if (this.inverseRecord !== this.canonicalState) {
-      this.inverseRecord = this.canonicalState;
+    if (this.inverseInternalModel !== this.canonicalState) {
+      this.inverseInternalModel = this.canonicalState;
       this.internalModel.notifyBelongsToChanged(this.key);
     }
 
     super.flushCanonical();
   }
 
-  addRecord(newRecord) {
-    if (this.members.has(newRecord)) { return; }
+  addInverse(newInverse) {
+    if (this.members.has(newInverse)) { return; }
 
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, newRecord);
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, newInverse);
 
-    if (this.inverseRecord) {
-      this.removeRecord(this.inverseRecord);
+    if (this.inverseInternalModel) {
+      this.removeInverse(this.inverseInternalModel);
     }
 
-    this.inverseRecord = newRecord;
-    super.addRecord(newRecord);
+    this.inverseInternalModel = newInverse;
+    super.addInverse(newInverse);
     this.internalModel.notifyBelongsToChanged(this.key);
   }
 
-  setRecordPromise(newPromise) {
+  setInversePromise(newPromise) {
     var content = newPromise.get && newPromise.get('content');
     assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
-    this.setRecord(content ? content._internalModel : content);
+    this.setInverse(content ? content._internalModel : content);
   }
 
-  removeRecordFromOwn(record) {
+  removeInverseFromOwn(record) {
     if (!this.members.has(record)) { return;}
-    this.inverseRecord = null;
-    super.removeRecordFromOwn(record);
+    this.inverseInternalModel = null;
+    super.removeInverseFromOwn(record);
     this.internalModel.notifyBelongsToChanged(this.key);
   }
 
-  removeCanonicalRecordFromOwn(record) {
+  removeCanonicalInverseFromOwn(record) {
     if (!this.canonicalMembers.has(record)) { return;}
     this.canonicalState = null;
-    super.removeCanonicalRecordFromOwn(record);
+    super.removeCanonicalInverseFromOwn(record);
   }
 
-  findRecord() {
-    if (this.inverseRecord) {
-      return this.store._findByInternalModel(this.inverseRecord);
+  findInverse() {
+    if (this.inverseInternalModel) {
+      return this.store._findByInternalModel(this.inverseInternalModel);
     } else {
       return Ember.RSVP.Promise.resolve(null);
     }
@@ -104,35 +104,35 @@ export default class BelongsToRelationship extends Relationship {
   fetchLink() {
     return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((record) => {
       if (record) {
-        this.addRecord(record);
+        this.addInverse(record);
       }
       return record;
     });
   }
 
-  getRecord() {
+  getInverse() {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     if (this.isAsync) {
       var promise;
       if (this.link) {
         if (this.hasLoaded) {
-          promise = this.findRecord();
+          promise = this.findInverse();
         } else {
-          promise = this.findLink().then(() => this.findRecord());
+          promise = this.findLink().then(() => this.findInverse());
         }
       } else {
-        promise = this.findRecord();
+        promise = this.findInverse();
       }
 
       return PromiseObject.create({
         promise: promise,
-        content: this.inverseRecord ? this.inverseRecord.getRecord() : null
+        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
       });
     } else {
-      if (this.inverseRecord === null) {
+      if (this.inverseInternalModel === null) {
         return null;
       }
-      var toReturn = this.inverseRecord.getRecord();
+      var toReturn = this.inverseInternalModel.getRecord();
       assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }
@@ -146,15 +146,15 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     // reload record, if it is already loaded
-    if (this.inverseRecord && this.inverseRecord.hasRecord) {
-      return this.inverseRecord.record.reload();
+    if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
+      return this.inverseInternalModel.record.reload();
     }
 
-    return this.findRecord();
+    return this.findInverse();
   }
 
   updateData(data) {
     let internalModel = this.store._pushResourceIdentifier(this, data);
-    this.setCanonicalRecord(internalModel);
+    this.setCanonicalInverse(internalModel);
   }
 }

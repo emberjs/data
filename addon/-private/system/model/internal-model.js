@@ -767,7 +767,7 @@ export default class InternalModel {
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
+    this._relationships.get(key).updateInversesFromAdapter(recordsToSet);
   }
 
   _preloadBelongsTo(key, preloadValue, modelClass) {
@@ -775,7 +775,7 @@ export default class InternalModel {
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships.get(key).setRecord(recordToSet);
+    this._relationships.get(key).setInverse(recordToSet);
   }
 
   _convertStringOrNumberIntoInternalModel(value, modelClass) {

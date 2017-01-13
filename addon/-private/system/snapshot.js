@@ -192,7 +192,7 @@ export default class Snapshot {
    */
   belongsTo(keyName, options) {
     let id = options && options.id;
-    let relationship, inverseRecord, hasData;
+    let relationship, inverseInternalModel, hasData;
     let result;
 
     if (id && keyName in this._belongsToIds) {
@@ -209,14 +209,14 @@ export default class Snapshot {
     }
 
     hasData = get(relationship, 'hasData');
-    inverseRecord = get(relationship, 'inverseRecord');
+    inverseInternalModel = get(relationship, 'inverseInternalModel');
 
     if (hasData) {
-      if (inverseRecord && !inverseRecord.isDeleted()) {
+      if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
-          result = get(inverseRecord, 'id');
+          result = get(inverseInternalModel, 'id');
         } else {
-          result = inverseRecord.createSnapshot();
+          result = inverseInternalModel.createSnapshot();
         }
       } else {
         result = null;

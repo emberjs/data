@@ -401,7 +401,7 @@ HasManyReference.prototype.value = function() {
 */
 HasManyReference.prototype.load = function() {
   if (!this._isLoaded()) {
-    return this.hasManyRelationship.getRecords();
+    return this.hasManyRelationship.getInverses();
   }
 
   return resolve(this.hasManyRelationship.getManyArray());
