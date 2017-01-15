@@ -144,7 +144,7 @@ export default function hasMany(type, options) {
   return Ember.computed({
     get(key) {
       var relationship = this._internalModel._relationships.get(key);
-      return relationship.getRecords();
+      return relationship.getInverses();
     },
     set(key, records) {
       assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
@@ -154,8 +154,8 @@ export default function hasMany(type, options) {
 
       var relationship = this._internalModel._relationships.get(key);
       relationship.clear();
-      relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
-      return relationship.getRecords();
+      relationship.addInverses(Ember.A(records).mapBy('_internalModel'));
+      return relationship.getInverses();
     }
   }).meta(meta);
 }

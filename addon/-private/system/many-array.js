@@ -146,13 +146,13 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    let newRecords = this.currentState.filter(
+    let newInternalModels = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
-    toSet = toSet.concat(newRecords);
+    toSet = toSet.concat(newInternalModels);
     let oldLength = this.length;
     this.arrayContentWillChange(0, this.length, toSet.length);
     // It’s possible the parent side of the relationship may have been unloaded by this point
@@ -195,13 +195,14 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   replace(idx, amt, objects) {
-    let records;
+    let internalModels;
     if (amt > 0) {
-      records = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeRecords(records);
+      internalModels = this.currentState.slice(idx, idx+amt);
+      this.get('relationship').removeInverses(internalModels);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects.map(obj => obj._internalModel), idx);
+      internalModels = objects.map(obj => obj._internalModel);
+      this.get('relationship').addInverses(internalModels, idx);
     }
   },
 

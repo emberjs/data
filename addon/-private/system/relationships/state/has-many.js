@@ -7,8 +7,8 @@ import ManyArray from "ember-data/-private/system/many-array";
 import { assertPolymorphicType } from "ember-data/-private/debug";
 
 export default class ManyRelationship extends Relationship {
-  constructor(store, record, inverseKey, relationshipMeta) {
-    super(store, record, inverseKey, relationshipMeta);
+  constructor(store, internalModel, inverseKey, relationshipMeta) {
+    super(store, internalModel, inverseKey, relationshipMeta);
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
@@ -21,7 +21,7 @@ export default class ManyRelationship extends Relationship {
         store: this.store,
         relationship: this,
         type: this.store.modelFor(this.belongsToType),
-        record: this.record,
+        record: this.internalModel,
         meta: this.meta,
         isPolymorphic: this.isPolymorphic
       });
@@ -42,39 +42,39 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  addCanonicalRecord(record, idx) {
-    if (this.canonicalMembers.has(record)) {
+  addCanonicalInverse(inverse, idx) {
+    if (this.canonicalMembers.has(inverse)) {
       return;
     }
     if (idx !== undefined) {
-      this.canonicalState.splice(idx, 0, record);
+      this.canonicalState.splice(idx, 0, inverse);
     } else {
-      this.canonicalState.push(record);
+      this.canonicalState.push(inverse);
     }
-    super.addCanonicalRecord(record, idx);
+    super.addCanonicalInverse(inverse, idx);
   }
 
-  addRecord(record, idx) {
-    if (this.members.has(record)) {
+  addInverse(inverse, idx) {
+    if (this.members.has(inverse)) {
       return;
     }
-    super.addRecord(record, idx);
+    super.addInverse(inverse, idx);
     // make lazy later
-    this.getManyArray().internalAddRecords([record], idx);
+    this.getManyArray().internalAddRecords([inverse], idx);
   }
 
-  removeCanonicalRecordFromOwn(record, idx) {
+  removeCanonicalInverseFromOwn(inverse, idx) {
     var i = idx;
-    if (!this.canonicalMembers.has(record)) {
+    if (!this.canonicalMembers.has(inverse)) {
       return;
     }
     if (i === undefined) {
-      i = this.canonicalState.indexOf(record);
+      i = this.canonicalState.indexOf(inverse);
     }
     if (i > -1) {
       this.canonicalState.splice(i, 1);
     }
-    super.removeCanonicalRecordFromOwn(record, idx);
+    super.removeCanonicalInverseFromOwn(inverse, idx);
   }
 
   flushCanonical() {
@@ -84,24 +84,24 @@ export default class ManyRelationship extends Relationship {
     super.flushCanonical();
   }
 
-  removeRecordFromOwn(record, idx) {
-    if (!this.members.has(record)) {
+  removeInverseFromOwn(inverse, idx) {
+    if (!this.members.has(inverse)) {
       return;
     }
-    super.removeRecordFromOwn(record, idx);
+    super.removeInverseFromOwn(inverse, idx);
     let manyArray = this.getManyArray();
     if (idx !== undefined) {
       //TODO(Igor) not used currently, fix
       manyArray.currentState.removeAt(idx);
     } else {
-      manyArray.internalRemoveRecords([record]);
+      manyArray.internalRemoveRecords([inverse]);
     }
   }
 
-  notifyRecordRelationshipAdded(record, idx) {
-    assertPolymorphicType(this.record, this.relationshipMeta, record);
+  notifyInverseRelationshipAdded(inverse, idx) {
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, inverse);
 
-    this.record.notifyHasManyAdded(this.key, record, idx);
+    this.internalModel.notifyHasManyAdded(this.key, inverse, idx);
   }
 
   reload() {
@@ -126,40 +126,40 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  computeChanges(records) {
+  computeChanges(inverses) {
     let members = this.canonicalMembers;
-    let recordsToRemove = [];
-    let recordSet = setForArray(records);
+    let inversesToRemove = [];
+    let inverseSet = setForArray(inverses);
 
     members.forEach(function(member) {
-      if (recordSet.has(member)) { return; }
+      if (inverseSet.has(member)) { return; }
 
-      recordsToRemove.push(member);
+      inversesToRemove.push(member);
     });
 
-    this.removeCanonicalRecords(recordsToRemove);
+    this.removeCanonicalInverses(inversesToRemove);
 
-    for (let i = 0, l = records.length; i < l; i++) {
-      let record = records[i];
-      this.removeCanonicalRecord(record);
-      this.addCanonicalRecord(record, i);
+    for (let i = 0, l = inverses.length; i < l; i++) {
+      let inverse = inverses[i];
+      this.removeCanonicalInverse(inverse);
+      this.addCanonicalInverse(inverse, i);
     }
   }
 
   fetchLink() {
-    return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then((records) => {
-      if (records.hasOwnProperty('meta')) {
-        this.updateMeta(records.meta);
+    return this.store.findHasMany(this.internalModel, this.link, this.relationshipMeta).then((inverses) => {
+      if (inverses.hasOwnProperty('meta')) {
+        this.updateMeta(inverses.meta);
       }
       this.store._backburner.join(() => {
-        this.updateRecordsFromAdapter(records);
+        this.updateInversesFromAdapter(inverses);
         this.getManyArray().set('isLoaded', true);
       });
       return this.getManyArray();
     });
   }
 
-  findRecords() {
+  findInverses() {
     let manyArray = this.getManyArray();
     let array = manyArray.toArray();
     let internalModels = new Array(array.length);
@@ -179,22 +179,22 @@ export default class ManyRelationship extends Relationship {
   }
 
   notifyHasManyChanged() {
-    this.record.notifyHasManyAdded(this.key);
+    this.internalModel.notifyHasManyAdded(this.key);
   }
 
-  getRecords() {
+  getInverses() {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.getManyArray();
     if (this.isAsync) {
       var promise;
       if (this.link) {
         if (this.hasLoaded) {
-          promise = this.findRecords();
+          promise = this.findInverses();
         } else {
-          promise = this.findLink().then(() => this.findRecords());
+          promise = this.findLink().then(() => this.findInverses());
         }
       } else {
-        promise = this.findRecords();
+        promise = this.findInverses();
       }
       this._loadingPromise = PromiseManyArray.create({
         content: manyArray,
@@ -202,7 +202,7 @@ export default class ManyRelationship extends Relationship {
       });
       return this._loadingPromise;
     } else {
-      assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", manyArray.isEvery('isEmpty', false));
+      assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.type.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", manyArray.isEvery('isEmpty', false));
 
       //TODO(Igor) WTF DO I DO HERE?
       // TODO @runspired equal WTFs to Igor
@@ -215,7 +215,7 @@ export default class ManyRelationship extends Relationship {
 
   updateData(data) {
     let internalModels = this.store._pushResourceIdentifiers(this, data);
-    this.updateRecordsFromAdapter(internalModels);
+    this.updateInversesFromAdapter(internalModels);
   }
 }
 

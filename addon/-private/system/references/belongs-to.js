@@ -109,8 +109,8 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  var inverseRecord = this.belongsToRelationship.inverseRecord;
-  return inverseRecord && inverseRecord.id;
+  var inverse = this.belongsToRelationship.inverseInternalModel;
+  return inverse && inverse.id;
 };
 
 /**
@@ -257,7 +257,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
 
     assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel);
 
-    this.belongsToRelationship.setCanonicalRecord(record._internalModel);
+    this.belongsToRelationship.setCanonicalInverse(record._internalModel);
 
     return record;
   });
@@ -312,10 +312,10 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  var inverseRecord = this.belongsToRelationship.inverseRecord;
+  var inverse = this.belongsToRelationship.inverseInternalModel;
 
-  if (inverseRecord && inverseRecord.isLoaded()) {
-    return inverseRecord.getRecord();
+  if (inverse && inverse.isLoaded()) {
+    return inverse.getRecord();
   }
 
   return null;
@@ -358,11 +358,11 @@ BelongsToReference.prototype.value = function() {
 */
 BelongsToReference.prototype.load = function() {
   if (this.remoteType() === "id") {
-    return this.belongsToRelationship.getRecord();
+    return this.belongsToRelationship.getInverse();
   }
 
   if (this.remoteType() === "link") {
-    return this.belongsToRelationship.findLink().then((internalModel) => {
+    return this.belongsToRelationship.findLink().then(() => {
       return this.value();
     });
   }
