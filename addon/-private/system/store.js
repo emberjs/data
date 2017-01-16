@@ -2541,15 +2541,13 @@ Store = Service.extend({
     When a record is destroyed, this un-indexes it and
     removes it from any record arrays so it can be GCed.
 
-    @method _dematerializeRecord
+    @method _removeFromIdMap
     @private
     @param {InternalModel} internalModel
   */
-  _dematerializeRecord(internalModel) {
+  _removeFromIdMap(internalModel) {
     let recordMap = this._recordMapFor(internalModel.modelName);
     let id = internalModel.id;
-
-    internalModel.updateRecordArrays();
 
     recordMap.remove(internalModel, id);
   },

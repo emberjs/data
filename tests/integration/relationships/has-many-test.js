@@ -29,44 +29,53 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     Contact = DS.Model.extend({
       user: belongsTo('user', { async: false })
     });
+    Contact.reopenClass({ toString: () => 'Contact' });
 
     Email = Contact.extend({
       email: attr('string')
     });
+    Email.reopenClass({ toString: () => 'Email' });
 
     Phone = Contact.extend({
       number: attr('string')
     });
+    Phone.reopenClass({ toString: () => 'Phone' });
 
     Message = DS.Model.extend({
       user: belongsTo('user', { async: false }),
       created_at: attr('date')
     });
+    Message.reopenClass({ toString: () => 'Message' });
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment', { async: false })
     });
+    Post.reopenClass({ toString: () => 'Post' });
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('post', { polymorphic: true, async: true })
     });
+    Comment.reopenClass({ toString: () => 'Comment' });
 
     Book = DS.Model.extend({
       title: attr(),
       chapters: hasMany('chapter', { async: true })
     });
+    Book.reopenClass({ toString: () => 'Book' });
 
     Chapter = DS.Model.extend({
       title: attr(),
       pages: hasMany('page', { async: false })
     });
+    Chapter.reopenClass({ toString: () => 'Chapter' });
 
     Page = DS.Model.extend({
       number: attr('number'),
       chapter: belongsTo('chapter', { async: false })
     });
+    Page.reopenClass({ toString: () => 'Page' });
 
     env = setupStore({
       user: User,
@@ -2197,10 +2206,12 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
   });
+  Post.reopenClass({ toString: () => 'Post' });
 
   var Comment = DS.Model.extend({
     post: DS.belongsTo('post', { async: false })
   });
+  Comment.reopenClass({ toString: () => 'Comment' });
 
   env = setupStore({
     post: Post,
@@ -2776,7 +2787,7 @@ test("unloading and reloading a record with hasMany relationship - #3084", funct
 
     user = env.store.peekRecord('user', 'user-1');
 
-    assert.equal(get(user, 'messages.firstObject.id'), 'message-1');
-    assert.equal(get(message, 'user.id'), 'user-1');
+    assert.equal(get(user, 'messages.firstObject.id'), 'message-1', 'user points to message');
+    assert.equal(get(message, 'user.id'), 'user-1', 'message points to user');
   });
 });

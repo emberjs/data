@@ -459,10 +459,6 @@ const RootState = {
   // you out of the in-flight state.
   rolledBack() { },
   unloadRecord(internalModel) {
-    // clear relationships before moving to deleted state
-    // otherwise it fails
-    internalModel.clearRelationships();
-    internalModel.transitionTo('deleted.saved');
   },
 
   propertyWasReset() { },
@@ -573,10 +569,6 @@ const RootState = {
       },
 
       unloadRecord(internalModel) {
-        // clear relationships before moving to deleted state
-        // otherwise it fails
-        internalModel.clearRelationships();
-        internalModel.transitionTo('deleted.saved');
       },
 
       didCommit() {},
@@ -680,8 +672,6 @@ const RootState = {
 
       setup(internalModel) {
         internalModel.clearRelationships();
-        var store = internalModel.store;
-        store._dematerializeRecord(internalModel);
       },
 
       invokeLifecycleCallbacks(internalModel) {

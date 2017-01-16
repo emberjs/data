@@ -83,7 +83,26 @@ export default class Relationship {
     return this.internalModel.modelName;
   }
 
-  destroy() { }
+  destroy() {
+    if (!this.inverseKey) { return; }
+
+    let allMembers =
+      // we actually want a union of members and canonicalMembers
+      // they should be disjoint but currently are not due to a bug
+      this.members.toArray().concat(this.canonicalMembers.toArray());
+
+    allMembers.forEach(inverseInternalModel => {
+      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
+      // TODO: there is always a relationship in this case; this guard exists
+      // because there are tests that fail in teardown after putting things in
+      // invalid state
+      if (relationship) {
+        relationship.inverseDidDematerialize();
+      }
+    });
+  }
+
+  inverseDidDematerialize() {}
 
   updateMeta(meta) {
     heimdall.increment(updateMeta);
@@ -92,12 +111,17 @@ export default class Relationship {
 
   clear() {
     heimdall.increment(clear);
-    var members = this.members.list;
-    var member;
 
+    let members = this.members.list;
     while (members.length > 0) {
-      member = members[0];
+      let member = members[0];
       this.removeRecord(member);
+    }
+
+    let canonicalMembers = this.canonicalMembers.list;
+    while (canonicalMembers.length > 0) {
+      let member = canonicalMembers[0];
+      this.removeCanonicalRecord(member);
     }
   }
 

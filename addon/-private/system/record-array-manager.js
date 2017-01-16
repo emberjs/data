@@ -117,8 +117,15 @@ export default class RecordArrayManager {
     for (let i = 0, l = updated.length; i < l; i++) {
       let internalModel = updated[i];
 
-      if (internalModel.isDestroyed ||
-        internalModel.currentState.stateName === 'root.deleted.saved') {
+      // During dematerialization we don't want to rematerialize the record.
+      // recordWasDeleted can cause other records to rematerialize because it
+      // removes the internal model from the array and Ember arrays will always
+      // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
+      // `lastObject` have changed.  When this happens we don't want those
+      // models to rematerialize their records.
+      if (internalModel._isDematerializing ||
+          internalModel.isDestroyed ||
+          internalModel.currentState.stateName === 'root.deleted.saved') {
         this._recordWasDeleted(internalModel);
       } else {
         this._recordWasChanged(internalModel);

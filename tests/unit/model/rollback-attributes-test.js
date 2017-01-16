@@ -15,6 +15,7 @@ module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
       firstName: DS.attr(),
       lastName: DS.attr()
     });
+    Person.reopenClass({ toString() { return 'Person'; } });
 
     env = setupStore({ person: Person });
     store = env.store;

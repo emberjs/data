@@ -13,6 +13,7 @@ var Person = DS.Model.extend({
   name: DS.attr('string'),
   cars: DS.hasMany('car', { async: false })
 });
+Person.reopenClass({ toString: () => 'Person' });
 
 var run = Ember.run;
 
@@ -21,6 +22,7 @@ var Car = DS.Model.extend({
   model: DS.attr('string'),
   person: DS.belongsTo('person', { async: false })
 });
+Car.reopenClass({ toString: () => 'Car' });
 
 function initializeStore(adapter) {
   env = setupStore({
@@ -195,10 +197,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(car.get('person'), person, "expected car's person to be the correct person");
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
-  Ember.run(person, person.destroy);
   Ember.run(store, 'destroy');
-
-  assert.equal(car.get('person'), null, "expected car.person to no longer be present");
 
   assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');

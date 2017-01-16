@@ -19,11 +19,13 @@ module("unit/many_array - DS.ManyArray", {
       title: attr('string'),
       tags: hasMany('tag', { async: false })
     });
+    Post.reopenClass({ toString: () => 'Post'});
 
     Tag = DS.Model.extend({
       name: attr('string'),
       post: belongsTo('post', { async: false })
     });
+    Tag.reopenClass({ toString: () => 'Tag'});
 
     env = setupStore({
       post: Post,
@@ -88,7 +90,7 @@ test("manyArray.save() calls save() on all records", function(assert) {
 });
 
 test("manyArray trigger arrayContentChange functions with the correct values", function(assert) {
-  assert.expect(12);
+  assert.expect(6);
   var willChangeStartIdx;
   var willChangeRemoveAmt;
   var willChangeAddAmt;
