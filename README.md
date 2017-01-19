@@ -189,6 +189,8 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 3. Run `npm install` inside the project root to install the JS dependencies.
 
+4. Run `bower install` inside the project root to install Ember dependencies.
+
 ### In Your Browser
 
 1. To start the development server, run `npm start`.
