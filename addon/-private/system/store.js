@@ -1211,6 +1211,8 @@ Store = Service.extend({
     [`AdapterPopulatedRecordArray`](http://emberjs.com/api/data/classes/DS.AdapterPopulatedRecordArray.html)
     once the server returns.
 
+    Each time this method is called a new request is made through the adapter.
+
     @since 1.13.0
     @method query
     @param {String} modelName
