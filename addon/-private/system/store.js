@@ -1171,6 +1171,8 @@ Store = Service.extend({
     This method delegates a query to the adapter. This is the one place where
     adapter-level semantics are exposed to the application.
 
+    Each time this method is called a new request is made through the adapter.
+
     Exposing queries this way seems preferable to creating an abstract query
     language for all server-side queries, and then require all adapters to
     implement them.
