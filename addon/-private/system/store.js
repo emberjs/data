@@ -1785,7 +1785,7 @@ Store = Service.extend({
     @return {boolean}
   */
   recordIsLoaded(modelName, id) {
-    deprecate(`Use of recordIsLoaded is deprecated, use hasRecordForId instead.`, {
+    deprecate(`Use of recordIsLoaded is deprecated, use hasRecordForId instead.`, false, {
       id: 'ds.store.recordIsLoaded',
       until: '3.0'
     });
@@ -2619,7 +2619,7 @@ Store = Service.extend({
   },
 
   lookupAdapter(name) {
-    deprecate(`Use of lookupAdapter is deprecated, use adapterFor instead.`, {
+    deprecate(`Use of lookupAdapter is deprecated, use adapterFor instead.`, false, {
       id: 'ds.store.lookupAdapter',
       until: '3.0'
     });
@@ -2627,7 +2627,7 @@ Store = Service.extend({
   },
 
   lookupSerializer(name) {
-    deprecate(`Use of lookupSerializer is deprecated, use serializerFor instead.`, {
+    deprecate(`Use of lookupSerializer is deprecated, use serializerFor instead.`, false, {
       id: 'ds.store.lookupSerializer',
       until: '3.0'
     });
