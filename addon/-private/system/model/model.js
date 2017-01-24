@@ -587,8 +587,9 @@ const Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
+    Unloads the record from the store. Only non-dirty records can be unloaded.
+
     @method unloadRecord
-    @private
   */
   unloadRecord() {
     if (this.isDestroyed) { return; }
