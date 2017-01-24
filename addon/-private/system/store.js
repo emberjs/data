@@ -423,8 +423,8 @@ Store = Service.extend({
   },
 
   /**
-    For symmetry, a record can be unloaded via the store. Only
-    non-dirty records can be unloaded.
+    For symmetry, a record can be unloaded via the store.
+    This will cause the record to be destroyed and freed up for garbage collection.
 
     Example
 
