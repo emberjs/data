@@ -2,8 +2,7 @@ import Model from 'ember-data/model';
 import Ember from 'ember';
 import Reference from './reference';
 
-import isEnabled from 'ember-data/-private/features';
-import { assertPolymorphicType, deprecate } from "ember-data/-private/debug";
+import { assertPolymorphicType } from "ember-data/-private/debug";
 
 
 /**
@@ -241,23 +240,28 @@ BelongsToReference.prototype.meta = function() {
 */
 BelongsToReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((data) => {
-    var record;
+    let record, related, meta;
 
     if (data instanceof Model) {
-      if (isEnabled('ds-overhaul-references')) {
-        deprecate("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
-          id: 'ds.references.belongs-to.push-record',
-          until: '3.0'
-        });
-      }
       record = data;
     } else {
       record = this.store.push(data);
+
+      meta = data.meta;
+      related = data.links && data.links.related && data.links.related.href;
     }
 
     assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel);
 
     this.belongsToRelationship.setCanonicalRecord(record._internalModel);
+
+    // TODO use belongsToRelationship.push() once #4599 is merged
+    if (meta) {
+      this.belongsToRelationship.meta = meta;
+    }
+    if (related) {
+      this.belongsToRelationship.link = related;
+    }
 
     return record;
   });

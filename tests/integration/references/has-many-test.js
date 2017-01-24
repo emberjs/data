@@ -163,7 +163,7 @@ test("HasManyReference#meta() returns the most recent meta for the relationship"
   assert.deepEqual(personsReference.meta(), { foo: true });
 });
 
-testInDebug("push(array)", function(assert) {
+test("push(array of resource objects)", function(assert) {
   var done = assert.async();
 
   var family;
@@ -186,10 +186,6 @@ testInDebug("push(array)", function(assert) {
 
   var personsReference = family.hasMany('persons');
 
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-  }
-
   run(function() {
     var data = [
       { data: { type: 'person', id: 1, attributes: { name: "Vito" } } },
@@ -207,7 +203,7 @@ testInDebug("push(array)", function(assert) {
   });
 });
 
-testInDebug("push(array) works with polymorphic type", function(assert) {
+test("push(array of resource objects) works with polymorphic type", function(assert) {
   var done = assert.async();
 
   env.registry.register('model:mafia-boss', Person.extend());
@@ -229,12 +225,6 @@ testInDebug("push(array) works with polymorphic type", function(assert) {
       { data: { type: 'mafia-boss', id: 1, attributes: { name: "Vito" } } }
     ];
 
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-    } else {
-      assert.expectNoDeprecation();
-    }
-
     personsReference.push(data).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
       assert.equal(get(records, 'length'), 1);
@@ -245,7 +235,7 @@ testInDebug("push(array) works with polymorphic type", function(assert) {
   });
 });
 
-testInDebug("push(array) asserts polymorphic type", function(assert) {
+testInDebug("push(array of resource objects) asserts polymorphic type", function(assert) {
   var family;
   run(function() {
     family = env.store.push({
@@ -258,12 +248,6 @@ testInDebug("push(array) asserts polymorphic type", function(assert) {
 
   var personsReference = family.hasMany('persons');
 
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-  } else {
-    assert.expectNoDeprecation();
-  }
-
   assert.expectAssertion(() => {
     run(() => {
       var data = [
@@ -275,7 +259,7 @@ testInDebug("push(array) asserts polymorphic type", function(assert) {
   }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
 });
 
-testInDebug("push(object) supports legacy, non-JSON-API-conform payload", function(assert) {
+testInDebug("push(object) supports non-JSON-API-conform payload", function(assert) {
   var done = assert.async();
 
   var family;
@@ -307,7 +291,7 @@ testInDebug("push(object) supports legacy, non-JSON-API-conform payload", functi
     };
 
     if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("HasManyReference#push() expects a valid JSON-API document.");
+      assert.expectDeprecation("Calling HasManyReference#push() with an argument of the structure `{ data: [{ data: {} }, { data: {} }] }` is deprecated. Push a JSON-API document for a resource collection or an array of records instead.");
     } else {
       assert.expectNoDeprecation();
     }
@@ -324,6 +308,40 @@ testInDebug("push(object) supports legacy, non-JSON-API-conform payload", functi
 });
 
 if (isEnabled('ds-overhaul-references')) {
+  test("push(array of records)", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        },
+        included: [
+          { type: 'person', id: 1, attributes: { name: 'Vito' } },
+          { type: 'person', id: 2, attributes: { name: 'Michael' } }
+        ]
+      });
+    });
+
+    var first = env.store.peekRecord('person', 1);
+    var second = env.store.peekRecord('person', 2);
+
+    var personsReference = family.hasMany('persons');
+
+    run(function() {
+      personsReference.push([first, second]).then(function(records) {
+        assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+        assert.equal(get(records, 'length'), 2);
+        assert.equal(records.objectAt(0).get('name'), "Vito");
+        assert.equal(records.objectAt(1).get('name'), "Michael");
+
+        done();
+      });
+    });
+  });
+
   test("push(object) supports JSON-API payload", function(assert) {
     var done = assert.async();
 
@@ -360,6 +378,140 @@ if (isEnabled('ds-overhaul-references')) {
         assert.equal(get(records, 'length'), 2);
         assert.equal(records.objectAt(0).get('name'), "Vito");
         assert.equal(records.objectAt(1).get('name'), "Michael");
+
+        done();
+      });
+    });
+  });
+
+  test("push({ data: [ … ], meta: { … } }) - can set meta", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    run(function() {
+      var payload = {
+        data: [
+          { type: 'person', id: 1 }
+        ],
+        meta: {
+          foo: true
+        }
+      };
+
+      personsReference.push(payload).then(function() {
+        assert.deepEqual(personsReference.meta(), { foo: true }, "meta is set");
+
+        done();
+      });
+    });
+  });
+
+  test("push({ data: [], meta: { … } }) - can set meta", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    run(function() {
+      var payload = {
+        data: [
+          { type: 'person', id: 1 }
+        ],
+        meta: {
+          foo: true
+        }
+      };
+
+      personsReference.push(payload).then(function() {
+        assert.deepEqual(personsReference.meta(), { foo: true }, "meta is set");
+
+        done();
+      });
+    });
+  });
+
+  test("push({ data: [ … ], links: { … } }) - can set link", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    run(function() {
+      var payload = {
+        data: [
+          { type: 'person', id: 1 }
+        ],
+        links: {
+          related: {
+            href: "/families/1/persons"
+          }
+        }
+      };
+
+      personsReference.push(payload).then(function() {
+        assert.equal(personsReference.link(), "/families/1/persons", "link is set");
+
+        done();
+      });
+    });
+  });
+
+  test("push({ data: [], links: { … } }) - can set link", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    run(function() {
+      var payload = {
+        data: [],
+        links: {
+          related: {
+            href: "/families/1/persons"
+          }
+        }
+      };
+
+      personsReference.push(payload).then(function() {
+        assert.equal(personsReference.link(), "/families/1/persons", "link is set");
 
         done();
       });
@@ -426,6 +578,50 @@ if (isEnabled('ds-overhaul-references')) {
     }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
   });
 }
+
+test("push([])", function(assert) {
+  var done = assert.async();
+
+  run(function() {
+    var family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1
+      }
+    });
+
+    family.hasMany('persons').push([]).then(function(records) {
+      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.equal(get(records, 'length'), 0);
+
+      done();
+    });
+  });
+});
+
+test("push({ data: [] })", function(assert) {
+  var done = assert.async();
+
+  run(function() {
+    var family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1
+      }
+    });
+
+    var payload = {
+      data: []
+    };
+
+    family.hasMany('persons').push(payload).then(function(records) {
+      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.equal(get(records, 'length'), 0);
+
+      done();
+    });
+  });
+});
 
 test("push(promise)", function(assert) {
   var done = assert.async();

@@ -89,21 +89,35 @@ entry in `config/features.json`.
 
 - `ds-overhaul-references` [#4398](https://github.com/emberjs/data/pull/4398)
 
-  This tackles some inconsistencies within `push()` on references. It should
-  only be used to push a JSON-API payload. The following use cases are
-  addressed and deprecated:
+  This tackles some inconsistencies within `push()` on references, so the
+  following arguments will be accepted for `push()`:
 
-  - `BelongsToReference#push()` accepts a `DS.Model`
-  - `HasManyReference#push()` accepts a plain array
-  - `HasManyReference#push()` accepts a pseudo-JSON-API format:
+  - `BelongsToReference#push(arg)`
+    - `arg` is an instance of `DS.Model`
+    - `arg` is a JSON-API document for a single resource object
+  - `HasManyReference#push(arg)`
+    - `arg` is an array of `DS.Model`s
+    - `arg` is a JSON-API document for an array of resource objects
 
-      ```js
-      {
-        data: [
-          { data: { type: 'model', id: 1 } }
-        ]
-      }
-      ```
+  If the passed argument to `HasManyReference#push()` has one the following
+  structures, a deprecation will be logged:
+
+  ```js
+  {
+    data: [
+      { data: { type: 'model', id: 1 } }
+    ]
+  }
+  ```
+
+  or
+
+  ```js
+  [
+    { data: { … } },
+    { data: { … } }
+  ]
+  ```
 
 - `ds-check-should-serialize-relationships` [#4279](https://github.com/emberjs/data/pull/4279)
 
