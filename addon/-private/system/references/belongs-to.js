@@ -15,7 +15,7 @@ import { assertPolymorphicType, deprecate } from "ember-data/-private/debug";
    @namespace DS
    @extends DS.Reference
 */
-var BelongsToReference = function(store, parentInternalModel, belongsToRelationship) {
+const BelongsToReference = function(store, parentInternalModel, belongsToRelationship) {
   this._super$constructor(store, parentInternalModel);
   this.belongsToRelationship = belongsToRelationship;
   this.type = belongsToRelationship.relationshipMeta.type;
@@ -41,7 +41,7 @@ BelongsToReference.prototype._super$constructor = Reference;
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       type: 'blog',
       id: 1,
       relationships: {
@@ -50,13 +50,13 @@ BelongsToReference.prototype._super$constructor = Reference;
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // get the identifier of the reference
     if (userRef.remoteType() === "id") {
-      var id = userRef.id();
+      let id = userRef.id();
     } else if (userRef.remoteType() === "link") {
-      var link = userRef.link();
+      let link = userRef.link();
     }
     ```
 
@@ -86,7 +86,7 @@ BelongsToReference.prototype.remoteType = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -97,11 +97,11 @@ BelongsToReference.prototype.remoteType = function() {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // get the identifier of the reference
     if (userRef.remoteType() === "id") {
-      var id = userRef.id();
+      let id = userRef.id();
     }
     ```
 
@@ -109,7 +109,7 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  var inverseRecord = this.belongsToRelationship.inverseRecord;
+  let inverseRecord = this.belongsToRelationship.inverseRecord;
   return inverseRecord && inverseRecord.id;
 };
 
@@ -125,7 +125,7 @@ BelongsToReference.prototype.id = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -138,11 +138,11 @@ BelongsToReference.prototype.id = function() {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // get the identifier of the reference
     if (userRef.remoteType() === "link") {
-      var link = userRef.link();
+      let link = userRef.link();
     }
     ```
 
@@ -164,7 +164,7 @@ BelongsToReference.prototype.link = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -183,7 +183,7 @@ BelongsToReference.prototype.link = function() {
       }
     });
 
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     userRef.meta() // { lastUpdated: 1458014400000 }
     ```
@@ -208,7 +208,7 @@ BelongsToReference.prototype.meta = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -219,7 +219,7 @@ BelongsToReference.prototype.meta = function() {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     // provide data for reference
     userRef.push({
@@ -241,7 +241,7 @@ BelongsToReference.prototype.meta = function() {
 */
 BelongsToReference.prototype.push = function(objectOrPromise) {
   return Ember.RSVP.resolve(objectOrPromise).then((data) => {
-    var record;
+    let record;
 
     if (data instanceof Model) {
       if (isEnabled('ds-overhaul-references')) {
@@ -278,7 +278,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -289,7 +289,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     userRef.value(); // null
 
@@ -312,7 +312,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  var inverseRecord = this.belongsToRelationship.inverseRecord;
+  let inverseRecord = this.belongsToRelationship.inverseRecord;
 
   if (inverseRecord && inverseRecord.isLoaded()) {
     return inverseRecord.getRecord();
@@ -334,7 +334,7 @@ BelongsToReference.prototype.value = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -345,7 +345,7 @@ BelongsToReference.prototype.value = function() {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     userRef.value(); // null
 
@@ -382,7 +382,7 @@ BelongsToReference.prototype.load = function() {
       user: DS.belongsTo({ async: true })
     });
 
-    var blog = store.push({
+    let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -393,7 +393,7 @@ BelongsToReference.prototype.load = function() {
         }
       }
     });
-    var userRef = blog.belongsTo('user');
+    let userRef = blog.belongsTo('user');
 
     userRef.reload().then(function(user) {
       userRef.value() === user

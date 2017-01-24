@@ -79,7 +79,7 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   setRecordPromise(newPromise) {
-    var content = newPromise.get && newPromise.get('content');
+    let content = newPromise.get && newPromise.get('content');
     assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
     this.setRecord(content ? content._internalModel : content);
   }
@@ -121,7 +121,7 @@ export default class BelongsToRelationship extends Relationship {
   getRecord() {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     if (this.isAsync) {
-      var promise;
+      let promise;
       if (this.link) {
         if (this.hasLoaded) {
           promise = this.findRecord();
@@ -140,7 +140,7 @@ export default class BelongsToRelationship extends Relationship {
       if (this.inverseRecord === null) {
         return null;
       }
-      var toReturn = this.inverseRecord.getRecord();
+      let toReturn = this.inverseRecord.getRecord();
       assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }

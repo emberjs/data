@@ -56,7 +56,7 @@ const {
 export default class Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     heimdall.increment(newRelationship);
-    var async = relationshipMeta.options.async;
+    let async = relationshipMeta.options.async;
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
@@ -142,7 +142,7 @@ export default class Relationship {
 
   addCanonicalRecords(records, idx) {
     heimdall.increment(addCanonicalRecords);
-    for (var i=0; i<records.length; i++) {
+    for (let i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.addCanonicalRecord(records[i], i+idx);
       } else {
@@ -170,7 +170,7 @@ export default class Relationship {
 
   removeCanonicalRecords(records, idx) {
     heimdall.increment(removeCanonicalRecords);
-    for (var i=0; i<records.length; i++) {
+    for (let i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.removeCanonicalRecord(records[i], i+idx);
       } else {
@@ -228,7 +228,7 @@ export default class Relationship {
 
   removeRecordFromInverse(record) {
     heimdall.increment(removeRecordFromInverse);
-    var inverseRelationship = record._relationships.get(this.inverseKey);
+    let inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeRecordFromOwn(this.record);
@@ -244,7 +244,7 @@ export default class Relationship {
 
   removeCanonicalRecordFromInverse(record) {
     heimdall.increment(removeCanonicalRecordFromInverse);
-    var inverseRelationship = record._relationships.get(this.inverseKey);
+    let inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeCanonicalRecordFromOwn(this.record);
@@ -263,7 +263,7 @@ export default class Relationship {
     this.willSync = false;
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    var newRecords = [];
+    let newRecords = [];
     for (let i = 0; i < list.length; i++) {
       if (list[i].isNew()) {
         newRecords.push(list[i]);
@@ -303,7 +303,7 @@ export default class Relationship {
     if (this.linkPromise) {
       return this.linkPromise;
     } else {
-      var promise = this.fetchLink();
+      let promise = this.fetchLink();
       this.linkPromise = promise;
       return promise.then((result) => result);
     }

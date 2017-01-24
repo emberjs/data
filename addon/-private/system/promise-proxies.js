@@ -16,7 +16,7 @@ const { get , RSVP: { Promise }} = Ember;
   Example
 
   ```javascript
-  var promiseArray = DS.PromiseArray.create({
+  let promiseArray = DS.PromiseArray.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -47,7 +47,7 @@ export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   Example
 
   ```javascript
-  var promiseObject = DS.PromiseObject.create({
+  let promiseObject = DS.PromiseObject.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -63,7 +63,7 @@ export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+export let PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
 export function promiseObject(promise, label) {
   return PromiseObject.create({

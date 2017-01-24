@@ -14,7 +14,7 @@ import {
   serializerForAdapter
 } from "ember-data/-private/system/store/serializers";
 
-var Promise = Ember.RSVP.Promise;
+const Promise = Ember.RSVP.Promise;
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -25,10 +25,10 @@ function payloadIsNotBlank(adapterPayload) {
 }
 
 export function _find(adapter, store, modelClass, id, internalModel, options) {
-  var snapshot = internalModel.createSnapshot(options);
-  var promise = adapter.findRecord(store, modelClass, id, snapshot);
-  var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
-  var label = "DS: Handle Adapter#findRecord of " + modelClass + " with id: " + id;
+  let snapshot = internalModel.createSnapshot(options);
+  let promise = adapter.findRecord(store, modelClass, id, snapshot);
+  let serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
+  let label = "DS: Handle Adapter#findRecord of " + modelClass + " with id: " + id;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -75,11 +75,11 @@ export function _findMany(adapter, store, modelClass, ids, internalModels) {
 }
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {
-  var snapshot = internalModel.createSnapshot();
-  var modelClass = store.modelFor(relationship.type);
-  var promise = adapter.findHasMany(store, snapshot, link, relationship);
-  var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
+  let snapshot = internalModel.createSnapshot();
+  let modelClass = store.modelFor(relationship.type);
+  let promise = adapter.findHasMany(store, snapshot, link, relationship);
+  let serializer = serializerForAdapter(store, adapter, relationship.type);
+  let label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -96,11 +96,11 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
-  var snapshot = internalModel.createSnapshot();
-  var modelClass = store.modelFor(relationship.type);
-  var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
-  var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
+  let snapshot = internalModel.createSnapshot();
+  let modelClass = store.modelFor(relationship.type);
+  let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
+  let serializer = serializerForAdapter(store, adapter, relationship.type);
+  let label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -118,12 +118,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 }
 
 export function _findAll(adapter, store, modelClass, sinceToken, options) {
-  var modelName = modelClass.modelName;
-  var recordArray = store.peekAll(modelName);
-  var snapshotArray = recordArray._createSnapshot(options);
-  var promise = adapter.findAll(store, modelClass, sinceToken, snapshotArray);
-  var serializer = serializerForAdapter(store, adapter, modelName);
-  var label = "DS: Handle Adapter#findAll of " + modelClass;
+  let modelName = modelClass.modelName;
+  let recordArray = store.peekAll(modelName);
+  let snapshotArray = recordArray._createSnapshot(options);
+  let promise = adapter.findAll(store, modelClass, sinceToken, snapshotArray);
+  let serializer = serializerForAdapter(store, adapter, modelName);
+  let label = "DS: Handle Adapter#findAll of " + modelClass;
 
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));

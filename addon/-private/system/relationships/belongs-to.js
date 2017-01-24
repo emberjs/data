@@ -75,7 +75,7 @@ import normalizeModelName from "ember-data/-private/system/normalize-model-name"
   @return {Ember.computed} relationship
 */
 export default function belongsTo(modelName, options) {
-  var opts, userEnteredModelName;
+  let opts, userEnteredModelName;
   if (typeof modelName === 'object') {
     opts = modelName;
     userEnteredModelName = undefined;
@@ -92,7 +92,7 @@ export default function belongsTo(modelName, options) {
 
   opts = opts || {};
 
-  var meta = {
+  let meta = {
     type: userEnteredModelName,
     isRelationship: true,
     options: opts,
