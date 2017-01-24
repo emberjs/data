@@ -41,7 +41,7 @@ const { isNone } = Ember;
  */
 export default Transform.extend({
   deserialize(serialized, options) {
-    var type = typeof serialized;
+    let type = typeof serialized;
 
     if (isNone(serialized) && options.allowNull === true) {
       return null;

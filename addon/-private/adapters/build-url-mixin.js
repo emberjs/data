@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-var get = Ember.get;
+const get = Ember.get;
 
 /**
 
@@ -86,10 +86,10 @@ export default Ember.Mixin.create({
     @return {String} url
   */
   _buildURL(modelName, id) {
-    var url = [];
-    var host = get(this, 'host');
-    var prefix = this.urlPrefix();
-    var path;
+    let path;
+    let url = [];
+    let host = get(this, 'host');
+    let prefix = this.urlPrefix();
 
     if (modelName) {
       path = this.pathForType(modelName);
@@ -378,8 +378,8 @@ export default Ember.Mixin.create({
     @return {String} urlPrefix
   */
   urlPrefix(path, parentURL) {
-    var host = get(this, 'host');
-    var namespace = get(this, 'namespace');
+    let host = get(this, 'host');
+    let namespace = get(this, 'namespace');
 
     if (!host || host === '/') {
       host = '';
@@ -401,7 +401,7 @@ export default Ember.Mixin.create({
     }
 
     // No path provided
-    var url = [];
+    let url = [];
     if (host) { url.push(host); }
     if (namespace) { url.push(namespace); }
     return url.join('/');
@@ -434,7 +434,7 @@ export default Ember.Mixin.create({
     @return {String} path
   **/
   pathForType(modelName) {
-    var camelized = Ember.String.camelize(modelName);
+    let camelized = Ember.String.camelize(modelName);
     return Ember.String.pluralize(camelized);
   }
 });
