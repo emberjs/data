@@ -46,9 +46,19 @@ test("#deserialize with different offset formats", function(assert) {
   var dateStringColon = '2013-03-15T23:22:00.000+00:00';
   var dateStringShortOffset = '2016-12-02T17:30:00.000+00';
 
+  assert.expect(6);
+
+  var _dateUTC = Date.UTC;
+  Date.UTC = function () {
+    assert.equal(arguments.length, 7);
+    return _dateUTC.apply(this, [].slice.call(arguments));
+  };
+
   assert.equal(transform.deserialize(dateString).getTime(), 1053817200000);
   assert.equal(transform.deserialize(dateStringShortOffset).getTime(), 1480699800000);
   assert.equal(transform.deserialize(dateStringColon).getTime(), 1363389720000);
+
+  Date.UTC = _dateUTC;
 });
 
 testInDebug('Ember.Date.parse has been deprecated', function(assert) {
