@@ -495,6 +495,27 @@ Store = Service.extend({
     store, it depends on the reload behavior _when_ the returned promise
     resolves.
 
+    ### Preloading
+
+    You can optionally `preload` specific attributes and relationships that you know of
+    by passing them via the passed `options`.
+
+    For example, if your Ember route looks like `/posts/1/comments/2` and your API route
+    for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
+    without fetching the post you can pass in the post to the `findRecord` call:
+
+    ```javascript
+    store.findRecord('comment', 2, { preload: { post: 1 } });
+    ```
+
+    If you have access to the post model you can also pass the model itself:
+
+    ```javascript
+    store.findRecord('post', 1).then(function (myPostModel) {
+      store.findRecord('comment', 2, { post: myPostModel });
+    });
+    ```
+
     ### Reloading
 
     The reload behavior is configured either via the passed `options` hash or
