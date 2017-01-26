@@ -319,7 +319,7 @@ Store = Service.extend({
 
     ```js
     store.createRecord('post', {
-      title: "Rails is omakase"
+      title: 'Rails is omakase'
     });
     ```
 
@@ -328,7 +328,7 @@ Store = Service.extend({
     ```js
     let user = this.store.peekRecord('user', 1);
     store.createRecord('post', {
-      title: "Rails is omakase",
+      title: 'Rails is omakase',
       user: user
     });
     ```
@@ -409,7 +409,7 @@ Store = Service.extend({
 
     ```javascript
     let post = store.createRecord('post', {
-      title: "Rails is omakase"
+      title: 'Rails is omakase'
     });
 
     store.deleteRecord(post);
@@ -484,7 +484,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id);
       }
     });
@@ -543,7 +543,7 @@ Store = Service.extend({
     //   }
     // ]
     store.findRecord('post', 1, { reload: true }).then(function(post) {
-      post.get("revision"); // 2
+      post.get('revision'); // 2
     });
     ```
 
@@ -604,7 +604,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
       }
     });
@@ -617,7 +617,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id, {
           adapterOptions: { subscribe: false }
         });
@@ -629,7 +629,7 @@ Store = Service.extend({
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      findRecord: function(store, type, id, snapshot) {
+      findRecord(store, type, id, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -658,8 +658,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
-       return this.store.findRecord('post', params.post_id, {include: 'comments'});
+      model(params) {
+       return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
     });
 
@@ -676,8 +676,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
-       return this.store.findRecord('post', params.post_id, {include: 'comments,comments.author'});
+      model(params) {
+       return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
     });
 
@@ -981,7 +981,7 @@ Store = Service.extend({
     let user = userRef.value();
 
     // get the identifier of the reference
-    if (userRef.remoteType() === "id") {
+    if (userRef.remoteType() === 'id') {
     let id = userRef.id();
     }
 
@@ -992,8 +992,8 @@ Store = Service.extend({
     userRef.reload().then(...)
 
     // provide data for reference
-    userRef.push({ id: 1, username: "@user" }).then(function(user) {
-    userRef.value() === user;
+    userRef.push({ id: 1, username: '@user' }).then(function(user) {
+      userRef.value() === user;
     });
     ```
 
@@ -1077,8 +1077,8 @@ Store = Service.extend({
    ```javascript
    store.hasRecordForId('post', 1); // false
    store.findRecord('post', 1).then(function() {
-      store.hasRecordForId('post', 1); // true
-    });
+     store.hasRecordForId('post', 1); // true
+   });
    ```
 
     @method hasRecordForId
@@ -1309,11 +1309,11 @@ Store = Service.extend({
     The request is made through the adapters' `queryRecord`:
 
     ```app/adapters/user.js
-    import DS from "ember-data";
+    import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       queryRecord(modelName, query) {
-        return Ember.$.getJSON("/api/current_user");
+        return Ember.$.getJSON('/api/current_user');
       }
     });
     ```
@@ -1401,7 +1401,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findAll('author');
       }
     });
@@ -1433,7 +1433,7 @@ Store = Service.extend({
     //   }
     // ]
     store.findAll('author', { reload: true }).then(function(authors) {
-      authors.getEach("id"); // ['first', 'second']
+      authors.getEach('id'); // ['first', 'second']
     });
     ```
 
@@ -1494,7 +1494,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
+      model() {
         return this.store.findAll('post', { backgroundReload: false });
       }
     });
@@ -1507,7 +1507,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findAll('post', {
           adapterOptions: { subscribe: false }
         });
@@ -1519,7 +1519,7 @@ Store = Service.extend({
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      findAll: function(store, type, sinceToken, snapshotRecordArray) {
+      findAll(store, type, sinceToken, snapshotRecordArray) {
         if (snapshotRecordArray.adapterOptions.subscribe) {
           // ...
         }
@@ -1549,8 +1549,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
-       return this.store.findAll('post', {include: 'comments'});
+      model() {
+       return this.store.findAll('post', { include: 'comments' });
       }
     });
 
@@ -1564,8 +1564,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
-       return this.store.findAll('post', {include: 'comments,comments.author'});
+      model() {
+       return this.store.findAll('post', { include: 'comments,comments.author' });
       }
     });
 
@@ -2019,7 +2019,7 @@ Store = Service.extend({
     In case someone defined a relationship to a mixin, for example:
     ```
       let Comment = DS.Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true})
+        owner: belongsTo('commentable'. { polymorphic: true })
       });
       let Commentable = Ember.Mixin.create({
         comments: hasMany('comment')
