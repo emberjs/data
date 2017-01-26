@@ -27,7 +27,7 @@ const dasherize = Ember.String.dasherize;
   ```js
 
     // models/player.js
-    import DS from "ember-data";
+    import DS from 'ember-data';
 
     export default DS.Model.extend({
       name: DS.attr(),
@@ -104,7 +104,6 @@ const dasherize = Ember.String.dasherize;
 
   ```app/serializers/application.js
   export default JSONAPISerializer.extend({
-
     normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
       let normalizedDocument = this._super(...arguments);
 
@@ -122,7 +121,6 @@ const dasherize = Ember.String.dasherize;
 
       return normalizedRelationship;
     }
-
   });
   ```
 
@@ -439,7 +437,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    import DS from 'ember-data';
 
    export default DS.JSONAPISerializer.extend({
-     keyForAttribute: function(attr, method) {
+     keyForAttribute(attr, method) {
        return Ember.String.dasherize(attr).toUpperCase();
      }
    });
@@ -469,7 +467,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONAPISerializer.extend({
-      keyForRelationship: function(key, relationship, method) {
+      keyForRelationship(key, relationship, method) {
         return Ember.String.underscore(key);
       }
     });
@@ -653,7 +651,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       `post` model should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default DS.JSONAPISerializer.extend({
         modelNameFromPayloadType(payloadType) {
@@ -701,11 +699,11 @@ if (isEnabled("ds-payload-type-hooks")) {
       namespaces model name for the `post` should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default JSONAPISerializer.extend({
         payloadTypeFromModelName(modelName) {
-          return "api::v1::" + modelName;
+          return 'api::v1::' + modelName;
         }
       });
       ```
