@@ -97,8 +97,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      findRecord: function(store, type, id, snapshot) {
-
+      findRecord(store, type, id, snapshot) {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}/${id}`).then(function(data) {
             resolve(data);
@@ -128,7 +127,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      findAll: function(store, type, sinceToken) {
+      findAll(store, type, sinceToken) {
         var query = { since: sinceToken };
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
@@ -159,7 +158,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      query: function(store, type, query) {
+      query(store, type, query) {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
@@ -197,7 +196,7 @@ export default Ember.Object.extend({
     import Ember from 'ember';
 
     export default DS.Adapter.extend(DS.BuildURLMixin, {
-      queryRecord: function(store, type, query) {
+      queryRecord(store, type, query) {
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
@@ -236,7 +235,7 @@ export default Ember.Object.extend({
     import { v4 } from 'uuid';
 
     export default DS.Adapter.extend({
-      generateIdForRecord: function(store, inputProperties) {
+      generateIdForRecord(store, inputProperties) {
         return v4();
       }
     });
@@ -260,7 +259,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      createRecord: function(store, type, snapshot) {
+      createRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var url = `/${type.modelName}`;
 
@@ -290,7 +289,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      createRecord: function(store, type, snapshot) {
+      createRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -338,7 +337,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      updateRecord: function(store, type, snapshot) {
+      updateRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;
 
@@ -379,7 +378,7 @@ export default Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;
 
@@ -490,7 +489,7 @@ export default Ember.Object.extend({
     write:
 
     ```javascript
-    shouldReloadRecord: function(store, ticketSnapshot) {
+    shouldReloadRecord(store, ticketSnapshot) {
       var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
       if (timeDiff > 20) {
         return true;
@@ -538,7 +537,7 @@ export default Ember.Object.extend({
     write:
 
     ```javascript
-    shouldReloadAll: function(store, snapshotArray) {
+    shouldReloadAll(store, snapshotArray) {
       var snapshots = snapshotArray.snapshots();
 
       return snapshots.any(function(ticketSnapshot) {
@@ -592,7 +591,7 @@ export default Ember.Object.extend({
     `shouldBackgroundReloadRecord` as follows:
 
     ```javascript
-    shouldBackgroundReloadRecord: function(store, snapshot) {
+    shouldBackgroundReloadRecord(store, snapshot) {
       var connection = window.navigator.connection;
       if (connection === 'cellular' || connection === 'none') {
         return false;
@@ -631,7 +630,7 @@ export default Ember.Object.extend({
     `shouldBackgroundReloadAll` as follows:
 
     ```javascript
-    shouldBackgroundReloadAll: function(store, snapshotArray) {
+    shouldBackgroundReloadAll(store, snapshotArray) {
       var connection = window.navigator.connection;
       if (connection === 'cellular' || connection === 'none') {
         return false;
