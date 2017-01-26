@@ -92,7 +92,7 @@ function getValue(record, key) {
 
   ```app/transforms/text.js
   export default DS.Transform.extend({
-    serialize: function(value, options) {
+    serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();
       }
@@ -100,7 +100,7 @@ function getValue(record, key) {
       return value;
     },
 
-    deserialize: function(value) {
+    deserialize(value) {
       return value;
     }
   })
