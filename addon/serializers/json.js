@@ -506,8 +506,9 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      normalize: function(typeClass, hash) {
+      normalize(typeClass, hash) {
         var fields = Ember.get(typeClass, 'fields');
+        
         fields.forEach(function(field) {
           var payloadField = Ember.String.underscore(field);
           if (field === payloadField) { return; }
@@ -515,6 +516,7 @@ const JSONSerializer = Serializer.extend({
           hash[field] = hash[payloadField];
           delete hash[payloadField];
         });
+        
         return this._super.apply(this, arguments);
       }
     });
@@ -935,12 +937,12 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
           POST_CMS: snapshot.hasMany('comments', { ids: true })
-        }
+        };
 
         if (options.includeId) {
           json.POST_ID_ = snapshot.id;
@@ -961,12 +963,12 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {};
 
         snapshot.eachAttribute(function(name) {
           json[serverAttributeName(name)] = snapshot.attr(name);
-        })
+        });
 
         snapshot.eachRelationship(function(name, relationship) {
           if (relationship.kind === 'hasMany') {
@@ -1011,8 +1013,8 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
-        var json = this._super.apply(this, arguments);
+      serialize(snapshot, options) {
+        var json = this._super(...arguments);
 
         json.subject = json.title;
         delete json.title;
@@ -1070,7 +1072,7 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      serializeIntoHash: function(data, type, snapshot, options) {
+      serializeIntoHash(data, type, snapshot, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
@@ -1099,7 +1101,7 @@ const JSONSerializer = Serializer.extend({
    import DS from 'ember-data';
 
    export default DS.JSONSerializer.extend({
-     serializeAttribute: function(snapshot, json, key, attributes) {
+     serializeAttribute(snapshot, json, key, attributes) {
        json.attributes = json.attributes || {};
        this._super(snapshot, json.attributes, key, attributes);
      }
@@ -1144,9 +1146,8 @@ const JSONSerializer = Serializer.extend({
    import DS from 'ember-data';
 
    export default DS.JSONSerializer.extend({
-     serializeBelongsTo: function(snapshot, json, relationship) {
+     serializeBelongsTo(snapshot, json, relationship) {
        var key = relationship.key;
-
        var belongsTo = snapshot.belongsTo(key);
 
        key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
@@ -1197,12 +1198,12 @@ const JSONSerializer = Serializer.extend({
    import DS from 'ember-data';
 
    export default DS.JSONSerializer.extend({
-     serializeHasMany: function(snapshot, json, relationship) {
+     serializeHasMany(snapshot, json, relationship) {
        var key = relationship.key;
        if (key === 'comments') {
          return;
        } else {
-         this._super.apply(this, arguments);
+         this._super(...arguments);
        }
      }
    });
@@ -1248,15 +1249,16 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      serializePolymorphicType: function(snapshot, json, relationship) {
-        var key = relationship.key,
-            belongsTo = snapshot.belongsTo(key);
-        key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
+      serializePolymorphicType(snapshot, json, relationship) {
+        var key = relationship.key;
+        var belongsTo = snapshot.belongsTo(key);
+        
+        key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
 
         if (Ember.isNone(belongsTo)) {
-          json[key + "_type"] = null;
+          json[key + '_type'] = null;
         } else {
-          json[key + "_type"] = belongsTo.modelName;
+          json[key + '_type'] = belongsTo.modelName;
         }
       }
     });
@@ -1280,7 +1282,7 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      extractMeta: function(store, typeClass, payload) {
+      extractMeta(store, typeClass, payload) {
         if (payload && payload.hasOwnProperty('_pagination')) {
           let meta = payload._pagination;
           delete payload._pagination;
@@ -1371,7 +1373,7 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      extractErrors: function(store, typeClass, payload, id) {
+      extractErrors(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
           this.normalizeErrors(typeClass, payload);
@@ -1424,7 +1426,7 @@ const JSONSerializer = Serializer.extend({
    import DS from 'ember-data';
 
    export default DS.RESTSerializer.extend({
-     keyForAttribute: function(attr, method) {
+     keyForAttribute(attr, method) {
        return Ember.String.underscore(attr).toUpperCase();
      }
    });
@@ -1450,7 +1452,7 @@ const JSONSerializer = Serializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONSerializer.extend({
-      keyForRelationship: function(key, relationship, method) {
+      keyForRelationship(key, relationship, method) {
         return 'rel_' + Ember.String.underscore(key);
       }
     });
