@@ -17,7 +17,7 @@ import Ember from 'ember';
     deserialize(serialized, options) {
       return (serialized *  1.8) + 32;
     },
-    
+
     serialize(deserialized, options) {
       return (deserialized - 32) / 1.8;
     }
