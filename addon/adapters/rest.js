@@ -234,8 +234,8 @@ const Promise = Ember.RSVP.Promise;
 
   export default DS.RESTAdapter.extend({
     headers: {
-      "API_KEY": "secret key",
-      "ANOTHER_HEADER": "Some header value"
+      'API_KEY': 'secret key',
+      'ANOTHER_HEADER': 'Some header value'
     }
   });
   ```
@@ -250,8 +250,8 @@ const Promise = Ember.RSVP.Promise;
   export default DS.RESTAdapter.extend({
     headers: Ember.computed('session.authToken', function() {
       return {
-        "API_KEY": this.get("session.authToken"),
-        "ANOTHER_HEADER": "Some header value"
+        'API_KEY': this.get('session.authToken'),
+        'ANOTHER_HEADER': 'Some header value'
       };
     })
   });
@@ -270,8 +270,8 @@ const Promise = Ember.RSVP.Promise;
   export default DS.RESTAdapter.extend({
     headers: Ember.computed(function() {
       return {
-        "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
-        "ANOTHER_HEADER": "Some header value"
+        'API_KEY': Ember.get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
+        'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()
   });
@@ -293,7 +293,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     For example:
 
     ```js
-      store.query('posts', { sort: 'price', category: 'pets' });
+    store.query('posts', { sort: 'price', category: 'pets' });
     ```
 
     will generate a requests like this `/posts?category=pets&sort=price`, even if the
@@ -311,13 +311,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     import DS from 'ember-data';
 
     export default DS.RESTAdapter.extend({
-      sortQueryParams: function(params) {
+      sortQueryParams(params) {
         let sortedKeys = Object.keys(params).sort().reverse();
         let len = sortedKeys.length, newParams = {};
 
         for (let i = 0; i < len; i++) {
           newParams[sortedKeys[i]] = params[sortedKeys[i]];
         }
+        
         return newParams;
       }
     });
@@ -438,8 +439,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     export default DS.RESTAdapter.extend({
       headers: {
-        "API_KEY": "secret key",
-        "ANOTHER_HEADER": "Some header value"
+        'API_KEY': 'secret key',
+        'ANOTHER_HEADER': 'Some header value'
       }
     });
     ```
