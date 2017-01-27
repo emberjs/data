@@ -318,7 +318,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         for (let i = 0; i < len; i++) {
           newParams[sortedKeys[i]] = params[sortedKeys[i]];
         }
-        
+
         return newParams;
       }
     });
