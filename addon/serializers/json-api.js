@@ -27,25 +27,21 @@ const dasherize = Ember.String.dasherize;
   ```app/models/player.js
   import DS from 'ember-data';
 
-  const { attr, belongsTo } = DS;
-
   export default DS.Model.extend({
-    name: attr('string'),
-    skill: attr('string'),
-    gamesPlayed: attr('number'),
-    club: belongsTo('club')
+    name: DS.attr('string'),
+    skill: DS.attr('string'),
+    gamesPlayed: DS.attr('number'),
+    club: DS.belongsTo('club')
   });
   ```
 
   ```app/models/club.js
   import DS from 'ember-data';
 
-  const { attr, hasMany } = DS;
-
   export default DS.Model.extend({
-    name: attr('string'),
-    location: attr('string'),
-    players: hasMany('player')
+    name: DS.attr('string'),
+    location: DS.attr('string'),
+    players: DS.hasMany('player')
   });
   ```
 
