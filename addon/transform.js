@@ -14,10 +14,11 @@ import Ember from 'ember';
 
   // Converts centigrade in the JSON to fahrenheit in the app
   export default DS.Transform.extend({
-    deserialize: function(serialized, options) {
+    deserialize(serialized, options) {
       return (serialized *  1.8) + 32;
     },
-    serialize: function(deserialized, options) {
+
+    serialize(deserialized, options) {
       return (deserialized - 32) / 1.8;
     }
   });
@@ -40,11 +41,11 @@ import Ember from 'ember';
 
   ```app/transforms/markdown.js
   export default DS.Transform.extend({
-    serialize: function (deserialized, options) {
+    serialize(deserialized, options) {
       return deserialized.raw;
     },
 
-    deserialize: function (serialized, options) {
+    deserialize(serialized, options) {
       var markdownOptions = options.markdown || {};
 
       return marked(serialized, markdownOptions);
@@ -74,7 +75,7 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    serialize: function(deserialized, options) {
+    serialize(deserialized, options) {
       return Ember.isEmpty(deserialized) ? null : Number(deserialized);
     }
     ```
@@ -93,7 +94,7 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    deserialize: function(serialized, options) {
+    deserialize(serialized, options) {
       return empty(serialized) ? null : Number(serialized);
     }
     ```
