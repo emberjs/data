@@ -24,30 +24,32 @@ const dasherize = Ember.String.dasherize;
 
   This serializer normalizes a JSON API payload that looks like:
 
-  ```js
+  ```app/models/player.js
+  import DS from 'ember-data';
 
-    // models/player.js
-    import DS from 'ember-data';
+  const { attr, belongsTo } = DS;
 
-    export default DS.Model.extend({
-      name: DS.attr(),
-      skill: DS.attr(),
-      gamesPlayed: DS.attr(),
-      club: DS.belongsTo('club')
-    });
+  export default DS.Model.extend({
+    name: attr('string'),
+    skill: attr('string'),
+    gamesPlayed: attr('number'),
+    club: belongsTo('club')
+  });
+  ```
 
-    // models/club.js
-    import DS from "ember-data";
+  ```app/models/club.js
+  import DS from 'ember-data';
 
-    export default DS.Model.extend({
-      name: DS.attr(),
-      location: DS.attr(),
-      players: DS.hasMany('player')
-    });
+  const { attr, hasMany } = DS;
+
+  export default DS.Model.extend({
+    name: attr('string'),
+    location: attr('string'),
+    players: hasMany('player')
+  });
   ```
 
   ```js
-
     {
       "data": [
         {
