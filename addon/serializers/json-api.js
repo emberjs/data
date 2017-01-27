@@ -24,30 +24,28 @@ const dasherize = Ember.String.dasherize;
 
   This serializer normalizes a JSON API payload that looks like:
 
-  ```js
+  ```app/models/player.js
+  import DS from 'ember-data';
 
-    // models/player.js
-    import DS from "ember-data";
+  export default DS.Model.extend({
+    name: DS.attr('string'),
+    skill: DS.attr('string'),
+    gamesPlayed: DS.attr('number'),
+    club: DS.belongsTo('club')
+  });
+  ```
 
-    export default DS.Model.extend({
-      name: DS.attr(),
-      skill: DS.attr(),
-      gamesPlayed: DS.attr(),
-      club: DS.belongsTo('club')
-    });
+  ```app/models/club.js
+  import DS from 'ember-data';
 
-    // models/club.js
-    import DS from "ember-data";
-
-    export default DS.Model.extend({
-      name: DS.attr(),
-      location: DS.attr(),
-      players: DS.hasMany('player')
-    });
+  export default DS.Model.extend({
+    name: DS.attr('string'),
+    location: DS.attr('string'),
+    players: DS.hasMany('player')
+  });
   ```
 
   ```js
-
     {
       "data": [
         {
@@ -104,7 +102,6 @@ const dasherize = Ember.String.dasherize;
 
   ```app/serializers/application.js
   export default JSONAPISerializer.extend({
-
     normalizeArrayResponse(store, primaryModelClass, payload, id, requestType) {
       let normalizedDocument = this._super(...arguments);
 
@@ -122,7 +119,6 @@ const dasherize = Ember.String.dasherize;
 
       return normalizedRelationship;
     }
-
   });
   ```
 
@@ -439,7 +435,7 @@ const JSONAPISerializer = JSONSerializer.extend({
    import DS from 'ember-data';
 
    export default DS.JSONAPISerializer.extend({
-     keyForAttribute: function(attr, method) {
+     keyForAttribute(attr, method) {
        return Ember.String.dasherize(attr).toUpperCase();
      }
    });
@@ -469,7 +465,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.JSONAPISerializer.extend({
-      keyForRelationship: function(key, relationship, method) {
+      keyForRelationship(key, relationship, method) {
         return Ember.String.underscore(key);
       }
     });
@@ -653,7 +649,7 @@ if (isEnabled("ds-payload-type-hooks")) {
       `post` model should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default DS.JSONAPISerializer.extend({
         modelNameFromPayloadType(payloadType) {
@@ -701,11 +697,11 @@ if (isEnabled("ds-payload-type-hooks")) {
       namespaces model name for the `post` should be used:
 
       ```app/serializers/application.js
-      import DS from "ember-data";
+      import DS from 'ember-data';
 
       export default JSONAPISerializer.extend({
         payloadTypeFromModelName(modelName) {
-          return "api::v1::" + modelName;
+          return 'api::v1::' + modelName;
         }
       });
       ```
