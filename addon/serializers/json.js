@@ -1252,7 +1252,7 @@ const JSONSerializer = Serializer.extend({
       serializePolymorphicType(snapshot, json, relationship) {
         var key = relationship.key;
         var belongsTo = snapshot.belongsTo(key);
-        
+
         key = this.keyForAttribute ? this.keyForAttribute(key, 'serialize') : key;
 
         if (Ember.isNone(belongsTo)) {
