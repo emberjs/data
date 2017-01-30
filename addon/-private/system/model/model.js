@@ -1,53 +1,20 @@
 import Ember from 'ember';
-import { assert, deprecate, warn } from "ember-data/-private/debug";
-import { PromiseObject } from "../promise-proxies";
-import Errors from "../model/errors";
+import { assert, deprecate } from 'ember-data/-private/debug';
+import { PromiseObject } from '../promise-proxies';
+import Errors from '../model/errors';
 import isEnabled from '../../features';
 import RootState from '../model/states';
-import {
-  relationshipsByNameDescriptor,
-  relatedTypesDescriptor,
-  relationshipsDescriptor
-} from '../relationships/ext';
+import InternalModelClass from './internal-model-class';
 import { runInDebug } from 'ember-data/-private/debug';
 
 const {
   get,
-  computed,
-  Map
+  computed
 } = Ember;
 
 /**
   @module ember-data
 */
-
-function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
-  let possibleRelationships = relationshipsSoFar || [];
-
-  let relationshipMap = get(inverseType, 'relationships');
-  if (!relationshipMap) { return possibleRelationships; }
-
-  let relationships = relationshipMap.get(type.modelName).filter(relationship => {
-    let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
-
-    if (!optionsForRelationship.inverse) {
-      return true;
-    }
-
-    return name === optionsForRelationship.inverse;
-  });
-
-  if (relationships) {
-    possibleRelationships.push.apply(possibleRelationships, relationships);
-  }
-
-  //Recurse to support polymorphism
-  if (type.superclass) {
-    findPossibleInverses(type.superclass, inverseType, name, possibleRelationships);
-  }
-
-  return possibleRelationships;
-}
 
 function intersection (array1, array2) {
   let result = [];
@@ -1168,6 +1135,12 @@ const Model = Ember.Object.extend(Ember.Evented, {
   }
 });
 
+function proxyToClassInfo() {
+  return computed(function(key) {
+    return get(this, '__internalModelClass')[key];
+  });
+}
+
 /**
  @property data
  @private
@@ -1205,6 +1178,7 @@ Model.reopenClass({
     @private
     @static
   */
+
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `DS.Store`'s modelFor method.
@@ -1273,13 +1247,10 @@ Model.reopenClass({
    @return {DS.Model} the type of the relationship, or undefined
    */
   typeForRelationship(name, store) {
-    let relationship = get(this, 'relationshipsByName').get(name);
-    return relationship && store.modelFor(relationship.type);
+    return get(this, '__internalModelClass').typeForRelationship(name, store);
   },
 
-  inverseMap: Ember.computed(function() {
-    return Object.create(null);
-  }),
+  inverseMap: proxyToClassInfo(),
 
   /**
    Find the relationship which is the inverse of the one asked for.
@@ -1314,90 +1285,12 @@ Model.reopenClass({
    @return {Object} the inverse relationship, or null
    */
   inverseFor(name, store) {
-    let inverseMap = get(this, 'inverseMap');
-    if (inverseMap[name] !== undefined) {
-      return inverseMap[name];
-    } else {
-      let relationship = get(this, 'relationshipsByName').get(name);
-      if (!relationship) {
-        inverseMap[name] = null;
-        return null;
-      }
-
-      let options = relationship.options;
-      if (options && options.inverse === null) {
-        // populate the cache with a miss entry so we can skip getting and going
-        // through `relationshipsByName`
-        inverseMap[name] = null;
-        return null;
-      }
-
-      return inverseMap[name] = this._findInverseFor(name, store);
-    }
+    return get(this, '__internalModelClass').inverseFor(name, store);
   },
 
   //Calculate the inverse, ignoring the cache
   _findInverseFor(name, store) {
-
-    let inverseType = this.typeForRelationship(name, store);
-    if (!inverseType) {
-      return null;
-    }
-
-    let propertyMeta = this.metaForProperty(name);
-    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
-    let options = propertyMeta.options;
-    if (options.inverse === null) { return null; }
-
-    let inverseName, inverseKind, inverse;
-
-    //If inverse is specified manually, return the inverse
-    if (options.inverse) {
-      inverseName = options.inverse;
-      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
-
-      assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
-        "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
-
-      inverseKind = inverse.kind;
-    } else {
-      //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.type === propertyMeta.parentType.modelName) {
-        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
-          id: 'ds.model.reflexive-relationship-without-inverse'
-        });
-      }
-
-      let possibleRelationships = findPossibleInverses(this, inverseType, name);
-
-      if (possibleRelationships.length === 0) { return null; }
-
-      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
-        let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
-        return name === optionsForRelationship.inverse;
-      });
-
-      assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
-        inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
-        filteredRelationships.length < 2);
-
-      if (filteredRelationships.length === 1 ) {
-        possibleRelationships = filteredRelationships;
-      }
-
-      assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
-        this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
-        possibleRelationships.length === 1);
-
-      inverseName = possibleRelationships[0].name;
-      inverseKind = possibleRelationships[0].kind;
-    }
-
-    return {
-      type: inverseType,
-      name: inverseName,
-      kind: inverseKind
-    };
+    return get(this, '__internalModelClass')._findInverseFor(name, store);
   },
 
   /**
@@ -1440,8 +1333,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-
-  relationships: relationshipsDescriptor,
+  relationships: proxyToClassInfo(),
 
   /**
    A hash containing lists of the model's relationships, grouped
@@ -1477,20 +1369,7 @@ Model.reopenClass({
    @type Object
    @readOnly
    */
-  relationshipNames: Ember.computed(function() {
-    let names = {
-      hasMany: [],
-      belongsTo: []
-    };
-
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
-        names[meta.kind].push(name);
-      }
-    });
-
-    return names;
-  }),
+  relationshipNames: proxyToClassInfo(),
 
   /**
    An array of types directly related to a model. Each type will be
@@ -1525,7 +1404,7 @@ Model.reopenClass({
    @type Ember.Array
    @readOnly
    */
-  relatedTypes: relatedTypesDescriptor,
+  relatedTypes: proxyToClassInfo(),
 
   /**
    A map whose keys are the relationships of a model and whose values are
@@ -1563,7 +1442,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-  relationshipsByName: relationshipsByNameDescriptor,
+  relationshipsByName: proxyToClassInfo(),
 
   /**
    A map whose keys are the fields of the model and whose values are strings
@@ -1606,19 +1485,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-  fields: Ember.computed(function() {
-    let map = Map.create();
-
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isRelationship) {
-        map.set(name, meta.kind);
-      } else if (meta.isAttribute) {
-        map.set(name, 'attribute');
-      }
-    });
-
-    return map;
-  }).readOnly(),
+  fields: proxyToClassInfo(),
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1631,10 +1498,12 @@ Model.reopenClass({
    @param {any} binding the value to which the callback's `this` should be bound
    */
   eachRelationship(callback, binding) {
-    get(this, 'relationshipsByName').forEach((relationship, name) => {
-      callback.call(binding, name, relationship);
-    });
+    get(this, '__internalModelClass').eachRelationship(callback, binding);
   },
+
+  __internalModelClass: computed(function() {
+    return new InternalModelClass(this);
+  }),
 
   /**
    Given a callback, iterates over each of the types related to a model,
@@ -1648,33 +1517,11 @@ Model.reopenClass({
    @param {any} binding the value to which the callback's `this` should be bound
    */
   eachRelatedType(callback, binding) {
-    let relationshipTypes = get(this, 'relatedTypes');
-
-    for (let i = 0; i < relationshipTypes.length; i++) {
-      let type = relationshipTypes[i];
-      callback.call(binding, type);
-    }
+    get(this, '__internalModelClass').eachRelatedType(callback, binding);
   },
 
   determineRelationshipType(knownSide, store) {
-    let knownKey = knownSide.key;
-    let knownKind = knownSide.kind;
-    let inverse = this.inverseFor(knownKey, store);
-    // let key;
-    let otherKind;
-
-    if (!inverse) {
-      return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
-    }
-
-    // key = inverse.name;
-    otherKind = inverse.kind;
-
-    if (otherKind === 'belongsTo') {
-      return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
-    } else {
-      return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
-    }
+    return get(this, '__internalModelClass').determineRelationshipType(knownSide, store);
   },
 
   /**
@@ -1715,20 +1562,7 @@ Model.reopenClass({
    @type {Ember.Map}
    @readOnly
    */
-  attributes: Ember.computed(function() {
-    let map = Map.create();
-
-    this.eachComputedProperty((name, meta) => {
-      if (meta.isAttribute) {
-        assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
-
-        meta.name = name;
-        map.set(name, meta);
-      }
-    });
-
-    return map;
-  }).readOnly(),
+  attributes: proxyToClassInfo(),
 
   /**
    A map whose keys are the attributes of the model (properties
@@ -1768,17 +1602,7 @@ Model.reopenClass({
    @type {Ember.Map}
    @readOnly
    */
-  transformedAttributes: Ember.computed(function() {
-    let map = Map.create();
-
-    this.eachAttribute((key, meta) => {
-      if (meta.type) {
-        map.set(key, meta.type);
-      }
-    });
-
-    return map;
-  }).readOnly(),
+  transformedAttributes: proxyToClassInfo(),
 
   /**
    Iterates through the attributes of the model, calling the passed function on each
@@ -1824,9 +1648,7 @@ Model.reopenClass({
    @static
    */
   eachAttribute(callback, binding) {
-    get(this, 'attributes').forEach((meta, name) => {
-      callback.call(binding, name, meta);
-    });
+    get(this, '__internalModelClass').eachAttribute(callback, binding);
   },
 
   /**
@@ -1874,9 +1696,7 @@ Model.reopenClass({
    @static
    */
   eachTransformedAttribute(callback, binding) {
-    get(this, 'transformedAttributes').forEach((type, name) => {
-      callback.call(binding, name, type);
-    });
+    get(this, '__internalModelClass').eachTransformedAttribute(callback, binding);
   }
 });
 

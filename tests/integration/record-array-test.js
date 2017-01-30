@@ -210,7 +210,7 @@ test('a loaded record is removed from a record array when it is deleted', functi
 
       run(() => tag.get('people').addObject(scumbag));
 
-      assert.equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+      assert.ok(get(scumbag, 'tag') === tag, "precond - the scumbag's tag has been set");
 
       let recordArray = tag.get('people');
 

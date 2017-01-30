@@ -423,7 +423,7 @@ export default class InternalModel {
   */
   _directlyRelatedInternalModels() {
     let array = [];
-    this.type.eachRelationship((key, relationship) => {
+    this.modelClass.eachRelationship((key, relationship) => {
       if (this._relationships.has(key)) {
         let relationship = this._relationships.get(key);
         let localRelationships = relationship.members.toArray();

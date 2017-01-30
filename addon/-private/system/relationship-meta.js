@@ -16,7 +16,7 @@ export function relationshipFromMeta(meta) {
     key:  meta.key,
     kind: meta.kind,
     type: typeForRelationshipMeta(meta),
-    options:    meta.options,
+    options: meta.options,
     name: meta.name,
     parentType: meta.parentType,
     isRelationship: true
