@@ -22,9 +22,7 @@ function getOwner(context) {
 
   if (Ember.getOwner) {
     owner = Ember.getOwner(context);
-  }
-
-  if (!owner && context.container) {
+  } else if (context.container) {
     owner = context.container;
   }
 
