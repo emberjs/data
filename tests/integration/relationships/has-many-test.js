@@ -2780,3 +2780,65 @@ test("unloading and reloading a record with hasMany relationship - #3084", funct
     assert.equal(get(message, 'user.id'), 'user-1');
   });
 });
+
+test("deleted records should stay deleted", function(assert) {
+  var user;
+  var message;
+
+  env.adapter.deleteRecord = function(store, type, id) {
+    return null;
+  };
+
+  run(function() {
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: 'user-1',
+        attributes: {
+          name: 'Adolfo Builes'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'message', id: 'message-1' },
+              { type: 'message', id: 'message-2' }
+            ]
+          }
+        }
+      }, {
+        type: 'message',
+        id: 'message-1'
+      }, {
+        type: 'message',
+        id: 'message-2'
+      }]
+    });
+
+    user = env.store.peekRecord('user', 'user-1');
+    message = env.store.peekRecord('message', 'message-1');
+
+    assert.equal(get(user, 'messages.length'), 2);
+  });
+
+  run(function() {
+    message.destroyRecord()
+  });
+
+  run(function() {
+    // a new message is added to the user should not resurrected the
+    // deleted message
+    env.store.push({
+      data: [{
+        type: 'message',
+        id: 'message-3',
+        relationships: {
+          user: {
+            data: { type: 'user', id: 'user-1' }
+          }
+        }
+      }]
+    });
+
+    assert.equal(get(user, 'messages.length'), 2, 'user should have 2 message since 1 was deleted');
+  });
+});
