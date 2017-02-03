@@ -142,7 +142,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   flushCanonical(isInitialized = true) {
-    let toSet = this.canonicalState;
+    // TODO make this smarter, currently its plenty stupid
+    // TODO this filtering was re-introduced as a bugfix, but seems unneeded in 2.13
+    // with the changes to internalModel cleanup in that version.
+    let toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
