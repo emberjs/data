@@ -2,7 +2,14 @@
 
 ### Master
 
-### Release 2.11.0 (January 9, 2016)
+### Release 2.11.1 (February 3, 2017)
+- [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
+- [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
+- [#4791](https://github.com/emberjs/data/pull/4791) [BUGFIX release] revert deletion of filter that removed deleted model…
+- [#4789](https://github.com/emberjs/data/pull/4789) Do not access container if Ember.getOwner exists.
+- [#4760](https://github.com/emberjs/data/pull/4760) Update deprecate arguments (#4760)
+
+### Release 2.11.0 (January 9, 2017)
 - [#4518](https://github.com/emberjs/data/pull/4518) Update the relationship docs to remove some references to a globals s…
 - [#4581](https://github.com/emberjs/data/pull/4581) [DOC] Update descriptions of findRecord() and findAll()
 - [#4438](https://github.com/emberjs/data/pull/4438) add `relationship` property to findHasMany RESTAdapter docs
