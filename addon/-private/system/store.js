@@ -1016,7 +1016,7 @@ Store = Service.extend({
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    _Note: This is an synchronous method and does not return a promise._
+    _Note: This is a synchronous method and does not return a promise._
 
     ```js
     let post = store.peekRecord('post', 1);
