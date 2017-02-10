@@ -887,6 +887,35 @@ testInDebug('store#didSaveRecord should assert when the response to a save does 
   }, /Your car record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response./);
 });
 
+testInDebug('store#didSaveRecord does not assert when the serializer assigned a client side ID on the way back in', function(assert) {
+  let serializerWasInvoked = false;
+  env.registry.register('serializer:car', DS.RESTSerializer.extend({
+    normalize(typeClass, hash) {
+      serializerWasInvoked = true;
+      hash.id = 'car';
+      return this._super(typeClass, hash);
+    }
+  }));
+
+  env.adapter.createRecord = function() {
+    return {};
+  };
+
+  let car;
+
+  try {
+    run(() => {
+      car = store.createRecord('car');
+      car.save();
+    });
+    assert.ok(true, 'record was comitted with client side ID');
+    assert.ok(serializerWasInvoked, 'serializer was invoked to normalize response');
+    assert.equal(car.get('id'), 'car', 'id from response was assigned to record');
+  } catch (e) {
+    assert.ok(false, `Assertion raised: ${e.message}`);
+  }
+});
+
 module("integration/store - queryRecord", {
   beforeEach() {
     initializeStore(DS.Adapter.extend());
