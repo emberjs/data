@@ -94,6 +94,7 @@ export default Ember.Object.extend({
     Here is an example `findRecord` implementation:
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
@@ -124,11 +125,13 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       findAll(store, type, sinceToken) {
-        var query = { since: sinceToken };
+        let query = { since: sinceToken };
+
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
@@ -155,6 +158,7 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
@@ -192,8 +196,8 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
     import Ember from 'ember';
+    import DS from 'ember-data';
 
     export default DS.Adapter.extend(DS.BuildURLMixin, {
       queryRecord(store, type, query) {
@@ -260,8 +264,8 @@ export default Ember.Object.extend({
 
     export default DS.Adapter.extend({
       createRecord(store, type, snapshot) {
-        var data = this.serialize(snapshot, { includeId: true });
-        var url = `/${type.modelName}`;
+        let data = this.serialize(snapshot, { includeId: true });
+        let url = `/${type.modelName}`;
 
         // ...
       }
@@ -286,11 +290,12 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       createRecord(store, type, snapshot) {
-        var data = this.serialize(snapshot, { includeId: true });
+        let data = this.serialize(snapshot, { includeId: true });
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.ajax({
@@ -334,12 +339,13 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       updateRecord(store, type, snapshot) {
-        var data = this.serialize(snapshot, { includeId: true });
-        var id = snapshot.id;
+        let data = this.serialize(snapshot, { includeId: true });
+        let id = snapshot.id;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.ajax({
@@ -375,12 +381,13 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       deleteRecord(store, type, snapshot) {
-        var data = this.serialize(snapshot, { includeId: true });
-        var id = snapshot.id;
+        let data = this.serialize(snapshot, { includeId: true });
+        let id = snapshot.id;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           Ember.$.ajax({
@@ -424,6 +431,7 @@ export default Ember.Object.extend({
     is true.
 
     ```app/adapters/application.js
+    import Ember from 'ember';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
@@ -490,7 +498,9 @@ export default Ember.Object.extend({
 
     ```javascript
     shouldReloadRecord(store, ticketSnapshot) {
-      var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
+      let lastAccessedAt = ticketSnapshot.attr('lastAccessedAt');
+      let timeDiff = moment().diff(lastAccessedAt, 'minutes');
+
       if (timeDiff > 20) {
         return true;
       } else {
@@ -538,10 +548,12 @@ export default Ember.Object.extend({
 
     ```javascript
     shouldReloadAll(store, snapshotArray) {
-      var snapshots = snapshotArray.snapshots();
+      let snapshots = snapshotArray.snapshots();
 
-      return snapshots.any(function(ticketSnapshot) {
-        var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
+      return snapshots.any((ticketSnapshot) => {
+        let lastAccessedAt = ticketSnapshot.attr('lastAccessedAt');
+        let timeDiff = moment().diff(lastAccessedAt, 'minutes');
+
         if (timeDiff > 20) {
           return true;
         } else {
@@ -592,7 +604,8 @@ export default Ember.Object.extend({
 
     ```javascript
     shouldBackgroundReloadRecord(store, snapshot) {
-      var connection = window.navigator.connection;
+      let connection = window.navigator.connection;
+
       if (connection === 'cellular' || connection === 'none') {
         return false;
       } else {
@@ -631,7 +644,8 @@ export default Ember.Object.extend({
 
     ```javascript
     shouldBackgroundReloadAll(store, snapshotArray) {
-      var connection = window.navigator.connection;
+      let connection = window.navigator.connection;
+
       if (connection === 'cellular' || connection === 'none') {
         return false;
       } else {
