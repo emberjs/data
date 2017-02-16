@@ -21,6 +21,35 @@ const {
   @module ember-data
 */
 
+
+function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
+  let possibleRelationships = relationshipsSoFar || [];
+
+  let relationshipMap = get(inverseType, 'relationships');
+  if (!relationshipMap) { return possibleRelationships; }
+
+  let relationships = relationshipMap.get(type.modelName).filter(relationship => {
+    let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+
+    if (!optionsForRelationship.inverse) {
+      return true;
+    }
+
+    return name === optionsForRelationship.inverse;
+  });
+
+  if (relationships) {
+    possibleRelationships.push.apply(possibleRelationships, relationships);
+  }
+
+  //Recurse to support polymorphism
+  if (type.superclass) {
+    findPossibleInverses(type.superclass, inverseType, name, possibleRelationships);
+  }
+
+  return possibleRelationships;
+}
+
 function intersection (array1, array2) {
   let result = [];
   array1.forEach((element) => {
@@ -1327,7 +1356,7 @@ Model.reopenClass({
         });
       }
 
-      let possibleRelationships = findPossibleInverses(this, inverseType);
+      let possibleRelationships = findPossibleInverses(this, inverseType, name);
 
       if (possibleRelationships.length === 0) { return null; }
 
@@ -1350,36 +1379,6 @@ Model.reopenClass({
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
-    }
-
-    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
-      let possibleRelationships = relationshipsSoFar || [];
-
-      let relationshipMap = get(inverseType, 'relationships');
-      if (!relationshipMap) { return possibleRelationships; }
-
-      let relationships = relationshipMap.get(type.modelName);
-
-      relationships = relationships.filter((relationship) => {
-        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
-
-        if (!optionsForRelationship.inverse) {
-          return true;
-        }
-
-        return name === optionsForRelationship.inverse;
-      });
-
-      if (relationships) {
-        possibleRelationships.push.apply(possibleRelationships, relationships);
-      }
-
-      //Recurse to support polymorphism
-      if (type.superclass) {
-        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
-      }
-
-      return possibleRelationships;
     }
 
     return {
