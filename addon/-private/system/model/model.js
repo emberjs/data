@@ -653,8 +653,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
     import DS from 'ember-data';
 
     export default DS.Model.extend({
-      name: attr('string'),
-      isAdmin: attr('boolean', {
+      name: DS.attr('string'),
+      isAdmin: DS.attr('boolean', {
         defaultValue: false
       })
     });
@@ -1669,9 +1669,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    export default DS.Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
    ```
 
@@ -1723,9 +1723,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    export default DS.Model.extend({
-      firstName: attr(),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr(),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
    ```
 
@@ -1784,9 +1784,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    let Person = DS.Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
 
    Person.eachAttribute(function(name, meta) {
@@ -1835,9 +1835,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    let Person = DS.Model.extend({
-      firstName: attr(),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr(),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
 
    Person.eachTransformedAttribute(function(name, type) {

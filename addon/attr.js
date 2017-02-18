@@ -70,9 +70,9 @@ function getValue(record, key) {
   import DS from 'ember-data';
 
   export default DS.Model.extend({
-    username: attr('string'),
-    email: attr('string'),
-    settings: attr({
+    username: DS.attr('string'),
+    email: DS.attr('string'),
+    settings: DS.attr({
       defaultValue() {
         return {};
       }
