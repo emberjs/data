@@ -2042,16 +2042,17 @@ Store = Service.extend({
     }
 
     if (mixin) {
+      let ModelForMixin = Model.extend(mixin);
+      ModelForMixin.reopenClass({
+        __isMixin: true,
+        __mixin: mixin
+      });
+
       //Cache the class as a model
-      owner.register('model:' + normalizedModelName, Model.extend(mixin));
-    }
-    let factory = this.modelFactoryFor(normalizedModelName);
-    if (factory) {
-      factory.__isMixin = true;
-      factory.__mixin = mixin;
+      owner.register('model:' + normalizedModelName, ModelForMixin);
     }
 
-    return factory;
+    return this.modelFactoryFor(normalizedModelName);
   },
 
   /**
