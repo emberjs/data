@@ -9,6 +9,7 @@ import { DidDefinePropertyMixin, RelationshipsClassMethodsMixin, RelationshipsIn
 import { AttrClassMethodsMixin, AttrInstanceMethodsMixin } from 'ember-data/-private/system/model/attr';
 import isEnabled from 'ember-data/-private/features';
 import RootState from 'ember-data/-private/system/model/states';
+import { runInDebug } from 'ember-data/-private/debug';
 
 const {
   get,
@@ -962,17 +963,20 @@ Object.defineProperty(Model.prototype, 'data', {
   }
 });
 
-Model.reopenClass({
-  /**
-    Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
-    instances from within the store, but if end users accidentally call `create()`
-    (instead of `createRecord()`), we can raise an error.
+runInDebug(function() {
+  Model.reopen({
+    init() {
+      this._super(...arguments);
 
-    @method _create
-    @private
-    @static
-  */
-  _create: Model.create,
+      if (!this._internalModel) {
+        throw new Ember.Error('You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.');
+      }
+    }
+  });
+});
+
+Model.reopenClass({
+  isModel: true,
 
   /**
     Override the class' `create()` method to raise an error. This
@@ -985,10 +989,6 @@ Model.reopenClass({
     @private
     @static
   */
-  create() {
-    throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
-  },
-
   /**
    Represents the model's class name as a string. This can be used to look up the model through
    DS.Store's modelFor method.

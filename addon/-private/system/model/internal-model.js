@@ -282,7 +282,7 @@ export default class InternalModel {
         createOptions.container = this.store.container;
       }
 
-      this._record = this.modelClass._create(createOptions);
+      this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
 
       this._triggerDeferredTriggers();
     }
