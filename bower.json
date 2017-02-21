@@ -1,12 +1,5 @@
 {
   "name": "ember-data",
   "license": "MIT",
-  "dependencies": {
-    "ember": "components/ember#release",
-    "ember-cli-shims": "0.1.1",
-    "pretender": "^0.12.0"
-  },
-  "resolutions": {
-    "ember": "release"
-  }
+  "dependencies": {}
 }
