@@ -1801,7 +1801,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
 
 
 
-test("findMany - returning sideloaded data loads the data", function(assert) {
+test("findMany - returning sideloaded data loads the data (with JSONApi Links)", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
