@@ -737,9 +737,7 @@ Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
-  _findByInternalModel(internalModel, options) {
-    options = options || {};
-
+  _findByInternalModel(internalModel, options = {}) {
     if (options.preload) {
       internalModel.preloadData(options.preload);
     }
