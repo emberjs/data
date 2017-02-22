@@ -118,8 +118,8 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   }, null, `DS: Extract payload of ${internalModel.modelName} : ${relationship.type}`);
 }
 
-export function _findAll(adapter, store, modelClass, sinceToken, options) {
-  let modelName = modelClass.modelName; // TODO: pass in modelName
+export function _findAll(adapter, store, modelName, sinceToken, options) {
+  let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
   let snapshotArray = recordArray._createSnapshot(options);
   let promise = adapter.findAll(store, modelClass, sinceToken, snapshotArray);
@@ -140,8 +140,8 @@ export function _findAll(adapter, store, modelClass, sinceToken, options) {
   }, null, 'DS: Extract payload of findAll ${modelName}');
 }
 
-export function _query(adapter, store, modelClass, query, recordArray) {
-  let modelName = modelClass.modelName; // TODO: name yo
+export function _query(adapter, store, modelName, query, recordArray) {
+  let modelClass = store.modelFor(modelName); // adapter.query needs the class
   let promise = adapter.query(store, modelClass, query, recordArray);
 
   let serializerToken = heimdall.start('initial-serializerFor-lookup');
@@ -165,8 +165,8 @@ export function _query(adapter, store, modelClass, query, recordArray) {
   }, null, `DS: Extract payload of query ${modelName}`);
 }
 
-export function _queryRecord(adapter, store, modelClass, query) {
-  let modelName = modelClass.modelName;
+export function _queryRecord(adapter, store, modelName, query) {
+  let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
   let promise = adapter.queryRecord(store, modelClass, query);
   let serializer = serializerForAdapter(store, adapter, modelName);
   let label = `DS: Handle Adapter#queryRecord of ${modelName}`;

@@ -1255,7 +1255,6 @@ Store = Service.extend({
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     let modelToken = heimdall.start('initial-modelFor-lookup');
-    let modelClass = this._modelFor(modelName);
     heimdall.stop(modelToken);
 
     array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
@@ -1267,7 +1266,7 @@ Store = Service.extend({
     assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to load a query but your adapter does not implement 'query'`, typeof adapter.query === 'function');
 
-    let pA = promiseArray(_query(adapter, this, modelClass, query, array));
+    let pA = promiseArray(_query(adapter, this, modelName, query, array));
     instrument(() => {
       pA.finally(() => { heimdall.stop(token); });
     });
@@ -1374,13 +1373,12 @@ Store = Service.extend({
 
     let normalizedModelName = normalizeModelName(modelName);
 
-    let modelClass = this._modelFor(normalizedModelName);
     let adapter = this.adapterFor(normalizedModelName);
 
     assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
     assert(`You tried to make a query but your adapter does not implement 'queryRecord'`, typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, modelClass, query).then((internalModel) => {
+    return promiseObject(_queryRecord(adapter, this, modelName, query).then(internalModel => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {
@@ -1585,8 +1583,7 @@ Store = Service.extend({
 
     let token = heimdall.start('store.findAll');
     let normalizedModelName = normalizeModelName(modelName);
-    let modelClass = this._modelFor(normalizedModelName);
-    let fetch = this._fetchAll(modelClass, this.peekAll(normalizedModelName), options);
+    let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
 
     instrument(() => {
       fetch.finally(() => { heimdall.stop(token); });
@@ -1598,14 +1595,11 @@ Store = Service.extend({
   /**
     @method _fetchAll
     @private
-    @param {DS.Model} modelClass
+    @param {DS.Model} modelName
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelClass, array, options) {
-    options = options || {};
-
-    let modelName = modelClass.modelName;
+  _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
     let sinceToken = this._recordMapFor(modelName).metadata.since;
 
@@ -1614,14 +1608,14 @@ Store = Service.extend({
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelClass, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelClass, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
     }
 
     if (options.backgroundReload === false) {
@@ -1630,7 +1624,7 @@ Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelClass, sinceToken, options);
+      _findAll(adapter, this, modelName, sinceToken, options);
     }
 
     return promiseArray(Promise.resolve(array));
