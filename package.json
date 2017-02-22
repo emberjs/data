@@ -47,7 +47,7 @@
   "devDependencies": {
     "bower": "^1.6.5",
     "broccoli-asset-rev": "^2.4.5",
-    "broccoli-concat": "0.0.13",
+    "broccoli-concat": "^3.2.2",
     "broccoli-funnel": "^1.0.0",
     "broccoli-stew": "^1.0.1",
     "broccoli-string-replace": "^0.1.1",
