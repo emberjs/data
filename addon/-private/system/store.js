@@ -342,7 +342,7 @@ Store = Service.extend({
   createRecord(modelName, inputProperties) {
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     let properties = copy(inputProperties) || new EmptyObject();
 
     // If the passed properties do not include a primary key,
@@ -464,7 +464,7 @@ Store = Service.extend({
     assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeof id !== 'object');
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     return this.findRecord(normalizedModelName, id);
   },
@@ -695,7 +695,7 @@ Store = Service.extend({
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     let internalModel = this._internalModelForId(normalizedModelName, id);
     options = options || {};
@@ -778,7 +778,7 @@ Store = Service.extend({
 
     let promises = new Array(ids.length);
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     for (let i = 0; i < ids.length; i++) {
       promises[i] = this.findRecord(normalizedModelName, ids[i]);
@@ -1006,7 +1006,7 @@ Store = Service.extend({
     @return {RecordReference}
   */
   getReference(modelName, id) {
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     return this._internalModelForId(normalizedModelName, id).recordReference;
   },
@@ -1036,7 +1036,7 @@ Store = Service.extend({
     heimdall.increment(peekRecord);
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     if (this.hasRecordForId(normalizedModelName, id)) {
       return this._internalModelForId(normalizedModelName, id).getRecord();
@@ -1091,7 +1091,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's hasRecordForId method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     let trueId = coerceId(id);
     let internalModel = this._recordMapFor(normalizedModelName).get(trueId);
@@ -1248,7 +1248,7 @@ Store = Service.extend({
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     return this._query(normalizedModelName, query);
   },
 
@@ -1376,7 +1376,7 @@ Store = Service.extend({
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     let modelClass = this._modelFor(normalizedModelName);
     let adapter = this.adapterFor(normalizedModelName);
@@ -1588,7 +1588,7 @@ Store = Service.extend({
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     let token = heimdall.start('store.findAll');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     let modelClass = this._modelFor(normalizedModelName);
     let fetch = this._fetchAll(modelClass, this.peekAll(normalizedModelName), options);
 
@@ -1680,7 +1680,7 @@ Store = Service.extend({
     heimdall.increment(peekAll);
     assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
 
     this.recordArrayManager.syncLiveRecordArray(liveRecordArray, normalizedModelName);
@@ -1708,7 +1708,7 @@ Store = Service.extend({
     if (arguments.length === 0) {
       this._identityMap.clear();
     } else {
-      let normalizedModelName = this._classKeyFor(modelName);
+      let normalizedModelName = normalizeModelName(modelName);
       this._recordMapFor(normalizedModelName).clear();
     }
   },
@@ -1780,7 +1780,7 @@ Store = Service.extend({
     let array;
     let hasQuery = length === 3;
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     // allow an optional server query
     if (hasQuery) {
@@ -1973,20 +1973,6 @@ Store = Service.extend({
   },
 
   /**
-   Returns the normalized (dasherized) modelName. This method should be used whenever
-   receiving a modelName in a public method.
-
-
-   @method _classKeyFor
-   @param {String} modelName
-   @returns {String}
-   @private
-   */
-  _classKeyFor(modelName) {
-    return normalizeModelName(modelName);
-  },
-
-  /**
     Returns a map of IDs to client IDs for a given modelName.
 
     @method _recordMapFor
@@ -2083,7 +2069,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     return this._modelFor(normalizedModelName);
   },
@@ -2134,7 +2120,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's modelFactoryFor method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     let owner = getOwner(this);
 
     if (owner.factoryFor) {
@@ -2495,7 +2481,7 @@ Store = Service.extend({
     } else {
       payload = inputPayload;
       assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-      let normalizedModelName = this._classKeyFor(modelName);
+      let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
     if (isEnabled('ds-pushpayload-return')) {
@@ -2528,7 +2514,7 @@ Store = Service.extend({
     heimdall.increment(normalize);
     assert(`You need to pass a model name to the store's normalize method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
     let serializer = this.serializerFor(normalizedModelName);
     let model = this._modelFor(normalizedModelName);
     return serializer.normalize(model, payload);
@@ -2612,7 +2598,7 @@ Store = Service.extend({
     heimdall.increment(adapterFor);
     assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     return this._instanceCache.get('adapter', normalizedModelName);
   },
@@ -2646,7 +2632,7 @@ Store = Service.extend({
     heimdall.increment(serializerFor);
     assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     return this._instanceCache.get('serializer', normalizedModelName);
   },
