@@ -15,7 +15,7 @@ var run = Ember.run;
 
 var Person, store, env;
 
-module("unit/model - DS.Model", {
+module('unit/model - DS.Model', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string'),

@@ -2087,6 +2087,12 @@ Store = Service.extend({
     @private
    */
   _modelFor(modelName) {
+    let maybeFactory = this._modelFactoryFor(modelName);
+    // for factorFor factory/class split
+    return maybeFactory.class ? maybeFactory.class : maybeFactory;
+  },
+
+  _modelFactoryFor(modelName) {
     heimdall.increment(modelFor);
     let factory = this._modelClassCache[modelName];
 
@@ -2101,9 +2107,13 @@ Store = Service.extend({
         throw new EmberError(`No model was found for '${modelName}'`);
       }
 
-      assert(`'${inspect(factory)}' does not appear to be an ember-data model`, (typeof factory._create === 'function') );
+      // interopt with the future
+      let klass = getOwner(this).factoryFor ? factory.class : factory;
 
-      factory.modelName = factory.modelName || modelName;
+      assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
+
+      // TODO: deprecate this
+      klass.modelName = klass.modelName || modelName;
 
       this._modelClassCache[modelName] = factory;
     }
@@ -2116,16 +2126,13 @@ Store = Service.extend({
    */
   modelFactoryFor(modelName) {
     heimdall.increment(modelFactoryFor);
-    assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's modelFactoryFor method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let trueModelName = this._classKeyFor(modelName);
     let owner = getOwner(this);
 
     if (owner.factoryFor) {
-      let MaybeModel = owner.factoryFor(`model:${trueModelName}`);
-      let MaybeModelFactory = MaybeModel && MaybeModel.class;
-
-      return MaybeModelFactory;
+      return owner.factoryFor(`model:${trueModelName}`);
     } else {
       return owner._lookupFactory(`model:${trueModelName}`);
     }
