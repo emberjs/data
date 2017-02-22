@@ -213,7 +213,7 @@ Store = Service.extend({
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
-    this._modelClassCache = new EmptyObject();
+    this._modelFactoryCache = new EmptyObject();
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -2085,7 +2085,7 @@ Store = Service.extend({
 
   _modelFactoryFor(modelName) {
     heimdall.increment(modelFor);
-    let factory = this._modelClassCache[modelName];
+    let factory = this._modelFactoryCache[modelName];
 
     if (!factory) {
       factory = this.modelFactoryFor(modelName);
@@ -2106,7 +2106,7 @@ Store = Service.extend({
       // TODO: deprecate this
       klass.modelName = klass.modelName || modelName;
 
-      this._modelClassCache[modelName] = factory;
+      this._modelFactoryCache[modelName] = factory;
     }
 
     return factory;
