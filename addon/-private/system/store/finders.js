@@ -54,9 +54,9 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   }, `DS: Extract payload of '${modelName}'`);
 }
 
-export function _findMany(adapter, store, modelClass, ids, internalModels) {
+export function _findMany(adapter, store, modelName, ids, internalModels) {
   let snapshots = Ember.A(internalModels).invoke('createSnapshot');
-  let { modelName } = modelClass; // TODO: pass in modelName, or something
+  let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let serializer = serializerForAdapter(store, adapter, modelName);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;

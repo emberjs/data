@@ -825,11 +825,10 @@ Store = Service.extend({
       options
     };
 
-    let modelClass = internalModel.type; // TODO: is this needed?
     let promise = resolver.promise;
 
     internalModel.loadingData(promise);
-    this._pendingFetch.get(modelClass).push(pendingFetchItem);
+    this._pendingFetch.get(modelName).push(pendingFetchItem);
 
     emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
@@ -845,9 +844,9 @@ Store = Service.extend({
     this._pendingFetch.clear();
   },
 
-  _flushPendingFetchForType(pendingFetchItems, modelClass) {
+  _flushPendingFetchForType(pendingFetchItems, modelName) {
     let store = this;
-    let adapter = store.adapterFor(modelClass.modelName);
+    let adapter = store.adapterFor(modelName);
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     let totalItems = pendingFetchItems.length;
     let internalModels = new Array(totalItems);
@@ -944,7 +943,7 @@ Store = Service.extend({
         }
 
         if (totalInGroup > 1) {
-          _findMany(adapter, store, modelClass, ids, groupedInternalModels)
+          _findMany(adapter, store, modelName, ids, groupedInternalModels)
             .then(function(foundInternalModels) {
               handleFoundRecords(foundInternalModels, groupedInternalModels);
             })
