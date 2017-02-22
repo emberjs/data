@@ -33,11 +33,11 @@ module("integration/adapter/find - Finding Records", {
 testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
   assert.expectAssertion(() => {
     store.find('person', undefined);
-  }, "You cannot pass `undefined` as id to the store's find method");
+  }, `You cannot pass 'undefined' as id to the store's find method`);
 
   assert.expectAssertion(() => {
     store.find('person', null);
-  }, "You cannot pass `null` as id to the store's find method");
+  }, `You cannot pass 'null' as id to the store's find method`);
 });
 
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", (assert) => {
