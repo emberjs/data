@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.11.2 (February 24, 2017)
+- [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
+- [#4820](https://github.com/emberjs/data/pull/4820) [Backport of #4810 to release]
+
 ### Release 2.11.1 (February 3, 2017)
 - [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
 - [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
