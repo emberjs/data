@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.12.0-beta.4 (February 24, 2017)
+- [#4805](https://github.com/emberjs/data/pull/4805) Don’t redefine findPossibleInverses for each _findInverseFor
+- [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
+- [#4810](https://github.com/emberjs/data/pull/4810) [Fixes #4807] realize class + factory seperation
+
 ### Release 2.12.0-beta.3 (February 3, 2017)
 - [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
 - [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
