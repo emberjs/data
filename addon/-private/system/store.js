@@ -218,6 +218,7 @@ Store = Service.extend({
       store: this
     });
     this._pendingSave = [];
+    this._modelClassCache = new EmptyObject();
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
 
     //Used to keep track of all the find requests that need to be coalesced
@@ -2072,13 +2073,52 @@ Store = Service.extend({
     assert("You need to pass a model name to the store's modelFor method", isPresent(modelName));
     assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
 
-    let factory = this.modelFactoryFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
+    let factory = this.modelFactoryFor(normalizedModelName);
     if (!factory) {
       //Support looking up mixins as base types for polymorphic relationships
-      factory = this._modelForMixin(modelName);
+      factory = this._modelForMixin(normalizedModelName);
     }
     if (!factory) {
-      throw new EmberError("No model was found for '" + modelName + "'");
+      throw new EmberError("No model was found for '" + normalizedModelName + "'");
+    }
+
+    return this._modelFor(normalizedModelName);
+  },
+
+  /*
+    @private
+   */
+  _modelFor(modelName) {
+    let maybeFactory = this._modelFactoryFor(modelName);
+    // for factorFor factory/class split
+    return maybeFactory.class ? maybeFactory.class : maybeFactory;
+  },
+
+  _modelFactoryFor(modelName) {
+    heimdall.increment(modelFor);
+    let factory = this._modelClassCache[modelName];
+
+    if (!factory) {
+      factory = this.modelFactoryFor(modelName);
+
+      if (!factory) {
+        //Support looking up mixins as base types for polymorphic relationships
+        factory = this._modelForMixin(modelName);
+      }
+      if (!factory) {
+        throw new EmberError(`No model was found for '${modelName}'`);
+      }
+
+      // interopt with the future
+      let klass = getOwner(this).factoryFor ? factory.class : factory;
+
+      assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
+
+      // TODO: deprecate this
+      klass.modelName = klass.modelName || modelName;
+
+      this._modelClassCache[modelName] = factory;
     }
     factory.modelName = factory.modelName || normalizeModelName(modelName);
 
@@ -2087,19 +2127,15 @@ Store = Service.extend({
 
   modelFactoryFor(modelName) {
     heimdall.increment(modelFactoryFor);
-    assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let normalizedKey = normalizeModelName(modelName);
-
+    assert(`You need to pass a model name to the store's modelFactoryFor method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let trueModelName = normalizeModelName(modelName);
     let owner = getOwner(this);
 
     if (owner.factoryFor) {
-      let MaybeModel = owner.factoryFor(`model:${normalizedKey}`);
-      let MaybeModelFactory = MaybeModel && MaybeModel.class;
-
-      return MaybeModelFactory;
+      return owner.factoryFor(`model:${trueModelName}`);
     } else {
-      return owner._lookupFactory(`model:${normalizedKey}`);
+      return owner._lookupFactory(`model:${trueModelName}`);
     }
   },
 
@@ -2494,7 +2530,7 @@ Store = Service.extend({
     let idToRecord = typeMap.idToRecord;
 
     assert(`The id ${id} has already been used with another record for modelClass ${modelClass}.`, !id || !idToRecord[id]);
-    assert(`'${inspect(modelClass)}' does not appear to be an ember-data model`, (typeof modelClass._create === 'function') );
+    assert(`'${inspect(modelClass)}' does not appear to be an ember-data model`, typeof modelClass.isModel);
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
