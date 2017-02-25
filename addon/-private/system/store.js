@@ -2120,7 +2120,6 @@ Store = Service.extend({
 
       this._modelClassCache[modelName] = factory;
     }
-    factory.modelName = factory.modelName || normalizeModelName(modelName);
 
     return factory;
   },
