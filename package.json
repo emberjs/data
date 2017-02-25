@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "2.11.2",
+  "version": "2.11.3",
   "description": "A data layer for your Ember applications.",
   "repository": "git://github.com/emberjs/data.git",
   "directories": {

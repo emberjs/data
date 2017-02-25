@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.11.3 (February 24, 2017)
+- [0ab7698](https://github.com/emberjs/data/commit/0ab7698fffe3c4b51646bb1b72207685c95c78fb) Do not assign modelName to the factory. Fixes error with ember-getowner-polyfill
+
 ### Release 2.11.2 (February 24, 2017)
 - [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
 - [#4820](https://github.com/emberjs/data/pull/4820) [Backport of #4810 to release]
