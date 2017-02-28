@@ -67,11 +67,10 @@ const { Promise } = RSVP;
 //an internal model and return it in a promiseObject. Useful for returning
 //from find methods
 function promiseRecord(internalModelPromise, label) {
-  let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
+  let toReturn = internalModelPromise.then(internalModel => internalModel.getRecord());
 
   return promiseObject(toReturn, label);
 }
-
 
 let Store;
 
@@ -815,7 +814,9 @@ Store = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
-    if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
+    if (internalModel._loadingPromise) {
+      return internalModel._loadingPromise;
+    }
 
     let { id, modelName } = internalModel;
     let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
@@ -828,9 +829,11 @@ Store = Service.extend({
     let promise = resolver.promise;
 
     internalModel.loadingData(promise);
-    this._pendingFetch.get(modelName).push(pendingFetchItem);
+    if (this._pendingFetch.size === 0) {
+      emberRun.schedule('afterRender', this, this.flushAllPendingFetches);
+    }
 
-    emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
+    this._pendingFetch.get(modelName).push(pendingFetchItem);
 
     return promise;
   },
