@@ -2853,3 +2853,72 @@ test("deleted records should stay deleted", function(assert) {
     assert.equal(get(user, 'messages.length'), 2, 'user should have 2 message since 1 was deleted');
   });
 });
+
+
+
+
+test("A updated async relationship correctly destroys its own PromiseProxy", function(assert) {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  let post = run(() => {
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ]
+          }
+        }
+      },
+
+      included: [
+        { type: 'comment', id: '1', attributes: { body: 'first' }},
+        { type: 'comment', id: '2', attributes: { body: 'second' }}
+      ]
+    });
+
+    return env.store.peekRecord('post', 1);
+  });
+
+  let firstComments = run(() => post.get('comments'));
+  let secondComments = run(() => post.get('comments'));
+
+  assert.equal(firstComments, secondComments);
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '2' },
+              { type: 'comment', id: '3' }
+            ]
+          }
+        }
+      },
+
+      included: [
+        { type: 'comment', id: '2', attributes: { body: 'first' }},
+        { type: 'comment', id: '3', attributes: { body: 'second' }}
+      ]
+    });
+  });
+
+  let thirdComments = run(() => post.get('comments'));
+
+  assert.notEqual(firstComments, thirdComments);
+  assert.equal(firstComments.get('isDestroyed'), true);
+  assert.equal(secondComments.get('isDestroyed'), true);
+  assert.equal(thirdComments.get('isDestroyed'), false);
+
+  assert.deepEqual(thirdComments.mapBy('id').sort(), ['2','3']);
+});
