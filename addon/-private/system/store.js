@@ -1136,7 +1136,7 @@ Store = Service.extend({
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      finds[i] = this._findByInternalModel(internalModels[i]);
+      finds[i] = this._findEmptyInternalModel(internalModels[i]);
     }
 
     return Promise.all(finds);
