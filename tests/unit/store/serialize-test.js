@@ -16,7 +16,7 @@ if (isEnabled('ds-deprecate-store-serialize')) {
       person: Model.extend({ firstName: attr() })
     });
 
-    run(function() {
+    run(() => {
       let person = store.push({
         data: {
           type: 'person',
@@ -26,7 +26,8 @@ if (isEnabled('ds-deprecate-store-serialize')) {
           }
         }
       });
-      assert.expectDeprecation("Use of store.serialize is deprecated, use record.serialize instead.");
+
+      assert.expectDeprecation('Use of store.serialize is deprecated, use record.serialize instead.');
       store.serialize(person);
     });
 
