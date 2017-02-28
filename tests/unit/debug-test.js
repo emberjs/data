@@ -5,41 +5,38 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var run = Ember.run;
+const { run } = Ember;
 
-var TestAdapter = DS.Adapter.extend();
+const TestAdapter = DS.Adapter.extend();
 
-module("Debug");
+module('Debug');
 
-test("_debugInfo groups the attributes and relationships correctly", function(assert) {
-  var MaritalStatus = DS.Model.extend({
+test('_debugInfo groups the attributes and relationships correctly', function(assert) {
+  const MaritalStatus = DS.Model.extend({
     name: DS.attr('string')
   });
 
-  var Post = DS.Model.extend({
+  const Post = DS.Model.extend({
     title: DS.attr('string')
   });
 
-  var User = DS.Model.extend({
+  const User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
     maritalStatus: DS.belongsTo('marital-status', { async: false }),
     posts: DS.hasMany('post', { async: false })
   });
 
-  var store = createStore({
+  let store = createStore({
     adapter: TestAdapter.extend(),
     maritalStatus: MaritalStatus,
     post: Post,
     user: User
   });
-  var record;
 
-  run(function() {
-    record = store.createRecord('user');
-  });
+  let record = run(() => store.createRecord('user'));
 
-  var propertyInfo = record._debugInfo().propertyInfo;
+  let propertyInfo = record._debugInfo().propertyInfo;
 
   assert.equal(propertyInfo.groups.length, 4);
   assert.deepEqual(propertyInfo.groups[0].properties, ['id', 'name', 'isDrugAddict']);
@@ -48,27 +45,27 @@ test("_debugInfo groups the attributes and relationships correctly", function(as
 });
 
 
-test("_debugInfo supports arbitray relationship types", function(assert) {
-  let MaritalStatus = DS.Model.extend({
+test('_debugInfo supports arbitray relationship types', function(assert) {
+  const MaritalStatus = DS.Model.extend({
     name: DS.attr('string')
   });
 
-  let Post = DS.Model.extend({
+  const Post = DS.Model.extend({
     title: DS.attr('string')
   });
 
-  let User = DS.Model.extend({
+  const User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
     maritalStatus: DS.belongsTo('marital-status', { async: false }),
     posts: Ember.computed(() => [1, 2, 3] )
-      .readOnly().meta({
-        options: { inverse: null },
-        isRelationship: true,
-        kind: 'customRelationship',
-        name: 'Custom Relationship',
-        type: 'post'
-      })
+    .readOnly().meta({
+      options: { inverse: null },
+      isRelationship: true,
+      kind: 'customRelationship',
+      name: 'Custom Relationship',
+      type: 'post'
+    })
   });
 
   let store = createStore({
@@ -125,6 +122,5 @@ test("_debugInfo supports arbitray relationship types", function(assert) {
       'maritalStatus',
       'posts'
     ]
-  }
-  )
+  })
 });
