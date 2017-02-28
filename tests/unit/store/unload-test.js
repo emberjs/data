@@ -6,18 +6,22 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
-var run = Ember.run;
-var store, tryToFind, Record;
+const { get, run } = Ember;
+let store, tryToFind, Record;
 
-module("unit/store/unload - Store unloading records", {
+module('unit/store/unload - Store unloading records', {
   beforeEach() {
 
     Record = DS.Model.extend({
       title: DS.attr('string'),
       wasFetched: DS.attr('boolean')
     });
-    Record.reopenClass({ toString: () => 'Record'});
+
+    Record.reopenClass({
+      toString() {
+        return 'Record';
+      }
+    });
 
     store = createStore({
       adapter: DS.Adapter.extend({
@@ -26,6 +30,7 @@ module("unit/store/unload - Store unloading records", {
           return Ember.RSVP.resolve({ id: id, wasFetched: true });
         }
       }),
+
       record: Record
     });
   },
@@ -35,10 +40,10 @@ module("unit/store/unload - Store unloading records", {
   }
 });
 
-testInDebug("unload a dirty record asserts", function(assert) {
+testInDebug('unload a dirty record asserts', function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'record',
@@ -50,6 +55,7 @@ testInDebug("unload a dirty record asserts", function(assert) {
     });
 
     let record = store.peekRecord('record', 1);
+
     record.set('title', 'toto2');
     record._internalModel.send('willCommit');
 
@@ -57,10 +63,10 @@ testInDebug("unload a dirty record asserts", function(assert) {
 
     assert.expectAssertion(function() {
       record.unloadRecord();
-    }, "You can only unload a record which is not inFlight. `" + record._internalModel.toString() + "`", "can not unload dirty record");
+    }, 'You can only unload a record which is not inFlight. `' + record._internalModel.toString() + '`', 'can not unload dirty record');
 
     // force back into safe to unload mode.
-    run(function() {
+    run(() => {
       record._internalModel.transitionTo('deleted.saved');
     });
   });
@@ -69,7 +75,7 @@ testInDebug("unload a dirty record asserts", function(assert) {
 test('unload a record', function(assert) {
   assert.expect(2);
 
-  run(function() {
+  return run(() => {
     store.push({
       data: {
         type: 'record',
@@ -79,16 +85,16 @@ test('unload a record', function(assert) {
         }
       }
     });
-    store.findRecord('record', 1).then(function(record) {
-      assert.equal(get(record, 'id'), 1, "found record with id 1");
 
-      run(function() {
-        store.unloadRecord(record);
-      });
+    return store.findRecord('record', 1).then(record => {
+      assert.equal(get(record, 'id'), 1, 'found record with id 1');
+
+      run(() => store.unloadRecord(record));
 
       tryToFind = false;
-      return store.findRecord('record', 1).then(function() {
-        assert.equal(tryToFind, true, "not found record with id 1");
+
+      return store.findRecord('record', 1).then(() => {
+        assert.equal(tryToFind, true, 'not found record with id 1');
       });
     });
   });
@@ -96,31 +102,54 @@ test('unload a record', function(assert) {
 
 module("DS.Store - unload record with relationships");
 
-
-test("can commit store after unload record with relationships", function(assert) {
+test('can commit store after unload record with relationships', function(assert) {
   assert.expect(1);
 
-  let Brand = DS.Model.extend({
+  const Brand = DS.Model.extend({
     name: DS.attr('string')
   });
-  Brand.reopenClass({ toString: () => 'Brand'});
 
-  let Product = DS.Model.extend({
+  Brand.reopenClass({
+    toString() {
+      return 'Brand';
+    }
+  });
+
+  const Product = DS.Model.extend({
     description: DS.attr('string'),
-    brand: DS.belongsTo('brand', { async: false })
+    brand: DS.belongsTo('brand', {
+      async: false
+    })
   });
-  Product.reopenClass({ toString: () => 'Product'});
 
-  let Like = DS.Model.extend({
-    product: DS.belongsTo('product', { async: false })
+  Product.reopenClass({
+    toString() {
+      return 'Product';
+    }
   });
-  Like.reopenClass({ toString: () => 'Like'});
+
+  const Like = DS.Model.extend({
+    product: DS.belongsTo('product', {
+      async: false
+    })
+  });
+
+  Like.reopenClass({
+    toString() {
+      return 'Like';
+    }
+  });
 
   let store = createStore({
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
+        return Ember.RSVP.resolve({
+          id: 1,
+          description: 'cuisinart',
+          brand: 1
+        });
       },
+
       createRecord(store, type, snapshot) {
         return Ember.RSVP.resolve();
       }
@@ -132,24 +161,26 @@ test("can commit store after unload record with relationships", function(assert)
 
   return run(() => {
     store.push({
-      data: [{
-        type: 'brand',
-        id: '1',
-        attributes: {
-          name: 'EmberJS'
-        }
-      }, {
-        type: 'product',
-        id: '1',
-        attributes: {
-          description: 'toto'
-        },
-        relationships: {
-          brand: {
-            data: { type: 'brand', id: '1' }
+      data: [
+        {
+          type: 'brand',
+          id: '1',
+          attributes: {
+            name: 'EmberJS'
           }
-        }
-      }]
+        },
+        {
+          type: 'product',
+          id: '1',
+          attributes: {
+            description: 'toto'
+          },
+          relationships: {
+            brand: {
+              data: { type: 'brand', id: '1' }
+            }
+          }
+        }]
     });
 
     let product = store.peekRecord('product', 1);
@@ -157,12 +188,10 @@ test("can commit store after unload record with relationships", function(assert)
 
     return like.save();
   }).then(() => {
-    return run(() => {
-      store.unloadRecord(store.peekRecord('product', 1));
-    });
+    store.unloadRecord(store.peekRecord('product', 1));
   }).then(() => {
     return store.findRecord('product', 1);
-  }).then((product) => {
+  }).then(product => {
     assert.equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `findRecord` was called");
   });
 });
