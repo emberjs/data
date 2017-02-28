@@ -188,7 +188,8 @@ test('can commit store after unload record with relationships', function(assert)
 
     return like.save();
   }).then(() => {
-    store.unloadRecord(store.peekRecord('product', 1));
+    // TODO: this is strange, future travelers please address
+    Ember.run(() => store.unloadRecord(store.peekRecord('product', 1)));
   }).then(() => {
     return store.findRecord('product', 1);
   }).then(product => {
