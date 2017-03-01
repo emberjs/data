@@ -183,7 +183,7 @@ let RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    let modelClass = store._modelFor(modelName);
+    let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
     Ember.makeArray(arrayHash).forEach((hash) => {
@@ -373,8 +373,7 @@ let RESTSerializer = JSONSerializer.extend({
   },
 
   isPrimaryType(store, typeName, primaryTypeClass) {
-    let typeClass = store.modelFor(typeName);
-    return typeClass.modelName === primaryTypeClass.modelName;
+    return store.modelFor(typeName) === primaryTypeClass;
   },
 
   /**

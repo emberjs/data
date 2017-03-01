@@ -2338,6 +2338,7 @@ Store = Service.extend({
 
   _hasModelFor(modelName) {
     let owner = getOwner(this);
+    modelName = normalizeModelName(modelName);
 
     if (owner.factoryFor) {
       return !!owner.factoryFor(`model:${modelName}`);
