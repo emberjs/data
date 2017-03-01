@@ -520,12 +520,11 @@ if (isEnabled('ds-rollback-attribute')) {
   test('Using rollbackAttribute on an in-flight record reverts to the latest in-flight value', function(assert) {
     assert.expect(4);
 
-    let person, finishSaving;
-    let updateRecordPromise = new Ember.RSVP.Promise(resolve => finishSaving = resolve);
+    let person;
 
     // Make sure the save is async
     env.adapter.updateRecord = function(store, type, snapshot) {
-      return updateRecordPromise;
+      return Ember.RSVP.resolve();
     };
 
     return run(() => {
@@ -551,8 +550,6 @@ if (isEnabled('ds-rollback-attribute')) {
 
       person.rollbackAttribute('name');
       assert.equal(person.get('name'), 'Thomas');
-
-      finishSaving();
 
       return saving;
     });
