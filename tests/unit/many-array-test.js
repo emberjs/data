@@ -5,165 +5,187 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store;
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-var run = Ember.run;
+let env, store, Post, Tag;
 
-var Post, Tag;
+const { attr, hasMany, belongsTo } = DS;
+const { run } = Ember;
 
-module("unit/many_array - DS.ManyArray", {
+module('unit/many_array - DS.ManyArray', {
   beforeEach() {
     Post = DS.Model.extend({
       title: attr('string'),
       tags: hasMany('tag', { async: false })
     });
-    Post.reopenClass({ toString: () => 'Post'});
+
+    Post.reopenClass({
+      toString() {
+        return 'Post';
+      }
+    });
 
     Tag = DS.Model.extend({
       name: attr('string'),
       post: belongsTo('post', { async: false })
     });
-    Tag.reopenClass({ toString: () => 'Tag'});
+
+    Tag.reopenClass({
+      toString() {
+        return 'Tag';
+      }
+    });
 
     env = setupStore({
       post: Post,
       tag: Tag
     });
+
     store = env.store;
   },
 
   afterEach() {
-    run(function() {
-      store.destroy();
-    });
+    run(store, 'destroy');
   }
 });
 
-test("manyArray.save() calls save() on all records", function(assert) {
+test('manyArray.save() calls save() on all records', function(assert) {
   assert.expect(3);
 
-  run(function() {
-    Tag.reopen({
-      save() {
-        assert.ok(true, 'record.save() was called');
-        return Ember.RSVP.resolve();
-      }
-    });
+  Tag.reopen({
+    save() {
+      assert.ok(true, 'record.save() was called');
+      return Ember.RSVP.resolve();
+    }
+  });
 
+  return run(() => {
     store.push({
-      data: [{
-        type: 'tag',
-        id: '1',
-        attributes: {
-          name: 'Ember.js'
-        }
-      }, {
-        type: 'tag',
-        id: '2',
-        attributes: {
-          name: 'Tomster'
-        }
-      }, {
-        type: 'post',
-        id: '3',
-        attributes: {
-          title: 'A framework for creating ambitious web applications'
-        },
-        relationships: {
-          tags: {
-            data: [
-              { type: 'tag', id: '1' },
-              { type: 'tag', id: '2' }
-            ]
+      data: [
+        {
+          type: 'tag',
+          id: '1',
+          attributes: {
+            name: 'Ember.js'
           }
-        }
-      }]
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'Tomster'
+          }
+        },
+        {
+          type: 'post',
+          id: '3',
+          attributes: {
+            title: 'A framework for creating ambitious web applications'
+          },
+          relationships: {
+            tags: {
+              data: [
+                { type: 'tag', id: '1' },
+                { type: 'tag', id: '2' }
+              ]
+            }
+          }
+        }]
     });
-    var post = store.peekRecord('post', 3);
 
-    post.get('tags').save().then(function() {
+    let post = store.peekRecord('post', 3);
+
+    return post.get('tags').save().then(() => {
       assert.ok(true, 'manyArray.save() promise resolved');
     });
   });
 });
 
-test("manyArray trigger arrayContentChange functions with the correct values", function(assert) {
+test('manyArray trigger arrayContentChange functions with the correct values', function(assert) {
   assert.expect(6);
-  var willChangeStartIdx;
-  var willChangeRemoveAmt;
-  var willChangeAddAmt;
-  var originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
-  var originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
+
+  let willChangeStartIdx;
+  let willChangeRemoveAmt;
+  let willChangeAddAmt;
+
+  let originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
+  let originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
 
   DS.ManyArray.reopen({
     arrayContentWillChange(startIdx, removeAmt, addAmt) {
       willChangeStartIdx = startIdx;
       willChangeRemoveAmt = removeAmt;
       willChangeAddAmt = addAmt;
-      return this._super.apply(this, arguments);
+
+      return this._super(...arguments);
     },
     arrayContentDidChange(startIdx, removeAmt, addAmt) {
       assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
       assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
       assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
-      return this._super.apply(this, arguments);
+
+      return this._super(...arguments);
     }
   });
-  run(function() {
-    store.push({
-      data: [{
-        type: 'tag',
-        id: '1',
-        attributes: {
-          name: 'Ember.js'
-        }
-      }, {
-        type: 'tag',
-        id: '2',
-        attributes: {
-          name: 'Tomster'
-        }
-      }, {
-        type: 'post',
-        id: '3',
-        attributes: {
-          title: 'A framework for creating ambitious web applications'
-        },
-        relationships: {
-          tags: {
-            data: [
-              { type: 'tag', id: '1' }
-            ]
+
+  try {
+    run(() => {
+      store.push({
+        data: [
+          {
+            type: 'tag',
+            id: '1',
+            attributes: {
+              name: 'Ember.js'
+            }
+          },
+          {
+            type: 'tag',
+            id: '2',
+            attributes: {
+              name: 'Tomster'
+            }
+          },
+          {
+            type: 'post',
+            id: '3',
+            attributes: {
+              title: 'A framework for creating ambitious web applications'
+            },
+            relationships: {
+              tags: {
+                data: [
+                  { type: 'tag', id: '1' }
+                ]
+              }
+            }
+          }
+        ]
+      });
+
+      store.peekRecord('post', 3).get('tags');
+
+      store.push({
+        data: {
+          type: 'post',
+          id: '3',
+          attributes: {
+            title: 'A framework for creating ambitious web applications'
+          },
+          relationships: {
+            tags: {
+              data: [
+                { type: 'tag', id: '1' },
+                { type: 'tag', id: '2' }
+              ]
+            }
           }
         }
-      }]
+      });
     });
 
-    store.peekRecord('post', 3).get('tags');
-
-    store.push({
-      data: {
-        type: 'post',
-        id: '3',
-        attributes: {
-          title: 'A framework for creating ambitious web applications'
-        },
-        relationships: {
-          tags: {
-            data: [
-              { type: 'tag', id: '1' },
-              { type: 'tag', id: '2' }
-            ]
-          }
-        }
-      }
+  } finally {
+    DS.ManyArray.reopen({
+      arrayContentWillChange: originalArrayContentWillChange,
+      arrayContentDidChange: originalArrayContentDidChange
     });
-
-  });
-  DS.ManyArray.reopen({
-    arrayContentWillChange: originalArrayContentWillChange,
-    arrayContentDidChange: originalArrayContentDidChange
-  });
+  }
 });

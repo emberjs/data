@@ -7,27 +7,26 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
-var set = Ember.set;
-var resolve = Ember.RSVP.resolve;
-var TestAdapter, store, person, oldFilterEnabled;
-var run = Ember.run;
+const { get, set , run } = Ember;
+const resolve = Ember.RSVP.resolve;
+let TestAdapter, store, person, oldFilterEnabled;
 
-module("unit/store/adapter-interop - DS.Store working with a DS.Adapter", {
+module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
   beforeEach() {
     TestAdapter = DS.Adapter.extend();
     oldFilterEnabled = Ember.ENV.ENABLE_DS_FILTER;
     Ember.ENV.ENABLE_DS_FILTER = false;
   },
+
   afterEach() {
-    run(function() {
+    run(() => {
       if (store) { store.destroy(); }
       Ember.ENV.ENABLE_DS_FILTER = oldFilterEnabled;
     });
   }
 });
 
-test("Adapter can be set as a factory", function(assert) {
+test('Adapter can be set as a factory', function(assert) {
   store = createStore({ adapter: TestAdapter });
 
   assert.ok(store.get('defaultAdapter') instanceof TestAdapter);
@@ -48,11 +47,11 @@ testInDebug('Adapter can not be set as an instance', function(assert) {
   assert.expectAssertion(() => store.get('defaultAdapter'));
 });
 
-test("Calling Store#find invokes its adapter#find", function(assert) {
+test('Calling Store#find invokes its adapter#find', function(assert) {
   assert.expect(5);
-  let done = assert.async();
 
-  var adapter = TestAdapter.extend({
+  let currentStore;
+  const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.ok(true, "Adapter#find was called");
       assert.equal(store, currentStore, "Adapter#find was called with the right store");
@@ -60,120 +59,135 @@ test("Calling Store#find invokes its adapter#find", function(assert) {
       assert.equal(id, 1, "Adapter#find was called with the id passed into Store#find");
       assert.equal(snapshot.id, '1', "Adapter#find was called with the record created from Store#find");
 
-      return Ember.RSVP.resolve({ id: 1 });
+      return Ember.RSVP.resolve({
+        id: 1
+      });
     }
   });
 
-  var currentType = DS.Model.extend();
-  var currentStore = createStore({ adapter: adapter, test: currentType });
+  const Type = DS.Model.extend();
 
-
-  run(function() {
-    currentStore.findRecord('test', 1).finally(done);
+  currentStore = createStore({
+    adapter: Adapter,
+    test: Type
   });
+
+  return run(() => currentStore.findRecord('test', 1));
 });
 
-test("Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call", function(assert) {
+test('Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call', function(assert) {
   assert.expect(2);
-  let done = assert.async();
 
-  var adapter = TestAdapter.extend({
+  const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
-      assert.ok(false, "Adapter#findRecord was not called");
+      assert.ok(false, 'Adapter#findRecord was not called');
     },
     findMany(store, type, ids, snapshots) {
-      assert.ok(true, "Adapter#findMany was called");
-      assert.deepEqual(ids, ["1","2"], 'Correct ids were passed in to findMany');
+      assert.ok(true, 'Adapter#findMany was called');
+      assert.deepEqual(ids, ['1','2'], 'Correct ids were passed in to findMany');
       return Ember.RSVP.resolve([{ id: 1 }, { id: 2 }]);
     },
     coalesceFindRequests: true
   });
 
-  var currentType = DS.Model.extend();
-  var currentStore = createStore({ adapter: adapter, test: currentType });
+  const Type = DS.Model.extend();
+  let store = createStore({
+    adapter: Adapter,
+    test: Type
+  });
 
-  run(function() {
-    let promises = [
-      currentStore.findRecord('test', 1),
-      currentStore.findRecord('test', 2)
-    ];
-    Ember.RSVP.all(promises).finally(done);
+  return run(() => {
+    return Ember.RSVP.all([
+      store.findRecord('test', 1),
+      store.findRecord('test', 2)
+    ]);
   });
 });
 
-test("Returning a promise from `findRecord` asynchronously loads data", function(assert) {
+test('Returning a promise from `findRecord` asynchronously loads data', function(assert) {
   assert.expect(1);
 
-  var adapter = TestAdapter.extend({
+  const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       return resolve({ id: 1, name: "Scumbag Dale" });
     }
   });
 
-  var currentType = DS.Model.extend({
+  const Type = DS.Model.extend({
     name: DS.attr('string')
   });
-  var currentStore = createStore({ adapter: adapter, test: currentType });
 
-  run(function() {
-    currentStore.findRecord('test', 1).then(assert.wait(function(object) {
-      assert.strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
-    }));
+  let store = createStore({
+    adapter: Adapter,
+    test: Type
+  });
+
+  return run(() => {
+    return store.findRecord('test', 1).then(object => {
+      assert.strictEqual(get(object, 'name'), 'Scumbag Dale', 'the data was pushed');
+    });
   });
 });
 
-test("IDs provided as numbers are coerced to strings", function(assert) {
+test('IDs provided as numbers are coerced to strings', function(assert) {
   assert.expect(5);
 
-  var adapter = TestAdapter.extend({
+  const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
-      assert.equal(typeof id, 'string', "id has been normalized to a string");
-      return resolve({ id, name: "Scumbag Sylvain" });
+      assert.equal(typeof id, 'string', 'id has been normalized to a string');
+      return resolve({ id, name: 'Scumbag Sylvain' });
     }
   });
 
-  var currentType = DS.Model.extend({
+  const Type = DS.Model.extend({
     name: DS.attr('string')
   });
-  var currentStore = createStore({ adapter: adapter, test: currentType });
 
-  run(function() {
-    currentStore.findRecord('test', 1).then(assert.wait(function(object) {
-      assert.equal(typeof object.get('id'), 'string', "id was coerced to a string");
-      run(function() {
-        currentStore.push({
+  let store = createStore({
+    adapter: Adapter,
+    test: Type
+  });
+
+  return run(() => {
+    return store.findRecord('test', 1).then(object => {
+      assert.equal(typeof object.get('id'), 'string', 'id was coerced to a string');
+      run(() => {
+        store.push({
           data: {
             type: 'test',
             id: '2',
             attributes: {
-              name: "Scumbag Sam Saffron"
+              name: 'Scumbag Sam Saffron'
             }
           }
         });
       });
-      return currentStore.findRecord('test', 2);
-    })).then(assert.wait(function(object) {
-      assert.ok(object, "object was found");
-      assert.equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
-    }));
+
+      return store.findRecord('test', 2);
+    }).then(object =>  {
+      assert.ok(object, 'object was found');
+      assert.equal(typeof object.get('id'), 'string', 'id is a string despite being supplied and searched for as a number');
+    });
   });
 });
 
-test("can load data for the same record if it is not dirty", function(assert) {
+test('can load data for the same record if it is not dirty', function(assert) {
   assert.expect(3);
 
-  var Person = DS.Model.extend({
+  const Person = DS.Model.extend({
     name: DS.attr('string')
   });
 
-  var store = createStore({
+  let store = createStore({
     person: Person,
     adapter: DS.Adapter.extend({
-      shouldBackgroundReloadRecord: () => false
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
     })
   });
 
-  run(function() {
+  return run(() => {
     store.push({
       data: {
         type: 'person',
@@ -184,37 +198,25 @@ test("can load data for the same record if it is not dirty", function(assert) {
       }
     });
 
-    store.findRecord('person', 1).then(assert.wait(function(tom) {
-      assert.equal(get(tom, 'hasDirtyAttributes'), false, "precond - record is not dirty");
-      assert.equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
+    return store.findRecord('person', 1).then(tom => {
+      assert.equal(get(tom, 'hasDirtyAttributes'), false, 'precond - record is not dirty');
+      assert.equal(get(tom, 'name'), 'Tom Dale', 'returns the correct name');
 
       store.push({
         data: {
           type: 'person',
           id: '1',
           attributes: {
-            name: "Captain Underpants"
+            name: 'Captain Underpants'
           }
         }
       });
-      assert.equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
-    }));
+      assert.equal(get(tom, 'name'), 'Captain Underpants', 'updated record with new date');
+    });
   });
 });
 
-/*
-test("DS.Store loads individual records without explicit IDs with a custom primaryKey", function() {
-  var store = DS.Store.create();
-  var Person = DS.Model.extend({ name: DS.attr('string'), primaryKey: 'key' });
-
-  store.load(Person, { key: 1, name: "Tom Dale" });
-
-  var tom = store.findRecord(Person, 1);
-  equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
-});
-*/
-
-test("loadMany takes an optional Object and passes it on to the Adapter", function(assert) {
+test('loadMany takes an optional Object and passes it on to the Adapter', function(assert) {
   assert.expect(2);
 
   var passedQuery = { page: 1 };
