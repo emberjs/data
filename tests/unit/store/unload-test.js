@@ -67,7 +67,7 @@ testInDebug("unload a dirty record asserts", function(assert) {
 });
 
 test('unload a record', function(assert) {
-  assert.expect(2);
+  assert.expect(4);
 
   run(function() {
     store.push({
@@ -79,20 +79,61 @@ test('unload a record', function(assert) {
         }
       }
     });
+
     store.findRecord('record', 1).then(function(record) {
       assert.equal(get(record, 'id'), 1, "found record with id 1");
+
+      var results = store.peekAll("record")
+      assert.equal(results.get("length"), 1, "found a record with peekAll");
 
       run(function() {
         store.unloadRecord(record);
       });
 
       tryToFind = false;
-      return store.findRecord('record', 1).then(function() {
+      store.findRecord('record', 1).then(function(rec) {
         assert.equal(tryToFind, true, "not found record with id 1");
       });
+
+      assert.equal(results.get("length"), 0, "not found a record with peekAll");
+
+      return;
     });
   });
 });
+
+
+test('unloadAll records', function(assert) {
+  assert.expect(3);
+
+  run(function() {
+    store.push({
+      data: {
+        type: 'record',
+        id: '1',
+        attributes: {
+          title: 'toto'
+        }
+      }
+    });
+
+    store.findRecord('record', 1).then(function(record) {
+      assert.equal(get(record, 'id'), 1, "found record with id 1");
+    });
+
+    var results = store.peekAll("record")
+    assert.equal(results.get("length"), 1, "found record with peekAll");
+
+    run(function() {
+      store.unloadAll("record");
+    });
+
+    assert.equal(results.get("length"), 0, "not found record with peekAll");
+
+    return;
+  });
+});
+
 
 module("DS.Store - unload record with relationships");
 
