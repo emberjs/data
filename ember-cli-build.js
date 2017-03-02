@@ -23,7 +23,7 @@ module.exports = function(defaults) {
     babel: {
       plugins: [
         // while ember-data strips itself, ember does not currently
-        {transformer: stripClassCallCheck, position: 'after'}
+        { transformer: stripClassCallCheck, position: 'after' }
       ]
     }
   });

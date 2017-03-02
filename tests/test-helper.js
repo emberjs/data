@@ -17,9 +17,15 @@ setResolver(resolver);
 loadInitializers(Ember.Application, 'dummy');
 
 const { assert } = QUnit;
+const transforms = {
+  boolean: DS.BooleanTransform.create(),
+  date:    DS.DateTransform.create(),
+  number:  DS.NumberTransform.create(),
+  string:  DS.StringTransform.create()
+};
 
-QUnit.begin(function() {
-  Ember.RSVP.configure('onerror', function(reason) {
+QUnit.begin(() => {
+  Ember.RSVP.configure('onerror', reason => {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
     // handle the error.
@@ -28,13 +34,6 @@ QUnit.begin(function() {
       throw reason;
     }
   });
-
-  var transforms = {
-    'boolean': DS.BooleanTransform.create(),
-    'date': DS.DateTransform.create(),
-    'number': DS.NumberTransform.create(),
-    'string': DS.StringTransform.create()
-  };
 
   // Prevent all tests involving serialization to require a container
   DS.JSONSerializer.reopen({
@@ -49,8 +48,8 @@ assert.wait = wait;
 assert.asyncEqual = asyncEqual;
 assert.invokeAsync = invokeAsync;
 assert.assertClean = function(promise) {
-  return promise.then(this.wait((record) => {
-    this.equal(record.get('hasDirtyAttributes'), false, "The record is now clean");
+  return promise.then(this.wait(record => {
+    this.equal(record.get('hasDirtyAttributes'), false, 'The record is now clean');
     return record;
   }));
 };
@@ -64,4 +63,7 @@ assert.without = function(array, item)  {
 };
 
 QUnit.config.testTimeout = 2000;
-QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features" });
+QUnit.config.urlConfig.push({
+  id: 'enableoptionalfeatures',
+  label: 'Enable Opt Features'
+});

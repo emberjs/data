@@ -52,11 +52,6 @@ const { get, set } = Ember;
   @uses Ember.MutableArray, Ember.Evented
 */
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
-  init() {
-    this._super(...arguments);
-    this.currentState = Ember.A([]);
-  },
-
   record: null,
 
   canonicalState: null,
@@ -64,11 +59,92 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   length: 0,
 
+  init() {
+    this._super(...arguments);
+    this.currentState = Ember.A([]);
+    /**
+    The loading state of this array
+
+    @property {Boolean} isLoaded
+    */
+    this.isLoaded = false;
+    this.length = 0;
+
+    /**
+    Used for async `hasMany` arrays
+    to keep track of when they will resolve.
+
+    @property {Ember.RSVP.Promise} promise
+    @private
+    */
+    this.promise = null;
+
+    /**
+    Metadata associated with the request for async hasMany relationships.
+
+    Example
+
+    Given that the server returns the following JSON payload when fetching a
+    hasMany relationship:
+
+    ```js
+    {
+      "comments": [{
+        "id": 1,
+        "comment": "This is the first comment",
+      }, {
+    // ...
+      }],
+
+      "meta": {
+        "page": 1,
+        "total": 5
+      }
+    }
+    ```
+
+    You can then access the metadata via the `meta` property:
+
+    ```js
+    post.get('comments').then(function(comments) {
+      var meta = comments.get('meta');
+
+    // meta.page => 1
+    // meta.total => 5
+    });
+    ```
+
+    @property {Object} meta
+    @public
+    */
+    this.meta = this.meta ||  null;
+
+    /**
+    `true` if the relationship is polymorphic, `false` otherwise.
+
+    @property {Boolean} isPolymorphic
+    @private
+    */
+    this.isPolymorphic = this.isPolymorphic || false;
+
+    /**
+    The relationship which manages this array.
+
+    @property {ManyRelationship} relationship
+    @private
+    */
+    this.relationship = this.relationship || null;
+
+    this.currentState = Ember.A([]);
+    this.flushCanonical(false);
+  },
+
   objectAt(index) {
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
     if (!this.currentState[index]) {
       return undefined;
     }
+
     return this.currentState[index].getRecord();
   },
 
@@ -131,68 +207,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     this.record.updateRecordArrays();
   },
-  /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property {Boolean} isPolymorphic
-    @private
-  */
-  isPolymorphic: false,
-
-  /**
-    The loading state of this array
-
-    @property {Boolean} isLoaded
-  */
-  isLoaded: false,
-
-  /**
-    The relationship which manages this array.
-
-    @property {ManyRelationship} relationship
-    @private
-  */
-  relationship: null,
-
-  /**
-    Metadata associated with the request for async hasMany relationships.
-
-    Example
-
-    Given that the server returns the following JSON payload when fetching a
-    hasMany relationship:
-
-    ```js
-    {
-      "comments": [{
-        "id": 1,
-        "comment": "This is the first comment",
-      }, {
-        // ...
-      }],
-
-      "meta": {
-        "page": 1,
-        "total": 5
-      }
-    }
-    ```
-
-    You can then access the metadata via the `meta` property:
-
-    ```js
-    post.get('comments').then(function(comments) {
-      var meta = comments.get('meta');
-
-      // meta.page => 1
-      // meta.total => 5
-    });
-    ```
-
-    @property {Object} meta
-    @public
-  */
-  meta: null,
 
   internalReplace(idx, amt, objects) {
     if (!objects) {
@@ -202,11 +216,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     set(this, 'length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
-    if (objects) {
-      //TODO(Igor) probably needed only for unloaded records
-      this.relationship.notifyHasManyChanged();
-    }
-    this.record.updateRecordArrays();
   },
 
   //TODO(Igor) optimize
@@ -228,21 +237,13 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   replace(idx, amt, objects) {
     if (amt > 0) {
-      let records = this.currentState.slice(idx, idx+amt);
+      const records = this.currentState.slice(idx, idx+amt);
       get(this, 'relationship').removeRecords(records);
     }
     if (objects) {
-      get(this, 'relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
+      get(this, 'relationship').addRecords(objects.map(obj => obj._internalModel), idx);
     }
   },
-  /**
-    Used for async `hasMany` arrays
-    to keep track of when they will resolve.
-
-    @property {Ember.RSVP.Promise} promise
-    @private
-  */
-  promise: null,
 
   /**
     @method loadingRecordsCount
@@ -250,7 +251,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @private
   */
   loadingRecordsCount(count) {
-    this.loadingRecordsCount = count;
+    this._loadingRecordsCount = count;
   },
 
   /**
@@ -258,14 +259,33 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @private
   */
   loadedRecord() {
-    this.loadingRecordsCount--;
-    if (this.loadingRecordsCount === 0) {
+    this._loadingRecordsCount--;
+    if (this._loadingRecordsCount === 0) {
       set(this, 'isLoaded', true);
       this.trigger('didLoad');
     }
   },
 
   /**
+    Reloads all of the records in the manyArray. If the manyArray
+    holds a relationship that was originally fetched using a links url
+    Ember Data will revisit the original links url to repopulate the
+    relationship.
+
+    If the manyArray holds the result of a `store.query()` reload will
+    re-run the original query.
+
+    Example
+
+    ```javascript
+    var user = store.peekRecord('user', 1)
+    user.login().then(function() {
+      user.get('permissions').then(function(permissions) {
+        return permissions.reload();
+      });
+    });
+    ```
+
     @method reload
     @public
   */
@@ -295,9 +315,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   save() {
     const manyArray = this;
     const promiseLabel = `DS: ManyArray#save ${get(this, 'type')}`;
-    const promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return manyArray;
-    }, null, "DS: ManyArray#save return ManyArray");
+    const promise = Ember.RSVP.all(this.invoke("save"), promiseLabel)
+                              .then(() => manyArray, null, "DS: ManyArray#save return ManyArray");
 
     return PromiseArray.create({ promise });
   },
@@ -311,11 +330,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    const store = get(this, 'store');
     const type = get(this, 'type');
-
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
-    let record = store.createRecord(type.modelName, hash);
+
+    const store = get(this, 'store');
+    const record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;

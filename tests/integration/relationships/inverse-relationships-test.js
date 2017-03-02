@@ -120,13 +120,11 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
-  });
 
-  assert.equal(post.get('meComments.length'), 0, "meComments has no posts");
-  assert.equal(post.get('youComments.length'), 0, "youComments has no posts");
-  assert.equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
+    assert.equal(post.get('meComments.length'), 0, "meComments has no posts");
+    assert.equal(post.get('youComments.length'), 0, "youComments has no posts");
+    assert.equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 
-  run(function() {
     comment.set('post', post);
   });
 
@@ -355,13 +353,11 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   run(function() {
     user = store.createRecord('user');
     post = store.createRecord('post');
-  });
 
-  assert.equal(user.get('meMessages.length'), 0, "meMessages has no posts");
-  assert.equal(user.get('youMessages.length'), 0, "youMessages has no posts");
-  assert.equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
+    assert.equal(user.get('meMessages.length'), 0, "meMessages has no posts");
+    assert.equal(user.get('youMessages.length'), 0, "youMessages has no posts");
+    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function() {
     post.set('user', user);
   });
 
@@ -402,13 +398,11 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
-  });
 
-  assert.equal(post.get('meMessages.length'), 0, "meMessages has no posts");
-  assert.equal(post.get('youMessages.length'), 0, "youMessages has no posts");
-  assert.equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
+    assert.equal(post.get('meMessages.length'), 0, "meMessages has no posts");
+    assert.equal(post.get('youMessages.length'), 0, "youMessages has no posts");
+    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function() {
     comment.set('message', post);
   });
 
@@ -604,4 +598,18 @@ test("inverseFor is only called when inverse is not null", function(assert) {
       ]
     });
   });
+});
+
+testInDebug("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
+  User = DS.Model.extend({
+    post: DS.belongsTo('post', { inverse: null })
+  });
+
+  var env = setupStore({ user: User });
+
+  assert.throws(function() {
+    run(function() {
+      env.store.createRecord('user');
+    });
+  }, /No model was found for 'post'/);
 });

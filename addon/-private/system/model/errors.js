@@ -1,12 +1,12 @@
 import Ember from 'ember';
 import { deprecate, warn } from "ember-data/-private/debug";
 
-var get = Ember.get;
-var set = Ember.set;
-var isEmpty = Ember.isEmpty;
-var makeArray = Ember.makeArray;
+const get = Ember.get;
+const set = Ember.set;
+const isEmpty = Ember.isEmpty;
+const makeArray = Ember.makeArray;
 
-var MapWithDefault = Ember.MapWithDefault;
+const MapWithDefault = Ember.MapWithDefault;
 
 /**
 @module ember-data
@@ -25,14 +25,14 @@ var MapWithDefault = Ember.MapWithDefault;
   import DS from 'ember-data';
 
   export default DS.Model.extend({
-    username: attr('string'),
-    email: attr('string')
+    username: DS.attr('string'),
+    email: DS.attr('string')
   });
   ```
   And you attempted to save a record that did not validate on the backend:
 
   ```javascript
-  var user = store.createRecord('user', {
+  let user = store.createRecord('user', {
     username: 'tomster',
     email: 'invalidEmail'
   });
@@ -137,7 +137,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Returns errors for a given attribute
 
     ```javascript
-    var user = store.createRecord('user', {
+    let user = store.createRecord('user', {
       username: 'tomster',
       email: 'invalidEmail'
     });
@@ -186,7 +186,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
   */
   unknownProperty(attribute) {
-    var errors = this.errorsFor(attribute);
+    let errors = this.errorsFor(attribute);
     if (isEmpty(errors)) { return null; }
     return errors;
   },
@@ -228,7 +228,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
       id: 'ds.errors.add'
     });
 
-    var wasEmpty = get(this, 'isEmpty');
+    let wasEmpty = get(this, 'isEmpty');
 
     this._add(attribute, messages);
 

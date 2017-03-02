@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import Transform from "ember-data/transform";
-import isEnabled from 'ember-data/-private/features';
 
 const { isNone } = Ember;
 
@@ -42,12 +41,10 @@ const { isNone } = Ember;
  */
 export default Transform.extend({
   deserialize(serialized, options) {
-    var type = typeof serialized;
+    let type = typeof serialized;
 
-    if (isEnabled('ds-boolean-transform-allow-null')) {
-      if (isNone(serialized) && options.allowNull === true) {
-        return null;
-      }
+    if (isNone(serialized) && options.allowNull === true) {
+      return null;
     }
 
     if (type === "boolean") {
@@ -62,10 +59,8 @@ export default Transform.extend({
   },
 
   serialize(deserialized, options) {
-    if (isEnabled('ds-boolean-transform-allow-null')) {
-      if (isNone(deserialized) && options.allowNull === true) {
-        return null;
-      }
+    if (isNone(deserialized) && options.allowNull === true) {
+      return null;
     }
 
     return Boolean(deserialized);

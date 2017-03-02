@@ -11,10 +11,6 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
-- `ds-boolean-transform-allow-null` [#4022](https://github.com/emberjs/data/pull/4022)
-
-  Allow `null`/`undefined` values for `boolean` attributes via `DS.attr('boolean', { allowNull: true })`
-
 - `ds-improved-ajax` [#3099](https://github.com/emberjs/data/pull/3099)
 
   This feature allows to customize how a request is formed by overwriting
@@ -114,9 +110,9 @@ entry in `config/features.json`.
   Adds public method for `shouldSerializeHasMany`, used to determine if a
   `hasMany` relationship can be serialized.
 
-- `ds-reset-attribute` [#4246](https://github.com/emberjs/data/pull/4246)
+- `ds-rollback-attribute` [#4246](https://github.com/emberjs/data/pull/4246)
 
-  Adds a `resetAttribute` method to models. Similar to `rollbackAttributes`,
+  Adds a `rollbackAttribute` method to models. Similar to `rollbackAttributes`,
   but for only a single attribute.
 
   ```js
@@ -128,9 +124,29 @@ entry in `config/features.json`.
       lastName: 'Katz'
     });
 
-    tom.resetAttribute('firstName') // { firstName: 'Tom', lastName: 'Katz' }
+    tom.rollbackAttribute('firstName') // { firstName: 'Tom', lastName: 'Katz' }
     tom.get('hasDirtyAttributes')   // true
 
-    tom.resetAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
+    tom.rollbackAttribute('lastName')  // { firstName: 'Tom', lastName: 'Dale' }
     tom.get('hasDirtyAttributes')   // false
   ```
+
+- `ds-serialize-id` [#4620](https://github.com/emberjs/data/pull/4620)
+
+  Adds a `serializeId` method to JSONSerializer.
+
+  ```js
+   // app/serializers/application.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
+     serializeId(snapshot, json, primaryKey) {
+       var id = snapshot.id;
+       json[primaryKey] = parseInt(id, 10);
+     }
+   });
+  ```
+- `ds-deprecate-store-serialize` [#4654](https://github.com/emberjs/data/pull/4654)
+
+  Adds a deprecation warning when using Store#serialize(record) method.
+  You can use record.serialize() instead.

@@ -1,5 +1,5 @@
 import setupContainer from 'ember-data/setup-container';
-import 'ember-data/-private/core';
+import 'ember-data/index';
 
 /*
 

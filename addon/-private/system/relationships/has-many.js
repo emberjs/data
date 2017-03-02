@@ -132,17 +132,18 @@ export default function hasMany(type, options) {
   // the relationship. This is used for introspection and
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
-  var meta = {
+  let meta = {
     type: type,
     isRelationship: true,
     options: options,
     kind: 'hasMany',
+    name: 'Has Many',
     key: null
   };
 
   return Ember.computed({
     get(key) {
-      var relationship = this._internalModel._relationships.get(key);
+      let relationship = this._internalModel._relationships.get(key);
       return relationship.getRecords();
     },
     set(key, records) {
@@ -151,21 +152,10 @@ export default function hasMany(type, options) {
         return Ember.A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
       })());
 
-      var relationship = this._internalModel._relationships.get(key);
+      let relationship = this._internalModel._relationships.get(key);
       relationship.clear();
       relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
       return relationship.getRecords();
     }
   }).meta(meta);
 }
-
-export const HasManyMixin = Ember.Mixin.create({
-  notifyHasManyAdded(key) {
-    //We need to notifyPropertyChange in the adding case because we need to make sure
-    //we fetch the newly added record in case it is unloaded
-    //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-
-    //Goes away once hasMany is double promisified
-    this.notifyPropertyChange(key);
-  }
-});

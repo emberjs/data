@@ -1,8 +1,7 @@
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 
-var Promise = Ember.RSVP.Promise;
-var get = Ember.get;
+const { get , RSVP: { Promise }} = Ember;
 
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
@@ -17,7 +16,7 @@ var get = Ember.get;
   Example
 
   ```javascript
-  var promiseArray = DS.PromiseArray.create({
+  let promiseArray = DS.PromiseArray.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -33,7 +32,7 @@ var get = Ember.get;
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-var PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
@@ -48,7 +47,7 @@ var PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   Example
 
   ```javascript
-  var promiseObject = DS.PromiseObject.create({
+  let promiseObject = DS.PromiseObject.create({
     promise: $.getJSON('/some/remote/data.json')
   });
 
@@ -64,19 +63,19 @@ var PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-var PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+export let PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
-var promiseObject = function(promise, label) {
+export function promiseObject(promise, label) {
   return PromiseObject.create({
     promise: Promise.resolve(promise, label)
   });
-};
+}
 
-var promiseArray = function(promise, label) {
+export function promiseArray(promise, label) {
   return PromiseArray.create({
     promise: Promise.resolve(promise, label)
   });
-};
+}
 
 /**
   A PromiseManyArray is a PromiseArray that also proxies certain method calls
@@ -96,14 +95,13 @@ var promiseArray = function(promise, label) {
   @extends Ember.ArrayProxy
 */
 
-function proxyToContent(method) {
+export function proxyToContent(method) {
   return function() {
-    var content = get(this, 'content');
-    return content[method].apply(content, arguments);
+    return get(this, 'content')[method](...arguments);
   };
 }
 
-var PromiseManyArray = PromiseArray.extend({
+export const PromiseManyArray = PromiseArray.extend({
   reload() {
     //I don't think this should ever happen right now, but worth guarding if we refactor the async relationships
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
@@ -125,18 +123,8 @@ var PromiseManyArray = PromiseArray.extend({
   has: proxyToContent('has')
 });
 
-var promiseManyArray = function(promise, label) {
+export function promiseManyArray(promise, label) {
   return PromiseManyArray.create({
     promise: Promise.resolve(promise, label)
   });
-};
-
-
-export {
-  PromiseArray,
-  PromiseObject,
-  PromiseManyArray,
-  promiseArray,
-  promiseObject,
-  promiseManyArray
-};
+}

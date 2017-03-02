@@ -5,8 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var store, env, applicationAdapter, applicationSerializer, Person;
-const run = Ember.run;
+let store, env, applicationAdapter, applicationSerializer, Person;
+const { run } = Ember;
 
 function resetStore() {
   if (store) {
@@ -139,4 +139,3 @@ test('serializer lookup order', (assert) => {
 
   assert.ok(personSerializer.get('customThingy'), 'uses the person serializer before any fallbacks if it is defined');
 });
-

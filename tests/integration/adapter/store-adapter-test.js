@@ -2,6 +2,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import {module, test} from 'qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
 
@@ -22,6 +23,15 @@ var get = Ember.get;
 var set = Ember.set;
 var run = Ember.run;
 var Person, Dog, env, store, adapter;
+
+function moveRecordOutOfInFlight(record) {
+  run(function() {
+    // move record out of the inflight state so the tests can clean up
+    // correctly
+    let { store, _internalModel } = record;
+    store.recordWasError(_internalModel, new Error());
+  });
+}
 
 module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration test", {
   beforeEach() {
@@ -108,6 +118,7 @@ test("by default, createRecords calls createRecord once per record", function(as
       yehuda: yehuda.save()
     });
   });
+
   promise.then(assert.wait(function(records) {
     tom = records.tom;
     yehuda = records.yehuda;
@@ -116,6 +127,7 @@ test("by default, createRecords calls createRecord once per record", function(as
     assert.asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, findRecord returns the same object");
     assert.equal(get(tom, 'updatedAt'), "now", "The new information is received");
     assert.equal(get(yehuda, 'updatedAt'), "now", "The new information is received");
+
   }));
 });
 
@@ -1057,7 +1069,7 @@ test("createRecord receives a snapshot", function(assert) {
   var person;
 
   run(function() {
-    person = store.createRecord('person', { name: "Tom Dale" });
+    person = store.createRecord('person', { name: "Tom Dale", id: 1 });
     person.save();
   });
 });
@@ -1399,4 +1411,47 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
   })).then(assert.wait(function(comments) {
     assert.equal(comments.get('length'), 3);
   }));
+});
+
+testInDebug("There should be a friendly error for if the adapter does not implement createRecord", function(assert) {
+  adapter.createRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.createRecord('person', { name: "Tom Dale" });
+      tom.save();
+    });
+  }, /does not implement 'createRecord'/);
+
+  moveRecordOutOfInFlight(tom);
+});
+
+testInDebug("There should be a friendly error for if the adapter does not implement updateRecord", function(assert) {
+  adapter.updateRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.push({ data: { type: 'person', id: 1 } });
+      tom.save();
+    });
+  }, /does not implement 'updateRecord'/);
+
+  moveRecordOutOfInFlight(tom);
+});
+
+testInDebug("There should be a friendly error for if the adapter does not implement deleteRecord", function(assert) {
+  adapter.deleteRecord = null;
+
+  let tom;
+  assert.expectAssertion(function() {
+    run(function() {
+      tom = store.push({ data: { type: 'person', id: 1 } });
+      tom.deleteRecord();
+      tom.save();
+    });
+  }, /does not implement 'deleteRecord'/);
+
+  moveRecordOutOfInFlight(tom);
 });

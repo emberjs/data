@@ -291,9 +291,12 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
   run(function() {
     comment = store.createRecord('comment', { name: "The Parley Letter" });
   });
-  post.get('comments').pushObject(comment);
 
-  assert.equal(comment.get('post'), post, "the post has been set correctly");
+  run(function() {
+    post.get('comments').pushObject(comment);
+
+    assert.equal(comment.get('post'), post, "the post has been set correctly");
+  });
 
   run(function() {
     comment.save().then(assert.wait(function(comment) {
@@ -328,14 +331,14 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
 test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
   var post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
-    primarykey: '_id_',
-
     attrs: {
       name: '_name_'
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse({
+    post: { '_name_': "The Parley Letter", id: '1' }
+  });
 
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
@@ -482,7 +485,10 @@ test("createRecord - a record on the many side of a hasMany relationship should 
   });
 
   var post = store.peekRecord('post', 1);
-  var commentCount = post.get('comments.length');
+  var commentCount = run(function() {
+    return post.get('comments.length');
+  });
+
   assert.equal(commentCount, 1, "the post starts life with a comment");
 
   run(function() {
@@ -551,9 +557,9 @@ test("createRecord - response can contain relationships the client doesn't yet k
   run(function() {
     post.save().then(assert.wait(function(post) {
       assert.equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
-      assert.equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
+      assert.equal(store._recordMapFor('post').records.length, 1, "There should only be one post record in the store");
 
-      var postRecords = store.typeMapFor(Post).records;
+      var postRecords = store._recordMapFor('post').records;
       for (var i = 0; i < postRecords.length; i++) {
         assert.equal(post, postRecords[i].getRecord(), "The object in the identity map is the same");
       }
@@ -1343,17 +1349,21 @@ test("queryRecord - returning sideloaded data loads the data", function(assert) 
   }));
 });
 
-test("queryRecord - returning an array picks the first one but saves all records to the store", function(assert) {
+testInDebug("queryRecord - returning an array picks the first one but saves all records to the store", function(assert) {
   ajaxResponse({
     post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
   });
 
-  store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
-    var post2 = store.peekRecord('post', 2);
+  assert.expectDeprecation('The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
 
-    assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
-    assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
-  }));
+  run(function() {
+    store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(assert.wait(function(post) {
+      var post2 = store.peekRecord('post', 2);
+
+      assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
+      assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
+    }));
+  });
 });
 
 testInDebug("queryRecord - returning an array is deprecated", function(assert) {
@@ -1791,7 +1801,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
 
 
 
-test("findMany - returning sideloaded data loads the data", function(assert) {
+test("findMany - returning sideloaded data loads the data (with JSONApi Links)", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;

@@ -1,8 +1,8 @@
-export function serializerForAdapter(store, adapter, type) {
-  var serializer = adapter.serializer;
+export function serializerForAdapter(store, adapter, modelName) {
+  let serializer = adapter.serializer;
 
   if (serializer === undefined) {
-    serializer = store.serializerFor(type);
+    serializer = store.serializerFor(modelName);
   }
 
   if (serializer === null || serializer === undefined) {

@@ -4,9 +4,7 @@ import { test, skip } from 'qunit';
 export default function testInDebug() {
   let isDebug = false;
 
-  runInDebug(function() {
-    isDebug = true;
-  });
+  runInDebug(() => isDebug = true);
 
   if (isDebug) {
     test(...arguments);

@@ -2,6 +2,99 @@
 
 ### Master
 
+### Release 2.11.0 (January 9, 2016)
+- [#4518](https://github.com/emberjs/data/pull/4518) Update the relationship docs to remove some references to a globals s…
+- [#4581](https://github.com/emberjs/data/pull/4581) [DOC] Update descriptions of findRecord() and findAll()
+- [#4438](https://github.com/emberjs/data/pull/4438) add `relationship` property to findHasMany RESTAdapter docs
+- [#4283](https://github.com/emberjs/data/pull/4283) Add better error messaging for adapters that do not implement createR…
+- [#4440](https://github.com/emberjs/data/pull/4440) Add examples to the Serializer API docs
+- [#4272](https://github.com/emberjs/data/pull/4272) [BUGFIX beta] Don't unnecessarily materialize records
+- [#4562](https://github.com/emberjs/data/pull/4562) [PERF] make internal model lazier
+- [#4601](https://github.com/emberjs/data/pull/4601) Naming cleanup
+- [#4586](https://github.com/emberjs/data/pull/4586) Remove the ds-boolean-transform-allow-null feature flag
+- [#4582](https://github.com/emberjs/data/pull/4582) tidy up integration/filter-test
+- [#4585](https://github.com/emberjs/data/pull/4585) Update changelog for the Ember Data 2.9.0 release
+- [#4632](https://github.com/emberjs/data/pull/4632) [DOC ds-extended-errors] Add docs for extended errors
+- [#4592](https://github.com/emberjs/data/pull/4592) [DOC] Add documentation for query#update() to refresh query
+- [#4591](https://github.com/emberjs/data/pull/4591) Cleanup record array manager
+- [#4587](https://github.com/emberjs/data/pull/4587) Remove ds-links-in-record-array feature flag
+- [#4590](https://github.com/emberjs/data/pull/4590) Fix YUIDoc warnings
+- [#4589](https://github.com/emberjs/data/pull/4589) Feat/improved cache
+- [#4640](https://github.com/emberjs/data/pull/4640) build ember-data attribute debug info dynamically
+- [#4606](https://github.com/emberjs/data/pull/4606) fix(instrumentation): heimdall-query needed bumped to work properly
+- [#4599](https://github.com/emberjs/data/pull/4599) Don't warn for 'async: false' relationships with link + data
+- [#4594](https://github.com/emberjs/data/pull/4594) Revert "unloadRecord does not remove observers"
+- [#4605](https://github.com/emberjs/data/pull/4605) Don't notify belongsTo changes if nothing changed
+- [#4597](https://github.com/emberjs/data/pull/4597) Cleanup record array manager
+- [#4598](https://github.com/emberjs/data/pull/4598) fix integration/record-array-test setup
+- [#4600](https://github.com/emberjs/data/pull/4600) make DS.ManyArray lazy
+- [#4603](https://github.com/emberjs/data/pull/4603) [WARNING] Warn when extending JSONAPISerializer with extractMeta
+- [#4604](https://github.com/emberjs/data/pull/4604) Warn when findRecord returns a different id than the one requested
+- [#4659](https://github.com/emberjs/data/pull/4659) Document the  relationship serialized format in the RESTAdapter
+- [#4624](https://github.com/emberjs/data/pull/4624) Test assertions when updateRecord & deleteRecord don't exist on adapter
+- [#4612](https://github.com/emberjs/data/pull/4612) [DOC] Mark `errorsHashToArray` and `errorsArrayToHash` public
+- [#4620](https://github.com/emberjs/data/pull/4620) [FEATURE ds-serialize-id] add serializeId to json-serializer
+- [#4613](https://github.com/emberjs/data/pull/4613) Assert that InternalModel is indeed not materialized on store._push
+- [#4616](https://github.com/emberjs/data/pull/4616) Assert when original and not normalized key is found in payload
+- [#4621](https://github.com/emberjs/data/pull/4621) tidy-up integration/filter-test
+- [#4617](https://github.com/emberjs/data/pull/4617) chore(store): cleans up and optimizes code paths around fetching rela…
+- [#4607](https://github.com/emberjs/data/pull/4607) Fix dummy app serializer
+- [#4609](https://github.com/emberjs/data/pull/4609) [DOC] Improve warning for mismatched id in store.findRecord
+- [#4614](https://github.com/emberjs/data/pull/4614) [DOC] Minor changes to addon/serializer.js
+- [#4671](https://github.com/emberjs/data/pull/4671) Fix typo in delete-record-test
+- [#4645](https://github.com/emberjs/data/pull/4645) cleanup system/many-array
+- [#4636](https://github.com/emberjs/data/pull/4636) Add a missing example to the ManyArray api docs
+- [#4630](https://github.com/emberjs/data/pull/4630) Updates json-api-mock-server
+- [#4644](https://github.com/emberjs/data/pull/4644) [PERF] HasMany doesn't need to inform RecordArrayManager
+- [#4629](https://github.com/emberjs/data/pull/4629) [DOC] #4595 revise unloadAll description
+- [#4641](https://github.com/emberjs/data/pull/4641) Add API docs for the RecordReference
+- [#4639](https://github.com/emberjs/data/pull/4639) Update API docs for BelongsToReference
+- [#4643](https://github.com/emberjs/data/pull/4643) [BUGFIX #4649 #4648]
+- [#4637](https://github.com/emberjs/data/pull/4637) Simplify Adapter#serialize by using snapshot.serialize() since they d…
+- [#4661](https://github.com/emberjs/data/pull/4661) dirty check to prevent liveRecordArrays being rebuilt too often
+- [#4665](https://github.com/emberjs/data/pull/4665) Deprecate store.recordIsLoaded
+- [#4654](https://github.com/emberjs/data/pull/4654) remove useless private api
+- [#4653](https://github.com/emberjs/data/pull/4653) Update the API docs on the JSONAPISerializer
+- [#4652](https://github.com/emberjs/data/pull/4652) Improve the API docs for the JSONAPI adapter
+- [#4662](https://github.com/emberjs/data/pull/4662) Code Cleanup for store.js
+- [#4651](https://github.com/emberjs/data/pull/4651) Add some minor updates to the store documentation
+- [#4658](https://github.com/emberjs/data/pull/4658) Test for hasMany array removal on deletion
+- [#4669](https://github.com/emberjs/data/pull/4669) fix mock server
+- [#4674](https://github.com/emberjs/data/pull/4674) Update `findHasMany` API docs
+- [#4680](https://github.com/emberjs/data/pull/4680) Remove unused helper function `normalizeAttributes`
+
+### Release 2.10.0 (November 28, 2016)
+- [#4656](https://github.com/emberjs/data/pull/4656) [PERF backport to beta] fix sub-optimal compiler output ([#4655](https://github.com/emberjs/data/pull/4655))
+- [#4592](https://github.com/emberjs/data/pull/4592) [DOC] Add documentation for query#update() to refresh query
+- [#4510](https://github.com/emberjs/data/pull/4510) Heimdall instrumentation
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
+- [#4553](https://github.com/emberjs/data/pull/4553) [DOCS] Fix store.unloadAll modelName param type
+- [#4566](https://github.com/emberjs/data/pull/4566) Properly cleanup store and env in store integration test
+- [#4574](https://github.com/emberjs/data/pull/4574) Move heimdalljs to dependencies
+- [#4576](https://github.com/emberjs/data/pull/4576) [DOC] Update Readme to reflect new default adapter
+- [#4578](https://github.com/emberjs/data/pull/4578) Improved null id assertions
+
+### Release 2.9.0 (October 18, 2016)
+- [#4577](https://github.com/emberjs/data/pull/4577) [DOC] fix typo
+- [#4529](https://github.com/emberjs/data/pull/4529) isUpdating should be true only if a reload happens
+- [#4566](https://github.com/emberjs/data/pull/4566) Properly cleanup store and env in store integration test
+- [#4567](https://github.com/emberjs/data/pull/4567) [bugfix beta] Treat status code 0 as an abort
+- [#4559](https://github.com/emberjs/data/pull/4559) [BUGFIX beta] Use Ember.guidFor to set InternalModel's guid.
+- [#4560](https://github.com/emberjs/data/pull/4560) [BUGFIX beta] Ensure record array length is reset during willDestroy.
+- [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
+- [#4541](https://github.com/emberjs/data/pull/4541) [DOC beta] Remove `Ember.ArrayController` from initializer example (#4540)
+- [#4540](https://github.com/emberjs/data/pull/4540) Add examples to the build-url-mixin API docs (#4512)
+- [#4537](https://github.com/emberjs/data/pull/4537) [BUGFIX beta] Ember Data should not swallow exceptions from the run loop
+- [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an i…"
+- [#4536](https://github.com/emberjs/data/pull/4536) [DOC] fix features response typo (#4530)
+- [#4490](https://github.com/emberjs/data/pull/4490) [DOCS] No need to use Ember.run in succes and failure of wrapped getJSON
+- [#4493](https://github.com/emberjs/data/pull/4493) Addresses #4492
+- [#4503](https://github.com/emberjs/data/pull/4503) Update ember-try config to test against alpha.
+- [#4515](https://github.com/emberjs/data/pull/4515) Document the allowNull property on the boolean transform
+- [#4516](https://github.com/emberjs/data/pull/4516) Update the docs for normalizeModelName so they explain the intent of …
+- [#4521](https://github.com/emberjs/data/pull/4521) Remove ContainerProxy
+- [#4522](https://github.com/emberjs/data/pull/4522) add license to bower.json
+
 ### Release 2.8.1 (September 23, 2016)
 - [#4536](https://github.com/emberjs/data/pull/4536) bump to latest ember-cli, run ember init, cleanup post init
 - [#4546](https://github.com/emberjs/data/pull/4546) Revert "Log an assertion if the response from createRecord does not have an I…"
