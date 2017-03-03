@@ -13,7 +13,11 @@ module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
   beforeEach() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
-      lastName: DS.attr()
+      lastName: DS.attr(),
+      rolledBackCount: 0,
+      rolledBack() {
+        this.incrementProperty('rolledBackCount');
+      }
     });
     Person.reopenClass({ toString() { return 'Person'; } });
 
@@ -40,6 +44,7 @@ test("changes to attributes can be rolled back", function(assert) {
   });
 
   assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('rolledBackCount'), 0);
 
   run(function() {
     person.rollbackAttributes();
@@ -47,6 +52,7 @@ test("changes to attributes can be rolled back", function(assert) {
 
   assert.equal(person.get('firstName'), "Tom");
   assert.equal(person.get('hasDirtyAttributes'), false);
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test("changes to unassigned attributes can be rolled back", function(assert) {
@@ -66,6 +72,7 @@ test("changes to unassigned attributes can be rolled back", function(assert) {
   });
 
   assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('rolledBackCount'), 0);
 
   run(function() {
     person.rollbackAttributes();
@@ -73,6 +80,7 @@ test("changes to unassigned attributes can be rolled back", function(assert) {
 
   assert.equal(person.get('firstName'), undefined);
   assert.equal(person.get('hasDirtyAttributes'), false);
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test("changes to attributes made after a record is in-flight only rolls back the local changes", function(assert) {
@@ -107,6 +115,7 @@ test("changes to attributes made after a record is in-flight only rolls back the
     person.set('lastName', "Dolly");
 
     assert.equal(person.get('lastName'), "Dolly");
+    assert.equal(person.get('rolledBackCount'), 0);
 
     person.rollbackAttributes();
 
@@ -115,6 +124,7 @@ test("changes to attributes made after a record is in-flight only rolls back the
     assert.equal(person.get('isSaving'), true);
 
     saving.then(assert.wait(function() {
+      assert.equal(person.get('rolledBackCount'), 1);
       assert.equal(person.get('hasDirtyAttributes'), false, "The person is now clean");
     }));
   });
@@ -147,18 +157,22 @@ test("a record's changes can be made if it fails to save", function(assert) {
     person.save().then(null, function() {
       assert.equal(person.get('isError'), true);
       assert.deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
+      assert.equal(person.get('rolledBackCount'), 0);
 
-      person.rollbackAttributes();
+      run(function() {
+        person.rollbackAttributes();
+      });
 
       assert.equal(person.get('firstName'), "Tom");
       assert.equal(person.get('isError'), false);
       assert.equal(Object.keys(person.changedAttributes()).length, 0);
+      assert.equal(person.get('rolledBackCount'), 1);
     });
   });
 });
 
 test("a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly", function(assert) {
-  assert.expect(8);
+  assert.expect(10);
   env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
@@ -189,12 +203,16 @@ test("a deleted record's attributes can be rollbacked if it fails to save, recor
     person.save().then(null, function() {
       assert.equal(person.get('isError'), true);
       assert.equal(person.get('isDeleted'), true);
+      assert.equal(person.get('rolledBackCount'), 0);
+
       run(function() {
         person.rollbackAttributes();
       });
+
       assert.equal(person.get('isDeleted'), false);
       assert.equal(person.get('isError'), false);
       assert.equal(person.get('hasDirtyAttributes'), false, "must be not dirty");
+      assert.equal(person.get('rolledBackCount'), 1);
     }).then(function() {
       assert.equal(people.get('length'), 1, "the underlying record array is updated accordingly in an asynchronous way");
     });
@@ -210,12 +228,14 @@ test("new record's attributes can be rollbacked", function(assert) {
 
   assert.equal(person.get('isNew'), true, "must be new");
   assert.equal(person.get('hasDirtyAttributes'), true, "must be dirty");
+  assert.equal(person.get('rolledBackCount'), 0);
 
   Ember.run(person, 'rollbackAttributes');
 
   assert.equal(person.get('isNew'), false, "must not be new");
   assert.equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
   assert.equal(person.get('isDeleted'), true, "must be deleted");
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test("invalid new record's attributes can be rollbacked", function(assert) {
@@ -254,11 +274,14 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
   run(function() {
     person.save().then(null, assert.wait(function() {
       assert.equal(person.get('isValid'), false);
-      person.rollbackAttributes();
-
+      assert.equal(person.get('rolledBackCount'), 0);
+      run(function() {
+        person.rollbackAttributes();
+      });
       assert.equal(person.get('isNew'), false, "must not be new");
       assert.equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
       assert.equal(person.get('isDeleted'), true, "must be deleted");
+      assert.equal(person.get('rolledBackCount'), 1);
     }));
   });
 });
@@ -308,10 +331,15 @@ test("invalid record's attributes can be rollbacked after multiple failed calls 
 
       return person.save();
     })).then(null, assert.wait(function() {
-      person.rollbackAttributes();
+      assert.equal(person.get('rolledBackCount'), 0);
+
+      run(function() {
+        person.rollbackAttributes();
+      });
 
       assert.equal(person.get('hasDirtyAttributes'), false, "has no dirty attributes");
       assert.equal(person.get('firstName'), 'original name', "after rollbackAttributes() firstName has the original value");
+      assert.equal(person.get('rolledBackCount'), 1);
     }));
   });
 });
@@ -345,9 +373,13 @@ test("deleted record's attributes can be rollbacked", function(assert) {
 });
 
 test("invalid record's attributes can be rollbacked", function(assert) {
-  assert.expect(10);
+  assert.expect(12);
   Dog = DS.Model.extend({
-    name: DS.attr()
+    name: DS.attr(),
+    rolledBackCount: 0,
+    rolledBack() {
+      this.incrementProperty('rolledBackCount');
+    }
   });
 
   var error = new DS.InvalidError([
@@ -404,12 +436,15 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     });
 
     dog.save().then(null, assert.wait(function() {
-      dog.rollbackAttributes();
-
+      assert.equal(dog.get('rolledBackCount'), 0);
+      run(function() {
+        dog.rollbackAttributes();
+      });
       assert.equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
       assert.equal(dog.get('name'), "Pluto");
       assert.ok(Ember.isEmpty(dog.get('errors.name')));
       assert.ok(dog.get('isValid'));
+      assert.equal(dog.get('rolledBackCount'), 1);
     }));
   });
 });
