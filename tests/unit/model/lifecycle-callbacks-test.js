@@ -282,6 +282,7 @@ test('a record receives a becameInvalid callback when it became invalid', functi
       assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
       assert.equal(reason.errors.length, 1, 'reason should have one error');
       assert.equal(reason.errors[0].title, 'Invalid Attribute');
+      assert.equal(callCount, 1, 'becameInvalid called after invalidating');
     });
   });
 });
