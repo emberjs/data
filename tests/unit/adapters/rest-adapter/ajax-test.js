@@ -7,9 +7,9 @@ import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
 
 var Person, Place, store, adapter, env;
-var run = Ember.run;
+const { run } = Ember;
 
-module("unit/adapters/rest-adapter/ajax - building requests", {
+module('unit/adapters/rest-adapter/ajax - building requests', {
   beforeEach() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
@@ -19,45 +19,48 @@ module("unit/adapters/rest-adapter/ajax - building requests", {
   },
 
   afterEach() {
-    run(function() {
+    run(() => {
       store.destroy();
       env.container.destroy();
     });
   }
 });
 
-test("When an id is searched, the correct url should be generated", function(assert) {
+test('When an id is searched, the correct url should be generated', function(assert) {
   assert.expect(2);
-  var count = 0;
+
+  let count = 0;
 
   if (isEnabled('ds-improved-ajax')) {
     adapter._makeRequest = function(request) {
-      if (count === 0) { assert.equal(request.url, '/people/1', "should create the correct url"); }
-      if (count === 1) { assert.equal(request.url, '/places/1', "should create the correct url"); }
+      if (count === 0) { assert.equal(request.url, '/people/1', 'should create the correct url'); }
+      if (count === 1) { assert.equal(request.url, '/places/1', 'should create the correct url'); }
       count++;
       return Ember.RSVP.resolve();
     };
   } else {
     adapter.ajax = function(url, method) {
-      if (count === 0) { assert.equal(url, '/people/1', "should create the correct url"); }
-      if (count === 1) { assert.equal(url, '/places/1', "should create the correct url"); }
+      if (count === 0) { assert.equal(url, '/people/1', 'should create the correct url'); }
+      if (count === 1) { assert.equal(url, '/places/1', 'should create the correct url'); }
       count++;
       return Ember.RSVP.resolve();
     };
   }
 
-  run(function() {
-    adapter.findRecord(store, Person, 1, {});
-    adapter.findRecord(store, Place, 1, {});
+  return run(() => {
+    return Ember.RSVP.Promise.all([
+      adapter.findRecord(store, Person, 1, {}),
+      adapter.findRecord(store, Place, 1, {})
+    ])
   });
 });
 
-test("id's should be sanatized", function(assert) {
+test(`id's should be sanatized`, function(assert) {
   assert.expect(1);
 
   if (isEnabled('ds-improved-ajax')) {
     adapter._makeRequest = function(request) {
-      assert.equal(request.url, '/people/..%2Fplace%2F1', "should create the correct url");
+      assert.equal(request.url, '/people/..%2Fplace%2F1', `should create the correct url`);
       return Ember.RSVP.resolve();
     };
   } else {
@@ -66,30 +69,36 @@ test("id's should be sanatized", function(assert) {
       return Ember.RSVP.resolve();
     };
   }
-  run(function() {
-    adapter.findRecord(store, Person, '../place/1', {});
-  });
+
+  return run(() => adapter.findRecord(store, Person, '../place/1', {}));
 });
 
-test("ajaxOptions() headers are set", function(assert) {
-  adapter.headers = { 'Content-Type': 'application/json', 'Other-key': 'Other Value' };
-  var url = 'example.com';
-  var type = 'GET';
-  var ajaxOptions = adapter.ajaxOptions(url, type, {});
-  var receivedHeaders = [];
-  var fakeXHR = {
+test('ajaxOptions() headers are set', function(assert) {
+  adapter.headers = {
+    'Content-Type': 'application/json',
+    'Other-key': 'Other Value'
+  };
+
+  let url = 'example.com';
+  let type = 'GET';
+  let ajaxOptions = adapter.ajaxOptions(url, type, {});
+  let receivedHeaders = [];
+  let fakeXHR = {
     setRequestHeader(key, value) {
       receivedHeaders.push([key, value]);
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
-  assert.deepEqual(receivedHeaders, [['Content-Type', 'application/json'], ['Other-key', 'Other Value']], 'headers assigned');
+  assert.deepEqual(receivedHeaders, [
+    ['Content-Type', 'application/json'],
+    ['Other-key', 'Other Value']
+  ], 'headers assigned');
 });
 
-test("ajaxOptions() do not serializes data when GET", function(assert) {
-  var url = 'example.com';
-  var type = 'GET';
-  var ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+test('ajaxOptions() do not serializes data when GET', function(assert) {
+  let url = 'example.com';
+  let type = 'GET';
+  let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
   assert.deepEqual(ajaxOptions, {
     context: adapter,
@@ -102,13 +111,13 @@ test("ajaxOptions() do not serializes data when GET", function(assert) {
   });
 });
 
-test("ajaxOptions() serializes data when not GET", function(assert) {
-  var url = 'example.com';
-  var type = 'POST';
-  var ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+test('ajaxOptions() serializes data when not GET', function(assert) {
+  let url = 'example.com';
+  let type = 'POST';
+  let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
 
   assert.deepEqual(ajaxOptions, {
-    contentType: "application/json; charset=utf-8",
+    contentType: 'application/json; charset=utf-8',
     context: adapter,
     data: '{"key":"value"}',
     dataType: 'json',
@@ -117,10 +126,10 @@ test("ajaxOptions() serializes data when not GET", function(assert) {
   });
 });
 
-test("ajaxOptions() empty data", function(assert) {
-  var url = 'example.com';
-  var type = 'POST';
-  var ajaxOptions = adapter.ajaxOptions(url, type, {});
+test('ajaxOptions() empty data', function(assert) {
+  let url = 'example.com';
+  let type = 'POST';
+  let ajaxOptions = adapter.ajaxOptions(url, type, {});
 
   assert.deepEqual(ajaxOptions, {
     context: adapter,
