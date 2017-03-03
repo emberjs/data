@@ -2,12 +2,11 @@ import {createStore} from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import QUnit, {module, test} from 'qunit';
+import {module, test} from 'qunit';
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
 import { parseDate } from "ember-data/-private/ext/date";
 
-const AssertionPrototype = QUnit.assert;
 const { get, set, run } = Ember;
 
 let Person, store, env;
@@ -991,7 +990,7 @@ test('when a method is invoked from an event with the same name the arguments ar
   assert.equal(eventMethodArgs[1], 2);
 });
 
-AssertionPrototype.converts = function converts(type, provided, expected, options = {}) {
+function converts(assert, type, provided, expected, options = {}) {
   const Model = DS.Model.extend({
     name: DS.attr(type, options)
   });
@@ -1015,16 +1014,16 @@ AssertionPrototype.converts = function converts(type, provided, expected, option
 
     let record = testStore.peekRecord('model', 1);
 
-    this.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
+    assert.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
   });
 
   // See: Github issue #421
   // record = testStore.find(Model, 2);
   // set(record, 'name', provided);
   // deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-};
+}
 
-AssertionPrototype.convertsFromServer = function convertsFromServer(type, provided, expected) {
+function convertsFromServer(assert, type, provided, expected) {
   const Model = DS.Model.extend({
     name: DS.attr(type)
   });
@@ -1051,81 +1050,54 @@ AssertionPrototype.convertsFromServer = function convertsFromServer(type, provid
     }));
 
     return testStore.findRecord('model', 1).then(record => {
-      this.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
+      assert.deepEqual(get(record, 'name'), expected, type + ' coerces ' + provided + ' to ' + expected);
     });
   });
-};
-
-AssertionPrototype.convertsWhenSet = function(type, provided, expected) {
-  const Model = DS.Model.extend({
-    name: DS.attr(type)
-  });
-
-  let testStore = createStore({
-    model: Model,
-    adapter: DS.Adapter.extend({
-      shouldBackgroundReloadRecord: () => false
-    })
-  });
-
-  return run(() => {
-    testStore.push({
-      data: {
-        type: 'model',
-        id: '2'
-      }
-    });
-
-    return testStore.findRecord('model', 2).then(record => {
-      set(record, 'name', provided);
-      this.deepEqual(record.serialize().name, expected, type + ' saves ' + provided + ' as ' + expected);
-    });
-  });
-};
+}
 
 test('a DS.Model can describe String attributes', function(assert) {
   assert.expect(4);
 
-  assert.converts('string', 'Scumbag Tom', 'Scumbag Tom');
-  assert.converts('string', 1, '1');
-  assert.converts('string', '', '');
-  assert.converts('string', null, null);
+  converts(assert, 'string', 'Scumbag Tom', 'Scumbag Tom');
+  converts(assert, 'string', 1, '1');
+  converts(assert, 'string', '', '');
+  converts(assert, 'string', null, null);
 });
 
 test('a DS.Model can describe Number attributes', function(assert) {
   assert.expect(8);
 
-  assert.converts('number', '1', 1);
-  assert.converts('number', '0', 0);
-  assert.converts('number', 1, 1);
-  assert.converts('number', 0, 0);
-  assert.converts('number', "", null);
-  assert.converts('number', null, null);
-  assert.converts('number', true, 1);
-  assert.converts('number', false, 0);
+  converts(assert, 'number', '1', 1);
+  converts(assert, 'number', '0', 0);
+  converts(assert, 'number', 1, 1);
+  converts(assert, 'number', 0, 0);
+  converts(assert, 'number', "", null);
+  converts(assert, 'number', null, null);
+  converts(assert, 'number', true, 1);
+  converts(assert, 'number', false, 0);
 });
 
 test('a DS.Model can describe Boolean attributes', function(assert) {
-  assert.converts('boolean', '1', true);
-  assert.converts('boolean', "", false);
-  assert.converts('boolean', 1, true);
-  assert.converts('boolean', 0, false);
+  converts(assert, 'boolean', '1', true);
+  converts(assert, 'boolean', "", false);
+  converts(assert, 'boolean', 1, true);
+  converts(assert, 'boolean', 0, false);
 
-  assert.converts('boolean', null, null, { allowNull: true });
+  converts(assert, 'boolean', null, null, { allowNull: true });
 
-  assert.converts('boolean', null, false, { allowNull: false });
+  converts(assert, 'boolean', null, false, { allowNull: false });
 
-  assert.converts('boolean', null, false);
+  converts(assert, 'boolean', null, false);
 
-  assert.converts('boolean', true, true);
-  assert.converts('boolean', false, false);
+  converts(assert, 'boolean', true, true);
+  converts(assert, 'boolean', false, false);
 });
 
 test('a DS.Model can describe Date attributes', function(assert) {
   assert.expect(5);
 
-  assert.converts('date', null, null);
-  assert.converts('date', undefined, undefined);
+  converts(assert, 'date', null, null);
+  converts(assert, 'date', undefined, undefined);
 
   let dateString = '2011-12-31T00:08:16.000Z';
   let date = new Date(parseDate(dateString));
@@ -1154,10 +1126,37 @@ test('a DS.Model can describe Date attributes', function(assert) {
       assert.deepEqual(date, get(record, 'updatedAt'), 'setting a date returns the same date');
     });
   }).then(() => {
-    assert.convertsFromServer('date', dateString, date);
-    assert.convertsWhenSet('date', date, dateString);
+    convertsFromServer(assert, 'date', dateString, date);
+    convertsWhenSet(assert, 'date', date, dateString);
   });
 });
+
+function convertsWhenSet(assert, type, provided, expected) {
+  let testStore = createStore({
+    model: DS.Model.extend({
+      name: DS.attr(type)
+    }),
+    adapter: DS.Adapter.extend({
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    })
+  });
+
+  return run(() => {
+    testStore.push({
+      data: {
+        type: 'model',
+        id: '2'
+      }
+    });
+
+    return testStore.findRecord('model', 2).then(record => {
+      set(record, 'name', provided);
+      assert.deepEqual(record.serialize().name, expected, type + ' saves ' + provided + ' as ' + expected);
+    });
+  });
+}
 
 testInDebug(`don't allow setting`, function(assert) {
   const Person = DS.Model.extend();
