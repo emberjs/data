@@ -1947,10 +1947,10 @@ testInDebug('coalesceFindRequests assert.warns if the expected records are not r
   adapter.coalesceFindRequests = true;
 
   ajaxResponse({ comments: [{ id: 1 }] });
-  var post;
 
-  assert.expectWarning(function() {
-    run(function() {
+  let wait;
+  assert.expectWarning(() => {
+    run(() => {
       store.push({
         data: {
           type: 'post',
@@ -1967,9 +1967,13 @@ testInDebug('coalesceFindRequests assert.warns if the expected records are not r
         }
       });
 
-      post = store.peekRecord('post', 2);
-      post.get('comments');
+      let post = store.peekRecord('post', 2);
+      wait = post.get('comments').catch(e => {
+        assert.equal(e.message, `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`)
+      })
     });
+
+    return wait;
   }, /expected to find records with the following ids in the adapter response but they were missing: \[2,3\]/);
 });
 

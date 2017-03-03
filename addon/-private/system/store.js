@@ -906,10 +906,11 @@ Store = Service.extend({
 
     function rejectInternalModels(internalModels, error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
-        let pair = seeking[internalModels[i].id];
+        let internalModel = internalModels[i];
+        let pair = seeking[internalModel.id];
 
         if (pair) {
-          pair.resolver.reject(error);
+          pair.resolver.reject(error || new Error(`Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`));
         }
       }
     }
