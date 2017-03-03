@@ -7,8 +7,30 @@ import DS from 'ember-data';
 var Person, store, env;
 var run = Ember.run;
 
+function payloadError(payload, expectedError) {
+  env.registry.register('serializer:person', DS.Serializer.extend({
+    normalizeResponse(store, type, pld) {
+      return pld;
+    }
+  }));
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findRecord() {
+      return Ember.RSVP.resolve(payload);
+    }
+  }));
+  this.throws(function () {
+    run(function() {
+      store.findRecord('person', 1);
+    });
+  }, expectedError, `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`);
+  env.registry.unregister('serializer:person');
+  env.registry.unregister('adapter:person');
+}
+
 module("integration/store/json-validation", {
   beforeEach() {
+    QUnit.assert.payloadError = payloadError;
+
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -23,6 +45,7 @@ module("integration/store/json-validation", {
   },
 
   afterEach() {
+    QUnit.assert.payloadError = null
     run(store, 'destroy');
   }
 });
@@ -108,26 +131,6 @@ testInDebug("when normalizeResponse returns a document with both data and errors
     });
   }, /cannot both be present/);
 });
-
-QUnit.assert.payloadError = function payloadError(payload, expectedError) {
-  env.registry.register('serializer:person', DS.Serializer.extend({
-    normalizeResponse(store, type, pld) {
-      return pld;
-    }
-  }));
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord() {
-      return Ember.RSVP.resolve(payload);
-    }
-  }));
-  this.throws(function () {
-    run(function() {
-      store.findRecord('person', 1);
-    });
-  }, expectedError, `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`);
-  env.registry.unregister('serializer:person');
-  env.registry.unregister('adapter:person');
-};
 
 testInDebug("normalizeResponse 'data' cannot be undefined, a number, a string or a boolean", function(assert) {
 
