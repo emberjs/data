@@ -226,7 +226,7 @@ test('an uncommited record also receives a didDelete callback when it is deleted
 });
 
 test('a record receives a becameInvalid callback when it became invalid', function(assert) {
-  assert.expect(5);
+  assert.expect(8);
 
   let callCount = 0;
 
@@ -279,7 +279,9 @@ test('a record receives a becameInvalid callback when it became invalid', functi
         return person.save();
       });
     }).catch(reason => {
-      assert(reason.title, 'Invalid Attribute');
+      assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
+      assert.equal(reason.errors.length, 1, 'reason should have one error');
+      assert.equal(reason.errors[0].title, 'Invalid Attribute');
       assert.equal(callCount, 1, 'becameInvalid called after invalidating');
     });
   });
