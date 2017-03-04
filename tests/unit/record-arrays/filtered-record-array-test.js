@@ -41,7 +41,7 @@ test('custom initial state', function(assert) {
 test('#replace() throws error', function(assert) {
   let recordArray = FilteredRecordArray.create({ modelName: 'recordType' });
 
-  assert.throws(function() {
+  assert.throws(() => {
     recordArray.replace();
   }, Error('The result of a client-side filter (on recordType) is immutable.'), 'throws error');
 });

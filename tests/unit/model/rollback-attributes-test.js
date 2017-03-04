@@ -6,10 +6,10 @@ import {module, test} from 'qunit';
 import DS from 'ember-data';
 import isEnabled from 'ember-data/-private/features';
 
-var env, store, Person, Dog;
-var run = Ember.run;
+let env, store, Person;
+const { run  } = Ember;
 
-module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
+module('unit/model/rollbackAttributes - model.rollbackAttributes()', {
   beforeEach() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
@@ -22,9 +22,8 @@ module("unit/model/rollbackAttributes - model.rollbackAttributes()", {
   }
 });
 
-test("changes to attributes can be rolled back", function(assert) {
-  var person;
-  run(function() {
+test('changes to attributes can be rolled back', function(assert) {
+  let person = run(() => {
     store.push({
       data: {
         type: 'person',
@@ -37,54 +36,49 @@ test("changes to attributes can be rolled back", function(assert) {
     });
     person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
+    return person;
   });
 
   assert.equal(person.get('firstName'), "Thomas");
 
-  run(function() {
-    person.rollbackAttributes();
-  });
+  run(() => person.rollbackAttributes());
 
   assert.equal(person.get('firstName'), "Tom");
   assert.equal(person.get('hasDirtyAttributes'), false);
 });
 
-test("changes to unassigned attributes can be rolled back", function(assert) {
-  var person;
-  run(function() {
+test('changes to unassigned attributes can be rolled back', function(assert) {
+  let person = run(() => {
     store.push({
       data: {
         type: 'person',
         id: '1',
         attributes: {
-          lastName: "Dale"
+          lastName: 'Dale'
         }
       }
     });
     person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
+
+    return person;
   });
 
   assert.equal(person.get('firstName'), "Thomas");
 
-  run(function() {
-    person.rollbackAttributes();
-  });
+  run(() => person.rollbackAttributes());
 
   assert.equal(person.get('firstName'), undefined);
   assert.equal(person.get('hasDirtyAttributes'), false);
 });
 
-test("changes to attributes made after a record is in-flight only rolls back the local changes", function(assert) {
+test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
     // Make sure the save is async
-    return new Ember.RSVP.Promise(function(resolve, reject) {
-      Ember.run.later(null, resolve, 15);
-    });
+    return new Ember.RSVP.Promise(resolve => Ember.run.later(null, resolve, 15));
   };
-  var person;
 
-  run(function() {
+  let person = run(() => {
     store.push({
       data: {
         type: 'person',
@@ -95,12 +89,15 @@ test("changes to attributes made after a record is in-flight only rolls back the
         }
       }
     });
-    person = store.peekRecord('person', 1);
+
+    let person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
+
+    return person;
   });
 
-  Ember.run(function() {
-    var saving = person.save();
+  return run(() => {
+    let saving = person.save();
 
     assert.equal(person.get('firstName'), "Thomas");
 
@@ -114,9 +111,9 @@ test("changes to attributes made after a record is in-flight only rolls back the
     assert.equal(person.get('lastName'), "Dale");
     assert.equal(person.get('isSaving'), true);
 
-    saving.then(assert.wait(function() {
-      assert.equal(person.get('hasDirtyAttributes'), false, "The person is now clean");
-    }));
+    return saving.then(() => {
+      assert.equal(person.get('hasDirtyAttributes'), false, 'The person is now clean');
+    });
   });
 });
 
@@ -124,9 +121,8 @@ test("a record's changes can be made if it fails to save", function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
-  var person;
 
-  run(function() {
+  let person = run(() => {
     store.push({
       data: {
         type: 'person',
@@ -137,8 +133,11 @@ test("a record's changes can be made if it fails to save", function(assert) {
         }
       }
     });
-    person = store.peekRecord('person', 1);
+
+    let person = store.peekRecord('person', 1);
     person.set('firstName', "Thomas");
+
+    return person;
   });
 
   assert.deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
@@ -157,14 +156,15 @@ test("a record's changes can be made if it fails to save", function(assert) {
   });
 });
 
-test("a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly", function(assert) {
+test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function(assert) {
   assert.expect(8);
   env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
-  var person, people;
 
-  run(function() {
+  let person, people;
+
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -179,55 +179,47 @@ test("a deleted record's attributes can be rollbacked if it fails to save, recor
     people = store.peekAll('person');
   });
 
-  run(function() {
-    person.deleteRecord();
-  });
-  assert.equal(people.get('length'), 1, "a deleted record appears in record array until it is saved");
-  assert.equal(people.objectAt(0), person, "a deleted record appears in record array until it is saved");
+  run(() => person.deleteRecord());
 
-  run(function() {
-    person.save().then(null, function() {
+  assert.equal(people.get('length'), 1, 'a deleted record appears in record array until it is saved');
+  assert.equal(people.objectAt(0), person, 'a deleted record appears in record array until it is saved');
+
+  return run(() => {
+    return person.save().catch(() => {
       assert.equal(person.get('isError'), true);
       assert.equal(person.get('isDeleted'), true);
-      run(function() {
-        person.rollbackAttributes();
-      });
+      run(() => person.rollbackAttributes());
       assert.equal(person.get('isDeleted'), false);
       assert.equal(person.get('isError'), false);
-      assert.equal(person.get('hasDirtyAttributes'), false, "must be not dirty");
-    }).then(function() {
-      assert.equal(people.get('length'), 1, "the underlying record array is updated accordingly in an asynchronous way");
+      assert.equal(person.get('hasDirtyAttributes'), false, 'must be not dirty');
+    }).then(() => {
+      assert.equal(people.get('length'), 1, 'the underlying record array is updated accordingly in an asynchronous way');
     });
   });
 });
 
-test("new record's attributes can be rollbacked", function(assert) {
-  var person;
+test(`new record's attributes can be rollbacked`, function(assert) {
+  let person = run(() => store.createRecord('person', { id: 1 }));
 
-  run(function() {
-    person = store.createRecord('person', { id: 1 });
-  });
-
-  assert.equal(person.get('isNew'), true, "must be new");
-  assert.equal(person.get('hasDirtyAttributes'), true, "must be dirty");
+  assert.equal(person.get('isNew'), true, 'must be new');
+  assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
 
   Ember.run(person, 'rollbackAttributes');
 
-  assert.equal(person.get('isNew'), false, "must not be new");
-  assert.equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
-  assert.equal(person.get('isDeleted'), true, "must be deleted");
+  assert.equal(person.get('isNew'), false, 'must not be new');
+  assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
+  assert.equal(person.get('isDeleted'), true, 'must be deleted');
 });
 
-test("invalid new record's attributes can be rollbacked", function(assert) {
-  var person;
-  var error = new DS.InvalidError([
+test(`invalid new record's attributes can be rollbacked`, function(assert) {
+  let error = new DS.InvalidError([
     {
       detail: 'is invalid',
       source: { pointer: 'data/attributes/name' }
     }
   ]);
 
-  var adapter;
+  let adapter;
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
@@ -244,40 +236,38 @@ test("invalid new record's attributes can be rollbacked", function(assert) {
 
   env = setupStore({ person: Person, adapter: adapter });
 
-  run(function() {
-    person = env.store.createRecord('person', { id: 1 });
-  });
+  let person = run(() => env.store.createRecord('person', { id: 1 }));
 
-  assert.equal(person.get('isNew'), true, "must be new");
-  assert.equal(person.get('hasDirtyAttributes'), true, "must be dirty");
+  assert.equal(person.get('isNew'), true, 'must be new');
+  assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
 
-  run(function() {
-    person.save().then(null, assert.wait(function() {
+  return run(() => {
+    return person.save().catch(reason => {
+      assert.equal(error, reason);
       assert.equal(person.get('isValid'), false);
       person.rollbackAttributes();
 
-      assert.equal(person.get('isNew'), false, "must not be new");
-      assert.equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
-      assert.equal(person.get('isDeleted'), true, "must be deleted");
-    }));
+      assert.equal(person.get('isNew'), false, 'must not be new');
+      assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
+      assert.equal(person.get('isDeleted'), true, 'must be deleted');
+    });
   });
 });
 
-test("invalid record's attributes can be rollbacked after multiple failed calls - #3677", function(assert) {
-  var person;
+test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function(assert) {
 
-  var adapter;
+  let adapter;
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
-        var error = new DS.InvalidError();
+        let error = new DS.InvalidError();
         return Ember.RSVP.reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
-        var error = new DS.InvalidError();
+        let error = new DS.InvalidError();
         return Ember.RSVP.reject(error);
       }
     });
@@ -285,7 +275,8 @@ test("invalid record's attributes can be rollbacked after multiple failed calls 
 
   env = setupStore({ person: Person, adapter: adapter });
 
-  run(function() {
+  let person;
+  run(() => {
     person = env.store.push({
       data: {
         type: 'person',
@@ -299,27 +290,27 @@ test("invalid record's attributes can be rollbacked after multiple failed calls 
     person.set('firstName', 'updated name');
   });
 
-  run(function() {
-    assert.equal(person.get('firstName'), 'updated name', "precondition: firstName is changed");
+  return run(() => {
+    assert.equal(person.get('firstName'), 'updated name', 'precondition: firstName is changed');
 
-    person.save().then(null, assert.wait(function() {
-      assert.equal(person.get('hasDirtyAttributes'), true, "has dirty attributes");
-      assert.equal(person.get('firstName'), 'updated name', "firstName is still changed");
+    return person.save().catch(() => {
+      assert.equal(person.get('hasDirtyAttributes'), true, 'has dirty attributes');
+      assert.equal(person.get('firstName'), 'updated name', 'firstName is still changed');
 
       return person.save();
-    })).then(null, assert.wait(function() {
+    }).catch(() => {
       person.rollbackAttributes();
 
-      assert.equal(person.get('hasDirtyAttributes'), false, "has no dirty attributes");
-      assert.equal(person.get('firstName'), 'original name', "after rollbackAttributes() firstName has the original value");
-    }));
+      assert.equal(person.get('hasDirtyAttributes'), false, 'has no dirty attributes');
+      assert.equal(person.get('firstName'), 'original name', 'after rollbackAttributes() firstName has the original value');
+    });
   });
 });
 
-test("deleted record's attributes can be rollbacked", function(assert) {
-  var person, people;
+test(`deleted record's attributes can be rollbacked`, function(assert) {
+  let person, people;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -331,33 +322,32 @@ test("deleted record's attributes can be rollbacked", function(assert) {
     person.deleteRecord();
   });
 
-  assert.equal(people.get('length'), 1, "a deleted record appears in the record array until it is saved");
-  assert.equal(people.objectAt(0), person, "a deleted record appears in the record array until it is saved");
+  assert.equal(people.get('length'), 1, 'a deleted record appears in the record array until it is saved');
+  assert.equal(people.objectAt(0), person, 'a deleted record appears in the record array until it is saved');
 
-  assert.equal(person.get('isDeleted'), true, "must be deleted");
+  assert.equal(person.get('isDeleted'), true, 'must be deleted');
 
-  run(function() {
-    person.rollbackAttributes();
-  });
-  assert.equal(people.get('length'), 1, "the rollbacked record should appear again in the record array");
-  assert.equal(person.get('isDeleted'), false, "must not be deleted");
-  assert.equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
+  run(() => person.rollbackAttributes());
+
+  assert.equal(people.get('length'), 1, 'the rollbacked record should appear again in the record array');
+  assert.equal(person.get('isDeleted'), false, 'must not be deleted');
+  assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
 });
 
 test("invalid record's attributes can be rollbacked", function(assert) {
-  assert.expect(10);
-  Dog = DS.Model.extend({
+  assert.expect(11);
+  const Dog = DS.Model.extend({
     name: DS.attr()
   });
 
-  var error = new DS.InvalidError([
+  let error = new DS.InvalidError([
     {
       detail: 'is invalid',
       source: { pointer: 'data/attributes/name' }
     }
   ]);
 
-  var adapter;
+  let adapter;
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
@@ -374,8 +364,8 @@ test("invalid record's attributes can be rollbacked", function(assert) {
 
 
   env = setupStore({ dog: Dog, adapter: adapter });
-  var dog;
-  run(function() {
+  let dog;
+  run(() => {
     env.store.push({
       data: {
         type: 'dog',
@@ -389,7 +379,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     dog.set('name', "is a dwarf planet");
   });
 
-  run(function() {
+  return run(() => {
     Ember.addObserver(dog, 'errors.name', function() {
       assert.ok(true, 'errors.name did change');
     });
@@ -403,32 +393,34 @@ test("invalid record's attributes can be rollbacked", function(assert) {
       }
     });
 
-    dog.save().then(null, assert.wait(function() {
+    return dog.save().catch(reason => {
+      assert.equal(reason, error);
+
       dog.rollbackAttributes();
 
-      assert.equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
-      assert.equal(dog.get('name'), "Pluto");
+      assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
+      assert.equal(dog.get('name'), 'Pluto');
       assert.ok(Ember.isEmpty(dog.get('errors.name')));
       assert.ok(dog.get('isValid'));
-    }));
+    });
   });
 });
 
-test("invalid record's attributes rolled back to correct state after set", function(assert) {
-  assert.expect(13);
-  Dog = DS.Model.extend({
+test(`invalid record's attributes rolled back to correct state after set`, function(assert) {
+  assert.expect(14);
+  const Dog = DS.Model.extend({
     name: DS.attr(),
     breed: DS.attr()
   });
 
-  var error = new DS.InvalidError([
+  let error = new DS.InvalidError([
     {
       detail: 'is invalid',
       source: { pointer: 'data/attributes/name' }
     }
   ]);
 
-  var adapter;
+  let adapter;
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
@@ -444,8 +436,8 @@ test("invalid record's attributes rolled back to correct state after set", funct
   }
 
   env = setupStore({ dog: Dog, adapter: adapter });
-  var dog;
-  run(function() {
+  let dog;
+  run(() => {
     env.store.push({
       data: {
         type: 'dog',
@@ -461,50 +453,47 @@ test("invalid record's attributes rolled back to correct state after set", funct
     dog.set('breed', 'planet');
   });
 
-  run(function() {
+  return run(() => {
     Ember.addObserver(dog, 'errors.name', function() {
       assert.ok(true, 'errors.name did change');
     });
 
-    dog.save().then(null, assert.wait(function() {
-      assert.equal(dog.get('name'), "is a dwarf planet");
-      assert.equal(dog.get('breed'), "planet");
+    return dog.save().catch(reason => {
+      assert.equal(reason, error);
+      assert.equal(dog.get('name'), 'is a dwarf planet');
+      assert.equal(dog.get('breed'), 'planet');
       assert.ok(Ember.isPresent(dog.get('errors.name')));
       assert.equal(dog.get('errors.name.length'), 1);
 
-      run(function() {
-        dog.set('name', 'Seymour Asses');
-      });
+      run(() => dog.set('name', 'Seymour Asses'));
 
-      assert.equal(dog.get('name'), "Seymour Asses");
-      assert.equal(dog.get('breed'), "planet");
+      assert.equal(dog.get('name'), 'Seymour Asses');
+      assert.equal(dog.get('breed'), 'planet');
 
-      run(function() {
-        dog.rollbackAttributes();
-      });
+      run(() => dog.rollbackAttributes());
 
-      assert.equal(dog.get('name'), "Pluto");
-      assert.equal(dog.get('breed'), "Disney");
-      assert.equal(dog.get('hasDirtyAttributes'), false, "must not be dirty");
+      assert.equal(dog.get('name'), 'Pluto');
+      assert.equal(dog.get('breed'), 'Disney');
+      assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.ok(Ember.isEmpty(dog.get('errors.name')));
       assert.ok(dog.get('isValid'));
-    }));
+    });
   });
 });
 
-test("when destroying a record setup the record state to invalid, the record's attributes can be rollbacked", function(assert) {
-  Dog = DS.Model.extend({
+test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function(assert) {
+  const Dog = DS.Model.extend({
     name: DS.attr()
   });
 
-  var error = new DS.InvalidError([
+  let error = new DS.InvalidError([
     {
       detail: 'is invalid',
       source: { pointer: 'data/attributes/name' }
     }
   ]);
 
-  var adapter;
+  let adapter;
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
@@ -520,8 +509,7 @@ test("when destroying a record setup the record state to invalid, the record's a
   }
 
   env = setupStore({ dog: Dog, adapter: adapter });
-  var dog;
-  run(function() {
+  let dog = run(() => {
     env.store.push({
       data: {
         type: 'dog',
@@ -531,24 +519,24 @@ test("when destroying a record setup the record state to invalid, the record's a
         }
       }
     });
-    dog = env.store.peekRecord('dog', 1);
+    return env.store.peekRecord('dog', 1);
   });
 
-  run(function() {
-    dog.destroyRecord().then(null, assert.wait(function() {
+  return run(() => {
+    return dog.destroyRecord().catch(reason  => {
+      assert.equal(reason, error);
 
-
-      assert.equal(dog.get('isError'), false, "must not be error");
-      assert.equal(dog.get('isDeleted'), true, "must be deleted");
-      assert.equal(dog.get('isValid'), false, "must not be valid");
-      assert.ok(dog.get('errors.length') > 0, "must have errors");
+      assert.equal(dog.get('isError'), false, 'must not be error');
+      assert.equal(dog.get('isDeleted'), true, 'must be deleted');
+      assert.equal(dog.get('isValid'), false, 'must not be valid');
+      assert.ok(dog.get('errors.length') > 0, 'must have errors');
 
       dog.rollbackAttributes();
 
-      assert.equal(dog.get('isError'), false, "must not be error after `rollbackAttributes`");
-      assert.equal(dog.get('isDeleted'), false, "must not be deleted after `rollbackAttributes`");
-      assert.equal(dog.get('isValid'), true, "must be valid after `rollbackAttributes`");
-      assert.ok(dog.get('errors.length') === 0, "must not have errors");
-    }));
+      assert.equal(dog.get('isError'), false, 'must not be error after `rollbackAttributes`');
+      assert.equal(dog.get('isDeleted'), false, 'must not be deleted after `rollbackAttributes`');
+      assert.equal(dog.get('isValid'), true, 'must be valid after `rollbackAttributes`');
+      assert.ok(dog.get('errors.length') === 0, 'must not have errors');
+    })
   });
 });

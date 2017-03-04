@@ -5,11 +5,10 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
-var run = Ember.run;
-var Occupation, Person, store;
+const { get, run } = Ember;
+let Occupation, Person, store;
 
-module("unit/model/relationships - DS.Model", {
+module('unit/model/relationships - DS.Model', {
   beforeEach() {
     Occupation = DS.Model.extend();
 
@@ -28,13 +27,13 @@ module("unit/model/relationships - DS.Model", {
   }
 });
 
-test("exposes a hash of the relationships on a model", function(assert) {
-  run(function() {
+test('exposes a hash of the relationships on a model', function(assert) {
+  run(() => {
     store.createRecord('person');
     store.createRecord('occupation');
   });
 
-  var relationships = get(Person, 'relationships');
+  let relationships = get(Person, 'relationships');
   assert.deepEqual(relationships.get('person'), [
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
@@ -44,17 +43,15 @@ test("exposes a hash of the relationships on a model", function(assert) {
   ]);
 });
 
-test("relationshipNames a hash of the relationships on a model with type as a key", function(assert) {
+test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
   assert.deepEqual(get(Person, 'relationshipNames'),
     { hasMany: ['occupations', 'people'], belongsTo: ["parent"] });
 });
 
-test("eachRelatedType() iterates over relations without duplication", function(assert) {
-  var relations = [];
+test('eachRelatedType() iterates over relations without duplication', function(assert) {
+  let relations = [];
 
-  Person.eachRelatedType(function(modelName) {
-    relations.push(modelName);
-  });
+  Person.eachRelatedType(modelName => relations.push(modelName));
 
   assert.deepEqual(relations, ['occupation', 'person']);
 });
