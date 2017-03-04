@@ -8,10 +8,12 @@ var App, store, debugAdapter;
 var get = Ember.get;
 var run = Ember.run;
 
-module("DS.DebugAdapter", {
+module('DS.DebugAdapter', {
   beforeEach() {
     Ember.run(function() {
-      App = Ember.Application.create();
+      App = Ember.Application.extend({
+        toString() { return 'debug-app'; }
+      }).create();
 
       App.StoreService = DS.Store.extend({});
 
@@ -49,6 +51,7 @@ module("DS.DebugAdapter", {
   },
   afterEach() {
     run(App, App.destroy);
+    App = store = null;
   }
 });
 

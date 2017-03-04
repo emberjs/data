@@ -106,25 +106,26 @@ test('manyArray trigger arrayContentChange functions with the correct values', f
   let willChangeRemoveAmt;
   let willChangeAddAmt;
 
-  let originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
-  let originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
+  let originalArrayContentWillChange = DS.ManyArray.proto().arrayContentWillChange;
+  let originalArrayContentDidChange = DS.ManyArray.proto().arrayContentDidChange;
 
-  DS.ManyArray.reopen({
-    arrayContentWillChange(startIdx, removeAmt, addAmt) {
-      willChangeStartIdx = startIdx;
-      willChangeRemoveAmt = removeAmt;
-      willChangeAddAmt = addAmt;
+  // override DS.ManyArray temp (cleanup occures in afterTest);
 
-      return this._super(...arguments);
-    },
-    arrayContentDidChange(startIdx, removeAmt, addAmt) {
-      assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
-      assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
-      assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+  DS.ManyArray.proto().arrayContentWillChange = function(startIdx, removeAmt, addAmt)  {
+    willChangeStartIdx = startIdx;
+    willChangeRemoveAmt = removeAmt;
+    willChangeAddAmt = addAmt;
 
-      return this._super(...arguments);
-    }
-  });
+    return originalArrayContentWillChange.apply(this, arguments);
+  };
+
+  DS.ManyArray.proto().arrayContentDidChange = function(startIdx, removeAmt, addAmt) {
+    assert.equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
+    assert.equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
+    assert.equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+
+    return originalArrayContentDidChange.apply(this, arguments);
+  };
 
   try {
     run(() => {
@@ -181,11 +182,8 @@ test('manyArray trigger arrayContentChange functions with the correct values', f
         }
       });
     });
-
   } finally {
-    DS.ManyArray.reopen({
-      arrayContentWillChange: originalArrayContentWillChange,
-      arrayContentDidChange: originalArrayContentDidChange
-    });
+    DS.ManyArray.proto().arrayContentWillChange = originalArrayContentWillChange;
+    DS.ManyArray.proto().arrayContentDidChange = originalArrayContentDidChange;
   }
 });
