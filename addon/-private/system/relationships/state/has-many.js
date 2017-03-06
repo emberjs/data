@@ -12,6 +12,7 @@ export default class ManyRelationship extends Relationship {
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
+    this.__loadingPromise = undefined;
   }
 
   getManyArray() {
@@ -114,6 +115,15 @@ export default class ManyRelationship extends Relationship {
     this.record.notifyHasManyAdded(this.key, record, idx);
   }
 
+  set _loadingPromise(newPromise) {
+    if (this.__loadingPromise) {
+      this.__loadingPromise.destroy();
+    }
+    this.__loadingPromise = newPromise;
+  }
+
+  get _loadingPromise() { return this.__loadingPromise; }
+
   reload() {
     let manyArray = this.getManyArray();
     let manyArrayLoadedState = manyArray.get('isLoaded');
@@ -194,9 +204,9 @@ export default class ManyRelationship extends Relationship {
 
   getRecords() {
     //TODO(Igor) sync server here, once our syncing is not stupid
-    let manyArray = this.getManyArray();
+    let content = this.getManyArray();
     if (this.isAsync) {
-      var promise;
+      let promise;
       if (this.link) {
         if (this.hasLoaded) {
           promise = this.findRecords();
@@ -206,20 +216,22 @@ export default class ManyRelationship extends Relationship {
       } else {
         promise = this.findRecords();
       }
+
       this._loadingPromise = PromiseManyArray.create({
-        content: manyArray,
-        promise: promise
+        content: content,
+        promise
       });
+
       return this._loadingPromise;
     } else {
-      assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", manyArray.isEvery('isEmpty', false));
+      assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", content.isEvery('isEmpty', false));
 
       //TODO(Igor) WTF DO I DO HERE?
       // TODO @runspired equal WTFs to Igor
-      if (!manyArray.get('isDestroyed')) {
-        manyArray.set('isLoaded', true);
+      if (!content.get('isDestroyed')) {
+        content.set('isLoaded', true);
       }
-      return manyArray;
+      return content;
     }
   }
 
