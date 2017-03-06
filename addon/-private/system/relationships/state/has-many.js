@@ -1,12 +1,12 @@
 import { assert } from "ember-data/-private/debug";
 import { PromiseManyArray, promiseManyArray } from "ember-data/-private/system/promise-proxies";
-import Relationship from "ember-data/-private/system/relationships/state/relationship";
+import { ExpandedRelationship } from "ember-data/-private/system/relationships/state/relationship";
 import OrderedSet from "ember-data/-private/system/ordered-set";
 import ManyArray from "ember-data/-private/system/many-array";
 
 import { assertPolymorphicType } from "ember-data/-private/debug";
 
-export default class ManyRelationship extends Relationship {
+export default class ManyRelationship extends ExpandedRelationship {
   constructor(store, record, inverseKey, relationshipMeta) {
     super(store, record, inverseKey, relationshipMeta);
     this.belongsToType = relationshipMeta.type;
