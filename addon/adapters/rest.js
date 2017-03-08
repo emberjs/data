@@ -4,7 +4,7 @@
 */
 
 import Ember from 'ember';
-import Adapter from "ember-data/adapter";
+import Adapter from "../adapter";
 import {
   AdapterError,
   InvalidError,
@@ -15,11 +15,11 @@ import {
   ServerError,
   TimeoutError,
   AbortError
-} from 'ember-data/adapters/errors';
-import BuildURLMixin from "ember-data/-private/adapters/build-url-mixin";
-import isEnabled from 'ember-data/-private/features';
+} from './errors';
+import BuildURLMixin from "../-private/adapters/build-url-mixin";
+import isEnabled from '../-private/features';
 import { instrument, runInDebug, warn, deprecate } from 'ember-data/-private/debug';
-import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
+import parseResponseHeaders from '../-private/utils/parse-response-headers';
 
 const {
   MapWithDefault,

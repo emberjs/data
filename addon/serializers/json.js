@@ -1,16 +1,16 @@
 import Ember from 'ember';
 import { assert, deprecate, warn } from 'ember-data/-private/debug';
-import Serializer from "ember-data/serializer";
-import coerceId from "ember-data/-private/system/coerce-id";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
-import isEnabled from 'ember-data/-private/features';
+import Serializer from "../serializer";
+import coerceId from "../-private/system/coerce-id";
+import normalizeModelName from "../-private/system/normalize-model-name";
+import { modelHasAttributeOrRelationshipNamedType } from "../-private/utils";
+import isEnabled from '../-private/features';
 
 import {
   getOwner
-} from 'ember-data/-private/utils';
+} from '../-private/utils';
 
-import { errorsArrayToHash } from "ember-data/adapters/errors";
+import { errorsArrayToHash } from "../adapters/errors";
 
 const get = Ember.get;
 const isNone = Ember.isNone;

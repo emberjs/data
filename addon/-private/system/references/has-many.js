@@ -6,7 +6,7 @@ import {
   runInDebug
 } from 'ember-data/-private/debug';
 
-import isEnabled from 'ember-data/-private/features';
+import isEnabled from '../../features';
 
 const {
   RSVP: { resolve },

@@ -3,11 +3,11 @@
 */
 
 import Ember from 'ember';
-import { assert, deprecate, runInDebug, warn } from 'ember-data/-private/debug';
-import JSONSerializer from 'ember-data/serializers/json';
-import normalizeModelName from 'ember-data/-private/system/normalize-model-name';
 import { pluralize, singularize } from 'ember-inflector';
-import isEnabled from 'ember-data/-private/features';
+import { assert, deprecate, runInDebug, warn } from 'ember-data/-private/debug';
+import JSONSerializer from './json';
+import normalizeModelName from '../-private/system/normalize-model-name';
+import isEnabled from '../-private/features';
 
 const dasherize = Ember.String.dasherize;
 

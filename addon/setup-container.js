@@ -1,7 +1,7 @@
-import initializeStore from 'ember-data/-private/initializers/store';
-import initializeTransforms from 'ember-data/-private/initializers/transforms';
-import initializeStoreInjections from 'ember-data/-private/initializers/store-injections';
-import initializeDataAdapter from 'ember-data/-private/initializers/data-adapter';
+import initializeStore from './-private/initializers/store';
+import initializeTransforms from './-private/initializers/transforms';
+import initializeStoreInjections from './-private/initializers/store-injections';
+import initializeDataAdapter from './-private/initializers/data-adapter';
 
 export default function setupContainer(application) {
   initializeDataAdapter(application);

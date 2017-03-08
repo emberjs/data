@@ -2,10 +2,10 @@
   @module ember-data
 */
 
-import Model from "ember-data/-private/system/model/model";
-import attr from "ember-data/attr";
-import RootState from "ember-data/-private/system/model/states";
-import Errors from "ember-data/-private/system/model/errors";
+import Model from "./model/model";
+import attr from "../../attr";
+import RootState from "./model/states";
+import Errors from "./model/errors";
 
 export {
   RootState,

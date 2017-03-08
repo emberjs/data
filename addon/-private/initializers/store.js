@@ -1,6 +1,6 @@
-import Store from "ember-data/-private/system/store";
-import { JSONAPISerializer, JSONSerializer, RESTSerializer } from "ember-data/-private/serializers";
-import { JSONAPIAdapter, RESTAdapter } from "ember-data/-private/adapters";
+import Store from "../system/store";
+import { JSONAPISerializer, JSONSerializer, RESTSerializer } from "../serializers";
+import { JSONAPIAdapter, RESTAdapter } from "../adapters";
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {

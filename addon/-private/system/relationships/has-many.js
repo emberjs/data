@@ -3,9 +3,9 @@
 */
 
 import Ember from 'ember';
-import { assert } from 'ember-data/-private/debug';
-import normalizeModelName from 'ember-data/-private/system/normalize-model-name';
-import isArrayLike from 'ember-data/-private/system/is-array-like';
+import { assert } from "ember-data/-private/debug";
+import normalizeModelName from "../normalize-model-name";
+import isArrayLike from "../is-array-like";
 
 const { get } = Ember;
 

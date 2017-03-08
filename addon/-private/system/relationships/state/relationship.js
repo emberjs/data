@@ -1,7 +1,7 @@
 /* global heimdall */
 import { assert, warn } from 'ember-data/-private/debug';
-import OrderedSet from 'ember-data/-private/system/ordered-set';
-import _normalizeLink from 'ember-data/-private/system/normalize-link';
+import OrderedSet from '../../ordered-set';
+import _normalizeLink from '../../normalize-link';
 
 const {
   addCanonicalRecord,

@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import RecordArray from "ember-data/-private/system/record-arrays/record-array";
+import RecordArray from "./record-array";
 
 /**
   @module ember-data

@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
+import normalizeModelName from "../normalize-model-name";
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many

@@ -1,7 +1,7 @@
 import Ember from 'ember';
-import ManyRelationship from "ember-data/-private/system/relationships/state/has-many";
-import BelongsToRelationship from "ember-data/-private/system/relationships/state/belongs-to";
-import EmptyObject from "ember-data/-private/system/empty-object";
+import ManyRelationship from "./has-many";
+import BelongsToRelationship from "./belongs-to";
+import EmptyObject from "../../empty-object";
 import { runInDebug } from 'ember-data/-private/debug';
 
 const { get } = Ember;

@@ -1,15 +1,15 @@
 import Ember from 'ember';
 import { assert, deprecate, warn } from "ember-data/-private/debug";
-import { PromiseObject } from "ember-data/-private/system/promise-proxies";
-import Errors from "ember-data/-private/system/model/errors";
-import isEnabled from 'ember-data/-private/features';
-import RootState from 'ember-data/-private/system/model/states';
-import EmptyObject from "ember-data/-private/system/empty-object";
+import { PromiseObject } from "../promise-proxies";
+import Errors from "../model/errors";
+import isEnabled from '../../features';
+import RootState from '../model/states';
+import EmptyObject from "../empty-object";
 import {
   relationshipsByNameDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor
-} from 'ember-data/-private/system/relationships/ext';
+} from '../relationships/ext';
 import { runInDebug } from 'ember-data/-private/debug';
 
 const {

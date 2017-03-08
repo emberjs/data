@@ -4,8 +4,8 @@
 */
 
 import Ember from 'ember';
-import RESTAdapter from "ember-data/adapters/rest";
-import isEnabled from 'ember-data/-private/features';
+import RESTAdapter from "./rest";
+import isEnabled from '../-private/features';
 import { instrument, deprecate } from 'ember-data/-private/debug';
 
 /**
