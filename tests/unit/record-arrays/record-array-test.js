@@ -37,7 +37,7 @@ test('custom initial state', function(assert) {
 test('#replace() throws error', function(assert) {
   let recordArray = RecordArray.create({ modelName: 'recordType' });
 
-  assert.throws(function() {
+  assert.throws(() => {
     recordArray.replace();
   }, Error('The result of a server query (for all recordType types) is immutable. To modify contents, use toArray()'), 'throws error');
 });
@@ -60,7 +60,6 @@ test('#objectAtContent', function(assert) {
   assert.equal(recordArray.objectAtContent(2), 'baz');
   assert.equal(recordArray.objectAtContent(3), undefined);
 });
-
 
 test('#update', function(assert) {
   let findAllCalled = 0;

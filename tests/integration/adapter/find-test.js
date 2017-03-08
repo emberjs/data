@@ -33,11 +33,11 @@ module("integration/adapter/find - Finding Records", {
 testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
   assert.expectAssertion(() => {
     store.find('person', undefined);
-  }, "You cannot pass `undefined` as id to the store's find method");
+  }, `You cannot pass 'undefined' as id to the store's find method`);
 
   assert.expectAssertion(() => {
     store.find('person', null);
-  }, "You cannot pass `null` as id to the store's find method");
+  }, `You cannot pass 'null' as id to the store's find method`);
 });
 
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", (assert) => {
@@ -138,7 +138,7 @@ testInDebug('When a single record is requested, and the payload is blank', (asse
 
   assert.expectAssertion(() => {
     run(() => store.findRecord('person', 'the-id'));
-  }, /You made a `findRecord` request for a person with id the-id, but the adapter's response did not have any data/);
+  }, /You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data/);
 });
 
 testInDebug('When multiple records are requested, and the payload is blank', (assert) => {
@@ -152,7 +152,7 @@ testInDebug('When multiple records are requested, and the payload is blank', (as
       store.findRecord('person', '1');
       store.findRecord('person', '2');
     });
-  }, /You made a `findMany` request for person records with ids 1,2, but the adapter's response did not have any data/);
+  }, /You made a 'findMany' request for 'person' records with ids '\[1,2\]', but the adapter's response did not have any data/);
 });
 
 testInDebug("warns when returned record has different id", function(assert) {

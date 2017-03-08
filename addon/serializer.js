@@ -35,7 +35,7 @@ export default Ember.Object.extend({
 
     ```js
     Serializer.extend({
-      extractRelationship: function(relationshipModelName, relationshipHash) {
+      extractRelationship(relationshipModelName, relationshipHash) {
         var modelClass = this.store.modelFor(relationshipModelName);
         var relationshipSerializer = this.store.serializerFor(relationshipModelName);
         return relationshipSerializer.normalize(modelClass, relationshipHash);

@@ -4,14 +4,11 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 const AssertPrototype = QUnit.assert;
 
-var errors;
+let errors;
 
-module("unit/model/errors", {
+module('unit/model/errors', {
   beforeEach() {
     errors = DS.Errors.create();
-  },
-
-  afterEach() {
   }
 });
 
@@ -39,8 +36,9 @@ AssertPrototype.unexpectedSend = function unexpectedSend(eventName) {
   this.ok(false, 'unexpected send : ' + eventName);
 }.bind(AssertPrototype);
 
-testInDebug("add error", function(assert) {
+testInDebug('add error', function(assert) {
   assert.expect(10);
+
   errors.trigger = assert.becameInvalid;
   updateErrors(() => errors.add('firstName', 'error'));
   errors.trigger = assert.unexpectedSend;
@@ -54,8 +52,9 @@ testInDebug("add error", function(assert) {
   assert.equal(errors.get('length'), 4, 'it has 4 errors');
 });
 
-testInDebug("get error", function(assert) {
+testInDebug('get error', function(assert) {
   assert.expect(11);
+
   assert.ok(errors.get('firstObject') === undefined, 'returns undefined');
   errors.trigger = assert.becameInvalid;
   updateErrors(() => errors.add('firstName', 'error'));
@@ -77,8 +76,9 @@ testInDebug("get error", function(assert) {
   assert.deepEqual(errors.get('messages'), ['error', 'error2', 'error3']);
 });
 
-testInDebug("remove error", function(assert) {
+testInDebug('remove error', function(assert) {
   assert.expect(8);
+
   errors.trigger = assert.becameInvalid;
   updateErrors(() => errors.add('firstName', 'error'));
   errors.trigger = assert.becameValid;
@@ -90,8 +90,9 @@ testInDebug("remove error", function(assert) {
   updateErrors(() => errors.remove('firstName'));
 });
 
-testInDebug("remove same errors from different attributes", function(assert) {
+testInDebug('remove same errors from different attributes', function(assert) {
   assert.expect(9);
+
   errors.trigger = assert.becameInvalid;
   updateErrors(() => errors.add('firstName', 'error'));
   updateErrors(() => errors.add('lastName', 'error'));
@@ -104,8 +105,9 @@ testInDebug("remove same errors from different attributes", function(assert) {
   assert.ok(errors.get('isEmpty'), 'it is empty');
 });
 
-testInDebug("clear errors", function(assert) {
+testInDebug('clear errors', function(assert) {
   assert.expect(8);
+
   errors.trigger = assert.becameInvalid;
   updateErrors(() => errors.add('firstName', ['error', 'error1']));
   assert.equal(errors.get('length'), 2, 'it has 2 errors');

@@ -151,7 +151,7 @@ if (extendedErrorsEnabled) {
   import DS from 'ember-data';
 
   export default DS.RESTAdapter.extend({
-    updateRecord: function() {
+    updateRecord() {
       // Fictional adapter that always rejects
       return Ember.RSVP.reject(new DS.InvalidError([
         {
@@ -347,9 +347,9 @@ export const ServerError = extendedErrorsEnabled ?
   const { errorsHashToArray } = DS;
 
   let errors = {
-    base: "Invalid attributes on saving this record",
-    name: "Must be present",
-    age: ["Must be present", "Must be a number"]
+    base: 'Invalid attributes on saving this record',
+    name: 'Must be present',
+    age: ['Must be present', 'Must be a number']
   };
 
   let errorsArray = errorsHashToArray(errors);
@@ -421,19 +421,19 @@ export function errorsHashToArray(errors) {
 
   let errorsArray = [
     {
-      title: "Invalid Attribute",
-      detail: "Must be present",
-      source: { pointer: "/data/attributes/name" }
+      title: 'Invalid Attribute',
+      detail: 'Must be present',
+      source: { pointer: '/data/attributes/name' }
     },
     {
-      title: "Invalid Attribute",
-      detail: "Must be present",
-      source: { pointer: "/data/attributes/age" }
+      title: 'Invalid Attribute',
+      detail: 'Must be present',
+      source: { pointer: '/data/attributes/age' }
     },
     {
-      title: "Invalid Attribute",
-      detail: "Must be a number",
-      source: { pointer: "/data/attributes/age" }
+      title: 'Invalid Attribute',
+      detail: 'Must be a number',
+      source: { pointer: '/data/attributes/age' }
     }
   ];
 

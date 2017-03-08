@@ -5,13 +5,11 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store, Person, PhoneNumber;
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-var run = Ember.run;
+let env, store, Person, PhoneNumber;
+const { attr, hasMany, belongsTo } = DS;
+const { run } = Ember;
 
-module("unit/store/hasRecordForId - Store hasRecordForId", {
+module('unit/store/hasRecordForId - Store hasRecordForId', {
   beforeEach() {
 
     Person = DS.Model.extend({
@@ -27,7 +25,7 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
 
     env = setupStore({
       person: Person,
-      "phone-number": PhoneNumber
+      'phone-number': PhoneNumber
     });
 
     store = env.store;
@@ -39,9 +37,9 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
   }
 });
 
-test("hasRecordForId should return false for records in the empty state ", function(assert) {
+test('hasRecordForId should return false for records in the empty state ', function(assert) {
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -65,8 +63,8 @@ test("hasRecordForId should return false for records in the empty state ", funct
   });
 });
 
-test("hasRecordForId should return true for records in the loaded state ", function(assert) {
-  run(function() {
+test('hasRecordForId should return true for records in the loaded state ', function(assert) {
+  run(() => {
     store.push({
       data: {
         type: 'person',

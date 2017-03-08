@@ -3,7 +3,6 @@ bundle
 tmp/
 tests/source/
 dist/
-.idea
 *.iml
 
 benchmarks/results/*.json

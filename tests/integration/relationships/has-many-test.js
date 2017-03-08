@@ -1620,9 +1620,8 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 });
 
-testInDebug("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
-  var post;
-  run(function() {
+testInDebug('A sync hasMany errors out if there are unlaoded records in it', function(assert) {
+  let post = run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -1637,12 +1636,12 @@ testInDebug("A sync hasMany errors out if there are unlaoded records in it", fun
         }
       }
     });
-    post = env.store.peekRecord('post', 1);
+    return env.store.peekRecord('post', 1);
   });
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     run(post, 'get', 'comments');
-  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
+  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
 });
 
 test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
@@ -2789,5 +2788,67 @@ test("unloading and reloading a record with hasMany relationship - #3084", funct
 
     assert.equal(get(user, 'messages.firstObject.id'), 'message-1', 'user points to message');
     assert.equal(get(message, 'user.id'), 'user-1', 'message points to user');
+  });
+});
+
+test("deleted records should stay deleted", function(assert) {
+  var user;
+  var message;
+
+  env.adapter.deleteRecord = function(store, type, id) {
+    return null;
+  };
+
+  run(function() {
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: 'user-1',
+        attributes: {
+          name: 'Adolfo Builes'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'message', id: 'message-1' },
+              { type: 'message', id: 'message-2' }
+            ]
+          }
+        }
+      }, {
+        type: 'message',
+        id: 'message-1'
+      }, {
+        type: 'message',
+        id: 'message-2'
+      }]
+    });
+
+    user = env.store.peekRecord('user', 'user-1');
+    message = env.store.peekRecord('message', 'message-1');
+
+    assert.equal(get(user, 'messages.length'), 2);
+  });
+
+  run(function() {
+    message.destroyRecord()
+  });
+
+  run(function() {
+    // a new message is added to the user should not resurrected the
+    // deleted message
+    env.store.push({
+      data: [{
+        type: 'message',
+        id: 'message-3',
+        relationships: {
+          user: {
+            data: { type: 'user', id: 'user-1' }
+          }
+        }
+      }]
+    });
+
+    assert.equal(get(user, 'messages.length'), 2, 'user should have 2 message since 1 was deleted');
   });
 });

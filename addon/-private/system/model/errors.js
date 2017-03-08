@@ -25,8 +25,8 @@ const MapWithDefault = Ember.MapWithDefault;
   import DS from 'ember-data';
 
   export default DS.Model.extend({
-    username: attr('string'),
-    email: attr('string')
+    username: DS.attr('string'),
+    email: DS.attr('string')
   });
   ```
   And you attempted to save a record that did not validate on the backend:

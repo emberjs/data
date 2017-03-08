@@ -74,11 +74,10 @@ const { Promise } = RSVP;
 //an internal model and return it in a promiseObject. Useful for returning
 //from find methods
 function promiseRecord(internalModelPromise, label) {
-  let toReturn = internalModelPromise.then((internalModel) => internalModel.getRecord());
+  let toReturn = internalModelPromise.then(internalModel => internalModel.getRecord());
 
   return promiseObject(toReturn, label);
 }
-
 
 let Store;
 
@@ -220,7 +219,7 @@ Store = Service.extend({
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
-    this._modelClassCache = new EmptyObject();
+    this._modelFactoryCache = new EmptyObject();
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -326,7 +325,7 @@ Store = Service.extend({
 
     ```js
     store.createRecord('post', {
-      title: "Rails is omakase"
+      title: 'Rails is omakase'
     });
     ```
 
@@ -335,7 +334,7 @@ Store = Service.extend({
     ```js
     let user = this.store.peekRecord('user', 1);
     store.createRecord('post', {
-      title: "Rails is omakase",
+      title: 'Rails is omakase',
       user: user
     });
     ```
@@ -347,9 +346,9 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   createRecord(modelName, inputProperties) {
-    assert("You need to pass a model name to the store's createRecord method", isPresent(modelName));
-    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
     let properties = copy(inputProperties) || new EmptyObject();
 
     // If the passed properties do not include a primary key,
@@ -358,13 +357,13 @@ Store = Service.extend({
     // to avoid conflicts.
 
     if (isNone(properties.id)) {
-      properties.id = this._generateId(trueModelName, properties);
+      properties.id = this._generateId(normalizedModelName, properties);
     }
 
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    let internalModel = this.buildInternalModel(trueModelName, properties.id);
+    let internalModel = this.buildInternalModel(normalizedModelName, properties.id);
     let record = internalModel.getRecord();
 
     // Move the record out of its initial `empty` state into
@@ -416,7 +415,7 @@ Store = Service.extend({
 
     ```javascript
     let post = store.createRecord('post', {
-      title: "Rails is omakase"
+      title: 'Rails is omakase'
     });
 
     store.deleteRecord(post);
@@ -465,15 +464,15 @@ Store = Service.extend({
     // that's why we have to keep this method around even though `findRecord` is
     // the public way to get a record by modelName and id.
     assert(`Using store.find(type) has been removed. Use store.findAll(modelName) to retrieve all records for a given type.`, arguments.length !== 1);
-    assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeOf(id) !== 'object');
     assert(`Calling store.find(modelName, id, { preload: preload }) is no longer supported. Use store.findRecord(modelName, id, { preload: preload }) instead.`, !options);
     assert(`You need to pass the model name and id to the store's find method`, arguments.length === 2);
-    assert("You cannot pass `" + inspect(id) + "` as id to the store's find method", typeOf(id) === 'string' || typeOf(id) === 'number');
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You cannot pass '${id}' as id to the store's find method`, typeof id === 'string' || typeof id === 'number');
+    assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeof id !== 'object');
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
-    return this.findRecord(trueModelName, id);
+    return this.findRecord(normalizedModelName, id);
   },
 
   /**
@@ -491,7 +490,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id);
       }
     });
@@ -501,6 +500,27 @@ Store = Service.extend({
     method to find the necessary data. If the record is already present in the
     store, it depends on the reload behavior _when_ the returned promise
     resolves.
+
+    ### Preloading
+
+    You can optionally `preload` specific attributes and relationships that you know of
+    by passing them via the passed `options`.
+
+    For example, if your Ember route looks like `/posts/1/comments/2` and your API route
+    for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
+    without fetching the post you can pass in the post to the `findRecord` call:
+
+    ```javascript
+    store.findRecord('comment', 2, { preload: { post: 1 } });
+    ```
+
+    If you have access to the post model you can also pass the model itself:
+
+    ```javascript
+    store.findRecord('post', 1).then(function (myPostModel) {
+      store.findRecord('comment', 2, { post: myPostModel });
+    });
+    ```
 
     ### Reloading
 
@@ -529,7 +549,7 @@ Store = Service.extend({
     //   }
     // ]
     store.findRecord('post', 1, { reload: true }).then(function(post) {
-      post.get("revision"); // 2
+      post.get('revision'); // 2
     });
     ```
 
@@ -590,7 +610,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
       }
     });
@@ -603,7 +623,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findRecord('post', params.post_id, {
           adapterOptions: { subscribe: false }
         });
@@ -615,7 +635,7 @@ Store = Service.extend({
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      findRecord: function(store, type, id, snapshot) {
+      findRecord(store, type, id, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -644,8 +664,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
-       return this.store.findRecord('post', params.post_id, {include: 'comments'});
+      model(params) {
+       return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
     });
 
@@ -662,8 +682,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
-       return this.store.findRecord('post', params.post_id, {include: 'comments,comments.author'});
+      model(params) {
+       return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
     });
 
@@ -677,22 +697,22 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findRecord(modelName, id, options) {
-    assert("You need to pass a model name to the store's findRecord method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's findRecord method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     assert(badIdFormatAssertion, (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id)));
 
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
-    let internalModel = this._internalModelForId(trueModelName, id);
+    let internalModel = this._internalModelForId(normalizedModelName, id);
     options = options || {};
 
-    if (!this.hasRecordForId(trueModelName, id)) {
+    if (!this.hasRecordForId(normalizedModelName, id)) {
       return this._findByInternalModel(internalModel, options);
     }
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
 
-    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${trueModelName} with id: ${id}`);
+    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${normalizedModelName} with id: ${id}`);
   },
 
   _findRecord(internalModel, options) {
@@ -702,8 +722,7 @@ Store = Service.extend({
     }
 
     let snapshot = internalModel.createSnapshot(options);
-    let modelClass = internalModel.type;
-    let adapter = this.adapterFor(modelClass.modelName);
+    let adapter = this.adapterFor(internalModel.modelName);
 
     // Refetch the record if the adapter thinks the record is stale
     if (adapter.shouldReloadRecord(this, snapshot)) {
@@ -723,16 +742,14 @@ Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
-  _findByInternalModel(internalModel, options) {
-    options = options || {};
-
+  _findByInternalModel(internalModel, options = {}) {
     if (options.preload) {
       internalModel.preloadData(options.preload);
     }
 
     let fetchedInternalModel = this._findEmptyInternalModel(internalModel, options);
 
-    return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
+    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${internalModel.modelName} with id: ${internalModel.id}`);
   },
 
   _findEmptyInternalModel(internalModel, options) {
@@ -759,17 +776,18 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findByIds(modelName, ids) {
-    assert("You need to pass a model name to the store's findByIds method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's findByIds method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+
     let promises = new Array(ids.length);
 
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     for (let i = 0; i < ids.length; i++) {
-      promises[i] = this.findRecord(trueModelName, ids[i]);
+      promises[i] = this.findRecord(normalizedModelName, ids[i]);
     }
 
-    return promiseArray(RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${trueModelName} complete`));
+    return promiseArray(RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`));
   },
 
   /**
@@ -783,14 +801,13 @@ Store = Service.extend({
     @return {Promise} promise
    */
   _fetchRecord(internalModel, options) {
-    let modelClass = internalModel.type;
-    let id = internalModel.id;
-    let adapter = this.adapterFor(modelClass.modelName);
+    let modelName = internalModel.modelName;
+    let adapter = this.adapterFor(modelName);
 
-    assert("You tried to find a record but you have no adapter (for " + modelClass.modelName + ")", adapter);
-    assert("You tried to find a record but your adapter (for " + modelClass.modelName + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function');
+    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
+    assert(`You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`, typeof adapter.findRecord === 'function');
 
-    return _find(adapter, this, modelClass, id, internalModel, options);
+    return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
   },
 
   _scheduleFetchMany(internalModels) {
@@ -804,21 +821,26 @@ Store = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
-    if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
+    if (internalModel._loadingPromise) {
+      return internalModel._loadingPromise;
+    }
 
-    let modelClass = internalModel.type;
-    let resolver = RSVP.defer('Fetching ' + modelClass.modelName + ' with id: ' + internalModel.id);
+    let { id, modelName } = internalModel;
+    let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
     let pendingFetchItem = {
       internalModel,
       resolver,
       options
     };
+
     let promise = resolver.promise;
 
     internalModel.loadingData(promise);
-    this._pendingFetch.get(modelClass).push(pendingFetchItem);
+    if (this._pendingFetch.size === 0) {
+      emberRun.schedule('afterRender', this, this.flushAllPendingFetches);
+    }
 
-    emberRun.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
+    this._pendingFetch.get(modelName).push(pendingFetchItem);
 
     return promise;
   },
@@ -832,9 +854,9 @@ Store = Service.extend({
     this._pendingFetch.clear();
   },
 
-  _flushPendingFetchForType(pendingFetchItems, modelClass) {
+  _flushPendingFetchForType(pendingFetchItems, modelName) {
     let store = this;
-    let adapter = store.adapterFor(modelClass.modelName);
+    let adapter = store.adapterFor(modelName);
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     let totalItems = pendingFetchItems.length;
     let internalModels = new Array(totalItems);
@@ -891,10 +913,11 @@ Store = Service.extend({
 
     function rejectInternalModels(internalModels, error) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
-        let pair = seeking[internalModels[i].id];
+        let internalModel = internalModels[i];
+        let pair = seeking[internalModel.id];
 
         if (pair) {
-          pair.resolver.reject(error);
+          pair.resolver.reject(error || new Error(`Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`));
         }
       }
     }
@@ -931,7 +954,7 @@ Store = Service.extend({
         }
 
         if (totalInGroup > 1) {
-          _findMany(adapter, store, modelClass, ids, groupedInternalModels)
+          _findMany(adapter, store, modelName, ids, groupedInternalModels)
             .then(function(foundInternalModels) {
               handleFoundRecords(foundInternalModels, groupedInternalModels);
             })
@@ -967,7 +990,7 @@ Store = Service.extend({
     let user = userRef.value();
 
     // get the identifier of the reference
-    if (userRef.remoteType() === "id") {
+    if (userRef.remoteType() === 'id') {
     let id = userRef.id();
     }
 
@@ -978,8 +1001,8 @@ Store = Service.extend({
     userRef.reload().then(...)
 
     // provide data for reference
-    userRef.push({ id: 1, username: "@user" }).then(function(user) {
-    userRef.value() === user;
+    userRef.push({ id: 1, username: '@user' }).then(function(user) {
+      userRef.value() === user;
     });
     ```
 
@@ -990,9 +1013,9 @@ Store = Service.extend({
     @return {RecordReference}
   */
   getReference(modelName, id) {
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
-    return this._internalModelForId(trueModelName, id).recordReference;
+    return this._internalModelForId(normalizedModelName, id).recordReference;
   },
 
   /**
@@ -1002,7 +1025,7 @@ Store = Service.extend({
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
-    _Note: This is an synchronous method and does not return a promise._
+    _Note: This is a synchronous method and does not return a promise._
 
     ```js
     let post = store.peekRecord('post', 1);
@@ -1018,12 +1041,12 @@ Store = Service.extend({
   */
   peekRecord(modelName, id) {
     heimdall.increment(peekRecord);
-    assert("You need to pass a model name to the store's peekRecord method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
 
-    if (this.hasRecordForId(trueModelName, id)) {
-      return this._internalModelForId(trueModelName, id).getRecord();
+    if (this.hasRecordForId(normalizedModelName, id)) {
+      return this._internalModelForId(normalizedModelName, id).getRecord();
     } else {
       return null;
     }
@@ -1042,13 +1065,12 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _reloadRecord(internalModel) {
-    let modelName = internalModel.type.modelName;
+    let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
-    let id = internalModel.id;
 
-    assert("You cannot reload a record without an ID", id);
-    assert("You tried to reload a record but you have no adapter (for " + modelName + ")", adapter);
-    assert("You tried to reload a record but your adapter does not implement `findRecord`", typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
+    assert(`You cannot reload a record without an ID`, id);
+    assert(`You tried to reload a record but you have no adapter (for ${modelName})`, adapter);
+    assert(`You tried to reload a record but your adapter does not implement 'findRecord'`, typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
     return this._scheduleFetch(internalModel);
   },
@@ -1063,8 +1085,8 @@ Store = Service.extend({
    ```javascript
    store.hasRecordForId('post', 1); // false
    store.findRecord('post', 1).then(function() {
-      store.hasRecordForId('post', 1); // true
-    });
+     store.hasRecordForId('post', 1); // true
+   });
    ```
 
     @method hasRecordForId
@@ -1073,12 +1095,13 @@ Store = Service.extend({
     @return {Boolean}
   */
   hasRecordForId(modelName, id) {
-    assert("You need to pass a model name to the store's hasRecordForId method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's hasRecordForId method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+
+    let normalizedModelName = normalizeModelName(modelName);
 
     let trueId = coerceId(id);
-    let internalModel = this._recordMapFor(trueModelName).get(trueId);
+    let internalModel = this._recordMapFor(normalizedModelName).get(trueId);
 
     return !!internalModel && internalModel.isLoaded();
   },
@@ -1094,8 +1117,9 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   recordForId(modelName, id) {
-    assert("You need to pass a model name to the store's recordForId method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's recordForId method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+
     return this._internalModelForId(modelName, id).getRecord();
   },
 
@@ -1123,7 +1147,7 @@ Store = Service.extend({
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      finds[i] = this._findByInternalModel(internalModels[i]);
+      finds[i] = this._findEmptyInternalModel(internalModels[i]);
     }
 
     return Promise.all(finds);
@@ -1143,35 +1167,35 @@ Store = Service.extend({
 
     @method findHasMany
     @private
-    @param {DS.Model} owner
+    @param {InternalModel} internalModel
     @param {any} link
     @param {(Relationship)} relationship
     @return {Promise} promise
   */
-  findHasMany(owner, link, relationship) {
-    let adapter = this.adapterFor(owner.type.modelName);
+  findHasMany(internalModel, link, relationship) {
+    let adapter = this.adapterFor(internalModel.modelName);
 
-    assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
-    assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
+    assert(`You tried to load a hasMany relationship but you have no adapter (for ${internalModel.modelName})`, adapter);
+    assert(`You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`, typeof adapter.findHasMany === 'function');
 
-    return _findHasMany(adapter, this, owner, link, relationship);
+    return _findHasMany(adapter, this, internalModel, link, relationship);
   },
 
   /**
     @method findBelongsTo
     @private
-    @param {DS.Model} owner
+    @param {InternalModel} internalModel
     @param {any} link
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(owner, link, relationship) {
-    let adapter = this.adapterFor(owner.type.modelName);
+  findBelongsTo(internalModel, link, relationship) {
+    let adapter = this.adapterFor(internalModel.modelName);
 
-    assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
-    assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
+    assert(`You tried to load a belongsTo relationship but you have no adapter (for ${internalModel.modelName})`, adapter);
+    assert(`You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`, typeof adapter.findBelongsTo === 'function');
 
-    return _findBelongsTo(adapter, this, owner, link, relationship);
+    return _findBelongsTo(adapter, this, internalModel, link, relationship);
   },
 
   /**
@@ -1229,20 +1253,19 @@ Store = Service.extend({
   query(modelName, query) {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
-    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let trueModelName = this._classKeyFor(modelName);
-    return this._query(trueModelName, query);
+    let normalizedModelName = normalizeModelName(modelName);
+    return this._query(normalizedModelName, query);
   },
 
   _query(modelName, query, array) {
     let token = heimdall.start('store._query');
-    assert("You need to pass a model name to the store's query method", isPresent(modelName));
-    assert("You need to pass a query hash to the store's query method", query);
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
+    assert(`You need to pass a query hash to the store's query method`, query);
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     let modelToken = heimdall.start('initial-modelFor-lookup');
-    let modelClass = this._modelFor(modelName);
     heimdall.stop(modelToken);
 
     array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
@@ -1251,10 +1274,10 @@ Store = Service.extend({
     let adapter = this.adapterFor(modelName);
     heimdall.stop(adapterToken);
 
-    assert("You tried to load a query but you have no adapter (for " + modelName + ")", adapter);
-    assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function');
+    assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
+    assert(`You tried to load a query but your adapter does not implement 'query'`, typeof adapter.query === 'function');
 
-    let pA = promiseArray(_query(adapter, this, modelClass, query, array));
+    let pA = promiseArray(_query(adapter, this, modelName, query, array));
     instrument(() => {
       pA.finally(() => { heimdall.stop(token); });
     });
@@ -1295,11 +1318,11 @@ Store = Service.extend({
     The request is made through the adapters' `queryRecord`:
 
     ```app/adapters/user.js
-    import DS from "ember-data";
+    import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       queryRecord(modelName, query) {
-        return Ember.$.getJSON("/api/current_user");
+        return Ember.$.getJSON('/api/current_user');
       }
     });
     ```
@@ -1355,18 +1378,18 @@ Store = Service.extend({
     @return {Promise} promise which resolves with the found record or `null`
   */
   queryRecord(modelName, query) {
-    assert("You need to pass a model name to the store's queryRecord method", isPresent(modelName));
-    assert("You need to pass a query hash to the store's queryRecord method", query);
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's queryRecord method`, isPresent(modelName));
+    assert(`You need to pass a query hash to the store's queryRecord method`, query);
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let modelClass = this._modelFor(trueModelName);
-    let adapter = this.adapterFor(trueModelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
-    assert(`You tried to make a query but you have no adapter (for ${trueModelName})`, adapter);
-    assert("You tried to make a query but your adapter does not implement `queryRecord`", typeof adapter.queryRecord === 'function');
+    let adapter = this.adapterFor(normalizedModelName);
 
-    return promiseObject(_queryRecord(adapter, this, modelClass, query).then((internalModel) => {
+    assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
+    assert(`You tried to make a query but your adapter does not implement 'queryRecord'`, typeof adapter.queryRecord === 'function');
+
+    return promiseObject(_queryRecord(adapter, this, modelName, query).then(internalModel => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {
@@ -1387,7 +1410,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findAll('author');
       }
     });
@@ -1419,7 +1442,7 @@ Store = Service.extend({
     //   }
     // ]
     store.findAll('author', { reload: true }).then(function(authors) {
-      authors.getEach("id"); // ['first', 'second']
+      authors.getEach('id'); // ['first', 'second']
     });
     ```
 
@@ -1480,7 +1503,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
+      model() {
         return this.store.findAll('post', { backgroundReload: false });
       }
     });
@@ -1493,7 +1516,7 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.findAll('post', {
           adapterOptions: { subscribe: false }
         });
@@ -1505,7 +1528,7 @@ Store = Service.extend({
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      findAll: function(store, type, sinceToken, snapshotRecordArray) {
+      findAll(store, type, sinceToken, snapshotRecordArray) {
         if (snapshotRecordArray.adapterOptions.subscribe) {
           // ...
         }
@@ -1535,8 +1558,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
-       return this.store.findAll('post', {include: 'comments'});
+      model() {
+       return this.store.findAll('post', { include: 'comments' });
       }
     });
 
@@ -1550,8 +1573,8 @@ Store = Service.extend({
     import Ember from 'ember';
 
     export default Ember.Route.extend({
-      model: function() {
-       return this.store.findAll('post', {include: 'comments,comments.author'});
+      model() {
+       return this.store.findAll('post', { include: 'comments,comments.author' });
       }
     });
 
@@ -1566,12 +1589,12 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findAll(modelName, options) {
-    assert("You need to pass a model name to the store's findAll method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's findAll method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+
     let token = heimdall.start('store.findAll');
-    let trueModelName = this._classKeyFor(modelName);
-    let modelClass = this._modelFor(trueModelName);
-    let fetch = this._fetchAll(modelClass, this.peekAll(trueModelName), options);
+    let normalizedModelName = normalizeModelName(modelName);
+    let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
 
     instrument(() => {
       fetch.finally(() => { heimdall.stop(token); });
@@ -1583,30 +1606,27 @@ Store = Service.extend({
   /**
     @method _fetchAll
     @private
-    @param {DS.Model} modelClass
+    @param {DS.Model} modelName
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelClass, array, options) {
-    options = options || {};
-
-    let modelName = modelClass.modelName;
+  _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
     let sinceToken = this._recordMapFor(modelName).metadata.since;
 
-    assert("You tried to load all records but you have no adapter (for " + modelName + ")", adapter);
-    assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
+    assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
+    assert(`You tried to load all records but your adapter does not implement 'findAll'`, typeof adapter.findAll === 'function');
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelClass, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelClass, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
     }
 
     if (options.backgroundReload === false) {
@@ -1615,7 +1635,7 @@ Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelClass, sinceToken, options);
+      _findAll(adapter, this, modelName, sinceToken, options);
     }
 
     return promiseArray(Promise.resolve(array));
@@ -1659,12 +1679,12 @@ Store = Service.extend({
   */
   peekAll(modelName) {
     heimdall.increment(peekAll);
-    assert("You need to pass a model name to the store's peekAll method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
-    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(trueModelName);
+    assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
+    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
 
-    this.recordArrayManager.syncLiveRecordArray(liveRecordArray, trueModelName);
+    this.recordArrayManager.syncLiveRecordArray(liveRecordArray, normalizedModelName);
 
     return liveRecordArray;
   },
@@ -1684,13 +1704,13 @@ Store = Service.extend({
    @param {String} modelName
   */
   unloadAll(modelName) {
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), !modelName || typeof modelName === 'string');
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, !modelName || typeof modelName === 'string');
 
     if (arguments.length === 0) {
       this._identityMap.clear();
     } else {
-      let trueModelName = this._classKeyFor(modelName);
-      this._recordMapFor(trueModelName).clear();
+      let normalizedModelName = normalizeModelName(modelName);
+      this._recordMapFor(normalizedModelName).clear();
     }
   },
 
@@ -1749,8 +1769,8 @@ Store = Service.extend({
     @deprecated
   */
   filter(modelName, query, filter) {
-    assert("You need to pass a model name to the store's filter method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's filter method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     if (!ENV.ENABLE_DS_FILTER) {
       assert('The filter API has been moved to a plugin. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page. https://github.com/ember-data/ember-data-filter', false);
@@ -1761,24 +1781,24 @@ Store = Service.extend({
     let array;
     let hasQuery = length === 3;
 
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
     // allow an optional server query
     if (hasQuery) {
-      promise = this.query(trueModelName, query);
+      promise = this.query(normalizedModelName, query);
     } else if (arguments.length === 2) {
       filter = query;
     }
 
     if (hasQuery) {
-      array = this.recordArrayManager.createFilteredRecordArray(trueModelName, filter, query);
+      array = this.recordArrayManager.createFilteredRecordArray(normalizedModelName, filter, query);
     } else {
-      array = this.recordArrayManager.createFilteredRecordArray(trueModelName, filter);
+      array = this.recordArrayManager.createFilteredRecordArray(normalizedModelName, filter);
     }
 
     promise = promise || Promise.resolve(array);
 
-    return promiseArray(promise.then(() => array, null, `DS: Store#filter of ${trueModelName}`));
+    return promiseArray(promise.then(() => array, null, `DS: Store#filter of ${normalizedModelName}`));
   },
 
   /**
@@ -1843,10 +1863,10 @@ Store = Service.extend({
       let snapshot = pendingItem.snapshot;
       let resolver = pendingItem.resolver;
       let internalModel = snapshot._internalModel;
-      let adapter = this.adapterFor(internalModel.modelClass.modelName);
+      let adapter = this.adapterFor(internalModel.modelName);
       let operation;
 
-      if (get(internalModel, 'currentState.stateName') === 'root.deleted.saved') {
+      if (internalModel.currentState.stateName === 'root.deleted.saved') {
         return resolver.resolve();
       } else if (internalModel.isNew()) {
         operation = 'createRecord';
@@ -1884,7 +1904,7 @@ Store = Service.extend({
       this.updateId(internalModel, data);
       this._setupRelationshipsForModel(internalModel, data);
     } else {
-      assert(`Your ${internalModel.type.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
+      assert(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
 
     //We first make sure the primary data has been updated
@@ -1932,38 +1952,25 @@ Store = Service.extend({
   */
   updateId(internalModel, data) {
     let oldId = internalModel.id;
+    let modelName = internalModel.modelName;
     let id = coerceId(data.id);
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
-    assert(`'${internalModel.modelName}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
+    assert(`'${modelName}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
 
     // ID absolutely can't be different than oldID if oldID is not null
-    assert(`'${internalModel.modelName}:${oldId}' was saved to the server, but the response returned the new id '${id}'. The store cannot assign a new id to a record that already has an id.`, !(oldId !== null && id !== oldId));
+    assert(`'${modelName}:${oldId}' was saved to the server, but the response returned the new id '${id}'. The store cannot assign a new id to a record that already has an id.`, !(oldId !== null && id !== oldId));
 
     // ID can be null if oldID is not null (altered ID in response for a record)
     // however, this is more than likely a developer error.
     if (oldId !== null && id === null) {
-      warn(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id.`, !(oldId !== null && id === null));
+      warn(`Your ${modelName} record was saved to the server, but the response does not have an id.`, !(oldId !== null && id === null));
       return;
     }
 
     this._recordMapFor(internalModel.modelName).set(id, internalModel);
 
     internalModel.setId(id);
-  },
-
-  /**
-   Returns the normalized (dasherized) modelName. This method should be used whenever
-   receiving a modelName in a public method.
-
-
-   @method _classKeyFor
-   @param {String} modelName
-   @returns {String}
-   @private
-   */
-  _classKeyFor(modelName) {
-    return normalizeModelName(modelName);
   },
 
   /**
@@ -2005,7 +2012,7 @@ Store = Service.extend({
     In case someone defined a relationship to a mixin, for example:
     ```
       let Comment = DS.Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true})
+        owner: belongsTo('commentable'. { polymorphic: true })
       });
       let Commentable = Ember.Mixin.create({
         comments: hasMany('comment')
@@ -2018,9 +2025,8 @@ Store = Service.extend({
 
     @private
   */
-  _modelForMixin(modelName) {
+  _modelForMixin(normalizedModelName) {
     heimdall.increment(_modelForMixin);
-    let normalizedModelName = normalizeModelName(modelName);
     // container.registry = 2.1
     // container._registry = 1.11 - 2.0
     // container = < 1.11
@@ -2035,16 +2041,17 @@ Store = Service.extend({
     }
 
     if (mixin) {
+      let ModelForMixin = Model.extend(mixin);
+      ModelForMixin.reopenClass({
+        __isMixin: true,
+        __mixin: mixin
+      });
+
       //Cache the class as a model
-      owner.register('model:' + normalizedModelName, Model.extend(mixin));
-    }
-    let factory = this.modelFactoryFor(normalizedModelName);
-    if (factory) {
-      factory.__isMixin = true;
-      factory.__mixin = mixin;
+      owner.register('model:' + normalizedModelName, ModelForMixin);
     }
 
-    return factory;
+    return this.modelFactoryFor(normalizedModelName);
   },
 
   /**
@@ -2060,20 +2067,26 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor(modelName) {
-    assert("You need to pass a model name to the store's modelFor method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
+    assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let trueModelName = this._classKeyFor(modelName);
+    let normalizedModelName = normalizeModelName(modelName);
 
-    return this._modelFor(trueModelName);
+    return this._modelFor(normalizedModelName);
   },
 
   /*
     @private
    */
   _modelFor(modelName) {
+    let maybeFactory = this._modelFactoryFor(modelName);
+    // for factorFor factory/class split
+    return maybeFactory.class ? maybeFactory.class : maybeFactory;
+  },
+
+  _modelFactoryFor(modelName) {
     heimdall.increment(modelFor);
-    let factory = this._modelClassCache[modelName];
+    let factory = this._modelFactoryCache[modelName];
 
     if (!factory) {
       factory = this.modelFactoryFor(modelName);
@@ -2086,11 +2099,15 @@ Store = Service.extend({
         throw new EmberError(`No model was found for '${modelName}'`);
       }
 
-      assert(`'${inspect(factory)}' does not appear to be an ember-data model`, (typeof factory._create === 'function') );
+      // interopt with the future
+      let klass = getOwner(this).factoryFor ? factory.class : factory;
 
-      factory.modelName = factory.modelName || modelName;
+      assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
-      this._modelClassCache[modelName] = factory;
+      // TODO: deprecate this
+      klass.modelName = klass.modelName || modelName;
+
+      this._modelFactoryCache[modelName] = factory;
     }
 
     return factory;
@@ -2101,18 +2118,16 @@ Store = Service.extend({
    */
   modelFactoryFor(modelName) {
     heimdall.increment(modelFactoryFor);
-    assert("You need to pass a model name to the store's modelFactoryFor method", isPresent(modelName));
-    assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ inspect(modelName), typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's modelFactoryFor method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+
+    let normalizedModelName = normalizeModelName(modelName);
     let owner = getOwner(this);
 
     if (owner.factoryFor) {
-      let MaybeModel = owner.factoryFor(`model:${trueModelName}`);
-      let MaybeModelFactory = MaybeModel && MaybeModel.class;
-
-      return MaybeModelFactory;
+      return owner.factoryFor(`model:${normalizedModelName}`);
     } else {
-      return owner._lookupFactory(`model:${trueModelName}`);
+      return owner._lookupFactory(`model:${normalizedModelName}`);
     }
   },
 
@@ -2271,9 +2286,7 @@ Store = Service.extend({
     let pushed = this._push(data);
 
     if (Array.isArray(pushed)) {
-      let records = pushed.map(function(internalModel) {
-        return internalModel.getRecord();
-      });
+      let records = pushed.map(internalModel => internalModel.getRecord());
       heimdall.stop(token);
       return records;
     }
@@ -2333,6 +2346,7 @@ Store = Service.extend({
 
   _hasModelFor(modelName) {
     let owner = getOwner(this);
+    modelName = normalizeModelName(modelName);
 
     if (owner.factoryFor) {
       return !!owner.factoryFor(`model:${modelName}`);
@@ -2465,12 +2479,12 @@ Store = Service.extend({
     if (!inputPayload) {
       payload = modelName;
       serializer = defaultSerializer(this);
-      assert("You cannot use `store#pushPayload` without a modelName unless your default serializer defines `pushPayload`", typeof serializer.pushPayload === 'function');
+      assert(`You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`, typeof serializer.pushPayload === 'function');
     } else {
       payload = inputPayload;
-      assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-      let trueModelName = this._classKeyFor(modelName);
-      serializer = this.serializerFor(trueModelName);
+      assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+      let normalizedModelName = normalizeModelName(modelName);
+      serializer = this.serializerFor(normalizedModelName);
     }
     if (isEnabled('ds-pushpayload-return')) {
       return serializer.pushPayload(this, payload);
@@ -2500,11 +2514,11 @@ Store = Service.extend({
   */
   normalize(modelName, payload) {
     heimdall.increment(normalize);
-    assert("You need to pass a model name to the store's normalize method", isPresent(modelName));
+    assert(`You need to pass a model name to the store's normalize method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
-    let serializer = this.serializerFor(trueModelName);
-    let model = this._modelFor(trueModelName);
+    let normalizedModelName = normalizeModelName(modelName);
+    let serializer = this.serializerFor(normalizedModelName);
+    let model = this._modelFor(normalizedModelName);
     return serializer.normalize(model, payload);
   },
 
@@ -2584,11 +2598,11 @@ Store = Service.extend({
   */
   adapterFor(modelName) {
     heimdall.increment(adapterFor);
-    assert("You need to pass a model name to the store's adapterFor method", isPresent(modelName));
-    assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
+    assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('adapter', trueModelName);
+    return this._instanceCache.get('adapter', normalizedModelName);
   },
 
   // ..............................
@@ -2618,11 +2632,11 @@ Store = Service.extend({
   */
   serializerFor(modelName) {
     heimdall.increment(serializerFor);
-    assert("You need to pass a model name to the store's serializerFor method", isPresent(modelName));
-    assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
-    let trueModelName = this._classKeyFor(modelName);
+    assert(`You need to pass a model name to the store's serializerFor method`, isPresent(modelName));
+    assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('serializer', trueModelName);
+    return this._instanceCache.get('serializer', normalizedModelName);
   },
 
   lookupAdapter(name) {

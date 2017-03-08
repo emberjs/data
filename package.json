@@ -17,9 +17,6 @@
     "bower": "bower install",
     "production": "ember build --environment=production"
   },
-  "engines": {
-    "node": ">= 0.10.0"
-  },
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -32,7 +29,7 @@
     "broccoli-file-creator": "^1.0.0",
     "broccoli-merge-trees": "^1.0.0",
     "chalk": "^1.1.1",
-    "ember-cli-babel": "^5.1.6",
+    "ember-cli-babel": "^5.1.7",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",
@@ -49,26 +46,27 @@
   },
   "devDependencies": {
     "bower": "^1.6.5",
-    "broccoli-asset-rev": "^2.4.2",
-    "broccoli-concat": "0.0.13",
+    "broccoli-asset-rev": "^2.4.5",
+    "broccoli-concat": "^3.2.2",
     "broccoli-funnel": "^1.0.0",
     "broccoli-stew": "^1.0.1",
     "broccoli-string-replace": "^0.1.1",
     "broccoli-uglify-sourcemap": "^1.0.1",
     "broccoli-yuidoc": "^2.1.0",
-    "ember-ajax": "^2.0.1",
-    "ember-cli": "^2.8.0",
-    "ember-cli-app-version": "^1.0.0",
+    "ember-ajax": "^2.4.1",
+    "ember-cli": "^2.11.1",
+    "ember-cli-app-version": "^2.0.0",
     "ember-cli-blueprint-test-helpers": "0.11.0",
-    "ember-cli-dependency-checker": "^1.2.0",
+    "ember-cli-dependency-checker": "^1.3.0",
     "ember-cli-eslint": "1.3.0",
-    "ember-cli-htmlbars": "^1.0.3",
-    "ember-cli-htmlbars-inline-precompile": "^0.3.1",
-    "ember-cli-inject-live-reload": "^1.4.0",
+    "ember-cli-htmlbars": "^1.1.1",
+    "ember-cli-htmlbars-inline-precompile": "^0.3.6",
+    "ember-cli-inject-live-reload": "^1.4.1",
     "ember-cli-internal-test-helpers": "^0.8.1",
-    "ember-cli-pretender": "0.6.0",
+    "ember-cli-pretender": "^1.0.1",
     "ember-cli-qunit": "^2.1.0",
     "ember-cli-release": "^0.2.9",
+    "ember-cli-shims": "^1.0.2",
     "ember-cli-sri": "^2.1.0",
     "ember-cli-test-loader": "^1.1.0",
     "ember-cli-uglify": "^1.2.0",
@@ -76,9 +74,10 @@
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.5",
-    "ember-load-initializers": "^0.5.1",
+    "ember-load-initializers": "^0.6.0",
     "ember-publisher": "0.0.7",
     "ember-resolver": "^2.0.3",
+    "ember-source": "~2.11.0",
     "ember-watson": "^0.7.0",
     "express": "^4.14.0",
     "faker": "^3.1.0",
@@ -86,7 +85,7 @@
     "glob": "5.0.13",
     "heimdall-query": "^0.0.5",
     "json-api-mock-server": "0.1.1",
-    "loader.js": "^4.0.1",
+    "loader.js": "^4.2.2",
     "mocha": "2.4.5",
     "mocha-only-detector": "0.0.2",
     "morgan": "^1.7.0",
@@ -97,6 +96,9 @@
   },
   "peerDependencies": {
     "ember-inflector": "^1.9.4"
+  },
+  "engines": {
+    "node": ">= 0.12.0"
   },
   "keywords": [
     "ember-addon"

@@ -871,7 +871,7 @@ testInDebug('store#findRecord that returns an array should assert', assert => {
     run(function() {
       store.findRecord('car', 1);
     });
-  }, /expected the primary data returned from a `findRecord` response to be an object but instead it found an array/);
+  }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
 });
 
 testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(assert) {
@@ -910,7 +910,7 @@ testInDebug('store#queryRecord should assert when normalized payload of adapter 
     run(function() {
       store.queryRecord('car', {});
     });
-  }, /Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array./);
+  }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
 });
 
 

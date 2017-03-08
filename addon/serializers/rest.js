@@ -40,7 +40,7 @@ let camelize = Ember.String.camelize;
   import DS from 'ember-data';
 
   export default DS.RESTSerializer.extend({
-    keyForAttribute: function(attr, method) {
+    keyForAttribute(attr, method) {
       return Ember.String.underscore(attr).toUpperCase();
     }
   });
@@ -68,7 +68,7 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      keyForPolymorphicType: function(key, relationship) {
+      keyForPolymorphicType(key, relationship) {
         var relationshipKey = this.keyForRelationship(key);
 
         return 'type-' + relationshipKey;
@@ -183,7 +183,7 @@ let RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    let modelClass = store._modelFor(modelName);
+    let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
     Ember.makeArray(arrayHash).forEach((hash) => {
@@ -373,8 +373,7 @@ let RESTSerializer = JSONSerializer.extend({
   },
 
   isPrimaryType(store, typeName, primaryTypeClass) {
-    let typeClass = store.modelFor(typeName);
-    return typeClass.modelName === primaryTypeClass.modelName;
+    return store.modelFor(typeName) === primaryTypeClass;
   },
 
   /**
@@ -477,7 +476,7 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      modelNameFromPayloadKey: function(payloadKey) {
+      modelNameFromPayloadKey(payloadKey) {
         if (payloadKey === 'blog/post') {
           return this._super(payloadKey.replace('blog/', ''));
         } else {
@@ -564,12 +563,12 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
           POST_CMS: snapshot.hasMany('comments', { ids: true })
-        }
+        };
 
         if (options.includeId) {
           json.POST_ID_ = snapshot.id;
@@ -590,12 +589,12 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {};
 
         snapshot.eachAttribute(function(name) {
           json[serverAttributeName(name)] = snapshot.attr(name);
-        })
+        });
 
         snapshot.eachRelationship(function(name, relationship) {
           if (relationship.kind === 'hasMany') {
@@ -640,7 +639,7 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = this._super(snapshot, options);
 
         json.subject = json.title;
@@ -672,7 +671,7 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      serializeIntoHash: function(data, type, record, options) {
+      serializeIntoHash(data, type, record, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
@@ -713,7 +712,7 @@ let RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      payloadKeyFromModelName: function(modelName) {
+      payloadKeyFromModelName(modelName) {
         return Ember.String.dasherize(modelName);
       }
     });
@@ -934,7 +933,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
       export default DS.RESTSerializer.extend({
         payloadTypeFromModelName(modelName) {
-          return "api::v1::" + modelName;
+          return 'api::v1::' + modelName;
         }
       });
       ```

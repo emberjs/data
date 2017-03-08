@@ -1,7 +1,7 @@
 /* global heimdall */
-import { assert, warn } from "ember-data/-private/debug";
-import OrderedSet from "../../ordered-set";
-import _normalizeLink from "../../normalize-link";
+import { assert, warn } from 'ember-data/-private/debug';
+import OrderedSet from '../../ordered-set';
+import _normalizeLink from '../../normalize-link';
 
 const {
   addCanonicalRecord,
@@ -132,7 +132,7 @@ export default class Relationship {
 
   addRecords(records, idx) {
     heimdall.increment(addRecords);
-    records.forEach((record) => {
+    records.forEach(record => {
       this.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
@@ -288,10 +288,10 @@ export default class Relationship {
 
   updateLink(link) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.record.type.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
+    warn(`You pushed a record of type '${this.record.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
       id: 'ds.store.push-link-for-sync-relationship'
     });
-    assert("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
+    assert(`You have pushed a record of type '${this.record.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
 
     this.link = link;
     this.linkPromise = null;

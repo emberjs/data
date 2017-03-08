@@ -10,6 +10,7 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
+import { runInDebug } from 'ember-data/-private/debug';
 
 const {
   get,
@@ -20,6 +21,34 @@ const {
 /**
   @module ember-data
 */
+
+function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
+  let possibleRelationships = relationshipsSoFar || [];
+
+  let relationshipMap = get(inverseType, 'relationships');
+  if (!relationshipMap) { return possibleRelationships; }
+
+  let relationships = relationshipMap.get(type.modelName).filter(relationship => {
+    let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+
+    if (!optionsForRelationship.inverse) {
+      return true;
+    }
+
+    return name === optionsForRelationship.inverse;
+  });
+
+  if (relationships) {
+    possibleRelationships.push.apply(possibleRelationships, relationships);
+  }
+
+  //Recurse to support polymorphism
+  if (type.superclass) {
+    findPossibleInverses(type.superclass, inverseType, name, possibleRelationships);
+  }
+
+  return possibleRelationships;
+}
 
 function intersection (array1, array2) {
   let result = [];
@@ -624,8 +653,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
     import DS from 'ember-data';
 
     export default DS.Model.extend({
-      name: attr('string'),
-      isAdmin: attr('boolean', {
+      name: DS.attr('string'),
+      isAdmin: DS.attr('boolean', {
         defaultValue: false
       })
     });
@@ -1144,17 +1173,20 @@ Object.defineProperty(Model.prototype, 'data', {
   }
 });
 
-Model.reopenClass({
-  /**
-    Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
-    instances from within the store, but if end users accidentally call `create()`
-    (instead of `createRecord()`), we can raise an error.
+runInDebug(function() {
+  Model.reopen({
+    init() {
+      this._super(...arguments);
 
-    @method _create
-    @private
-    @static
-  */
-  _create: Model.create,
+      if (!this._internalModel) {
+        throw new Ember.Error('You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.');
+      }
+    }
+  });
+});
+
+Model.reopenClass({
+  isModel: true,
 
   /**
     Override the class' `create()` method to raise an error. This
@@ -1167,10 +1199,6 @@ Model.reopenClass({
     @private
     @static
   */
-  create() {
-    throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
-  },
-
   /**
    Represents the model's class name as a string. This can be used to look up the model through
    DS.Store's modelFor method.
@@ -1268,8 +1296,10 @@ Model.reopenClass({
     });
    ```
 
-   store.modelFor('post').inverseFor('comments', store) -> { type: App.Message, name: 'owner', kind: 'belongsTo' }
-   store.modelFor('message').inverseFor('owner', store) -> { type: App.Post, name: 'comments', kind: 'hasMany' }
+   ``` js
+   store.modelFor('post').inverseFor('comments', store) // { type: App.Message, name: 'owner', kind: 'belongsTo' }
+   store.modelFor('message').inverseFor('owner', store) // { type: App.Post, name: 'comments', kind: 'hasMany' }
+   ```
 
    @method inverseFor
    @static
@@ -1320,7 +1350,7 @@ Model.reopenClass({
         });
       }
 
-      let possibleRelationships = findPossibleInverses(this, inverseType);
+      let possibleRelationships = findPossibleInverses(this, inverseType, name);
 
       if (possibleRelationships.length === 0) { return null; }
 
@@ -1343,36 +1373,6 @@ Model.reopenClass({
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
-    }
-
-    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
-      let possibleRelationships = relationshipsSoFar || [];
-
-      let relationshipMap = get(inverseType, 'relationships');
-      if (!relationshipMap) { return possibleRelationships; }
-
-      let relationships = relationshipMap.get(type.modelName);
-
-      relationships = relationships.filter((relationship) => {
-        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
-
-        if (!optionsForRelationship.inverse) {
-          return true;
-        }
-
-        return name === optionsForRelationship.inverse;
-      });
-
-      if (relationships) {
-        possibleRelationships.push.apply(possibleRelationships, relationships);
-      }
-
-      //Recurse to support polymorphism
-      if (type.superclass) {
-        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
-      }
-
-      return possibleRelationships;
     }
 
     return {
@@ -1670,9 +1670,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    export default DS.Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
    ```
 
@@ -1724,9 +1724,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    export default DS.Model.extend({
-      firstName: attr(),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr(),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
    ```
 
@@ -1785,9 +1785,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    let Person = DS.Model.extend({
-      firstName: attr('string'),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
 
    Person.eachAttribute(function(name, meta) {
@@ -1836,9 +1836,9 @@ Model.reopenClass({
    import DS from 'ember-data';
 
    let Person = DS.Model.extend({
-      firstName: attr(),
-      lastName: attr('string'),
-      birthday: attr('date')
+      firstName: DS.attr(),
+      lastName: DS.attr('string'),
+      birthday: DS.attr('date')
     });
 
    Person.eachTransformedAttribute(function(name, type) {

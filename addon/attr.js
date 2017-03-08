@@ -70,11 +70,13 @@ function getValue(record, key) {
   import DS from 'ember-data';
 
   export default DS.Model.extend({
-    username: attr('string'),
-    email: attr('string'),
-    settings: attr({defaultValue: function() {
-      return {};
-    }})
+    username: DS.attr('string'),
+    email: DS.attr('string'),
+    settings: DS.attr({
+      defaultValue() {
+        return {};
+      }
+    })
   });
   ```
 
@@ -83,6 +85,8 @@ function getValue(record, key) {
   transformation and adapt the corresponding value, based on the config:
 
   ```app/models/post.js
+  import DS from 'ember-data';
+
   export default DS.Model.extend({
     text: DS.attr('text', {
       uppercase: true
@@ -91,8 +95,10 @@ function getValue(record, key) {
   ```
 
   ```app/transforms/text.js
+  import DS from 'ember-data';
+
   export default DS.Transform.extend({
-    serialize: function(value, options) {
+    serialize(value, options) {
       if (options.uppercase) {
         return value.toUpperCase();
       }
@@ -100,7 +106,7 @@ function getValue(record, key) {
       return value;
     },
 
-    deserialize: function(value) {
+    deserialize(value) {
       return value;
     }
   })

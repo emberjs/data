@@ -1,7 +1,7 @@
 {
   "ds-improved-ajax": null,
   "ds-pushpayload-return": null,
-  "ds-extended-errors": null,
+  "ds-extended-errors": true,
   "ds-overhaul-references": null,
   "ds-payload-type-hooks": null,
   "ds-check-should-serialize-relationships": true,
