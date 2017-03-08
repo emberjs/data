@@ -6,6 +6,8 @@ import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
 
+import diffArray from './diff-array';
+
 const { get, set } = Ember;
 
 /**
@@ -52,9 +54,16 @@ const { get, set } = Ember;
   @uses Ember.MutableArray, Ember.Evented
 */
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
+  record: null,
+
+  canonicalState: null,
+  currentState: null,
+
+  length: 0,
+
   init() {
     this._super(...arguments);
-
+    this.currentState = Ember.A([]);
     /**
     The loading state of this array
 
@@ -140,31 +149,36 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     return object.getRecord();
   },
 
-  flushCanonical(isInitialized = true) {
-    let toSet = this.canonicalState;
+  flushCanonical() {
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (!_objectIsAlive(this)) {
+      return;
+    }
+    //TODO make this smarter, currently its plenty stupid
+    let toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    let newRecords = this.currentState.filter(
+    const newRecords = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    let oldLength = this.length;
-    this.arrayContentWillChange(0, this.length, toSet.length);
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (_objectIsAlive(this)) {
-      this.set('length', toSet.length);
-    }
-    this.currentState = toSet;
-    this.arrayContentDidChange(0, oldLength, this.length);
 
-    if (isInitialized) {
-      //TODO Figure out to notify only on additions and maybe only if unloaded
+    // diff to find changes
+    const diff = diffArray(this.currentState, toSet);
+
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
+      // we found a change
+      this.arrayContentWillChange(diff.firstChangeIndex || 0, diff.removedCount, diff.addedCount);
+      set(this, 'length', toSet.length);
+      this.currentState = toSet;
+      this.arrayContentDidChange(diff.firstChangeIndex || 0, diff.removedCount, diff.addedCount);
       this.relationship.notifyHasManyChanged();
     }
+    this.record.updateRecordArrays();
   },
 
   internalReplace(idx, amt, objects) {
@@ -173,14 +187,15 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     this.arrayContentWillChange(idx, amt, objects.length);
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
-    this.set('length', this.currentState.length);
+    set(this, 'length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
   },
 
   //TODO(Igor) optimize
   internalRemoveRecords(records) {
+    let index;
     for (let i=0; i < records.length; i++) {
-      let index = this.currentState.indexOf(records[i]);
+      index = this.currentState.indexOf(records[i]);
       this.internalReplace(index, 1);
     }
   },
@@ -194,13 +209,12 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   replace(idx, amt, objects) {
-    let records;
     if (amt > 0) {
-      records = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeRecords(records);
+      const records = this.currentState.slice(idx, idx+amt);
+      get(this, 'relationship').removeRecords(records);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects.map(obj => obj._internalModel), idx);
+      get(this, 'relationship').addRecords(objects.map(obj => obj._internalModel), idx);
     }
   },
 
@@ -272,10 +286,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    let manyArray = this;
-    let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
-    let promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).
-      then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
+    const manyArray = this;
+    const promiseLabel = `DS: ManyArray#save ${get(this, 'type')}`;
+    const promise = Ember.RSVP.all(this.invoke("save"), promiseLabel)
+                              .then(() => manyArray, null, "DS: ManyArray#save return ManyArray");
 
     return PromiseArray.create({ promise });
   },
@@ -289,12 +303,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    let store = get(this, 'store');
-    let type = get(this, 'type');
-    let record;
-
+    const type = get(this, 'type');
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
-    record = store.createRecord(type.modelName, hash);
+
+    const store = get(this, 'store');
+    const record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
