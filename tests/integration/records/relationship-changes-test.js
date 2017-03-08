@@ -104,7 +104,7 @@ module('integration/records/relationship-changes - Relationship changes', {
   },
 
   afterEach() {
-    run(function() {
+    run(() => {
       env.container.destroy();
     });
   }
@@ -115,7 +115,7 @@ test('Calling push with relationship triggers observers once if the relationship
   let person = null;
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -134,13 +134,13 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  run(function() {
+  run(() => {
     person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
       observerCount++;
     });
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -159,7 +159,7 @@ test('Calling push with relationship triggers observers once if the relationship
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(observerCount, 1, 'siblings observer should be triggered once');
   });
 });
@@ -169,7 +169,7 @@ test('Calling push with relationship triggers observers once if the relationship
   let person = null;
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -191,13 +191,13 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  run(function() {
+  run(() => {
     person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
       observerCount++;
     });
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -216,7 +216,7 @@ test('Calling push with relationship triggers observers once if the relationship
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(observerCount, 1, 'siblings observer should be triggered once');
   });
 });
@@ -226,7 +226,7 @@ test('Calling push with relationship triggers observers once if the relationship
   let person = null;
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -248,14 +248,14 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  run(function() {
+  run(() => {
     person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
       observerCount++;
     });
   });
 
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -272,7 +272,7 @@ test('Calling push with relationship triggers observers once if the relationship
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(observerCount, 1, 'siblings observer should be triggered once');
   });
 });
@@ -282,7 +282,7 @@ test('Calling push with relationship triggers observers once if the relationship
   let person = null;
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -306,14 +306,14 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  run(function() {
+  run(() => {
     person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
       observerCount++;
     });
   });
 
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -330,7 +330,7 @@ test('Calling push with relationship triggers observers once if the relationship
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(observerCount, 1, 'siblings observer should be triggered once');
   });
 });
@@ -340,7 +340,7 @@ test('Calling push with relationship does not trigger observers if the relations
   let person = null;
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -363,14 +363,14 @@ test('Calling push with relationship does not trigger observers if the relations
     person = store.peekRecord('person', 'wat');
   });
 
-  run(function() {
+  run(() => {
     person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
       observerCount++;
     });
   });
 
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -387,7 +387,7 @@ test('Calling push with relationship does not trigger observers if the relations
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(observerCount, 0, 'siblings observer should not be triggered');
   });
 });
@@ -398,9 +398,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
-  let test = this;
-
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -422,13 +420,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
-    test.arrayWillChange = (array, start, removing, adding) => {
+    this.arrayWillChange = (array, start, removing, adding) => {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 0);
       assert.equal(adding, 1);
     };
-    test.arrayDidChange = (array, start, removed, added) => {
+    this.arrayDidChange = (array, start, removed, added) => {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 0);
@@ -437,11 +435,11 @@ test('Calling push with relationship triggers willChange and didChange with deta
 
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(test);
+      siblings.addArrayObserver(this);
     });
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -460,7 +458,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
     done();
@@ -473,9 +471,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
-  let test = this;
-
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -497,13 +493,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
-    test.arrayWillChange = (array, start, removing, adding) => {
+    this.arrayWillChange = (array, start, removing, adding) => {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 1);
       assert.equal(adding, 0);
     };
-    test.arrayDidChange = (array, start, removed, added) => {
+    this.arrayDidChange = (array, start, removed, added) => {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 1);
@@ -512,12 +508,12 @@ test('Calling push with relationship triggers willChange and didChange with deta
 
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(test);
+      siblings.addArrayObserver(this);
     });
 
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -534,7 +530,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
     done();
@@ -547,9 +543,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
-  let test = this;
-
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -571,13 +565,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
-    test.arrayWillChange = (array, start, removing, adding) => {
+    this.arrayWillChange = (array, start, removing, adding) => {
       willChangeCount++;
       assert.equal(start, 0);
       assert.equal(removing, 0);
       assert.equal(adding, 1);
     };
-    test.arrayDidChange = (array, start, removed, added) => {
+    this.arrayDidChange = (array, start, removed, added) => {
       didChangeCount++;
       assert.equal(start, 0);
       assert.equal(removed, 0);
@@ -586,12 +580,12 @@ test('Calling push with relationship triggers willChange and didChange with deta
 
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(test);
+      siblings.addArrayObserver(this);
     });
 
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -610,7 +604,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
     done();
@@ -623,9 +617,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
-  let test = this;
-
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -648,13 +640,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
-    test.arrayWillChange = (array, start, removing, adding) => {
+    this.arrayWillChange = (array, start, removing, adding) => {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 0);
       assert.equal(adding, 1);
     };
-    test.arrayDidChange = (array, start, removed, added) => {
+    this.arrayDidChange = (array, start, removed, added) => {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 0);
@@ -663,12 +655,12 @@ test('Calling push with relationship triggers willChange and didChange with deta
 
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(test);
+      siblings.addArrayObserver(this);
     });
 
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -687,7 +679,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
     done();
@@ -700,9 +692,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
-  let test = this;
-
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -726,14 +716,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
-    test.arrayWillChange = (array, start, removing, adding) => {
+    this.arrayWillChange = (array, start, removing, adding) => {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 1);
       assert.equal(adding, 2);
     };
 
-    test.arrayDidChange = (array, start, removed, added) => {
+    this.arrayDidChange = (array, start, removed, added) => {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 1);
@@ -742,12 +732,12 @@ test('Calling push with relationship triggers willChange and didChange with deta
 
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(test);
+      siblings.addArrayObserver(this);
     });
 
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -767,7 +757,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
     done();
@@ -779,7 +769,7 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
 
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     let post = env.store.push({
       data: {
         type: 'post',
@@ -817,7 +807,7 @@ test('Calling push with same belongsTo relationship does not trigger observer', 
 
   let observerCount = 0;
 
-  run(function() {
+  run(() => {
     let post = env.store.push({
       data: {
         type: 'post',
