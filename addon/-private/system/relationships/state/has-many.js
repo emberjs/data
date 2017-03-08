@@ -10,6 +10,7 @@ export default class ManyRelationship extends Relationship {
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
+    this._manyArray = null;
   }
 
   get manyArray() {
