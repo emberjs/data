@@ -23,4 +23,3 @@ node_modules/
 bower_components/
 .metadata_never_index
 npm-debug.log
-.vscodeignore

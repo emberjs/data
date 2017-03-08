@@ -393,7 +393,6 @@ test('Calling push with relationship does not trigger observers if the relations
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when appending', function(assert) {
-  const done = assert.async();
   let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
@@ -461,12 +460,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
   run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    done();
   });
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when truncating', function(assert) {
-  const done = assert.async();
   let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
@@ -533,12 +530,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
   run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    done();
   });
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function(assert) {
-  const done = assert.async();
   let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
@@ -607,12 +602,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
   run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    done();
   });
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function(assert) {
-  const done = assert.async();
   let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
@@ -682,12 +675,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
   run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    done();
   });
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when replacing different length in middle', function(assert) {
-  const done = assert.async();
   let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
@@ -760,7 +751,6 @@ test('Calling push with relationship triggers willChange and didChange with deta
   run(() => {
     assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
     assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-    done();
   });
 });
 

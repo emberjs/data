@@ -3,11 +3,6 @@ import {module, test} from 'qunit';
 import diffArray from 'ember-data/-private/system/diff-array';
 
 module('unit/diff-array Diff Array tests', {
-  beforeEach() {
-  },
-
-  afterEach() {
-  }
 });
 
 const a = "aaa";
