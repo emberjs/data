@@ -171,7 +171,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     // diff to find changes
     const diff = diffArray(this.currentState, toSet);
 
-    if (diff.firstChangeIndex) { // it's null if no change found
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex || 0, diff.removedCount, diff.addedCount);
       set(this, 'length', toSet.length);
