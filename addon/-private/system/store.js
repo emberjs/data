@@ -112,7 +112,7 @@ const {
   peekAll,
   peekRecord,
   serializerFor,
-  _recordMapFor
+  _internalModelsFor
 } = heimdall.registerMonitor('store',
   '_generateId',
   '_internalModelForId',
@@ -129,7 +129,7 @@ const {
   'peekAll',
   'peekRecord',
   'serializerFor',
-  '_recordMapFor'
+  '_internalModelsFor'
 );
 
 /**
@@ -1101,7 +1101,7 @@ Store = Service.extend({
     let normalizedModelName = normalizeModelName(modelName);
 
     let trueId = coerceId(id);
-    let internalModel = this._recordMapFor(normalizedModelName).get(trueId);
+    let internalModel = this._internalModelsFor(normalizedModelName).get(trueId);
 
     return !!internalModel && internalModel.isLoaded();
   },
@@ -1126,7 +1126,7 @@ Store = Service.extend({
   _internalModelForId(modelName, id) {
     heimdall.increment(_internalModelForId);
     let trueId = coerceId(id);
-    let internalModel = this._recordMapFor(modelName).get(trueId);
+    let internalModel = this._internalModelsFor(modelName).get(trueId);
 
     if (!internalModel) {
       internalModel = this.buildInternalModel(modelName, trueId);
@@ -1612,7 +1612,7 @@ Store = Service.extend({
   */
   _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
-    let sinceToken = this._recordMapFor(modelName).metadata.since;
+    let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to load all records but your adapter does not implement 'findAll'`, typeof adapter.findAll === 'function');
@@ -1710,7 +1710,7 @@ Store = Service.extend({
       this._identityMap.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);
-      this._recordMapFor(normalizedModelName).clear();
+      this._internalModelsFor(normalizedModelName).clear();
     }
   },
 
@@ -1968,7 +1968,7 @@ Store = Service.extend({
       return;
     }
 
-    this._recordMapFor(internalModel.modelName).set(id, internalModel);
+    this._internalModelsFor(internalModel.modelName).set(id, internalModel);
 
     internalModel.setId(id);
   },
@@ -1976,13 +1976,13 @@ Store = Service.extend({
   /**
     Returns a map of IDs to client IDs for a given modelName.
 
-    @method _recordMapFor
+    @method _internalModelsFor
     @private
     @param {String} modelName
     @return {Object} recordMap
   */
-  _recordMapFor(modelName) {
-    heimdall.increment(_recordMapFor);
+  _internalModelsFor(modelName) {
+    heimdall.increment(_internalModelsFor);
     return this._identityMap.retrieve(modelName);
   },
 
@@ -2538,7 +2538,7 @@ Store = Service.extend({
 
     assert(`You can no longer pass a modelClass as the first argument to store.buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
 
-    let recordMap = this._recordMapFor(modelName);
+    let recordMap = this._internalModelsFor(modelName);
 
     assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !id || !recordMap.get(id));
 
@@ -2569,7 +2569,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _removeFromIdMap(internalModel) {
-    let recordMap = this._recordMapFor(internalModel.modelName);
+    let recordMap = this._internalModelsFor(internalModel.modelName);
     let id = internalModel.id;
 
     recordMap.remove(internalModel, id);

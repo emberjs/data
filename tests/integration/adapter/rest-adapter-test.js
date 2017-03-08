@@ -557,9 +557,9 @@ test("createRecord - response can contain relationships the client doesn't yet k
   run(function() {
     post.save().then(assert.wait(function(post) {
       assert.equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
-      assert.equal(store._recordMapFor('post').records.length, 1, "There should only be one post record in the store");
+      assert.equal(store._internalModelsFor('post').models.length, 1, "There should only be one post record in the store");
 
-      var postRecords = store._recordMapFor('post').records;
+      var postRecords = store._internalModelsFor('post').models;
       for (var i = 0; i < postRecords.length; i++) {
         assert.equal(post, postRecords[i].getRecord(), "The object in the identity map is the same");
       }
