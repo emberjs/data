@@ -226,8 +226,8 @@ export default class RecordArrayManager {
   syncLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
     let hasNoPotentialDeletions = this.changedRecords.length === 0;
-    let recordMap = this.store._recordMapFor(modelName);
-    let hasNoInsertionsOrRemovals = recordMap.length === array.length;
+    let map = this.store._internalModelsFor(modelName);
+    let hasNoInsertionsOrRemovals = map.length === array.length;
 
     /*
       Ideally the recordArrayManager has knowledge of the changes to be applied to
@@ -245,15 +245,14 @@ export default class RecordArrayManager {
   populateLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.populateLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
     heimdall.increment(populateLiveRecordArray);
-    let recordMap = this.store._recordMapFor(modelName);
-    let records = recordMap.records;
-    let record;
+    let modelMap = this.store._internalModelsFor(modelName);
+    let internalModels = modelMap.models;
 
-    for (let i = 0; i < records.length; i++) {
-      record = records[i];
+    for (let i = 0; i < internalModels.length; i++) {
+      let internalModel = internalModels[i];
 
-      if (!record.isDeleted() && !record.isEmpty()) {
-        this._addInternalModelToRecordArray(array, record);
+      if (!internalModel.isDeleted() && !internalModel.isEmpty()) {
+        this._addInternalModelToRecordArray(array, internalModel);
       }
     }
   }
@@ -273,15 +272,14 @@ export default class RecordArrayManager {
   updateFilter(array, modelName, filter) {
     assert(`recordArrayManger.updateFilter expects modelName not modelClass as the second param, received ${modelName}`, typeof modelName === 'string');
     heimdall.increment(updateFilter);
-    let recordMap = this.store._recordMapFor(modelName);
-    let records = recordMap.records;
-    let record;
+    let modelMap = this.store._internalModelsFor(modelName);
+    let internalModels = modelMap.models;
 
-    for (let i = 0; i < records.length; i++) {
-      record = records[i];
+    for (let i = 0; i < internalModels.length; i++) {
+      let internalModel = internalModels[i];
 
-      if (!record.isDeleted() && !record.isEmpty()) {
-        this.updateFilterRecordArray(array, filter, modelName, record);
+      if (!internalModel.isDeleted() && !internalModel.isEmpty()) {
+        this.updateFilterRecordArray(array, filter, modelName, internalModel);
       }
     }
   }

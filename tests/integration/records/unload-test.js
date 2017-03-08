@@ -72,14 +72,14 @@ test("can unload a single record", function(assert) {
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 1, 'one person record loaded');
-  assert.equal(env.store._recordMapFor('person').length, 1, 'one person internalModel loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
 
   Ember.run(function() {
     adam.unloadRecord();
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 0, 'no person records');
-  assert.equal(env.store._recordMapFor('person').length, 0, 'no person internalModels');
+  assert.equal(env.store._internalModelsFor('person').length, 0, 'no person internalModels');
 });
 
 test("can unload all records for a given type", function(assert) {
@@ -124,9 +124,9 @@ test("can unload all records for a given type", function(assert) {
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 2, 'two person records loaded');
-  assert.equal(env.store._recordMapFor('person').length, 2, 'two person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
   assert.equal(env.store.peekAll('car').get('length'), 1, 'one car record loaded');
-  assert.equal(env.store._recordMapFor('car').length, 1, 'one car internalModel loaded');
+  assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
   Ember.run(function() {
     env.store.unloadAll('person');
@@ -134,8 +134,8 @@ test("can unload all records for a given type", function(assert) {
 
   assert.equal(env.store.peekAll('person').get('length'), 0);
   assert.equal(env.store.peekAll('car').get('length'), 1);
-  assert.equal(env.store._recordMapFor('person').length, 0, 'zero person internalModels loaded');
-  assert.equal(env.store._recordMapFor('car').length, 1, 'one car internalModel loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 });
 
 test("can unload all records", function(assert) {
@@ -180,9 +180,9 @@ test("can unload all records", function(assert) {
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 2, 'two person records loaded');
-  assert.equal(env.store._recordMapFor('person').length, 2, 'two person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
   assert.equal(env.store.peekAll('car').get('length'), 1, 'one car record loaded');
-  assert.equal(env.store._recordMapFor('car').length, 1, 'one car internalModel loaded');
+  assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
   Ember.run(function() {
     env.store.unloadAll();
@@ -190,8 +190,8 @@ test("can unload all records", function(assert) {
 
   assert.equal(env.store.peekAll('person').get('length'), 0);
   assert.equal(env.store.peekAll('car').get('length'), 0);
-  assert.equal(env.store._recordMapFor('person').length, 0, 'zero person internalModels loaded');
-  assert.equal(env.store._recordMapFor('car').length, 0, 'zero car internalModels loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
 });
 
 test("removes findAllCache after unloading all records", function(assert) {
@@ -219,7 +219,7 @@ test("removes findAllCache after unloading all records", function(assert) {
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 2, 'two person records loaded');
-  assert.equal(env.store._recordMapFor('person').length, 2, 'two person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
 
   Ember.run(function() {
     env.store.peekAll('person');
@@ -227,7 +227,7 @@ test("removes findAllCache after unloading all records", function(assert) {
   });
 
   assert.equal(env.store.peekAll('person').get('length'), 0, 'zero person records loaded');
-  assert.equal(env.store._recordMapFor('person').length, 0, 'zero person internalModels loaded');
+  assert.equal(env.store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
 });
 
 test("unloading all records also updates record array from peekAll()", function(assert) {
@@ -322,12 +322,12 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
   });
 
   assert.equal(
-    env.store._recordMapFor('person').records.length,
+    env.store._internalModelsFor('person').models.length,
     1,
     'one person record is loaded'
   );
   assert.equal(
-    env.store._recordMapFor('car').records.length,
+    env.store._internalModelsFor('car').models.length,
     2,
     'two car records are loaded'
   );
@@ -362,8 +362,8 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
     env.store.peekRecord('car', 2).unloadRecord();
   });
 
-  assert.equal(env.store._recordMapFor('person').records.length, 0);
-  assert.equal(env.store._recordMapFor('car').records.length, 0);
+  assert.equal(env.store._internalModelsFor('person').models.length, 0);
+  assert.equal(env.store._internalModelsFor('car').models.length, 0);
 
   assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
   assert.equal(cleanupOrphanCalls, 1, 'cleanup only happens once');
