@@ -759,6 +759,62 @@ test("DS.hasMany is async by default", function(assert) {
   });
 });
 
+test('DS.hasMany is stable', function(assert) {
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  let { store } = setupStore({ tag: Tag, person: Person });
+
+  let tag = run(() => store.createRecord('tag'));
+  let people = tag.get('people');
+  let peopleCached = tag.get('people');
+
+  assert.equal(people, peopleCached);
+
+  tag.notifyPropertyChange('people');
+  let notifiedPeople = tag.get('people');
+
+  assert.equal(people, notifiedPeople);
+
+  return Ember.RSVP.Promise.all([
+    people
+  ]);
+});
+
+test('DS.hasMany proxy is destroyed', function(assert) {
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  let { store } = setupStore({ tag: Tag, person: Person });
+
+  let tag = run(() => store.createRecord('tag'));
+  let people = tag.get('people');
+
+  return people.then(() => {
+    Ember.run(() => {
+      tag.unloadRecord();
+      assert.equal(people.get('isDestroying'), true);
+      assert.equal(people.get('isDestroyed'),  false);
+    });
+    assert.equal(people.get('isDestroying'), true);
+    assert.equal(people.get('isDestroyed'), true);
+  })
+});
+
 test('DS.ManyArray is lazy', function(assert) {
   let peopleDidChange = 0;
   const Tag = DS.Model.extend({

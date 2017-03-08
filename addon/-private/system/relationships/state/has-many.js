@@ -1,8 +1,8 @@
-import { assert, assertPolymorphicType } from "ember-data/-private/debug";
-import { PromiseManyArray, promiseManyArray } from "../../promise-proxies";
-import Relationship from "./relationship";
-import OrderedSet from "../../ordered-set";
-import ManyArray from "../../many-array";
+import { assert, assertPolymorphicType } from 'ember-data/-private/debug';
+import { PromiseManyArray } from '../../promise-proxies';
+import Relationship from './relationship';
+import OrderedSet from '../../ordered-set';
+import ManyArray from '../../many-array';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, record, inverseKey, relationshipMeta) {
@@ -10,6 +10,25 @@ export default class ManyRelationship extends Relationship {
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
+    this._manyArray = null;
+    this.__loadingPromise = null;
+  }
+
+  get _loadingPromise() { return this.__loadingPromise; }
+  _updateLoadingPromise(promise, content) {
+    if (this.__loadingPromise) {
+      if (content) {
+        this.__loadingPromise.set('content', content)
+      }
+      this.__loadingPromise.set('promise', promise)
+    } else {
+      this.__loadingPromise = new PromiseManyArray({
+        promise,
+        content
+      });
+    }
+
+    return this.__loadingPromise;
   }
 
   get manyArray() {
@@ -32,6 +51,10 @@ export default class ManyRelationship extends Relationship {
     if (this._manyArray) {
       this._manyArray.destroy();
       this._manyArray = null;
+    }
+
+    if (this._loadingPromise) {
+      this._loadingPromise.destroy();
     }
   }
 
@@ -125,13 +148,15 @@ export default class ManyRelationship extends Relationship {
       }
     }
 
+    let promise;
     if (this.link) {
-      this._loadingPromise = promiseManyArray(this.fetchLink(), 'Reload with link');
-      return this._loadingPromise;
+      promise = this.fetchLink();
     } else {
-      this._loadingPromise = promiseManyArray(this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray), 'Reload with ids');
-      return this._loadingPromise;
+      promise = this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray);
     }
+
+    this._updateLoadingPromise(promise);
+    return this._loadingPromise;
   }
 
   computeChanges(records) {
@@ -189,7 +214,7 @@ export default class ManyRelationship extends Relationship {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
     if (this.isAsync) {
-      var promise;
+      let promise;
       if (this.link) {
         if (this.hasLoaded) {
           promise = this.findRecords();
@@ -199,11 +224,7 @@ export default class ManyRelationship extends Relationship {
       } else {
         promise = this.findRecords();
       }
-      this._loadingPromise = PromiseManyArray.create({
-        content: manyArray,
-        promise: promise
-      });
-      return this._loadingPromise;
+      return this._updateLoadingPromise(promise, manyArray);
     } else {
       assert(`You looked up the '${this.key}' relationship on a '${this.record.type.modelName}' with id ${this.record.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
 
