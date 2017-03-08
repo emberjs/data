@@ -2,11 +2,12 @@
   @module ember-data
 */
 
-
 import Ember from 'ember';
-import { assert } from "ember-data/-private/debug";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
-import isArrayLike from "ember-data/-private/system/is-array-like";
+import { assert } from 'ember-data/-private/debug';
+import normalizeModelName from 'ember-data/-private/system/normalize-model-name';
+import isArrayLike from 'ember-data/-private/system/is-array-like';
+
+const { get } = Ember;
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -79,7 +80,7 @@ import isArrayLike from "ember-data/-private/system/is-array-like";
   the `post` relationship on the inverse because post is the only
   relationship to that model.
 
-  However, sometimes you may have multiple `belongsTo`/`hasManys` for the
+  However, sometimes you may have multiple `belongsTo`/`hasMany` for the
   same type. You can specify which property on the related model is
   the inverse using `DS.hasMany`'s `inverse` option:
 
@@ -120,7 +121,7 @@ export default function hasMany(type, options) {
     type = undefined;
   }
 
-  assert("The first argument to DS.hasMany must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Comment model, use DS.hasMany('comment')", typeof type === 'string' || typeof type === 'undefined');
+  assert(`The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${Ember.inspect(type)}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`, typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
 
@@ -133,9 +134,9 @@ export default function hasMany(type, options) {
   // serialization. Note that `key` is populated lazily
   // the first time the CP is called.
   let meta = {
-    type: type,
+    type,
+    options,
     isRelationship: true,
-    options: options,
     kind: 'hasMany',
     name: 'Has Many',
     key: null
@@ -143,18 +144,17 @@ export default function hasMany(type, options) {
 
   return Ember.computed({
     get(key) {
-      let relationship = this._internalModel._relationships.get(key);
-      return relationship.getRecords();
+      return this._internalModel._relationships.get(key).getRecords();
     },
     set(key, records) {
-      assert("You must pass an array of records to set a hasMany relationship", isArrayLike(records));
+      assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
       assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
         return Ember.A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
       })());
 
       let relationship = this._internalModel._relationships.get(key);
       relationship.clear();
-      relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
+      relationship.addRecords(records.map(record => get(record, '_internalModel')));
       return relationship.getRecords();
     }
   }).meta(meta);
