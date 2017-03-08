@@ -128,7 +128,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     */
     this.relationship = this.relationship || null;
 
-    this.currentState = Ember.A([]);
+    this.currentState = [];
     this.flushCanonical(false);
   },
 
