@@ -134,8 +134,10 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  person.addObserver('siblings', function() {
-    observerCount++;
+  run(function() {
+    person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
+      observerCount++;
+    });
   });
 
   run(function() {
@@ -189,8 +191,10 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  person.addObserver('siblings', function() {
-    observerCount++;
+  run(function() {
+    person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
+      observerCount++;
+    });
   });
 
   run(function() {
@@ -244,9 +248,12 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  person.addObserver('siblings', function() {
-    observerCount++;
+  run(function() {
+    person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
+      observerCount++;
+    });
   });
+
 
   run(function() {
     store.push({
@@ -299,9 +306,12 @@ test('Calling push with relationship triggers observers once if the relationship
     person = store.peekRecord('person', 'wat');
   });
 
-  person.addObserver('siblings', function() {
-    observerCount++;
+  run(function() {
+    person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
+      observerCount++;
+    });
   });
+
 
   run(function() {
     store.push({
@@ -353,9 +363,12 @@ test('Calling push with relationship does not trigger observers if the relations
     person = store.peekRecord('person', 'wat');
   });
 
-  person.addObserver('siblings', function() {
-    observerCount++;
+  run(function() {
+    person.hasMany('siblings').hasManyRelationship.getManyArray().addObserver('[]', function() {
+      observerCount++;
+    });
   });
+
 
   run(function() {
     store.push({
