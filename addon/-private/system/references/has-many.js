@@ -299,7 +299,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
     this.hasManyRelationship.computeChanges(internalModels);
 
-    return this.hasManyRelationship.getManyArray();
+    return this.hasManyRelationship.manyArray;
   });
 };
 
@@ -356,7 +356,7 @@ HasManyReference.prototype._isLoaded = function() {
 */
 HasManyReference.prototype.value = function() {
   if (this._isLoaded()) {
-    return this.hasManyRelationship.getManyArray();
+    return this.hasManyRelationship.manyArray;
   }
 
   return null;
@@ -404,7 +404,7 @@ HasManyReference.prototype.load = function() {
     return this.hasManyRelationship.getRecords();
   }
 
-  return resolve(this.hasManyRelationship.getManyArray());
+  return resolve(this.hasManyRelationship.manyArray);
 };
 
 /**

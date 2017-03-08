@@ -12,7 +12,7 @@ export default class ManyRelationship extends Relationship {
     this.isPolymorphic = relationshipMeta.options.polymorphic;
   }
 
-  getManyArray() {
+  get manyArray() {
     if (!this._manyArray) {
       this._manyArray = ManyArray.create({
         canonicalState: this.canonicalState,
@@ -68,7 +68,7 @@ export default class ManyRelationship extends Relationship {
     }
     super.addRecord(record, idx);
     // make lazy later
-    this.getManyArray().internalAddRecords([record], idx);
+    this.manyArray.internalAddRecords([record], idx);
   }
 
   removeCanonicalRecordFromOwn(record, idx) {
@@ -97,7 +97,7 @@ export default class ManyRelationship extends Relationship {
       return;
     }
     super.removeRecordFromOwn(record, idx);
-    let manyArray = this.getManyArray();
+    let manyArray = this.manyArray;
     if (idx !== undefined) {
       //TODO(Igor) not used currently, fix
       manyArray.currentState.removeAt(idx);
@@ -113,7 +113,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   reload() {
-    let manyArray = this.getManyArray();
+    let manyArray = this.manyArray;
     let manyArrayLoadedState = manyArray.get('isLoaded');
 
     if (this._loadingPromise) {
@@ -161,20 +161,15 @@ export default class ManyRelationship extends Relationship {
       }
       this.store._backburner.join(() => {
         this.updateRecordsFromAdapter(records);
-        this.getManyArray().set('isLoaded', true);
+        this.manyArray.set('isLoaded', true);
       });
-      return this.getManyArray();
+      return this.manyArray;
     });
   }
 
   findRecords() {
-    let manyArray = this.getManyArray();
-    let array = manyArray.toArray();
-    let internalModels = new Array(array.length);
-
-    for (let i = 0; i < array.length; i++) {
-      internalModels[i] = array[i]._internalModel;
-    }
+    let manyArray = this.manyArray;
+    let internalModels = manyArray.currentState;
 
     //TODO CLEANUP
     return this.store.findMany(internalModels).then(() => {
@@ -192,7 +187,7 @@ export default class ManyRelationship extends Relationship {
 
   getRecords() {
     //TODO(Igor) sync server here, once our syncing is not stupid
-    let manyArray = this.getManyArray();
+    let manyArray = this.manyArray;
     if (this.isAsync) {
       var promise;
       if (this.link) {
