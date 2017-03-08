@@ -103,11 +103,9 @@ export function proxyToContent(method) {
 
 export const PromiseManyArray = PromiseArray.extend({
   reload() {
-    //I don't think this should ever happen right now, but worth guarding if we refactor the async relationships
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
-    return PromiseManyArray.create({
-      promise: get(this, 'content').reload()
-    });
+    this.set('promise', this.get('content').reload())
+    return this;
   },
 
   createRecord: proxyToContent('createRecord'),
