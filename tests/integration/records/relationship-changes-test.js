@@ -385,6 +385,8 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
+  let test = this;
+
   run(function() {
     store.push({
       data: {
@@ -407,22 +409,22 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
+    test.arrayWillChange = (array, start, removing, adding) => {
+      willChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removing, 0);
+      assert.equal(adding, 1);
+    };
+    test.arrayDidChange = (array, start, removed, added) => {
+      didChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removed, 0);
+      assert.equal(added, 1);
+    };
+
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(this, {
-        arrayWillChange(array, start, removing, adding) {
-          willChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removing, 0);
-          assert.equal(adding, 1);
-        },
-        arrayDidChange(array, start, removed, added) {
-          didChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removed, 0);
-          assert.equal(added, 1);
-        }
-      });
+      siblings.addArrayObserver(test);
     });
   });
 
@@ -458,6 +460,8 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
+  let test = this;
+
   run(function() {
     store.push({
       data: {
@@ -480,22 +484,22 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
+    test.arrayWillChange = (array, start, removing, adding) => {
+      willChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removing, 1);
+      assert.equal(adding, 0);
+    };
+    test.arrayDidChange = (array, start, removed, added) => {
+      didChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removed, 1);
+      assert.equal(added, 0);
+    };
+
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(this, {
-        arrayWillChange(array, start, removing, adding) {
-          willChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removing, 1);
-          assert.equal(adding, 0);
-        },
-        arrayDidChange(array, start, removed, added) {
-          didChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removed, 1);
-          assert.equal(added, 0);
-        }
-      });
+      siblings.addArrayObserver(test);
     });
 
   });
@@ -530,6 +534,8 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
+  let test = this;
+
   run(function() {
     store.push({
       data: {
@@ -552,22 +558,22 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
+    test.arrayWillChange = (array, start, removing, adding) => {
+      willChangeCount++;
+      assert.equal(start, 0);
+      assert.equal(removing, 0);
+      assert.equal(adding, 1);
+    };
+    test.arrayDidChange = (array, start, removed, added) => {
+      didChangeCount++;
+      assert.equal(start, 0);
+      assert.equal(removed, 0);
+      assert.equal(added, 1);
+    };
+
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(this, {
-        arrayWillChange(array, start, removing, adding) {
-          willChangeCount++;
-          assert.equal(start, 0);
-          assert.equal(removing, 0);
-          assert.equal(adding, 1);
-        },
-        arrayDidChange(array, start, removed, added) {
-          didChangeCount++;
-          assert.equal(start, 0);
-          assert.equal(removed, 0);
-          assert.equal(added, 1);
-        }
-      });
+      siblings.addArrayObserver(test);
     });
 
   });
@@ -604,6 +610,8 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
+  let test = this;
+
   run(function() {
     store.push({
       data: {
@@ -627,22 +635,22 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
+    test.arrayWillChange = (array, start, removing, adding) => {
+      willChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removing, 0);
+      assert.equal(adding, 1);
+    };
+    test.arrayDidChange = (array, start, removed, added) => {
+      didChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removed, 0);
+      assert.equal(added, 1);
+    };
+
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(this, {
-        arrayWillChange(array, start, removing, adding) {
-          willChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removing, 0);
-          assert.equal(adding, 1);
-        },
-        arrayDidChange(array, start, removed, added) {
-          didChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removed, 0);
-          assert.equal(added, 1);
-        }
-      });
+      siblings.addArrayObserver(test);
     });
 
   });
@@ -679,6 +687,8 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let willChangeCount = 0;
   let didChangeCount = 0;
 
+  let test = this;
+
   run(function() {
     store.push({
       data: {
@@ -703,22 +713,23 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
     person = store.peekRecord('person', 'wat');
 
+    test.arrayWillChange = (array, start, removing, adding) => {
+      willChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removing, 1);
+      assert.equal(adding, 2);
+    };
+
+    test.arrayDidChange = (array, start, removed, added) => {
+      didChangeCount++;
+      assert.equal(start, 1);
+      assert.equal(removed, 1);
+      assert.equal(added, 2);
+    };
+
     person.get('siblings')
     .then(siblings => {
-      siblings.addArrayObserver(this, {
-        arrayWillChange(array, start, removing, adding) {
-          willChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removing, 1);
-          assert.equal(adding, 2);
-        },
-        arrayDidChange(array, start, removed, added) {
-          didChangeCount++;
-          assert.equal(start, 1);
-          assert.equal(removed, 1);
-          assert.equal(added, 2);
-        }
-      });
+      siblings.addArrayObserver(test);
     });
 
   });
