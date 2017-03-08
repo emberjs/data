@@ -1620,9 +1620,8 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 });
 
-testInDebug("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
-  var post;
-  run(function() {
+testInDebug('A sync hasMany errors out if there are unlaoded records in it', function(assert) {
+  let post = run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -1637,12 +1636,12 @@ testInDebug("A sync hasMany errors out if there are unlaoded records in it", fun
         }
       }
     });
-    post = env.store.peekRecord('post', 1);
+    return env.store.peekRecord('post', 1);
   });
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     run(post, 'get', 'comments');
-  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
+  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
 });
 
 test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
