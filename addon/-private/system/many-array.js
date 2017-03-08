@@ -3,8 +3,8 @@
 */
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import { PromiseArray } from "ember-data/-private/system/promise-proxies";
-import { _objectIsAlive } from "ember-data/-private/system/store/common";
+import { PromiseArray } from "./promise-proxies";
+import { _objectIsAlive } from "./store/common";
 import diffArray from './diff-array';
 
 const { get, set } = Ember;
