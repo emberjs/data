@@ -6,6 +6,8 @@ import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "ember-data/-private/system/promise-proxies";
 import { _objectIsAlive } from "ember-data/-private/system/store/common";
 
+import diffArray from './diff-array';
+
 const { get, set } = Ember;
 
 /**
@@ -165,44 +167,16 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    const oldLength = this.length;
-    const newLength = toSet.length;
 
-    const shortestLength = Math.min(oldLength, newLength);
+    // diff to find changes
+    const diff = diffArray(this.currentState, toSet);
 
-    let firstChangeIndex = -1; // -1 signifies no changes
-    // find the first change
-    const currentArray = this.currentState;
-    for (let i=0; i<shortestLength; i++) {
-      // compare each item in the array
-      if (currentArray[i] !== toSet[i]) {
-        firstChangeIndex = i;
-        break;
-      }
-    }
-    if (firstChangeIndex === -1) {
-      // no change found in the matching part of the arrays
-      if (newLength !== oldLength) {
-        firstChangeIndex = shortestLength;
-      }
-    }
-    if (firstChangeIndex !== -1) {
-      // we found a change, find the end of the change
-      let unchangedEndBlockLength = 0;
-      // walk back from the end of both arrays until we find a change
-      for (let i=1; i<shortestLength; i++) {
-        // compare each item in the array
-        if (currentArray[oldLength-i] !== toSet[newLength-i]) {
-          unchangedEndBlockLength = i-1;
-          break;
-        }
-      }
-      const added = newLength - unchangedEndBlockLength - firstChangeIndex;
-      const removed = oldLength - unchangedEndBlockLength - firstChangeIndex;
-      this.arrayContentWillChange(firstChangeIndex, removed, added);
+    if (diff.firstChangeIndex) { // it's null if no change found
+      // we found a change
+      this.arrayContentWillChange(diff.firstChangeIndex || 0, diff.removedCount, diff.addedCount);
       set(this, 'length', toSet.length);
       this.currentState = toSet;
-      this.arrayContentDidChange(firstChangeIndex, removed, added);
+      this.arrayContentDidChange(diff.firstChangeIndex || 0, diff.removedCount, diff.addedCount);
       this.relationship.notifyHasManyChanged();
     }
     this.record.updateRecordArrays();
