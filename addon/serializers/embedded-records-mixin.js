@@ -13,6 +13,8 @@ const camelize = Ember.String.camelize;
   To set up embedded records, include the mixin when extending a serializer,
   then define and configure embedded (model) relationships.
 
+  Note that embedded records will serialize with the serializer for their model instead of the serializer in which they are defined.
+
   Below is an example of a per-type serializer (`post` type).
 
   ```app/serializers/post.js
