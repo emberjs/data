@@ -518,9 +518,15 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    let changedKeys = this._changedKeys(data.attributes);
+    let changedKeys;
+
+    if (this.hasRecord) {
+      changedKeys = this._changedKeys(data.attributes);
+    }
+
     assign(this._data, data.attributes);
     this.pushedData();
+
     if (this.hasRecord) {
       this.record._notifyProperties(changedKeys);
     }
