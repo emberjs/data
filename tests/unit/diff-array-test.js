@@ -479,3 +479,10 @@ test('diff array returns correctly given 4 items replaced with 3 at end with old
   assert.equal(result.addedCount, 3);
   assert.equal(result.removedCount, 4);
 });
+
+test('diff array returns correctly given non-contiguous insertion', function(assert) {
+  const result = diffArray([a,c,e], [a,b,c,d,e]);
+  assert.equal(result.firstChangeIndex, 1);
+  assert.equal(result.addedCount, 3);
+  assert.equal(result.removedCount, 1);
+});
