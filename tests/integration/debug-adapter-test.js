@@ -4,9 +4,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var App, store, debugAdapter;
-var get = Ember.get;
-var run = Ember.run;
+let App, store, debugAdapter;
+const { get, run } = Ember;
 
 module('DS.DebugAdapter', {
   beforeEach() {
@@ -55,23 +54,23 @@ module('DS.DebugAdapter', {
   }
 });
 
-test("Watching Model Types", function(assert) {
+test('Watching Model Types', function(assert) {
   assert.expect(5);
 
-  var added = function(types) {
+  function added(types) {
     assert.equal(types.length, 1);
     assert.equal(types[0].name, 'post');
     assert.equal(types[0].count, 0);
     assert.strictEqual(types[0].object, store.modelFor('post'));
-  };
+  }
 
-  var updated = function(types) {
+  function updated(types) {
     assert.equal(types[0].count, 1);
-  };
+  }
 
   debugAdapter.watchModelTypes(added, updated);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'post',

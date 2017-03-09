@@ -104,24 +104,20 @@ test('#update uses _update enabling query specific behavior', function(assert) {
 // TODO: is this method required, i suspect store._query should be refactor so this is not needed
 test('#_setInternalModels', function(assert) {
   let didAddRecord = 0;
-  const manager = {
-    recordArraysForRecord(record) {
-      return {
-        add(array) {
-          didAddRecord++;
-          assert.equal(array, recordArray);
-        }
-      }
-    }
-  };
+  function add(array) {
+    didAddRecord++;
+    assert.equal(array, recordArray);
+  }
 
   let recordArray = AdapterPopulatedRecordArray.create({
-    query: 'some-query',
-    manager
+    query: 'some-query'
   });
 
   let model1 = internalModelFor({ id: 1 });
   let model2 = internalModelFor({ id: 2 });
+
+  model1._recordArrays = { add };
+  model2._recordArrays = { add };
 
   assert.equal(didAddRecord, 0, 'no records should have been added yet');
 
@@ -160,29 +156,29 @@ test('change events when receiving a new query payload', function(assert) {
   let contentDidChange = 0;
   let didAddRecord = 0;
 
-  const manager = {
-    recordArraysForRecord(record) {
-      return {
-        add(array) {
-          didAddRecord++;
-          assert.equal(array, recordArray);
-        },
-        delete(array) {
-          assert.equal(array, recordArray);
-        }
-      };
-    }
-  };
+  function add(array) {
+    didAddRecord++;
+    assert.equal(array, recordArray);
+  }
+
+  function del(array) {
+    assert.equal(array, recordArray);
+  }
 
   let recordArray = AdapterPopulatedRecordArray.create({
-    query: 'some-query',
-    manager
+    query: 'some-query'
   });
+
+  let model1 = internalModelFor({ id: '1', name: 'Scumbag Dale' });
+  let model2 = internalModelFor({ id: '2', name: 'Scumbag Katz' })
+
+  model1._recordArrays = { add, delete: del };
+  model2._recordArrays = { add, delete: del };
 
   run(() => {
     recordArray._setInternalModels([
-      internalModelFor({ id: '1', name: 'Scumbag Dale' }),
-      internalModelFor({ id: '2', name: 'Scumbag Katz' })
+      model1,
+      model2
     ], {});
   });
 
@@ -216,11 +212,17 @@ test('change events when receiving a new query payload', function(assert) {
   contentDidChange = 0;
   didAddRecord = 0;
 
+  let model3 = internalModelFor({ id: '3', name: 'Scumbag Penner' });
+  let model4 = internalModelFor({ id: '4', name: 'Scumbag Hamilton' });
+
+  model3._recordArrays = { add, delete: del };
+  model4._recordArrays = { add, delete: del };
+
   run(() => {
     // re-query
     recordArray._setInternalModels([
-      internalModelFor({ id: '3', name: 'Scumbag Penner' }),
-      internalModelFor({ id: '4', name: 'Scumbag Hamilton' })
+      model3,
+      model4
     ], {});
   });
 
@@ -254,9 +256,13 @@ test('change events when receiving a new query payload', function(assert) {
   assert.equal(arrayDidChange, 0, 'record array should not yet have omitted a change event');
   assert.equal(contentDidChange, 0, 'recordArray.content should not have changed');
 
+  let model5 = internalModelFor({ id: '3', name: 'Scumbag Penner' })
+
+  model5._recordArrays = { add, delete: del };
+
   run(() => {
     recordArray._setInternalModels([
-      internalModelFor({ id: '3', name: 'Scumbag Penner' })
+      model5
     ], {});
   });
 

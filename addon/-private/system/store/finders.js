@@ -136,7 +136,7 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
     store._push(payload);
     store.didUpdateAll(modelName);
 
-    return store.peekAll(modelName);
+    return recordArray;
   }, null, 'DS: Extract payload of findAll ${modelName}');
 }
 
