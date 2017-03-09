@@ -142,6 +142,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   flushCanonical(isInitialized = true) {
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (!_objectIsAlive(this)) {
+      return;
+    }
     let toSet = this.canonicalState;
 
     //a hack for not removing new records
@@ -160,10 +164,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     if (diff.firstChangeIndex !== null) { // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-      // It’s possible the parent side of the relationship may have been unloaded by this point
-      if (_objectIsAlive(this)) {
-        this.set('length', toSet.length);
-      }
+      this.set('length', toSet.length);
       this.currentState = toSet;
       this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       if (isInitialized && diff.addedCount > 0) {
