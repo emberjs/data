@@ -355,3 +355,81 @@ test('#destroy', function(assert) {
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });
 
+test('#_pushInternalModels batching', function(assert) {
+  let content = Ember.A();
+  let recordArray = RecordArray.create({
+    content
+  });
+
+  let model1 = { id: 1, getRecord() { return 'model-1'; } };
+  let model2 = { id: 2, getRecord() { return 'model-2'; } };
+  let model3 = { id: 3, getRecord() { return 'model-3'; } };
+
+  let arrayState;
+  let arrayWillChangeCount = 0;
+  recordArray.addArrayObserver({
+    arrayWillChange(content, idx, removedCnt, addedCnt) {
+      arrayWillChangeCount++;
+      assert.deepEqual({
+        idx,
+        removedCnt,
+        addedCnt
+      }, arrayState);
+    },
+    arrayDidChange(content, idx, removedCnt, addedCnt) {
+      assert.deepEqual({
+        idx,
+        removedCnt,
+        addedCnt
+      }, arrayState);
+    }
+  });
+
+  arrayState = {
+    idx: 0,
+    removedCnt: 0,
+    addedCnt: 1
+  };
+
+  assert.equal(arrayWillChangeCount, 0);
+
+  arrayState = {
+    idx: 0,
+    removedCnt: 0,
+    addedCnt: 1
+  };
+
+  assert.equal(recordArray._pushInternalModels([model1]), undefined, '_pushInternalModels has no return value');
+  assert.equal(arrayWillChangeCount, 1);
+  assert.deepEqual(content, [model1], 'now contains model1');
+
+  arrayState = {
+    idx: 1,
+    removedCnt: 0,
+    addedCnt: 1
+  };
+
+  recordArray._pushInternalModels([model2]);
+  assert.equal(arrayWillChangeCount, 2);
+  assert.deepEqual(content, [model1, model2], 'add another');
+
+  arrayState = {
+    idx: 1,
+    removedCnt: 1,
+    addedCnt: 0
+  };
+
+  recordArray._removeInternalModels([model2]);
+  assert.equal(arrayWillChangeCount, 3);
+
+  arrayState = {
+    idx: 1,
+    removedCnt: 0,
+    addedCnt: 2
+  };
+
+  // can add multiple models at once
+  recordArray._pushInternalModels([model2, model3]);
+  assert.equal(arrayWillChangeCount, 4);
+  assert.deepEqual(content, [model1, model2, model3], 'now contains model1, model2, model3');
+});

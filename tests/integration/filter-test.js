@@ -238,8 +238,8 @@ test('a Record Array can update its filter', function(assert) {
     return Ember.RSVP.hash(asyncData).then(records => {
       assert.contains(recordArray, records.dale);
       assert.contains(recordArray, records.katz);
-      assert.without(recordArray, records.bryn);
-      assert.without(recordArray, dickens);
+      assert.without(recordArray,  dickens);
+      assert.without(recordArray,  records.bryn);
 
       run(() => {
         recordArray.set('filterFunction', hash => {
@@ -378,8 +378,8 @@ test('a Record Array can update its filter and notify array observers', function
       });
 
       assert.equal(didChangeAdded, 2, 'one item is added when going back');
-      assert.equal(recordArray.objectAt(didChangeIdx).get('name'), 'Scumbag Demon');
-      assert.equal(recordArray.objectAt(didChangeIdx-1).get('name'), 'Scumbag Dale');
+      assert.equal(recordArray.objectAt(didChangeIdx).get('name'), 'Scumbag Dale');
+      assert.equal(recordArray.objectAt(didChangeIdx+1).get('name'), 'Scumbag Demon');
     });
   });
 });

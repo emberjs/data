@@ -89,7 +89,8 @@ export default RecordArray.extend({
 
     for (let i = 0, l = internalModels.length; i < l; i++) {
       let internalModel = internalModels[i];
-      this.manager.recordArraysForRecord(internalModel).add(this)
+
+      internalModel._recordArrays.add(this);
     }
 
     // TODO: should triggering didLoad event be the last action of the runLoop?

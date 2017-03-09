@@ -49,20 +49,16 @@ test("When all records for a type are requested, the store should call the adapt
     }
   }));
 
-  let allRecords;
-
-  run(() => {
-    store.findAll('person').then((all) => {
-      allRecords = all;
+  return run(() => {
+    return store.findAll('person').then((all) => {
+      let allRecords = all;
       assert.equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       assert.equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
-    });
-  });
 
-  run(() => {
-    store.findAll('person').then((all) => {
-      // Only one record array per type should ever be created (identity map)
-      assert.strictEqual(allRecords, all, "the same record array is returned every time all records of a type are requested");
+      return store.findAll('person').then((all) => {
+        // Only one record array per type should ever be created (identity map)
+        assert.strictEqual(allRecords, all, "the same record array is returned every time all records of a type are requested");
+      });
     });
   });
 });

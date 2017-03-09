@@ -341,31 +341,27 @@ test('a newly created record is removed from a record array when it is deleted',
     tag: Tag
   });
   let recordArray = store.peekAll('person');
-  let scumbag;
-
-  run(function() {
-    scumbag = store.createRecord('person', {
-      name: "Scumbag Dale"
+  let scumbag = run(() => {
+    return store.createRecord('person', {
+      name: 'Scumbag Dale'
     });
   });
 
-  assert.equal(get(recordArray, 'length'), 1, "precond - record array already has the first created item");
+  assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
   // guarantee coalescence
-  Ember.run(function() {
+  Ember.run(() => {
     store.createRecord('person', { name: 'p1' });
     store.createRecord('person', { name: 'p2' });
     store.createRecord('person', { name: 'p3' });
   });
 
-  assert.equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
-  assert.equal(recordArray.objectAt(0), scumbag, "item at index 0 is record with id 1");
+  assert.equal(get(recordArray, 'length'), 4, 'precond - record array has the created item');
+  assert.equal(recordArray.objectAt(0), scumbag, 'item at index 0 is record with id 1');
 
-  run(function() {
-    scumbag.deleteRecord();
-  });
+  run(() => scumbag.deleteRecord());
 
-  assert.equal(get(recordArray, 'length'), 3, "record array still has the created item");
+  assert.equal(get(recordArray, 'length'), 3, 'record array still has the created item');
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function(assert) {
