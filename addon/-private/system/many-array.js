@@ -134,8 +134,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   objectAt(index) {
-    //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
     let object = this.currentState[index];
+    //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
     if (object === undefined) { return; }
 
     return object.getRecord();
