@@ -129,17 +129,16 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     */
     this.relationship = this.relationship || null;
 
-    this.currentState = Ember.A([]);
+    this.currentState = [];
     this.flushCanonical(false);
   },
 
   objectAt(index) {
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
-    if (!this.currentState[index]) {
-      return undefined;
-    }
+    let object = this.currentState[index];
+    if (object === undefined) { return; }
 
-    return this.currentState[index].getRecord();
+    return object.getRecord();
   },
 
   flushCanonical(isInitialized = true) {
@@ -167,10 +166,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       }
       this.currentState = toSet;
       this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
-      this.relationship.notifyHasManyChanged();
-    }
-    if (isInitialized) {
-      this.record.updateRecordArrays();
+      if (isInitialized && diff.addedCount > 0) {
+        //notify only on additions
+        //TODO only notify if unloaded
+        this.relationship.notifyHasManyChanged();
+      }
     }
   },
 
