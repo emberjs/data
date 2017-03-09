@@ -5,6 +5,7 @@ import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
+import diffArray from './diff-array';
 
 const { get, set } = Ember;
 
@@ -128,16 +129,17 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     */
     this.relationship = this.relationship || null;
 
-    this.currentState = [];
+    this.currentState = Ember.A([]);
     this.flushCanonical(false);
   },
 
   objectAt(index) {
-    let object = this.currentState[index];
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
-    if (object === undefined) { return; }
+    if (!this.currentState[index]) {
+      return undefined;
+    }
 
-    return object.getRecord();
+    return this.currentState[index].getRecord();
   },
 
   flushCanonical(isInitialized = true) {
@@ -145,25 +147,30 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    let newRecords = this.currentState.filter(
+    const newRecords = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    let oldLength = this.length;
-    this.arrayContentWillChange(0, this.length, toSet.length);
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (_objectIsAlive(this)) {
-      this.set('length', toSet.length);
-    }
-    this.currentState = toSet;
-    this.arrayContentDidChange(0, oldLength, this.length);
 
-    if (isInitialized) {
-      //TODO Figure out to notify only on additions and maybe only if unloaded
+    // diff to find changes
+    const diff = diffArray(this.currentState, toSet);
+
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
+      // we found a change
+      this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      // It’s possible the parent side of the relationship may have been unloaded by this point
+      if (_objectIsAlive(this)) {
+        this.set('length', toSet.length);
+      }
+      this.currentState = toSet;
+      this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.relationship.notifyHasManyChanged();
+    }
+    if (isInitialized) {
+      this.record.updateRecordArrays();
     }
   },
 
@@ -289,12 +296,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    let store = get(this, 'store');
-    let type = get(this, 'type');
-    let record;
+    const store = get(this, 'store');
+    const type = get(this, 'type');
 
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
-    record = store.createRecord(type.modelName, hash);
+    const record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
