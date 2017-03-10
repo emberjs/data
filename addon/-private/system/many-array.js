@@ -5,6 +5,7 @@ import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
+import diffArray from './diff-array';
 
 const { get, set } = Ember;
 
@@ -141,6 +142,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   flushCanonical(isInitialized = true) {
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (!_objectIsAlive(this)) {
+      return;
+    }
     let toSet = this.canonicalState;
 
     //a hack for not removing new records
@@ -152,18 +157,21 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newRecords);
-    let oldLength = this.length;
-    this.arrayContentWillChange(0, this.length, toSet.length);
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (_objectIsAlive(this)) {
-      this.set('length', toSet.length);
-    }
-    this.currentState = toSet;
-    this.arrayContentDidChange(0, oldLength, this.length);
 
-    if (isInitialized) {
-      //TODO Figure out to notify only on additions and maybe only if unloaded
-      this.relationship.notifyHasManyChanged();
+    // diff to find changes
+    let diff = diffArray(this.currentState, toSet);
+
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
+      // we found a change
+      this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      this.set('length', toSet.length);
+      this.currentState = toSet;
+      this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      if (isInitialized && diff.addedCount > 0) {
+        //notify only on additions
+        //TODO only notify if unloaded
+        this.relationship.notifyHasManyChanged();
+      }
     }
   },
 
@@ -289,12 +297,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    let store = get(this, 'store');
-    let type = get(this, 'type');
-    let record;
+    const store = get(this, 'store');
+    const type = get(this, 'type');
 
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
-    record = store.createRecord(type.modelName, hash);
+    let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
