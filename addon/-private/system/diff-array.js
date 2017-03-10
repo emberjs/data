@@ -10,7 +10,7 @@
       removedCount: <integer>       // 0 if no change
     }
 */
-const diffArray = function (oldArray, newArray) {
+export default function diffArray(oldArray, newArray) {
   const oldLength = oldArray.length;
   const newLength = newArray.length;
 
@@ -55,6 +55,4 @@ const diffArray = function (oldArray, newArray) {
     addedCount,
     removedCount
   };
-}
-
-export default diffArray;
+};

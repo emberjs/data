@@ -150,7 +150,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
-    const newRecords = this.currentState.filter(
+    let newRecords = this.currentState.filter(
       // only add new records which are not yet in the canonical state of this
       // relationship (a new record can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
@@ -159,7 +159,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     toSet = toSet.concat(newRecords);
 
     // diff to find changes
-    const diff = diffArray(this.currentState, toSet);
+    let diff = diffArray(this.currentState, toSet);
 
     if (diff.firstChangeIndex !== null) { // it's null if no change found
       // we found a change
@@ -301,7 +301,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     const type = get(this, 'type');
 
     assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
-    const record = store.createRecord(type.modelName, hash);
+    let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
