@@ -55,4 +55,4 @@ export default function diffArray(oldArray, newArray) {
     addedCount,
     removedCount
   };
-};
+}
