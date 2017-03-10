@@ -1611,7 +1611,7 @@ test('hasMany.firstObject.unloadRecord should not break that hasMany', function(
   the parent record's hasMany is a situation in which this limitation will be encountered should other
   local changes to the relationship still exist.
  */
-test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state', function(assert) {
+test('returning new hasMany relationship info from a delete maintains a local addition', function(assert) {
   assert.expect(4);
 
   const Person = DS.Model.extend({
@@ -1642,7 +1642,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
           relationships: {
             pets: {
               data: [
-                { type: 'pet', id: '2' }
+                { type: 'pet', id: 'server-known-2' }
               ]
             }
           }
@@ -1664,8 +1664,8 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
         relationships: {
           pets: {
             data: [
-              { type: 'pet', id: '1' },
-              { type: 'pet', id: '2' }
+              { type: 'pet', id: 'will-destroy-1' },
+              { type: 'pet', id: 'server-known-2' }
             ]
           }
         }
@@ -1673,21 +1673,21 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
       included: [
         {
           type: 'pet',
-          id: '1',
+          id: 'will-destroy-1',
           attributes: {
             name: 'Shenanigans'
           }
         },
         {
           type: 'pet',
-          id: '2',
+          id: 'server-known-2',
           attributes: {
             name: 'Rambunctious'
           }
         },
         {
           type: 'pet',
-          id: '3',
+          id: 'local-3',
           attributes: {
             name: 'Rebel'
           }
@@ -1699,25 +1699,26 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   const person = store.peekRecord('person', '1');
   const pets = run(() => person.get('pets'));
 
-  const shen = store.peekRecord('pet', '1');
-  const rebel = store.peekRecord('pet', '3');
+  const shen = store.peekRecord('pet', 'will-destroy-1');
+  const rebel = store.peekRecord('pet', 'local-3');
 
   assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['will-destroy-1', 'server-known-2'], 'precond - relationship has the correct pets to start');
 
+  // add a new item locally
   run(() => {
     pets.pushObjects([rebel]);
   });
 
-  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['will-destroy-1', 'server-known-2', 'local-3'], 'precond2 - relationship now has the correct three pets');
 
   return run(() => {
     return shen.destroyRecord({})
       .then(() => {
         shen.unloadRecord();
 
-        // were ember-data to now preserve local edits during a relationship push, this would be '2'
-        assert.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has only one pet, we lost the local change');
+        // were ember-data to not preserve local edits during a relationship push, this would be 'server-known-2'
+        assert.deepEqual(pets.map(p => get(p, 'id')), ['server-known-2', 'local-3'], 'relationship now has only one pet, we kept the local change');
       });
   });
 });
