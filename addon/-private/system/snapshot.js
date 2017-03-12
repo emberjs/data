@@ -3,7 +3,6 @@
 */
 
 import Ember from 'ember';
-import EmptyObject from "./empty-object";
 
 const {
   get
@@ -18,11 +17,11 @@ const {
 */
 export default class Snapshot {
   constructor(internalModel, options = {}) {
-    this._attributes = new EmptyObject();
-    this._belongsToRelationships = new EmptyObject();
-    this._belongsToIds = new EmptyObject();
-    this._hasManyRelationships = new EmptyObject();
-    this._hasManyIds = new EmptyObject();
+    this._attributes = Object.create(null);
+    this._belongsToRelationships = Object.create(null);
+    this._belongsToIds = Object.create(null);
+    this._hasManyRelationships = Object.create(null);
+    this._hasManyIds = Object.create(null);
     this._internalModel = internalModel;
 
     let record = internalModel.getRecord();
@@ -144,7 +143,7 @@ export default class Snapshot {
    @return {Object} All changed attributes of the current snapshot
    */
   changedAttributes() {
-    let changedAttributes = new EmptyObject();
+    let changedAttributes = Object.create(null);
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
