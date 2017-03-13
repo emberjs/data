@@ -134,23 +134,21 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
   }, null, 'DS: Extract payload of findAll ${modelName}');
 }
 
-export function _query(adapter, store, modelName, query, recordArray) {
+export function _query(adapter, store, modelName, query, recordArray, options) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
   let promise;
+  let label = `DS: Handle Adapter#query of ${modelName}`;
   let createRecordArray = adapter.query.length > 3 ||
     (adapter.query.wrappedFunction && adapter.query.wrappedFunction.length > 3);
 
   if (createRecordArray) {
     recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray));
+    promise = Promise.resolve(adapter.query(store, modelClass, query, recordArray, options), label);
   } else {
-    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query));
+    promise = Promise.resolve(adapter.query(store, modelClass, query), label);
   }
 
-  let label = `DS: Handle Adapter#query of ${modelClass}`;
-
-  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(adapterPayload => {
@@ -173,12 +171,11 @@ export function _query(adapter, store, modelName, query, recordArray) {
   }, null, `DS: Extract payload of query ${modelName}`);
 }
 
-export function _queryRecord(adapter, store, modelName, query) {
+export function _queryRecord(adapter, store, modelName, query, options) {
   let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
-  let promise = Promise.resolve().then(() => adapter.queryRecord(store, modelClass, query));
   let label = `DS: Handle Adapter#queryRecord of ${modelName}`;
+  let promise = Promise.resolve(adapter.queryRecord(store, modelClass, query, options), label);
 
-  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(adapterPayload => {

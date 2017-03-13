@@ -1268,11 +1268,16 @@ Store = Service.extend({
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
+    let options = {};
+
+    options.adapterOptions = query.adapterOptions;
+    delete query.adapterOptions;
+
     let normalizedModelName = normalizeModelName(modelName);
-    return this._query(normalizedModelName, query);
+    return this._query(normalizedModelName, query, null, options);
   },
 
-  _query(modelName, query, array) {
+  _query(modelName, query, array, options) {
     let token = heimdall.start('store._query');
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
@@ -1288,7 +1293,7 @@ Store = Service.extend({
     assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to load a query but your adapter does not implement 'query'`, typeof adapter.query === 'function');
 
-    let pA = promiseArray(_query(adapter, this, modelName, query, array));
+    let pA = promiseArray(_query(adapter, this, modelName, query, array, options));
     instrument(() => {
       pA.finally(() => { heimdall.stop(token); });
     });
@@ -1400,10 +1405,15 @@ Store = Service.extend({
 
     let adapter = this.adapterFor(normalizedModelName);
 
+    let options = {};
+
+    options.adapterOptions = query.adapterOptions;
+    delete query.adapterOptions;
+
     assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
     assert(`You tried to make a query but your adapter does not implement 'queryRecord'`, typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, modelName, query).then(internalModel => {
+    return promiseObject(_queryRecord(adapter, this, modelName, query, options).then(internalModel => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {

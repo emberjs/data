@@ -1363,6 +1363,48 @@ test("store.findRecord should pass adapterOptions to adapter.findRecord", functi
   });
 });
 
+test("store.query should pass adapterOptions to adapter.query ", function(assert) {
+  assert.expect(2);
+
+  env.adapter.query = function(store, type, query, array, options) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
+    return [];
+  };
+
+  return run(() => {
+    return store.query('person', { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+test("store.filter should pass adapterOptions to adapter.query", function(assert) {
+  assert.expect(2);
+
+  env.adapter.query = function(store, type, query, array, options) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
+    return [];
+  };
+
+  return run(() => {
+    return store.filter('person', { adapterOptions: { query: { embed: true } } }, () => {});
+  });
+});
+
+test("store.queryRecord should pass adapterOptions to adapter.queryRecord", function(assert) {
+  assert.expect(2);
+
+  env.adapter.queryRecord = function(store, type, query, snapshot) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
+    return { id: 1 };
+  };
+
+  return run(() => {
+    return store.queryRecord('person', { adapterOptions: { query: { embed: true } } });
+  });
+});
+
 test("store.findRecord should pass 'include' to adapter.findRecord", function(assert) {
   assert.expect(1);
 
