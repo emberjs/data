@@ -2,6 +2,40 @@
 
 ### Master
 
+### Release 2.12.0 (March 13, 2017)
+- [#4805](https://github.com/emberjs/data/pull/4805) Don’t redefine findPossibleInverses for each _findInverseFor
+- [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
+- [#4810](https://github.com/emberjs/data/pull/4810) [Fixes #4807] realize class + factory seperation
+- [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
+- [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
+- [#4792](https://github.com/emberjs/data/pull/4792) [BUGFIX beta] revert deletion of filter that removed deleted model…
+- [#4789](https://github.com/emberjs/data/pull/4789) Do not access container if Ember.getOwner exists.
+- [#4760](https://github.com/emberjs/data/pull/4760) Update deprecate arguments (#4760)
+- [#4698](https://github.com/emberjs/data/pull/4698) [FIX backburner] Avoids spinning up unnecessary run loops via run.join
+- [#4638](https://github.com/emberjs/data/pull/4638) Update the API docs for snapshots
+- [#4705](https://github.com/emberjs/data/pull/4705) Underscores the already private store.reloadRecord method
+- [#4663](https://github.com/emberjs/data/pull/4663) Silence warnings and deprecations in the console during tests
+- [#4642](https://github.com/emberjs/data/pull/4642) Add API docs for the HasManyReference
+- [#4706](https://github.com/emberjs/data/pull/4706) Improved performance for findHasMany finder
+- [#4684](https://github.com/emberjs/data/pull/4684) Modernizes relationship containers
+- [#4664](https://github.com/emberjs/data/pull/4664) Upgraded IdentityMap and RecordMap
+- [#4668](https://github.com/emberjs/data/pull/4668) [PERF] use micro-queue
+- [#4699](https://github.com/emberjs/data/pull/4699) include related record on the complex test
+- [#4688](https://github.com/emberjs/data/pull/4688) Fixed a typo
+- [#4685](https://github.com/emberjs/data/pull/4685) [FEATURE ds-rollback-attribute] rename ds-reset-attribute
+- [#4686](https://github.com/emberjs/data/pull/4686) [FEATURE ds-improved-ajax] Disable feature
+- [#4704](https://github.com/emberjs/data/pull/4704) Factory cache
+- [#4696](https://github.com/emberjs/data/pull/4696) fix(benchmarks): benchmarks for store.query no longer included record…
+- [#4691](https://github.com/emberjs/data/pull/4691) [BUGFIX beta] Add blueprints for "ember-cli-mocha >= 0.12.0"
+- [#4697](https://github.com/emberjs/data/pull/4697) chore(benchmarks): benchmarks needed to time a few lookups for us to …
+- [#4701](https://github.com/emberjs/data/pull/4701) [PERF] flatten DS.Model to avoid multi-extend, expensive reopens, and extra mixin detection
+- [#4702](https://github.com/emberjs/data/pull/4702) Enable the ds-check-should-serialize-relationships feature flag
+- [#4703](https://github.com/emberjs/data/pull/4703) Removes store._adapterRun
+- [#4716](https://github.com/emberjs/data/pull/4716) [DOC canary] Updating CONTRIBUTING.md to use ember-twiddle as examples
+- [#4718](https://github.com/emberjs/data/pull/4718) [BUGFIX beta] Inverse null relationships should throw if model doesn't exist 3
+- [#4734](https://github.com/emberjs/data/pull/4734) [DOC] fix a couple of typos in model class docs
+- [#4739](https://github.com/emberjs/data/pull/4739) Removed id in urlForFindAll signature
+
 ### Release 2.11.0 (January 9, 2016)
 - [#4518](https://github.com/emberjs/data/pull/4518) Update the relationship docs to remove some references to a globals s…
 - [#4581](https://github.com/emberjs/data/pull/4581) [DOC] Update descriptions of findRecord() and findAll()
