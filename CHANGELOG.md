@@ -2,19 +2,15 @@
 
 ### Master
 
-### Release 2.12.0-beta.4 (February 24, 2017)
+### Release 2.12.0 (March 13, 2017)
 - [#4805](https://github.com/emberjs/data/pull/4805) Don’t redefine findPossibleInverses for each _findInverseFor
 - [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
 - [#4810](https://github.com/emberjs/data/pull/4810) [Fixes #4807] realize class + factory seperation
-
-### Release 2.12.0-beta.3 (February 3, 2017)
 - [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
 - [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
 - [#4792](https://github.com/emberjs/data/pull/4792) [BUGFIX beta] revert deletion of filter that removed deleted model…
 - [#4789](https://github.com/emberjs/data/pull/4789) Do not access container if Ember.getOwner exists.
 - [#4760](https://github.com/emberjs/data/pull/4760) Update deprecate arguments (#4760)
-
-### Release 2.12.0-beta.1 (January 9, 2017)
 - [#4698](https://github.com/emberjs/data/pull/4698) [FIX backburner] Avoids spinning up unnecessary run loops via run.join
 - [#4638](https://github.com/emberjs/data/pull/4638) Update the API docs for snapshots
 - [#4705](https://github.com/emberjs/data/pull/4705) Underscores the already private store.reloadRecord method
