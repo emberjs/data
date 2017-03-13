@@ -14,7 +14,13 @@ import InternalModel from './model/internal-model';
 export default class InternalModelMap {
   constructor(modelName) {
     this.modelName = modelName;
-    this._idToModel = Object.create(null);
+    let map = this._idToModel = Object.create(null);
+
+    // force into dictionary.
+    map['__'] = undefined;
+    delete map['__'];
+
+
     this._models = [];
     this._metadata = null;
   }

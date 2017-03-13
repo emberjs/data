@@ -10,7 +10,11 @@ import InternalModelMap from './internal-model-map';
  */
 export default class IdentityMap {
   constructor() {
-    this._map = Object.create(null);
+    let map = this._map = Object.create(null);
+
+    // force into dictionary.
+    map["__"] = undefined;
+    delete map["__"];
   }
 
   /**
