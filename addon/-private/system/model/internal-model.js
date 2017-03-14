@@ -3,7 +3,6 @@ import { assert, runInDebug } from "ember-data/-private/debug";
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
-import EmptyObject from "../empty-object";
 import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
@@ -42,10 +41,10 @@ const assign = Ember.assign || Ember.merge;
    and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
    on a key that adds the two together.
  */
-const TransitionChainMap = new EmptyObject();
+const TransitionChainMap = Object.create(null);
 
-const _extractPivotNameCache = new EmptyObject();
-const _splitOnDotCache = new EmptyObject();
+const _extractPivotNameCache = Object.create(null);
+const _splitOnDotCache = Object.create(null);
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -183,7 +182,7 @@ export default class InternalModel {
 
   get references() {
     if (this._references === null) {
-      this._references = new EmptyObject();
+      this._references = Object.create(null);
     }
     return this._references;
   }
@@ -197,7 +196,7 @@ export default class InternalModel {
 
   get _attributes() {
     if (this.__attributes === null) {
-      this.__attributes = new EmptyObject();
+      this.__attributes = Object.create(null);
     }
     return this.__attributes;
   }
@@ -216,7 +215,7 @@ export default class InternalModel {
 
   get _inFlightAttributes() {
     if (this.__inFlightAttributes === null) {
-      this.__inFlightAttributes = new EmptyObject();
+      this.__inFlightAttributes = Object.create(null);
     }
     return this.__inFlightAttributes;
   }
@@ -227,7 +226,7 @@ export default class InternalModel {
 
   get _data() {
     if (this.__data === null) {
-      this.__data = new EmptyObject();
+      this.__data = Object.create(null);
     }
     return this.__data;
   }
@@ -265,7 +264,7 @@ export default class InternalModel {
   */
   get _implicitRelationships() {
     if (this.__implicitRelationships === null) {
-      this.__implicitRelationships = new EmptyObject();
+      this.__implicitRelationships = Object.create(null);
     }
     return this.__implicitRelationships;
   }
@@ -601,7 +600,7 @@ export default class InternalModel {
   flushChangedAttributes() {
     heimdall.increment(flushChangedAttributes);
     this._inFlightAttributes = this._attributes;
-    this._attributes = new EmptyObject();
+    this._attributes = Object.create(null);
   }
 
   hasChangedAttributes() {
@@ -650,7 +649,7 @@ export default class InternalModel {
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
     let newData = assign(copy(inFlightData), currentData);
-    let diffData = new EmptyObject();
+    let diffData = Object.create(null);
     let newDataKeys = Object.keys(newData);
 
     for (let i = 0, length = newDataKeys.length; i < length; i++) {
@@ -722,10 +721,10 @@ export default class InternalModel {
   rollbackAttributes() {
     let dirtyKeys = Object.keys(this._attributes);
 
-    this._attributes = new EmptyObject();
+    this._attributes = Object.create(null);
 
     if (get(this, 'isError')) {
-      this._inFlightAttributes = new EmptyObject();
+      this._inFlightAttributes = Object.create(null);
       this.didCleanError();
     }
 
@@ -742,7 +741,7 @@ export default class InternalModel {
     }
 
     if (this.isValid()) {
-      this._inFlightAttributes = new EmptyObject();
+      this._inFlightAttributes = Object.create(null);
     }
 
     this.send('rolledBack');
@@ -1008,7 +1007,7 @@ export default class InternalModel {
       assign(this._data, data);
     }
 
-    this._inFlightAttributes = new EmptyObject();
+    this._inFlightAttributes = Object.create(null);
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -1074,7 +1073,7 @@ export default class InternalModel {
         attrs[keys[i]] = this._inFlightAttributes[keys[i]];
       }
     }
-    this._inFlightAttributes = new EmptyObject();
+    this._inFlightAttributes = Object.create(null);
   }
 
   /*
@@ -1127,7 +1126,7 @@ export default class InternalModel {
       let length = keys.length;
       let attrs = this._attributes;
 
-      original = assign(new EmptyObject(), this._data);
+      original = assign(Object.create(null), this._data);
       original = assign(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {

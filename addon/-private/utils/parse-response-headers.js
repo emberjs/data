@@ -1,9 +1,7 @@
-import EmptyObject from '../system/empty-object';
-
 const CLRF = '\u000d\u000a';
 
 export default function parseResponseHeaders(headersString) {
-  let headers = new EmptyObject();
+  let headers = Object.create(null);
 
   if (!headersString) {
     return headers;

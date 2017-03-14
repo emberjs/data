@@ -1,4 +1,3 @@
-import EmptyObject from 'ember-data/-private/system/empty-object';
 import parseResponseHeaders from 'ember-data/-private/utils/parse-response-headers';
 import { module, test } from 'qunit';
 
@@ -9,7 +8,7 @@ module('unit/adapters/parse-response-headers');
 test('returns an EmptyObject when headersString is undefined', function(assert) {
   let headers = parseResponseHeaders(undefined);
 
-  assert.deepEqual(headers, new EmptyObject(), 'EmptyObject is returned');
+  assert.deepEqual(headers, Object.create(null), 'EmptyObject is returned');
 });
 
 test('header parsing', function(assert) {

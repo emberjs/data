@@ -1,6 +1,5 @@
 /* global heimdall */
 import Ember from 'ember';
-import EmptyObject from "../empty-object";
 const { set } = Ember;
 
 const  {
@@ -39,8 +38,8 @@ export default class ContainerInstanceCache {
     this._owner = owner;
     this._store = store;
     this._namespaces = {
-      adapter: new EmptyObject(),
-      serializer: new EmptyObject()
+      adapter: Object.create(null),
+      serializer: Object.create(null)
     };
   }
 

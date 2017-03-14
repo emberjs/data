@@ -44,7 +44,6 @@ import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
 import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
-import EmptyObject from "./empty-object";
 import isEnabled from '../features';
 
 export let badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -219,7 +218,7 @@ Store = Service.extend({
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
-    this._modelFactoryCache = new EmptyObject();
+    this._modelFactoryCache = Object.create(null);
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -349,7 +348,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
-    let properties = copy(inputProperties) || new EmptyObject();
+    let properties = copy(inputProperties) || Object.create(null);
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -860,7 +859,7 @@ Store = Service.extend({
     let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     let totalItems = pendingFetchItems.length;
     let internalModels = new Array(totalItems);
-    let seeking = new EmptyObject();
+    let seeking = Object.create(null);
 
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
@@ -880,7 +879,7 @@ Store = Service.extend({
 
     function handleFoundRecords(foundInternalModels, expectedInternalModels) {
       // resolve found records
-      let found = new EmptyObject();
+      let found = Object.create(null);
       for (let i = 0, l = foundInternalModels.length; i < l; i++) {
         let internalModel = foundInternalModels[i];
         let pair = seeking[internalModel.id];
