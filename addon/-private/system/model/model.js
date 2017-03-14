@@ -85,6 +85,9 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
 const Model = Ember.Object.extend(Ember.Evented, {
   _internalModel: null,
   store: null,
+  __defineNonEnumerable(property) {
+    this[property.name] = property.descriptor.value;
+  },
 
   /**
     If this property is `true` the record is in the `empty`
