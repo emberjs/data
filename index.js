@@ -58,6 +58,10 @@ module.exports = {
       return;
     }
 
+    var hasShims = !!shims;
+    var shimsHasEmberDataShims = hasShims && shims.satisfies('< 0.1.0');
+    var emberDataNPMWithShimsIncluded = semver.satisfies(version, '^2.3.0-beta.3');
+
     if (bowerDeps['ember-data']) {
       this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed. If you need an ' +
                 'earlier version of ember-data (< 2.3.0), you can leave this unchanged for now, but we strongly suggest you upgrade your version of Ember Data ' +
@@ -65,18 +69,19 @@ module.exports = {
       this._forceBowerUsage = true;
 
       var emberDataBower = checker.for('ember-data', 'bower');
+      var emberDataBowerWithShimsIncluded = emberDataBower.satisifies('>= 2.3.0-beta.3');
 
-      if (shims && shims.version && !shims.satisfies('< 0.1.0') && emberDataBower.satisfies('< 2.3.0-beta.3')) {
+      if (hasShims && !shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
       }
 
-      if (shims && shims.version && !shims.satisfies('>= 0.1.0') && emberDataBower.satisfies('>= 2.3.0-beta.3')) {
+      if (hasShims && shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
 
     } else {
       // NPM only, but ember-cli-shims does not match
-      if (shims && shims.version && !shims.satisfies('>= 0.1.0') && semver.satisfies(version, '^2.3.0-beta.3')) {
+      if (hasShims && shimsHasEmberDataShims && emberDataNPMWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
     }
