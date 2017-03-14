@@ -126,7 +126,7 @@ export default class InternalModel {
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;
-    this._isUpdatingRecordArrays = false;
+    this._isUpdatingRecordArrays = false; // used by the recordArrayManager
 
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from
@@ -264,6 +264,20 @@ export default class InternalModel {
       this.__implicitRelationships = Object.create(null);
     }
     return this.__implicitRelationships;
+  }
+
+  isHiddenFromRecordArrays() {
+    // During dematerialization we don't want to rematerialize the record.
+    // recordWasDeleted can cause other records to rematerialize because it
+    // removes the internal model from the array and Ember arrays will always
+    // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
+    // `lastObject` have changed.  When this happens we don't want those
+    // models to rematerialize their records.
+
+    return this._isDematerializing ||
+      this.isDestroyed ||
+      this.currentState.stateName === 'root.deleted.saved' ||
+      this.isEmpty();
   }
 
   isEmpty() {
@@ -947,8 +961,6 @@ export default class InternalModel {
     @private
   */
   updateRecordArrays() {
-    if (this._isUpdatingRecordArrays) { return; }
-    this._isUpdatingRecordArrays = true;
     this.store.recordArrayManager.recordDidChange(this);
   }
 

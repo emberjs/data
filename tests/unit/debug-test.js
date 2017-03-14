@@ -44,7 +44,6 @@ test('_debugInfo groups the attributes and relationships correctly', function(as
   assert.deepEqual(propertyInfo.groups[2].properties, ['posts']);
 });
 
-
 test('_debugInfo supports arbitray relationship types', function(assert) {
   const MaritalStatus = DS.Model.extend({
     name: DS.attr('string')

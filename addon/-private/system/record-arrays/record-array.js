@@ -155,7 +155,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     Adds an internal model to the `RecordArray` without duplicates
 
-    @method addInternalModel
+    @method _pushInternalModels
     @private
     @param {InternalModel} internalModel
   */
