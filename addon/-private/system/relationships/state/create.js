@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import ManyRelationship from "./has-many";
 import BelongsToRelationship from "./belongs-to";
-import EmptyObject from "../../empty-object";
 import { runInDebug } from 'ember-data/-private/debug';
 
 const { get } = Ember;
@@ -37,7 +36,7 @@ function createRelationshipFor(internalModel, relationshipMeta, store) {
 export default class Relationships {
   constructor(internalModel) {
     this.internalModel = internalModel;
-    this.initializedRelationships = new EmptyObject();
+    this.initializedRelationships = Object.create(null);
   }
 
   // TODO @runspired deprecate this as it was never truly a record instance

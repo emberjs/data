@@ -4,7 +4,6 @@ import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
 import isEnabled from '../../features';
 import RootState from '../model/states';
-import EmptyObject from "../empty-object";
 import {
   relationshipsByNameDescriptor,
   relatedTypesDescriptor,
@@ -1275,7 +1274,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return new EmptyObject();
+    return Object.create(null);
   }),
 
   /**
