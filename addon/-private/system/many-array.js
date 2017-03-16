@@ -134,16 +134,16 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   objectAt(index) {
-    let object = this.currentState[index];
+    let internalModel = this.currentState[index];
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
-    if (object === undefined) {
+    if (internalModel === undefined) {
       warn(`ManyArray#objectAt(index) return undefined for index '${index}'. See https://github.com/emberjs/data/issues/4758`, false, {
         id: 'ds.many-array.object-at-undefined'
       });
       return;
     }
 
-    return object.getRecord();
+    return internalModel.getRecord();
   },
 
   flushCanonical(isInitialized = true) {
@@ -156,8 +156,8 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     //a hack for not removing new records
     //TODO remove once we have proper diffing
     let newInternalModels = this.currentState.filter(
-      // only add new records which are not yet in the canonical state of this
-      // relationship (a new record can be in the canonical state if it has
+      // only add new internalModels which are not yet in the canonical state of this
+      // relationship (a new internalModel can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
       (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
@@ -191,26 +191,26 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   },
 
   //TODO(Igor) optimize
-  internalRemoveInternalModels(records) {
-    for (let i=0; i < records.length; i++) {
-      let index = this.currentState.indexOf(records[i]);
+  _removeInternalModels(internalModels) {
+    for (let i=0; i < internalModels.length; i++) {
+      let index = this.currentState.indexOf(internalModels[i]);
       this.internalReplace(index, 1);
     }
   },
 
   //TODO(Igor) optimize
-  internalAddInternalModels(records, idx) {
+  _addInternalModels(internalModels, idx) {
     if (idx === undefined) {
       idx = this.currentState.length;
     }
-    this.internalReplace(idx, 0, records);
+    this.internalReplace(idx, 0, internalModels);
   },
 
   replace(idx, amt, objects) {
-    let records;
+    let internalModels;
     if (amt > 0) {
-      records = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeInternalModels(records);
+      internalModels = this.currentState.slice(idx, idx+amt);
+      this.get('relationship').removeInternalModels(internalModels);
     }
     if (objects) {
       this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);

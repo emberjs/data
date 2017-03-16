@@ -93,7 +93,7 @@ export default class ManyRelationship extends Relationship {
     assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
     super.addInternalModel(internalModel, idx);
     // make lazy later
-    this.manyArray.internalAddInternalModels([internalModel], idx);
+    this.manyArray._addInternalModels([internalModel], idx);
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
@@ -127,7 +127,7 @@ export default class ManyRelationship extends Relationship {
       //TODO(Igor) not used currently, fix
       manyArray.currentState.removeAt(idx);
     } else {
-      manyArray.internalRemoveInternalModels([internalModel]);
+      manyArray._removeInternalModels([internalModel]);
     }
   }
 
