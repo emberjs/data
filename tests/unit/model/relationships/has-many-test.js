@@ -213,6 +213,45 @@ test('hasMany handles pre-loaded relationships', function(assert) {
   });
 });
 
+test('hasMany tolerates reflexive self-relationships', function(assert) {
+  assert.expect(1);
+
+  const Person = DS.Model.extend({
+    name: DS.attr(),
+    trueFriends: DS.hasMany('person', { async: false })
+  });
+
+  let env = setupStore({ person: Person });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    env.store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Edward II'
+        },
+        relationships: {
+          trueFriends: {
+            data: [{
+              id: '1',
+              type: 'person'
+            }]
+          }
+        }
+      }
+    });
+  });
+
+  let eddy = env.store.peekRecord('person', 1);
+  assert.deepEqual(
+    eddy.get('trueFriends').mapBy('name'),
+    ['Edward II'],
+    'hasMany supports reflexive self-relationships'
+  );
+});
+
 test('hasMany lazily loads async relationships', function(assert) {
   assert.expect(5);
 

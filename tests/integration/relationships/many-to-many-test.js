@@ -97,7 +97,8 @@ test("Loading from one hasMany side reflects on the other hasMany side - async",
   });
 });
 
-test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync", function(assert) {
+
+test("Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync", function(assert) {
   var account;
   run(function() {
     account = store.push({

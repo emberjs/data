@@ -57,6 +57,7 @@ export default class Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     heimdall.increment(newRelationship);
     let async = relationshipMeta.options.async;
+    let polymorphic = relationshipMeta.options.polymorphic;
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
@@ -64,6 +65,7 @@ export default class Relationship {
     this.inverseKey = inverseKey;
     this.internalModel = internalModel;
     this.isAsync = typeof async === 'undefined' ? true : async;
+    this.isPolymorphic = typeof polymorphic === 'undefined' ? true : polymorphic;
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames
@@ -155,17 +157,34 @@ export default class Relationship {
     heimdall.increment(addCanonicalRecord);
     if (!this.canonicalMembers.has(record)) {
       this.canonicalMembers.add(record);
-      if (this.inverseKey) {
-        record._relationships.get(this.inverseKey).addCanonicalRecord(this.record);
-      } else {
-        if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
-          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  { options: {} });
-        }
-        record._implicitRelationships[this.inverseKeyForImplicit].addCanonicalRecord(this.record);
-      }
+      this.setupInverseRelationship(record);
     }
     this.flushCanonicalLater();
     this.setHasData(true);
+  }
+
+  setupInverseRelationship(internalModel) {
+    if (this.inverseKey) {
+      let relationships = internalModel._relationships;
+      let relationshipExisted = relationships.has(this.inverseKey);
+      let relationship = relationships.get(this.inverseKey);
+      if (relationshipExisted || this.isPolymorphic) {
+        // if we have only just initialized the inverse relationship, then it
+        // already has this.internalModel in its canonicalMembers, so skip the
+        // unnecessary work.  The exception to this is polymorphic
+        // relationships whose members are determined by their inverse, as those
+        // relationships cannot efficiently find their inverse payloads.
+        relationship.addCanonicalRecord(this.internalModel);
+      }
+    } else {
+      let relationships = internalModel._implicitRelationships;
+      let relationship = relationships[this.inverseKeyForImplicit];
+      if (!relationship) {
+        relationship = relationships[this.inverseKeyForImplicit] =
+          new Relationship(this.store, internalModel, this.key,  { options: {} });
+      }
+      relationship.addCanonicalRecord(this.internalModel);
+    }
   }
 
   removeCanonicalRecords(records, idx) {
