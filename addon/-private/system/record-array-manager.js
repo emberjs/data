@@ -12,7 +12,6 @@ import { assert } from 'ember-data/-private/debug';
 
 const {
   get,
-  MapWithDefault,
   run: emberRun
 } = Ember;
 
@@ -25,6 +24,7 @@ const {
   createFilteredRecordArray,
   createRecordArray,
   liveRecordArrayFor,
+  filteredRecordArraysFor,
   populateLiveRecordArray,
   recordDidChange,
   registerFilteredRecordArray,
@@ -40,6 +40,7 @@ const {
   'createFilteredRecordArray',
   'createRecordArray',
   'liveRecordArrayFor',
+  'filteredRecordArraysFor',
   'populateLiveRecordArray',
   'recordDidChange',
   'registerFilteredRecordArray',
@@ -59,17 +60,8 @@ export default class RecordArrayManager {
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
-    this.filteredRecordArrays = MapWithDefault.create({
-      defaultValue() { return []; }
-    });
-
-    this.liveRecordArrays = MapWithDefault.create({
-      defaultValue: modelName => {
-        assert(`liveRecordArrays.get expects modelName not modelClass as the param`, typeof modelName === 'string');
-        return this.createRecordArray(modelName);
-      }
-    });
-
+    this._filteredRecordArrays = Object.create(null);
+    this._liveRecordArrays = Object.create(null);
     this._pending = Object.create(null);
     this._adapterPopulatedRecordArrays = [];
   }
@@ -113,10 +105,10 @@ export default class RecordArrayManager {
     this._pending = Object.create(null);
     let modelsToRemove = [];
 
-    Object.keys(pending).forEach(modelName => {
+    for (let modelName in pending) {
       let internalModels = pending[modelName];
-
-      internalModels.forEach(internalModel => {
+      for (let j = 0; j < internalModels.length; j++) {
+        let internalModel = internalModels[j];
         // mark internalModels, so they can once again be processed by the
         // recordArrayManager
         internalModel._pendingRecordArrayManagerFlush = false;
@@ -124,11 +116,11 @@ export default class RecordArrayManager {
         if (internalModel.isHiddenFromRecordArrays()) {
           modelsToRemove.push(internalModel);
         }
-      });
+      }
 
       // process filteredRecordArrays
-      if (this.filteredRecordArrays.has(modelName)) {
-        let recordArrays = this.filteredRecordArrays.get(modelName);
+      if (this._filteredRecordArrays[modelName]) {
+        let recordArrays = this.filteredRecordArraysFor(modelName);
         for (let i = 0; i < recordArrays.length; i++) {
           this.updateFilterRecordArray(recordArrays[i], modelName, internalModels);
         }
@@ -136,7 +128,7 @@ export default class RecordArrayManager {
 
       // TODO: skip if it only changed
       // process liveRecordArrays
-      if (this.liveRecordArrays.has(modelName)) {
+      if (this._liveRecordArrays[modelName]) {
         this.updateLiveRecordArray(modelName, internalModels);
       }
 
@@ -144,11 +136,11 @@ export default class RecordArrayManager {
       if (modelsToRemove.length > 0) {
         this.removeFromAdapterPopulatedRecordArrays(modelsToRemove);
       }
-    });
+    }
   }
 
   updateLiveRecordArray(modelName, internalModels) {
-    let array = this.liveRecordArrays.get(modelName);
+    let array = this.liveRecordArrayFor(modelName);
 
     let modelsToAdd = [];
     let modelsToRemove = [];
@@ -298,9 +290,25 @@ export default class RecordArrayManager {
     assert(`recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`, typeof modelName === 'string');
 
     heimdall.increment(liveRecordArrayFor);
-    return this.liveRecordArrays.get(modelName);
+
+    return this._liveRecordArrays[modelName] || (this._liveRecordArrays[modelName] = this.createRecordArray(modelName))
   }
 
+  /**
+    Get the `DS.RecordArray` for a modelName, which contains all loaded records of
+    given modelName.
+
+    @method filteredRecordArraysFor
+    @param {String} modelName
+    @return {DS.RecordArray}
+  */
+  filteredRecordArraysFor(modelName) {
+    assert(`recordArrayManger.filteredRecordArraysFor expects modelName not modelClass as the param`, typeof modelName === 'string');
+
+    heimdall.increment(filteredRecordArraysFor);
+
+    return this._filteredRecordArrays[modelName] || (this._filteredRecordArrays[modelName] = []);
+  }
   /**
     Create a `DS.RecordArray` for a modelName.
 
@@ -387,7 +395,7 @@ export default class RecordArrayManager {
     heimdall.increment(registerFilteredRecordArray);
     assert(`recordArrayManger.registerFilteredRecordArray expects modelName not modelClass as the second param, received ${modelName}`, typeof modelName === 'string');
 
-    this.filteredRecordArrays.get(modelName).push(array);
+    this.filteredRecordArraysFor(modelName).push(array);
     this.updateFilter(array, modelName, filter);
   }
 
@@ -404,7 +412,7 @@ export default class RecordArrayManager {
     let modelName = array.modelName;
 
     // unregister filtered record array
-    let recordArrays = this.filteredRecordArrays.get(modelName);
+    let recordArrays = this.filteredRecordArraysFor(modelName);
     let removedFromFiltered = remove(recordArrays, array);
 
     // remove from adapter populated record array
@@ -412,19 +420,19 @@ export default class RecordArrayManager {
 
     if (!removedFromFiltered && !removedFromAdapterPopulated) {
 
+      let liveRecordArrayForType = this._liveRecordArrays[modelName];
       // unregister live record array
-      if (this.liveRecordArrays.has(modelName)) {
-        let liveRecordArrayForType = this.liveRecordArrayFor(modelName);
+      if (liveRecordArrayForType) {
         if (array === liveRecordArrayForType) {
-          this.liveRecordArrays.delete(modelName);
+          delete this._liveRecordArrays[modelName];
         }
       }
     }
   }
 
   willDestroy() {
-    this.filteredRecordArrays.forEach(value => flatten(value).forEach(destroy));
-    this.liveRecordArrays.forEach(destroy);
+    Object.keys(this._filteredRecordArrays).forEach(modelName => flatten(this._filteredRecordArrays[modelName]).forEach(destroy));
+    Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
     this._adapterPopulatedRecordArrays.forEach(destroy);
     this.isDestroyed = true;
   }

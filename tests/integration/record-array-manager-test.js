@@ -117,13 +117,13 @@ test('destroying the store correctly cleans everything up', function(assert) {
   assert.equal(internalPersonModel._recordArrays.size, 2, 'expected the person to be a member of 2 recordArrays');
   assert.equal(filterd2Summary.called.length, 1);
 
-  assert.equal(manager.liveRecordArrays.has('person'), true);
+  assert.equal('person' in manager._liveRecordArrays, true);
 
   Ember.run(all, all.destroy);
 
   assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
   assert.equal(allSummary.called.length, 1);
-  assert.equal(manager.liveRecordArrays.has('person'), false);
+  assert.equal('person' in manager._liveRecordArrays, false);
 
   Ember.run(manager, manager.destroy);
 
