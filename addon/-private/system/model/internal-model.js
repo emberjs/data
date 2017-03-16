@@ -854,11 +854,14 @@ export default class InternalModel {
     if (!this.hasRecord) {
       return;
     }
-    for (let i = 0, l= this._deferredTriggers.length; i<l; i++) {
-      this.record.trigger.apply(this.record, this._deferredTriggers[i]);
+    let triggers = this._deferredTriggers;
+    let record = this.record;
+    let trigger = record.trigger;
+    for (let i = 0, l= triggers.length; i<l; i++) {
+      trigger.apply(record, triggers[i]);
     }
 
-    this._deferredTriggers.length = 0;
+    triggers.length = 0;
   }
 
   /*
