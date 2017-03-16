@@ -154,7 +154,7 @@ export default function hasMany(type, options) {
 
       let relationship = this._internalModel._relationships.get(key);
       relationship.clear();
-      relationship.addRecords(records.map(record => get(record, '_internalModel')));
+      relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
       return relationship.getRecords();
     }
   }).meta(meta);

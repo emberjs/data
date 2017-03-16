@@ -7,7 +7,7 @@ const {
   addCanonicalRecord,
   addCanonicalRecords,
   addRecord,
-  addRecords,
+  addInternalModels,
   clear,
   findLink,
   flushCanonical,
@@ -21,7 +21,7 @@ const {
   removeRecord,
   removeRecordFromInverse,
   removeRecordFromOwn,
-  removeRecords,
+  removeInternalModels,
   setHasData,
   setHasLoaded,
   updateLink,
@@ -31,7 +31,7 @@ const {
   'addCanonicalRecord',
   'addCanonicalRecords',
   'addRecord',
-  'addRecords',
+  'addInternalModels',
   'clear',
   'findLink',
   'flushCanonical',
@@ -45,7 +45,7 @@ const {
   'removeRecord',
   'removeRecordFromInverse',
   'removeRecordFromOwn',
-  'removeRecords',
+  'removeInternalModels',
   'setHasData',
   'setHasLoaded',
   'updateLink',
@@ -125,15 +125,15 @@ export default class Relationship {
     }
   }
 
-  removeRecords(records) {
-    heimdall.increment(removeRecords);
-    records.forEach((record) => this.removeRecord(record));
+  removeInternalModels(internalModels) {
+    heimdall.increment(removeInternalModels);
+    internalModels.forEach((intenralModel) => this.removeRecord(intenralModel));
   }
 
-  addRecords(records, idx) {
-    heimdall.increment(addRecords);
-    records.forEach(record => {
-      this.addRecord(record, idx);
+  addInternalModels(internalModels, idx) {
+    heimdall.increment(addInternalModels);
+    internalModels.forEach(internalModel => {
+      this.addRecord(internalModel, idx);
       if (idx !== undefined) {
         idx++;
       }
