@@ -64,7 +64,7 @@ export default class Relationships {
       relationship = relationships[key] = createRelationshipFor(internalModel, rel, internalModel.store);
 
       if (relationshipPayload) {
-        relationship.push(relationshipPayload);
+        relationship.push(relationshipPayload, true);
       }
     }
 

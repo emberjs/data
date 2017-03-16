@@ -376,7 +376,7 @@ export default class Relationship {
    `push` use `updateMeta`, `updateData` and `updateLink` to update the state
    of the relationship.
    */
-  push(payload) {
+  push(payload, initial) {
     heimdall.increment(push);
 
     let hasData = false;
@@ -388,14 +388,14 @@ export default class Relationship {
 
     if (payload.data !== undefined) {
       hasData = true;
-      this.updateData(payload.data);
+      this.updateData(payload.data, initial);
     }
 
     if (payload.links && payload.links.related) {
       let relatedLink = _normalizeLink(payload.links.related);
       if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
         hasLink = true;
-        this.updateLink(relatedLink.href);
+        this.updateLink(relatedLink.href, initial);
       }
     }
 
