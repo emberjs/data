@@ -2392,6 +2392,10 @@ Store = Service.extend({
   },
 
   _setupRelationshipsForModel(internalModel, data) {
+    if (data.relationships === undefined) {
+      return;
+    }
+
     if (this._pushedInternalModels.push(internalModel, data) !== 2) {
       return;
     }
@@ -2788,10 +2792,6 @@ function _commit(adapter, store, operation, snapshot) {
 }
 
 function setupRelationships(store, internalModel, data) {
-  if (!data.relationships) {
-    return;
-  }
-
   internalModel.type.eachRelationship((key, descriptor) => {
     if (!data.relationships[key]) {
       return;
