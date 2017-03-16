@@ -7,7 +7,7 @@ import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
 import diffArray from './diff-array';
 
-const { get, set } = Ember;
+const { get } = Ember;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -209,27 +209,6 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     }
     if (objects) {
       this.get('relationship').addRecords(objects.map(obj => obj._internalModel), idx);
-    }
-  },
-
-  /**
-    @method loadingRecordsCount
-    @param {Number} count
-    @private
-  */
-  loadingRecordsCount(count) {
-    this._loadingRecordsCount = count;
-  },
-
-  /**
-    @method loadedRecord
-    @private
-  */
-  loadedRecord() {
-    this._loadingRecordsCount--;
-    if (this._loadingRecordsCount === 0) {
-      set(this, 'isLoaded', true);
-      this.trigger('didLoad');
     }
   },
 
