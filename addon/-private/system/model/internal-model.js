@@ -611,12 +611,12 @@ export default class InternalModel {
   flushChangedAttributes() {
     heimdall.increment(flushChangedAttributes);
     this._inFlightAttributes = this._attributes;
-    this._attributes = Object.create(null);
+    this._attributes = null;
   }
 
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
-    return Object.keys(this._attributes).length > 0;
+    return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
   }
 
   /*
@@ -730,12 +730,15 @@ export default class InternalModel {
   }
 
   rollbackAttributes() {
-    let dirtyKeys = Object.keys(this._attributes);
+    let dirtyKeys;
+    if (this.hasChangedAttributes()) {
+      dirtyKeys = Object.keys(this._attributes);
+      this._attributes = null;
+    }
 
-    this._attributes = Object.create(null);
 
     if (get(this, 'isError')) {
-      this._inFlightAttributes = Object.create(null);
+      this._inFlightAttributes = null;
       this.didCleanError();
     }
 
@@ -752,12 +755,14 @@ export default class InternalModel {
     }
 
     if (this.isValid()) {
-      this._inFlightAttributes = Object.create(null);
+      this._inFlightAttributes = null;
     }
 
     this.send('rolledBack');
 
-    this.record._notifyProperties(dirtyKeys);
+    if (dirtyKeys && dirtyKeys.length > 0) {
+      this.record._notifyProperties(dirtyKeys);
+    }
   }
 
   /*
@@ -1016,7 +1021,7 @@ export default class InternalModel {
       assign(this._data, data);
     }
 
-    this._inFlightAttributes = Object.create(null);
+    this._inFlightAttributes = null;
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -1076,13 +1081,15 @@ export default class InternalModel {
 
   _saveWasRejected() {
     let keys = Object.keys(this._inFlightAttributes);
-    let attrs = this._attributes;
-    for (let i=0; i < keys.length; i++) {
-      if (attrs[keys[i]] === undefined) {
-        attrs[keys[i]] = this._inFlightAttributes[keys[i]];
+    if (keys.length > 0) {
+      let attrs = this._attributes;
+      for (let i=0; i < keys.length; i++) {
+        if (attrs[keys[i]] === undefined) {
+          attrs[keys[i]] = this._inFlightAttributes[keys[i]];
+        }
       }
     }
-    this._inFlightAttributes = Object.create(null);
+    this._inFlightAttributes = null;
   }
 
   /*
@@ -1133,7 +1140,11 @@ export default class InternalModel {
       let original, i, value, key;
       let keys = Object.keys(updates);
       let length = keys.length;
-      let attrs = this._attributes;
+      let hasAttrs = this.hasChangedAttributes();
+      let attrs;
+      if (hasAttrs) {
+        attrs= this._attributes;
+      }
 
       original = assign(Object.create(null), this._data);
       original = assign(original, this._inFlightAttributes);
@@ -1146,7 +1157,7 @@ export default class InternalModel {
         // this attributes. We never override this value when merging
         // updates from the backend so we should not sent a change
         // notification if the server value differs from the original.
-        if (attrs[key] !== undefined) {
+        if (hasAttrs === true && attrs[key] !== undefined) {
           continue;
         }
 
