@@ -124,9 +124,9 @@ export default function belongsTo(modelName, options) {
       if (value && value.then) {
         this._internalModel._relationships.get(key).setRecordPromise(value);
       } else if (value) {
-        this._internalModel._relationships.get(key).setRecord(value._internalModel);
+        this._internalModel._relationships.get(key).setInternalModel(value._internalModel);
       } else {
-        this._internalModel._relationships.get(key).setRecord(value);
+        this._internalModel._relationships.get(key).setInternalModel(value);
       }
 
       return this._internalModel._relationships.get(key).getRecord();

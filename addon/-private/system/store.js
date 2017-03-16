@@ -2734,7 +2734,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+    assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
 
     //TODO:Better asserts
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
@@ -2745,7 +2745,7 @@ Store = Service.extend({
       return;
     }
 
-    assert(`A ${relationship.record.modelName} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
+    assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being '${inspect(resourceIdentifiers)}', but ${relationship.key} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(resourceIdentifiers));
 
     let _internalModels = new Array(resourceIdentifiers.length);
     for (let i = 0; i < resourceIdentifiers.length; i++) {

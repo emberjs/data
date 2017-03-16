@@ -109,8 +109,8 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  let inverseRecord = this.belongsToRelationship.inverseRecord;
-  return inverseRecord && inverseRecord.id;
+  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
+  return inverseInternalModel && inverseInternalModel.id;
 };
 
 /**
@@ -257,7 +257,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
 
     assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel);
 
-    this.belongsToRelationship.setCanonicalRecord(record._internalModel);
+    this.belongsToRelationship.setCanonicalInternalModel(record._internalModel);
 
     return record;
   });
@@ -312,10 +312,10 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  let inverseRecord = this.belongsToRelationship.inverseRecord;
+  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
 
-  if (inverseRecord && inverseRecord.isLoaded()) {
-    return inverseRecord.getRecord();
+  if (inverseInternalModel && inverseInternalModel.isLoaded()) {
+    return inverseInternalModel.getRecord();
   }
 
   return null;
