@@ -105,10 +105,10 @@ export default class RecordArrayManager {
     this._pending = Object.create(null);
     let modelsToRemove = [];
 
-    Object.keys(pending).forEach(modelName => {
+    for (let modelName in pending) {
       let internalModels = pending[modelName];
-
-      internalModels.forEach(internalModel => {
+      for (let j = 0; j < internalModels.length; j++) {
+        let internalModel = internalModels[j];
         // mark internalModels, so they can once again be processed by the
         // recordArrayManager
         internalModel._pendingRecordArrayManagerFlush = false;
@@ -116,7 +116,7 @@ export default class RecordArrayManager {
         if (internalModel.isHiddenFromRecordArrays()) {
           modelsToRemove.push(internalModel);
         }
-      });
+      }
 
       // process filteredRecordArrays
       if (this._filteredRecordArrays[modelName]) {
@@ -136,7 +136,7 @@ export default class RecordArrayManager {
       if (modelsToRemove.length > 0) {
         this.removeFromAdapterPopulatedRecordArrays(modelsToRemove);
       }
-    });
+    }
   }
 
   updateLiveRecordArray(modelName, internalModels) {
