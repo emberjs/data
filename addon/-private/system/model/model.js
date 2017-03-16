@@ -463,56 +463,56 @@ const Model = Ember.Object.extend(Ember.Evented, {
 
     @event ready
   */
-  ready() {},
+  ready: null,
 
   /**
     Fired when the record is loaded from the server.
 
     @event didLoad
   */
-  didLoad() {},
+  didLoad: null,
 
   /**
     Fired when the record is updated.
 
     @event didUpdate
   */
-  didUpdate() {},
+  didUpdate: null,
 
   /**
     Fired when a new record is commited to the server.
 
     @event didCreate
   */
-  didCreate() {},
+  didCreate: null,
 
   /**
     Fired when the record is deleted.
 
     @event didDelete
   */
-  didDelete() {},
+  didDelete: null,
 
   /**
     Fired when the record becomes invalid.
 
     @event becameInvalid
   */
-  becameInvalid() {},
+  becameInvalid: null,
 
   /**
     Fired when the record enters the error state.
 
     @event becameError
   */
-  becameError() {},
+  becameError: null,
 
   /**
     Fired when the record is rolled back.
 
     @event rolledBack
   */
-  rolledBack() {},
+  rolledBack: null,
 
   //TODO Do we want to deprecate these?
   /**
@@ -828,14 +828,18 @@ const Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
   */
   trigger(name) {
-    let length = arguments.length;
-    let args = new Array(length - 1);
+    let fn = this[name];
 
-    for (let i = 1; i < length; i++) {
-      args[i - 1] = arguments[i];
+    if (typeof fn === 'function') {
+      let length = arguments.length;
+      let args = new Array(length - 1);
+
+      for (let i = 1; i < length; i++) {
+        args[i - 1] = arguments[i];
+      }
+      fn.apply(this, args)
     }
 
-    Ember.tryInvoke(this, name, args);
     this._super(...arguments);
   },
 
