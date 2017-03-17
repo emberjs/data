@@ -3,30 +3,60 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
-let env, originalFactoryFor, originalMODEL_FACTORY_INJECTIONS = Ember.MODEL_FACTORY_INJECTIONS;
+let env, hasFactoryFor, originalLookupFactory, originalOwnerLookupFactory, originalFactoryFor;
+let originalMODEL_FACTORY_INJECTIONS = Ember.MODEL_FACTORY_INJECTIONS;
 const { run } = Ember;
 
+const model = {
+  isModel: true,
+  _create() { }
+};
 const factory = {
-  isFactory: true,
-  class: {
-    isModel: true,
-    _create() { }
-  }
+  class: model
 };
 
 module('integration/injection factoryFor enabled', {
   setup() {
     env = setupStore();
 
-    originalFactoryFor = Ember.getOwner(env.store).factoryFor;
+    if (Ember.getOwner) {
+      let owner = Ember.getOwner(env.store);
 
-    Ember.getOwner(env.store).factoryFor = function(name) {
-      return factory;
-    };
+      hasFactoryFor = !!owner.factoryFor;
+      originalFactoryFor = owner.factoryFor;
+      originalOwnerLookupFactory = owner._lookupFactory;
+
+      if (originalFactoryFor) {
+        owner.factoryFor = function(/* name */) {
+          return factory;
+        };
+      } else {
+        // Ember 2.3 - Ember 2.11
+        originalOwnerLookupFactory = owner._lookupFactory;
+        owner._lookupFactory = function() {
+          return model;
+        };
+      }
+    } else {
+      originalLookupFactory = env.store.container.lookupFactory;
+      env.store.container.lookupFactory = function() {
+        return model;
+      };
+    }
   },
 
   teardown() {
-    Ember.getOwner(env.store).factoryFor = originalFactoryFor;
+    if (Ember.getOwner) {
+      let owner = Ember.getOwner(env.store);
+
+      if (owner.factoryFor) {
+        owner.factoryFor = originalFactoryFor;
+      } else {
+        owner._lookupFactory = originalOwnerLookupFactory;
+      }
+    } else {
+      env.store.container.lookupFactory = originalLookupFactory;
+    }
 
     run(env.store, 'destroy');
   }
@@ -35,13 +65,13 @@ module('integration/injection factoryFor enabled', {
 test('modelFactoryFor', function(assert) {
   const modelFactory = env.store.modelFactoryFor('super-villain');
 
-  assert.equal(modelFactory, factory, 'expected the factory itself to be returned');
+  assert.equal(modelFactory, hasFactoryFor ? factory : model, 'expected the factory itself to be returned');
 });
 
 test('modelFor', function(assert) {
   const modelFactory = env.store.modelFor('super-villain');
 
-  assert.equal(modelFactory, factory.class, 'expected the factory itself to be returned');
+  assert.equal(modelFactory, model, 'expected the factory itself to be returned');
 
   // TODO: we should deprecate this next line. Resolved state on the class is fraught with peril
   assert.equal(modelFactory.modelName, 'super-villain', 'expected the factory itself to be returned');
