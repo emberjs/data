@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.12.1 (March 17, 2017)
+- [#4875](https://github.com/emberjs/data/pull/4875) [BUGFIX release] ensure the globals build has the correct context in the iife.
+- [#4881](https://github.com/emberjs/data/pull/4881) Fix injection-test on the release branch
+
 ### Release 2.12.0 (March 13, 2017)
 - [#4805](https://github.com/emberjs/data/pull/4805) Don’t redefine findPossibleInverses for each _findInverseFor
 - [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
