@@ -951,7 +951,7 @@ test('Calling push with same belongsTo relationship does not trigger observer', 
   assert.equal(observerCount, 0, 'author observer should not be triggered');
 });
 
-test('Calling push with hasMany relationship does trigger relation observer with already loaded objects', function(assert) {
+test('Pushing object that modify already loaded hasMany via inverse relationship fires observer', function(assert) {
   assert.expect(1);
 
   let observerCount = 0;
@@ -989,7 +989,7 @@ test('Calling push with hasMany relationship does trigger relation observer with
   assert.equal(observerCount, 1, 'posts observer should be triggered');
 });
 
-test('Calling push with hasMany relationship does trigger relation observer with the same loaded objects', function(assert) {
+test('Pushing object that not modify already loaded hasMany via inverse relationship do not fire observer', function(assert) {
   assert.expect(1);
 
   let observerCount = 0;
@@ -1027,7 +1027,7 @@ test('Calling push with hasMany relationship does trigger relation observer with
   assert.equal(observerCount, 0, 'posts observer should not be triggered');
 });
 
-test('Calling push with hasMany relationship does trigger relation observer with not loaded objects', function(assert) {
+test('Pushing object that modify not loaded hasMany via inverse relationship fires observer', function(assert) {
   assert.expect(1);
 
   let observerCount = 0;
