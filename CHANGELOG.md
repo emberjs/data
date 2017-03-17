@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+### Release 2.13.0-beta.2 (March 17, 2017)
+- [#4877](https://github.com/emberjs/data/pull/4877) [BUGFIX beta] ensure the globals build has the correct context in the iife.
+- [#4879](https://github.com/emberjs/data/pull/4879) [BUGFIX beta] ensure context is applied in iife
+
 ### Release 2.13.0-beta.1 (March 13, 2017)
 - [#4767](https://github.com/emberjs/data/pull/4767) Updating gitignore to remove .idea
 - [#4741](https://github.com/emberjs/data/pull/4741) Clean up some YUIdoc erros
