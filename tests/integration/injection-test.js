@@ -39,7 +39,7 @@ module('integration/injection factoryFor enabled', {
       }
     } else {
       originalLookupFactory = env.store.container.lookupFactory;
-      env.store.container.lookupFactory = function() {
+      env.store.container._lookupFactory = function() {
         return model;
       };
     }
