@@ -2,37 +2,44 @@
 
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
 import DS from 'ember-data';
+import RSVP from 'rsvp';
+import { module, test } from 'qunit';
 
-let attr = DS.attr;
-let belongsTo = DS.belongsTo;
-let hasMany = DS.hasMany;
-let run = Ember.run;
+const {
+  attr,
+  belongsTo,
+  hasMany,
+  JSONAPIAdapter,
+  Model
+} = DS;
+
+const {
+  run
+} = Ember;
+
 let env;
 
-let Person = DS.Model.extend({
+const Person = Model.extend({
   name: attr('string'),
   cars: hasMany('car', { async: false }),
   boats: hasMany('boat', { async: true })
 });
 Person.reopenClass({ toString() { return 'Person'; } });
 
-let Group = DS.Model.extend({
+const Group = Model.extend({
   people: hasMany('person', { async: false })
 });
 Group.reopenClass({ toString() { return 'Group'; } });
 
-let Car = DS.Model.extend({
+const Car = Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person', { async: false })
 });
 Car.reopenClass({ toString() { return 'Car'; } });
 
-let Boat = DS.Model.extend({
+const Boat = Model.extend({
   name: attr('string'),
   person: belongsTo('person', { async: false })
 });
@@ -41,7 +48,7 @@ Boat.toString = function() { return 'Boat'; };
 module("integration/unload - Rematerializing Unloaded Records", {
   beforeEach() {
     env = setupStore({
-      adapter: DS.JSONAPIAdapter,
+      adapter: JSONAPIAdapter,
       person: Person,
       car: Car,
       group: Group,
@@ -50,7 +57,7 @@ module("integration/unload - Rematerializing Unloaded Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -148,7 +155,7 @@ test("an async has many relationship to an unloaded record can restore that reco
 
   env.adapter.findRecord = function() {
     assert.ok('adapter called');
-    return Ember.RSVP.Promise.resolve({
+    return RSVP.Promise.resolve({
       data: {
         type: 'boat',
         id: '1',
@@ -162,7 +169,7 @@ test("an async has many relationship to an unloaded record can restore that reco
         }
       }
     });
-  }
+  };
 
   run(function() {
     env.store.push({

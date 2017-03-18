@@ -100,7 +100,7 @@ test('manyArray.save() calls save() on all records', function(assert) {
 });
 
 test('manyArray trigger arrayContentChange functions with the correct values', function(assert) {
-  assert.expect(6);
+  assert.expect(3);
 
   let willChangeStartIdx;
   let willChangeRemoveAmt;

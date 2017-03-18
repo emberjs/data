@@ -403,7 +403,7 @@ BelongsToReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
 */
 BelongsToReference.prototype.reload = function() {
-  return this.belongsToRelationship.reload().then((internalModel) => {
+  return this.belongsToRelationship.reload().then(() => {
     return this.value();
   });
 };

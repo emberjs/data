@@ -152,9 +152,9 @@ HasManyReference.prototype.link = function() {
    @return {Array} The ids in this has-many relationship
 */
 HasManyReference.prototype.ids = function() {
-  let members = this.hasManyRelationship.members.toArray();
+  let currentState = this.hasManyRelationship.currentState;
 
-  return members.map(function(internalModel) {
+  return currentState.map(function(internalModel) {
     return internalModel.id;
   });
 };
@@ -297,7 +297,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
       });
     }
 
-    this.hasManyRelationship.computeChanges(internalModels);
+    this.hasManyRelationship.updateInternalModelsFromAdapter(internalModels);
 
     return this.hasManyRelationship.manyArray;
   });
@@ -309,9 +309,9 @@ HasManyReference.prototype._isLoaded = function() {
     return false;
   }
 
-  let members = this.hasManyRelationship.members.toArray();
+  let currentState = this.hasManyRelationship.currentState;
 
-  return members.every(function(internalModel) {
+  return currentState.every(function(internalModel) {
     return internalModel.isLoaded() === true;
   });
 };

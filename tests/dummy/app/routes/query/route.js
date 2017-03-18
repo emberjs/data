@@ -30,7 +30,7 @@ export default Route.extend({
     delete params.modelName;
 
     let store = this.get('store');
-    let token = heimdall.start('ember-data');
+    // let token = heimdall.start('ember-data');
     return store.query(modelName, params)
       .then((records) => {
         let modelNames = [modelName, ...params.included.split(',')];
@@ -48,8 +48,8 @@ export default Route.extend({
           expandAllRelationships(...recordArrays);
         }
 
-        heimdall.stop(token);
-        self.result = heimdall.toString();
+        // heimdall.stop(token);
+        // self.result = heimdall.toString();
 
         return records;
       });

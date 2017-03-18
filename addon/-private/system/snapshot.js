@@ -264,7 +264,7 @@ export default class Snapshot {
    */
   hasMany(keyName, options) {
     let ids = options && options.ids;
-    let relationship, members, hasData;
+    let relationship, currentState, hasData;
     let results;
 
     if (ids && keyName in this._hasManyIds) {
@@ -281,11 +281,11 @@ export default class Snapshot {
     }
 
     hasData = get(relationship, 'hasData');
-    members = get(relationship, 'members');
+    currentState = relationship.currentState;
 
     if (hasData) {
       results = [];
-      members.forEach((member) => {
+      currentState.forEach((member) => {
         if (!member.isDeleted()) {
           if (ids) {
             results.push(member.id);

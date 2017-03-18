@@ -129,7 +129,7 @@ test('when a DS.Model updates its relationships, its changes affect its filtered
 
   let person = people.objectAt(0);
 
-  assert.equal(get(person, 'name'), 'Scumbag Dale', 'precond - the item is correct');
+  assert.equal(get(person, 'name'), 'Scumbag Dale', 'precond - the initial item is correct');
 
   run(() => set(person, 'bestFriend', null));
 

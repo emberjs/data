@@ -1,20 +1,25 @@
 import { assert, assertPolymorphicType } from 'ember-data/-debug';
 import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
-import OrderedSet from '../../ordered-set';
+import ImplicitRelationship from './implicit';
 import ManyArray from '../../many-array';
+import diffArray from '../../diff-array';
+import UniqueArray from '../../unique-array';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
-    this.belongsToType = relationshipMeta.type;
-    this.canonicalState = [];
-    this.isPolymorphic = relationshipMeta.options.polymorphic;
+    this.kind = 'has-many';
+    this.relatedModelName = relationshipMeta.type;
     this._manyArray = null;
     this.__loadingPromise = null;
+
+    this.canonicalState = [];
+    this.currentState = [];
   }
 
   get _loadingPromise() { return this.__loadingPromise; }
+
   _updateLoadingPromise(promise, content) {
     if (this.__loadingPromise) {
       if (content) {
@@ -35,9 +40,10 @@ export default class ManyRelationship extends Relationship {
     if (!this._manyArray) {
       this._manyArray = ManyArray.create({
         canonicalState: this.canonicalState,
+        currentState: this.currentState,
         store: this.store,
         relationship: this,
-        type: this.store.modelFor(this.belongsToType),
+        type: this.store.modelFor(this.relatedModelName),
         record: this.internalModel,
         meta: this.meta,
         isPolymorphic: this.isPolymorphic
@@ -47,7 +53,27 @@ export default class ManyRelationship extends Relationship {
   }
 
   removeInverseRelationships() {
-    super.removeInverseRelationships();
+    if (!this.inverseKey) { return; }
+
+    const toIterate = this.canonicalState.concat(this.currentState);
+    const uniqueArray = new UniqueArray('_internalId');
+
+    uniqueArray.push(...toIterate);
+
+    const items = uniqueArray.items;
+
+    for (let i = 0; i < items.length; i++) {
+      let inverseInternalModel = items[i];
+      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
+
+      // TODO: there is always a relationship in this case; this guard exists
+      // because there are tests that fail in teardown after putting things in
+      // invalid state
+      if (relationship) {
+        relationship.inverseDidDematerialize();
+      }
+    }
+
     if (this._manyArray) {
       this._manyArray.destroy();
       this._manyArray = null;
@@ -65,16 +91,45 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
+  setupInverseRelationship(internalModel, isInitial = false) {
+    if (this.inverseKey) {
+      let relationships = internalModel._relationships;
+      let relationshipExisted = !isInitial || relationships.has(this.inverseKey);
+      let relationship = relationships.get(this.inverseKey);
+      if (relationshipExisted || this.isPolymorphic) {
+        // if we have only just initialized the inverse relationship, then it
+        // already has this.internalModel in its canonicalMembers, so skip the
+        // unnecessary work.  The exception to this is polymorphic
+        // relationships whose members are determined by their inverse, as those
+        // relationships cannot efficiently find their inverse payloads.
+        relationship.addCanonicalInternalModel(this.internalModel);
+      }
+    } else {
+      let relationships = internalModel._implicitRelationships;
+      let relationship = relationships[this.inverseKeyForImplicit];
+      if (!relationship) {
+        relationship = relationships[this.inverseKeyForImplicit] =
+          new ImplicitRelationship(this.store, internalModel, this.key,  { options: {} });
+      }
+      relationship.addCanonicalInternalModel(this.internalModel);
+    }
+  }
+
   addCanonicalInternalModel(internalModel, idx) {
-    if (this.canonicalMembers.has(internalModel)) {
+    if (this.canonicalState.indexOf(internalModel) !== -1) {
       return;
     }
+
     if (idx !== undefined) {
       this.canonicalState.splice(idx, 0, internalModel);
     } else {
       this.canonicalState.push(internalModel);
     }
-    super.addCanonicalInternalModel(internalModel, idx);
+
+    this.setupInverseRelationship(internalModel);
+
+    this.flushCanonicalLater();
+    this.setHasData(true);
   }
 
   inverseDidDematerialize() {
@@ -85,57 +140,172 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChanged();
   }
 
+  addInternalModels(internalModels, idx) {
+    for (let i = 0; i < internalModels.length; i++) {
+      this.addInternalModel(internalModels[i], idx);
+      if (idx !== undefined) {
+        idx++;
+      }
+    }
+  }
+
   addInternalModel(internalModel, idx) {
-    if (this.members.has(internalModel)) {
+    if (this.currentState.indexOf(internalModel) !== -1) {
       return;
     }
 
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
-    super.addInternalModel(internalModel, idx);
-    // make lazy later
-    this.manyArray._addInternalModels([internalModel], idx);
+    if (idx === undefined) {
+      idx = this.currentState.length;
+    }
+    this.internalReplace(idx, 0, [internalModel]);
+    this.notifyRecordRelationshipAdded(internalModel, idx);
+
+    if (this.inverseKey) {
+      internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
+    } else {
+      if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit] = new ImplicitRelationship(this.store, internalModel, this.key,  { options: {} });
+      }
+      internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
+    }
+
+    this.internalModel.updateRecordArrays();
+    this.setHasData(true);
+  }
+
+  removeInternalModels(internalModels) {
+    for (let i = 0; i < internalModels.length; i++) {
+      this.removeInternalModel(internalModels[i]);
+    }
+  }
+
+  removeInternalModel(internalModel) {
+    if (this.currentState.indexOf(internalModel) === -1) {
+      return;
+    }
+
+    this.removeInternalModelFromOwn(internalModel);
+    if (this.inverseKey) {
+      this.removeInternalModelFromInverse(internalModel);
+    } else {
+      if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
+      }
+    }
+  }
+
+  removeCanonicalInternalModels(internalModels) {
+    for (let i = 0; i < internalModels.length; i++) {
+      this.removeCanonicalInternalModel(internalModels[i]);
+    }
+  }
+
+  removeCanonicalInternalModel(internalModel) {
+    if (this.canonicalState.indexOf(internalModel) === -1) {
+      return;
+    }
+
+    this.removeCanonicalInternalModelFromOwn(internalModel);
+    if (this.inverseKey) {
+      this.removeCanonicalInternalModelFromInverse(internalModel);
+    } else {
+      if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
+      }
+    }
+
+    this.flushCanonicalLater();
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
     let i = idx;
-    if (!this.canonicalMembers.has(internalModel)) {
+    if (this.canonicalState.indexOf(internalModel) === -1) {
       return;
     }
+
     if (i === undefined) {
       i = this.canonicalState.indexOf(internalModel);
     }
     if (i > -1) {
       this.canonicalState.splice(i, 1);
     }
-    super.removeCanonicalInternalModelFromOwn(internalModel, idx);
+
+    this.flushCanonicalLater();
   }
 
   flushCanonical() {
-    if (this._manyArray) {
-      this._manyArray.flushCanonical();
+    this.willSync = false;
+    let toSet = this.canonicalState;
+
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    let newInternalModels = this.currentState.filter(
+      // only add new records which are not yet in the canonical state of this
+      // relationship (a new record can be in the canonical state if it has
+      // been 'acknowleged' to be in the relationship via a store.push)
+      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
+    );
+    toSet = toSet.concat(newInternalModels);
+
+    // diff to find changes
+    let diff = diffArray(this.currentState, toSet);
+
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
+      if (this._manyArray) {
+        let manyArray = this._manyArray;
+        manyArray.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+        manyArray.set('length', toSet.length);
+        this.currentState = manyArray.currentState = toSet;
+        manyArray.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      } else {
+        this.currentState = toSet;
+      }
+
+      if (diff.addedCount > 0) {
+        //notify only on additions
+        //TODO only notify if unloaded
+        this.notifyHasManyChanged();
+      }
     }
-    super.flushCanonical();
   }
 
   removeInternalModelFromOwn(internalModel, idx) {
-    if (!this.members.has(internalModel)) {
+    if (this.currentState.indexOf(internalModel) === -1) {
       return;
     }
-    super.removeInternalModelFromOwn(internalModel, idx);
-    let manyArray = this.manyArray;
+
+    this.notifyRecordRelationshipRemoved(internalModel);
+    this.internalModel.updateRecordArrays();
+
     if (idx !== undefined) {
       //TODO(Igor) not used currently, fix
-      manyArray.currentState.removeAt(idx);
+      this.currentState.removeAt(idx);
     } else {
-      manyArray._removeInternalModels([internalModel]);
+      let index = this.currentState.indexOf(internalModel);
+      this.internalReplace(index, 1);
+    }
+  }
+
+  internalReplace(idx, amt, objects = []) {
+    if (this._manyArray) {
+      let manyArray = this._manyArray;
+      manyArray.arrayContentWillChange(idx, amt, objects.length);
+      this.currentState.splice(idx, amt, ...objects);
+      manyArray.set('length', this.currentState.length);
+      manyArray.arrayContentDidChange(idx, amt, objects.length);
+    } else {
+      this.currentState.splice(idx, amt, ...objects);
     }
   }
 
   notifyRecordRelationshipAdded(internalModel, idx) {
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
+
     this.internalModel.notifyHasManyAdded(this.key, internalModel, idx);
   }
 
   reload() {
+    // TODO should we greedily grab manyArray here?
     let manyArray = this.manyArray;
     let manyArrayLoadedState = manyArray.get('isLoaded');
 
@@ -152,45 +322,53 @@ export default class ManyRelationship extends Relationship {
     if (this.link) {
       promise = this.fetchLink();
     } else {
-      promise = this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray);
+      promise = this.store._scheduleFetchMany(this.currentState).then(() => manyArray);
     }
 
     this._updateLoadingPromise(promise);
     return this._loadingPromise;
   }
 
-  computeChanges(internalModels = []) {
-    let members = this.canonicalMembers;
+  updateInternalModelsFromAdapter(internalModels = []) {
+    let state = this.canonicalState;
     let internalModelsToRemove = [];
-    let internalModelSet = setForArray(internalModels);
 
-    members.forEach(member => {
-      if (internalModelSet.has(member)) { return; }
+    if (!internalModels.length) {
+      if (state) {
+        internalModelsToRemove.push(...state);
+      }
+    } else {
+      for (let i = 0; i < state.length; i++) {
+        let internalModel = state[i];
 
-      internalModelsToRemove.push(member);
-    });
+        if (internalModels.indexOf(internalModel) === -1) {
+          internalModelsToRemove.push(internalModel);
+        }
+      }
+    }
 
-    this.removeCanonicalInternalModels(internalModelsToRemove);
+    if (internalModelsToRemove.length) {
+      this.removeCanonicalInternalModels(internalModelsToRemove);
+    }
 
     for (let i = 0, l = internalModels.length; i < l; i++) {
       let internalModel = internalModels[i];
-      this.removeCanonicalInternalModel(internalModel);
-      this.addCanonicalInternalModel(internalModel, i);
+      if (state[i] !== internalModel) {
+        this.removeCanonicalInternalModel(internalModel);
+        this.addCanonicalInternalModel(internalModel, i);
+      }
     }
+
+    this.flushCanonicalLater();
   }
 
-  setInitialInternalModels(internalModels) {
-    if (!internalModels) {
-      return;
-    }
+  setInitialInternalModels(internalModels = []) {
+    this.canonicalState.push(...internalModels);
+    this.currentState.push(...internalModels);
 
-    let args = [0, this.canonicalState.length].concat(internalModels);
-    this.canonicalState.splice.apply(this.canonicalState, args);
-    internalModels.forEach(internalModel => {
-      this.canonicalMembers.add(internalModel);
-      this.members.add(internalModel);
-      this.setupInverseRelationship(internalModel);
-    });
+    for (let i = 0; i < internalModels.length; i++) {
+      this.setupInverseRelationship(internalModels[i], true);
+    }
   }
 
   fetchLink() {
@@ -208,7 +386,7 @@ export default class ManyRelationship extends Relationship {
 
   findRecords() {
     let manyArray = this.manyArray;
-    let internalModels = manyArray.currentState;
+    let internalModels = this.currentState;
 
     //TODO CLEANUP
     return this.store.findMany(internalModels).then(() => {
@@ -259,16 +437,16 @@ export default class ManyRelationship extends Relationship {
       this.updateInternalModelsFromAdapter(internalModels);
     }
   }
-}
 
-function setForArray(array) {
-  var set = new OrderedSet();
+  clear() {
+    let arr = this.currentState;
+    while (arr.length > 0) {
+      this.removeInternalModel(arr[0]);
+    }
 
-  if (array) {
-    for (var i=0, l=array.length; i<l; i++) {
-      set.add(array[i]);
+    arr = this.canonicalState;
+    while (arr.length > 0) {
+      this.removeCanonicalInternalModel(arr[0]);
     }
   }
-
-  return set;
 }

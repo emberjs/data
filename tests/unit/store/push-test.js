@@ -631,7 +631,7 @@ testInDebug('calling push with hasMany relationship the value must be an array',
           });
         });
       } catch (e) {
-        store._pushedInternalModels.length = 0;
+        store._pushedInternalModels = Object.create(null);
         throw e;
       }
     }, /must be an array/, `Expect that '${Ember.inspect(invalidValue)}' is not an array`);

@@ -2,37 +2,43 @@
 
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
 import DS from 'ember-data';
+import { module, test } from 'qunit';
 
-let attr = DS.attr;
-let belongsTo = DS.belongsTo;
-let hasMany = DS.hasMany;
-let run = Ember.run;
+const {
+  attr,
+  belongsTo,
+  hasMany,
+  JSONAPIAdapter,
+  Model
+} = DS;
+
+const {
+  run
+} = Ember;
+
 let env;
 
-let Person = DS.Model.extend({
+const Person = Model.extend({
   name: attr('string'),
   cars: hasMany('car', { async: false }),
   boats: hasMany('boat', { async: true })
 });
 Person.reopenClass({ toString() { return 'Person'; } });
 
-let Group = DS.Model.extend({
+const Group = Model.extend({
   people: hasMany('person', { async: false })
 });
 Group.reopenClass({ toString() { return 'Group'; } });
 
-let Car = DS.Model.extend({
+const Car = Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person', { async: false })
 });
 Car.reopenClass({ toString() { return 'Car'; } });
 
-let Boat = DS.Model.extend({
+const Boat = Model.extend({
   name: attr('string'),
   person: belongsTo('person', { async: false })
 });
@@ -41,7 +47,7 @@ Boat.toString = function() { return 'Boat'; };
 module("integration/unload - Unloading Records", {
   beforeEach() {
     env = setupStore({
-      adapter: DS.JSONAPIAdapter,
+      adapter: JSONAPIAdapter,
       person: Person,
       car: Car,
       group: Group,
@@ -50,7 +56,7 @@ module("integration/unload - Unloading Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -94,7 +100,7 @@ test("can unload a single record", function(assert) {
   assert.equal(relPayloads.get('person', 1, 'cars').data.length, 1, 'one car relationship payload is cached');
   assert.equal(relPayloads.get('person', 1, 'boats').data.length, 1, 'one boat relationship payload is cached');
 
-  Ember.run(function() {
+  run(function() {
     adam.unloadRecord();
   });
 
@@ -155,7 +161,7 @@ test("can unload all records for a given type", function(assert) {
 
   assert.equal(relPayloads.get('car', 1, 'person').data.id, 1, 'car - person payload is loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll('person');
   });
 
@@ -226,7 +232,7 @@ test("can unload all records", function(assert) {
   assert.equal(env.store.peekAll('car').get('length'), 1, 'one car record loaded');
   assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll();
   });
 
@@ -263,7 +269,7 @@ test("removes findAllCache after unloading all records", function(assert) {
   assert.equal(env.store.peekAll('person').get('length'), 2, 'two person records loaded');
   assert.equal(env.store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.peekAll('person');
     env.store.unloadAll('person');
   });
@@ -298,7 +304,7 @@ test("unloading all records also updates record array from peekAll()", function(
   assert.equal(all.get('length'), 2);
 
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll('person');
   });
   assert.equal(all.get('length'), 0);

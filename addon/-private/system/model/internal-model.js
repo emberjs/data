@@ -3,6 +3,7 @@ import { assert, runInDebug } from 'ember-data/-debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
+import UniqueArray from '../unique-array';
 import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
@@ -427,17 +428,30 @@ export default class InternalModel {
     to or has many.
   */
   _directlyRelatedInternalModels() {
-    let array = [];
-    this.type.eachRelationship((key, relationship) => {
+    let array = new UniqueArray('_internalId');
+    this.modelClass.eachRelationship((key) => {
       if (this._relationships.has(key)) {
         let relationship = this._relationships.get(key);
-        let localRelationships = relationship.members.toArray();
-        let serverRelationships = relationship.canonicalMembers.toArray();
+        let additions;
 
-        array = array.concat(localRelationships, serverRelationships);
+        switch (relationship.kind) {
+          case 'belongs-to':
+            array.push(relationship.currentState, relationship.canonicalState);
+            return;
+          case 'has-many':
+            additions = [].concat(relationship.currentState, relationship.canonicalState);
+            array.push(...additions);
+            return;
+          case 'implicit':
+          default:
+            additions = [].concat(relationship.members.toArray(), relationship.canonicalMembers.toArray());
+            array.push(...additions);
+            return;
+        }
       }
     });
-    return array;
+
+    return array.items;
   }
 
 
