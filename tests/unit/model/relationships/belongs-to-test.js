@@ -76,6 +76,62 @@ test('belongsTo lazily loads relationships as needed', function(assert) {
   });
 });
 
+test('belongsTo does not notify when it is initially reified', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+  Tag.toString = () => 'Tag';
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+  Person.toString = () => 'Person';
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'tag',
+        id: 1,
+        attributes: {
+          name: 'whatever'
+        }
+      }, {
+        type: 'person',
+        id: 2,
+        attributes: {
+          name: 'David J. Hamilton'
+        },
+        relationships: {
+          tag: {
+            data: {
+              type: 'tag',
+              id: '1'
+            }
+          }
+        }
+      }]
+    });
+  });
+
+  return run(() => {
+    let person = store.peekRecord('person', 2);
+    person.addObserver('tag', () => {
+      assert.ok(false, 'observer is not called');
+    })
+
+    assert.equal(person.get('tag.name'), 'whatever', 'relationship is correct');
+  });
+});
+
 test('async belongsTo relationships work when the data hash has not been loaded', function(assert) {
   assert.expect(5);
 

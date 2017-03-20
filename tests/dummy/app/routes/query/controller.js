@@ -5,7 +5,10 @@ const {
 } = Ember;
 
 export default Controller.extend({
-  queryParams: ['limit', 'modelName'],
+  queryParams: ['limit', 'modelName', 'included', 'eagerMaterialize', 'eagerRelationships'],
   limit: 240,
-  modelName: 'simple'
+  included: '',
+  modelName: 'simple',
+  eagerMaterialize: true,
+  eagerRelationships: false
 });

@@ -179,6 +179,16 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
+  setInitialInternalModels(internalModels) {
+    let args = [0, this.canonicalState.length].concat(internalModels);
+    this.canonicalState.splice.apply(this.canonicalState, args);
+    internalModels.forEach(internalModel => {
+      this.canonicalMembers.add(internalModel);
+      this.members.add(internalModel);
+      this.setupInverseRelationship(internalModel);
+    });
+  }
+
   fetchLink() {
     return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(records => {
       if (records.hasOwnProperty('meta')) {
@@ -237,9 +247,13 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  updateData(data) {
+  updateData(data, initial) {
     let internalModels = this.store._pushResourceIdentifiers(this, data);
-    this.updateRecordsFromAdapter(internalModels);
+    if (initial) {
+      this.setInitialInternalModels(internalModels);
+    } else {
+      this.updateRecordsFromAdapter(internalModels);
+    }
   }
 }
 

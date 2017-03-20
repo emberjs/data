@@ -889,8 +889,15 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
             data: { type: 'author', id: '2' }
           }
         }
-      }
+      },
+      included: [{
+        id: 2,
+        type: 'author'
+      }]
     });
+
+    // as with all cps, observers don't fire if the cp isn't lazy.
+    post.get('author');
 
     post.addObserver('author', function() {
       observerCount++;

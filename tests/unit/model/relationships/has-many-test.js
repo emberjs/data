@@ -213,6 +213,108 @@ test('hasMany handles pre-loaded relationships', function(assert) {
   });
 });
 
+test('hasMany does not notify when it is initially reified', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+  Tag.toString = () => 'Tag';
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+  Person.toString = () => 'Person';
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'tag',
+        id: 1,
+        attributes: {
+          name: 'whatever'
+        },
+        relationships: {
+          people: {
+            data: [{
+              id: 2,
+              type: 'person'
+            }]
+          }
+        }
+      }, {
+        type: 'person',
+        id: 2,
+        attributes: {
+          name: 'David J. Hamilton'
+        }
+      }]
+    });
+  });
+
+  return run(() => {
+    let tag = store.peekRecord('tag', 1);
+    tag.addObserver('people', () => {
+      assert.ok(false, 'observer is not called');
+    });
+    tag.addObserver('people.[]', () => {
+      assert.ok(false, 'observer is not called');
+    });
+
+    assert.equal(
+      tag.get('people').mapBy('name'),
+      'David J. Hamilton',
+      'relationship is correct'
+    );
+  });
+});
+
+test('hasMany tolerates reflexive self-relationships', function(assert) {
+  assert.expect(1);
+
+  const Person = DS.Model.extend({
+    name: DS.attr(),
+    trueFriends: DS.hasMany('person', { async: false })
+  });
+
+  let env = setupStore({ person: Person });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    env.store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Edward II'
+        },
+        relationships: {
+          trueFriends: {
+            data: [{
+              id: '1',
+              type: 'person'
+            }]
+          }
+        }
+      }
+    });
+  });
+
+  let eddy = env.store.peekRecord('person', 1);
+  assert.deepEqual(
+    eddy.get('trueFriends').mapBy('name'),
+    ['Edward II'],
+    'hasMany supports reflexive self-relationships'
+  );
+});
+
 test('hasMany lazily loads async relationships', function(assert) {
   assert.expect(5);
 
