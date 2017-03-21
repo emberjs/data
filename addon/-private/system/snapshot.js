@@ -66,17 +66,6 @@ export default class Snapshot {
     this.include = options.include;
 
     /**
-     The type of the underlying record for this snapshot, as a DS.Model.
-
-     @property type
-     @type {DS.Model}
-     */
-    // TODO @runspired we should deprecate this in favor of modelClass but only once
-    // we've cleaned up the internals enough that a public change to follow suite is
-    // uncontroversial.
-    this.type = internalModel.modelClass;
-
-    /**
      The name of the type of the underlying record for this snapshot, as a string.
 
      @property modelName
@@ -85,6 +74,19 @@ export default class Snapshot {
     this.modelName = internalModel.modelName;
 
     this._changedAttributes = record.changedAttributes();
+  }
+
+  /**
+   The type of the underlying record for this snapshot, as a DS.Model.
+
+   @property type
+   @type {DS.Model}
+   */
+  get type() {
+    // TODO @runspired we should deprecate this in favor of modelClass but only once
+    // we've cleaned up the internals enough that a public change to follow suite is
+    // uncontroversial.
+    return this._internalModel.modelClass;
   }
 
   /**

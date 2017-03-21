@@ -48,12 +48,7 @@ export default class SnapshotRecordArray {
     */
     this.length = recordArray.get('length');
 
-    /**
-      The type of the underlying records for the snapshots in the array, as a DS.Model
-      @property type
-      @type {DS.Model}
-    */
-    this.type = recordArray.get('type');
+    this._type = null;
 
     /**
       Meta objects for the record array.
@@ -120,6 +115,15 @@ export default class SnapshotRecordArray {
       @type {String|Array}
     */
     this.include = options.include;
+  }
+
+  /**
+    The type of the underlying records for the snapshots in the array, as a DS.Model
+    @property type
+    @type {DS.Model}
+  */
+  get type() {
+    return this._type || (this._type = this._recordArray.get('type'));
   }
 
   /**
