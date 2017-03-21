@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+### Release 2.13.0-beta.3 (March 21, 2017)
+- [#4862](https://github.com/emberjs/data/pull/4862) [BETA] Update dependencies to use babel 6.
+
 ### Release 2.13.0-beta.2 (March 17, 2017)
 - [#4877](https://github.com/emberjs/data/pull/4877) [BUGFIX beta] ensure the globals build has the correct context in the iife.
 - [#4879](https://github.com/emberjs/data/pull/4879) [BUGFIX beta] ensure context is applied in iife
