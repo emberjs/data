@@ -71,7 +71,7 @@ controllers in your app.
 
 ### Defining Your Models
 
-First thing's first: tell Ember Data about the models in your
+First things first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
 
 Here's what your model definition would look like if you're using
