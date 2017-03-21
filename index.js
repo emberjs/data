@@ -122,10 +122,13 @@ module.exports = {
       return;
     }
 
-    this.options.babel = this.options.babel || {};
-    add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
-    add(this.options.babel, 'loose', ['es6.classes']);
-    add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')(process.env.EMBER_ENV));
+    let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+
+    this.options.babel = {
+      loose: true,
+      plugins: customPlugins.plugins,
+      postTransformPlugins: customPlugins.postTransformPlugins
+    };
 
     this._hasSetupBabelOptions = true;
   },

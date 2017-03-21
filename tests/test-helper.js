@@ -1,4 +1,10 @@
-import 'dummy/tests/helpers/setup-ember-dev';
+/*
+  babel@6 currently (6.24.0) puts `import 'foo'` (for side effects) at the
+  end of the module dep list.  Unfortunately, for this to work `setup-ember-dev`
+  must be evaluated before the `qunit` module is evaluated (because we change
+  `QUnit.module`).
+ */
+import requiredWorkAroundBabelBug from 'dummy/tests/helpers/setup-ember-dev'; // eslint-disable-line
 import resolver from './helpers/resolver';
 import {
   setResolver
