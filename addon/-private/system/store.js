@@ -2124,7 +2124,7 @@ Store = Service.extend({
        */
       if (klass.modelName && klass.modelName !== modelName) {
         throw new Error(
-          `Ember Data found a Model for ${modelName} but it the class ` +
+          `Ember Data found a Model for ${modelName} but the class ` +
           `already had the modelName ${klass.modelName}.\n\n` +
           'This likely means that you are re-exporting a Model.\n\n' +
           `Replace:\n\texport { default } from './${klass.modelName}';\nwith:\n\t` +
