@@ -2111,7 +2111,8 @@ Store = Service.extend({
       }
 
       // interopt with the future
-      let klass = getOwner(this).factoryFor ? factory.class : factory;
+      const hasFactoryFor = getOwner(this).factoryFor;
+      let klass = hasFactoryFor ? factory.class : factory;
 
       assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
@@ -2122,14 +2123,20 @@ Store = Service.extend({
         to continue allowing this ignores the case where modelName is set but is
          the same.
        */
-      if (klass.modelName && klass.modelName !== modelName) {
-        throw new Error(
+      if (hasFactoryFor && klass.modelName && klass.modelName !== modelName) {
+        const Message =
           `Ember Data found a Model for ${modelName} but the class ` +
           `already had the modelName ${klass.modelName}.\n\n` +
           'This likely means that you are re-exporting a Model.\n\n' +
           `Replace:\n\texport { default } from './${klass.modelName}';\nwith:\n\t` +
-          `import Model from './${klass.modelName}';\n\n\texport default Model.extend();`
-        );
+          `import Model from './${klass.modelName}';\n\n\texport default Model.extend();`;
+
+        klass = factory.class = klass.extend();
+
+        deprecate(Message, false, {
+          id: 'ds.store.modelfor-double-extend',
+          until: '3.0'
+        });
       }
       klass.modelName = modelName;
 
