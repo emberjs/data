@@ -38,7 +38,9 @@ export default function setupStore(options) {
   }
 
   for (let prop in options) {
-    registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
+    if (options.hasOwnProperty(prop)) {
+      registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
+    }
   }
 
   registry.register('service:store', DS.Store.extend({

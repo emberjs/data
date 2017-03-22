@@ -2115,8 +2115,23 @@ Store = Service.extend({
 
       assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
-      // TODO: deprecate this
-      klass.modelName = klass.modelName || modelName;
+      // TODO: deprecate klass.modelName
+      /*
+        In test environments it is common to re-use the same base model in multiple
+        tests and register it each time. Since that seems convenient and good
+        to continue allowing this ignores the case where modelName is set but is
+         the same.
+       */
+      if (klass.modelName && klass.modelName !== modelName) {
+        throw new Error(
+          `Ember Data found a Model for ${modelName} but it the class ` +
+          `already had the modelName ${klass.modelName}.\n\n` +
+          'This likely means that you are re-exporting a Model.\n\n' +
+          `Replace:\n\texport { default } from './${klass.modelName}';\nwith:\n\t` +
+          `import Model from './${klass.modelName}';\n\n\texport default Model.extend();`
+        );
+      }
+      klass.modelName = modelName;
 
       this._modelFactoryCache[modelName] = factory;
     }
