@@ -2110,7 +2110,7 @@ Store = Service.extend({
         throw new EmberError(`No model was found for '${modelName}'`);
       }
 
-      // interopt with the future
+      // interop with the future
       const hasFactoryFor = getOwner(this).factoryFor;
       let klass = hasFactoryFor ? factory.class : factory;
 
@@ -2123,7 +2123,7 @@ Store = Service.extend({
         to continue allowing this ignores the case where modelName is set but is
          the same.
        */
-      if (hasFactoryFor && klass.modelName && klass.modelName !== modelName) {
+      if (klass.modelName && klass.modelName !== modelName) {
         const Message =
           `Ember Data found a Model for ${modelName} but the class ` +
           `already had the modelName ${klass.modelName}.\n\n` +
@@ -2131,12 +2131,17 @@ Store = Service.extend({
           `Replace:\n\texport { default } from './${klass.modelName}';\nwith:\n\t` +
           `import Model from './${klass.modelName}';\n\n\texport default Model.extend();`;
 
-        klass = factory.class = klass.extend();
+        if (hasFactoryFor) {
+          klass = factory.class = klass.extend();
+        } else {
+          klass = factory = klass.extend();
+        }
 
         deprecate(Message, false, {
           id: 'ds.store.modelfor-double-extend',
           until: '3.0'
         });
+
       }
       klass.modelName = modelName;
 

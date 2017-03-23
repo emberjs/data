@@ -50,9 +50,9 @@ test('when fetching factory from string, it errors if modelName was already set.
 
   let resolvedBaseModel = store.modelFor(modelName);
   assert.equal(resolvedBaseModel.modelName, modelName, 'We set modelName correctly');
-  assert.throws(() => {
+  assert.expectDeprecation(() => {
     store.modelFor(extendedModelName);
-  }, /re-export/, 'We receive an assertion about the re-export');
+  }, /re-export/, 'We receive a deprecation about the re-export');
 });
 
 test('when fetching factory from string and dashing normalizer, sets a normalized key as modelName', function(assert) {
