@@ -538,6 +538,52 @@ test("value() returns the referenced records when all records are loaded", funct
   });
 });
 
+test("value() returns an empty array when the reference is loaded and empty", function(assert) {
+  var family;
+  run(function() {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: []
+          }
+        }
+      }
+    });
+  });
+
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var records = personsReference.value();
+    assert.equal(get(records, 'length'), 0);
+  });
+});
+
+test("_isLoaded() returns an true array when the reference is loaded and empty", function(assert) {
+  var family;
+  run(function() {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: []
+          }
+        }
+      }
+    });
+  });
+
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var isLoaded = personsReference._isLoaded();
+    assert.equal(isLoaded, true);
+  });
+});
+
 test("load() fetches the referenced records", function(assert) {
   var done = assert.async();
 
