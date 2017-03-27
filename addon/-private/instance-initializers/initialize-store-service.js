@@ -1,4 +1,5 @@
 import { deprecate } from 'ember-data/-private/debug';
+
 /*
   Configures a registry for use with an Ember-Data
   store.
@@ -7,41 +8,41 @@ import { deprecate } from 'ember-data/-private/debug';
   @param {Ember.ApplicationInstance} applicationOrRegistry
 */
 export default function initializeStoreService(application) {
-  let container = application.lookup ? application : application.container;
+  const container = application.lookup ? application : application.container;
+
   // Eagerly generate the store so defaultStore is populated.
   container.lookup('service:store');
 
-  let initializers = application.application.constructor.initializers;
-  deprecateOldEmberDataInitializers(initializers)
+  deprecateOldEmberDataInitializers(application.application.constructor.initializers);
 }
 
-
-
-let deprecatedInitializerNames = ['data-adapter', 'injectStore', 'transforms', 'store'];
+const DEPRECATED_INITIALIZER_NAMES = ['data-adapter', 'injectStore', 'transforms', 'store'];
 
 function matchesDeprecatedInititalizer(name) {
-  return deprecatedInitializerNames.indexOf(name) !== -1;
+  return DEPRECATED_INITIALIZER_NAMES.indexOf(name) !== -1;
 }
 
 function deprecateOldEmberDataInitializers(initializers) {
   // collect all of the initializers
-  let initializersArray = Object.keys(initializers).map(key =>  initializers[key]);
+  let keys = Object.keys(initializers);
 
-  // filter out all of the Ember Data initializer. We have some
-  // deprecated initializers that depend on other deprecated
-  // initializers which may trigger the deprecation warning
-  // unintentionally.
-  let nonEmberDataInitializers = initializersArray.filter((initializer) => {
-    return !matchesDeprecatedInititalizer(initializer.name)
-  })
+  for (let i = 0; i < keys.length; i++) {
+    let name = keys[i];
 
-  nonEmberDataInitializers.forEach(warnForDeprecatedInitializers)
+    // filter out all of the Ember Data initializer. We have some
+    // deprecated initializers that depend on other deprecated
+    // initializers which may trigger the deprecation warning
+    // unintentionally.
+    if (!matchesDeprecatedInititalizer(name)) {
+      warnForDeprecatedInitializers(initializers[name]);
+    }
+  }
 }
 
 function warnForDeprecatedInitializers(initializer) {
-  var deprecatedBeforeInitializer = matchesDeprecatedInititalizer(initializer.before)
-  var deprecatedAfterInitializer = matchesDeprecatedInititalizer(initializer.after)
-  let deprecatedProp = deprecatedBeforeInitializer ? 'before' : 'after'
+  let deprecatedBeforeInitializer = matchesDeprecatedInititalizer(initializer.before);
+  let deprecatedAfterInitializer = matchesDeprecatedInititalizer(initializer.after);
+  let deprecatedProp = deprecatedBeforeInitializer ? 'before' : 'after';
 
   deprecate(
     `The initializer \`${initializer[deprecatedProp]}\` has been deprecated. Please update your \`${initializer.name}\` initializer to use use \`${deprecatedProp}: \'ember-data\'\` instead.`,
