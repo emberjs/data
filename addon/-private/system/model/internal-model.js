@@ -60,7 +60,7 @@ function extractPivotName(name) {
 
 function areAllModelsUnloaded(internalModels) {
   for (let i=0; i<internalModels.length; ++i) {
-    let record = internalModels[i].record;
+    let record = internalModels[i]._record;
     if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
       return false;
     }
@@ -316,10 +316,6 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  get record() {
-    return this._record;
-  }
-
   getRecord() {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
@@ -364,9 +360,9 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
-    if (this.record) {
+    if (this._record) {
       this._isDematerializing = true;
-      this.record.destroy();
+      this._record.destroy();
       this.destroyRelationships();
       this.updateRecordArrays();
       this.resetRecord();
@@ -388,14 +384,14 @@ export default class InternalModel {
   startedReloading() {
     this.isReloading = true;
     if (this.hasRecord) {
-      set(this.record, 'isReloading', true);
+      set(this._record, 'isReloading', true);
     }
   }
 
   finishedReloading() {
     this.isReloading = false;
     if (this.hasRecord) {
-      set(this.record, 'isReloading', false);
+      set(this._record, 'isReloading', false);
     }
   }
 
@@ -515,7 +511,7 @@ export default class InternalModel {
   }
 
   destroy() {
-    assert("Cannot destroy an internalModel while its record is materialized", !this.record || this.record.get('isDestroyed') || this.record.get('isDestroying'));
+    assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
 
     this.store._internalModelDestroyed(this);
     this._isDestroyed = true;
@@ -543,7 +539,7 @@ export default class InternalModel {
     this.pushedData();
 
     if (this.hasRecord) {
-      this.record._notifyProperties(changedKeys);
+      this._record._notifyProperties(changedKeys);
     }
     this.didInitializeData();
   }
@@ -709,25 +705,25 @@ export default class InternalModel {
 
   notifyHasManyAdded(key, record, idx) {
     if (this.hasRecord) {
-      this.record.notifyHasManyAdded(key, record, idx);
+      this._record.notifyHasManyAdded(key, record, idx);
     }
   }
 
   notifyHasManyRemoved(key, record, idx) {
     if (this.hasRecord) {
-      this.record.notifyHasManyRemoved(key, record, idx);
+      this._record.notifyHasManyRemoved(key, record, idx);
     }
   }
 
   notifyBelongsToChanged(key, record) {
     if (this.hasRecord) {
-      this.record.notifyBelongsToChanged(key, record);
+      this._record.notifyBelongsToChanged(key, record);
     }
   }
 
   notifyPropertyChange(key) {
     if (this.hasRecord) {
-      this.record.notifyPropertyChange(key);
+      this._record.notifyPropertyChange(key);
     }
   }
 
@@ -763,7 +759,7 @@ export default class InternalModel {
     this.send('rolledBack');
 
     if (dirtyKeys && dirtyKeys.length > 0) {
-      this.record._notifyProperties(dirtyKeys);
+      this._record._notifyProperties(dirtyKeys);
     }
   }
 
@@ -818,7 +814,7 @@ export default class InternalModel {
 
     this.currentState = state;
     if (this.hasRecord) {
-      set(this.record, 'currentState', state);
+      set(this._record, 'currentState', state);
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -857,7 +853,7 @@ export default class InternalModel {
       return;
     }
     let triggers = this._deferredTriggers;
-    let record = this.record;
+    let record = this._record;
     let trigger = record.trigger;
     for (let i = 0, l= triggers.length; i<l; i++) {
       trigger.apply(record, triggers[i]);
@@ -977,8 +973,8 @@ export default class InternalModel {
   setId(id) {
     assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
     this.id = id;
-    if (this.record.get('id') !== id) {
-      this.record.set('id', id);
+    if (this._record.get('id') !== id) {
+      this._record.set('id', id);
     }
   }
 
@@ -987,7 +983,7 @@ export default class InternalModel {
     this.isError = true;
 
     if (this.hasRecord) {
-      this.record.setProperties({
+      this._record.setProperties({
         isError: true,
         adapterError: error
       });
@@ -999,7 +995,7 @@ export default class InternalModel {
     this.isError = false;
 
     if (this.hasRecord) {
-      this.record.setProperties({
+      this._record.setProperties({
         isError: false,
         adapterError: null
       });
@@ -1035,7 +1031,7 @@ export default class InternalModel {
 
     if (!data) { return; }
 
-    this.record._notifyProperties(changedKeys);
+    this._record._notifyProperties(changedKeys);
   }
 
   addErrorMessageToAttribute(attribute, message) {
