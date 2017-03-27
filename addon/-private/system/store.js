@@ -104,7 +104,7 @@ const {
   _pushInternalModel,
   _setupRelationships,
   adapterFor,
-  buildInternalModel,
+  _buildInternalModel,
   didUpdateAll,
   modelFactoryFor,
   modelFor,
@@ -121,7 +121,7 @@ const {
   '_pushInternalModel',
   '_setupRelationships',
   'adapterFor',
-  'buildInternalModel',
+  '_buildInternalModel',
   'didUpdateAll',
   'modelFactoryFor',
   'modelFor',
@@ -364,7 +364,7 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    let internalModel = this.buildInternalModel(normalizedModelName, properties.id);
+    let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
     let record = internalModel.getRecord();
 
     // Move the record out of its initial `empty` state into
@@ -1130,7 +1130,7 @@ Store = Service.extend({
     let internalModel = this._internalModelsFor(modelName).get(trueId);
 
     if (!internalModel) {
-      internalModel = this.buildInternalModel(modelName, trueId);
+      internalModel = this._buildInternalModel(modelName, trueId);
     }
 
     return internalModel;
@@ -2544,17 +2544,17 @@ Store = Service.extend({
     Build a brand new record for a given type, ID, and
     initial data.
 
-    @method buildRecord
+    @method _buildInternalModel
     @private
     @param {String} modelName
     @param {String} id
     @param {Object} data
     @return {InternalModel} internal model
   */
-  buildInternalModel(modelName, id, data) {
-    heimdall.increment(buildInternalModel);
+  _buildInternalModel(modelName, id, data) {
+    heimdall.increment(_buildInternalModel);
 
-    assert(`You can no longer pass a modelClass as the first argument to store.buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
+    assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
 
     let recordMap = this._internalModelsFor(modelName);
 
@@ -2567,6 +2567,11 @@ Store = Service.extend({
     recordMap.add(internalModel, id);
 
     return internalModel;
+  },
+
+  buildInternalModel(modelName, id, data) {
+    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.');
+    return this._buildInternalModel(modelName, id, data);
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
