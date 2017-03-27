@@ -875,12 +875,12 @@ export default class InternalModel {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
         rel.clear();
-        rel.destroy();
+        rel.removeInverseRelationships();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       this._implicitRelationships[key].clear();
-      this._implicitRelationships[key].destroy();
+      this._implicitRelationships[key].removeInverseRelationships();
     });
   }
 
@@ -888,11 +888,11 @@ export default class InternalModel {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
-        rel.destroy();
+        rel.removeInverseRelationships();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
-      this._implicitRelationships[key].destroy();
+      this._implicitRelationships[key].removeInverseRelationships();
     });
   }
 
