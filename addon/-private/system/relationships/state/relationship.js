@@ -95,12 +95,7 @@ export default class Relationship {
 
     allMembers.forEach(inverseInternalModel => {
       let relationship = inverseInternalModel._relationships.get(this.inverseKey);
-      // TODO: there is always a relationship in this case; this guard exists
-      // because there are tests that fail in teardown after putting things in
-      // invalid state
-      if (relationship) {
-        relationship.inverseDidDematerialize();
-      }
+      relationship.inverseDidDematerialize();
     });
   }
 

@@ -89,6 +89,8 @@ export default class ManyRelationship extends Relationship {
     if (this.members.has(record)) {
       return;
     }
+
+    assertPolymorphicType(this.record, this.relationshipMeta, record);
     super.addRecord(record, idx);
     // make lazy later
     this.manyArray.internalAddInternalModels([record], idx);
@@ -130,8 +132,6 @@ export default class ManyRelationship extends Relationship {
   }
 
   notifyRecordRelationshipAdded(record, idx) {
-    assertPolymorphicType(this.record, this.relationshipMeta, record);
-
     this.record.notifyHasManyAdded(this.key, record, idx);
   }
 
