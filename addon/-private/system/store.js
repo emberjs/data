@@ -1300,6 +1300,8 @@ Store = Service.extend({
     This method can be used when it is certain that the server will return a
     single object for the primary data.
 
+    Each time this method is called a new request is made through the adapter.
+
     Let's assume our API provides an endpoint for the currently logged in user
     via:
 
