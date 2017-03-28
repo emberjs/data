@@ -1026,6 +1026,8 @@ Store = Service.extend({
     otherwise it will return `null`. A record is available if it has been fetched earlier, or
     pushed manually into the store.
 
+    See [findRecord](#method_findRecord) if you would like to request this record from the backend.
+
     _Note: This is a synchronous method and does not return a promise._
 
     ```js
