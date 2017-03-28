@@ -666,7 +666,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
 
   return run(() => {
     return store._scheduleFetchMany(internalModels).then(() => {
-      let unloadedRecords = Ember.A(internalModels.map(r => r.record)).filterBy('isEmpty');
+      let unloadedRecords = Ember.A(internalModels.map(r => r.getRecord())).filterBy('isEmpty');
 
       assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
     });

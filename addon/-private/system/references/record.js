@@ -112,7 +112,9 @@ RecordReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record for this RecordReference
 */
 RecordReference.prototype.value = function() {
-  return this.internalModel.record;
+  if (this.internalModel.hasRecord) {
+    return this.internalModel.getRecord();
+  }
 };
 
 /**

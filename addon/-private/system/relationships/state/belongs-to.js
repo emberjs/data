@@ -168,7 +168,7 @@ export default class BelongsToRelationship extends Relationship {
 
     // reload record, if it is already loaded
     if (this.inverseRecord && this.inverseRecord.hasRecord) {
-      return this.inverseRecord.record.reload();
+      return this.inverseRecord.getRecord().reload();
     }
 
     return this.findRecord();
