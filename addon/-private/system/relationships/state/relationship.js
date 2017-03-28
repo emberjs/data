@@ -85,7 +85,7 @@ export default class Relationship {
     return this.internalModel.modelName;
   }
 
-  destroy() {
+  removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
     let allMembers =

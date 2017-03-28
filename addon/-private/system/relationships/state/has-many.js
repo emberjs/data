@@ -46,8 +46,8 @@ export default class ManyRelationship extends Relationship {
     return this._manyArray;
   }
 
-  destroy() {
-    super.destroy();
+  removeInverseRelationships() {
+    super.removeInverseRelationships();
     if (this._manyArray) {
       this._manyArray.destroy();
       this._manyArray = null;
