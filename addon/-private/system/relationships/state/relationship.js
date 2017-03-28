@@ -129,7 +129,7 @@ export default class Relationship {
 
   removeInternalModels(internalModels) {
     heimdall.increment(removeInternalModels);
-    internalModels.forEach((intenralModel) => this.removeRecord(intenralModel));
+    internalModels.forEach((internalModel) => this.removeRecord(internalModel));
   }
 
   addInternalModels(internalModels, idx) {
