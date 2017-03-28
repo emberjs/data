@@ -40,25 +40,33 @@ The more information you provide, the easier it is for us to validate that
 there is a bug and the faster we'll be able to take action.
 
 ## Requesting a Feature
-
-1. Search Issues for similar feature requests. It's possible somebody has
-already asked for this feature or provided a pull request that we're still
-discussing.
+1. Ember and Ember Data have an RFC process for feature requests. To begin the discussion either
+[gather feedback](https://github.com/emberjs/rfcs/blob/master/README.md#gathering-feedback-before-submitting)
+on the emberjs/rfcs repository. Or, draft an [Ember Data RFC](https://github.com/emberjs/rfcs/pulls?q=is%3Apr+is%3Aopen+label%3Aember-data)
+   - Use RFC pull request for well formed ideas.
+   - Use the `ember-data` label on it.
+   - Use RFC issues to propose a rough idea, basically a great place to test
+     the waters.
 
 2. Provide a clear and detailed explanation of the feature you want and why
 it's important to add. Keep in mind that we want features that will be useful
 to the majority of our users and not just a small subset. If you're just
 targeting a minority of users, consider writing an add-on library for Ember.
 
-3. If the feature is complex, consider writing some initial documentation for
-it. If we do end up accepting the feature it will need to be documented and
-this will also help us to understand it better ourselves.
+3. If the feature is complex, consider writing an Ember RFC document. If we do
+end up accepting the feature, the RFC provides the needed documentation for
+contributors to develop the feature according the specification accepted by the core team.
 
-4. Attempt a Pull Request. If you're at all able, start writing some code. We
-always have more work to do than time to do it. If you can write some code
-then that will speed the process along.
+4. After discussing the feature you may choose to attempt a Pull Request. If
+you're at all able, start writing some code. We always have more work to do
+than time to do it. If you can write some code then that will speed the process
+along.
 
-### Using Feature Flags
+In short, if you have an idea that would be nice to have, create an issue on the
+emberjs/rfcs repo and label it as `ember-data`. If you have a question about
+requesting a feature, start a discussion at [discuss.emberjs.com](http://discuss.emberjs.com)
+
+## Using Feature Flags
 
 Feature flags allow new features to be tested easily and strips them out of
 production builds automatically.
@@ -112,19 +120,19 @@ production builds automatically.
 
 ## Benchmarking
 
-Ember Data is instrumented with [heimdalljs](https://github.com/heimdalljs/heimdalljs-lib) 
+Ember Data is instrumented with [heimdalljs](https://github.com/heimdalljs/heimdalljs-lib)
  Top level scenarios for benchmarking are available via the `query` route in
  the dummy app, and desired scenarios to be run can be configured via `benchmarks/config.js`.
- 
+
  The scenarios are configured to interop with [heimdall-query](https://github.com/heimdalljs/heimdall-query)
  for analysis. To run scenarios:
 
   1. Start the dummy app with instrumentation on: `ember s --instrument`
-  
+
   2. Configure `benchmarks/config.js` with desired scenarios
-  
+
   3. To run both the benchmarks and the analysis: `node ./benchmarks`
-  
+
       a.) To just collect data (no analysis): `node ./benchmarks/bash-run.js`
       b.) To just run analysis (w/cached data): `node ./benchmarks/bash-analyze.js`
       c.) To cache a data set or use a cached data set, all commands accept `-c ./path/to/cache/dir`
