@@ -134,7 +134,7 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
     let payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, null, 'findAll');
 
     store._push(payload);
-    store.didUpdateAll(modelName);
+    store._didUpdateAll(modelName);
 
     return recordArray;
   }, null, 'DS: Extract payload of findAll ${modelName}');

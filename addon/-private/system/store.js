@@ -105,7 +105,7 @@ const {
   _setupRelationships,
   adapterFor,
   _buildInternalModel,
-  didUpdateAll,
+  _didUpdateAll,
   modelFactoryFor,
   modelFor,
   normalize,
@@ -122,7 +122,7 @@ const {
   '_setupRelationships',
   'adapterFor',
   '_buildInternalModel',
-  'didUpdateAll',
+  '_didUpdateAll',
   'modelFactoryFor',
   'modelFor',
   'normalize',
@@ -1654,15 +1654,20 @@ Store = Service.extend({
   },
 
   /**
-    @method didUpdateAll
+    @method _didUpdateAll
     @param {String} modelName
     @private
   */
-  didUpdateAll(modelName) {
-    heimdall.increment(didUpdateAll);
+  _didUpdateAll(modelName) {
+    heimdall.increment(_didUpdateAll);
     let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(modelName);
 
     set(liveRecordArray, 'isUpdating', false);
+  },
+
+  didUpdateAll(modelName) {
+    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.');
+    return this._didUpdateAll(modelName);
   },
 
   /**
