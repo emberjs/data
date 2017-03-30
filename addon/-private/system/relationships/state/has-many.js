@@ -180,15 +180,17 @@ export default class ManyRelationship extends Relationship {
   }
 
   setInitialInternalModels(internalModels) {
-    if (internalModels && internalModels.length) {
-      let args = [0, this.canonicalState.length].concat(internalModels);
-      this.canonicalState.splice.apply(this.canonicalState, args);
-      internalModels.forEach(internalModel => {
-        this.canonicalMembers.add(internalModel);
-        this.members.add(internalModel);
-        this.setupInverseRelationship(internalModel);
-      });
+    if (!internalModels) {
+      return;
     }
+
+    let args = [0, this.canonicalState.length].concat(internalModels);
+    this.canonicalState.splice.apply(this.canonicalState, args);
+    internalModels.forEach(internalModel => {
+      this.canonicalMembers.add(internalModel);
+      this.members.add(internalModel);
+      this.setupInverseRelationship(internalModel);
+    });
   }
 
   fetchLink() {
