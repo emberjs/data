@@ -276,6 +276,48 @@ test('hasMany does not notify when it is initially reified', function(assert) {
   });
 });
 
+test('hasMany can be initially reified with null', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'tag',
+        id: 1,
+        attributes: {
+          name: 'whatever'
+        },
+        relationships: {
+          people: {
+            data: null
+          }
+        }
+      }
+    });
+  });
+
+  return run(() => {
+    let tag = store.peekRecord('tag', 1);
+
+    assert.equal(tag.get('people.length'), 0, 'relationship is correct');
+  });
+});
+
 test('hasMany tolerates reflexive self-relationships', function(assert) {
   assert.expect(1);
 
