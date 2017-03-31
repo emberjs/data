@@ -159,7 +159,7 @@ export default class ManyRelationship extends Relationship {
     return this._loadingPromise;
   }
 
-  computeChanges(records) {
+  computeChanges(records = []) {
     let members = this.canonicalMembers;
     let recordsToRemove = [];
     let recordSet = setForArray(records);
