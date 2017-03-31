@@ -10,51 +10,124 @@
   @param {Array} snapshots An array of snapshots
   @param {Object} meta
 */
-export default function SnapshotRecordArray(recordArray, meta, options = {}) {
-  /**
-    An array of snapshots
-    @private
-    @property _snapshots
-    @type {Array}
-  */
-  this._snapshots = null;
-  /**
-    An array of records
-    @private
-    @property _recordArray
-    @type {Array}
-  */
-  this._recordArray = recordArray;
+export default class SnapshotRecordArray {
+  constructor(recordArray, meta, options = {}) {
+    /**
+      An array of snapshots
+      @private
+      @property _snapshots
+      @type {Array}
+    */
+    this._snapshots = null;
 
-  /**
-    Number of records in the array
+    /**
+      An array of records
+      @private
+      @property _recordArray
+      @type {Array}
+    */
+    this._recordArray = recordArray;
 
-    Example
+    /**
+      Number of records in the array
 
-    ```app/adapters/post.js
-    import DS from 'ember-data'
+      Example
 
-    export default DS.JSONAPIAdapter.extend({
-      shouldReloadAll(store, snapshotRecordArray) {
-        return !snapshotRecordArray.length;
-      },
-    });
-    ```
+      ```app/adapters/post.js
+      import DS from 'ember-data'
 
-    @property length
-    @type {Number}
-  */
-  this.length = recordArray.get('length');
+      export default DS.JSONAPIAdapter.extend({
+        shouldReloadAll(store, snapshotRecordArray) {
+          return !snapshotRecordArray.length;
+        },
+      });
+      ```
+
+      @property length
+      @type {Number}
+    */
+    this.length = recordArray.get('length');
+
+    this._type = null;
+
+    /**
+      Meta objects for the record array.
+
+      Example
+
+      ```app/adapters/post.js
+      import DS from 'ember-data'
+
+      export default DS.JSONAPIAdapter.extend({
+        shouldReloadAll(store, snapshotRecordArray) {
+          var lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
+          var twentyMinutes = 20 * 60 * 1000;
+          return Date.now() > lastRequestTime + twentyMinutes;
+        },
+      });
+      ```
+
+      @property meta
+      @type {Object}
+    */
+    this.meta = meta;
+
+    /**
+      A hash of adapter options passed into the store method for this request.
+
+      Example
+
+      ```app/adapters/post.js
+      import MyCustomAdapter from './custom-adapter';
+
+      export default MyCustomAdapter.extend({
+        findAll(store, type, sinceToken, snapshotRecordArray) {
+          if (snapshotRecordArray.adapterOptions.subscribe) {
+            // ...
+          }
+          // ...
+        }
+      });
+      ```
+
+      @property adapterOptions
+      @type {Object}
+    */
+    this.adapterOptions = options.adapterOptions;
+
+    /**
+      The relationships to include for this request.
+
+      Example
+
+      ```app/adapters/application.js
+      import DS from 'ember-data';
+
+      export default DS.Adapter.extend({
+        findAll(store, type, snapshotRecordArray) {
+          var url = `/${type.modelName}?include=${encodeURIComponent(snapshotRecordArray.include)}`;
+
+          return fetch(url).then((response) => response.json())
+        }
+      });
+
+      @property include
+      @type {String|Array}
+    */
+    this.include = options.include;
+  }
 
   /**
     The type of the underlying records for the snapshots in the array, as a DS.Model
     @property type
     @type {DS.Model}
   */
-  this.type = recordArray.get('type');
+  get type() {
+    return this._type || (this._type = this._recordArray.get('type'));
+  }
 
   /**
-    Meta objects for the record array.
+    Get snapshots of the underlying record array
 
     Example
 
@@ -62,97 +135,31 @@ export default function SnapshotRecordArray(recordArray, meta, options = {}) {
     import DS from 'ember-data'
 
     export default DS.JSONAPIAdapter.extend({
-      shouldReloadAll(store, snapshotRecordArray) {
-        var lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
-        var twentyMinutes = 20 * 60 * 1000;
-        return Date.now() > lastRequestTime + twentyMinutes;
-      },
-    });
-    ```
+      shouldReloadAll(store, snapshotArray) {
+        var snapshots = snapshotArray.snapshots();
 
-    @property meta
-    @type {Object}
-  */
-  this.meta = meta;
-
-  /**
-    A hash of adapter options passed into the store method for this request.
-
-    Example
-
-    ```app/adapters/post.js
-    import MyCustomAdapter from './custom-adapter';
-
-    export default MyCustomAdapter.extend({
-      findAll(store, type, sinceToken, snapshotRecordArray) {
-        if (snapshotRecordArray.adapterOptions.subscribe) {
-          // ...
-        }
-        // ...
+        return snapshots.any(function(ticketSnapshot) {
+          var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
+          if (timeDiff > 20) {
+            return true;
+          } else {
+            return false;
+          }
+        });
       }
     });
     ```
 
-    @property adapterOptions
-    @type {Object}
+    @method snapshots
+    @return {Array} Array of snapshots
   */
-  this.adapterOptions = options.adapterOptions;
-
-  /**
-    The relationships to include for this request.
-
-    Example
-
-    ```app/adapters/application.js
-    import DS from 'ember-data';
-
-    export default DS.Adapter.extend({
-      findAll(store, type, snapshotRecordArray) {
-        var url = `/${type.modelName}?include=${encodeURIComponent(snapshotRecordArray.include)}`;
-
-        return fetch(url).then((response) => response.json())
-      }
-    });
-
-    @property include
-    @type {String|Array}
-  */
-  this.include = options.include;
-}
-
-/**
-  Get snapshots of the underlying record array
-
-  Example
-
-  ```app/adapters/post.js
-  import DS from 'ember-data'
-
-  export default DS.JSONAPIAdapter.extend({
-    shouldReloadAll(store, snapshotArray) {
-      var snapshots = snapshotArray.snapshots();
-
-      return snapshots.any(function(ticketSnapshot) {
-        var timeDiff = moment().diff(ticketSnapshot.attr('lastAccessedAt'), 'minutes');
-        if (timeDiff > 20) {
-          return true;
-        } else {
-          return false;
-        }
-      });
+  snapshots() {
+    if (this._snapshots !== null) {
+      return this._snapshots;
     }
-  });
-  ```
 
-  @method snapshots
-  @return {Array} Array of snapshots
-*/
-SnapshotRecordArray.prototype.snapshots = function() {
-  if (this._snapshots !== null) {
+    this._snapshots = this._recordArray._takeSnapshot();
+
     return this._snapshots;
   }
-
-  this._snapshots = this._recordArray._takeSnapshot();
-
-  return this._snapshots;
-};
+}

@@ -47,3 +47,27 @@ test('#snapshot', function(assert) {
   assert.equal(snapshot.snapshots(), snapshotTaken, 'should return the exact same snapshot');
   assert.equal(didTakeSnapshot, 1, 'still only one snapshot should have been taken');
 });
+
+test('SnapshotRecordArray.type loads the class lazily', function(assert) {
+  let array = Ember.A([1, 2]);
+  let typeLoaded = false;
+
+  Object.defineProperty(array, 'type', {
+    get() {
+      typeLoaded = true;
+      return 'some type';
+    }
+  });
+
+  let meta = { };
+  let options = {
+    adapterOptions: 'some options',
+    include: 'include me'
+  };
+
+  let snapshot = new SnapshotRecordArray(array, meta, options);
+
+  assert.equal(false, typeLoaded, 'model class is not eager loaded');
+  assert.equal(snapshot.type, 'some type');
+  assert.equal(true, typeLoaded, 'model class is loaded');
+});
