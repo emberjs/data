@@ -13,50 +13,50 @@ export default class BelongsToRelationship extends Relationship {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.internalModel = internalModel;
     this.key = relationshipMeta.key;
-    this.inverseRecord = null;
+    this.inverseInternalModel = null;
     this.canonicalState = null;
   }
 
-  setRecord(newRecord) {
-    if (newRecord) {
-      this.addRecord(newRecord);
-    } else if (this.inverseRecord) {
-      this.removeRecord(this.inverseRecord);
+  setInternalModel(internalModel) {
+    if (internalModel) {
+      this.addInternalModel(internalModel);
+    } else if (this.inverseInternalModel) {
+      this.removeInternalModel(this.inverseInternalModel);
     }
     this.setHasData(true);
     this.setHasLoaded(true);
   }
 
-  setCanonicalRecord(newRecord) {
-    if (newRecord) {
-      this.addCanonicalRecord(newRecord);
+  setCanonicalInternalModel(internalModel) {
+    if (internalModel) {
+      this.addCanonicalInternalModel(internalModel);
     } else if (this.canonicalState) {
-      this.removeCanonicalRecord(this.canonicalState);
+      this.removeCanonicalInternalModel(this.canonicalState);
     }
     this.flushCanonicalLater();
   }
 
-  setInitialCanonicalRecord(record) {
-    if (!record) { return; }
+  setInitialCanonicalInternalModel(internalModel) {
+    if (!internalModel) { return; }
 
     // When we initialize a belongsTo relationship, we want to avoid work like
     // notifying our internalModel that we've "changed" and excessive thrash on
     // setting up inverse relationships
-    this.canonicalMembers.add(record);
-    this.members.add(record);
-    this.inverseRecord = this.canonicalState = record;
-    this.setupInverseRelationship(record);
+    this.canonicalMembers.add(internalModel);
+    this.members.add(internalModel);
+    this.inverseInternalModel = this.canonicalState = internalModel;
+    this.setupInverseRelationship(internalModel);
   }
 
-  addCanonicalRecord(newRecord) {
-    if (this.canonicalMembers.has(newRecord)) { return;}
+  addCanonicalInternalModel(internalModel) {
+    if (this.canonicalMembers.has(internalModel)) { return;}
 
     if (this.canonicalState) {
-      this.removeCanonicalRecord(this.canonicalState);
+      this.removeCanonicalInternalModel(this.canonicalState);
     }
 
-    this.canonicalState = newRecord;
-    super.addCanonicalRecord(newRecord);
+    this.canonicalState = internalModel;
+    super.addCanonicalInternalModel(internalModel);
   }
 
   inverseDidDematerialize() {
@@ -66,41 +66,41 @@ export default class BelongsToRelationship extends Relationship {
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
-    if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
+    if (this.inverseInternalModel && this.inverseInternalModel.isNew() && !this.canonicalState) {
       return;
     }
-    if (this.inverseRecord !== this.canonicalState) {
-      this.inverseRecord = this.canonicalState;
+    if (this.inverseInternalModel !== this.canonicalState) {
+      this.inverseInternalModel = this.canonicalState;
       this.notifyBelongsToChanged();
     }
 
     super.flushCanonical();
   }
 
-  addRecord(newRecord) {
-    if (this.members.has(newRecord)) { return; }
+  addInternalModel(internalModel) {
+    if (this.members.has(internalModel)) { return; }
 
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, newRecord);
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
 
-    if (this.inverseRecord) {
-      this.removeRecord(this.inverseRecord);
+    if (this.inverseInternalModel) {
+      this.removeInternalModel(this.inverseInternalModel);
     }
 
-    this.inverseRecord = newRecord;
-    super.addRecord(newRecord);
+    this.inverseInternalModel = internalModel;
+    super.addInternalModel(internalModel);
     this.notifyBelongsToChanged();
   }
 
   setRecordPromise(newPromise) {
     let content = newPromise.get && newPromise.get('content');
     assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
-    this.setRecord(content ? content._internalModel : content);
+    this.setInternalModel(content ? content._internalModel : content);
   }
 
-  removeRecordFromOwn(record) {
-    if (!this.members.has(record)) { return;}
-    this.inverseRecord = null;
-    super.removeRecordFromOwn(record);
+  removeInternalModelFromOwn(internalModel) {
+    if (!this.members.has(internalModel)) { return;}
+    this.inverseInternalModel = null;
+    super.removeInternalModelFromOwn(internalModel);
     this.notifyBelongsToChanged();
   }
 
@@ -108,26 +108,26 @@ export default class BelongsToRelationship extends Relationship {
     this.internalModel.notifyBelongsToChanged(this.key);
   }
 
-  removeCanonicalRecordFromOwn(record) {
-    if (!this.canonicalMembers.has(record)) { return;}
+  removeCanonicalInternalModelFromOwn(internalModel) {
+    if (!this.canonicalMembers.has(internalModel)) { return;}
     this.canonicalState = null;
-    super.removeCanonicalRecordFromOwn(record);
+    super.removeCanonicalInternalModelFromOwn(internalModel);
   }
 
   findRecord() {
-    if (this.inverseRecord) {
-      return this.store._findByInternalModel(this.inverseRecord);
+    if (this.inverseInternalModel) {
+      return this.store._findByInternalModel(this.inverseInternalModel);
     } else {
       return Ember.RSVP.Promise.resolve(null);
     }
   }
 
   fetchLink() {
-    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((record) => {
-      if (record) {
-        this.addRecord(record);
+    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((internalModel) => {
+      if (internalModel) {
+        this.addInternalModel(internalModel);
       }
-      return record;
+      return internalModel;
     });
   }
 
@@ -147,13 +147,13 @@ export default class BelongsToRelationship extends Relationship {
 
       return PromiseObject.create({
         promise: promise,
-        content: this.inverseRecord ? this.inverseRecord.getRecord() : null
+        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
       });
     } else {
-      if (this.inverseRecord === null) {
+      if (this.inverseInternalModel === null) {
         return null;
       }
-      let toReturn = this.inverseRecord.getRecord();
+      let toReturn = this.inverseInternalModel.getRecord();
       assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }
@@ -167,8 +167,8 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     // reload record, if it is already loaded
-    if (this.inverseRecord && this.inverseRecord.hasRecord) {
-      return this.inverseRecord.getRecord().reload();
+    if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
+      return this.inverseInternalModel.getRecord().reload();
     }
 
     return this.findRecord();
@@ -177,9 +177,9 @@ export default class BelongsToRelationship extends Relationship {
   updateData(data, initial) {
     let internalModel = this.store._pushResourceIdentifier(this, data);
     if (initial) {
-      this.setInitialCanonicalRecord(internalModel);
+      this.setInitialCanonicalInternalModel(internalModel);
     } else {
-      this.setCanonicalRecord(internalModel);
+      this.setCanonicalInternalModel(internalModel);
     }
   }
 }

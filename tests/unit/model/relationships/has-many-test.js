@@ -961,7 +961,7 @@ test('possible to replace items in a relationship using setObjects w/ Ember Enum
     tom = store.peekRecord('person', '1');
     sylvain = store.peekRecord('person', '2');
     // Test that since sylvain.get('tags') instanceof DS.ManyArray,
-    // addRecords on Relationship iterates correctly.
+    // addInternalModels on Relationship iterates correctly.
     tom.get('tags').setObjects(sylvain.get('tags'));
   });
 
