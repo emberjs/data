@@ -47,6 +47,41 @@ module('unit/many_array - DS.ManyArray', {
   }
 });
 
+test('objectAt warns for out of bounds index, except for firstObject and lastObject', function(assert) {
+  return run(() => {
+    store.push({
+      data: [{
+        type: 'post',
+        id: '3',
+        attributes: {
+          title: 'A framework for creating ambitious web applications'
+        },
+        relationships: {
+          tags: {
+            data: []
+          }
+        }
+      }]
+    });
+
+    let tags = store.peekRecord('post', 3).get('tags');
+
+    assert.expectWarning(() => {
+      tags.objectAt(24601);
+    }, `ManyArray#objectAt(index) return undefined for index '24601'. See https://github.com/emberjs/data/issues/4758`);
+
+    assert.expectNoWarning(() => {
+      // firstObject and lastObject are re-fetched on every array change.  As
+      // long as this remains true, warning about out of bounds checks here is
+      // not actionable.
+      //
+      // see https://github.com/emberjs/ember.js/issues/14843
+      tags.get('firstObject');
+      tags.get('lastObject');
+    });
+  });
+});
+
 test('manyArray.save() calls save() on all records', function(assert) {
   assert.expect(3);
 

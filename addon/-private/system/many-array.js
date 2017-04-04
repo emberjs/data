@@ -137,9 +137,14 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     let object = this.currentState[index];
     //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
     if (object === undefined) {
-      warn(`ManyArray#objectAt(index) return undefined for index '${index}'. See https://github.com/emberjs/data/issues/4758`, false, {
-        id: 'ds.many-array.object-at-undefined'
-      });
+      warn(`ManyArray#objectAt(index) return undefined for index '${index}'. See https://github.com/emberjs/data/issues/4758`,
+          // firstObject and lastObject are re-fetched on every array change.
+          // As long as this remains true, warning about out of bounds checks
+          // here is not actionable.
+          //
+          // see https://github.com/emberjs/ember.js/issues/14843
+           (index ===0 || index === this.currentState.length - 1),
+           { id: 'ds.many-array.object-at-undefined' });
       return;
     }
 
