@@ -2,8 +2,7 @@
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
 const { set } = Ember;
-
-const  {
+const {
   __get,
   _instanceFor
 } = heimdall.registerMonitor('system.store.container-instance-cache',
@@ -34,6 +33,8 @@ const  {
 */
 export default class ContainerInstanceCache {
   constructor(owner, store) {
+    this.isDestroying = false;
+    this.isDestroyed = false;
     this._owner = owner;
     this._store = store;
     this._namespaces = {
@@ -112,11 +113,10 @@ export default class ContainerInstanceCache {
   }
 
   destroy() {
+    this.isDestroying = true;
     this.destroyCache(this._namespaces.adapter);
     this.destroyCache(this._namespaces.serializer);
-    this._namespaces = null;
-    this._store = null;
-    this._owner = null;
+    this.isDestroyed = true;
   }
 
   toString() {
