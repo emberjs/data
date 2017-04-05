@@ -1,6 +1,6 @@
 /* global heimdall */
 import Ember from 'ember';
-const { set, run } = Ember;
+const { set } = Ember;
 
 const  {
   __get,
