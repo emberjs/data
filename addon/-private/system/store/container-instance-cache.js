@@ -2,7 +2,7 @@
 import Ember from 'ember';
 import EmptyObject from "ember-data/-private/system/empty-object";
 const { set } = Ember;
-const {
+const  {
   __get,
   _instanceFor
 } = heimdall.registerMonitor('system.store.container-instance-cache',
