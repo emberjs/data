@@ -33,6 +33,8 @@ const  {
 */
 export default class ContainerInstanceCache {
   constructor(owner, store) {
+    this.isDestroying = false;
+    this.isDestroyed = false;
     this._owner = owner;
     this._store = store;
     this._namespaces = {
@@ -111,11 +113,10 @@ export default class ContainerInstanceCache {
   }
 
   destroy() {
+    this.isDestroying = true;
     this.destroyCache(this._namespaces.adapter);
     this.destroyCache(this._namespaces.serializer);
-    this._namespaces = null;
-    this._store = null;
-    this._owner = null;
+    this.isDestroyed = true;
   }
 
   toString() {
