@@ -1364,3 +1364,22 @@ test("A belongsTo relationship can be reloaded using a reference if it was fetch
     });
   });
 });
+
+testInDebug("A belongsTo relationship warns if malformatted data is pushed into the store", function(assert) {
+  assert.expectAssertion(function() {
+    run(function() {
+      let chapter = env.store.push({
+        data: {
+          type: 'chapter',
+          id: 1,
+          relationships: {
+            book: {
+              data: { id: 1, name: 'The Gallic Wars' }
+            }
+          }
+        }
+      });
+      chapter.get('book');
+    });
+  }, /expected the data for the book relationship on a <chapter:1> to be in a JSON API format/);
+});
