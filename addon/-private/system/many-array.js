@@ -2,7 +2,7 @@
   @module ember-data
 */
 import Ember from 'ember';
-import { assert, warn } from "ember-data/-private/debug";
+import { assert } from "ember-data/-private/debug";
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
 import diffArray from './diff-array';
@@ -135,13 +135,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   objectAt(index) {
     let internalModel = this.currentState[index];
-    //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
-    if (internalModel === undefined) {
-      warn(`ManyArray#objectAt(index) return undefined for index '${index}'. See https://github.com/emberjs/data/issues/4758`, false, {
-        id: 'ds.many-array.object-at-undefined'
-      });
-      return;
-    }
+    if (internalModel === undefined) { return; }
 
     return internalModel.getRecord();
   },
