@@ -3,6 +3,7 @@
 
 var path = require('path');
 var SilentError = require('silent-error');
+var Funnel = require('broccoli-funnel');
 
 // allow toggling of heimdall instrumentation
 var INSTRUMENT_HEIMDALL = false;
@@ -14,11 +15,14 @@ for (var i = 0; i < args.length; i++) {
     break;
   }
 }
+
 process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
-function add(options, name, array) {
-  var option = options[name] = options[name] || [];
-  option.push.apply(option, array);
+function isProductionEnv() {
+  var isProd = /production/.test(process.env.EMBER_ENV);
+  var isTest = process.env.EMBER_CLI_TEST_COMMAND;
+
+  return isProd && !isTest;
 }
 
 module.exports = {
@@ -111,10 +115,21 @@ module.exports = {
     var version   = require('./lib/version');
     var merge     = require('broccoli-merge-trees');
 
-    return this._super.treeForAddon.call(this, merge([
+    var tree = this._super.treeForAddon.call(this, merge([
       version(),
       dir
     ]));
+
+    if (isProductionEnv()) {
+      console.log('is prod');
+      tree = new Funnel(tree, {
+        exclude: [
+          /-private\/debug\.js/
+        ]
+      });
+    }
+
+    return tree;
   },
 
   _setupBabelOptions: function() {

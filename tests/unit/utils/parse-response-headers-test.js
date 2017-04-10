@@ -5,10 +5,10 @@ const CRLF = '\u000d\u000a';
 
 module('unit/adapters/parse-response-headers');
 
-test('returns an EmptyObject when headersString is undefined', function(assert) {
+test('returns an NULL Object when headersString is undefined', function(assert) {
   let headers = parseResponseHeaders(undefined);
 
-  assert.deepEqual(headers, Object.create(null), 'EmptyObject is returned');
+  assert.deepEqual(headers, Object.create(null), 'NULL Object is returned');
 });
 
 test('header parsing', function(assert) {
