@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.12.2 (April 12, 2017)
+- [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
+- [#4917](https://github.com/emberjs/data/pull/4917) [BACKPORT 4913] For release
+
 ### Release 2.12.1 (March 17, 2017)
 - [#4875](https://github.com/emberjs/data/pull/4875) [BUGFIX release] ensure the globals build has the correct context in the iife.
 - [#4881](https://github.com/emberjs/data/pull/4881) Fix injection-test on the release branch
