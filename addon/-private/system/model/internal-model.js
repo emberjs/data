@@ -109,7 +109,10 @@ export default class InternalModel {
   constructor(modelName, id, store, data) {
     heimdall.increment(new_InternalModel);
     this.id = id;
-    this._internalId = InternalModelReferenceId++;
+
+    // this ensure ordered set can quickly identify this as unique
+    this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
+
     this.store = store;
     this._data = data || new EmptyObject();
     this.modelName = modelName;
