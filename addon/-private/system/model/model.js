@@ -1135,10 +1135,16 @@ const Model = Ember.Object.extend(Ember.Evented, {
   }
 });
 
-function proxyToClassInfo() {
+function proxyPropToInternalClass() {
   return computed(function(key) {
     return get(this, '__internalModelClass')[key];
   });
+}
+
+function proxyMethodToInternalClass(name) {
+  return function runInternalClassMethod() {
+    return get(this, '__internalModelClass')[name](...arguments);
+  }
 }
 
 /**
@@ -1246,11 +1252,9 @@ Model.reopenClass({
    @param {store} store an instance of DS.Store
    @return {DS.Model} the type of the relationship, or undefined
    */
-  typeForRelationship(name, store) {
-    return get(this, '__internalModelClass').typeForRelationship(name, store);
-  },
+  typeForRelationship: proxyMethodToInternalClass('typeForRelationship'),
 
-  inverseMap: proxyToClassInfo(),
+  inverseMap: proxyPropToInternalClass(),
 
   /**
    Find the relationship which is the inverse of the one asked for.
@@ -1284,14 +1288,10 @@ Model.reopenClass({
    @param {DS.Store} store
    @return {Object} the inverse relationship, or null
    */
-  inverseFor(name, store) {
-    return get(this, '__internalModelClass').inverseFor(name, store);
-  },
+  inverseFor: proxyMethodToInternalClass('inverseFor'),
 
   //Calculate the inverse, ignoring the cache
-  _findInverseFor(name, store) {
-    return get(this, '__internalModelClass')._findInverseFor(name, store);
-  },
+  _findInverseFor: proxyMethodToInternalClass('_findInverseFor'),
 
   /**
    The model's relationships as a map, keyed on the type of the
@@ -1333,7 +1333,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-  relationships: proxyToClassInfo(),
+  relationships: proxyPropToInternalClass(),
 
   /**
    A hash containing lists of the model's relationships, grouped
@@ -1369,7 +1369,7 @@ Model.reopenClass({
    @type Object
    @readOnly
    */
-  relationshipNames: proxyToClassInfo(),
+  relationshipNames: proxyPropToInternalClass(),
 
   /**
    An array of types directly related to a model. Each type will be
@@ -1404,7 +1404,7 @@ Model.reopenClass({
    @type Ember.Array
    @readOnly
    */
-  relatedTypes: proxyToClassInfo(),
+  relatedTypes: proxyPropToInternalClass(),
 
   /**
    A map whose keys are the relationships of a model and whose values are
@@ -1442,7 +1442,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-  relationshipsByName: proxyToClassInfo(),
+  relationshipsByName: proxyPropToInternalClass(),
 
   /**
    A map whose keys are the fields of the model and whose values are strings
@@ -1485,7 +1485,7 @@ Model.reopenClass({
    @type Ember.Map
    @readOnly
    */
-  fields: proxyToClassInfo(),
+  fields: proxyPropToInternalClass(),
 
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1497,9 +1497,7 @@ Model.reopenClass({
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  eachRelationship(callback, binding) {
-    get(this, '__internalModelClass').eachRelationship(callback, binding);
-  },
+  eachRelationship: proxyMethodToInternalClass('eachRelationship'),
 
   __internalModelClass: computed(function() {
     return new InternalModelClass(this);
@@ -1516,13 +1514,9 @@ Model.reopenClass({
    @param {Function} callback the callback to invoke
    @param {any} binding the value to which the callback's `this` should be bound
    */
-  eachRelatedType(callback, binding) {
-    get(this, '__internalModelClass').eachRelatedType(callback, binding);
-  },
+  eachRelatedType: proxyMethodToInternalClass('eachRelatedType'),
 
-  determineRelationshipType(knownSide, store) {
-    return get(this, '__internalModelClass').determineRelationshipType(knownSide, store);
-  },
+  determineRelationshipType: proxyMethodToInternalClass('determineRelationshipType'),
 
   /**
    A map whose keys are the attributes of the model (properties
@@ -1562,7 +1556,7 @@ Model.reopenClass({
    @type {Ember.Map}
    @readOnly
    */
-  attributes: proxyToClassInfo(),
+  attributes: proxyPropToInternalClass(),
 
   /**
    A map whose keys are the attributes of the model (properties
@@ -1602,7 +1596,7 @@ Model.reopenClass({
    @type {Ember.Map}
    @readOnly
    */
-  transformedAttributes: proxyToClassInfo(),
+  transformedAttributes: proxyPropToInternalClass(),
 
   /**
    Iterates through the attributes of the model, calling the passed function on each
@@ -1647,9 +1641,7 @@ Model.reopenClass({
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  eachAttribute(callback, binding) {
-    get(this, '__internalModelClass').eachAttribute(callback, binding);
-  },
+  eachAttribute: proxyMethodToInternalClass('eachAttribute'),
 
   /**
    Iterates through the transformedAttributes of the model, calling
@@ -1695,9 +1687,7 @@ Model.reopenClass({
    @param {Object} [binding] the value to which the callback's `this` should be bound
    @static
    */
-  eachTransformedAttribute(callback, binding) {
-    get(this, '__internalModelClass').eachTransformedAttribute(callback, binding);
-  }
+  eachTransformedAttribute: proxyMethodToInternalClass('eachTransformedAttribute')
 });
 
 // if `Ember.setOwner` is defined, accessing `this.container` is
