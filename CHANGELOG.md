@@ -1,5 +1,9 @@
 # Ember Data Changelog
 
+### Release 2.13.0-beta.4 (April 12, 2017)
+- [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
+- [#4916](https://github.com/emberjs/data/pull/4916) [BACKPORT 4913] don't prematurely nullify props on the container-inst…
+
 ### Release 2.13.0-beta.3 (March 21, 2017)
 - [#4862](https://github.com/emberjs/data/pull/4862) [BETA] Update dependencies to use babel 6.
 
