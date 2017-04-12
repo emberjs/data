@@ -151,13 +151,26 @@ export default class InternalModelClass {
   }
 
   inverseFor(name, store) {
-    let inverseMap = get(this, 'inverseMap');
-    if (inverseMap[name]) {
+    let inverseMap = this.inverseMap;
+
+    if (inverseMap[name] !== undefined) {
       return inverseMap[name];
     } else {
-      let inverse = this._findInverseFor(name, store);
-      inverseMap[name] = inverse;
-      return inverse;
+      let relationship = this.relationshipsByName.get(name);
+      if (!relationship) {
+        inverseMap[name] = null;
+        return null;
+      }
+
+      let options = relationship.options;
+      if (options && options.inverse === null) {
+        // populate the cache with a miss entry so we can skip getting and going
+        // through `relationshipsByName`
+        inverseMap[name] = null;
+        return null;
+      }
+
+      return inverseMap[name] = this._findInverseFor(name, store);
     }
   }
 
@@ -575,7 +588,7 @@ export default class InternalModelClass {
    Unused internally
    */
   eachRelatedType(callback, binding) {
-    let relationshipTypes = get(this, 'relatedTypes');
+    let relationshipTypes = this.relatedTypes;
 
     for (let i = 0; i < relationshipTypes.length; i++) {
       let type = relationshipTypes[i];
@@ -587,7 +600,7 @@ export default class InternalModelClass {
    Used once by json-serializer
    */
   eachTransformedAttribute(callback, binding) {
-    get(this, 'transformedAttributes').forEach((type, name) => {
+    this.transformedAttributes.forEach((type, name) => {
       callback.call(binding, name, type);
     });
   }
