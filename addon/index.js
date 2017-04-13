@@ -38,7 +38,7 @@ import Model from "./model";
 import Snapshot from "./-private/system/snapshot";
 import Adapter from "./adapter";
 import Serializer from "./serializer";
-import DebugAdapter from "ember-data/-private/debug";
+import DebugAdapter from './-private/system/debug/debug-adapter';
 
 import {
   AdapterError,
@@ -61,16 +61,12 @@ import {
 } from "./-private/system/record-arrays";
 import ManyArray from "./-private/system/many-array";
 import RecordArrayManager from "./-private/system/record-array-manager";
-import {
-  JSONAPIAdapter,
-  RESTAdapter
-} from "./-private/adapters";
+import JSONAPIAdapter from './adapters/json-api';
+import RESTAdapter from './adapters/rest';
 import BuildURLMixin from "./-private/adapters/build-url-mixin";
-import {
-  JSONAPISerializer,
-  JSONSerializer,
-  RESTSerializer
-} from "./-private/serializers";
+import JSONAPISerializer from './serializers/json-api';
+import JSONSerializer from './serializers/json';
+import RESTSerializer from './serializers/rest';
 import "ember-inflector";
 import EmbeddedRecordsMixin from "./serializers/embedded-records-mixin";
 

@@ -1,5 +1,3 @@
-import Ember from 'ember';
-
 /*
   This initializer is here to keep backwards compatibility with code depending
   on the `injectStore` initializer (before Ember Data was an addon).

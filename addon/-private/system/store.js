@@ -47,7 +47,7 @@ import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
 import isEnabled from '../features';
 
-export let badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
+const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
 const {
   A,

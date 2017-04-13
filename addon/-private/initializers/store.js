@@ -1,6 +1,9 @@
 import Store from "../system/store";
-import { JSONAPISerializer, JSONSerializer, RESTSerializer } from "../serializers";
-import { JSONAPIAdapter, RESTAdapter } from "../adapters";
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import JSONSerializer from 'ember-data/serializers/json';
+import RESTSerializer from 'ember-data/serializers/rest';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import RESTAdapter from 'ember-data/adapters/rest';
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {
