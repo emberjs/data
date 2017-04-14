@@ -1,3 +1,3 @@
-import Model from "./-private/system/model";
+import { Model } from './-private';
 
 export default Model;

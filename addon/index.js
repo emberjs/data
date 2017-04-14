@@ -32,9 +32,8 @@ import {
 import {
   Errors,
   RootState,
-  attr
-} from "./-private/system/model";
-import Model from "./model";
+  Model
+} from './-private';
 import Snapshot from "./-private/system/snapshot";
 import Adapter from "./adapter";
 import Serializer from "./serializer";
@@ -83,6 +82,7 @@ import setupContainer from "./setup-container";
 import initializeStoreService from './-private/instance-initializers/initialize-store-service';
 
 import Relationship from "./-private/system/relationships/state/relationship";
+import attr from './attr';
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
