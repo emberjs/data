@@ -1,5 +1,6 @@
 import {singularize} from 'ember-inflector';
 import normalizeModelName from './normalize-model-name';
+import { runInDebug } from 'ember-data/-private/debug';
 
 export function typeForRelationshipMeta(meta) {
   let modelName;
@@ -12,7 +13,7 @@ export function typeForRelationshipMeta(meta) {
 }
 
 export function relationshipFromMeta(meta) {
-  return {
+  let result = {
     key:  meta.key,
     kind: meta.kind,
     type: typeForRelationshipMeta(meta),
@@ -21,4 +22,8 @@ export function relationshipFromMeta(meta) {
     parentType: meta.parentType,
     isRelationship: true
   };
+
+  runInDebug(() => result.parentType = meta.parentType);
+
+  return result;
 }
