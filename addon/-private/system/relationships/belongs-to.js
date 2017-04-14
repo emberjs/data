@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, warn } from "ember-data/-private/debug";
+import { assert, warn } from 'ember-data/-debug';
 import normalizeModelName from "../normalize-model-name";
 
 /**

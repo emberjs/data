@@ -9,7 +9,7 @@ import {
   deprecate,
   warn,
   runInDebug
-} from "ember-data/-private/debug";
+} from 'ember-data/-debug';
 import Model from '../../model';
 import normalizeModelName from "./normalize-model-name";
 import { InvalidError } from '../../adapters/errors';

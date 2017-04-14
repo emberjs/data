@@ -121,10 +121,9 @@ module.exports = {
     ]));
 
     if (isProductionEnv()) {
-      console.log('is prod');
       tree = new Funnel(tree, {
         exclude: [
-          /-private\/debug\.js/
+          /-debug/
         ]
       });
     }

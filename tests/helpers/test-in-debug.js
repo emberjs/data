@@ -1,4 +1,4 @@
-import require from 'require';
+import { runInDebug } from 'ember-data/-debug';
 import { test, skip } from 'qunit';
 
 export default function testInDebug() {

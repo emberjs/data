@@ -18,7 +18,7 @@ import {
 } from './errors';
 import BuildURLMixin from "../-private/adapters/build-url-mixin";
 import isEnabled from '../-private/features';
-import { instrument, runInDebug, warn, deprecate } from 'ember-data/-private/debug';
+import { instrument, runInDebug, warn, deprecate } from 'ember-data/-debug';
 import parseResponseHeaders from '../-private/utils/parse-response-headers';
 
 const {

@@ -4,7 +4,7 @@ import {
   assertPolymorphicType,
   deprecate,
   runInDebug
-} from 'ember-data/-private/debug';
+} from 'ember-data/-debug';
 
 import isEnabled from '../../features';
 

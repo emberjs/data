@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { deprecate, warn } from "ember-data/-private/debug";
+import { deprecate, warn } from 'ember-data/-debug';
 
 const get = Ember.get;
 const set = Ember.set;

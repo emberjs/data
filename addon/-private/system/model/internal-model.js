@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, runInDebug } from "ember-data/-private/debug";
+import { assert, runInDebug } from 'ember-data/-debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";

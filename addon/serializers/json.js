@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, deprecate, warn } from 'ember-data/-private/debug';
+import { assert, deprecate, warn } from 'ember-data/-debug';
 import Serializer from "../serializer";
 import coerceId from "../-private/system/coerce-id";
 import normalizeModelName from "../-private/system/normalize-model-name";
