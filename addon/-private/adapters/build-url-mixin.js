@@ -214,7 +214,7 @@ export default Ember.Mixin.create({
   },
 
   /**
-   Builds a URL for coalesceing multiple `store.findRecord(type, id)
+   Builds a URL for coalesceing multiple `store.findRecord(type, id)`
    records into 1 request when the adapter's `coalesceFindRequests`
    property is true.
 
