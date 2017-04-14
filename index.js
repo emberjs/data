@@ -5,6 +5,10 @@ var path = require('path');
 var SilentError = require('silent-error');
 var Funnel = require('broccoli-funnel');
 var Rollup = require('broccoli-rollup');
+var stew = require('broccoli-stew');
+var Babel = require('broccoli-babel-transpiler');
+var merge   = require('broccoli-merge-trees');
+var version = require('./lib/version');
 
 // allow toggling of heimdall instrumentation
 var INSTRUMENT_HEIMDALL = false;
@@ -16,6 +20,9 @@ for (var i = 0; i < args.length; i++) {
     break;
   }
 }
+var NOOP_TREE = function(dir ) {
+  return { inputTree: dir, rebuild: function() { return []; } };
+};
 
 process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
@@ -97,59 +104,78 @@ module.exports = {
   },
 
   treeForApp: function(dir) {
-    if (this._forceBowerUsage) {
-      // Fake an empty broccoli tree
-      return { inputTree: dir, rebuild: function() { return []; } };
-    }
+    if (this._forceBowerUsage) { return NOOP_TREE(dir); }
 
     // this._super.treeForApp is undefined in ember-cli (1.13) for some reason.
     // TODO: investigate why treeForApp isn't on _super
     return dir;
   },
 
-  treeForAddon: function(dir) {
-    if (this._forceBowerUsage) {
-      // Fakes an empty broccoli tree
-      return { inputTree: dir, rebuild: function() { return []; } };
-    }
+  treeForAddon: function(tree) {
+    if (this._forceBowerUsage) { return NOOP_TREE(tree); }
 
-    var version   = require('./lib/version');
-    var merge     = require('broccoli-merge-trees');
+    let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
-    var privateTree = 'addon/-private';
-    var publicTree = new Funnel('addon', {
-      exclude: [ /-private/ ]
+    let treeWithVersion = merge([
+      tree,
+      version() // compile the VERSION into the build
+    ]);
+
+    let withPrivate    = new Funnel(tree, { include: ['-private/**'] });
+    let withoutPrivate = new Funnel(treeWithVersion, {
+      exclude: [
+        '-private',
+        isProductionEnv() ? '-debug' : false
+      ].filter(Boolean),
+
+      destDir: 'ember-data'
     });
+
+    var privateTree = babel.transpileTree(withPrivate, {
+      babel: this.buildBabelOptions(),
+      'ember-cli-babel': {
+        compileModules: false
+      }
+    });
+
+    // use the default options
+    var publicTree = babel.transpileTree(withoutPrivate);
 
     privateTree = new Rollup(privateTree, {
       rollup: {
-        entry: 'index.js',
-        dest: '-private.js',
+        entry: '-private/index.js',
+        targets: [
+          { dest: '-private.js', format: 'amd', moduleId: 'ember-data/-private' }
+        ],
         external: [
           'ember',
           'ember-inflector',
           'ember-data/version',
           'ember-data/-debug',
           'ember-data/adapters/errors'
-          ]
+        ]
         // cache: true|false Defaults to true
       }
     });
 
-    var tree = merge([publicTree, privateTree]);
+    // the output of treeForAddon is required to be modules/<your files>
+    publicTree  = new Funnel(publicTree,  { destDir: 'modules' });
+    privateTree = new Funnel(privateTree, { destDir: 'modules' });
 
-    if (isProductionEnv()) {
-      tree = new Funnel(tree, {
-        exclude: [
-          /-debug/
-        ]
-      });
-    }
+    return merge([
+      publicTree,
+      privateTree
+    ]);
+  },
 
-    return this._super.treeForAddon.call(this, merge([
-      version(),
-      tree
-    ]));
+  buildBabelOptions() {
+    let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+
+    return {
+      loose: true,
+      plugins: customPlugins.plugins,
+      postTransformPlugins: customPlugins.postTransformPlugins
+    };
   },
 
   _setupBabelOptions: function() {
@@ -157,13 +183,7 @@ module.exports = {
       return;
     }
 
-    let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
-
-    this.options.babel = {
-      loose: true,
-      plugins: customPlugins.plugins,
-      postTransformPlugins: customPlugins.postTransformPlugins
-    };
+    this.options.babel = this.buildBabelOptions();
 
     this._hasSetupBabelOptions = true;
   },
