@@ -1,7 +1,5 @@
 import Ember from "ember";
 import { deprecate } from 'ember-data/-debug';
-import isEnabled from "./-private/features";
-import global from "./-private/global";
 
 /**
   Ember Data
@@ -15,29 +13,29 @@ if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
 
-import DS from "./-private/core";
-
 import normalizeModelName from "./-private/system/normalize-model-name";
-
+import Snapshot from "./-private/system/snapshot";
 import InternalModel from "./-private/system/model/internal-model";
+import DebugAdapter from './-private/system/debug/debug-adapter';
+import isEnabled from "./-private/features";
 
 import {
   PromiseArray,
   PromiseObject,
   PromiseManyArray
 } from "./-private/system/promise-proxies";
+
 import {
-  Store
-} from "./-private/system/store";
-import {
+  DS,
+  global,
   Errors,
   RootState,
-  Model
+  Model,
+  Store
 } from './-private';
-import Snapshot from "./-private/system/snapshot";
+
 import Adapter from "./adapter";
 import Serializer from "./serializer";
-import DebugAdapter from './-private/system/debug/debug-adapter';
 
 import {
   AdapterError,
@@ -53,6 +51,14 @@ import {
   errorsArrayToHash
 } from "./adapters/errors";
 
+import "ember-inflector";
+import JSONAPIAdapter from './adapters/json-api';
+import RESTAdapter from './adapters/rest';
+import JSONAPISerializer from './serializers/json-api';
+import JSONSerializer from './serializers/json';
+import RESTSerializer from './serializers/rest';
+import EmbeddedRecordsMixin from "./serializers/embedded-records-mixin";
+
 import {
   RecordArray,
   FilteredRecordArray,
@@ -60,14 +66,7 @@ import {
 } from "./-private/system/record-arrays";
 import ManyArray from "./-private/system/many-array";
 import RecordArrayManager from "./-private/system/record-array-manager";
-import JSONAPIAdapter from './adapters/json-api';
-import RESTAdapter from './adapters/rest';
 import BuildURLMixin from "./-private/adapters/build-url-mixin";
-import JSONAPISerializer from './serializers/json-api';
-import JSONSerializer from './serializers/json';
-import RESTSerializer from './serializers/rest';
-import "ember-inflector";
-import EmbeddedRecordsMixin from "./serializers/embedded-records-mixin";
 
 import {
   Transform,
@@ -77,7 +76,7 @@ import {
   BooleanTransform
 } from "./-private/transforms";
 
-import {hasMany, belongsTo} from "./relationships";
+import { hasMany, belongsTo } from "./relationships";
 import setupContainer from "./setup-container";
 import initializeStoreService from './-private/instance-initializers/initialize-store-service';
 
