@@ -1,9 +1,7 @@
-import {
-  BooleanTransform,
-  DateTransform,
-  StringTransform,
-  NumberTransform
-} from "../transforms";
+import NumberTransform from '../transforms/number';
+import DateTransform from '../transforms/date';
+import StringTransform from '../transforms/string';
+import BooleanTransform from '../transforms/boolean';
 
 /*
   Configures a registry for use with Ember-Data

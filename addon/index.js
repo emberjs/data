@@ -31,7 +31,11 @@ import {
   Errors,
   RootState,
   Model,
-  Store
+  Store,
+  DateTransform,
+  NumberTransform,
+  StringTransform,
+  BooleanTransform
 } from './-private';
 
 import Adapter from "./adapter";
@@ -68,14 +72,7 @@ import ManyArray from "./-private/system/many-array";
 import RecordArrayManager from "./-private/system/record-array-manager";
 import BuildURLMixin from "./-private/adapters/build-url-mixin";
 
-import {
-  Transform,
-  DateTransform,
-  NumberTransform,
-  StringTransform,
-  BooleanTransform
-} from "./-private/transforms";
-
+import Transform from './transform';
 import { hasMany, belongsTo } from "./relationships";
 import setupContainer from "./setup-container";
 import initializeStoreService from './-private/instance-initializers/initialize-store-service';
