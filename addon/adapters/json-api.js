@@ -5,7 +5,7 @@
 
 import Ember from 'ember';
 import RESTAdapter from "./rest";
-import isEnabled from '../-private/features';
+import { isEnabled } from '../-private';
 import { instrument, deprecate } from 'ember-data/-debug';
 
 /**

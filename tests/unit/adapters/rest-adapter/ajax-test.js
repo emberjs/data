@@ -4,7 +4,7 @@ import Ember from 'ember';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 
 var Person, Place, store, adapter, env;
 const { run } = Ember;

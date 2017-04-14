@@ -1,10 +1,7 @@
 import Ember from 'ember';
 import { assert, deprecate, warn } from 'ember-data/-debug';
 import Serializer from "../serializer";
-import coerceId from "../-private/system/coerce-id";
-import normalizeModelName from "../-private/system/normalize-model-name";
-import { modelHasAttributeOrRelationshipNamedType } from "../-private/utils";
-import isEnabled from '../-private/features';
+import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
 
 import {
   getOwner

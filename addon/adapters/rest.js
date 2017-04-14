@@ -16,10 +16,8 @@ import {
   TimeoutError,
   AbortError
 } from './errors';
-import BuildURLMixin from "../-private/adapters/build-url-mixin";
-import isEnabled from '../-private/features';
+import { parseResponseHeaders, BuildURLMixin, isEnabled } from '../-private';
 import { instrument, runInDebug, warn, deprecate } from 'ember-data/-debug';
-import parseResponseHeaders from '../-private/utils/parse-response-headers';
 
 const {
   MapWithDefault,

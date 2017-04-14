@@ -6,8 +6,7 @@ import Ember from 'ember';
 import { pluralize, singularize } from 'ember-inflector';
 import { assert, deprecate, runInDebug, warn } from 'ember-data/-debug';
 import JSONSerializer from './json';
-import normalizeModelName from '../-private/system/normalize-model-name';
-import isEnabled from '../-private/features';
+import { normalizeModelName, isEnabled } from '../-private';
 
 const dasherize = Ember.String.dasherize;
 

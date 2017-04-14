@@ -1,6 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 
 import {module, test} from 'qunit';
 

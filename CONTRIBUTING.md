@@ -82,11 +82,11 @@ production builds automatically.
 
   Give it a default of `null` so it will not be used in production builds.
 
-2. Import `isEnabled` from `ember-data/-private/features`, wrapping any new
+2. Import `isEnabled` from `ember-data/-private`, wrapping any new
   code with your feature:
 
   ```js
-  import isEnabled from 'ember-data/-private/features';
+  import { isEnabled } from 'ember-data/-private';
 
   if (isEnabled('ds-mynew-feature')) {
     // ... any additional code
@@ -99,7 +99,7 @@ production builds automatically.
   feature flag.
 
   ```js
-  import isEnabled from 'ember-data/-private/features';
+  import { isEnabled } from 'ember-data/-private';
 
   if (isEnabled('ds-mynew-feature')) {
     test('test for new feature', function(assert) {

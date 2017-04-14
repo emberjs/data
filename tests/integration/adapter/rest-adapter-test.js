@@ -7,7 +7,7 @@ import {module, test} from 'qunit';
 import Pretender from "pretender";
 
 import DS from 'ember-data';
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 
 var env, store, adapter, Post, Comment, SuperUser;
 var passedUrl, passedVerb, passedHash;

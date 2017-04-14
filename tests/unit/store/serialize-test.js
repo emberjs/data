@@ -4,7 +4,7 @@ import attr from 'ember-data/attr';
 import Model from 'ember-data/model';
 import { createStore } from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 
 const { run } = Ember;
 
