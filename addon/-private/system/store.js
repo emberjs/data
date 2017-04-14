@@ -3,6 +3,7 @@
 */
 
 import Ember from 'ember';
+import { InvalidError } from '../adapters/errors';
 import {
   instrument,
   assert,
@@ -10,9 +11,8 @@ import {
   warn,
   runInDebug
 } from 'ember-data/-debug';
-import Model from '../../model';
+import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
-import { InvalidError } from '../../adapters/errors';
 import IdentityMap from './identity-map';
 
 import {

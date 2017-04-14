@@ -6,6 +6,9 @@
 import Ember from 'ember';
 import Adapter from "../adapter";
 import {
+  parseResponseHeaders,
+  BuildURLMixin,
+  isEnabled,
   AdapterError,
   InvalidError,
   UnauthorizedError,
@@ -15,8 +18,7 @@ import {
   ServerError,
   TimeoutError,
   AbortError
-} from './errors';
-import { parseResponseHeaders, BuildURLMixin, isEnabled } from '../-private';
+} from '../-private';
 import { instrument, runInDebug, warn, deprecate } from 'ember-data/-debug';
 
 const {

@@ -4,15 +4,10 @@ import {
   _bind,
   _guard,
   _objectIsAlive
-} from "ember-data/-private/system/store/common";
+} from "./common";
 
-import {
-  normalizeResponseHelper
-} from "ember-data/-private/system/store/serializer-response";
-
-import {
-  serializerForAdapter
-} from "ember-data/-private/system/store/serializers";
+import { normalizeResponseHelper } from "./serializer-response";
+import { serializerForAdapter } from "./serializers";
 
 const { Promise } = Ember.RSVP;
 

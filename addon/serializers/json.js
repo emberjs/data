@@ -1,13 +1,14 @@
 import Ember from 'ember';
 import { assert, deprecate, warn } from 'ember-data/-debug';
 import Serializer from "../serializer";
-import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
-
 import {
-  getOwner
-} from '../-private/utils';
-
-import { errorsArrayToHash } from "../adapters/errors";
+  getOwner,
+  coerceId,
+  modelHasAttributeOrRelationshipNamedType,
+  normalizeModelName,
+  errorsArrayToHash,
+  isEnabled
+} from '../-private';
 
 const get = Ember.get;
 const isNone = Ember.isNone;

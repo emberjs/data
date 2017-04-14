@@ -13,11 +13,10 @@ if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
 
-import InternalModel from "./-private/system/model/internal-model";
-
 import {
   Snapshot,
   DebugAdapter,
+  InternalModel,
   DS,
   BuildURLMixin,
   belongsTo,
@@ -29,6 +28,7 @@ import {
   Model,
   Store,
   normalizeModelName,
+  Transform,
   DateTransform,
   NumberTransform,
   StringTransform,
@@ -42,10 +42,6 @@ import {
   ManyArray,
   RecordArrayManager,
   Relationship,
-  initializeStoreService
-} from './-private';
-
-import {
   AdapterError,
   InvalidError,
   UnauthorizedError,
@@ -57,10 +53,11 @@ import {
   AbortError,
   errorsHashToArray,
   errorsArrayToHash
-} from "./adapters/errors";
+} from './-private';
 
 import "ember-inflector";
 import setupContainer from "./setup-container";
+import initializeStoreService from './instance-initializers/initialize-store-service';
 
 import Adapter from "./adapter";
 import JSONAPIAdapter from './adapters/json-api';
@@ -72,8 +69,6 @@ import JSONSerializer from './serializers/json';
 import RESTSerializer from './serializers/rest';
 
 import EmbeddedRecordsMixin from "./serializers/embedded-records-mixin";
-
-import Transform from './transform';
 import attr from './attr';
 
 DS.Store         = Store;

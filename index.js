@@ -4,6 +4,8 @@
 var path = require('path');
 var SilentError = require('silent-error');
 var Funnel = require('broccoli-funnel');
+var Rollup = require('broccoli-rollup');
+var debug = require('broccoli-stew').debug;
 
 // allow toggling of heimdall instrumentation
 var INSTRUMENT_HEIMDALL = false;
@@ -128,7 +130,27 @@ module.exports = {
       });
     }
 
-    return tree;
+    var privateTree = 'addon/-private';
+    var publicTree = tree; //new Funnel(tree, { exclude: [ /-private/ ] });
+
+    privateTree = new Rollup(privateTree, {
+      rollup: {
+        entry: 'index.js',
+        dest: '-private.js',
+        external: [
+          'ember',
+          'ember-inflector',
+          'ember-data/version',
+          'ember-data/-debug',
+          'ember-data/adapters/errors'
+          ]
+        // cache: true|false Defaults to true
+      }
+    });
+
+    privateTree = debug(privateTree, { name: 'rollup-tree' });
+
+    return tree; // merge([publicTree, privateTree]);
   },
 
   _setupBabelOptions: function() {

@@ -4,7 +4,7 @@ import DS from 'ember-data';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { parseDate } from 'ember-data/-private/ext/date';
+import { parseDate } from 'ember-data/-private';
 
 module('unit/transform - DS.DateTransform');
 

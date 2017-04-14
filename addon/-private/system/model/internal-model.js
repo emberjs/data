@@ -6,9 +6,7 @@ import Snapshot from "../snapshot";
 import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
-import {
-  getOwner
-} from 'ember-data/-private/utils';
+import { getOwner } from '../../utils';
 
 import {
   RecordReference,

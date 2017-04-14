@@ -1,4 +1,4 @@
-import Model from 'ember-data/model';
+import Model from '../model/model';
 import Ember from 'ember';
 import Reference from './reference';
 
