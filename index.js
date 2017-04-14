@@ -5,7 +5,6 @@ var path = require('path');
 var SilentError = require('silent-error');
 var Funnel = require('broccoli-funnel');
 var Rollup = require('broccoli-rollup');
-var debug = require('broccoli-stew').debug;
 
 // allow toggling of heimdall instrumentation
 var INSTRUMENT_HEIMDALL = false;
@@ -117,21 +116,10 @@ module.exports = {
     var version   = require('./lib/version');
     var merge     = require('broccoli-merge-trees');
 
-    var tree = this._super.treeForAddon.call(this, merge([
-      version(),
-      dir
-    ]));
-
-    if (isProductionEnv()) {
-      tree = new Funnel(tree, {
-        exclude: [
-          /-debug/
-        ]
-      });
-    }
-
     var privateTree = 'addon/-private';
-    var publicTree = tree; //new Funnel(tree, { exclude: [ /-private/ ] });
+    var publicTree = new Funnel('addon', {
+      exclude: [ /-private/ ]
+    });
 
     privateTree = new Rollup(privateTree, {
       rollup: {
@@ -148,9 +136,20 @@ module.exports = {
       }
     });
 
-    privateTree = debug(privateTree, { name: 'rollup-tree' });
+    var tree = merge([publicTree, privateTree]);
 
-    return tree; // merge([publicTree, privateTree]);
+    if (isProductionEnv()) {
+      tree = new Funnel(tree, {
+        exclude: [
+          /-debug/
+        ]
+      });
+    }
+
+    return this._super.treeForAddon.call(this, merge([
+      version(),
+      tree
+    ]));
   },
 
   _setupBabelOptions: function() {

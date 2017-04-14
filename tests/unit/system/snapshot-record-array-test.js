@@ -1,4 +1,4 @@
-import SnapshotRecordArray from 'ember-data/-private/system/snapshot-record-array';
+import { SnapshotRecordArray } from 'ember-data/-private';
 import Ember from 'ember';
 import {module, test} from 'qunit';
 

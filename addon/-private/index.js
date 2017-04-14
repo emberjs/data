@@ -59,3 +59,9 @@ export { default as Relationship } from './system/relationships/state/relationsh
 
 // Should be a different Repo ?
 export { default as DebugAdapter } from './system/debug/debug-adapter';
+
+// Used by tests
+export { default as diffArray } from './system/diff-array';
+export { default as RelationshipPayloadsManager } from './system/relationships/relationship-payloads-manager';
+export { default as RelationshipPayloads } from './system/relationships/relationship-payloads';
+export { default as SnapshotRecordArray } from './system/snapshot-record-array';
