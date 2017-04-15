@@ -7,8 +7,12 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
+const {
+  get,
+  run
+} = Ember;
+
 var Post, Comment, Message, User;
-var run = Ember.run;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
 
@@ -484,19 +488,19 @@ test("inverseFor short-circuits when inverse is null", function(assert) {
   var env = setupStore({ post: Post, comment: Comment, user: User, message: Message });
   var store = env.store;
 
-  Post._findInverseFor = function() {
+  get(Post, '__internalModelClass')._findInverseFor = function() {
     assert.notOk(true, 'Post model _findInverseFor is not called');
   };
 
-  Comment._findInverseFor = function() {
+  get(Comment, '__internalModelClass')._findInverseFor = function() {
     assert.notOk(true, 'Comment model _findInverseFor is not called');
   };
 
-  Message._findInverseFor = function() {
+  get(Message, '__internalModelClass')._findInverseFor = function() {
     assert.ok(true, 'Message model _findInverseFor is called');
   };
 
-  User._findInverseFor = function() {
+  get(User, '__internalModelClass')._findInverseFor = function() {
     assert.ok(true, 'User model _findInverseFor is called');
   };
 

@@ -397,6 +397,7 @@ test("createRecord - a serializer's attribute mapping takes precedence over keyF
 });
 
 test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function(assert) {
+  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       comments: 'opinions'
@@ -408,8 +409,6 @@ test("createRecord - a serializer's attribute mapping takes precedence over keyF
   }));
 
   ajaxResponse();
-
-  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
 
   run(function() {
     var comment = store.createRecord('comment', { id: "a-comment-id", name: "First!" });
