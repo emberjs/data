@@ -1050,46 +1050,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
   notifyBelongsToChanged(key) {
     this.notifyPropertyChange(key);
   },
-
-  /**
-   This Ember.js hook allows an object to be notified when a property
-   is defined.
-
-   In this case, we use it to be notified when an Ember Data user defines a
-   belongs-to relationship. In that case, we need to set up observers for
-   each one, allowing us to track relationship changes and automatically
-   reflect changes in the inverse has-many array.
-
-   This hook passes the class being set up, as well as the key and value
-   being defined. So, for example, when the user does this:
-
-   ```javascript
-   DS.Model.extend({
-    parent: DS.belongsTo('user')
-  });
-   ```
-
-   This hook would be called with "parent" as the key and the computed
-   property returned by `DS.belongsTo` as the value.
-
-   @method didDefineProperty
-   @param {Object} proto
-   @param {String} key
-   @param {Ember.ComputedProperty} value
-   */
-  didDefineProperty(proto, key, value) {
-    // Check if the value being set is a computed property.
-    if (value instanceof Ember.ComputedProperty) {
-
-      // If it is, get the metadata for the relationship. This is
-      // populated by the `DS.belongsTo` helper when it is creating
-      // the computed property.
-      let meta = value.meta();
-
-      meta.parentType = proto.constructor;
-    }
-  },
-
   /**
    Given a callback, iterates over each of the relationships in the model,
    invoking the callback with the name of each relationship and its relationship
@@ -1362,7 +1322,7 @@ Model.reopenClass({
       inverseKind = inverse.kind;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.type === propertyMeta.parentType.modelName) {
+      if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
         warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
           id: 'ds.model.reflexive-relationship-without-inverse'
         });
@@ -1923,5 +1883,48 @@ if (isEnabled('ds-rollback-attribute')) {
     }
   });
 }
+
+runInDebug(() => {
+  Model.reopen({
+   /**
+   This Ember.js hook allows an object to be notified when a property
+   is defined.
+
+   In this case, we use it to be notified when an Ember Data user defines a
+   belongs-to relationship. In that case, we need to set up observers for
+   each one, allowing us to track relationship changes and automatically
+   reflect changes in the inverse has-many array.
+
+   This hook passes the class being set up, as well as the key and value
+   being defined. So, for example, when the user does this:
+
+   ```javascript
+   DS.Model.extend({
+    parent: DS.belongsTo('user')
+  });
+   ```
+
+   This hook would be called with "parent" as the key and the computed
+   property returned by `DS.belongsTo` as the value.
+
+   @method didDefineProperty
+   @param {Object} proto
+   @param {String} key
+   @param {Ember.ComputedProperty} value
+   */
+    didDefineProperty(proto, key, value) {
+      // Check if the value being set is a computed property.
+      if (value instanceof Ember.ComputedProperty) {
+
+        // If it is, get the metadata for the relationship. This is
+        // populated by the `DS.belongsTo` helper when it is creating
+        // the computed property.
+        let meta = value.meta();
+
+        meta.parentType = proto.constructor;
+      }
+    }
+  })
+});
 
 export default Model;
