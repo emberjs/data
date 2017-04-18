@@ -1329,6 +1329,27 @@ test('toJSON looks up the JSONSerializer using the store instead of using JSONSe
   assert.deepEqual(json, {});
 });
 
+test('internalModel is ready by `init`', function(assert) {
+  assert.expect(2);
+  let nameDidChange = 0;
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+
+    init() {
+      this._super(...arguments);
+      this.set('name', 'my-name-set-in-init');
+    },
+
+    nameDidChange: Ember.observer('name', () => nameDidChange++)
+  });
+
+  let { store } = setupStore({ person: Person });
+
+  assert.equal(nameDidChange, 0, 'observer should not trigger on create');
+  let person = run(() => store.createRecord('person'));
+  assert.equal(person.get('name'), 'my-name-set-in-init');
+});
 
 test('accessing attributes in the initializer should not throw an error', function(assert) {
   assert.expect(1);
