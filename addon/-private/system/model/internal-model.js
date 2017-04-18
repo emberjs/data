@@ -2,7 +2,7 @@ import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEmpty } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -585,7 +585,8 @@ export default class InternalModel {
       changedKeys = this._changedKeys(data.attributes);
     }
 
-    emberAssign(this._data, data.attributes);
+    this._assignAttributes(data.attributes);
+
     this.pushedData();
 
     if (this.hasRecord) {
@@ -1067,9 +1068,9 @@ export default class InternalModel {
     this.didCleanError();
     let changedKeys = this._changedKeys(data);
 
-    emberAssign(this._data, this._inFlightAttributes);
+    this._assignAttributes(this._inFlightAttributes);
     if (data) {
-      emberAssign(this._data, data);
+      this._assignAttributes(data);
     }
 
     this._inFlightAttributes = null;
@@ -1185,40 +1186,14 @@ export default class InternalModel {
     @private
   */
   _changedKeys(updates) {
-    let changedKeys = [];
+    return this._record._changedKeys(this._data, this.__attributes, this._inFlightAttributes, updates);
+  }
 
-    if (updates) {
-      let original, i, value, key;
-      let keys = Object.keys(updates);
-      let length = keys.length;
-      let hasAttrs = this.hasChangedAttributes();
-      let attrs;
-      if (hasAttrs) {
-        attrs= this._attributes;
-      }
-
-      original = emberAssign(Object.create(null), this._data);
-      original = emberAssign(original, this._inFlightAttributes);
-
-      for (i = 0; i < length; i++) {
-        key = keys[i];
-        value = updates[key];
-
-        // A value in _attributes means the user has a local change to
-        // this attributes. We never override this value when merging
-        // updates from the backend so we should not sent a change
-        // notification if the server value differs from the original.
-        if (hasAttrs === true && attrs[key] !== undefined) {
-          continue;
-        }
-
-        if (!isEqual(original[key], value)) {
-          changedKeys.push(key);
-        }
-      }
+  _assignAttributes(attributes) {
+    if (this.hasRecord) {
+      return this.__data = this._record._assignAttributes(this._data, attributes);
     }
-
-    return changedKeys;
+    emberAssign(this._data, attributes);
   }
 
   toString() {
