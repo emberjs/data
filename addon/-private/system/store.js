@@ -365,16 +365,8 @@ Store = Service.extend({
     properties.id = coerceId(properties.id);
 
     let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
-    let record = internalModel.getRecord();
-
-    // Move the record out of its initial `empty` state into
-    // the `loaded` state.
-    // TODO @runspired this seems really bad, store should not be changing the state
     internalModel.loadedData();
-
-    // Set the properties specified on the record.
-    // TODO @runspired this is probably why we do the bad thing above
-    record.setProperties(properties);
+    let record = internalModel.getRecord(properties);
 
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {

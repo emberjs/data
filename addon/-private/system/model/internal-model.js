@@ -319,7 +319,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord() {
+  getRecord(properties) {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -334,6 +334,10 @@ export default class InternalModel {
         isError: this.isError,
         adapterError: this.error
       };
+
+      if (typeof properties === 'object' && properties !== null) {
+        assign(createOptions, properties);
+      }
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
