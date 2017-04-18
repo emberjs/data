@@ -56,7 +56,7 @@ export default class ManyRelationship extends Relationship {
     if (!this.inverseKey) { return; }
 
     const toIterate = this.canonicalState.concat(this.currentState);
-    const uniqueArray = new UniqueArray('_internalId');
+    const uniqueArray = new UniqueArray();
 
     uniqueArray.push(...toIterate);
 

@@ -46,7 +46,7 @@ export default class ImplicitRelationship extends Relationship {
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
-    let uniqueArray = new UniqueArray('_internalId');
+    let uniqueArray = new UniqueArray();
     uniqueArray.push(...this.members.list);
     uniqueArray.push(...this.canonicalMembers.list);
 

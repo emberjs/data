@@ -16,6 +16,18 @@ OrderedSet.prototype = Object.create(EmberOrderedSet.prototype);
 OrderedSet.prototype.constructor = OrderedSet;
 OrderedSet.prototype._super$constructor = EmberOrderedSet;
 
+OrderedSet.prototype.push = function push(...additions) {
+  for (let i = 0; i < additions.length; i++) {
+    let value = additions[i];
+
+    if (value) {
+      this.add(value);
+    }
+  }
+
+  return this.size;
+};
+
 OrderedSet.prototype.addWithIndex = function(obj, idx) {
   let guid = guidFor(obj);
   let presenceSet = this.presenceSet;

@@ -369,16 +369,8 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
     });
   });
 
-  assert.equal(
-    env.store._internalModelsFor('person').models.length,
-    1,
-    'one person record is loaded'
-  );
-  assert.equal(
-    env.store._internalModelsFor('car').models.length,
-    2,
-    'two car records are loaded'
-  );
+  assert.equal(env.store._internalModelsFor('person').models.length, 1, 'one person record is loaded');
+  assert.equal(env.store._internalModelsFor('car').models.length, 2, 'two car records are loaded');
   assert.equal(env.store.hasRecordForId('person', 1), true);
   assert.equal(env.store.hasRecordForId('car', 1), true);
   assert.equal(env.store.hasRecordForId('car', 2), true);

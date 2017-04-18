@@ -428,24 +428,24 @@ export default class InternalModel {
     to or has many.
   */
   _directlyRelatedInternalModels() {
-    let array = new UniqueArray('_internalId');
+    let array = new UniqueArray();
+
     this.modelClass.eachRelationship((key) => {
       if (this._relationships.has(key)) {
         let relationship = this._relationships.get(key);
-        let additions;
 
         switch (relationship.kind) {
           case 'belongs-to':
             array.push(relationship.currentState, relationship.canonicalState);
             return;
           case 'has-many':
-            additions = [].concat(relationship.currentState, relationship.canonicalState);
-            array.push(...additions);
+            array.push(...relationship.currentState);
+            array.push(...relationship.canonicalState);
             return;
           case 'implicit':
           default:
-            additions = [].concat(relationship.members.toArray(), relationship.canonicalMembers.toArray());
-            array.push(...additions);
+            array.push(...relationship.members.list);
+            array.push(...relationship.canonicalMembers.list);
             return;
         }
       }

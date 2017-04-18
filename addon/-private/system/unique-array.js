@@ -1,21 +1,25 @@
+import OrderedSet from './ordered-set';
+
 export default class UniqueArray {
-  constructor(key) {
-    this.key = key;
-    this.seen = Object.create(null);
-    this.items = [];
+  constructor() {
+    this.set = new OrderedSet();
+  }
+
+  get items() {
+    return this.set.list;
   }
 
   push(...additions) {
-    let seen = this.seen;
-    let items = this.items;
-    let key = this.key;
+    const set = this.set;
 
     for (let i = 0; i < additions.length; i++) {
       let value = additions[i];
-      if (value && !seen[value[key]]) {
-        seen[value[key]] = true;
-        items.push(value);
+
+      if (value) {
+        set.add(value);
       }
     }
+
+    return set.size;
   }
 }
