@@ -20,6 +20,8 @@ test('#serialize', function(assert) {
   assert.equal(transform.serialize(new Date('invalid')), null);
 
   assert.equal(transform.serialize(date), dateString);
+
+  assert.equal(transform.serialize('2015-01-01'), '2015-01-01');
 });
 
 test('#deserialize', function(assert) {

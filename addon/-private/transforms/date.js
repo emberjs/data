@@ -44,7 +44,7 @@ export default Transform.extend({
     if (date instanceof Date && !isNaN(date)) {
       return date.toISOString();
     } else {
-      return null;
+      return date;
     }
   }
 });
