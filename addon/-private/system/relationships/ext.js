@@ -64,10 +64,6 @@ export const relatedTypesDescriptor = Ember.computed(function() {
 }).readOnly();
 
 export const relationshipsByNameDescriptor = Ember.computed(function() {
-  if (Ember.testing === true && relationshipsByNameDescriptor._cacheable === true) {
-    relationshipsByNameDescriptor._cacheable = false;
-  }
-
   let map = Map.create();
 
   this.eachComputedProperty((name, meta) => {
