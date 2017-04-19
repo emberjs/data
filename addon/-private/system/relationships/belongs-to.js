@@ -2,6 +2,8 @@ import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
 import normalizeModelName from "../normalize-model-name";
 
+let PreheatGuid = 0;
+
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
   relationships on a [DS.Model](/api/data/classes/DS.Model.html).
@@ -100,6 +102,9 @@ export default function belongsTo(modelName, options) {
     name: 'Belongs To',
     key: null
   };
+
+  // this exists for perf because meta is cached via Ember.Map which uses guid to key the Map
+  meta[Ember.GUID_KEY] = PreheatGuid++ + 'belongsTo';
 
   return Ember.computed({
     get(key) {
