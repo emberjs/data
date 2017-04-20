@@ -92,7 +92,7 @@
     "ember-watson": "^0.7.0",
     "express": "^4.14.0",
     "faker": "^3.1.0",
-    "github": "^0.2.4",
+    "github": "^1.1.1",
     "glob": "5.0.13",
     "heimdall-query": "^0.0.5",
     "json-api-mock-server": "0.1.1",
