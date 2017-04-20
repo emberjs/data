@@ -47,8 +47,16 @@ export default class ImplicitRelationship extends Relationship {
     return this._currentState || (this._currentState = new OrderedSet());
   }
 
+  set currentState(v) {
+    this._currentState = v;
+  }
+
   get canonicalState() {
     return this._canonicalState || (this._canonicalState = new OrderedSet());
+  }
+
+  set canonicalState(v) {
+    this._canonicalState = v;
   }
 
   removeInverseRelationships() {
@@ -77,14 +85,14 @@ export default class ImplicitRelationship extends Relationship {
     heimdall.increment(clear);
     let currentState = this.currentState.list;
     while (currentState.length > 0) {
-      let member = currentState[0];
-      this.removeInternalModel(member);
+      let internalModel = currentState[0];
+      this.removeInternalModel(internalModel);
     }
 
     let canonicalState = this.canonicalState.list;
     while (canonicalState.length > 0) {
-      let member = canonicalState[0];
-      this.removeCanonicalInternalModel(member);
+      let internalModel = canonicalState[0];
+      this.removeCanonicalInternalModel(internalModel);
     }
   }
 

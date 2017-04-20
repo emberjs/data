@@ -435,17 +435,17 @@ export default class InternalModel {
         let relationship = this._relationships.get(key);
 
         switch (relationship.kind) {
-          case 'belongs-to':
+          case 'belongsTo':
             array.push(relationship.currentState, relationship.canonicalState);
             return;
-          case 'has-many':
+          case 'hasMany':
             array.push(...relationship.currentState);
             array.push(...relationship.canonicalState);
             return;
           case 'implicit':
           default:
-            array.push(...relationship.members.list);
-            array.push(...relationship.canonicalMembers.list);
+            array.push(...relationship.currentState.list);
+            array.push(...relationship.canonicalState.list);
             return;
         }
       }

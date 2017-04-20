@@ -209,13 +209,13 @@ export default class Snapshot {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
-    inverseInternalModel = get(relationship, 'inverseInternalModel');
+    hasData = relationship.hasData;
+    inverseInternalModel = relationship.currentState;
 
     if (hasData) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
-          result = get(inverseInternalModel, 'id');
+          result = inverseInternalModel.id;
         } else {
           result = inverseInternalModel.createSnapshot();
         }
@@ -280,7 +280,7 @@ export default class Snapshot {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
+    hasData = relationship.hasData;
     currentState = relationship.currentState;
 
     if (hasData) {

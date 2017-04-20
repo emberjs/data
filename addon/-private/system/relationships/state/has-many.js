@@ -14,8 +14,24 @@ export default class ManyRelationship extends Relationship {
     this._manyArray = null;
     this.__loadingPromise = null;
 
-    this.canonicalState = [];
-    this.currentState = [];
+    this._canonicalState = null;
+    this._currentState = null;
+  }
+
+  get currentState() {
+    return this._currentState || (this._currentState = []);
+  }
+
+  set currentState(v) {
+    this._currentState = v;
+  }
+
+  get canonicalState() {
+    return this._canonicalState || (this._canonicalState = []);
+  }
+
+  set canonicalState(v) {
+    this._canonicalState = v;
   }
 
   get _loadingPromise() { return this.__loadingPromise; }
@@ -200,11 +216,12 @@ export default class ManyRelationship extends Relationship {
   }
 
   removeCanonicalInternalModel(internalModel) {
-    if (this.canonicalState.indexOf(internalModel) === -1) {
+    let index = this.canonicalState.indexOf(internalModel);
+    if (index === -1) {
       return;
     }
 
-    this.removeCanonicalInternalModelFromOwn(internalModel);
+    this.removeCanonicalInternalModelFromOwn(internalModel, index);
     if (this.inverseKey) {
       this.removeCanonicalInternalModelFromInverse(internalModel);
     } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
@@ -214,19 +231,14 @@ export default class ManyRelationship extends Relationship {
     this.flushCanonicalLater();
   }
 
+  // TODO @runspired we should look into removing ever calling this without an index
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
-    let i = idx;
-    if (this.canonicalState.indexOf(internalModel) === -1) {
+    let index = idx === undefined ? this.canonicalState.indexOf(internalModel) : idx;
+    if (index === -1) {
       return;
     }
 
-    if (i === undefined) {
-      i = this.canonicalState.indexOf(internalModel);
-    }
-    if (i > -1) {
-      this.canonicalState.splice(i, 1);
-    }
-
+    this.canonicalState.splice(index, 1);
     this.flushCanonicalLater();
   }
 
@@ -267,8 +279,10 @@ export default class ManyRelationship extends Relationship {
   }
 
   // TODO @runspired we should look into removing ever calling this without an index
-  removeInternalModelFromOwn(internalModel, index) {
-    if (index !== undefined && (index = this.currentState.indexOf(internalModel)) === -1) {
+  removeInternalModelFromOwn(internalModel, idx) {
+    let index = idx === undefined ? this.currentState.indexOf(internalModel) : idx;
+
+    if (index === -1) {
       return;
     }
 
