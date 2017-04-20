@@ -1,7 +1,6 @@
 /* global heimdall */
 import OrderedSet from '../../ordered-set';
 import Relationship from './relationship';
-import UniqueArray from '../../unique-array';
 
 const {
   addCanonicalInternalModel,
@@ -62,11 +61,11 @@ export default class ImplicitRelationship extends Relationship {
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
-    let uniqueArray = new UniqueArray();
-    uniqueArray.push(...this.currentState.list);
-    uniqueArray.push(...this.canonicalState.list);
+    let uniqueSet = new OrderedSet();
+    uniqueSet.pushMany(this.currentState.list);
+    uniqueSet.pushMany(this.canonicalState.list);
 
-    let items = uniqueArray.items;
+    let items = uniqueSet.list;
 
     for (let i = 0; i < items.length; i++) {
       let relationship = items[i]._relationships.get(this.inverseKey);

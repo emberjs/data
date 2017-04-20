@@ -16,7 +16,7 @@ OrderedSet.prototype = Object.create(EmberOrderedSet.prototype);
 OrderedSet.prototype.constructor = OrderedSet;
 OrderedSet.prototype._super$constructor = EmberOrderedSet;
 
-OrderedSet.prototype.push = function push(...additions) {
+OrderedSet.prototype.pushMany = function pushMany(additions) {
   for (let i = 0; i < additions.length; i++) {
     let value = additions[i];
 

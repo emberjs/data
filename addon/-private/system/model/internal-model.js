@@ -3,7 +3,6 @@ import { assert, runInDebug } from 'ember-data/-debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
-import UniqueArray from '../unique-array';
 import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
@@ -428,7 +427,7 @@ export default class InternalModel {
     to or has many.
   */
   _directlyRelatedInternalModels() {
-    let array = new UniqueArray();
+    let uniqueSet = new OrderedSet();
 
     this.modelClass.eachRelationship((key) => {
       if (this._relationships.has(key)) {
@@ -436,22 +435,23 @@ export default class InternalModel {
 
         switch (relationship.kind) {
           case 'belongsTo':
-            array.push(relationship.currentState, relationship.canonicalState);
+            uniqueSet.add(relationship.currentState);
+            uniqueSet.add(relationship.canonicalState);
             return;
           case 'hasMany':
-            array.push(...relationship.currentState);
-            array.push(...relationship.canonicalState);
+            uniqueSet.pushMany(relationship.currentState);
+            uniqueSet.pushMany(relationship.canonicalState);
             return;
           case 'implicit':
           default:
-            array.push(...relationship.currentState.list);
-            array.push(...relationship.canonicalState.list);
+            uniqueSet.pushMany(relationship.currentState.list);
+            uniqueSet.pushMany(relationship.canonicalState.list);
             return;
         }
       }
     });
 
-    return array.items;
+    return uniqueSet.list;
   }
 
 

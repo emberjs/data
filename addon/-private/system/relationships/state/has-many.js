@@ -4,7 +4,7 @@ import Relationship from './relationship';
 import ImplicitRelationship from './implicit';
 import ManyArray from '../../many-array';
 import diffArray from '../../diff-array';
-import UniqueArray from '../../unique-array';
+import OrderedSet from '../../ordered-set';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
@@ -71,12 +71,11 @@ export default class ManyRelationship extends Relationship {
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
-    const toIterate = this.canonicalState.concat(this.currentState);
-    const uniqueArray = new UniqueArray();
+    const uniqueSet = new OrderedSet();
+    uniqueSet.pushMany(this.canonicalState);
+    uniqueSet.pushMany(this.currentState);
 
-    uniqueArray.push(...toIterate);
-
-    const items = uniqueArray.items;
+    const items = uniqueSet.list;
 
     for (let i = 0; i < items.length; i++) {
       let inverseInternalModel = items[i];
