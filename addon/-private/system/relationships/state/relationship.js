@@ -16,7 +16,7 @@ export function relationshipIsPolymorphic(meta) {
 
 export default class Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
-    this.rel_id = REL_ID++;
+    this.rel_id = REL_ID++;  // internal tracking ID for debugging across instances
     this.store = store;
     this.internalModel = internalModel;
     this.relationshipMeta = relationshipMeta;

@@ -9,7 +9,7 @@ import UniqueArray from '../../unique-array';
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
-    this.kind = 'has-many';
+    this.kind = 'hasMany';
     this.relatedModelName = relationshipMeta.type;
     this._manyArray = null;
     this.__loadingPromise = null;
@@ -180,17 +180,16 @@ export default class ManyRelationship extends Relationship {
   }
 
   removeInternalModel(internalModel) {
-    if (this.currentState.indexOf(internalModel) === -1) {
+    let index = this.currentState.indexOf(internalModel);
+    if (index === -1) {
       return;
     }
 
-    this.removeInternalModelFromOwn(internalModel);
+    this.removeInternalModelFromOwn(internalModel, index);
     if (this.inverseKey) {
       this.removeInternalModelFromInverse(internalModel);
-    } else {
-      if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
-      }
+    } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+      internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
     }
   }
 
@@ -208,10 +207,8 @@ export default class ManyRelationship extends Relationship {
     this.removeCanonicalInternalModelFromOwn(internalModel);
     if (this.inverseKey) {
       this.removeCanonicalInternalModelFromInverse(internalModel);
-    } else {
-      if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
-      }
+    } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+      internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
     }
 
     this.flushCanonicalLater();
@@ -269,21 +266,15 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  removeInternalModelFromOwn(internalModel, idx) {
-    if (this.currentState.indexOf(internalModel) === -1) {
+  // TODO @runspired we should look into removing ever calling this without an index
+  removeInternalModelFromOwn(internalModel, index) {
+    if (index !== undefined && (index = this.currentState.indexOf(internalModel)) === -1) {
       return;
     }
 
     this.notifyRecordRelationshipRemoved(internalModel);
     this.internalModel.updateRecordArrays();
-
-    if (idx !== undefined) {
-      //TODO(Igor) not used currently, fix
-      this.currentState.removeAt(idx);
-    } else {
-      let index = this.currentState.indexOf(internalModel);
-      this.internalReplace(index, 1);
-    }
+    this.internalReplace(index, 1);
   }
 
   internalReplace(idx, amt, objects = []) {

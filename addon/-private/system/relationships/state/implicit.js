@@ -39,16 +39,24 @@ export default class ImplicitRelationship extends Relationship {
     this.kind = 'implicit';
     heimdall.increment(newRelationship);
 
-    this.members = new OrderedSet();
-    this.canonicalMembers = new OrderedSet();
+    this._currentState = null;
+    this._canonicalState = null;
+  }
+
+  get currentState() {
+    return this._currentState || (this._currentState = new OrderedSet());
+  }
+
+  get canonicalState() {
+    return this._canonicalState || (this._canonicalState = new OrderedSet());
   }
 
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
     let uniqueArray = new UniqueArray();
-    uniqueArray.push(...this.members.list);
-    uniqueArray.push(...this.canonicalMembers.list);
+    uniqueArray.push(...this.currentState.list);
+    uniqueArray.push(...this.canonicalState.list);
 
     let items = uniqueArray.items;
 
@@ -67,15 +75,15 @@ export default class ImplicitRelationship extends Relationship {
 
   clear() {
     heimdall.increment(clear);
-    let members = this.members.list;
-    while (members.length > 0) {
-      let member = members[0];
+    let currentState = this.currentState.list;
+    while (currentState.length > 0) {
+      let member = currentState[0];
       this.removeInternalModel(member);
     }
 
-    let canonicalMembers = this.canonicalMembers.list;
-    while (canonicalMembers.length > 0) {
-      let member = canonicalMembers[0];
+    let canonicalState = this.canonicalState.list;
+    while (canonicalState.length > 0) {
+      let member = canonicalState[0];
       this.removeCanonicalInternalModel(member);
     }
   }
@@ -110,8 +118,8 @@ export default class ImplicitRelationship extends Relationship {
 
   addCanonicalInternalModel(record) {
     heimdall.increment(addCanonicalInternalModel);
-    if (!this.canonicalMembers.has(record)) {
-      this.canonicalMembers.add(record);
+    if (!this.canonicalState.has(record)) {
+      this.canonicalState.add(record);
     }
     this.flushCanonicalLater();
     this.setHasData(true);
@@ -130,7 +138,7 @@ export default class ImplicitRelationship extends Relationship {
 
   removeCanonicalInternalModel(record, idx) {
     heimdall.increment(removeCanonicalInternalModel);
-    if (this.canonicalMembers.has(record)) {
+    if (this.canonicalState.has(record)) {
       this.removeCanonicalInternalModelFromOwn(record);
       if (this.inverseKey) {
         this.removeCanonicalInternalModelFromInverse(record);
@@ -141,8 +149,8 @@ export default class ImplicitRelationship extends Relationship {
 
   addInternalModel(record, idx) {
     heimdall.increment(addInternalModel);
-    if (!this.members.has(record)) {
-      this.members.addWithIndex(record, idx);
+    if (!this.currentState.has(record)) {
+      this.currentState.addWithIndex(record, idx);
       this.notifyRecordRelationshipAdded(record, idx);
       this.internalModel.updateRecordArrays();
     }
@@ -151,7 +159,7 @@ export default class ImplicitRelationship extends Relationship {
 
   removeInternalModel(record) {
     heimdall.increment(removeInternalModel);
-    if (this.members.has(record)) {
+    if (this.currentState.has(record)) {
       this.removeInternalModelFromOwn(record);
       if (this.inverseKey) {
         this.removeInternalModelFromInverse(record);
@@ -161,20 +169,20 @@ export default class ImplicitRelationship extends Relationship {
 
   removeInternalModelFromOwn(record) {
     heimdall.increment(removeInternalModelFromOwn);
-    this.members.delete(record);
+    this.currentState.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.internalModel.updateRecordArrays();
   }
 
   removeCanonicalInternalModelFromOwn(record) {
     heimdall.increment(removeCanonicalInternalModelFromOwn);
-    this.canonicalMembers.delete(record);
+    this.canonicalState.delete(record);
     this.flushCanonicalLater();
   }
 
   flushCanonical() {
     heimdall.increment(flushCanonical);
-    let list = this.members.list;
+    let list = this.currentState.list;
     this.willSync = false;
     //a hack for not removing new records
     //TODO remove once we have proper diffing
@@ -186,9 +194,9 @@ export default class ImplicitRelationship extends Relationship {
     }
 
     //TODO(Igor) make this less abysmally slow
-    this.members = this.canonicalMembers.copy();
+    this._currentState = this.canonicalState.copy();
     for (let i = 0; i < newInternalModels.length; i++) {
-      this.members.add(newInternalModels[i]);
+      this.currentState.add(newInternalModels[i]);
     }
   }
 }

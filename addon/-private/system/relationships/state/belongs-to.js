@@ -12,15 +12,7 @@ import Relationship from './relationship';
 export default class BelongsToRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
-    this.kind = 'belongs-to';
-  }
-
-  get inverseInternalModel() {
-    return this.currentState;
-  }
-
-  set inverseInternalModel(v) {
-    this.currentState = v;
+    this.kind = 'belongsTo';
   }
 
   setInternalModel(newInternalModel) {
@@ -125,8 +117,6 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     this.currentState = newInternalModel;
-
-    // TODO implicit-legacy @runspired is this needed?
     this.notifyRecordRelationshipAdded(newInternalModel, 0);
 
     if (this.inverseKey) {
@@ -160,10 +150,8 @@ export default class BelongsToRelationship extends Relationship {
 
       if (this.inverseKey) {
         this.removeInternalModelFromInverse(internalModel);
-      } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
-        }
+      } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
       }
     }
   }
@@ -175,7 +163,6 @@ export default class BelongsToRelationship extends Relationship {
     }
     this.currentState = null;
 
-    // TODO implicit-legacy @runspired is this needed?
     this.notifyRecordRelationshipRemoved(internalModel);
     this.internalModel.updateRecordArrays();
 
@@ -192,10 +179,8 @@ export default class BelongsToRelationship extends Relationship {
 
       if (this.inverseKey) {
         this.removeCanonicalInternalModelFromInverse(internalModel);
-      } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
-        }
+      } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
       }
     }
 
