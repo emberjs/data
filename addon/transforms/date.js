@@ -58,8 +58,23 @@ export default Transform.extend({
   deserialize(serialized) {
     let type = typeof serialized;
 
-    if (type === "string" || type === "number") {
+    if (type === "string") {
+      let offset = serialized.indexOf('+');
+
+      if (offset !== -1 && serialized.length - 3 === offset) {
+        deprecate(`The ECMA2015 Spec for ISO 8601 dates does not allow for shorthand timezone offsets such as +00.
+          Ember Data's normalization of date's allowing for this shorthand has been deprecated, please update your API to return
+          UTC dates formatted with ±hh:mm timezone offsets or implement a custom UTC transform.`,
+          false,
+          {
+            id: 'ds.attr.date.normalize-utc',
+            until: '3.0.0'
+          });
+        return new Date(`${serialized}:00`);
+      }
       return new Date(serialized);
+    } else if (type === "number") {
+      return new Date(serialized)
     } else if (serialized === null || serialized === undefined) {
       // if the value is null return null
       // if the value is not present in the data return undefined
