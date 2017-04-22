@@ -435,8 +435,7 @@ export default class InternalModel {
 
         switch (relationship.kind) {
           case 'belongsTo':
-            uniqueSet.add(relationship.currentState);
-            uniqueSet.add(relationship.canonicalState);
+            uniqueSet.pushMany([relationship.currentState, relationship.canonicalState]);
             return;
           case 'hasMany':
             uniqueSet.pushMany(relationship.currentState);
