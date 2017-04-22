@@ -21,6 +21,12 @@ export {
   errorsArrayToHash
 } from './adapters/errors';
 
+// maybe public ?
+export { default as normalizeModelName } from './system/normalize-model-name';
+export { getOwner, modelHasAttributeOrRelationshipNamedType } from './utils';
+export { default as coerceId } from './system/coerce-id';
+export { default as parseResponseHeaders } from './utils/parse-response-headers';
+
 // should be private ?
 export { default as RootState } from './system/model/states';
 export { default as global } from './global';

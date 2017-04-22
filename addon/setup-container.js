@@ -1,16 +1,17 @@
 import {
   DebugAdapter,
-  Store,
-  NumberTransform,
-  DateTransform,
-  StringTransform,
-  BooleanTransform
+  Store
 } from './-private';
 import JSONAPISerializer from './serializers/json-api';
 import JSONSerializer from './serializers/json';
 import RESTSerializer from './serializers/rest';
 import JSONAPIAdapter from './adapters/json-api';
 import RESTAdapter from './adapters/rest';
+
+import NumberTransform from './transforms/number';
+import DateTransform from './transforms/date';
+import StringTransform from './transforms/string';
+import BooleanTransform from './transforms/boolean';
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {

@@ -4,7 +4,7 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
-import { isEnabled, parseDate } from 'ember-data/-private';
+import { isEnabled } from 'ember-data/-private';
 
 const { get, set, run } = Ember;
 
@@ -1099,7 +1099,7 @@ test('a DS.Model can describe Date attributes', function(assert) {
   converts(assert, 'date', undefined, undefined);
 
   let dateString = '2011-12-31T00:08:16.000Z';
-  let date = new Date(parseDate(dateString));
+  let date = new Date(dateString);
 
   const Person = DS.Model.extend({
     updatedAt: DS.attr('date')
