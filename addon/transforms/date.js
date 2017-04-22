@@ -1,5 +1,33 @@
 import Transform from './transform';
-import { parseDate } from '../ext/date';
+import { deprecate } from 'ember-data/-debug';
+
+Ember.Date = Ember.Date || {};
+
+/**
+ Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
+
+ © 2011 Colin Snover <http://zetafleet.com>
+
+ Released under MIT license.
+
+ @class Date
+ @namespace Ember
+ @static
+ @deprecated
+ */
+Ember.Date.parse = function(date) {
+  // throw deprecation
+  deprecate(`Ember.Date.parse is deprecated because Safari 5-, IE8-, and
+      Firefox 3.6- are no longer supported (see
+      https://github.com/csnover/js-iso8601 for the history of this issue).
+      Please use Date.parse instead`, false, {
+    id: 'ds.ember.date.parse-deprecate',
+    until: '3.0.0'
+  });
+
+  return Date.parse(date);
+};
+
 
 /**
   The `DS.DateTransform` class is used to serialize and deserialize
@@ -27,10 +55,8 @@ export default Transform.extend({
   deserialize(serialized) {
     let type = typeof serialized;
 
-    if (type === "string") {
-      return new Date(parseDate(serialized));
-    } else if (type === "number") {
-      return new Date(serialized);
+    if (type === "string" || type === "number") {
+      return new Date(Date.parse(serialized));
     } else if (serialized === null || serialized === undefined) {
       // if the value is null return null
       // if the value is not present in the data return undefined
