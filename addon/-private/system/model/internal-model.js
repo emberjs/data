@@ -427,7 +427,7 @@ export default class InternalModel {
     to or has many.
   */
   _directlyRelatedInternalModels() {
-    let uniqueSet = new OrderedSet();
+    let set = new OrderedSet();
 
     this.modelClass.eachRelationship((key) => {
       if (this._relationships.has(key)) {
@@ -435,22 +435,22 @@ export default class InternalModel {
 
         switch (relationship.kind) {
           case 'belongsTo':
-            uniqueSet.pushMany([relationship.currentState, relationship.canonicalState]);
+            set.pushMany([relationship.currentState, relationship.canonicalState]);
             return;
           case 'hasMany':
-            uniqueSet.pushMany(relationship.currentState);
-            uniqueSet.pushMany(relationship.canonicalState);
+            set.pushMany(relationship.currentState);
+            set.pushMany(relationship.canonicalState);
             return;
           case 'implicit':
           default:
-            uniqueSet.pushMany(relationship.currentState.list);
-            uniqueSet.pushMany(relationship.canonicalState.list);
+            set.pushMany(relationship.currentState.list);
+            set.pushMany(relationship.canonicalState.list);
             return;
         }
       }
     });
 
-    return uniqueSet.list;
+    return set.list;
   }
 
 
