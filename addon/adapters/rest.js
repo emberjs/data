@@ -963,7 +963,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     if (this.isSuccess(status, headers, payload)) {
       return payload;
     } else if (this.isInvalid(status, headers, payload)) {
-      return new InvalidError(payload.errors);
+      return new InvalidError([payload.errors]);
     }
 
     let errors          = this.normalizeErrorResponse(status, headers, payload);
