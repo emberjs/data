@@ -5,7 +5,7 @@ import {module, test} from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 
 var env, store, adapter;
 var passedUrl, passedVerb, passedHash;

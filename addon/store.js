@@ -1,3 +1,1 @@
-import Store from "./-private/system/store";
-
-export default Store;
+export { Store as default } from './-private';

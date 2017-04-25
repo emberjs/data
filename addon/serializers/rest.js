@@ -4,12 +4,9 @@
 
 import Ember from 'ember';
 import { singularize } from "ember-inflector";
-import { assert, deprecate, runInDebug, warn } from "ember-data/-private/debug";
+import { assert, deprecate, runInDebug, warn } from 'ember-data/-debug';
 import JSONSerializer from "../serializers/json";
-import normalizeModelName from "../-private/system/normalize-model-name";
-import coerceId from "../-private/system/coerce-id";
-import { modelHasAttributeOrRelationshipNamedType } from "../-private/utils";
-import isEnabled from '../-private/features';
+import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
 
 let camelize = Ember.String.camelize;
 

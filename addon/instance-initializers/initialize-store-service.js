@@ -1,4 +1,4 @@
-import { deprecate } from 'ember-data/-private/debug';
+import { deprecate } from 'ember-data/-debug';
 
 /*
   Configures a registry for use with an Ember-Data

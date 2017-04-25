@@ -3,7 +3,7 @@
 */
 
 import Ember from 'ember';
-import { deprecate } from 'ember-data/-private/debug';
+import { deprecate } from 'ember-data/-debug';
 
 
 /**

@@ -1,7 +1,5 @@
 import Ember from "ember";
-import { deprecate } from "ember-data/-private/debug";
-import isEnabled from "./-private/features";
-import global from "./-private/global";
+import { deprecate } from 'ember-data/-debug';
 
 /**
   Ember Data
@@ -15,32 +13,35 @@ if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
 
-import DS from "./-private/core";
-
-import normalizeModelName from "./-private/system/normalize-model-name";
-
-import InternalModel from "./-private/system/model/internal-model";
-
 import {
-  PromiseArray,
-  PromiseObject,
-  PromiseManyArray
-} from "./-private/system/promise-proxies";
-import {
-  Store
-} from "./-private/system/store";
-import {
+  Snapshot,
+  DebugAdapter,
+  InternalModel,
+  DS,
+  BuildURLMixin,
+  belongsTo,
+  hasMany,
+  global,
+  isEnabled,
   Errors,
   RootState,
-  attr
-} from "./-private/system/model";
-import Model from "./model";
-import Snapshot from "./-private/system/snapshot";
-import Adapter from "./adapter";
-import Serializer from "./serializer";
-import DebugAdapter from './-private/system/debug/debug-adapter';
-
-import {
+  Model,
+  Store,
+  normalizeModelName,
+  Transform,
+  DateTransform,
+  NumberTransform,
+  StringTransform,
+  BooleanTransform,
+  PromiseArray,
+  PromiseObject,
+  PromiseManyArray,
+  RecordArray,
+  FilteredRecordArray,
+  AdapterPopulatedRecordArray,
+  ManyArray,
+  RecordArrayManager,
+  Relationship,
   AdapterError,
   InvalidError,
   UnauthorizedError,
@@ -52,37 +53,23 @@ import {
   AbortError,
   errorsHashToArray,
   errorsArrayToHash
-} from "./adapters/errors";
+} from './-private';
 
-import {
-  RecordArray,
-  FilteredRecordArray,
-  AdapterPopulatedRecordArray
-} from "./-private/system/record-arrays";
-import ManyArray from "./-private/system/many-array";
-import RecordArrayManager from "./-private/system/record-array-manager";
+import "ember-inflector";
+import setupContainer from "./setup-container";
+import initializeStoreService from './instance-initializers/initialize-store-service';
+
+import Adapter from "./adapter";
 import JSONAPIAdapter from './adapters/json-api';
 import RESTAdapter from './adapters/rest';
-import BuildURLMixin from "./-private/adapters/build-url-mixin";
+
+import Serializer from "./serializer";
 import JSONAPISerializer from './serializers/json-api';
 import JSONSerializer from './serializers/json';
 import RESTSerializer from './serializers/rest';
-import "ember-inflector";
+
 import EmbeddedRecordsMixin from "./serializers/embedded-records-mixin";
-
-import {
-  Transform,
-  DateTransform,
-  NumberTransform,
-  StringTransform,
-  BooleanTransform
-} from "./-private/transforms";
-
-import {hasMany, belongsTo} from "./relationships";
-import setupContainer from "./setup-container";
-import initializeStoreService from './-private/instance-initializers/initialize-store-service';
-
-import Relationship from "./-private/system/relationships/state/relationship";
+import attr from './attr';
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;

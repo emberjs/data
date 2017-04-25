@@ -4,8 +4,7 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
-import isEnabled from 'ember-data/-private/features';
-import { parseDate } from "ember-data/-private/ext/date";
+import { isEnabled, parseDate } from 'ember-data/-private';
 
 const { get, set, run } = Ember;
 

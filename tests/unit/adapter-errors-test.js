@@ -1,6 +1,6 @@
 import Ember from 'ember';
 
-import isEnabled from 'ember-data/-private/features';
+import { isEnabled } from 'ember-data/-private';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 

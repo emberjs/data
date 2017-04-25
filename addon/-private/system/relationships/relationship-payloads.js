@@ -1,4 +1,4 @@
-import { assert } from '../../debug';
+import { assert } from 'ember-data/-debug';
 
 /**
   Manages the payloads for both sides of a single relationship, across all model

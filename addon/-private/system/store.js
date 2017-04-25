@@ -3,16 +3,16 @@
 */
 
 import Ember from 'ember';
+import { InvalidError } from '../adapters/errors';
 import {
   instrument,
   assert,
   deprecate,
   warn,
   runInDebug
-} from "ember-data/-private/debug";
-import Model from '../../model';
+} from 'ember-data/-debug';
+import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
-import { InvalidError } from '../../adapters/errors';
 import IdentityMap from './identity-map';
 
 import {

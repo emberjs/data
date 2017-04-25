@@ -1,4 +1,4 @@
-import { assert, deprecate } from "ember-data/-private/debug";
+import { assert, deprecate } from 'ember-data/-debug';
 import InternalModel from './model/internal-model';
 
 /**

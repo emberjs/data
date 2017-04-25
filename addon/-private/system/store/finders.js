@@ -1,18 +1,13 @@
 import Ember from 'ember';
-import { assert, warn } from "ember-data/-private/debug";
+import { assert, warn } from 'ember-data/-debug';
 import {
   _bind,
   _guard,
   _objectIsAlive
-} from "ember-data/-private/system/store/common";
+} from "./common";
 
-import {
-  normalizeResponseHelper
-} from "ember-data/-private/system/store/serializer-response";
-
-import {
-  serializerForAdapter
-} from "ember-data/-private/system/store/serializers";
+import { normalizeResponseHelper } from "./serializer-response";
+import { serializerForAdapter } from "./serializers";
 
 const { Promise } = Ember.RSVP;
 

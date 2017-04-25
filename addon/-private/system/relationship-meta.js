@@ -1,6 +1,6 @@
 import {singularize} from 'ember-inflector';
 import normalizeModelName from './normalize-model-name';
-import { runInDebug } from 'ember-data/-private/debug';
+import { runInDebug } from 'ember-data/-debug';
 
 export function typeForRelationshipMeta(meta) {
   let modelName;

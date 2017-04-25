@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert } from "../debug";
+import { assert } from 'ember-data/-debug';
 
 const { get , RSVP: { Promise }} = Ember;
 

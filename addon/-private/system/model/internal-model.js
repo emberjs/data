@@ -1,14 +1,12 @@
 import Ember from 'ember';
-import { assert, runInDebug } from "ember-data/-private/debug";
+import { assert, runInDebug } from 'ember-data/-debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
 import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
-import {
-  getOwner
-} from 'ember-data/-private/utils';
+import { getOwner } from '../../utils';
 
 import {
   RecordReference,

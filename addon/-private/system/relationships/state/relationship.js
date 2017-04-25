@@ -1,5 +1,5 @@
 /* global heimdall */
-import { assert, warn } from 'ember-data/-private/debug';
+import { assert, warn } from 'ember-data/-debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
 

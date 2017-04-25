@@ -1,4 +1,5 @@
-import { parseDate } from "../ext/date";
+import Transform from './transform';
+import { parseDate } from '../ext/date';
 
 /**
   The `DS.DateTransform` class is used to serialize and deserialize
@@ -21,7 +22,6 @@ import { parseDate } from "../ext/date";
   @extends DS.Transform
   @namespace DS
  */
-import Transform from "ember-data/transform";
 
 export default Transform.extend({
   deserialize(serialized) {

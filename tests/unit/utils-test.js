@@ -7,8 +7,8 @@ import {module, test} from 'qunit';
 import DS from 'ember-data';
 import Model from 'ember-data/model';
 
-import { assertPolymorphicType } from 'ember-data/-private/debug';
-import { modelHasAttributeOrRelationshipNamedType } from 'ember-data/-private/utils';
+import { assertPolymorphicType } from 'ember-data/-debug';
+import { modelHasAttributeOrRelationshipNamedType } from 'ember-data/-private';
 
 let env, User, Message, Post, Person, Video, Medium;
 

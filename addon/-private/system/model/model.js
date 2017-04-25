@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, deprecate, warn } from "ember-data/-private/debug";
+import { assert, deprecate, warn, runInDebug } from 'ember-data/-debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
 import isEnabled from '../../features';
@@ -9,7 +9,6 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
-import { runInDebug } from 'ember-data/-private/debug';
 
 const {
   get,

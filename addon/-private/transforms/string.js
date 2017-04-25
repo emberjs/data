@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import Transform from "../../transform";
+import Transform from './transform';
 
 const none = Ember.isNone;
 

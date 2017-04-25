@@ -6,6 +6,9 @@
 import Ember from 'ember';
 import Adapter from "../adapter";
 import {
+  parseResponseHeaders,
+  BuildURLMixin,
+  isEnabled,
   AdapterError,
   InvalidError,
   UnauthorizedError,
@@ -15,11 +18,8 @@ import {
   ServerError,
   TimeoutError,
   AbortError
-} from './errors';
-import BuildURLMixin from "../-private/adapters/build-url-mixin";
-import isEnabled from '../-private/features';
-import { instrument, runInDebug, warn, deprecate } from 'ember-data/-private/debug';
-import parseResponseHeaders from '../-private/utils/parse-response-headers';
+} from '../-private';
+import { instrument, runInDebug, warn, deprecate } from 'ember-data/-debug';
 
 const {
   MapWithDefault,

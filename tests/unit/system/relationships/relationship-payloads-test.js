@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import RelationshipPayloadsManager from 'ember-data/-private/system/relationships/relationship-payloads-manager';
+import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import {createStore} from 'dummy/tests/helpers/store';
 import {module, test} from 'qunit';
