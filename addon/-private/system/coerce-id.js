@@ -5,5 +5,7 @@
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
 export default function coerceId(id) {
-  return id === null || id === undefined || id === '' ? null : id+'';
+  if (id === null || id === undefined || id === '') { return null; }
+  if (typeof id === 'string') { return id; }
+  return '' + id;
 }
