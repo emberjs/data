@@ -51,9 +51,9 @@ testInDebug('#deserialize with different offset formats', function(assert) {
     deserialized = transform.deserialize(dateStringShortOffset).getTime();
   }, /The ECMA2015 Spec for ISO 8601 dates does not allow for shorthand timezone offsets such as \+00/);
 
-  assert.equal(transform.deserialize(dateString).getTime(), 1053817200000);
+  assert.equal(transform.deserialize(dateString).getTime(), 1053817200000, 'date-strings with no-colon offsets are ok');
   assert.equal(deserialized, 1480699800000, 'This test can be removed once the deprecation is removed');
-  assert.equal(transform.deserialize(dateStringColon).getTime(), 1363389720000);
+  assert.equal(transform.deserialize(dateStringColon).getTime(), 1363389720000,  'date-strings with colon offsets are ok');
 });
 
 testInDebug('Ember.Date.parse has been deprecated', function(assert) {
