@@ -44,7 +44,8 @@
     "inflection": "^1.8.0",
     "npm-git-info": "^1.0.0",
     "semver": "^5.1.0",
-    "silent-error": "^1.0.0"
+    "silent-error": "^1.0.0",
+    "testem": "1.15.0"
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
