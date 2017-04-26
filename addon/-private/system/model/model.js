@@ -842,14 +842,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  // This is a temporary solution until we refactor DS.Model to not
-  // rely on the data property.
-  willMergeMixin(props) {
-    let constructor = this.constructor;
-    assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
-    assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
-  },
-
   attr() {
     assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
