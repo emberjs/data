@@ -334,7 +334,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
     @property id
     @type {String}
   */
-  id: null,
 
   /**
     @property currentState
@@ -736,7 +735,10 @@ const Model = Ember.Object.extend(Ember.Evented, {
   },
 
   toStringExtension() {
-    return get(this, 'id');
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    return this._internalModel && this._internalModel.id;
   },
 
   /**
@@ -972,10 +974,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
     return this._internalModel.referenceFor('hasMany', name);
   },
 
-  setId: Ember.observer('id', function () {
-    this._internalModel.setId(this.get('id'));
-  }),
-
   /**
    Provides info about the model for debugging purposes
    by grouping the properties into more semantic groups.
@@ -1125,8 +1123,23 @@ const Model = Ember.Object.extend(Ember.Evented, {
  @type {Object}
  */
 Object.defineProperty(Model.prototype, 'data', {
+  configurable: false,
   get() {
     return this._internalModel._data;
+  }
+});
+
+Object.defineProperty(Model.prototype, 'id', {
+  configurable: false,
+  set(id) {
+    this._internalModel.setId(id);
+  },
+
+  get() {
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    return this._internalModel && this._internalModel.id;
   }
 });
 

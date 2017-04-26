@@ -1438,3 +1438,30 @@ test('accessing the model id without the get function should work when id is wat
     assert.equal(person.id, 'john', 'new id should be correctly set.');
   });
 });
+
+
+test('ID mutation (complicated)', function(assert) {
+  assert.expect(5);
+  let idChange = 0;
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    idComputed: Ember.computed('id', function() {}),
+    idDidChange: Ember.observer('id', () => idChange++)
+  });
+
+  let { store } = setupStore({
+    person: Person.extend()
+  });
+
+  run(() => {
+    let person = store.createRecord('person');
+    person.get('idComputed');
+    assert.equal(idChange, 0);
+
+    assert.equal(person.get('id'), null, 'initial created model id should be null');
+    assert.equal(idChange, 0);
+    store.updateId(person._internalModel, { id: 'john' });
+    assert.equal(idChange, 1);
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
+  });
+});
