@@ -9,6 +9,7 @@ import {
   AdapterPopulatedRecordArray
 } from "./record-arrays";
 import { assert } from 'ember-data/-debug';
+import cloneNull from "./clone-null";
 
 const {
   get,
@@ -313,9 +314,7 @@ export default class RecordArrayManager {
     });
 
     if (Array.isArray(content)) {
-      for (let i = 0; i < content.length; i++) {
-        content[i]._recordArrays.add(array);
-      }
+      associateWithRecordArray(content, array);
     }
 
     return array;
@@ -356,17 +355,34 @@ export default class RecordArrayManager {
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray(modelName, query) {
+  createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
     heimdall.increment(createAdapterPopulatedRecordArray);
     assert(`recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`, typeof modelName === 'string');
 
-    let array = AdapterPopulatedRecordArray.create({
-      modelName,
-      query: query,
-      content: Ember.A(),
-      store: this.store,
-      manager: this
-    });
+    let array;
+    if (Array.isArray(internalModels)) {
+      array = AdapterPopulatedRecordArray.create({
+        modelName,
+        query: query,
+        content: Ember.A(internalModels),
+        store: this.store,
+        manager: this,
+        isLoaded: true,
+        isUpdating: false,
+        meta: cloneNull(payload.meta),
+        links: cloneNull(payload.links)
+      });
+
+      associateWithRecordArray(internalModels, array);
+    } else {
+      array = AdapterPopulatedRecordArray.create({
+        modelName,
+        query: query,
+        content: Ember.A(),
+        store: this.store,
+        manager: this
+      });
+    }
 
     this._adapterPopulatedRecordArrays.push(array);
 
@@ -501,5 +517,12 @@ function removeFromAdapterPopulatedRecordArrays(internalModels) {
     }
 
     internalModel._recordArrays.clear();
+  }
+}
+
+export function associateWithRecordArray(internalModels, array) {
+  for (let i = 0, l = internalModels.length; i < l; i++) {
+    let internalModel = internalModels[i];
+    internalModel._recordArrays.add(array);
   }
 }

@@ -1270,8 +1270,6 @@ Store = Service.extend({
     let modelToken = heimdall.start('initial-modelFor-lookup');
     heimdall.stop(modelToken);
 
-    array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-
     let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
     heimdall.stop(adapterToken);
