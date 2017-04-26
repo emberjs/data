@@ -73,9 +73,9 @@ export default Transform.extend({
         return new Date(`${serialized}:00`);
 
       // this is a phantom specific bug fix in which +0000 is not supported
-      } else if (offset !== -1 && serialized.length - 4 === offset) {
+      } else if (offset !== -1 && serialized.length - 5 === offset) {
         offset += 3;
-        new Date(serialized.slice(0, offset) + ':' + serialized.slice(offset));
+        return new Date(serialized.slice(0, offset) + ':' + serialized.slice(offset));
       }
       return new Date(serialized);
     } else if (type === "number") {
