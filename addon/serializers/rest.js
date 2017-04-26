@@ -253,10 +253,10 @@ let RESTSerializer = JSONSerializer.extend({
 
     let keys = Object.keys(payload);
 
-    for (let i = 0, length = keys.length; i < length; i++) {
-      let prop = keys[i];
-      let modelName = prop;
-      let forcedSecondary = false;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var prop = keys[i];
+      var modelName = prop;
+      var forcedSecondary = false;
 
       /*
         If you want to provide sideloaded records of the same type that the
@@ -283,7 +283,7 @@ let RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      let typeName = this.modelNameFromPayloadKey(modelName);
+      var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing'
@@ -291,8 +291,8 @@ let RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      let isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
-      let value = payload[prop];
+      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
+      var value = payload[prop];
 
       if (value === null) {
         continue;
@@ -319,7 +319,7 @@ let RESTSerializer = JSONSerializer.extend({
         }
         ```
        */
-      if (isPrimary && Ember.typeOf(value) !== 'array') {
+      if (isPrimary && !Array.isArray(value)) {
         let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
@@ -335,7 +335,7 @@ let RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
-        data.forEach((resource) => {
+        data.forEach(resource => {
 
           /*
             Figures out if this is the primary record or not.
@@ -410,18 +410,18 @@ let RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    for (let prop in payload) {
-      let modelName = this.modelNameFromPayloadKey(prop);
+    for (var prop in payload) {
+      var modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
       }
-      let type = store.modelFor(modelName);
-      let typeSerializer = store.serializerFor(type.modelName);
+      var type = store.modelFor(modelName);
+      var typeSerializer = store.serializerFor(type.modelName);
 
-      Ember.makeArray(payload[prop]).forEach((hash) => {
+      Ember.makeArray(payload[prop]).forEach(hash => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {

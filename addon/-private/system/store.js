@@ -933,29 +933,31 @@ Store = Service.extend({
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
 
-      for (let i = 0, l = groups.length; i < l; i++) {
-        let group = groups[i];
-        let totalInGroup = groups[i].length;
-        let ids = new Array(totalInGroup);
-        let groupedInternalModels = new Array(totalInGroup);
+      for (var i = 0, l = groups.length; i < l; i++) {
+        var group = groups[i];
+        var totalInGroup = groups[i].length;
+        var ids = new Array(totalInGroup);
+        var groupedInternalModels = new Array(totalInGroup);
 
-        for (let j = 0; j < totalInGroup; j++) {
-          let internalModel = group[j]._internalModel;
+        for (var j = 0; j < totalInGroup; j++) {
+          var internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;
         }
 
         if (totalInGroup > 1) {
-          _findMany(adapter, store, modelName, ids, groupedInternalModels)
-            .then(function(foundInternalModels) {
-              handleFoundRecords(foundInternalModels, groupedInternalModels);
-            })
-            .catch(function(error) {
-              rejectInternalModels(groupedInternalModels, error);
-            });
+          (function(groupedInternalModels) {
+            _findMany(adapter, store, modelName, ids, groupedInternalModels)
+              .then(function(foundInternalModels) {
+                handleFoundRecords(foundInternalModels, groupedInternalModels);
+              })
+              .catch(function(error) {
+                rejectInternalModels(groupedInternalModels, error);
+              });
+          }(groupedInternalModels));
         } else if (ids.length === 1) {
-          let pair = seeking[groupedInternalModels[0].id];
+          var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
           assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
