@@ -174,7 +174,10 @@ module.exports = {
     return {
       loose: true,
       plugins: customPlugins.plugins,
-      postTransformPlugins: customPlugins.postTransformPlugins
+      postTransformPlugins: customPlugins.postTransformPlugins,
+      exclude: [
+        'transform-es2015-block-scoping',
+      ]
     };
   },
 
