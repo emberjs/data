@@ -1,17 +1,16 @@
 # Ember Data Changelog
 
-### Release 2.13.0-beta.4 (April 12, 2017)
+
+### Release 2.13.0 (April 28, 2017)
+- [#4860](https://github.com/emberjs/data/pull/4860) Refactor the detection / warnings around ember-cli-shims.
+- [#4853](https://github.com/emberjs/data/pull/4853) [Fixes #4853] use Object.create(null) directly
+- [#4858](https://github.com/emberjs/data/pull/4858) [PERF] let GUID_KEYS just be set on the model instances
+- [#4937](https://github.com/emberjs/data/pull/4937) [BUGFIX beta] Update dependencies to use Babel 6
 - [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
 - [#4916](https://github.com/emberjs/data/pull/4916) [BACKPORT 4913] don't prematurely nullify props on the container-inst…
-
-### Release 2.13.0-beta.3 (March 21, 2017)
 - [#4862](https://github.com/emberjs/data/pull/4862) [BETA] Update dependencies to use babel 6.
-
-### Release 2.13.0-beta.2 (March 17, 2017)
 - [#4877](https://github.com/emberjs/data/pull/4877) [BUGFIX beta] ensure the globals build has the correct context in the iife.
 - [#4879](https://github.com/emberjs/data/pull/4879) [BUGFIX beta] ensure context is applied in iife
-
-### Release 2.13.0-beta.1 (March 13, 2017)
 - [#4767](https://github.com/emberjs/data/pull/4767) Updating gitignore to remove .idea
 - [#4741](https://github.com/emberjs/data/pull/4741) Clean up some YUIdoc erros
 - [#4693](https://github.com/emberjs/data/pull/4693) Fixed modelFor documentation. Look up model's class name (#4693)
