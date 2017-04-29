@@ -516,6 +516,33 @@ test('Serializer respects if embedded model has a relationship named "type" - #3
   ]);
 });
 
+test('Serializer serializes embedded recursive relationship', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      children: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('model:node', DS.Model.extend({
+    children: DS.hasMany('node')
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      children: [child]
+    });
+  });
+
+  // currently results in "RangeError: Maximum call stack size exceeded"
+  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot());
+  assert.deepEqual(payload, {
+    id: '1',
+    children: [{ id: '2' }]
+  });
+});
+
 test('Serializer respects `serialize: false` on the attrs hash', function(assert) {
   assert.expect(2);
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
