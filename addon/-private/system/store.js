@@ -2137,8 +2137,12 @@ Store = Service.extend({
           until: '3.0'
         });
 
-        const extendedKlass = klass.extend();
-        owner.register(`model:${modelName}`, extendedKlass);
+        // simple (cheaper) extend that @krisselden says we can do
+        //  but which means `modelFor(<modelName>).extend() will not work
+        class extendedKlass extends klass {}
+        const typeStr = `model:${modelName}`;
+        owner.unregister(typeStr);
+        owner.register(typeStr, extendedKlass);
 
         const factory = this.modelFactoryFor(modelName);
         klass = hasFactoryFor ? factory.class : factory;
