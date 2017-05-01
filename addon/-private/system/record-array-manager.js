@@ -8,7 +8,7 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "./record-arrays";
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 
 const {
   get,

@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { deprecate } from 'ember-data/-debug';
+import { deprecate } from '@ember/debug';
 
 /**
   @module ember-data

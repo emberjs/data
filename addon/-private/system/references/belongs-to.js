@@ -3,8 +3,8 @@ import Ember from 'ember';
 import Reference from './reference';
 
 import isEnabled from '../../features';
-import { assertPolymorphicType, deprecate } from 'ember-data/-debug';
-
+import { deprecate } from '@ember/debug';
+import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
    A BelongsToReference is a low level API that allows users and

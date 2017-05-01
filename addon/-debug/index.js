@@ -1,47 +1,9 @@
 import Ember from 'ember';
-
-export function assert() {
-  return Ember.assert(...arguments);
-}
-
-export function debug() {
-  return Ember.debug(...arguments);
-}
-
-export function deprecate() {
-  return Ember.deprecate(...arguments);
-}
-
-export function info() {
-  return Ember.info(...arguments);
-}
-
-export function runInDebug() {
-  return Ember.runInDebug(...arguments);
-}
+import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 export function instrument(method) {
   return method();
-}
-
-export function warn() {
-  return Ember.warn(...arguments);
-}
-
-export function debugSeal() {
-  return Ember.debugSeal(...arguments);
-}
-
-function checkPolymorphic(modelClass, addedModelClass) {
-  if (modelClass.__isMixin) {
-    //TODO Need to do this in order to support mixins, should convert to public api
-    //once it exists in Ember
-    return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
-  }
-  if (Ember.MODEL_FACTORY_INJECTIONS) {
-    modelClass = modelClass.superclass;
-  }
-  return modelClass.detect(addedModelClass);
 }
 
 /*
@@ -63,13 +25,31 @@ function checkPolymorphic(modelClass, addedModelClass) {
   @param {InternalModel} addedRecord record which
          should be added/set for the relationship
 */
-export function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel) {
-  let addedModelName = addedInternalModel.modelName;
-  let parentModelName = parentInternalModel.modelName;
-  let key = relationshipMeta.key;
-  let relationshipModelName = relationshipMeta.type;
-  let relationshipClass = parentInternalModel.store.modelFor(relationshipModelName);
-  let assertionMessage = `You cannot add a record of modelClass '${addedModelName}' to the '${parentModelName}.${key}' relationship (only '${relationshipModelName}' allowed)`;
+let assertPolymorphicType;
 
-  assert(assertionMessage, checkPolymorphic(relationshipClass, addedInternalModel.modelClass));
+if (DEBUG) {
+  let checkPolymorphic = function checkPolymorphic(modelClass, addedModelClass) {
+    if (modelClass.__isMixin) {
+      //TODO Need to do this in order to support mixins, should convert to public api
+      //once it exists in Ember
+      return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
+    }
+    if (Ember.MODEL_FACTORY_INJECTIONS) {
+      modelClass = modelClass.superclass;
+    }
+    return modelClass.detect(addedModelClass);
+  };
+
+  assertPolymorphicType = function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel) {
+    let addedModelName = addedInternalModel.modelName;
+    let parentModelName = parentInternalModel.modelName;
+    let key = relationshipMeta.key;
+    let relationshipModelName = relationshipMeta.type;
+    let relationshipClass = parentInternalModel.store.modelFor(relationshipModelName);
+    let assertionMessage = `You cannot add a record of modelClass '${addedModelName}' to the '${parentModelName}.${key}' relationship (only '${relationshipModelName}' allowed)`;
+
+    assert(assertionMessage, checkPolymorphic(relationshipClass, addedInternalModel.modelClass));
+  };
 }
+
+export { assertPolymorphicType }

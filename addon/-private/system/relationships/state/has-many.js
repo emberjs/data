@@ -1,4 +1,5 @@
-import { assert, assertPolymorphicType } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
+import { assertPolymorphicType } from 'ember-data/-debug';
 import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
