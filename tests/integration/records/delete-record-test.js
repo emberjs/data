@@ -2,19 +2,28 @@
 
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-
-import {module, test} from 'qunit';
-
 import DS from 'ember-data';
+import RSVP from 'rsvp';
 
-var attr = DS.attr;
-var Person, env;
-var run = Ember.run;
-var get = Ember.get;
+import { module, test } from 'qunit';
+
+const {
+  attr,
+  hasMany,
+  InvalidError,
+  Model
+} = DS;
+
+const {
+  get,
+  run
+} = Ember;
+
+let Person, env;
 
 module("integration/deletedRecord - Deleting Records", {
   beforeEach() {
-    Person = DS.Model.extend({
+    Person = Model.extend({
       name: attr('string')
     });
     Person.toString = () => { return 'Person'; };
@@ -25,7 +34,7 @@ module("integration/deletedRecord - Deleting Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -35,7 +44,7 @@ test("records should not be removed from record arrays just after deleting, but 
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
-    return Ember.RSVP.Promise.resolve();
+    return RSVP.Promise.resolve();
   };
 
   var all;
@@ -64,11 +73,11 @@ test("records should not be removed from record arrays just after deleting, but 
   // pre-condition
   assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
 
-  Ember.run(adam, 'deleteRecord');
+  run(adam, 'deleteRecord');
 
   assert.equal(all.get('length'), 2, '2 records in array after deleteRecord');
 
-  Ember.run(adam, 'save');
+  run(adam, 'save');
 
   assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
 });
@@ -76,13 +85,13 @@ test("records should not be removed from record arrays just after deleting, but 
 test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', function(assert) {
   let group;
   let person;
-  const Group = DS.Model.extend({
-    people: DS.hasMany('person', { inverse: null, async: false })
+  const Group = Model.extend({
+    people: hasMany('person', { inverse: null, async: false })
   });
   Group.toString = () => { return 'Group'; }
 
   env.adapter.deleteRecord = function() {
-    return Ember.RSVP.Promise.resolve();
+    return RSVP.Promise.resolve();
   };
 
   env.registry.register('model:group', Group);
@@ -138,7 +147,7 @@ test("records can be deleted during record array enumeration", function(assert) 
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
-    return Ember.RSVP.Promise.resolve();
+    return RSVP.Promise.resolve();
   };
 
   run(function() {
@@ -165,7 +174,7 @@ test("records can be deleted during record array enumeration", function(assert) 
   // pre-condition
   assert.equal(all.get('length'), 2, 'expected 2 records');
 
-  Ember.run(function() {
+  run(function() {
     all.forEach(function(record) {
       record.destroyRecord();
     });
@@ -220,7 +229,7 @@ test("Deleting an invalid newly created record should remove it from the store",
   var store = env.store;
 
   env.adapter.createRecord = function() {
-    return Ember.RSVP.Promise.reject(new DS.InvalidError([
+    return RSVP.Promise.reject(new InvalidError([
       {
         title: 'Invalid Attribute',
         detail: 'name is invalid',
@@ -260,7 +269,7 @@ test("Destroying an invalid newly created record should remove it from the store
   };
 
   env.adapter.createRecord = function() {
-    return Ember.RSVP.Promise.reject(new DS.InvalidError([
+    return RSVP.Promise.reject(new InvalidError([
       {
         title: 'Invalid Attribute',
         detail: 'name is invalid',

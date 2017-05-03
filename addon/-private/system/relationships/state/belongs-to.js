@@ -5,31 +5,29 @@ import {
 } from 'ember-data/-debug';
 import {
   PromiseObject
-} from "../../promise-proxies";
-import Relationship from "./relationship";
+} from '../../promise-proxies';
+import ImplicitRelationship from './implicit';
+import Relationship from './relationship';
 
 export default class BelongsToRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
-    this.internalModel = internalModel;
-    this.key = relationshipMeta.key;
-    this.inverseInternalModel = null;
-    this.canonicalState = null;
+    this.kind = 'belongsTo';
   }
 
-  setInternalModel(internalModel) {
-    if (internalModel) {
-      this.addInternalModel(internalModel);
-    } else if (this.inverseInternalModel) {
-      this.removeInternalModel(this.inverseInternalModel);
+  setInternalModel(newInternalModel) {
+    if (newInternalModel) {
+      this.addInternalModel(newInternalModel);
+    } else if (this.currentState) {
+      this.removeInternalModel(this.currentState);
     }
     this.setHasData(true);
     this.setHasLoaded(true);
   }
 
-  setCanonicalInternalModel(internalModel) {
-    if (internalModel) {
-      this.addCanonicalInternalModel(internalModel);
+  setCanonicalInternalModel(newInternalModel) {
+    if (newInternalModel) {
+      this.addCanonicalInternalModel(newInternalModel);
     } else if (this.canonicalState) {
       this.removeCanonicalInternalModel(this.canonicalState);
     }
@@ -42,21 +40,51 @@ export default class BelongsToRelationship extends Relationship {
     // When we initialize a belongsTo relationship, we want to avoid work like
     // notifying our internalModel that we've "changed" and excessive thrash on
     // setting up inverse relationships
-    this.canonicalMembers.add(internalModel);
-    this.members.add(internalModel);
-    this.inverseInternalModel = this.canonicalState = internalModel;
-    this.setupInverseRelationship(internalModel);
+    this.currentState = this.canonicalState = internalModel;
+    this.setupInverseRelationship(internalModel, true);
+
+    // this.flushCanonicalLater();
+    // this.setHasData(true);
   }
 
-  addCanonicalInternalModel(internalModel) {
-    if (this.canonicalMembers.has(internalModel)) { return;}
+  setupInverseRelationship(internalModel, isInitial = false) {
+    if (this.inverseKey) {
+      let relationships = internalModel._relationships;
+      let relationshipExisted = !isInitial || relationships.has(this.inverseKey);
+      let relationship = relationships.get(this.inverseKey);
+      if (relationshipExisted || this.isPolymorphic) {
+        // if we have only just initialized the inverse relationship, then it
+        // already has this.internalModel in its canonicalMembers, so skip the
+        // unnecessary work.  The exception to this is polymorphic
+        // relationships whose members are determined by their inverse, as those
+        // relationships cannot efficiently find their inverse payloads.
+        relationship.addCanonicalInternalModel(this.internalModel);
+      }
+    } else {
+      let relationships = internalModel._implicitRelationships;
+      let relationship = relationships[this.inverseKeyForImplicit];
+      if (!relationship) {
+        relationship = relationships[this.inverseKeyForImplicit] =
+          new ImplicitRelationship(this.store, internalModel, this.key,  { options: {} });
+      }
+      relationship.addCanonicalInternalModel(this.internalModel);
+    }
+  }
+
+  addCanonicalInternalModel(newInternalModel) {
+    if (this.canonicalState === newInternalModel) {
+      return;
+    }
 
     if (this.canonicalState) {
       this.removeCanonicalInternalModel(this.canonicalState);
     }
 
-    this.canonicalState = internalModel;
-    super.addCanonicalInternalModel(internalModel);
+    this.canonicalState = newInternalModel;
+    this.setupInverseRelationship(newInternalModel);
+
+    this.flushCanonicalLater();
+    this.setHasData(true);
   }
 
   inverseDidDematerialize() {
@@ -64,30 +92,49 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   flushCanonical() {
-    //temporary fix to not remove newly created records if server returned null.
-    //TODO remove once we have proper diffing
-    if (this.inverseInternalModel && this.inverseInternalModel.isNew() && !this.canonicalState) {
+    this.willSync = false;
+
+    // don't remove newly created records if server returned null.
+    if (this.currentState && this.currentState.isNew() && !this.canonicalState) {
       return;
     }
-    if (this.inverseInternalModel !== this.canonicalState) {
-      this.inverseInternalModel = this.canonicalState;
+
+    if (this.currentState !== this.canonicalState) {
+      this.currentState = this.canonicalState;
       this.notifyBelongsToChanged();
     }
-
-    super.flushCanonical();
   }
 
-  addInternalModel(internalModel) {
-    if (this.members.has(internalModel)) { return; }
-
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
-
-    if (this.inverseInternalModel) {
-      this.removeInternalModel(this.inverseInternalModel);
+  addInternalModel(newInternalModel) {
+    if (this.currentState === newInternalModel) {
+      return;
     }
 
-    this.inverseInternalModel = internalModel;
-    super.addInternalModel(internalModel);
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, newInternalModel);
+
+    if (this.currentState) {
+      this.removeInternalModel(this.currentState);
+    }
+
+    this.currentState = newInternalModel;
+    this.notifyRecordRelationshipAdded(newInternalModel, 0);
+
+    if (this.inverseKey) {
+      newInternalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
+    } else {
+      let relationships = newInternalModel._implicitRelationships;
+      let relationship = relationships[this.inverseKeyForImplicit];
+
+      if (!relationship) {
+        relationship = relationships[this.inverseKeyForImplicit] =
+          new ImplicitRelationship(this.store, newInternalModel, this.key,  { options: {} });
+      }
+      relationship.addInternalModel(this.internalModel);
+    }
+
+    this.internalModel.updateRecordArrays();
+    this.setHasData(true);
+
     this.notifyBelongsToChanged();
   }
 
@@ -97,10 +144,28 @@ export default class BelongsToRelationship extends Relationship {
     this.setInternalModel(content ? content._internalModel : content);
   }
 
+  removeInternalModel(internalModel) {
+    if (this.currentState === internalModel) {
+      this.removeInternalModelFromOwn(internalModel);
+
+      if (this.inverseKey) {
+        this.removeInternalModelFromInverse(internalModel);
+      } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
+      }
+    }
+  }
+
   removeInternalModelFromOwn(internalModel) {
-    if (!this.members.has(internalModel)) { return;}
-    this.inverseInternalModel = null;
-    super.removeInternalModelFromOwn(internalModel);
+    if (this.currentState !== internalModel) {
+      // assert('cannot remove record from belongsTo, record is not the currentState', false);
+      return;
+    }
+    this.currentState = null;
+
+    this.notifyRecordRelationshipRemoved(internalModel);
+    this.internalModel.updateRecordArrays();
+
     this.notifyBelongsToChanged();
   }
 
@@ -108,27 +173,46 @@ export default class BelongsToRelationship extends Relationship {
     this.internalModel.notifyBelongsToChanged(this.key);
   }
 
+  removeCanonicalInternalModel(internalModel) {
+    if (this.canonicalState === internalModel) {
+      this.removeCanonicalInternalModelFromOwn(internalModel);
+
+      if (this.inverseKey) {
+        this.removeCanonicalInternalModelFromInverse(internalModel);
+      } else if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
+        internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
+      }
+    }
+
+    this.flushCanonicalLater();
+  }
+
   removeCanonicalInternalModelFromOwn(internalModel) {
-    if (!this.canonicalMembers.has(internalModel)) { return;}
+    if (this.canonicalState !== internalModel) {
+      // assert('Cannot remove canonical record from this belongs-to relationship, the record is not the canonicalState!', false);
+      return;
+    }
     this.canonicalState = null;
-    super.removeCanonicalInternalModelFromOwn(internalModel);
+
+    this.flushCanonicalLater();
   }
 
   findRecord() {
-    if (this.inverseInternalModel) {
-      return this.store._findByInternalModel(this.inverseInternalModel);
+    if (this.currentState) {
+      return this.store._findByInternalModel(this.currentState);
     } else {
       return Ember.RSVP.Promise.resolve(null);
     }
   }
 
   fetchLink() {
-    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((internalModel) => {
-      if (internalModel) {
-        this.addInternalModel(internalModel);
-      }
-      return internalModel;
-    });
+    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta)
+      .then((internalModel) => {
+        if (internalModel) {
+          this.addInternalModel(internalModel);
+        }
+        return internalModel;
+      });
   }
 
   getRecord() {
@@ -147,13 +231,13 @@ export default class BelongsToRelationship extends Relationship {
 
       return PromiseObject.create({
         promise: promise,
-        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
+        content: this.currentState ? this.currentState.getRecord() : null
       });
     } else {
-      if (this.inverseInternalModel === null) {
+      if (this.currentState === null) {
         return null;
       }
-      let toReturn = this.inverseInternalModel.getRecord();
+      let toReturn = this.currentState.getRecord();
       assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }
@@ -167,8 +251,8 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     // reload record, if it is already loaded
-    if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
-      return this.inverseInternalModel.getRecord().reload();
+    if (this.currentState && this.currentState.hasRecord) {
+      return this.currentState._record.reload();
     }
 
     return this.findRecord();
@@ -181,6 +265,41 @@ export default class BelongsToRelationship extends Relationship {
       this.setInitialCanonicalInternalModel(internalModel);
     } else {
       this.setCanonicalInternalModel(internalModel);
+    }
+  }
+
+  clear() {
+    if (this.currentState) {
+      this.removeInternalModel(this.currentState);
+    }
+
+    if (this.canonicalState) {
+      this.removeCanonicalInternalModel(this.canonicalState);
+    }
+  }
+
+  removeInverseRelationships() {
+    if (!this.inverseKey) { return; }
+
+    if (this.currentState) {
+      let relationship = this.currentState._relationships.get(this.inverseKey);
+      // TODO: there is always a relationship in this case; this guard exists
+      // because there are tests that fail in teardown after putting things in
+      // invalid state
+      if (relationship) {
+        relationship.inverseDidDematerialize();
+      }
+    }
+
+    if (this.canonicalState && this.canonicalState !== this.currentState) {
+      let relationship = this.canonicalState._relationships.get(this.inverseKey);
+      // TODO: there is always a relationship in this case; this guard exists
+      // because there are tests that fail in teardown after putting things in
+      // invalid state
+      // TODO: can we remove this with the decomplection?
+      if (relationship) {
+        relationship.inverseDidDematerialize();
+      }
     }
   }
 }

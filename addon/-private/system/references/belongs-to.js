@@ -109,7 +109,7 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
+  let inverseInternalModel = this.belongsToRelationship.currentState;
   return inverseInternalModel && inverseInternalModel.id;
 };
 
@@ -312,7 +312,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
+  let inverseInternalModel = this.belongsToRelationship.currentState;
 
   if (inverseInternalModel && inverseInternalModel.isLoaded()) {
     return inverseInternalModel.getRecord();
@@ -403,7 +403,7 @@ BelongsToReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
 */
 BelongsToReference.prototype.reload = function() {
-  return this.belongsToRelationship.reload().then((internalModel) => {
+  return this.belongsToRelationship.reload().then(() => {
     return this.value();
   });
 };

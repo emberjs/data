@@ -427,17 +427,30 @@ export default class InternalModel {
     to or has many.
   */
   _directlyRelatedInternalModels() {
-    let array = [];
-    this.type.eachRelationship((key, relationship) => {
+    let set = new OrderedSet();
+
+    this.modelClass.eachRelationship((key) => {
       if (this._relationships.has(key)) {
         let relationship = this._relationships.get(key);
-        let localRelationships = relationship.members.toArray();
-        let serverRelationships = relationship.canonicalMembers.toArray();
 
-        array = array.concat(localRelationships, serverRelationships);
+        switch (relationship.kind) {
+          case 'belongsTo':
+            set.pushMany([relationship.currentState, relationship.canonicalState]);
+            return;
+          case 'hasMany':
+            set.pushMany(relationship.currentState);
+            set.pushMany(relationship.canonicalState);
+            return;
+          case 'implicit':
+          default:
+            set.pushMany(relationship.currentState.list);
+            set.pushMany(relationship.canonicalState.list);
+            return;
+        }
       }
     });
-    return array;
+
+    return set.list;
   }
 
 

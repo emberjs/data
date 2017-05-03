@@ -68,7 +68,6 @@ test('using store.push with a null value for a payload in relationships sets the
     store.push(payload);
     return store.peekRecord('book', 1);
   });
-
   assert.equal(book.get('author.id'), 1);
 
   let payloadThatResetsBelongToRelationship = {
@@ -85,7 +84,8 @@ test('using store.push with a null value for a payload in relationships sets the
   };
 
   run(() => store.push(payloadThatResetsBelongToRelationship));
-  assert.equal(book.get('author'), null);
+  let author = book.get('author');
+  assert.ok(author === null, 'expect author to be null');
 });
 
 test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', (assert) => {

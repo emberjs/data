@@ -599,6 +599,5 @@ test("Re-loading a removed record should re add it to the relationship when the 
     });
   });
 
-
   assert.equal(account.get('users.length'), 2, 'Accounts were updated correctly');
 });

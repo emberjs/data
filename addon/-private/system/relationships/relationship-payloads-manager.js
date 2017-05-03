@@ -117,12 +117,17 @@ export default class RelationshipPayloadsManager {
 
     let modelClass = this._store._modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
-    Object.keys(relationshipsData).forEach(key => {
+
+    let relKeys = Object.keys(relationshipsData);
+
+    for (let i = 0; i < relKeys.length; i++) {
+      let key = relKeys[i];
+
       let relationshipPayloads = this._getRelationshipPayloads(modelName, key, modelClass, relationshipsByName, true);
       if (relationshipPayloads) {
         relationshipPayloads.push(modelName, id, key, relationshipsData[key]);
       }
-    });
+    }
   }
 
   /**
@@ -133,12 +138,15 @@ export default class RelationshipPayloadsManager {
   unload(modelName, id) {
     let modelClass = this._store._modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
-    relationshipsByName.forEach((_, relationshipName) => {
+    let relationshipNames = relationshipsByName._keys.list;
+
+    for (let i = 0; i < relationshipNames.length; i++) {
+      let relationshipName = relationshipNames[i];
       let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, false);
       if (relationshipPayloads) {
         relationshipPayloads.unload(modelName, id, relationshipName);
       }
-    });
+    }
   }
 
   /**
@@ -195,7 +203,7 @@ export default class RelationshipPayloadsManager {
     //  a) the inverse model name
     //- b) the name of the inverse relationship
     if (inverseMeta) {
-      inverseRelationshipName = inverseMeta.name
+      inverseRelationshipName = inverseMeta.name;
       inverseModelName = relationshipMeta.type;
       inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
     } else {

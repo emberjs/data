@@ -209,13 +209,13 @@ export default class Snapshot {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
-    inverseInternalModel = get(relationship, 'inverseInternalModel');
+    hasData = relationship.hasData;
+    inverseInternalModel = relationship.currentState;
 
     if (hasData) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
-          result = get(inverseInternalModel, 'id');
+          result = inverseInternalModel.id;
         } else {
           result = inverseInternalModel.createSnapshot();
         }
@@ -263,15 +263,15 @@ export default class Snapshot {
    undefined will be returned if the contents of the relationship is unknown.
    */
   hasMany(keyName, options) {
-    let ids = options && options.ids;
-    let relationship, members, hasData;
+    let shouldReturnIds = options && options.ids;
+    let relationship, currentState, hasData;
     let results;
 
-    if (ids && keyName in this._hasManyIds) {
+    if (shouldReturnIds && keyName in this._hasManyIds) {
       return this._hasManyIds[keyName];
     }
 
-    if (!ids && keyName in this._hasManyRelationships) {
+    if (!shouldReturnIds && keyName in this._hasManyRelationships) {
       return this._hasManyRelationships[keyName];
     }
 
@@ -280,23 +280,21 @@ export default class Snapshot {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
-    members = get(relationship, 'members');
+    hasData = relationship.hasData;
+    currentState = relationship.currentState;
 
     if (hasData) {
       results = [];
-      members.forEach((member) => {
-        if (!member.isDeleted()) {
-          if (ids) {
-            results.push(member.id);
-          } else {
-            results.push(member.createSnapshot());
-          }
+
+      for (let i = 0; i < currentState.length; i++) {
+        let internalModel = currentState[i];
+        if (!internalModel.isDeleted()) {
+          results.push(shouldReturnIds ? internalModel.id : internalModel.createSnapshot());
         }
-      });
+      }
     }
 
-    if (ids) {
+    if (shouldReturnIds) {
       this._hasManyIds[keyName] = results;
     } else {
       this._hasManyRelationships[keyName] = results;

@@ -105,7 +105,7 @@ export default class RelationshipPayloads {
     @method
   */
   push(modelName, id, relationshipName, relationshipData) {
-    this._pendingPayloads.push([modelName, id, relationshipName, relationshipData]);
+    this._pendingPayloads.push(modelName, id, relationshipName, relationshipData);
   }
 
   /**
@@ -150,11 +150,11 @@ export default class RelationshipPayloads {
     if (this._pendingPayloads.length === 0) { return; }
 
     let payloadsToBeProcessed = this._pendingPayloads.splice(0, this._pendingPayloads.length);
-    for (let i=0; i<payloadsToBeProcessed.length; ++i) {
-      let modelName = payloadsToBeProcessed[i][0];
-      let id = payloadsToBeProcessed[i][1];
-      let relationshipName = payloadsToBeProcessed[i][2];
-      let relationshipData = payloadsToBeProcessed[i][3];
+    for (let i = 0; i < payloadsToBeProcessed.length; i += 4) {
+      let modelName = payloadsToBeProcessed[i];
+      let id = payloadsToBeProcessed[i + 1];
+      let relationshipName = payloadsToBeProcessed[i + 2];
+      let relationshipData = payloadsToBeProcessed[i + 3];
 
       // TODO: maybe delay this allocation slightly?
       let inverseRelationshipData = {
@@ -162,7 +162,7 @@ export default class RelationshipPayloads {
           id: id,
           type: modelName
         }
-      }
+      };
 
       // start flushing this individual payload.  The logic is the same whether
       // it's for the left hand side of the relationship or the right hand side,
@@ -324,7 +324,7 @@ export default class RelationshipPayloads {
       return;
     }
 
-    if (Array.isArray(data)) {
+    if (data.length) { // dirty-check for "is-array"
       // TODO: diff rather than removeall addall?
       for (let i=0; i<data.length; ++i) {
         this._removeFromInverse(id, data[i].id, inverseIdToPayloads);
