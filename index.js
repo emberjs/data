@@ -176,6 +176,7 @@ module.exports = {
       postTransformPlugins: customPlugins.postTransformPlugins,
       exclude: [
         'transform-es2015-block-scoping',
+        'transform-es2015-typeof-symbol'
       ]
     };
   },
