@@ -31,7 +31,7 @@
     "broccoli-merge-trees": "^1.0.0",
     "broccoli-rollup": "^1.2.0",
     "chalk": "^1.1.1",
-    "ember-cli-babel": "^6.0.0-beta.10",
+    "ember-cli-babel": "^6.1.0",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",
@@ -48,6 +48,7 @@
     "testem": "1.15.0"
   },
   "devDependencies": {
+    "babel-plugin-debug-macros": "^0.1.7",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
     "babel-plugin-transform-es2015-classes": "^6.23.0",

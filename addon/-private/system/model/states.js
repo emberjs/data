@@ -1,7 +1,7 @@
 /**
   @module ember-data
 */
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 
 /*
   This file encapsulates the various states that a record can transition

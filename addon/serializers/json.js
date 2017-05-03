@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, deprecate, warn } from 'ember-data/-debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import Serializer from "../serializer";
 import {
   getOwner,
