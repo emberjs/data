@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { assert, runInDebug } from 'ember-data/-debug';
+import { DEBUG } from '@glimmer/env';
+import { assert } from '@ember/debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
@@ -1188,13 +1189,13 @@ export default class InternalModel {
     if (!reference) {
       let relationship = this._relationships.get(name);
 
-      runInDebug(() => {
+      if (DEBUG) {
         let modelName = this.modelName;
         assert(`There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`, relationship);
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
         assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === kind);
-      });
+      }
 
       if (kind === "belongsTo") {
         reference = new BelongsToReference(this.store, this, relationship);

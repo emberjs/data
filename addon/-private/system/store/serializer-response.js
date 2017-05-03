@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { assert, runInDebug } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 /*
   This is a helper method that validates a JSON API top-level document
@@ -75,9 +76,9 @@ export function validateDocumentStructure(doc) {
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
   let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
   let validationErrors = [];
-  runInDebug(() => {
+  if (DEBUG) {
     validationErrors = validateDocumentStructure(normalizedResponse);
-  });
+  }
   assert(`normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`, Ember.isEmpty(validationErrors));
 
   return normalizedResponse;

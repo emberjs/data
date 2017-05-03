@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { assert, deprecate, warn, runInDebug } from 'ember-data/-debug';
+import { DEBUG } from '@glimmer/env';
+import { assert, deprecate, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
 import isEnabled from '../../features';
@@ -842,14 +843,6 @@ const Model = Ember.Object.extend(Ember.Evented, {
     this._super(...arguments);
   },
 
-  // This is a temporary solution until we refactor DS.Model to not
-  // rely on the data property.
-  willMergeMixin(props) {
-    let constructor = this.constructor;
-    assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
-    assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
-  },
-
   attr() {
     assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   },
@@ -1138,7 +1131,7 @@ Object.defineProperty(Model.prototype, 'data', {
   }
 });
 
-runInDebug(function() {
+if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
@@ -1148,7 +1141,7 @@ runInDebug(function() {
       }
     }
   });
-});
+}
 
 Model.reopenClass({
   isModel: true,
@@ -1883,34 +1876,42 @@ if (isEnabled('ds-rollback-attribute')) {
   });
 }
 
-runInDebug(() => {
+if (DEBUG) {
   Model.reopen({
-   /**
-   This Ember.js hook allows an object to be notified when a property
-   is defined.
+    // This is a temporary solution until we refactor DS.Model to not
+    // rely on the data property.
+    willMergeMixin(props) {
+      let constructor = this.constructor;
+      assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
+      assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
+    },
 
-   In this case, we use it to be notified when an Ember Data user defines a
-   belongs-to relationship. In that case, we need to set up observers for
-   each one, allowing us to track relationship changes and automatically
-   reflect changes in the inverse has-many array.
+    /**
+     This Ember.js hook allows an object to be notified when a property
+     is defined.
 
-   This hook passes the class being set up, as well as the key and value
-   being defined. So, for example, when the user does this:
+     In this case, we use it to be notified when an Ember Data user defines a
+     belongs-to relationship. In that case, we need to set up observers for
+     each one, allowing us to track relationship changes and automatically
+     reflect changes in the inverse has-many array.
 
-   ```javascript
-   DS.Model.extend({
-    parent: DS.belongsTo('user')
-  });
-   ```
+     This hook passes the class being set up, as well as the key and value
+     being defined. So, for example, when the user does this:
 
-   This hook would be called with "parent" as the key and the computed
-   property returned by `DS.belongsTo` as the value.
+     ```javascript
+     DS.Model.extend({
+      parent: DS.belongsTo('user')
+    });
+     ```
 
-   @method didDefineProperty
-   @param {Object} proto
-   @param {String} key
-   @param {Ember.ComputedProperty} value
-   */
+     This hook would be called with "parent" as the key and the computed
+     property returned by `DS.belongsTo` as the value.
+
+     @method didDefineProperty
+     @param {Object} proto
+     @param {String} key
+     @param {Ember.ComputedProperty} value
+     */
     didDefineProperty(proto, key, value) {
       // Check if the value being set is a computed property.
       if (value instanceof Ember.ComputedProperty) {
@@ -1923,7 +1924,7 @@ runInDebug(() => {
         meta.parentType = proto.constructor;
       }
     }
-  })
-});
+  });
+}
 
 export default Model;

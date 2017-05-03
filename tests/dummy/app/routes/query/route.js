@@ -1,6 +1,16 @@
 /* global window, heimdall, console */
 import Ember from 'ember';
 
+// fallback if no-heimdall happens to be present when loading the dummy app
+let heimdall = self.heimdall;
+if (typeof heimdall !== 'object') {
+  heimdall = {
+    start() { },
+    stop()  { }
+  };
+}
+
+
 const {
   Route
 } = Ember;

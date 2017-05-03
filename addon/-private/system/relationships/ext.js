@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 import {
   typeForRelationshipMeta,
   relationshipFromMeta

@@ -5,7 +5,6 @@ var path = require('path');
 var SilentError = require('silent-error');
 var Funnel = require('broccoli-funnel');
 var Rollup = require('broccoli-rollup');
-var stew = require('broccoli-stew');
 var Babel = require('broccoli-babel-transpiler');
 var merge   = require('broccoli-merge-trees');
 var version = require('./lib/version');
@@ -174,7 +173,11 @@ module.exports = {
     return {
       loose: true,
       plugins: customPlugins.plugins,
-      postTransformPlugins: customPlugins.postTransformPlugins
+      postTransformPlugins: customPlugins.postTransformPlugins,
+      exclude: [
+        'transform-es2015-block-scoping',
+        'transform-es2015-typeof-symbol'
+      ]
     };
   },
 

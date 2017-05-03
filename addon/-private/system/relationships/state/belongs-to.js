@@ -1,8 +1,8 @@
 import Ember from 'ember';
 import {
-  assertPolymorphicType,
   assert
-} from 'ember-data/-debug';
+} from '@ember/debug';
+import { assertPolymorphicType } from 'ember-data/-debug';
 import {
   PromiseObject
 } from "../../promise-proxies";

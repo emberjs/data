@@ -6,7 +6,8 @@
 import Ember from 'ember';
 import RESTAdapter from "./rest";
 import { isEnabled } from '../-private';
-import { instrument, deprecate } from 'ember-data/-debug';
+import { deprecate } from '@ember/debug';
+import { instrument } from 'ember-data/-debug';
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It

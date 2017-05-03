@@ -1,5 +1,5 @@
 import Ember from "ember";
-import { deprecate } from 'ember-data/-debug';
+import { deprecate } from '@ember/debug';
 
 /**
   Ember Data
@@ -28,11 +28,6 @@ import {
   Model,
   Store,
   normalizeModelName,
-  Transform,
-  DateTransform,
-  NumberTransform,
-  StringTransform,
-  BooleanTransform,
   PromiseArray,
   PromiseObject,
   PromiseManyArray,
@@ -58,6 +53,12 @@ import {
 import "ember-inflector";
 import setupContainer from "./setup-container";
 import initializeStoreService from './instance-initializers/initialize-store-service';
+
+import Transform from './transforms/transform';
+import NumberTransform from './transforms/number';
+import DateTransform from './transforms/date';
+import StringTransform from './transforms/string';
+import BooleanTransform from './transforms/boolean';
 
 import Adapter from "./adapter";
 import JSONAPIAdapter from './adapters/json-api';

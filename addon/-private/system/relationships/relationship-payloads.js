@@ -1,4 +1,4 @@
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 
 /**
   Manages the payloads for both sides of a single relationship, across all model
@@ -356,4 +356,3 @@ export default class RelationshipPayloads {
     }
   }
 }
-

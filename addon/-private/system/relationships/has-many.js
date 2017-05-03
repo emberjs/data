@@ -3,7 +3,7 @@
 */
 
 import Ember from 'ember';
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
 import isArrayLike from "../is-array-like";
 
