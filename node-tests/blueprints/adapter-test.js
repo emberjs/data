@@ -58,7 +58,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       }));
   });
 
-  it('adapter throws when --base-class is same as name', function() {
+  xit('adapter throws when --base-class is same as name', function() {
     var args = ['adapter', 'foo', '--base-class=foo'];
 
     return emberNew()
