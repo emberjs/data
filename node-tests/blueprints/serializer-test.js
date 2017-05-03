@@ -58,7 +58,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       }));
   });
 
-  it('serializer throws when --base-class is same as name', function() {
+  xit('serializer throws when --base-class is same as name', function() {
     var args = ['serializer', 'foo', '--base-class=foo'];
 
     return emberNew()
