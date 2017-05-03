@@ -50,7 +50,7 @@ test("push(object)", function(assert) {
     });
   });
 
-  assert.ok(push.then, 'RecordReference.push returns a promise');
+  assert.ok(push.then && !(push instanceof DS.PromiseObject), 'BelongsToReference.push() should return a promise but not a DS.PromiseObject');
 
   run(function() {
     push.then(function(record) {
@@ -73,7 +73,7 @@ test("push(promise)", function(assert) {
     push = recordReference.push(deferred.promise);
   });
 
-  assert.ok(push.then, 'RecordReference.push returns a promise');
+  assert.ok(!(push instanceof DS.PromiseObject), 'BelongsToReference.push() should not return a DS.PromiseObject');
 
   run(function() {
     deferred.resolve({
@@ -120,16 +120,34 @@ test("value() returns the record when loaded", function(assert) {
 test("load() fetches the record", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito"
-    });
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve({
+        id: 1, name: "Vito"
+      });
+    }
   };
 
   var recordReference = env.store.getReference('person', 1);
+  var load;
 
   run(function() {
+    load = recordReference.load();
+    load.catch(function() {});
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseObject), 'BelongsToReference.load() should return a promise but not a DS.PromiseObject');
+
+  load.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     recordReference.load().then(function(record) {
+      assert.equal(recordReference.value(), record);
       assert.equal(get(record, 'name'), "Vito");
       done();
     });
@@ -140,8 +158,8 @@ test("load() only a single find is triggered", function(assert) {
   var done = assert.async();
 
   var deferred = Ember.RSVP.defer();
-  var count = 0;
 
+  var count = 0;
   env.adapter.shouldReloadRecord = function() { return false; };
   env.adapter.shouldBackgroundReloadRecord = function() { return false; };
   env.adapter.findRecord = function(store, type, id) {
@@ -152,12 +170,18 @@ test("load() only a single find is triggered", function(assert) {
   };
 
   var recordReference = env.store.getReference('person', 1);
+  var load;
 
   run(function() {
     recordReference.load();
-    recordReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito");
-    });
+    load = recordReference.load();
+  });
+
+  assert.ok(load.then && !(load instanceof DS.PromiseObject), 'BelongsToReference.load() should return a promise but not a DS.PromiseObject');
+
+  load.then(function(record) {
+    assert.equal(recordReference.value(), record);
+    assert.equal(get(record, 'name'), "Vito");
   });
 
   run(function() {
@@ -168,6 +192,7 @@ test("load() only a single find is triggered", function(assert) {
 
   run(function() {
     recordReference.load().then(function(record) {
+      assert.equal(recordReference.value(), record);
       assert.equal(get(record, 'name'), "Vito");
 
       done();
@@ -181,17 +206,35 @@ test("reload() loads the record if not yet loaded", function(assert) {
   var count = 0;
   env.adapter.findRecord = function(store, type, id) {
     count++;
-    assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
-    });
+    if (count === 1) {
+      assert.equal(count, 1);
+
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      assert.equal(count, 2);
+
+      return Ember.RSVP.resolve({
+        id: 1, name: "Vito Coreleone"
+      });
+    }
   };
 
   var recordReference = env.store.getReference('person', 1);
+  var reload;
 
   run(function() {
+    reload = recordReference.reload();
+    reload.catch(function() {});
+  });
+
+  assert.ok(reload.then && !(reload instanceof DS.PromiseObject), 'BelongsToReference.reload() should return a promise but not a DS.PromiseObject');
+
+  reload.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     recordReference.reload().then(function(record) {
+      assert.equal(recordReference.value(), record);
       assert.equal(get(record, 'name'), "Vito Coreleone");
 
       done();
@@ -202,10 +245,17 @@ test("reload() loads the record if not yet loaded", function(assert) {
 test("reload() fetches the record", function(assert) {
   var done = assert.async();
 
+  var count = 0;
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
-    });
+    count++;
+
+    if (count === 1) {
+      return Ember.RSVP.reject(new DS.AdapterError());
+    } else {
+      return Ember.RSVP.resolve({
+        id: 1, name: "Vito Coreleone"
+      });
+    }
   };
 
   run(function() {
@@ -221,9 +271,20 @@ test("reload() fetches the record", function(assert) {
   });
 
   var recordReference = env.store.getReference('person', 1);
+  var reload;
 
   run(function() {
+    reload = recordReference.reload();
+    reload.catch(function() {});
+  });
+
+  assert.ok(reload.then && !(reload instanceof DS.PromiseObject), 'BelongsToReference.reload() should return a promise but not a DS.PromiseObject');
+
+  reload.catch(function(error) {
+    assert.ok(error instanceof DS.AdapterError);
+
     recordReference.reload().then(function(record) {
+      assert.equal(recordReference.value(), record);
       assert.equal(get(record, 'name'), "Vito Coreleone");
 
       done();

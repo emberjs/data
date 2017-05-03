@@ -152,11 +152,9 @@ HasManyReference.prototype.link = function() {
    @return {Array} The ids in this has-many relationship
 */
 HasManyReference.prototype.ids = function() {
-  let members = this.hasManyRelationship.members.toArray();
-
-  return members.map(function(internalModel) {
-    return internalModel.id;
-  });
+  return this.hasManyRelationship.members
+    .toArray()
+    .map(internalModel => internalModel.id);
 };
 
 /**
@@ -286,8 +284,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
         return record._internalModel;
       });
     } else {
-      let records = this.store.push(payload);
-      internalModels = Ember.A(records).mapBy('_internalModel');
+      internalModels = this.store.push(payload).map(record => record._internalModel);
 
       runInDebug(() => {
         internalModels.forEach((internalModel) => {
@@ -401,7 +398,7 @@ HasManyReference.prototype.value = function() {
 */
 HasManyReference.prototype.load = function() {
   if (!this._isLoaded()) {
-    return this.hasManyRelationship.getRecords();
+    return resolve(this.hasManyRelationship.getRecords());
   }
 
   return resolve(this.hasManyRelationship.manyArray);
@@ -442,7 +439,7 @@ HasManyReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
 */
 HasManyReference.prototype.reload = function() {
-  return this.hasManyRelationship.reload();
+  return this.hasManyRelationship.reload().then(() => this.value());
 };
 
 export default HasManyReference;
