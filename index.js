@@ -69,7 +69,7 @@ module.exports = {
       this._forceBowerUsage = true;
 
       var emberDataBower = checker.for('ember-data', 'bower');
-      var emberDataBowerWithShimsIncluded = emberDataBower.satisifies('>= 2.3.0-beta.3');
+      var emberDataBowerWithShimsIncluded = emberDataBower.satisfies('>= 2.3.0-beta.3');
 
       if (hasShims && !shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
