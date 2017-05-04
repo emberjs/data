@@ -5,15 +5,20 @@ import { deprecate } from 'ember-data/-debug';
   store.
 
   @method initializeStoreService
-  @param {Ember.ApplicationInstance} applicationOrRegistry
+  @param {Ember.ApplicationInstance | Ember.EngineInstance} instance
 */
-export default function initializeStoreService(application) {
-  const container = application.lookup ? application : application.container;
+export default function initializeStoreService(instance) {
+  // instance.lookup supports Ember 2.1 and higher
+  // instance.container supports Ember 1.11 - 2.0
+  const container = instance.lookup ? instance : instance.container;
 
   // Eagerly generate the store so defaultStore is populated.
   container.lookup('service:store');
 
-  deprecateOldEmberDataInitializers(application.application.constructor.initializers);
+  // In Ember 2.4+ instance.base is the `Ember.Application` or `Ember.Engine` instance
+  // In Ember 1.11 - 2.3 we fallback to `instance.application`
+  let base = instance.base || instance.application;
+  deprecateOldEmberDataInitializers(base.constructor.initializers);
 }
 
 const DEPRECATED_INITIALIZER_NAMES = ['data-adapter', 'injectStore', 'transforms', 'store'];
