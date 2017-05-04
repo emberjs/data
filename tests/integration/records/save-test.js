@@ -194,3 +194,37 @@ test("Will reject save on invalid", function(assert) {
     });
   });
 });
+
+test("Creating a new record that returns a duplicate record updates duplicate record", function(assert) {
+  assert.expect(3);
+  var store = env.store;
+  var post;
+  run(function() {
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        attributes: {
+          title: 'Existing post title'
+        }
+      }
+    });
+    post = env.store.createRecord('post');
+  });
+
+  env.adapter.createRecord = function(store, type, snapshot) {
+    return Ember.RSVP.resolve({
+      id: '1',
+      title: 'updated title'
+    });
+  };
+
+  run(function() {
+    post.save().then(function() {
+      var all = store.peekAll('post');
+      assert.equal(post.get('id'), '1', 'The duplicate post ID loaded');
+      assert.equal(post.get('title'), 'updated title', 'it updates payload of loaded record');
+      assert.equal(all.get('length'), 1, "doesn't update count");
+    });
+  });
+});

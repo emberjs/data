@@ -52,7 +52,10 @@ export default class InternalModelMap {
     assert(`You cannot index an internalModel by an empty id'`, id);
     assert(`You cannot set an index for an internalModel to something other than an internalModel`, internalModel instanceof InternalModel);
     assert(`You cannot set an index for an internalModel that is not in the InternalModelMap`, this.contains(internalModel));
-    assert(`You cannot update the id index of an InternalModel once set. Attempted to update ${id}.`, !this.has(id) || this.get(id) === internalModel);
+
+    if (this.has(id)) {
+      this.remove(internalModel, id);
+    }
 
     this._idToModel[id] = internalModel;
   }
