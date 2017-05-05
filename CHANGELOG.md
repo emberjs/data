@@ -2,6 +2,12 @@
 
 ### Master
 
+### Release 2.14.0-beta.2 (May 5, 2017)
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+
 ### Release 2.14.0-beta.1 (April 28, 2017)
 - [#4885](https://github.com/emberjs/data/pull/4885) Lazy snapshot.type
 - [#4855](https://github.com/emberjs/data/pull/4855) Update the changelog for the Ember Data 2.12.0 release
