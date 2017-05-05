@@ -1,5 +1,8 @@
 # Ember Data Changelog
 
+### Release 2.13.1 (May 5, 2017)
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4970](https://github.com/emberjs/data/pull/4970) [BUGFIX release] Ensure Engines can boot without error.
 
 ### Release 2.13.0 (April 28, 2017)
 - [#4860](https://github.com/emberjs/data/pull/4860) Refactor the detection / warnings around ember-cli-shims.
