@@ -4,13 +4,13 @@
 
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
+import { instrument } from 'ember-data/-debug';
 import {
-  instrument,
   assert,
   deprecate,
-  warn,
-  runInDebug
-} from 'ember-data/-debug';
+  warn
+} from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
 import IdentityMap from './identity-map';
@@ -1660,7 +1660,7 @@ Store = Service.extend({
   },
 
   didUpdateAll(modelName) {
-    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.');
+    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.didUpdateAll', until: '2.17.0' });
     return this._didUpdateAll(modelName);
   },
 
@@ -2372,7 +2372,7 @@ Store = Service.extend({
     assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id !== null && data.id !== undefined && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
-    runInDebug(() => {
+    if (DEBUG) {
       // If ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
       // contains unknown attributes or relationships, log a warning.
 
@@ -2393,7 +2393,7 @@ Store = Service.extend({
         let unknownRelationshipsMessage = `The payload for '${modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
         warn(unknownRelationshipsMessage, unknownRelationships.length === 0, { id: 'ds.store.unknown-keys-in-payload' });
       }
-    });
+    }
 
     // Actually load the record into the store.
     let internalModel = this._load(data);
@@ -2573,7 +2573,7 @@ Store = Service.extend({
   },
 
   buildInternalModel(modelName, id, data) {
-    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.');
+    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.buildInternalModel', until: '2.17.0' });
     return this._buildInternalModel(modelName, id, data);
   },
 
@@ -2869,7 +2869,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
     }
 
     // in debug, assert payload validity eagerly
-    runInDebug(() => {
+    if (DEBUG) {
       let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
       let relationshipData = data.relationships[relationshipName];
       if (!relationshipData || !relationshipMeta) {
@@ -2888,7 +2888,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
           assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
         }
       }
-    });
+    }
   });
 }
 

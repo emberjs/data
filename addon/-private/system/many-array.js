@@ -2,7 +2,7 @@
   @module ember-data
 */
 import Ember from 'ember';
-import { assert } from 'ember-data/-debug';
+import { assert } from '@ember/debug';
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
 import diffArray from './diff-array';

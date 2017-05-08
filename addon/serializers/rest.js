@@ -4,7 +4,9 @@
 
 import Ember from 'ember';
 import { singularize } from "ember-inflector";
-import { assert, deprecate, runInDebug, warn } from 'ember-data/-debug';
+import { assert, deprecate, warn } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
 import JSONSerializer from "../serializers/json";
 import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
 
@@ -298,7 +300,7 @@ let RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      runInDebug(function() {
+      if (DEBUG) {
         let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
         let message = "The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.";
 
@@ -306,7 +308,7 @@ let RESTSerializer = JSONSerializer.extend({
           id: 'ds.serializer.rest.queryRecord-array-response',
           until: '3.0'
         });
-      });
+      }
 
       /*
         Support primary data as an object instead of an array.
@@ -972,12 +974,12 @@ if (isEnabled("ds-payload-type-hooks")) {
 
 }
 
-runInDebug(function() {
+if (DEBUG) {
   RESTSerializer.reopen({
     warnMessageNoModelForKey(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
     }
   });
-});
+}
 
 export default RESTSerializer;

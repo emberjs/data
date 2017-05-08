@@ -1,6 +1,6 @@
 import Transform from './transform';
 import Ember from 'ember';
-import { deprecate } from 'ember-data/-debug';
+import { deprecate } from '@ember/debug';
 
 Ember.Date = Ember.Date || {};
 

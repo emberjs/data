@@ -1,6 +1,7 @@
 import Ember from 'ember';
-import { warn } from 'ember-data/-debug';
 import { assert } from 'ember-data/-debug';
+import { warn } from '@ember/debug';
+
 
 const get = Ember.get;
 const set = Ember.set;

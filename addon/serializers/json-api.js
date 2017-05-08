@@ -4,7 +4,9 @@
 
 import Ember from 'ember';
 import { pluralize, singularize } from 'ember-inflector';
-import { assert, deprecate, runInDebug, warn } from 'ember-data/-debug';
+import { assert, deprecate, warn } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
 import JSONSerializer from './json';
 import { normalizeModelName, isEnabled } from '../-private';
 
@@ -286,11 +288,11 @@ const JSONAPISerializer = JSONSerializer.extend({
         if (resourceHash.attributes[attributeKey] !== undefined) {
           attributes[key] = resourceHash.attributes[attributeKey];
         }
-        runInDebug(() => {
+        if (DEBUG) {
           if (resourceHash.attributes[attributeKey] === undefined && resourceHash.attributes[key] !== undefined) {
             assert(`Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${attributeKey}'. This is most likely because Ember Data's JSON API serializer dasherizes attribute keys by default. You should subclass JSONAPISerializer and implement 'keyForAttribute(key) { return key; }' to prevent Ember Data from customizing your attribute keys.`, false);
           }
-        });
+        }
       });
     }
 
@@ -329,11 +331,11 @@ const JSONAPISerializer = JSONSerializer.extend({
           relationships[key] = this.extractRelationship(relationshipHash);
 
         }
-        runInDebug(() => {
+        if (DEBUG) {
           if (resourceHash.relationships[relationshipKey] === undefined && resourceHash.relationships[key] !== undefined) {
             assert(`Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${relationshipKey}'. This is most likely because Ember Data's JSON API serializer dasherizes relationship keys by default. You should subclass JSONAPISerializer and implement 'keyForRelationship(key) { return key; }' to prevent Ember Data from customizing your relationship keys.`, false);
           }
-        });
+        }
       });
     }
 
@@ -734,7 +736,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
 }
 
-runInDebug(function() {
+if (DEBUG) {
   JSONAPISerializer.reopen({
     willMergeMixin(props) {
       let constructor = this.constructor;
@@ -752,6 +754,6 @@ runInDebug(function() {
       return `Encountered a resource object with type "${originalType}", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${originalType}")').`;
     }
   });
-});
+}
 
 export default JSONAPISerializer;
