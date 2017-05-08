@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import { warn } from 'ember-data/-debug';
+import { assert } from 'ember-data/-debug';
 
 const get = Ember.get;
 const set = Ember.set;
@@ -193,6 +194,10 @@ export default Ember.Mixin.create({
   */
   serializeBelongsTo(snapshot, json, relationship) {
     let attr = relationship.key;
+    let option;
+
+    assert(`Embedded relationships do not support cycles. The following relationship: ${snapshot.modelName}.belongsTo('${relationship.type}') creates a cycle. If this was unexpected, consider: ${snapshot.modelName}.belongsTo('${relationship.type}', { inverse: null })`, !((option = this.attrsOption(attr)) && option && !!option.embedded && relationship.type === snapshot.modelName && relationship.options.inverse !== null));
+
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
@@ -376,6 +381,10 @@ export default Ember.Mixin.create({
   */
   serializeHasMany(snapshot, json, relationship) {
     let attr = relationship.key;
+    let option;
+
+    assert(`Embedded relationships do not support cycles. The following relationship: ${snapshot.modelName}.hasMany('${relationship.type}') creates a cycle. If this was unexpected, consider: ${snapshot.modelName}.hasMany('${relationship.type}', { inverse: null })`, !((option = this.attrsOption(attr)) && option && !!option.embedded && relationship.type === snapshot.modelName && relationship.options.inverse !== null));
+
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
@@ -423,7 +432,6 @@ export default Ember.Mixin.create({
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
     }
-
 
     warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
