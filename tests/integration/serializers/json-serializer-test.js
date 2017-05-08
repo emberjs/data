@@ -523,7 +523,10 @@ test('Serializer serializes embedded recursive relationship', function(assert) {
     }
   }));
   env.registry.register('model:node', DS.Model.extend({
-    children: DS.hasMany('node')
+    children: DS.hasMany('node', {
+      /* otherwise the relationship is reflected, and a cycle is created. */
+      // inverse: null
+    })
   }));
 
   var parent, child;
@@ -536,10 +539,15 @@ test('Serializer serializes embedded recursive relationship', function(assert) {
   });
 
   // currently results in "RangeError: Maximum call stack size exceeded"
-  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot());
+  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot(), { includeId: true });
   assert.deepEqual(payload, {
     id: '1',
-    children: [{ id: '2' }]
+    children: [
+      {
+        id: '2',
+        children: []
+      }
+    ]
   });
 });
 
