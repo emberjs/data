@@ -516,7 +516,7 @@ test('Serializer respects if embedded model has a relationship named "type" - #3
   ]);
 });
 
-test('Serializer serializes embedded recursive relationship', function(assert) {
+test('Serializer serializes embedded recursive relationship (embedded)', function(assert) {
   env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
@@ -526,6 +526,33 @@ test('Serializer serializes embedded recursive relationship', function(assert) {
     children: DS.hasMany('node', {
       /* otherwise the relationship is reflected, and a cycle is created. */
       // inverse: null
+    })
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      children: [child]
+    });
+  });
+
+  assert.expectAssertion(function() {
+    env.store.serializerFor('node').serialize(parent._createSnapshot());
+  }, /Embedded relationships do not support cycles/);
+});
+
+test('Serializer serializes embedded recursive relationship (embedded, but inverse: null)', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      children: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('model:node', DS.Model.extend({
+    children: DS.hasMany('node', {
+      /* otherwise the relationship is reflected, and a cycle is created. */
+      inverse: null
     })
   }));
 
@@ -548,6 +575,112 @@ test('Serializer serializes embedded recursive relationship', function(assert) {
         children: []
       }
     ]
+  });
+});
+
+test('Serializer serializes embedded recursive relationship (belongsTo: embedded)', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      parent: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('model:node', DS.Model.extend({
+    parent: DS.belongsTo('node')
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      parent: child
+    });
+  });
+
+  assert.expectAssertion(() => {
+    env.store.serializerFor('node').serialize(parent._createSnapshot());
+  }, /Embedded relationships do not support cycles/);
+});
+
+test('Serializer serializes embedded recursive relationship (belongsTo: embedded, inverse: null)', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      parent: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('model:node', DS.Model.extend({
+    parent: DS.belongsTo('node', { inverse: null })
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      parent: child
+    });
+  });
+
+  // currently results in "RangeError: Maximum call stack size exceeded"
+  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot(), { includeId: true });
+  assert.deepEqual(payload, {
+    id: '1',
+    parent: {
+      id: '2',
+      parent: null
+    }
+  });
+});
+
+test('Serializer serializes embedded recursive relationship (belongsTo: non-embedded)', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: { }
+  }));
+
+  env.registry.register('model:node', DS.Model.extend({
+    parent: DS.belongsTo('node')
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      parent: child
+    });
+  });
+
+  // currently results in "RangeError: Maximum call stack size exceeded"
+  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot(), { includeId: true });
+  assert.deepEqual(payload, {
+    id: '1',
+    parent: '2'
+  });
+});
+test('Serializer serializes recursive relationship (not embedded)', function(assert) {
+  env.registry.register('serializer:node', DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      // not embedded
+    }
+  }));
+  env.registry.register('model:node', DS.Model.extend({
+    children: DS.hasMany('node')
+  }));
+
+  var parent, child;
+  run(function() {
+    child = env.store.createRecord('node', { id: '2' });
+    parent = env.store.createRecord('node', {
+      id: '1',
+      children: [child]
+    });
+  });
+
+  // currently results in "RangeError: Maximum call stack size exceeded"
+  var payload = env.store.serializerFor('node').serialize(parent._createSnapshot(), { includeId: true });
+  assert.deepEqual(payload, {
+    id: '1',
+    children: ['2']
   });
 });
 
