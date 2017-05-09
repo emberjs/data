@@ -161,7 +161,7 @@ test('recordArray.replace() throws error', function(assert) {
   }, Error('The result of a server query (on person) is immutable.'), 'throws error');
 });
 
-test('only pass record array if explicitly in arity', function(assert) {
+test('pass record array to adapter.query based on arity', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;
 
@@ -184,7 +184,7 @@ test('only pass record array if explicitly in arity', function(assert) {
   });
 });
 
-test('only pass record array if explicitly in arity', function(assert) {
+test('pass record array to adapter.query based on arity', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;
 
