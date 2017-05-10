@@ -111,7 +111,6 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 
 test("When an object is destroyed, it's hasMany parent is updated", function(assert) {
   assert.expect(3);
-  let done = assert.async();
 
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true }),
@@ -135,16 +134,9 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
     })
   });
 
-  var commentId = 1;
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
     deleteRecord(record) {
       return Ember.RSVP.resolve();
-    },
-    updateRecord(record) {
-      return Ember.RSVP.resolve();
-    },
-    createRecord() {
-      return Ember.RSVP.resolve({ comments: { id: commentId++ }});
     }
   }));
 
@@ -168,15 +160,14 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
   });
 
   run(function() {
-    env.store.findRecord('post', 1).then(function (post) {
+    return env.store.findRecord('post', 1).then(function (post) {
       assert.ok(post.get('hasComments'));
 
-      env.store.findRecord('comment', 1).then(function (comment) {
+      return env.store.findRecord('comment', 1).then(function (comment) {
         assert.ok(comment);
 
-        comment.destroyRecord().then(function() {
+        return comment.destroyRecord().then(function() {
           assert.notOk(post.get('hasComments'));
-          done();
         });
       });
     });
