@@ -158,8 +158,7 @@ HasManyReference.prototype.ids = function() {
 };
 
 /**
-   The link Ember Data will use to fetch or reload this has-many
-   relationship.
+   The meta data for the has-many relationship.
 
    Example
 
