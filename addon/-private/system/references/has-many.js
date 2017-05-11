@@ -146,7 +146,7 @@ HasManyReference.prototype.link = function() {
    commentsRef.ids(); // ['1']
    ```
 
-   @method remoteType
+   @method ids
    @return {Array} The ids in this has-many relationship
 */
 HasManyReference.prototype.ids = function() {
