@@ -189,7 +189,7 @@ BelongsToReference.prototype.link = function() {
     ```
 
    @method meta
-   @return {Object} The meta information for the belongs-oo relationship.
+   @return {Object} The meta information for the belongs-to relationship.
 */
 BelongsToReference.prototype.meta = function() {
   return this.belongsToRelationship.meta;
