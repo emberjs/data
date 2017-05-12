@@ -2,13 +2,13 @@
 language: node_js
 sudo: false
 node_js:
-  - "6.9"
-before_install:
-  - "npm config set spin false"
-  - "npm install -g npm@^2"
+  - "7"
+
+cache:
+  yarn: true
 
 install:
-  - npm install --no-optional
+  - npm install
   - ./node_modules/.bin/bower install
 script:
   - ./bin/lint-features
@@ -17,7 +17,7 @@ script:
   - npm run-script test:production
   - npm run-script node-tests
 after_success:
-  - npm run-script production
+  - yarn run production
   - "./bin/publish-builds"
 env:
   global:
