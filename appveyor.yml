@@ -18,15 +18,12 @@ install:
   - set path=%path%;C:\ProgramData\chocolatey\lib\PhantomJS\tools\
   # Typical npm stuff.
   - md C:\nc
-  - appveyor-retry npm install -g npm@^3
-  - appveyor-retry yarn
+  - appveyor-retry yarn install
   # Workaround https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows
-  - yarn version
   - yarn run bower
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
-  - npm version
   - cmd: yarn run test
   - cmd: yarn run test:optional-features
   - cmd: yarn run test:production

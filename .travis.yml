@@ -8,14 +8,15 @@ cache:
   yarn: true
 
 install:
-  - npm install
+  - yarn
+  - yarn global add phantomjs-prebuilt
   - ./node_modules/.bin/bower install
 script:
   - ./bin/lint-features
-  - npm run-script test
-  - npm run-script test:optional-features
-  - npm run-script test:production
-  - npm run-script node-tests
+  - yarn run test
+  - yarn run test:optional-features
+  - yarn run test:production
+  - yarn run node-tests
 after_success:
   - yarn run production
   - "./bin/publish-builds"
