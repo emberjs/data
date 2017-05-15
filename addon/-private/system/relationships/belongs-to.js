@@ -115,7 +115,7 @@ export default function belongsTo(modelName, options) {
         });
       }
 
-      return this._internalModel._relationships.get(key).getRecord();
+      return this._internalModel && this._internalModel._relationships.get(key).getRecord();
     },
     set(key, value) {
       if (value === undefined) {
