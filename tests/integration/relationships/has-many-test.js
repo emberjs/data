@@ -1726,6 +1726,37 @@ testInDebug('A sync hasMany errors out if there are unlaoded records in it', fun
   }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
 });
 
+test('After removing and unloading a record, a hasMany relationship should still be valid', function(assert) {
+  const post = run(() => {
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        { type: 'comment', id: '1' }
+      ]
+    });
+    const post = env.store.peekRecord('post', 1);
+    const comments = post.get('comments');
+    const comment = comments.objectAt(0);
+    comments.removeObject(comment);
+    env.store.unloadRecord(comment);
+    assert.equal(comments.get('length'), 0);
+    return post;
+  });
+
+  // Explicitly re-get comments
+  assert.equal(run(post, 'get', 'comments.length'), 0);
+});
+
 test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
   var comment1, comment2, comment3, comment4;
   var post;
