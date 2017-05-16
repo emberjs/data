@@ -8,10 +8,13 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from "./record-arrays";
+
+import cloneNull from "./clone-null";
 import { assert } from '@ember/debug';
 
 const {
   get,
+  set,
   run: emberRun
 } = Ember;
 
@@ -25,7 +28,6 @@ const {
   createRecordArray,
   liveRecordArrayFor,
   filteredRecordArraysFor,
-  populateLiveRecordArray,
   recordDidChange,
   registerFilteredRecordArray,
   unregisterRecordArray,
@@ -41,7 +43,6 @@ const {
   'createRecordArray',
   'liveRecordArrayFor',
   'filteredRecordArraysFor',
-  'populateLiveRecordArray',
   'recordDidChange',
   'registerFilteredRecordArray',
   'unregisterRecordArray',
@@ -126,59 +127,22 @@ export default class RecordArrayManager {
         }
       }
 
-      // TODO: skip if it only changed
-      // process liveRecordArrays
-      if (this._liveRecordArrays[modelName]) {
-        this.updateLiveRecordArray(modelName, internalModels);
+      let array = this._liveRecordArrays[modelName];
+      if (array) {
+        // TODO: skip if it only changed
+        // process liveRecordArrays
+        this.updateLiveRecordArray(array, internalModels);
       }
 
       // process adapterPopulatedRecordArrays
       if (modelsToRemove.length > 0) {
-        this.removeFromAdapterPopulatedRecordArrays(modelsToRemove);
+        removeFromAdapterPopulatedRecordArrays(modelsToRemove);
       }
     }
   }
 
-  updateLiveRecordArray(modelName, internalModels) {
-    let array = this.liveRecordArrayFor(modelName);
-
-    let modelsToAdd = [];
-    let modelsToRemove = [];
-
-    for (let i = 0; i < internalModels.length; i++) {
-      let internalModel = internalModels[i];
-      let isDeleted = internalModel.isHiddenFromRecordArrays();
-      let recordArrays = internalModel._recordArrays;
-
-      if (!isDeleted && !internalModel.isEmpty()) {
-        if (!recordArrays.has(array)) {
-          modelsToAdd.push(internalModel);
-          recordArrays.add(array);
-        }
-      }
-
-      if (isDeleted) {
-        modelsToRemove.push(internalModel);
-        recordArrays.delete(array)
-      }
-    }
-
-    if (modelsToAdd.length > 0)    { array._pushInternalModels(modelsToAdd); }
-    if (modelsToRemove.length > 0) { array._removeInternalModels(modelsToRemove); }
-  }
-
-  removeFromAdapterPopulatedRecordArrays(internalModels) {
-    for (let i = 0; i < internalModels.length; i++) {
-      let internalModel = internalModels[i];
-      let list = internalModel._recordArrays.list;
-
-      for (let j = 0; j < list.length; j++) {
-        // TODO: group by arrays, so we can batch remove
-        list[j]._removeInternalModels([internalModel]);
-      }
-
-      internalModel._recordArrays.clear();
-    }
+  updateLiveRecordArray(array, internalModels) {
+    return updateLiveRecordArray(array, internalModels);
   }
 
   /**
@@ -217,7 +181,7 @@ export default class RecordArrayManager {
   }
 
   // TODO: remove, utilize existing flush code but make it flush sync based on 1 modelName
-  syncLiveRecordArray(array, modelName) {
+  _syncLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
     let hasNoPotentialDeletions = Object.keys(this._pending).length === 0;
     let map = this.store._internalModelsFor(modelName);
@@ -228,29 +192,19 @@ export default class RecordArrayManager {
       liveRecordArrays, and is capable of strategically flushing those changes and applying
       small diffs if desired.  However, until we've refactored recordArrayManager, this dirty
       check prevents us from unnecessarily wiping out live record arrays returned by peekAll.
-     */
+      */
     if (hasNoPotentialDeletions && hasNoInsertionsOrRemovals) {
       return;
     }
 
-    this.populateLiveRecordArray(array, map.models);
-  }
-
-  // TODO: remove, when syncLiveRecordArray is removed
-  populateLiveRecordArray(array, internalModels) {
-    heimdall.increment(populateLiveRecordArray);
-
+    let internalModels = this._visibleInternalModelsByType(modelName);
     let modelsToAdd = [];
     for (let i = 0; i < internalModels.length; i++) {
       let internalModel = internalModels[i];
-
-      if (!internalModel.isHiddenFromRecordArrays()) {
-        let recordArrays = internalModel._recordArrays;
-
-        if (!recordArrays.has(array)) {
-          modelsToAdd.push(internalModel);
-          recordArrays.add(array);
-        }
+      let recordArrays = internalModel._recordArrays;
+      if (recordArrays.has(array) === false) {
+        recordArrays.add(array);
+        modelsToAdd.push(internalModel);
       }
     }
 
@@ -278,6 +232,13 @@ export default class RecordArrayManager {
     this.updateFilterRecordArray(array, filter, internalModels);
   }
 
+  _didUpdateAll(modelName) {
+    let recordArray = this._liveRecordArrays[modelName];
+    if (recordArray) {
+      set(recordArray, 'isUpdating', false);
+    }
+  }
+
   /**
     Get the `DS.RecordArray` for a modelName, which contains all loaded records of
     given modelName.
@@ -291,9 +252,33 @@ export default class RecordArrayManager {
 
     heimdall.increment(liveRecordArrayFor);
 
-    return this._liveRecordArrays[modelName] || (this._liveRecordArrays[modelName] = this.createRecordArray(modelName))
+    let array = this._liveRecordArrays[modelName];
+
+    if (array) {
+      // if the array already exists, synchronize
+      this._syncLiveRecordArray(array, modelName);
+    } else {
+      // if the array is being newly created merely create it with its initial
+      // content already set. This prevents unneeded change events.
+      let internalModels = this._visibleInternalModelsByType(modelName);
+      array = this.createRecordArray(modelName, internalModels);
+      this._liveRecordArrays[modelName] = array;
+    }
+
+    return array;
   }
 
+  _visibleInternalModelsByType(modelName) {
+    let all = this.store._internalModelsFor(modelName)._models;
+    let visible = [];
+    for (let i = 0; i < all.length; i++) {
+      let model = all[i];
+      if (model.isHiddenFromRecordArrays() === false) {
+        visible.push(model);
+      }
+    }
+    return visible;
+  }
   /**
     Get the `DS.RecordArray` for a modelName, which contains all loaded records of
     given modelName.
@@ -314,18 +299,26 @@ export default class RecordArrayManager {
 
     @method createRecordArray
     @param {String} modelName
+    @param {Array} _content (optional|private)
     @return {DS.RecordArray}
   */
-  createRecordArray(modelName) {
+  createRecordArray(modelName, content) {
     assert(`recordArrayManger.createRecordArray expects modelName not modelClass as the param`, typeof modelName === 'string');
     heimdall.increment(createRecordArray);
-    return RecordArray.create({
+
+    let array = RecordArray.create({
       modelName,
-      content: Ember.A(),
+      content: Ember.A(content || []),
       store: this.store,
       isLoaded: true,
       manager: this
     });
+
+    if (Array.isArray(content)) {
+      associateWithRecordArray(content, array);
+    }
+
+    return array;
   }
 
   /**
@@ -363,17 +356,34 @@ export default class RecordArrayManager {
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray(modelName, query) {
+  createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
     heimdall.increment(createAdapterPopulatedRecordArray);
     assert(`recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`, typeof modelName === 'string');
 
-    let array = AdapterPopulatedRecordArray.create({
-      modelName,
-      query: query,
-      content: Ember.A(),
-      store: this.store,
-      manager: this
-    });
+    let array;
+    if (Array.isArray(internalModels)) {
+      array = AdapterPopulatedRecordArray.create({
+        modelName,
+        query: query,
+        content: Ember.A(internalModels),
+        store: this.store,
+        manager: this,
+        isLoaded: true,
+        isUpdating: false,
+        meta: cloneNull(payload.meta),
+        links: cloneNull(payload.links)
+      });
+
+      associateWithRecordArray(internalModels, array);
+    } else {
+      array = AdapterPopulatedRecordArray.create({
+        modelName,
+        query: query,
+        content: Ember.A(),
+        store: this.store,
+        manager: this
+      });
+    }
 
     this._adapterPopulatedRecordArrays.push(array);
 
@@ -469,4 +479,51 @@ function remove(array, item) {
   }
 
   return false;
+}
+
+function updateLiveRecordArray(array, internalModels) {
+  let modelsToAdd = [];
+  let modelsToRemove = [];
+
+  for (let i = 0; i < internalModels.length; i++) {
+    let internalModel = internalModels[i];
+    let isDeleted = internalModel.isHiddenFromRecordArrays();
+    let recordArrays = internalModel._recordArrays;
+
+    if (!isDeleted && !internalModel.isEmpty()) {
+      if (!recordArrays.has(array)) {
+        modelsToAdd.push(internalModel);
+        recordArrays.add(array);
+      }
+    }
+
+    if (isDeleted) {
+      modelsToRemove.push(internalModel);
+      recordArrays.delete(array)
+    }
+  }
+
+  if (modelsToAdd.length > 0)    { array._pushInternalModels(modelsToAdd); }
+  if (modelsToRemove.length > 0) { array._removeInternalModels(modelsToRemove); }
+}
+
+function removeFromAdapterPopulatedRecordArrays(internalModels) {
+  for (let i = 0; i < internalModels.length; i++) {
+    let internalModel = internalModels[i];
+    let list = internalModel._recordArrays.list;
+
+    for (let j = 0; j < list.length; j++) {
+      // TODO: group by arrays, so we can batch remove
+      list[j]._removeInternalModels([internalModel]);
+    }
+
+    internalModel._recordArrays.clear();
+  }
+}
+
+export function associateWithRecordArray(internalModels, array) {
+  for (let i = 0, l = internalModels.length; i < l; i++) {
+    let internalModel = internalModels[i];
+    internalModel._recordArrays.add(array);
+  }
 }

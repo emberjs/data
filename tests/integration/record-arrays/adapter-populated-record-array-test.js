@@ -161,6 +161,75 @@ test('recordArray.replace() throws error', function(assert) {
   }, Error('The result of a server query (on person) is immutable.'), 'throws error');
 });
 
+test('pass record array to adapter.query based on arity', function(assert) {
+  let env = setupStore({ person: Person });
+  let store = env.store;
+
+  let payload = [
+    { id: '1', name: 'Scumbag Dale' },
+    { id: '2', name: 'Scumbag Katz' }
+  ];
+
+  env.adapter.query = function(store, type, query) {
+    assert.equal(arguments.length, 3);
+    return payload;
+  };
+
+  return store.query('person', { }).then(recordArray => {
+    env.adapter.query = function(store, type, query, _recordArray) {
+      assert.equal(arguments.length, 4);
+      return payload;
+    };
+    return store.query('person', { });
+  });
+});
+
+test('pass record array to adapter.query based on arity', function(assert) {
+  let env = setupStore({ person: Person });
+  let store = env.store;
+
+  let payload = [
+    { id: '1', name: 'Scumbag Dale' },
+    { id: '2', name: 'Scumbag Katz' }
+  ];
+
+  let actualQuery = { };
+
+  let superCreateAdapterPopulatedRecordArray = store.recordArrayManager.createAdapterPopulatedRecordArray;
+
+  store.recordArrayManager.createStore = function(modelName, query, internalModels, _payload) {
+    assert.equal(arguments.length === 4);
+
+    assert.equal(modelName, 'person');
+    assert.equal(query, actualQuery);
+    assert.equal(_payload, payload);
+    assert.equal(internalModels.length, 2);
+    return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
+  };
+
+  env.adapter.query = function(store, type, query) {
+    assert.equal(arguments.length, 3);
+    return payload;
+  };
+
+  return store.query('person', actualQuery).then(recordArray => {
+    env.adapter.query = function(store, type, query, _recordArray) {
+      assert.equal(arguments.length, 4);
+      return payload;
+    };
+
+    store.recordArrayManager.createStore = function(modelName, query) {
+      assert.equal(arguments.length === 2);
+
+      assert.equal(modelName, 'person');
+      assert.equal(query, actualQuery);
+      return superCreateAdapterPopulatedRecordArray.apply(this, arguments);
+    };
+
+    return store.query('person', actualQuery);
+  });
+});
+
 test('loadRecord re-syncs internalModels recordArrays', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;

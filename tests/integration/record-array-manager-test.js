@@ -162,18 +162,18 @@ test('Should not filter a store.peekAll() array when a record property is change
     return store.peekRecord('car', 1);
   });
 
-  assert.deepEqual(cars.toArray(), [car]);
+  assert.deepEqual(cars.toArray(), [car], 'cars should contain [car]');
 
-  assert.equal(updateLiveRecordArray.called.length, 1);
-  assert.equal(updateFilterRecordArray.called.length, 0);
+  assert.equal(updateLiveRecordArray.called.length, 1, 'updateLiveRecordArray should be called 1 time');
+  assert.equal(updateFilterRecordArray.called.length, 0, 'updateLiveRecordArray should be called 0 times');
 
   run(() => car.set('model', 'Mini'));
 
-  assert.deepEqual(cars.toArray(), [car]);
+  assert.deepEqual(cars.toArray(), [car], 'cars should contain [car]');
 
   // TODO: differentiate between change + add/remove so we can skip non-filtered record arrays
-  assert.equal(updateLiveRecordArray.called.length, 2);
-  assert.equal(updateFilterRecordArray.called.length, 0);
+  assert.equal(updateLiveRecordArray.called.length, 2, 'updateLiveRecordArray should be called 2 times');
+  assert.equal(updateFilterRecordArray.called.length, 0, 'updateFilterRecordArray should be called 0 times');
 });
 
 test('batch liveRecordArray changes', function(assert) {
@@ -289,4 +289,72 @@ test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their m
   run(() => adapterPopulated.destroy());
 
   assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
+});
+
+test('createRecordArray', function(assert) {
+  let recordArray = manager.createRecordArray('foo');
+
+  assert.equal(recordArray.modelName, 'foo');
+  assert.equal(recordArray.isLoaded, true);
+  assert.equal(recordArray.manager, manager);
+  assert.deepEqual(recordArray.get('content'), []);
+  assert.deepEqual(recordArray.toArray(), []);
+});
+
+test('createRecordArray \w optional content', function(assert) {
+  let record = {};
+  let internalModel = {
+    _recordArrays: new Ember.OrderedSet(),
+    getRecord() {
+      return record;
+    }
+  };
+  let content = Ember.A([internalModel]);
+  let recordArray = manager.createRecordArray('foo', content);
+
+  assert.equal(recordArray.modelName, 'foo');
+  assert.equal(recordArray.isLoaded, true);
+  assert.equal(recordArray.manager, manager);
+  assert.equal(recordArray.get('content'), content);
+  assert.deepEqual(recordArray.toArray(), [record]);
+
+  assert.deepEqual(internalModel._recordArrays.toArray(), [recordArray]);
+});
+
+test('liveRecordArrayFor always return the same array for a given type', function(assert) {
+  assert.equal(manager.liveRecordArrayFor('foo'), manager.liveRecordArrayFor('foo'))
+});
+
+test('liveRecordArrayFor create with content', function(assert) {
+  assert.expect(6);
+
+  let createRecordArrayCalled = 0;
+  let superCreateRecordArray = manager.createRecordArray;
+
+  manager.createRecordArray = function(modelName, internalModels) {
+    createRecordArrayCalled++;
+    assert.equal(modelName, 'car');
+    assert.equal(internalModels.length, 1);
+    assert.equal(internalModels[0].id, 1);
+    return superCreateRecordArray.apply(this, arguments);
+  };
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper'
+        }
+      }
+    });
+  });
+
+  assert.equal(createRecordArrayCalled, 0, 'no record array has been created yet');
+  manager.liveRecordArrayFor('car');
+  assert.equal(createRecordArrayCalled, 1, 'one record array is created');
+  manager.liveRecordArrayFor('car');
+  assert.equal(createRecordArrayCalled, 1, 'no new record array is created');
 });

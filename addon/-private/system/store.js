@@ -1272,8 +1272,6 @@ Store = Service.extend({
     let modelToken = heimdall.start('initial-modelFor-lookup');
     heimdall.stop(modelToken);
 
-    array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-
     let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
     heimdall.stop(adapterToken);
@@ -1654,9 +1652,7 @@ Store = Service.extend({
   */
   _didUpdateAll(modelName) {
     heimdall.increment(_didUpdateAll);
-    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(modelName);
-
-    set(liveRecordArray, 'isUpdating', false);
+    this.recordArrayManager._didUpdateAll(modelName);
   },
 
   didUpdateAll(modelName) {
@@ -1693,11 +1689,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
-    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
-
-    this.recordArrayManager.syncLiveRecordArray(liveRecordArray, normalizedModelName);
-
-    return liveRecordArray;
+    return this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
   },
 
   /**
