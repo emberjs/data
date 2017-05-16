@@ -7,10 +7,17 @@ node_js:
 cache:
   yarn: true
 
+before_install:
+  - "export PATH=$PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64/bin:$PATH"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then wget https://assets.membergetmember.co/software/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2; fi"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+  - "phantomjs --version"
+
 install:
   - yarn
-  - yarn global add phantomjs-prebuilt
   - ./node_modules/.bin/bower install
+
 script:
   - ./bin/lint-features
   - yarn run test
