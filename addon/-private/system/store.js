@@ -4,13 +4,13 @@
 
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
+import { instrument } from 'ember-data/-debug';
 import {
-  instrument,
   assert,
   deprecate,
-  warn,
-  runInDebug
-} from 'ember-data/-debug';
+  warn
+} from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
 import IdentityMap from './identity-map';
@@ -933,29 +933,31 @@ Store = Service.extend({
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
 
-      for (let i = 0, l = groups.length; i < l; i++) {
-        let group = groups[i];
-        let totalInGroup = groups[i].length;
-        let ids = new Array(totalInGroup);
-        let groupedInternalModels = new Array(totalInGroup);
+      for (var i = 0, l = groups.length; i < l; i++) {
+        var group = groups[i];
+        var totalInGroup = groups[i].length;
+        var ids = new Array(totalInGroup);
+        var groupedInternalModels = new Array(totalInGroup);
 
-        for (let j = 0; j < totalInGroup; j++) {
-          let internalModel = group[j]._internalModel;
+        for (var j = 0; j < totalInGroup; j++) {
+          var internalModel = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;
         }
 
         if (totalInGroup > 1) {
-          _findMany(adapter, store, modelName, ids, groupedInternalModels)
-            .then(function(foundInternalModels) {
-              handleFoundRecords(foundInternalModels, groupedInternalModels);
-            })
-            .catch(function(error) {
-              rejectInternalModels(groupedInternalModels, error);
-            });
+          (function(groupedInternalModels) {
+            _findMany(adapter, store, modelName, ids, groupedInternalModels)
+              .then(function(foundInternalModels) {
+                handleFoundRecords(foundInternalModels, groupedInternalModels);
+              })
+              .catch(function(error) {
+                rejectInternalModels(groupedInternalModels, error);
+              });
+          }(groupedInternalModels));
         } else if (ids.length === 1) {
-          let pair = seeking[groupedInternalModels[0].id];
+          var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
         } else {
           assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
@@ -1269,8 +1271,6 @@ Store = Service.extend({
 
     let modelToken = heimdall.start('initial-modelFor-lookup');
     heimdall.stop(modelToken);
-
-    array = array || this.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
 
     let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
@@ -1652,13 +1652,11 @@ Store = Service.extend({
   */
   _didUpdateAll(modelName) {
     heimdall.increment(_didUpdateAll);
-    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(modelName);
-
-    set(liveRecordArray, 'isUpdating', false);
+    this.recordArrayManager._didUpdateAll(modelName);
   },
 
   didUpdateAll(modelName) {
-    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.');
+    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.didUpdateAll', until: '2.17.0' });
     return this._didUpdateAll(modelName);
   },
 
@@ -1691,11 +1689,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
-    let liveRecordArray = this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
-
-    this.recordArrayManager.syncLiveRecordArray(liveRecordArray, normalizedModelName);
-
-    return liveRecordArray;
+    return this.recordArrayManager.liveRecordArrayFor(normalizedModelName);
   },
 
   /**
@@ -2370,7 +2364,7 @@ Store = Service.extend({
     assert(`You must include an 'id' for ${modelName} in an object passed to 'push'`, data.id !== null && data.id !== undefined && data.id !== '');
     assert(`You tried to push data with a type '${modelName}' but no model could be found with that name.`, this._hasModelFor(modelName));
 
-    runInDebug(() => {
+    if (DEBUG) {
       // If ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
       // contains unknown attributes or relationships, log a warning.
 
@@ -2391,7 +2385,7 @@ Store = Service.extend({
         let unknownRelationshipsMessage = `The payload for '${modelName}' contains these unknown relationships: ${unknownRelationships}. Make sure they've been defined in your model.`;
         warn(unknownRelationshipsMessage, unknownRelationships.length === 0, { id: 'ds.store.unknown-keys-in-payload' });
       }
-    });
+    }
 
     // Actually load the record into the store.
     let internalModel = this._load(data);
@@ -2571,7 +2565,7 @@ Store = Service.extend({
   },
 
   buildInternalModel(modelName, id, data) {
-    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.');
+    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.buildInternalModel', until: '2.17.0' });
     return this._buildInternalModel(modelName, id, data);
   },
 
@@ -2867,7 +2861,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
     }
 
     // in debug, assert payload validity eagerly
-    runInDebug(() => {
+    if (DEBUG) {
       let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
       let relationshipData = data.relationships[relationshipName];
       if (!relationshipData || !relationshipMeta) {
@@ -2886,7 +2880,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
           assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
         }
       }
-    });
+    }
   });
 }
 

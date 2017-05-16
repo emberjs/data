@@ -2,6 +2,80 @@
 
 ### Master
 
+### Release 2.13.1 (May 5, 2017)
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4970](https://github.com/emberjs/data/pull/4970) [BUGFIX release] Ensure Engines can boot without error.
+
+### Release 2.13.0 (April 28, 2017)
+- [#4860](https://github.com/emberjs/data/pull/4860) Refactor the detection / warnings around ember-cli-shims.
+- [#4853](https://github.com/emberjs/data/pull/4853) [Fixes #4853] use Object.create(null) directly
+- [#4858](https://github.com/emberjs/data/pull/4858) [PERF] let GUID_KEYS just be set on the model instances
+- [#4937](https://github.com/emberjs/data/pull/4937) [BUGFIX beta] Update dependencies to use Babel 6
+- [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
+- [#4916](https://github.com/emberjs/data/pull/4916) [BACKPORT 4913] don't prematurely nullify props on the container-inst…
+- [#4862](https://github.com/emberjs/data/pull/4862) [BETA] Update dependencies to use babel 6.
+- [#4877](https://github.com/emberjs/data/pull/4877) [BUGFIX beta] ensure the globals build has the correct context in the iife.
+- [#4879](https://github.com/emberjs/data/pull/4879) [BUGFIX beta] ensure context is applied in iife
+- [#4767](https://github.com/emberjs/data/pull/4767) Updating gitignore to remove .idea
+- [#4741](https://github.com/emberjs/data/pull/4741) Clean up some YUIdoc erros
+- [#4693](https://github.com/emberjs/data/pull/4693) Fixed modelFor documentation. Look up model's class name (#4693)
+- [#4719](https://github.com/emberjs/data/pull/4719) [DOC release] Add note to embedded records mixin (#4719)
+- [#4723](https://github.com/emberjs/data/pull/4723) Simplify Backburner Usage (#4723)
+- [#4715](https://github.com/emberjs/data/pull/4715) converts Snapshot to an es6 class instead of using prototype assign
+- [#4728](https://github.com/emberjs/data/pull/4728) [CLEANUP beta] Linter changes for addon, addon/adapters and addon/serializers
+- [#4708](https://github.com/emberjs/data/pull/4708) es6 RecordArrayManager
+- [#4657](https://github.com/emberjs/data/pull/4657) Deprecate unused initializers
+- [#4593](https://github.com/emberjs/data/pull/4593) Free up `internalModel`s
+- [#4729](https://github.com/emberjs/data/pull/4729) [CLEANUP Beta] Linter changes for addon/-private (not -private/system)
+- [#4730](https://github.com/emberjs/data/pull/4730) [CLEANUP Beta] Linter changes for addon/-private/system
+- [#4799](https://github.com/emberjs/data/pull/4799) [DOC] Add Ember imports and use lets in adapter examples
+- [#4760](https://github.com/emberjs/data/pull/4760) Update deprecate arguments (#4760)
+- [#4743](https://github.com/emberjs/data/pull/4743) [BUGFIX canary] Fix _lookupFactory deprecation for Ember canary
+- [#4747](https://github.com/emberjs/data/pull/4747) Updates code sample to match Guides
+- [#4750](https://github.com/emberjs/data/pull/4750) Add a yarn lock file
+- [#4745](https://github.com/emberjs/data/pull/4745) License: 2017
+- [#4808](https://github.com/emberjs/data/pull/4808) Avoid mutating model factory in _modelForMixin.
+- [#4772](https://github.com/emberjs/data/pull/4772) [DOC] Shorthand method syntax, quotes, and cleanup
+- [#4766](https://github.com/emberjs/data/pull/4766) [DOC] Update store.unloadRecord description
+- [#4763](https://github.com/emberjs/data/pull/4763) Document cache/request behavior of `query` #4733 (#4763)
+- [#4771](https://github.com/emberjs/data/pull/4771) [BUGFIX beta] Ensure ISO-8601 regex correctly matches timestamps  (#4771)
+- [#4765](https://github.com/emberjs/data/pull/4765) [DOC] Make model.unloadRecord public (#4765)
+- [#4762](https://github.com/emberjs/data/pull/4762) [DOC] - add bower install to README
+- [#4769](https://github.com/emberjs/data/pull/4769) [DOC release] Add missing docs for `preload` option.
+- [#4815](https://github.com/emberjs/data/pull/4815) More Cleanups
+- [#4780](https://github.com/emberjs/data/pull/4780) [DOC] shorthand method and quotes/semicolons for serializers/json
+- [#4778](https://github.com/emberjs/data/pull/4778) [DOC] shorthand methods and quotes for json-api serializer (#4778)
+- [#4775](https://github.com/emberjs/data/pull/4775) [DOC] shorthand methods for transform
+- [#4774](https://github.com/emberjs/data/pull/4774) [DOC] Shorthand method fixes in adapter
+- [#4776](https://github.com/emberjs/data/pull/4776) [DOC] shorthand method fixes for serializer
+- [#4777](https://github.com/emberjs/data/pull/4777) [DOC] shorthand method in attr
+- [#4832](https://github.com/emberjs/data/pull/4832) remove isPrimaryType’s reliance on modelName (#4832)
+- [#4794](https://github.com/emberjs/data/pull/4794) Fix spelling error in documentation
+- [#4782](https://github.com/emberjs/data/pull/4782) [DOC] shorthand methods and quotes for adapter errors
+- [#4781](https://github.com/emberjs/data/pull/4781) [DOC] shorthand method and quotes fro serializers/rest
+- [#4789](https://github.com/emberjs/data/pull/4789) Do not access container if Ember.getOwner exists.
+- [#4790](https://github.com/emberjs/data/pull/4790) Add a test for #4770
+- [#4783](https://github.com/emberjs/data/pull/4783) [DOC] shorthand methods for rest adapter
+- [#4837](https://github.com/emberjs/data/pull/4837) Stefs cleanup (#4837)
+- [#4810](https://github.com/emberjs/data/pull/4810) [Fixes #4807] realize class + factory seperation
+- [#4809](https://github.com/emberjs/data/pull/4809) bump ember-cli
+- [#4805](https://github.com/emberjs/data/pull/4805) Don’t redefine findPossibleInverses for each _findInverseFor
+- [#4806](https://github.com/emberjs/data/pull/4806) Added missing DS references to DS.Model implementation examples
+- [#4798](https://github.com/emberjs/data/pull/4798) [DOC] Cleanup example code in attr
+- [#4841](https://github.com/emberjs/data/pull/4841) Cleanup (#4841)
+- [#4830](https://github.com/emberjs/data/pull/4830) don’t create extra internal promise objects
+- [#4823](https://github.com/emberjs/data/pull/4823) [BUGFIX] ensure all of DS is initialized together
+- [#4813](https://github.com/emberjs/data/pull/4813) misc cleanup (#4813)
+- [#4818](https://github.com/emberjs/data/pull/4818) remove more unneeded class reification
+- [#4831](https://github.com/emberjs/data/pull/4831) Cleanup things and stuff (#4831)
+- [#4836](https://github.com/emberjs/data/pull/4836) cleanup + reject with useful reasons
+- [#4838](https://github.com/emberjs/data/pull/4838) Stefs cleanup (and some test suite memory leak fixes) (#4838)
+- [#4840](https://github.com/emberjs/data/pull/4840) [DOC] Fix markup for example code of `DS.Model#inverseFor`
+- [#4842](https://github.com/emberjs/data/pull/4842) Stable has many promise proxy (#4842)
+- [#4846](https://github.com/emberjs/data/pull/4846) remove un-needed Ember.A
+- [#4850](https://github.com/emberjs/data/pull/4850) Optimise has many notifications (#4850)
+- [#4851](https://github.com/emberjs/data/pull/4851) Don't calculate `_changedKeys` pointlessly (#4851)
+
 ### Release 2.12.2 (April 12, 2017)
 - [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
 - [#4917](https://github.com/emberjs/data/pull/4917) [BACKPORT 4913] For release

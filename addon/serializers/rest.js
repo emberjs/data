@@ -4,7 +4,9 @@
 
 import Ember from 'ember';
 import { singularize } from "ember-inflector";
-import { assert, deprecate, runInDebug, warn } from 'ember-data/-debug';
+import { assert, deprecate, warn } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+
 import JSONSerializer from "../serializers/json";
 import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
 
@@ -253,10 +255,10 @@ let RESTSerializer = JSONSerializer.extend({
 
     let keys = Object.keys(payload);
 
-    for (let i = 0, length = keys.length; i < length; i++) {
-      let prop = keys[i];
-      let modelName = prop;
-      let forcedSecondary = false;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var prop = keys[i];
+      var modelName = prop;
+      var forcedSecondary = false;
 
       /*
         If you want to provide sideloaded records of the same type that the
@@ -283,7 +285,7 @@ let RESTSerializer = JSONSerializer.extend({
         modelName = prop.substr(1);
       }
 
-      let typeName = this.modelNameFromPayloadKey(modelName);
+      var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store.modelFactoryFor(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing'
@@ -291,14 +293,14 @@ let RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      let isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
-      let value = payload[prop];
+      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
+      var value = payload[prop];
 
       if (value === null) {
         continue;
       }
 
-      runInDebug(function() {
+      if (DEBUG) {
         let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
         let message = "The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.";
 
@@ -306,7 +308,7 @@ let RESTSerializer = JSONSerializer.extend({
           id: 'ds.serializer.rest.queryRecord-array-response',
           until: '3.0'
         });
-      });
+      }
 
       /*
         Support primary data as an object instead of an array.
@@ -319,7 +321,7 @@ let RESTSerializer = JSONSerializer.extend({
         }
         ```
        */
-      if (isPrimary && Ember.typeOf(value) !== 'array') {
+      if (isPrimary && !Array.isArray(value)) {
         let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
         documentHash.data = data;
         if (included) {
@@ -335,7 +337,7 @@ let RESTSerializer = JSONSerializer.extend({
       }
 
       if (isSingle) {
-        data.forEach((resource) => {
+        data.forEach(resource => {
 
           /*
             Figures out if this is the primary record or not.
@@ -410,18 +412,18 @@ let RESTSerializer = JSONSerializer.extend({
       included: []
     };
 
-    for (let prop in payload) {
-      let modelName = this.modelNameFromPayloadKey(prop);
+    for (var prop in payload) {
+      var modelName = this.modelNameFromPayloadKey(prop);
       if (!store.modelFactoryFor(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
         continue;
       }
-      let type = store.modelFor(modelName);
-      let typeSerializer = store.serializerFor(type.modelName);
+      var type = store.modelFor(modelName);
+      var typeSerializer = store.serializerFor(type.modelName);
 
-      Ember.makeArray(payload[prop]).forEach((hash) => {
+      Ember.makeArray(payload[prop]).forEach(hash => {
         let { data, included } = typeSerializer.normalize(type, hash, prop);
         documentHash.data.push(data);
         if (included) {
@@ -972,12 +974,12 @@ if (isEnabled("ds-payload-type-hooks")) {
 
 }
 
-runInDebug(function() {
+if (DEBUG) {
   RESTSerializer.reopen({
     warnMessageNoModelForKey(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
     }
   });
-});
+}
 
 export default RESTSerializer;

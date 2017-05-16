@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, warn } from 'ember-data/-debug';
+import { assert, warn } from '@ember/debug';
 import {
   _bind,
   _guard,
@@ -137,7 +137,14 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
 
 export function _query(adapter, store, modelName, query, recordArray) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
-  let promise = adapter.query(store, modelClass, query, recordArray);
+
+  let promise;
+  if (adapter.query.length > 3) {
+    recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
+    promise = adapter.query(store, modelClass, query, recordArray);
+  } else {
+    promise = adapter.query(store, modelClass, query);
+  }
 
   let label = `DS: Handle Adapter#query of ${modelClass}`;
 
@@ -154,7 +161,11 @@ export function _query(adapter, store, modelName, query, recordArray) {
     let internalModels = store._push(payload);
 
     assert('The response to store.query is expected to be an array but it was a single record. Please wrap your response in an array or use `store.queryRecord` to query for a single record.', Array.isArray(internalModels));
-    recordArray._setInternalModels(internalModels, payload);
+    if (recordArray) {
+      recordArray._setInternalModels(internalModels, payload);
+    } else {
+      recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query, internalModels, payload);
+    }
 
     return recordArray;
   }, null, `DS: Extract payload of query ${modelName}`);

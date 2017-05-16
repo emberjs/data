@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, deprecate, warn } from 'ember-data/-debug';
+import { assert, deprecate, warn } from '@ember/debug';
 import Serializer from "../serializer";
 import {
   getOwner,
@@ -70,7 +70,7 @@ const assign = Ember.assign || Ember.merge;
     - `normalizeResponse` - entry method to the serializer.
     - `normalizeCreateRecordResponse` - a `normalizeResponse` for a specific operation is called.
     - `normalizeSingleResponse`|`normalizeArrayResponse` - for methods like `createRecord` we expect
-      a single record back, while for methods like `findAll` we expect multiple methods back.
+      a single record back, while for methods like `findAll` we expect multiple records back.
     - `normalize` - `normalizeArray` iterates and calls `normalize` for each of its records while `normalizeSingle`
       calls it once. This is the method you most likely want to subclass.
     - `extractId` | `extractAttributes` | `extractRelationships` - `normalize` delegates to these methods to

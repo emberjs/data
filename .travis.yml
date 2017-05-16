@@ -2,22 +2,30 @@
 language: node_js
 sudo: false
 node_js:
-  - "6.9"
+  - "7"
+
+cache:
+  yarn: true
+
 before_install:
-  - "npm config set spin false"
-  - "npm install -g npm@^2"
+  - "export PATH=$PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64/bin:$PATH"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then rm -rf $PWD/travis_phantomjs; mkdir -p $PWD/travis_phantomjs; fi"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then wget https://assets.membergetmember.co/software/phantomjs-2.1.1-linux-x86_64.tar.bz2 -O $PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2; fi"
+  - "if [ $(phantomjs --version) != '2.1.1' ]; then tar -xvf $PWD/travis_phantomjs/phantomjs-2.1.1-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs; fi"
+  - "phantomjs --version"
 
 install:
-  - npm install --no-optional
+  - yarn
   - ./node_modules/.bin/bower install
+
 script:
   - ./bin/lint-features
-  - npm run-script test
-  - npm run-script test:optional-features
-  - npm run-script test:production
-  - npm run-script node-tests
+  - yarn run test
+  - yarn run test:optional-features
+  - yarn run test:production
+  - yarn run node-tests
 after_success:
-  - npm run-script production
+  - yarn run production
   - "./bin/publish-builds"
 env:
   global:

@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { assert, deprecate, warn, runInDebug } from 'ember-data/-debug';
+import { DEBUG } from '@glimmer/env';
+import { assert, deprecate, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
 import isEnabled from '../../features';
@@ -1143,7 +1144,7 @@ Object.defineProperty(Model.prototype, 'id', {
   }
 });
 
-runInDebug(function() {
+if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
@@ -1153,7 +1154,7 @@ runInDebug(function() {
       }
     }
   });
-});
+}
 
 Model.reopenClass({
   isModel: true,
@@ -1888,7 +1889,7 @@ if (isEnabled('ds-rollback-attribute')) {
   });
 }
 
-runInDebug(() => {
+if (DEBUG) {
   Model.reopen({
     // This is a temporary solution until we refactor DS.Model to not
     // rely on the data property.
@@ -1936,7 +1937,7 @@ runInDebug(() => {
         meta.parentType = proto.constructor;
       }
     }
-  })
-});
+  });
+}
 
 export default Model;

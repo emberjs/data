@@ -1,10 +1,8 @@
 import Ember from 'ember';
 import Reference from './reference';
-import {
-  assertPolymorphicType,
-  deprecate,
-  runInDebug
-} from 'ember-data/-debug';
+import { DEBUG } from '@glimmer/env';
+import { deprecate } from '@ember/debug';
+import { assertPolymorphicType } from 'ember-data/-debug';
 
 import isEnabled from '../../features';
 
@@ -148,7 +146,7 @@ HasManyReference.prototype.link = function() {
    commentsRef.ids(); // ['1']
    ```
 
-   @method remoteType
+   @method ids
    @return {Array} The ids in this has-many relationship
 */
 HasManyReference.prototype.ids = function() {
@@ -160,8 +158,7 @@ HasManyReference.prototype.ids = function() {
 };
 
 /**
-   The link Ember Data will use to fetch or reload this has-many
-   relationship.
+   The meta data for the has-many relationship.
 
    Example
 
@@ -278,10 +275,10 @@ HasManyReference.prototype.push = function(objectOrPromise) {
       internalModels = array.map((obj) => {
         let record = this.store.push(obj);
 
-        runInDebug(() => {
+        if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
           assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
-        });
+        }
 
         return record._internalModel;
       });
@@ -289,12 +286,12 @@ HasManyReference.prototype.push = function(objectOrPromise) {
       let records = this.store.push(payload);
       internalModels = Ember.A(records).mapBy('_internalModel');
 
-      runInDebug(() => {
+      if (DEBUG) {
         internalModels.forEach((internalModel) => {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
           assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
         });
-      });
+      }
     }
 
     this.hasManyRelationship.computeChanges(internalModels);

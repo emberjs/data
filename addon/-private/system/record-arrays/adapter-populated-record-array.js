@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import RecordArray from "./record-array";
 import cloneNull from "../clone-null";
+import { associateWithRecordArray } from '../record-array-manager';
 
 /**
   @module ember-data
@@ -87,11 +88,7 @@ export default RecordArray.extend({
       links: cloneNull(payload.links)
     });
 
-    for (let i = 0, l = internalModels.length; i < l; i++) {
-      let internalModel = internalModels[i];
-
-      internalModel._recordArrays.add(this);
-    }
+    associateWithRecordArray(internalModels, this);
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
