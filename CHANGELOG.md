@@ -569,7 +569,7 @@
 ### Release 2.3.0 (January 12, 2016)
 
 Ember Data 2.3 is now published as and Ember CLI addon in addition to a bower package. 
-See the [release notes](http://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
+See the [release notes](https://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
 for instruction on how to upgrade your Ember CLI project to take advantage of the Ember Data addon.
 
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
@@ -1177,7 +1177,7 @@ post.constructor.typeKey => postSnapshot.typeKey
 If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
-The full API reference of `DS.Snapshot` can be found [here](http://emberjs.com/api/data/classes/DS.Snapshot.html).
+The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/api/data/classes/DS.Snapshot.html).
 
 #### Changes
   * Do not re-add deleted records to a hasMany relationship
@@ -1410,7 +1410,7 @@ to set metadata.
 
 
 ##### `ManyArray`s are no longer `RecordArray`s
-[ManyArray](http://emberjs.com/api/data/classes/DS.ManyArray.html),
+[ManyArray](https://emberjs.com/api/data/classes/DS.ManyArray.html),
 the object Ember Data uses to represent `DS.hasMany` relationships has
 been changed so it no longer extends from `RecordArray`. This means if
 you were relying on the RecordArray's `content` property to access the
