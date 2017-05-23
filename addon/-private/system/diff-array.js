@@ -1,7 +1,7 @@
 /**
   @namespace
-  @method diff-array
-  @for DS
+  @method diffArray
+  @private
   @param {Array} oldArray the old array
   @param {Array} newArray the new array
   @return {hash} {
