@@ -1039,6 +1039,7 @@ Store = Service.extend({
   peekRecord(modelName, id) {
     heimdall.increment(peekRecord);
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
+    assert(`You need to pass both a model name and id to the store's peekRecord method`, isPresent(modelName) && isPresent(id));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
 

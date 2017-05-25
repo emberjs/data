@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import {module, test} from 'qunit';
 
@@ -39,5 +40,22 @@ test('peekRecord should return the record if it is in the store ', function(asse
 test('peekRecord should return null if the record is not in the store ', function(assert) {
   run(() => {
     assert.equal(null, store.peekRecord('person', 1), 'peekRecord returns null if the corresponding record is not in the store');
+  });
+});
+
+testInDebug('peekRecord should assert if not passed both model name and id', function(assert) {
+  run(() => {
+    assert.expectAssertion(() => {
+      store.peekRecord('my-id');
+    }, /You need to pass both a model name and id/);
+  });
+});
+
+testInDebug('peekRecord should assert if passed a model class instead of model name', function(assert) {
+  run(() => {
+    assert.expectAssertion(() => {
+      let modelClass = Ember.Object.extend();
+      store.peekRecord(modelClass, 'id');
+    }, /Passing classes to store methods has been removed/);
   });
 });
