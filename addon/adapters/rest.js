@@ -1099,7 +1099,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = options || {};
     hash.url = url;
     hash.type = type;
-    hash.dataType = 'json';
+    hash.dataType = options.dataType || 'json';
     hash.context = this;
 
     instrument(function() {
