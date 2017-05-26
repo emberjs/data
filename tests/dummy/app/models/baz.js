@@ -10,5 +10,5 @@ export default Model.extend({
   name: attr(),
   description: attr(),
   complex: belongsTo('complex', { inverse: 'baz', async: false }),
-  heavyFoo: belongsTo('heavy-foo', { inverse: 'heavyBaz', async: false })
+  heavyFoo: belongsTo('heavy-foo', { inverse: 'baz', async: false })
 });
