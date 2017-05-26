@@ -3,6 +3,7 @@
 
 var path = require('path');
 var SilentError = require('silent-error');
+var Funnel = require('broccoli-funnel');
 
 // allow toggling of heimdall instrumentation
 var INSTRUMENT_HEIMDALL = false;
@@ -14,11 +15,14 @@ for (var i = 0; i < args.length; i++) {
     break;
   }
 }
+
 process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
-function add(options, name, array) {
-  var option = options[name] = options[name] || [];
-  option.push.apply(option, array);
+function isProductionEnv() {
+  var isProd = /production/.test(process.env.EMBER_ENV);
+  var isTest = process.env.EMBER_CLI_TEST_COMMAND;
+
+  return isProd && !isTest;
 }
 
 module.exports = {
@@ -58,6 +62,10 @@ module.exports = {
       return;
     }
 
+    var hasShims = !!shims;
+    var shimsHasEmberDataShims = hasShims && shims.satisfies('< 0.1.0');
+    var emberDataNPMWithShimsIncluded = semver.satisfies(version, '^2.3.0-beta.3');
+
     if (bowerDeps['ember-data']) {
       this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed. If you need an ' +
                 'earlier version of ember-data (< 2.3.0), you can leave this unchanged for now, but we strongly suggest you upgrade your version of Ember Data ' +
@@ -65,18 +73,19 @@ module.exports = {
       this._forceBowerUsage = true;
 
       var emberDataBower = checker.for('ember-data', 'bower');
+      var emberDataBowerWithShimsIncluded = emberDataBower.satisifies('>= 2.3.0-beta.3');
 
-      if (shims && shims.version && !shims.satisfies('< 0.1.0') && emberDataBower.satisfies('< 2.3.0-beta.3')) {
+      if (hasShims && !shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
       }
 
-      if (shims && shims.version && !shims.satisfies('>= 0.1.0') && emberDataBower.satisfies('>= 2.3.0-beta.3')) {
+      if (hasShims && shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
 
     } else {
       // NPM only, but ember-cli-shims does not match
-      if (shims && shims.version && !shims.satisfies('>= 0.1.0') && semver.satisfies(version, '^2.3.0-beta.3')) {
+      if (hasShims && shimsHasEmberDataShims && emberDataNPMWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
       }
     }
@@ -106,10 +115,21 @@ module.exports = {
     var version   = require('./lib/version');
     var merge     = require('broccoli-merge-trees');
 
-    return this._super.treeForAddon.call(this, merge([
+    var tree = this._super.treeForAddon.call(this, merge([
       version(),
       dir
     ]));
+
+    if (isProductionEnv()) {
+      console.log('is prod');
+      tree = new Funnel(tree, {
+        exclude: [
+          /-private\/debug\.js/
+        ]
+      });
+    }
+
+    return tree;
   },
 
   _setupBabelOptions: function() {
@@ -117,9 +137,13 @@ module.exports = {
       return;
     }
 
-    this.options.babel = this.options.babel || {};
-    add(this.options.babel, 'blacklist', ['es6.modules', 'useStrict']);
-    add(this.options.babel, 'plugins', require('./lib/stripped-build-plugins')(process.env.EMBER_ENV));
+    let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+
+    this.options.babel = {
+      loose: true,
+      plugins: customPlugins.plugins,
+      postTransformPlugins: customPlugins.postTransformPlugins
+    };
 
     this._hasSetupBabelOptions = true;
   },

@@ -1,7 +1,14 @@
 /* global heimdall */
 import Ember from 'ember';
-import EmptyObject from "ember-data/-private/system/empty-object";
-const assign = Ember.assign || Ember.merge;
+const { set } = Ember;
+
+const  {
+  __get,
+  _instanceFor
+} = heimdall.registerMonitor('system.store.container-instance-cache',
+  '__get',
+  '_instanceFor'
+);
 
 /*
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
@@ -12,71 +19,88 @@ const assign = Ember.assign || Ember.merge;
  * when the preferred lookup fails. For example, say you try to look up `adapter:post`,
  * but there is no entry (app/adapters/post.js in EmberCLI) for `adapter:post` in the registry.
  *
- * The `fallbacks` array passed will then be used; the first entry in the fallbacks array
- * that exists in the container will then be cached for `adapter:post`. So, the next time you
- * look up `adapter:post`, you'll get the `adapter:application` instance (or whatever the fallback
- * was if `adapter:application` doesn't exist).
+ * When an adapter or serializer is unfound, getFallbacks will be invoked with the current namespace
+ * ('adapter' or 'serializer') and the 'preferredKey' (usually a modelName).  The method should return
+ * an array of keys to check against.
+ *
+ * The first entry in the fallbacks array that exists in the container will then be cached for
+ * `adapter:post`. So, the next time you look up `adapter:post`, you'll get the `adapter:application`
+ * instance (or whatever the fallback was if `adapter:application` doesn't exist).
  *
  * @private
  * @class ContainerInstanceCache
  *
 */
-export default function ContainerInstanceCache(owner) {
-  this._owner = owner;
-  this._cache = new EmptyObject();
-}
+export default class ContainerInstanceCache {
+  constructor(owner, store) {
+    this.isDestroying = false;
+    this.isDestroyed = false;
+    this._owner = owner;
+    this._store = store;
+    this._namespaces = {
+      adapter: Object.create(null),
+      serializer: Object.create(null)
+    };
+  }
 
-const  {
-  __get,
-  instanceFor
-} = heimdall.registerMonitor('system.store.container-instance-cache',
-  'get',
-  'instanceFor'
-);
-
-ContainerInstanceCache.prototype = new EmptyObject();
-
-assign(ContainerInstanceCache.prototype, {
-  get(type, preferredKey, fallbacks) {
+  get(namespace, preferredKey) {
     heimdall.increment(__get);
-    let cache = this._cache;
-    let preferredLookupKey = `${type}:${preferredKey}`;
+    let cache = this._namespaces[namespace];
 
-    if (!(preferredLookupKey in cache)) {
-      let instance = this.instanceFor(preferredLookupKey) || this._findInstance(type, fallbacks);
-      if (instance) {
-        cache[preferredLookupKey] = instance;
-      }
+    if (cache[preferredKey]) {
+      return cache[preferredKey];
     }
-    return cache[preferredLookupKey];
-  },
 
-  _findInstance(type, fallbacks) {
+    let preferredLookupKey = `${namespace}:${preferredKey}`;
+
+    let instance = this._instanceFor(preferredLookupKey) || this._findInstance(namespace, this._fallbacksFor(namespace, preferredKey));
+    if (instance) {
+      cache[preferredKey] = instance;
+      set(instance, 'store', this._store);
+    }
+
+    return cache[preferredKey];
+  }
+
+  _fallbacksFor(namespace, preferredKey) {
+    if (namespace === 'adapter') {
+      return ['application', this._store.get('adapter'), '-json-api'];
+    }
+
+    // serializer
+    return [
+      'application',
+      this.get('adapter', preferredKey).get('defaultSerializer'),
+      '-default'
+    ];
+  }
+
+  _findInstance(namespace, fallbacks) {
+    let cache = this._namespaces[namespace];
+
     for (let i = 0, length = fallbacks.length; i < length; i++) {
       let fallback = fallbacks[i];
-      let lookupKey = `${type}:${fallback}`;
-      let instance = this.instanceFor(lookupKey);
+
+      if (cache[fallback]) {
+        return cache[fallback];
+      }
+
+      let lookupKey = `${namespace}:${fallback}`;
+      let instance = this._instanceFor(lookupKey);
 
       if (instance) {
+        cache[fallback] = instance;
         return instance;
       }
     }
-  },
+  }
 
-  instanceFor(key) {
-    heimdall.increment(instanceFor);
-    let cache = this._cache;
-    if (!cache[key]) {
-      let instance = this._owner.lookup(key);
-      if (instance) {
-        cache[key] = instance;
-      }
-    }
-    return cache[key];
-  },
+  _instanceFor(key) {
+    heimdall.increment(_instanceFor);
+    return this._owner.lookup(key);
+  }
 
-  destroy() {
-    let cache = this._cache;
+  destroyCache(cache) {
     let cacheEntries = Object.keys(cache);
 
     for (let i = 0, length = cacheEntries.length; i < length; i++) {
@@ -86,12 +110,16 @@ assign(ContainerInstanceCache.prototype, {
         cacheEntry.destroy();
       }
     }
-    this._owner = null;
-  },
+  }
 
-  constructor: ContainerInstanceCache,
+  destroy() {
+    this.isDestroying = true;
+    this.destroyCache(this._namespaces.adapter);
+    this.destroyCache(this._namespaces.serializer);
+    this.isDestroyed = true;
+  }
 
   toString() {
     return 'ContainerInstanceCache';
   }
-});
+}

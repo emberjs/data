@@ -7,12 +7,12 @@ import {module, test} from 'qunit';
 import DS from 'ember-data';
 import Model from 'ember-data/model';
 
-import { assertPolymorphicType } from "ember-data/-private/debug";
-import { modelHasAttributeOrRelationshipNamedType } from "ember-data/-private/utils";
+import { assertPolymorphicType } from 'ember-data/-private/debug';
+import { modelHasAttributeOrRelationshipNamedType } from 'ember-data/-private/utils';
 
-var env, User, Message, Post, Person, Video, Medium;
+let env, User, Message, Post, Person, Video, Medium;
 
-module("unit/utils", {
+module('unit/utils', {
   beforeEach() {
     Person = Model.extend();
     User = Model.extend({
@@ -43,10 +43,10 @@ module("unit/utils", {
   }
 });
 
-testInDebug("assertPolymorphicType works for subclasses", function(assert) {
-  var user, post, person;
+testInDebug('assertPolymorphicType works for subclasses', function(assert) {
+  let user, post, person;
 
-  Ember.run(function() {
+  Ember.run(() => {
     env.store.push({
       data: [{
         type: 'user',
@@ -70,7 +70,7 @@ testInDebug("assertPolymorphicType works for subclasses", function(assert) {
     person = env.store.peekRecord('person', 1);
   });
 
-  var relationship = user.relationshipFor('messages');
+  let relationship = user.relationshipFor('messages');
   user = user._internalModel;
   post = post._internalModel;
   person = person._internalModel;
@@ -78,22 +78,22 @@ testInDebug("assertPolymorphicType works for subclasses", function(assert) {
   try {
     assertPolymorphicType(user, relationship, post);
   } catch (e) {
-    assert.ok(false, "should not throw an error");
+    assert.ok(false, 'should not throw an error');
   }
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     assertPolymorphicType(user, relationship, person);
-  }, "You cannot add a record of type 'person' to the 'user.messages' relationship (only 'message' allowed)");
+  }, "You cannot add a record of modelClass 'person' to the 'user.messages' relationship (only 'message' allowed)");
 });
 
-test("modelHasAttributeOrRelationshipNamedType", function(assert) {
-  var ModelWithTypeAttribute = Model.extend({
+test('modelHasAttributeOrRelationshipNamedType', function(assert) {
+  let ModelWithTypeAttribute = Model.extend({
     type: DS.attr()
   });
-  var ModelWithTypeBelongsTo = Model.extend({
+  let ModelWithTypeBelongsTo = Model.extend({
     type: DS.belongsTo()
   });
-  var ModelWithTypeHasMany = Model.extend({
+  let ModelWithTypeHasMany = Model.extend({
     type: DS.hasMany()
   });
 
@@ -104,10 +104,10 @@ test("modelHasAttributeOrRelationshipNamedType", function(assert) {
   assert.equal(modelHasAttributeOrRelationshipNamedType(ModelWithTypeHasMany), true);
 });
 
-testInDebug("assertPolymorphicType works for mixins", function(assert) {
-  var post, video, person;
+testInDebug('assertPolymorphicType works for mixins', function(assert) {
+  let post, video, person;
 
-  Ember.run(function() {
+  Ember.run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -125,7 +125,7 @@ testInDebug("assertPolymorphicType works for mixins", function(assert) {
     person = env.store.peekRecord('person', 1);
   });
 
-  var relationship = post.relationshipFor('medias');
+  let relationship = post.relationshipFor('medias');
   post = post._internalModel;
   video = video._internalModel;
   person = person._internalModel;
@@ -133,10 +133,10 @@ testInDebug("assertPolymorphicType works for mixins", function(assert) {
   try {
     assertPolymorphicType(post, relationship, video);
   } catch (e) {
-    assert.ok(false, "should not throw an error");
+    assert.ok(false, 'should not throw an error');
   }
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     assertPolymorphicType(post, relationship, person);
-  }, "You cannot add a record of type 'person' to the 'post.medias' relationship (only 'medium' allowed)");
+  }, "You cannot add a record of modelClass 'person' to the 'post.medias' relationship (only 'medium' allowed)");
 });

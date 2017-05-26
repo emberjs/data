@@ -102,7 +102,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.ok(true, "The adapter's find method should be called");
     return Ember.RSVP.resolve({
-      id: 1
+      id
     });
   };
 
@@ -130,7 +130,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 });
 
-testInDebug("Only a record of the same type can be used with a monomorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same modelClass can be used with a monomorphic belongsTo relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -156,12 +156,12 @@ testInDebug("Only a record of the same type can be used with a monomorphic belon
     }).then(function(records) {
       assert.expectAssertion(function() {
         records.post.set('user', records.comment);
-      }, /You cannot add a record of type 'comment' to the 'post.user' relationship/);
+      }, /You cannot add a record of modelClass 'comment' to the 'post.user' relationship/);
     });
   });
 });
 
-testInDebug("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function(assert) {
+testInDebug("Only a record of the same base modelClass can be used with a polymorphic belongsTo relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   assert.expect(1);
   run(function() {
@@ -207,7 +207,7 @@ testInDebug("Only a record of the same base type can be used with a polymorphic 
 
       assert.expectAssertion(function() {
         comment.set('message', records.user);
-      }, /You cannot add a record of type 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of modelClass 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
     });
   });
 });
@@ -279,7 +279,7 @@ test("The store can serialize a polymorphic belongsTo association", function(ass
     });
 
     store.findRecord('comment', 2).then(function(comment) {
-      var serialized = store.serialize(comment, { includeId: true });
+      var serialized = comment.serialize({ includeId: true });
       assert.equal(serialized['message'], 1);
       assert.equal(serialized['message_type'], 'post');
     });
@@ -469,7 +469,7 @@ test("A record can be created with a resolved belongsTo promise", function(asser
   }));
 });
 
-test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
+test("polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
   assert.expect(1);
 
   var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
@@ -1052,8 +1052,63 @@ test("Local data should take precedence over related link", function(assert) {
   });
 });
 
-test("Updated related link should take precedence over local data", function(assert) {
+test("New related link should take precedence over local data", function(assert) {
   assert.expect(3);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    assert.equal(url, 'author-new-link', 'url is correct');
+    assert.ok(true, "The adapter's findBelongsTo method should be called");
+    return Ember.RSVP.resolve(
+      { id: 1, name: 'This is author' }
+    );
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            data: {
+              type: 'author',
+              id: '1'
+            }
+          }
+        }
+      }
+    });
+
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author-new-link'
+            }
+          }
+        }
+      }
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});
+
+test("Updated related link should take precedence over local data", function(assert) {
+  assert.expect(4);
 
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
@@ -1063,7 +1118,7 @@ test("Updated related link should take precedence over local data", function(ass
     assert.equal(url, 'author-updated-link', 'url is correct');
     assert.ok(true, "The adapter's findBelongsTo method should be called");
     return Ember.RSVP.resolve(
-      { id: 1, name: 'This is author' }
+      { id: 1, name: 'This is updated author' }
     );
   };
 
@@ -1084,7 +1139,18 @@ test("Updated related link should take precedence over local data", function(ass
             data: { type: 'author', id: '1' }
           }
         }
-      }
+      },
+      included: [{
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: 'This is author'
+        }
+      }]
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
     });
 
     env.store.push({
@@ -1095,6 +1161,68 @@ test("Updated related link should take precedence over local data", function(ass
           author: {
             links: {
               related: 'author-updated-link'
+            }
+          }
+        }
+      }
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is updated author', 'author name is correct');
+    });
+  });
+});
+
+test("Updated identical related link should not take precedence over local data", function(assert) {
+  assert.expect(2);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.findBelongsTo = function() {
+    assert.ok(false, "The adapter's findBelongsTo method should not be called");
+  };
+
+  env.adapter.findRecord = function() {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  run(function() {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            },
+            data: { type: 'author', id: '1' }
+          }
+        }
+      },
+      included: [{
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: 'This is author'
+        }
+      }]
+    });
+
+    book.get('author').then((author) => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
             }
           }
         }
@@ -1235,4 +1363,23 @@ test("A belongsTo relationship can be reloaded using a reference if it was fetch
       done();
     });
   });
+});
+
+testInDebug("A belongsTo relationship warns if malformatted data is pushed into the store", function(assert) {
+  assert.expectAssertion(function() {
+    run(function() {
+      let chapter = env.store.push({
+        data: {
+          type: 'chapter',
+          id: 1,
+          relationships: {
+            book: {
+              data: { id: 1, name: 'The Gallic Wars' }
+            }
+          }
+        }
+      });
+      chapter.get('book');
+    });
+  }, /expected the data for the book relationship on a <chapter:1> to be in a JSON API format/);
 });

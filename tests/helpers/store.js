@@ -3,8 +3,8 @@ import DS from 'ember-data';
 import Owner from './owner';
 
 export default function setupStore(options) {
-  var container, registry, owner;
-  var env = {};
+  let container, registry, owner;
+  let env = {};
   options = options || {};
 
   if (Ember.Registry) {
@@ -29,7 +29,7 @@ export default function setupStore(options) {
     }
   };
 
-  var adapter = env.adapter = (options.adapter || '-default');
+  let adapter = env.adapter = (options.adapter || '-default');
   delete options.adapter;
 
   if (typeof adapter !== 'string') {
@@ -37,7 +37,7 @@ export default function setupStore(options) {
     adapter = '-ember-data-test-custom';
   }
 
-  for (var prop in options) {
+  for (let prop in options) {
     registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
   }
 
@@ -65,7 +65,7 @@ export default function setupStore(options) {
   return env;
 }
 
-export {setupStore};
+export { setupStore };
 
 export function createStore(options) {
   return setupStore(options).store;

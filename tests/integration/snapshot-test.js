@@ -75,6 +75,37 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
   });
 });
 
+test('snapshot.type loads the class lazily', function(assert) {
+  assert.expect(3);
+
+  let postClassLoaded = false;
+  let modelFor = env.store._modelFor;
+  env.store._modelFor = (name) => {
+    if (name === 'post') {
+      postClassLoaded = true;
+    }
+    return modelFor.call(env.store, name);
+  };
+
+  run(function() {
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Hello World'
+        }
+      }
+    });
+    let postInternalModel = env.store._internalModelForId('post', 1);
+    let snapshot = postInternalModel.createSnapshot();
+
+    assert.equal(false, postClassLoaded, 'model class is not eagerly loaded');
+    assert.equal(snapshot.type, Post, 'type is correct');
+    assert.equal(true, postClassLoaded, 'model class is loaded');
+  });
+});
+
 test("snapshot.attr() does not change when record changes", function(assert) {
   assert.expect(2);
 
@@ -945,11 +976,11 @@ test("snapshot.eachRelationship() proxies to record", function(assert) {
   });
 });
 
-test("snapshot.belongsTo() does not trigger a call to store.scheduleFetch", function(assert) {
+test("snapshot.belongsTo() does not trigger a call to store._scheduleFetch", function(assert) {
   assert.expect(0);
 
-  env.store.scheduleFetch = function() {
-    assert.ok(false, 'store.scheduleFetch should not be called');
+  env.store._scheduleFetch = function() {
+    assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
   run(function() {
@@ -974,11 +1005,11 @@ test("snapshot.belongsTo() does not trigger a call to store.scheduleFetch", func
   });
 });
 
-test("snapshot.hasMany() does not trigger a call to store.scheduleFetch", function(assert) {
+test("snapshot.hasMany() does not trigger a call to store._scheduleFetch", function(assert) {
   assert.expect(0);
 
-  env.store.scheduleFetch = function() {
-    assert.ok(false, 'store.scheduleFetch should not be called');
+  env.store._scheduleFetch = function() {
+    assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
   run(function() {

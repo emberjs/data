@@ -44,7 +44,7 @@ testInDebug("record#hasMany asserts when specified relationship doesn't exist", 
     run(function() {
       family.hasMany("unknown-relationship");
     });
-  }, "There is no hasMany relationship named 'unknown-relationship' on a model of type 'family'");
+  }, "There is no hasMany relationship named 'unknown-relationship' on a model of modelClass 'family'");
 });
 
 testInDebug("record#hasMany asserts when the type of the specified relationship isn't the requested one", function(assert) {
@@ -62,7 +62,7 @@ testInDebug("record#hasMany asserts when the type of the specified relationship 
     run(function() {
       person.hasMany("family");
     });
-  }, "You tried to get the 'family' relationship on a 'person' via record.hasMany('family'), but the relationship is of type 'belongsTo'. Use record.belongsTo('family') instead.");
+  }, "You tried to get the 'family' relationship on a 'person' via record.hasMany('family'), but the relationship is of kind 'belongsTo'. Use record.belongsTo('family') instead.");
 });
 
 test("record#hasMany", function(assert) {
@@ -272,7 +272,7 @@ testInDebug("push(array) asserts polymorphic type", function(assert) {
 
       personsReference.push(data);
     });
-  }, "You cannot add a record of type 'family' to the 'family.persons' relationship (only 'person' allowed)");
+  }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
 });
 
 testInDebug("push(object) supports legacy, non-JSON-API-conform payload", function(assert) {
@@ -423,7 +423,7 @@ if (isEnabled('ds-overhaul-references')) {
 
         personsReference.push(payload);
       });
-    }, "You cannot add a record of type 'family' to the 'family.persons' relationship (only 'person' allowed)");
+    }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
   });
 }
 
@@ -530,10 +530,58 @@ test("value() returns the referenced records when all records are loaded", funct
     env.store.push({ data: { type: 'person', id: 2, attributes: { name: "Michael" } } });
   });
 
-  var personsReference = family.hasMany('persons');
-  var records = personsReference.value();
-  assert.equal(get(records, 'length'), 2);
-  assert.equal(records.isEvery('isLoaded'), true);
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var records = personsReference.value();
+    assert.equal(get(records, 'length'), 2);
+    assert.equal(records.isEvery('isLoaded'), true);
+  });
+});
+
+test("value() returns an empty array when the reference is loaded and empty", function(assert) {
+  var family;
+  run(function() {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: []
+          }
+        }
+      }
+    });
+  });
+
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var records = personsReference.value();
+    assert.equal(get(records, 'length'), 0);
+  });
+});
+
+test("_isLoaded() returns an true array when the reference is loaded and empty", function(assert) {
+  var family;
+  run(function() {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            data: []
+          }
+        }
+      }
+    });
+  });
+
+  run(function() {
+    var personsReference = family.hasMany('persons');
+    var isLoaded = personsReference._isLoaded();
+    assert.equal(isLoaded, true);
+  });
 });
 
 test("load() fetches the referenced records", function(assert) {

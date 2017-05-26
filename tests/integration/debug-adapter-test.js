@@ -4,14 +4,15 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var App, store, debugAdapter;
-var get = Ember.get;
-var run = Ember.run;
+let App, store, debugAdapter;
+const { get, run } = Ember;
 
-module("DS.DebugAdapter", {
+module('DS.DebugAdapter', {
   beforeEach() {
     Ember.run(function() {
-      App = Ember.Application.create();
+      App = Ember.Application.extend({
+        toString() { return 'debug-app'; }
+      }).create();
 
       App.StoreService = DS.Store.extend({});
 
@@ -33,34 +34,43 @@ module("DS.DebugAdapter", {
     store = App.__container__.lookup('service:store');
     debugAdapter = App.__container__.lookup('data-adapter:main');
 
+    let klass;
+
+    if (App.__container__.factoryFor) {
+      klass = App.__container__.factoryFor('model:post').class;
+    } else {
+      klass = App.__container__.lookupFactory('model:post');
+    }
+
     debugAdapter.reopen({
       getModelTypes() {
-        return Ember.A([{ klass: App.__container__.lookupFactory('model:post'), name: 'post' }]);
+        return Ember.A([{ klass, name: 'post' }]);
       }
     });
   },
   afterEach() {
     run(App, App.destroy);
+    App = store = null;
   }
 });
 
-test("Watching Model Types", function(assert) {
+test('Watching Model Types', function(assert) {
   assert.expect(5);
 
-  var added = function(types) {
+  function added(types) {
     assert.equal(types.length, 1);
     assert.equal(types[0].name, 'post');
     assert.equal(types[0].count, 0);
     assert.strictEqual(types[0].object, store.modelFor('post'));
-  };
+  }
 
-  var updated = function(types) {
+  function updated(types) {
     assert.equal(types[0].count, 1);
-  };
+  }
 
   debugAdapter.watchModelTypes(added, updated);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'post',

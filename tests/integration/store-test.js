@@ -13,6 +13,7 @@ var Person = DS.Model.extend({
   name: DS.attr('string'),
   cars: DS.hasMany('car', { async: false })
 });
+Person.reopenClass({ toString: () => 'Person' });
 
 var run = Ember.run;
 
@@ -21,6 +22,7 @@ var Car = DS.Model.extend({
   model: DS.attr('string'),
   person: DS.belongsTo('person', { async: false })
 });
+Car.reopenClass({ toString: () => 'Car' });
 
 function initializeStore(adapter) {
   env = setupStore({
@@ -155,7 +157,9 @@ test("destroying the store correctly cleans everything up", function(assert) {
 
   var personWillDestroy = tap(person, 'willDestroy');
   var carWillDestroy = tap(car, 'willDestroy');
-  var carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
+  var carsWillDestroy = run(function() {
+    return tap(car.get('person.cars'), 'willDestroy');
+  });
 
   env.adapter.query = function() {
     return [{
@@ -193,10 +197,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(car.get('person'), person, "expected car's person to be the correct person");
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
-  Ember.run(person, person.destroy);
   Ember.run(store, 'destroy');
-
-  assert.equal(car.get('person'), null, "expected car.person to no longer be present");
 
   assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
@@ -870,7 +871,7 @@ testInDebug('store#findRecord that returns an array should assert', assert => {
     run(function() {
       store.findRecord('car', 1);
     });
-  }, /expected the primary data returned from a `findRecord` response to be an object but instead it found an array/);
+  }, /expected the primary data returned from a 'findRecord' response to be an object but instead it found an array/);
 });
 
 testInDebug('store#didSaveRecord should assert when the response to a save does not include the id', function(assert) {
@@ -909,7 +910,7 @@ testInDebug('store#queryRecord should assert when normalized payload of adapter 
     run(function() {
       store.queryRecord('car', {});
     });
-  }, /Expected the primary data returned by the serializer for a `queryRecord` response to be a single object or null but instead it was an array./);
+  }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
 });
 
 

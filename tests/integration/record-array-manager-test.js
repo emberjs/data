@@ -5,23 +5,22 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var store, env;
-var run = Ember.run;
+let store, env, manager;
 
-var Person = DS.Model.extend({
+const { run } = Ember;
+
+const Person = DS.Model.extend({
   name: DS.attr('string'),
   cars: DS.hasMany('car', { async: false })
 });
 
-var Car = DS.Model.extend({
+const Car = DS.Model.extend({
   make: DS.attr('string'),
   model: DS.attr('string'),
   person: DS.belongsTo('person', { async: false })
 });
 
-var manager;
-
-module("integration/record_array_manager", {
+module('integration/record_array_manager', {
   beforeEach() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend()
@@ -52,11 +51,11 @@ function tap(obj, methodName, callback) {
   return summary;
 }
 
-test("destroying the store correctly cleans everything up", function(assert) {
-  var query = { };
-  var person;
+test('destroying the store correctly cleans everything up', function(assert) {
+  let query = { };
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'car',
@@ -74,7 +73,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
     });
   });
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -94,50 +93,56 @@ test("destroying the store correctly cleans everything up", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  var filterd = manager.createFilteredRecordArray(Person, function() { return true; });
-  var filterd2 = manager.createFilteredRecordArray(Person, function() { return true; });
-  var all = store.peekAll('person');
-  var adapterPopulated = manager.createAdapterPopulatedRecordArray(Person, query);
+  let filterd = manager.createFilteredRecordArray('person', () => true);
+  let filterd2 = manager.createFilteredRecordArray('person', () => true);
+  let all = store.peekAll('person');
+  let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
 
-  var filterdSummary = tap(filterd, 'willDestroy');
-  var filterd2Summary = tap(filterd2, 'willDestroy');
-  var allSummary = tap(all, 'willDestroy');
-  var adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
+  let filterdSummary = tap(filterd, 'willDestroy');
+  let filterd2Summary = tap(filterd2, 'willDestroy');
+  let allSummary = tap(all, 'willDestroy');
+  let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
+
+  let internalPersonModel = person._internalModel;
 
   assert.equal(filterdSummary.called.length, 0);
   assert.equal(filterd2Summary.called.length, 0);
   assert.equal(allSummary.called.length, 0);
   assert.equal(adapterPopulatedSummary.called.length, 0);
 
-  assert.equal(person._internalModel._recordArrays.list.length, 3, 'expected the person to be a member of 3 recordArrays');
+  assert.equal(internalPersonModel._recordArrays.size, 3, 'expected the person to be a member of 3 recordArrays');
 
   Ember.run(filterd2, filterd2.destroy);
-  assert.equal(person._internalModel._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
+
+  assert.equal(internalPersonModel._recordArrays.size, 2, 'expected the person to be a member of 2 recordArrays');
   assert.equal(filterd2Summary.called.length, 1);
 
-  assert.equal(manager.liveRecordArrays.has(all.type), true);
+  assert.equal('person' in manager._liveRecordArrays, true);
+
   Ember.run(all, all.destroy);
-  assert.equal(person._internalModel._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
+
+  assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
   assert.equal(allSummary.called.length, 1);
-  assert.equal(manager.liveRecordArrays.has(all.type), false);
+  assert.equal('person' in manager._liveRecordArrays, false);
 
   Ember.run(manager, manager.destroy);
-  assert.equal(person._internalModel._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
+
+  assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
   assert.equal(filterdSummary.called.length, 1);
   assert.equal(filterd2Summary.called.length, 1);
   assert.equal(allSummary.called.length, 1);
   assert.equal(adapterPopulatedSummary.called.length, 1);
 });
 
-test("Should not filter a store.peekAll() array when a record property is changed", function(assert) {
-  var car;
+test('Should not filter a store.peekAll() array when a record property is changed', function(assert) {
+  let updateLiveRecordArray = tap(store.recordArrayManager, 'updateLiveRecordArray');
+  let updateFilterRecordArray = tap(store.recordArrayManager, 'updateFilterRecordArray');
 
-  var populateLiveRecordArray = tap(store.recordArrayManager, 'populateLiveRecordArray');
-  var updateFilterRecordArray = tap(store.recordArrayManager, 'updateFilterRecordArray');
+  let cars = store.peekAll('car');
 
-  store.peekAll('car');
+  assert.deepEqual(cars.toArray(), []);
 
-  run(function() {
+  let car = run(() => {
     store.push({
       data: {
         type: 'car',
@@ -153,19 +158,114 @@ test("Should not filter a store.peekAll() array when a record property is change
         }
       }
     });
-    car = store.peekRecord('car', 1);
+
+    return store.peekRecord('car', 1);
   });
 
-  assert.equal(populateLiveRecordArray.called.length, 1);
+  assert.deepEqual(cars.toArray(), [car]);
+
+  assert.equal(updateLiveRecordArray.called.length, 1);
   assert.equal(updateFilterRecordArray.called.length, 0);
 
-  run(function() {
-    car.set('model', 'Mini');
+  run(() => car.set('model', 'Mini'));
+
+  assert.deepEqual(cars.toArray(), [car]);
+
+  // TODO: differentiate between change + add/remove so we can skip non-filtered record arrays
+  assert.equal(updateLiveRecordArray.called.length, 2);
+  assert.equal(updateFilterRecordArray.called.length, 0);
+});
+
+test('batch liveRecordArray changes', function(assert) {
+  let cars = store.peekAll('car');
+  let arrayContentWillChangeCount = 0;
+
+  cars.arrayContentWillChange = function(startIndex, removeCount, addedCount) {
+    arrayContentWillChangeCount++;
+    assert.equal(startIndex, 0, 'expected 0 startIndex');
+    assert.equal(removeCount, 0, 'expected 0 removed');
+    assert.equal(addedCount, 2, 'expected 2 added');
+  };
+
+  assert.deepEqual(cars.toArray(), []);
+  assert.equal(arrayContentWillChangeCount, 0, 'expected NO arrayChangeEvents yet');
+
+  run(() => {
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini Cooper'
+          }
+        },
+        {
+          type: 'car',
+          id: '2',
+          attributes: {
+            make: 'Jeep',
+            model: 'Wrangler'
+          }
+        }
+      ]
+    });
   });
 
-  assert.equal(populateLiveRecordArray.called.length, 1);
-  assert.equal(updateFilterRecordArray.called.length, 0);
+  assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
+  assert.deepEqual(cars.toArray(), [
+    store.peekRecord('car', 1),
+    store.peekRecord('car', 2)
+  ]);
+
+  run(() => store.peekRecord('car', 1).set('model', 'Mini'));
+
+  assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
+
+  cars.arrayContentWillChange = function(startIndex, removeCount, addedCount) {
+    arrayContentWillChangeCount++;
+    assert.equal(startIndex, 2, 'expected a start index of TWO');
+    assert.equal(removeCount, 0, 'expected no removes');
+    assert.equal(addedCount, 1, 'expected ONE add');
+  };
+
+  arrayContentWillChangeCount = 0;
+
+  run(() => {
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: 2, // this ID is already present, array wont need to change
+          attributes: {
+            make: 'Tesla',
+            model: 'S'
+          }
+        }
+      ]
+    });
+  });
+
+  assert.equal(arrayContentWillChangeCount, 0, 'expected NO array change events');
+
+  run(() => {
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: 3,
+          attributes: {
+            make: 'Tesla',
+            model: 'S'
+          }
+        }
+      ]
+    });
+  });
+
+  assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 });
 
 test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their managers instead of retained when #destroy is called', function(assert) {
@@ -181,13 +281,12 @@ test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their m
       }
     });
   });
+
   const query = {};
 
-  var adapterPopulated = manager.createAdapterPopulatedRecordArray(Car, query);
+  let adapterPopulated = manager.createAdapterPopulatedRecordArray('car', query);
 
-  run(() => {
-    adapterPopulated.destroy();
-  });
+  run(() => adapterPopulated.destroy());
 
   assert.equal(manager._adapterPopulatedRecordArrays.length, 0);
 });

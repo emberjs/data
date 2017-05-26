@@ -1,6 +1,9 @@
-import Store from "ember-data/-private/system/store";
-import { JSONAPISerializer, JSONSerializer, RESTSerializer } from "ember-data/-private/serializers";
-import { JSONAPIAdapter, RESTAdapter } from "ember-data/-private/adapters";
+import Store from "../system/store";
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import JSONSerializer from 'ember-data/serializers/json';
+import RESTSerializer from 'ember-data/serializers/rest';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import RESTAdapter from 'ember-data/adapters/rest';
 
 function has(applicationOrRegistry, fullName) {
   if (applicationOrRegistry.has) {
@@ -22,7 +25,7 @@ function has(applicationOrRegistry, fullName) {
 export default function initializeStore(registry) {
   // registry.optionsForType for Ember < 2.1.0
   // application.registerOptionsForType for Ember 2.1.0+
-  var registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
+  let registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
   registerOptionsForType.call(registry, 'serializer', { singleton: false });
   registerOptionsForType.call(registry, 'adapter', { singleton: false });
 

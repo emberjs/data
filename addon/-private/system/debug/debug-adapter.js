@@ -2,11 +2,10 @@
   @module ember-data
 */
 import Ember from 'ember';
-import Model from "ember-data/model";
-var get = Ember.get;
-var capitalize = Ember.String.capitalize;
-var underscore = Ember.String.underscore;
-const { assert } = Ember;
+import Model from "../../../model";
+const capitalize = Ember.String.capitalize;
+const underscore = Ember.String.underscore;
+const { assert, get } = Ember;
 
 /*
   Extend `Ember.DataAdapter` with ED specific code.
@@ -30,15 +29,15 @@ export default Ember.DataAdapter.extend({
   },
 
   columnsForType(typeClass) {
-    var columns = [{
+    let columns = [{
       name: 'id',
       desc: 'Id'
     }];
-    var count = 0;
-    var self = this;
+    let count = 0;
+    let self = this;
     get(typeClass, 'attributes').forEach((meta, name) => {
       if (count++ > self.attributeLimit) { return false; }
-      var desc = capitalize(underscore(name).replace('_', ' '));
+      let desc = capitalize(underscore(name).replace('_', ' '));
       columns.push({ name: name, desc: desc });
     });
     return columns;
@@ -60,22 +59,21 @@ export default Ember.DataAdapter.extend({
   },
 
   getRecordColumnValues(record) {
-    var count = 0;
-    var columnValues = { id: get(record, 'id') };
+    let count = 0;
+    let columnValues = { id: get(record, 'id') };
 
     record.eachAttribute((key) => {
       if (count++ > this.attributeLimit) {
         return false;
       }
-      var value = get(record, key);
-      columnValues[key] = value;
+      columnValues[key] = get(record, key);
     });
     return columnValues;
   },
 
   getRecordKeywords(record) {
-    var keywords = [];
-    var keys = Ember.A(['id']);
+    let keywords = [];
+    let keys = Ember.A(['id']);
     record.eachAttribute((key) => keys.push(key));
     keys.forEach((key) => keywords.push(get(record, key)));
     return keywords;
@@ -90,7 +88,7 @@ export default Ember.DataAdapter.extend({
   },
 
   getRecordColor(record) {
-    var color = 'black';
+    let color = 'black';
     if (record.get('isNew')) {
       color = 'green';
     } else if (record.get('hasDirtyAttributes')) {
@@ -100,14 +98,14 @@ export default Ember.DataAdapter.extend({
   },
 
   observeRecord(record, recordUpdated) {
-    var releaseMethods = Ember.A();
-    var keysToObserve = Ember.A(['id', 'isNew', 'hasDirtyAttributes']);
+    let releaseMethods = Ember.A();
+    let keysToObserve = Ember.A(['id', 'isNew', 'hasDirtyAttributes']);
 
     record.eachAttribute((key) => keysToObserve.push(key));
-    var adapter = this;
+    let adapter = this;
 
     keysToObserve.forEach(function(key) {
-      var handler = function() {
+      let handler = function() {
         recordUpdated(adapter.wrapRecord(record));
       };
       Ember.addObserver(record, key, handler);
@@ -116,7 +114,7 @@ export default Ember.DataAdapter.extend({
       });
     });
 
-    var release = function() {
+    let release = function() {
       releaseMethods.forEach((fn) => fn());
     };
 

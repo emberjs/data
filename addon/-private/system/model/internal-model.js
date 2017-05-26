@@ -1,10 +1,10 @@
 import Ember from 'ember';
 import { assert, runInDebug } from "ember-data/-private/debug";
-import RootState from "ember-data/-private/system/model/states";
-import Relationships from "ember-data/-private/system/relationships/state/create";
-import Snapshot from "ember-data/-private/system/snapshot";
-import EmptyObject from "ember-data/-private/system/empty-object";
-import isEnabled from 'ember-data/-private/features';
+import RootState from "./states";
+import Relationships from "../relationships/state/create";
+import Snapshot from "../snapshot";
+import isEnabled from '../../features';
+import OrderedSet from "../ordered-set";
 
 import {
   getOwner
@@ -14,16 +14,37 @@ import {
   RecordReference,
   BelongsToReference,
   HasManyReference
-} from "ember-data/-private/system/references";
+} from "../references";
 
-var Promise = Ember.RSVP.Promise;
-var get = Ember.get;
-var set = Ember.set;
-var copy = Ember.copy;
-var assign = Ember.assign || Ember.merge;
+const {
+  get,
+  set,
+  copy,
+  Error: EmberError,
+  inspect,
+  isEmpty,
+  isEqual,
+  setOwner,
+  RSVP,
+  RSVP: { Promise }
+} = Ember;
 
-var _extractPivotNameCache = new EmptyObject();
-var _splitOnDotCache = new EmptyObject();
+const assign = Ember.assign || Ember.merge;
+
+/*
+  The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
+  when transitioning from one state to another, so that future transitions can replay the
+  transition without needing to walk the state tree, collect these hook calls and determine
+   the state to transition into.
+
+   A future optimization would be to build a single chained method out of the collected enters
+   and setups. It may also be faster to do a two level cache (from: { to }) instead of caching based
+   on a key that adds the two together.
+ */
+const TransitionChainMap = Object.create(null);
+
+const _extractPivotNameCache = Object.create(null);
+const _splitOnDotCache = Object.create(null);
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -37,10 +58,14 @@ function extractPivotName(name) {
   );
 }
 
-function retrieveFromCurrentState(key) {
-  return function() {
-    return get(this.currentState, key);
-  };
+function areAllModelsUnloaded(internalModels) {
+  for (let i=0; i<internalModels.length; ++i) {
+    let record = internalModels[i]._record;
+    if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // this (and all heimdall instrumentation) will be stripped by a babel transform
@@ -71,6 +96,9 @@ const {
   'updateChangedAttributes'
 );
 
+let InternalModelReferenceId = 1;
+let nextBfsId = 1;
+
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
@@ -87,196 +115,460 @@ const {
   @private
   @class InternalModel
 */
+export default class InternalModel {
+  constructor(modelName, id, store, data) {
+    heimdall.increment(new_InternalModel);
+    this.id = id;
 
-export default function InternalModel(type, id, store, _, data) {
-  heimdall.increment(new_InternalModel);
-  this.type = type;
-  this.id = id;
-  this.store = store;
-  this._data = data || new EmptyObject();
-  this.modelName = type.modelName;
-  this.dataHasInitialized = false;
-  //Look into making this lazy
-  this._deferredTriggers = [];
-  this._attributes = new EmptyObject();
-  this._inFlightAttributes = new EmptyObject();
-  this._relationships = new Relationships(this);
-  this._recordArrays = undefined;
-  this.currentState = RootState.empty;
-  this.recordReference = new RecordReference(store, this);
-  this.references = {};
-  this.isReloading = false;
-  this.isError = false;
-  this.error = null;
-  this.__ember_meta__ = null;
-  this[Ember.GUID_KEY] = Ember.guidFor(this);
-  /*
-    implicit relationships are relationship which have not been declared but the inverse side exists on
-    another record somewhere
-    For example if there was
+    // this ensure ordered set can quickly identify this as unique
+    this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 
-    ```app/models/comment.js
-    import DS from 'ember-data';
+    this.store = store;
+    this.modelName = modelName;
+    this._loadingPromise = null;
+    this._record = null;
+    this._isDestroyed = false;
+    this.isError = false;
+    this._isUpdatingRecordArrays = false; // used by the recordArrayManager
 
-    export default DS.Model.extend({
-      name: DS.attr()
-    })
-    ```
+    // During dematerialization we don't want to rematerialize the record.  The
+    // reason this might happen is that dematerialization removes records from
+    // record arrays,  and Ember arrays will always `objectAt(0)` and
+    // `objectAt(len - 1)` to test whether or not `firstObject` or `lastObject`
+    // have changed.
+    this._isDematerializing = false;
 
-    but there is also
+    this.resetRecord();
 
-    ```app/models/post.js
-    import DS from 'ember-data';
-
-    export default DS.Model.extend({
-      name: DS.attr(),
-      comments: DS.hasMany('comment')
-    })
-    ```
-
-    would have a implicit post relationship in order to be do things like remove ourselves from the post
-    when we are deleted
-  */
-  this._implicitRelationships = new EmptyObject();
-}
-
-InternalModel.prototype = {
-  isEmpty: retrieveFromCurrentState('isEmpty'),
-  isLoading: retrieveFromCurrentState('isLoading'),
-  isLoaded: retrieveFromCurrentState('isLoaded'),
-  hasDirtyAttributes: retrieveFromCurrentState('hasDirtyAttributes'),
-  isSaving: retrieveFromCurrentState('isSaving'),
-  isDeleted: retrieveFromCurrentState('isDeleted'),
-  isNew: retrieveFromCurrentState('isNew'),
-  isValid: retrieveFromCurrentState('isValid'),
-  dirtyType: retrieveFromCurrentState('dirtyType'),
-
-  constructor: InternalModel,
-  materializeRecord() {
-    heimdall.increment(materializeRecord);
-    assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
-
-    // lookupFactory should really return an object that creates
-    // instances with the injections applied
-    var createOptions = {
-      store: this.store,
-      _internalModel: this,
-      id: this.id,
-      currentState: get(this, 'currentState'),
-      isError: this.isError,
-      adapterError: this.error
-    };
-
-    if (Ember.setOwner) {
-      // ensure that `Ember.getOwner(this)` works inside a model instance
-      Ember.setOwner(createOptions, getOwner(this.store));
-    } else {
-      createOptions.container = this.store.container;
+    if (data) {
+      this.__data = data;
     }
 
-    this.record = this.type._create(createOptions);
+    // caches for lazy getters
+    this._modelClass = null;
+    this.__deferredTriggers = null;
+    this.__recordArrays = null;
+    this._references = null;
+    this._recordReference = null;
+    this.__relationships = null;
+    this.__implicitRelationships = null;
 
-    this._triggerDeferredTriggers();
-  },
+    // Used during the mark phase of unloading to avoid checking the same internal
+    // model twice in the same scan
+    this._bfsId = 0;
+  }
 
-  recordObjectWillDestroy() {
-    this.record = null;
-  },
+  get modelClass() {
+    return this._modelClass || (this._modelClass = this.store._modelFor(this.modelName));
+  }
+
+  get type() {
+    return this.modelClass;
+  }
+
+  get recordReference() {
+    if (this._recordReference === null) {
+      this._recordReference = new RecordReference(this.store, this);
+    }
+    return this._recordReference;
+  }
+
+  get _recordArrays() {
+    if (this.__recordArrays === null) {
+      this.__recordArrays = OrderedSet.create();
+    }
+    return this.__recordArrays;
+  }
+
+  get references() {
+    if (this._references === null) {
+      this._references = Object.create(null);
+    }
+    return this._references;
+  }
+
+  get _deferredTriggers() {
+    if (this.__deferredTriggers === null) {
+      this.__deferredTriggers = [];
+    }
+    return this.__deferredTriggers;
+  }
+
+  get _attributes() {
+    if (this.__attributes === null) {
+      this.__attributes = Object.create(null);
+    }
+    return this.__attributes;
+  }
+
+  set _attributes(v) {
+    this.__attributes = v;
+  }
+
+  get _relationships() {
+    if (this.__relationships === null) {
+      this.__relationships = new Relationships(this);
+    }
+
+    return this.__relationships;
+  }
+
+  get _inFlightAttributes() {
+    if (this.__inFlightAttributes === null) {
+      this.__inFlightAttributes = Object.create(null);
+    }
+    return this.__inFlightAttributes;
+  }
+
+  set _inFlightAttributes(v) {
+    this.__inFlightAttributes = v;
+  }
+
+  get _data() {
+    if (this.__data === null) {
+      this.__data = Object.create(null);
+    }
+    return this.__data;
+  }
+
+  set _data(v) {
+    this.__data = v;
+  }
+
+  /*
+   implicit relationships are relationship which have not been declared but the inverse side exists on
+   another record somewhere
+   For example if there was
+
+   ```app/models/comment.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+   name: DS.attr()
+   })
+   ```
+
+   but there is also
+
+   ```app/models/post.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+   name: DS.attr(),
+   comments: DS.hasMany('comment')
+   })
+   ```
+
+   would have a implicit post relationship in order to be do things like remove ourselves from the post
+   when we are deleted
+  */
+  get _implicitRelationships() {
+    if (this.__implicitRelationships === null) {
+      this.__implicitRelationships = Object.create(null);
+    }
+    return this.__implicitRelationships;
+  }
+
+  isHiddenFromRecordArrays() {
+    // During dematerialization we don't want to rematerialize the record.
+    // recordWasDeleted can cause other records to rematerialize because it
+    // removes the internal model from the array and Ember arrays will always
+    // `objectAt(0)` and `objectAt(len -1)` to check whether `firstObject` or
+    // `lastObject` have changed.  When this happens we don't want those
+    // models to rematerialize their records.
+
+    return this._isDematerializing ||
+      this.isDestroyed ||
+      this.currentState.stateName === 'root.deleted.saved' ||
+      this.isEmpty();
+  }
+
+  isEmpty() {
+    return this.currentState.isEmpty;
+  }
+
+  isLoading() {
+    return this.currentState.isLoading;
+  }
+
+  isLoaded() {
+    return this.currentState.isLoaded;
+  }
+
+  hasDirtyAttributes() {
+    return this.currentState.hasDirtyAttributes;
+  }
+
+  isSaving() {
+    return this.currentState.isSaving;
+  }
+
+  isDeleted() {
+    return this.currentState.isDeleted;
+  }
+
+  isNew() {
+    return this.currentState.isNew;
+  }
+
+  isValid() {
+    return this.currentState.isValid;
+  }
+
+  dirtyType() {
+    return this.currentState.dirtyType;
+  }
+
+  getRecord(properties) {
+    if (!this._record && !this._isDematerializing) {
+      heimdall.increment(materializeRecord);
+      let token = heimdall.start('InternalModel.getRecord');
+
+      // lookupFactory should really return an object that creates
+      // instances with the injections applied
+      let createOptions = {
+        store: this.store,
+        _internalModel: this,
+        id: this.id,
+        currentState: this.currentState,
+        isError: this.isError,
+        adapterError: this.error
+      };
+
+      if (typeof properties === 'object' && properties !== null) {
+        assign(createOptions, properties);
+      }
+
+      if (setOwner) {
+        // ensure that `getOwner(this)` works inside a model instance
+        setOwner(createOptions, getOwner(this.store));
+      } else {
+        createOptions.container = this.store.container;
+      }
+
+      this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+
+      this._triggerDeferredTriggers();
+      heimdall.stop(token);
+    }
+
+    return this._record;
+  }
+
+  resetRecord() {
+    this._record = null;
+    this.dataHasInitialized = false;
+    this.isReloading = false;
+    this.error = null;
+    this.currentState = RootState.empty;
+    this.__attributes = null;
+    this.__inFlightAttributes = null;
+    this._data = null;
+  }
+
+  dematerializeRecord() {
+    if (this._record) {
+      this._isDematerializing = true;
+      this._record.destroy();
+      this.destroyRelationships();
+      this.updateRecordArrays();
+      this.resetRecord();
+    }
+  }
 
   deleteRecord() {
     this.send('deleteRecord');
-  },
+  }
 
   save(options) {
-    var promiseLabel = "DS: Model#save " + this;
-    var resolver = Ember.RSVP.defer(promiseLabel);
+    let promiseLabel = "DS: Model#save " + this;
+    let resolver = RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
     return resolver.promise;
-  },
+  }
 
   startedReloading() {
     this.isReloading = true;
-    if (this.record) {
-      set(this.record, 'isReloading', true);
+    if (this.hasRecord) {
+      set(this._record, 'isReloading', true);
     }
-  },
+  }
 
   finishedReloading() {
     this.isReloading = false;
-    if (this.record) {
-      set(this.record, 'isReloading', false);
+    if (this.hasRecord) {
+      set(this._record, 'isReloading', false);
     }
-  },
+  }
 
   reload() {
     this.startedReloading();
-    var record = this;
-    var promiseLabel = "DS: Model#reload of " + this;
+    let internalModel = this;
+    let promiseLabel = "DS: Model#reload of " + this;
+
     return new Promise(function(resolve) {
-      record.send('reloadRecord', resolve);
+      internalModel.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
-      record.didCleanError();
-      return record;
+      internalModel.didCleanError();
+      return internalModel;
     }, function(error) {
-      record.didError(error);
+      internalModel.didError(error);
       throw error;
     }, "DS: Model#reload complete, update flags").finally(function () {
-      record.finishedReloading();
-      record.updateRecordArrays();
+      internalModel.finishedReloading();
+      internalModel.updateRecordArrays();
     });
-  },
+  }
 
-  getRecord() {
-    if (!this.record) {
-      this.materializeRecord();
+  /**
+    Computes the set of internal models reachable from `this` across exactly one
+    relationship.
+
+    @return {Array} An array containing the internal models that `this` belongs
+    to or has many.
+  */
+  _directlyRelatedInternalModels() {
+    let array = [];
+    this.type.eachRelationship((key, relationship) => {
+      if (this._relationships.has(key)) {
+        let relationship = this._relationships.get(key);
+        let localRelationships = relationship.members.toArray();
+        let serverRelationships = relationship.canonicalMembers.toArray();
+
+        array = array.concat(localRelationships, serverRelationships);
+      }
+    });
+    return array;
+  }
+
+
+  /**
+    Computes the set of internal models reachable from this internal model.
+
+    Reachability is determined over the relationship graph (ie a graph where
+    nodes are internal models and edges are belongs to or has many
+    relationships).
+
+    @return {Array} An array including `this` and all internal models reachable
+    from `this`.
+  */
+  _allRelatedInternalModels() {
+    let array = [];
+    let queue = [];
+    let bfsId = nextBfsId++;
+    queue.push(this);
+    this._bfsId = bfsId;
+    while (queue.length > 0) {
+      let node = queue.shift();
+      array.push(node);
+      let related = node._directlyRelatedInternalModels();
+      for (let i=0; i<related.length; ++i) {
+        let internalModel = related[i];
+        assert('Internal Error: seen a future bfs iteration', internalModel._bfsId <= bfsId);
+        if (internalModel._bfsId < bfsId) {
+          queue.push(internalModel);
+          internalModel._bfsId = bfsId;
+        }
+      }
     }
-    return this.record;
-  },
+    return array;
+  }
 
+
+  /**
+    Unload the record for this internal model. This will cause the record to be
+    destroyed and freed up for garbage collection. It will also do a check
+    for cleaning up internal models.
+
+    This check is performed by first computing the set of related internal
+    models. If all records in this set are unloaded, then the entire set is
+    destroyed. Otherwise, nothing in the set is destroyed.
+
+    This means that this internal model will be freed up for garbage collection
+    once all models that refer to it via some relationship are also unloaded.
+  */
   unloadRecord() {
     this.send('unloadRecord');
-  },
+    this.dematerializeRecord();
+    Ember.run.schedule('destroy', this, '_checkForOrphanedInternalModels');
+  }
+
+  _checkForOrphanedInternalModels() {
+    this._isDematerializing = false;
+    if (this.isDestroyed) { return; }
+
+    this._cleanupOrphanedInternalModels();
+  }
+
+  _cleanupOrphanedInternalModels() {
+    let relatedInternalModels = this._allRelatedInternalModels();
+    if (areAllModelsUnloaded(relatedInternalModels)) {
+      for (let i=0; i<relatedInternalModels.length; ++i) {
+        let internalModel = relatedInternalModels[i];
+        if (!internalModel.isDestroyed) {
+          internalModel.destroy();
+        }
+      }
+    }
+  }
 
   eachRelationship(callback, binding) {
-    return this.type.eachRelationship(callback, binding);
-  },
+    return this.modelClass.eachRelationship(callback, binding);
+  }
+
+  destroy() {
+    assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
+
+    this.store._internalModelDestroyed(this);
+    this._isDestroyed = true;
+  }
 
   eachAttribute(callback, binding) {
-    return this.type.eachAttribute(callback, binding);
-  },
+    return this.modelClass.eachAttribute(callback, binding);
+  }
 
   inverseFor(key) {
-    return this.type.inverseFor(key);
-  },
+    return this.modelClass.inverseFor(key);
+  }
 
   setupData(data) {
     heimdall.increment(setupData);
-    var changedKeys = this._changedKeys(data.attributes);
+    this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+
+    let changedKeys;
+
+    if (this.hasRecord) {
+      changedKeys = this._changedKeys(data.attributes);
+    }
+
     assign(this._data, data.attributes);
     this.pushedData();
-    if (this.record) {
-      this.record._notifyProperties(changedKeys);
+
+    if (this.hasRecord) {
+      this._record._notifyProperties(changedKeys);
     }
     this.didInitializeData();
-  },
+  }
 
   becameReady() {
-    Ember.run.schedule('actions', this.store.recordArrayManager, this.store.recordArrayManager.recordWasLoaded, this);
-  },
+    this.store.recordArrayManager.recordWasLoaded(this);
+  }
 
   didInitializeData() {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
     }
-  },
+  }
 
-  destroy() {
-    if (this.record) {
-      return this.record.destroy();
-    }
-  },
+  get isDestroyed() {
+    return this._isDestroyed;
+  }
+
+  get hasRecord() {
+    return !!this._record;
+  }
 
   /*
     @method createSnapshot
@@ -285,7 +577,7 @@ InternalModel.prototype = {
   createSnapshot(options) {
     heimdall.increment(createSnapshot);
     return new Snapshot(this, options);
-  },
+  }
 
   /*
     @method loadingData
@@ -294,7 +586,7 @@ InternalModel.prototype = {
   */
   loadingData(promise) {
     this.send('loadingData', promise);
-  },
+  }
 
   /*
     @method loadedData
@@ -303,7 +595,7 @@ InternalModel.prototype = {
   loadedData() {
     this.send('loadedData');
     this.didInitializeData();
-  },
+  }
 
   /*
     @method notFound
@@ -311,7 +603,7 @@ InternalModel.prototype = {
   */
   notFound() {
     this.send('notFound');
-  },
+  }
 
   /*
     @method pushedData
@@ -319,18 +611,18 @@ InternalModel.prototype = {
   */
   pushedData() {
     this.send('pushedData');
-  },
+  }
 
   flushChangedAttributes() {
     heimdall.increment(flushChangedAttributes);
     this._inFlightAttributes = this._attributes;
-    this._attributes = new EmptyObject();
-  },
+    this._attributes = null;
+  }
 
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
-    return Object.keys(this._attributes).length > 0;
-  },
+    return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
+  }
 
   /*
     Checks if the attributes which are considered as changed are still
@@ -344,8 +636,9 @@ InternalModel.prototype = {
    */
   updateChangedAttributes() {
     heimdall.increment(updateChangedAttributes);
-    var changedAttributes = this.changedAttributes();
-    var changedAttributeNames = Object.keys(changedAttributes);
+    let changedAttributes = this.changedAttributes();
+    let changedAttributeNames = Object.keys(changedAttributes);
+    let attrs = this._attributes;
 
     for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
       let attribute = changedAttributeNames[i];
@@ -354,10 +647,10 @@ InternalModel.prototype = {
       let newData = data[1];
 
       if (oldData === newData) {
-        delete this._attributes[attribute];
+        delete attrs[attribute];
       }
     }
-  },
+  }
 
   /*
     Returns an object, whose keys are changed properties, and value is an
@@ -368,13 +661,12 @@ InternalModel.prototype = {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
-    var oldData = this._data;
-    var currentData = this._attributes;
-    var inFlightData = this._inFlightAttributes;
-    var newData = assign(copy(inFlightData), currentData);
-    var diffData = new EmptyObject();
-
-    var newDataKeys = Object.keys(newData);
+    let oldData = this._data;
+    let currentData = this._attributes;
+    let inFlightData = this._inFlightAttributes;
+    let newData = assign(copy(inFlightData), currentData);
+    let diffData = Object.create(null);
+    let newDataKeys = Object.keys(newData);
 
     for (let i = 0, length = newDataKeys.length; i < length; i++) {
       let key = newDataKeys[i];
@@ -382,7 +674,7 @@ InternalModel.prototype = {
     }
 
     return diffData;
-  },
+  }
 
   /*
     @method adapterWillCommit
@@ -390,7 +682,7 @@ InternalModel.prototype = {
   */
   adapterWillCommit() {
     this.send('willCommit');
-  },
+  }
 
   /*
     @method adapterDidDirty
@@ -398,8 +690,8 @@ InternalModel.prototype = {
   */
   adapterDidDirty() {
     this.send('becomeDirty');
-    this.updateRecordArraysLater();
-  },
+    this.updateRecordArrays();
+  }
 
   /*
     @method send
@@ -409,46 +701,49 @@ InternalModel.prototype = {
   */
   send(name, context) {
     heimdall.increment(send);
-    var currentState = get(this, 'currentState');
+    let currentState = this.currentState;
 
     if (!currentState[name]) {
       this._unhandledEvent(currentState, name, context);
     }
 
     return currentState[name](this, context);
-  },
+  }
 
   notifyHasManyAdded(key, record, idx) {
-    if (this.record) {
-      this.record.notifyHasManyAdded(key, record, idx);
+    if (this.hasRecord) {
+      this._record.notifyHasManyAdded(key, record, idx);
     }
-  },
+  }
 
   notifyHasManyRemoved(key, record, idx) {
-    if (this.record) {
-      this.record.notifyHasManyRemoved(key, record, idx);
+    if (this.hasRecord) {
+      this._record.notifyHasManyRemoved(key, record, idx);
     }
-  },
+  }
 
   notifyBelongsToChanged(key, record) {
-    if (this.record) {
-      this.record.notifyBelongsToChanged(key, record);
+    if (this.hasRecord) {
+      this._record.notifyBelongsToChanged(key, record);
     }
-  },
+  }
 
   notifyPropertyChange(key) {
-    if (this.record) {
-      this.record.notifyPropertyChange(key);
+    if (this.hasRecord) {
+      this._record.notifyPropertyChange(key);
     }
-  },
+  }
 
   rollbackAttributes() {
-    var dirtyKeys = Object.keys(this._attributes);
+    let dirtyKeys;
+    if (this.hasChangedAttributes()) {
+      dirtyKeys = Object.keys(this._attributes);
+      this._attributes = null;
+    }
 
-    this._attributes = new EmptyObject();
 
     if (get(this, 'isError')) {
-      this._inFlightAttributes = new EmptyObject();
+      this._inFlightAttributes = null;
       this.didCleanError();
     }
 
@@ -465,14 +760,15 @@ InternalModel.prototype = {
     }
 
     if (this.isValid()) {
-      this._inFlightAttributes = new EmptyObject();
+      this._inFlightAttributes = null;
     }
 
     this.send('rolledBack');
 
-    this.record._notifyProperties(dirtyKeys);
-
-  },
+    if (dirtyKeys && dirtyKeys.length > 0) {
+      this._record._notifyProperties(dirtyKeys);
+    }
+  }
 
   /*
     @method transitionTo
@@ -484,84 +780,95 @@ InternalModel.prototype = {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
 
-    var pivotName = extractPivotName(name);
-    var currentState = get(this, 'currentState');
-    var state = currentState;
+    let pivotName = extractPivotName(name);
+    let state = this.currentState;
+    let transitionMapId = `${state.stateName}->${name}`;
 
     do {
       if (state.exit) { state.exit(this); }
       state = state.parentState;
-    } while (!state.hasOwnProperty(pivotName));
+    } while (!state[pivotName]);
 
-    var path = splitOnDot(name);
-    var setups = [];
-    var enters = [];
-    var i, l;
+    let setups;
+    let enters;
+    let i;
+    let l;
+    let map = TransitionChainMap[transitionMapId];
 
-    for (i=0, l=path.length; i<l; i++) {
-      state = state[path[i]];
+    if (map) {
+      setups = map.setups;
+      enters = map.enters;
+      state = map.state;
+    } else {
+      setups = [];
+      enters = [];
 
-      if (state.enter) { enters.push(state); }
-      if (state.setup) { setups.push(state); }
+      let path = splitOnDot(name);
+
+      for (i = 0, l = path.length; i < l; i++) {
+        state = state[path[i]];
+
+        if (state.enter) { enters.push(state); }
+        if (state.setup) { setups.push(state); }
+      }
+
+      TransitionChainMap[transitionMapId] = { setups, enters, state };
     }
 
-    for (i=0, l=enters.length; i<l; i++) {
+    for (i = 0, l = enters.length; i < l; i++) {
       enters[i].enter(this);
     }
 
-    set(this, 'currentState', state);
-    //TODO Consider whether this is the best approach for keeping these two in sync
-    if (this.record) {
-      set(this.record, 'currentState', state);
+    this.currentState = state;
+    if (this.hasRecord) {
+      set(this._record, 'currentState', state);
     }
 
-    for (i=0, l=setups.length; i<l; i++) {
+    for (i = 0, l = setups.length; i < l; i++) {
       setups[i].setup(this);
     }
 
-    this.updateRecordArraysLater();
-  },
+    this.updateRecordArrays();
+  }
 
   _unhandledEvent(state, name, context) {
-    var errorMessage = "Attempted to handle event `" + name + "` ";
+    let errorMessage = "Attempted to handle event `" + name + "` ";
     errorMessage    += "on " + String(this) + " while in state ";
     errorMessage    += state.stateName + ". ";
 
     if (context !== undefined) {
-      errorMessage  += "Called with " + Ember.inspect(context) + ".";
+      errorMessage  += "Called with " + inspect(context) + ".";
     }
 
-    throw new Ember.Error(errorMessage);
-  },
+    throw new EmberError(errorMessage);
+  }
 
-  triggerLater() {
-    var length = arguments.length;
-    var args = new Array(length);
-
-    for (var i = 0; i < length; i++) {
-      args[i] = arguments[i];
-    }
-
+  triggerLater(...args) {
     if (this._deferredTriggers.push(args) !== 1) {
       return;
     }
-    Ember.run.scheduleOnce('actions', this, '_triggerDeferredTriggers');
-  },
+
+    this.store._updateInternalModel(this);
+  }
 
   _triggerDeferredTriggers() {
     heimdall.increment(_triggerDeferredTriggers);
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record
-    if (!this.record) {
+    if (!this.hasRecord) {
       return;
     }
-    for (var i=0, l= this._deferredTriggers.length; i<l; i++) {
-      this.record.trigger.apply(this.record, this._deferredTriggers[i]);
+    let triggers = this._deferredTriggers;
+    let record = this._record;
+    let trigger = record.trigger;
+    for (let i = 0, l= triggers.length; i<l; i++) {
+      trigger.apply(record, triggers[i]);
     }
 
-    this._deferredTriggers.length = 0;
-  },
+    triggers.length = 0;
+  }
+
   /*
     @method clearRelationships
     @private
@@ -569,16 +876,28 @@ InternalModel.prototype = {
   clearRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
-        var rel = this._relationships.get(name);
+        let rel = this._relationships.get(name);
         rel.clear();
-        rel.destroy();
+        rel.removeInverseRelationships();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       this._implicitRelationships[key].clear();
-      this._implicitRelationships[key].destroy();
+      this._implicitRelationships[key].removeInverseRelationships();
     });
-  },
+  }
+
+  destroyRelationships() {
+    this.eachRelationship((name, relationship) => {
+      if (this._relationships.has(name)) {
+        let rel = this._relationships.get(name);
+        rel.removeInverseRelationships();
+      }
+    });
+    Object.keys(this._implicitRelationships).forEach((key) => {
+      this._implicitRelationships[key].removeInverseRelationships();
+    });
+  }
 
   /*
     When a find request is triggered on the store, the user can optionally pass in
@@ -591,105 +910,105 @@ InternalModel.prototype = {
     Preloaded data can be attributes and relationships passed in either as IDs or as actual
     models.
 
-    @method _preloadData
+    @method preloadData
     @private
     @param {Object} preload
   */
-  _preloadData(preload) {
+  preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
-      var preloadValue = get(preload, key);
-      var relationshipMeta = this.type.metaForProperty(key);
+      let preloadValue = get(preload, key);
+      let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         this._preloadRelationship(key, preloadValue);
       } else {
         this._data[key] = preloadValue;
       }
     });
-  },
+  }
 
   _preloadRelationship(key, preloadValue) {
-    var relationshipMeta = this.type.metaForProperty(key);
-    var type = relationshipMeta.type;
+    let relationshipMeta = this.modelClass.metaForProperty(key);
+    let modelClass = relationshipMeta.type;
     if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, type);
+      this._preloadHasMany(key, preloadValue, modelClass);
     } else {
-      this._preloadBelongsTo(key, preloadValue, type);
+      this._preloadBelongsTo(key, preloadValue, modelClass);
     }
-  },
+  }
 
-  _preloadHasMany(key, preloadValue, type) {
+  _preloadHasMany(key, preloadValue, modelClass) {
     assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
     let recordsToSet = new Array(preloadValue.length);
 
     for (let i = 0; i < preloadValue.length; i++) {
       let recordToPush = preloadValue[i];
-      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, type);
+      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
     }
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
-  },
+    this._relationships.get(key).updateInternalModelsFromAdapter(recordsToSet);
+  }
 
-  _preloadBelongsTo(key, preloadValue, type) {
-    var recordToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, type);
+  _preloadBelongsTo(key, preloadValue, modelClass) {
+    let internalModelToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships.get(key).setRecord(recordToSet);
-  },
+    this._relationships.get(key).setInternalModel(internalModelToSet);
+  }
 
-  _convertStringOrNumberIntoInternalModel(value, type) {
+  _convertStringOrNumberIntoInternalModel(value, modelClass) {
     if (typeof value === 'string' || typeof value === 'number') {
-      return this.store._internalModelForId(type, value);
+      return this.store._internalModelForId(modelClass, value);
     }
     if (value._internalModel) {
       return value._internalModel;
     }
     return value;
-  },
+  }
 
   /*
     @method updateRecordArrays
     @private
   */
   updateRecordArrays() {
-    this._updatingRecordArraysLater = false;
-    this.store.dataWasUpdated(this.type, this);
-  },
+    this.store.recordArrayManager.recordDidChange(this);
+  }
 
   setId(id) {
     assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
     this.id = id;
-    if (this.record.get('id') !== id) {
-      this.record.set('id', id);
+    if (this._record.get('id') !== id) {
+      this._record.set('id', id);
     }
-  },
+  }
 
   didError(error) {
     this.error = error;
     this.isError = true;
 
-    if (this.record) {
-      this.record.setProperties({
+    if (this.hasRecord) {
+      this._record.setProperties({
         isError: true,
         adapterError: error
       });
     }
-  },
+  }
 
   didCleanError() {
     this.error = null;
     this.isError = false;
 
-    if (this.record) {
-      this.record.setProperties({
+    if (this.hasRecord) {
+      this._record.setProperties({
         isError: false,
         adapterError: null
       });
     }
-  },
+  }
+
   /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
@@ -699,59 +1018,46 @@ InternalModel.prototype = {
   */
   adapterDidCommit(data) {
     if (data) {
+      this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+
       data = data.attributes;
     }
 
     this.didCleanError();
-    var changedKeys = this._changedKeys(data);
+    let changedKeys = this._changedKeys(data);
 
     assign(this._data, this._inFlightAttributes);
     if (data) {
       assign(this._data, data);
     }
 
-    this._inFlightAttributes = new EmptyObject();
+    this._inFlightAttributes = null;
 
     this.send('didCommit');
-    this.updateRecordArraysLater();
+    this.updateRecordArrays();
 
     if (!data) { return; }
 
-    this.record._notifyProperties(changedKeys);
-  },
-
-  /*
-    @method updateRecordArraysLater
-    @private
-  */
-  updateRecordArraysLater() {
-    // quick hack (something like this could be pushed into run.once
-    if (this._updatingRecordArraysLater) { return; }
-    this._updatingRecordArraysLater = true;
-    Ember.run.schedule('actions', this, this.updateRecordArrays);
-  },
+    this._record._notifyProperties(changedKeys);
+  }
 
   addErrorMessageToAttribute(attribute, message) {
-    var record = this.getRecord();
-    get(record, 'errors')._add(attribute, message);
-  },
+    get(this.getRecord(), 'errors')._add(attribute, message);
+  }
 
   removeErrorMessageFromAttribute(attribute) {
-    var record = this.getRecord();
-    get(record, 'errors')._remove(attribute);
-  },
+    get(this.getRecord(), 'errors')._remove(attribute);
+  }
 
   clearErrorMessages() {
-    var record = this.getRecord();
-    get(record, 'errors')._clear();
-  },
+    get(this.getRecord(), 'errors')._clear();
+  }
 
   hasErrors() {
-    var record = this.getRecord();
-    var errors = get(record, 'errors');
+    let errors = get(this.getRecord(), 'errors');
 
-    return !Ember.isEmpty(errors);
-  },
+    return !isEmpty(errors);
+  }
 
   // FOR USE DURING COMMIT PROCESS
 
@@ -760,7 +1066,7 @@ InternalModel.prototype = {
     @private
   */
   adapterDidInvalidate(errors) {
-    var attribute;
+    let attribute;
 
     for (attribute in errors) {
       if (errors.hasOwnProperty(attribute)) {
@@ -771,7 +1077,7 @@ InternalModel.prototype = {
     this.send('becameInvalid');
 
     this._saveWasRejected();
-  },
+  }
 
   /*
     @method adapterDidError
@@ -781,17 +1087,20 @@ InternalModel.prototype = {
     this.send('becameError');
     this.didError(error);
     this._saveWasRejected();
-  },
+  }
 
   _saveWasRejected() {
-    var keys = Object.keys(this._inFlightAttributes);
-    for (var i=0; i < keys.length; i++) {
-      if (this._attributes[keys[i]] === undefined) {
-        this._attributes[keys[i]] = this._inFlightAttributes[keys[i]];
+    let keys = Object.keys(this._inFlightAttributes);
+    if (keys.length > 0) {
+      let attrs = this._attributes;
+      for (let i=0; i < keys.length; i++) {
+        if (attrs[keys[i]] === undefined) {
+          attrs[keys[i]] = this._inFlightAttributes[keys[i]];
+        }
       }
     }
-    this._inFlightAttributes = new EmptyObject();
-  },
+    this._inFlightAttributes = null;
+  }
 
   /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
@@ -835,14 +1144,19 @@ InternalModel.prototype = {
     @private
   */
   _changedKeys(updates) {
-    var changedKeys = [];
+    let changedKeys = [];
 
     if (updates) {
-      var original, i, value, key;
-      var keys = Object.keys(updates);
-      var length = keys.length;
+      let original, i, value, key;
+      let keys = Object.keys(updates);
+      let length = keys.length;
+      let hasAttrs = this.hasChangedAttributes();
+      let attrs;
+      if (hasAttrs) {
+        attrs= this._attributes;
+      }
 
-      original = assign(new EmptyObject(), this._data);
+      original = assign(Object.create(null), this._data);
       original = assign(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {
@@ -853,44 +1167,40 @@ InternalModel.prototype = {
         // this attributes. We never override this value when merging
         // updates from the backend so we should not sent a change
         // notification if the server value differs from the original.
-        if (this._attributes[key] !== undefined) {
+        if (hasAttrs === true && attrs[key] !== undefined) {
           continue;
         }
 
-        if (!Ember.isEqual(original[key], value)) {
+        if (!isEqual(original[key], value)) {
           changedKeys.push(key);
         }
       }
     }
 
     return changedKeys;
-  },
+  }
 
   toString() {
-    if (this.record) {
-      return this.record.toString();
-    } else {
-      return `<${this.modelName}:${this.id}>`;
-    }
-  },
+    return `<${this.modelName}:${this.id}>`;
+  }
 
-  referenceFor(type, name) {
-    var reference = this.references[name];
+  referenceFor(kind, name) {
+    let reference = this.references[name];
 
     if (!reference) {
-      var relationship = this._relationships.get(name);
+      let relationship = this._relationships.get(name);
 
       runInDebug(() => {
         let modelName = this.modelName;
-        assert(`There is no ${type} relationship named '${name}' on a model of type '${modelName}'`, relationship);
+        assert(`There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`, relationship);
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
-        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${type}('${name}'), but the relationship is of type '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === type);
+        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === kind);
       });
 
-      if (type === "belongsTo") {
+      if (kind === "belongsTo") {
         reference = new BelongsToReference(this.store, this, relationship);
-      } else if (type === "hasMany") {
+      } else if (kind === "hasMany") {
         reference = new HasManyReference(this.store, this, relationship);
       }
 
@@ -901,7 +1211,7 @@ InternalModel.prototype = {
   }
 }
 
-if (isEnabled('ds-reset-attribute')) {
+if (isEnabled('ds-rollback-attribute')) {
   /*
      Returns the latest truth for an attribute - the canonical value, or the
      in-flight value.

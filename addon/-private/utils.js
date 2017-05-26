@@ -16,15 +16,13 @@ function modelHasAttributeOrRelationshipNamedType(modelClass) {
   ember-container-inject-owner is a new feature in Ember 2.3 that finally provides a public
   API for looking items up.  This function serves as a super simple polyfill to avoid
   triggering deprecations.
-*/
+ */
 function getOwner(context) {
-  var owner;
+  let owner;
 
   if (Ember.getOwner) {
     owner = Ember.getOwner(context);
-  }
-
-  if (!owner && context.container) {
+  } else if (context.container) {
     owner = context.container;
   }
 
@@ -32,7 +30,7 @@ function getOwner(context) {
     // `owner` is a container, we are just making this work
     owner._lookupFactory = owner.lookupFactory;
     owner.register = function() {
-      var registry = owner.registry || owner._registry || owner;
+      let registry = owner.registry || owner._registry || owner;
 
       return registry.register(...arguments);
     };

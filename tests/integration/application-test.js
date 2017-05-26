@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import {module, test} from 'qunit';
 
@@ -182,7 +183,7 @@ test("ember-data initializer does not register the store service when it was alr
 
 });
 
-test("store initializer is run (DEPRECATED)", function(assert) {
+testInDebug("store initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -190,14 +191,16 @@ test("store initializer is run (DEPRECATED)", function(assert) {
     initialize() { ran = true; }
   });
 
-  run(function() {
-    app = App.create();
-  });
+  assert.expectDeprecation(function() {
+    run(function() {
+      app = App.create();
+    });
+  }, /The initializer `store` has been deprecated/)
 
   assert.ok(ran, 'store initializer was found');
 });
 
-test("injectStore initializer is run (DEPRECATED)", function(assert) {
+testInDebug("injectStore initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -205,14 +208,16 @@ test("injectStore initializer is run (DEPRECATED)", function(assert) {
     initialize() { ran = true; }
   });
 
-  run(function() {
-    app = App.create();
-  });
+  assert.expectDeprecation(function() {
+    run(function() {
+      app = App.create();
+    });
+  }, /The initializer `injectStore` has been deprecated/)
 
   assert.ok(ran, 'injectStore initializer was found');
 });
 
-test("transforms initializer is run (DEPRECATED)", function(assert) {
+testInDebug("transforms initializer is run (DEPRECATED)", function(assert) {
   var ran = false;
   App.initializer({
     name:       "after-store",
@@ -220,9 +225,11 @@ test("transforms initializer is run (DEPRECATED)", function(assert) {
     initialize() { ran = true; }
   });
 
-  run(function() {
-    app = App.create();
-  });
+  assert.expectDeprecation(function() {
+    run(function() {
+      app = App.create();
+    });
+  }, /The initializer `transforms` has been deprecated/)
 
   assert.ok(ran, 'transforms initializer was found');
 });

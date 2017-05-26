@@ -71,7 +71,7 @@ controllers in your app.
 
 ### Defining Your Models
 
-First thing's first: tell Ember Data about the models in your
+First things first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
 
 Here's what your model definition would look like if you're using
@@ -188,6 +188,8 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 2. Install Ember CLI and bower. `npm install -g ember-cli bower`
 
 3. Run `npm install` inside the project root to install the JS dependencies.
+
+4. Run `bower install` inside the project root to install Ember dependencies.
 
 ### In Your Browser
 

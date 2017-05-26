@@ -1,14 +1,14 @@
 import Ember from 'ember';
 
-var EmberOrderedSet = Ember.OrderedSet;
-var guidFor = Ember.guidFor;
+const EmberOrderedSet = Ember.OrderedSet;
+const guidFor = Ember.guidFor;
 
 export default function OrderedSet() {
   this._super$constructor();
 }
 
 OrderedSet.create = function() {
-  var Constructor = this;
+  let Constructor = this;
   return new Constructor();
 };
 
@@ -17,9 +17,9 @@ OrderedSet.prototype.constructor = OrderedSet;
 OrderedSet.prototype._super$constructor = EmberOrderedSet;
 
 OrderedSet.prototype.addWithIndex = function(obj, idx) {
-  var guid = guidFor(obj);
-  var presenceSet = this.presenceSet;
-  var list = this.list;
+  let guid = guidFor(obj);
+  let presenceSet = this.presenceSet;
+  let list = this.list;
 
   if (presenceSet[guid] === true) {
     return;

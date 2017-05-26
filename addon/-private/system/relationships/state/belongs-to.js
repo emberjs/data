@@ -1,162 +1,186 @@
 import Ember from 'ember';
-import { assert } from "ember-data/-private/debug";
+import {
+  assertPolymorphicType,
+  assert
+} from "ember-data/-private/debug";
 import {
   PromiseObject
-} from "ember-data/-private/system/promise-proxies";
+} from "../../promise-proxies";
+import Relationship from "./relationship";
 
-import { assertPolymorphicType } from "ember-data/-private/debug";
-
-import Relationship from "ember-data/-private/system/relationships/state/relationship";
-
-export default function BelongsToRelationship(store, record, inverseKey, relationshipMeta) {
-  this._super$constructor(store, record, inverseKey, relationshipMeta);
-  this.record = record;
-  this.key = relationshipMeta.key;
-  this.inverseRecord = null;
-  this.canonicalState = null;
-}
-
-BelongsToRelationship.prototype = Object.create(Relationship.prototype);
-BelongsToRelationship.prototype.constructor = BelongsToRelationship;
-BelongsToRelationship.prototype._super$constructor = Relationship;
-
-BelongsToRelationship.prototype.setRecord = function(newRecord) {
-  if (newRecord) {
-    this.addRecord(newRecord);
-  } else if (this.inverseRecord) {
-    this.removeRecord(this.inverseRecord);
-  }
-  this.setHasData(true);
-  this.setHasLoaded(true);
-};
-
-BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
-  if (newRecord) {
-    this.addCanonicalRecord(newRecord);
-  } else if (this.canonicalState) {
-    this.removeCanonicalRecord(this.canonicalState);
-  }
-  this.flushCanonicalLater();
-  this.setHasData(true);
-  this.setHasLoaded(true);
-};
-
-BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
-BelongsToRelationship.prototype.addCanonicalRecord = function(newRecord) {
-  if (this.canonicalMembers.has(newRecord)) { return;}
-
-  if (this.canonicalState) {
-    this.removeCanonicalRecord(this.canonicalState);
+export default class BelongsToRelationship extends Relationship {
+  constructor(store, internalModel, inverseKey, relationshipMeta) {
+    super(store, internalModel, inverseKey, relationshipMeta);
+    this.internalModel = internalModel;
+    this.key = relationshipMeta.key;
+    this.inverseInternalModel = null;
+    this.canonicalState = null;
   }
 
-  this.canonicalState = newRecord;
-  this._super$addCanonicalRecord(newRecord);
-};
-
-BelongsToRelationship.prototype._super$flushCanonical = Relationship.prototype.flushCanonical;
-BelongsToRelationship.prototype.flushCanonical = function() {
-  //temporary fix to not remove newly created records if server returned null.
-  //TODO remove once we have proper diffing
-  if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
-    return;
-  }
-  this.inverseRecord = this.canonicalState;
-  this.record.notifyBelongsToChanged(this.key);
-  this._super$flushCanonical();
-};
-
-BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
-BelongsToRelationship.prototype.addRecord = function(newRecord) {
-  if (this.members.has(newRecord)) { return;}
-
-  assertPolymorphicType(this.record, this.relationshipMeta, newRecord);
-
-  if (this.inverseRecord) {
-    this.removeRecord(this.inverseRecord);
-  }
-
-  this.inverseRecord = newRecord;
-  this._super$addRecord(newRecord);
-  this.record.notifyBelongsToChanged(this.key);
-};
-
-BelongsToRelationship.prototype.setRecordPromise = function(newPromise) {
-  var content = newPromise.get && newPromise.get('content');
-  assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
-  this.setRecord(content ? content._internalModel : content);
-};
-
-BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
-BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
-  if (!this.members.has(record)) { return;}
-  this.inverseRecord = null;
-  this._super$removeRecordFromOwn(record);
-  this.record.notifyBelongsToChanged(this.key);
-};
-
-BelongsToRelationship.prototype._super$removeCanonicalRecordFromOwn = Relationship.prototype.removeCanonicalRecordFromOwn;
-BelongsToRelationship.prototype.removeCanonicalRecordFromOwn = function(record) {
-  if (!this.canonicalMembers.has(record)) { return;}
-  this.canonicalState = null;
-  this._super$removeCanonicalRecordFromOwn(record);
-};
-
-BelongsToRelationship.prototype.findRecord = function() {
-  if (this.inverseRecord) {
-    return this.store._findByInternalModel(this.inverseRecord);
-  } else {
-    return Ember.RSVP.Promise.resolve(null);
-  }
-};
-
-BelongsToRelationship.prototype.fetchLink = function() {
-  return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then((record) => {
-    if (record) {
-      this.addRecord(record);
+  setInternalModel(internalModel) {
+    if (internalModel) {
+      this.addInternalModel(internalModel);
+    } else if (this.inverseInternalModel) {
+      this.removeInternalModel(this.inverseInternalModel);
     }
-    return record;
-  });
-};
+    this.setHasData(true);
+    this.setHasLoaded(true);
+  }
 
-BelongsToRelationship.prototype.getRecord = function() {
-  //TODO(Igor) flushCanonical here once our syncing is not stupid
-  if (this.isAsync) {
-    var promise;
-    if (this.link) {
-      if (this.hasLoaded) {
-        promise = this.findRecord();
-      } else {
-        promise = this.findLink().then(() => this.findRecord());
-      }
+  setCanonicalInternalModel(internalModel) {
+    if (internalModel) {
+      this.addCanonicalInternalModel(internalModel);
+    } else if (this.canonicalState) {
+      this.removeCanonicalInternalModel(this.canonicalState);
+    }
+    this.flushCanonicalLater();
+  }
+
+  setInitialCanonicalInternalModel(internalModel) {
+    if (!internalModel) { return; }
+
+    // When we initialize a belongsTo relationship, we want to avoid work like
+    // notifying our internalModel that we've "changed" and excessive thrash on
+    // setting up inverse relationships
+    this.canonicalMembers.add(internalModel);
+    this.members.add(internalModel);
+    this.inverseInternalModel = this.canonicalState = internalModel;
+    this.setupInverseRelationship(internalModel);
+  }
+
+  addCanonicalInternalModel(internalModel) {
+    if (this.canonicalMembers.has(internalModel)) { return;}
+
+    if (this.canonicalState) {
+      this.removeCanonicalInternalModel(this.canonicalState);
+    }
+
+    this.canonicalState = internalModel;
+    super.addCanonicalInternalModel(internalModel);
+  }
+
+  inverseDidDematerialize() {
+    this.notifyBelongsToChanged();
+  }
+
+  flushCanonical() {
+    //temporary fix to not remove newly created records if server returned null.
+    //TODO remove once we have proper diffing
+    if (this.inverseInternalModel && this.inverseInternalModel.isNew() && !this.canonicalState) {
+      return;
+    }
+    if (this.inverseInternalModel !== this.canonicalState) {
+      this.inverseInternalModel = this.canonicalState;
+      this.notifyBelongsToChanged();
+    }
+
+    super.flushCanonical();
+  }
+
+  addInternalModel(internalModel) {
+    if (this.members.has(internalModel)) { return; }
+
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
+
+    if (this.inverseInternalModel) {
+      this.removeInternalModel(this.inverseInternalModel);
+    }
+
+    this.inverseInternalModel = internalModel;
+    super.addInternalModel(internalModel);
+    this.notifyBelongsToChanged();
+  }
+
+  setRecordPromise(newPromise) {
+    let content = newPromise.get && newPromise.get('content');
+    assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
+    this.setInternalModel(content ? content._internalModel : content);
+  }
+
+  removeInternalModelFromOwn(internalModel) {
+    if (!this.members.has(internalModel)) { return;}
+    this.inverseInternalModel = null;
+    super.removeInternalModelFromOwn(internalModel);
+    this.notifyBelongsToChanged();
+  }
+
+  notifyBelongsToChanged() {
+    this.internalModel.notifyBelongsToChanged(this.key);
+  }
+
+  removeCanonicalInternalModelFromOwn(internalModel) {
+    if (!this.canonicalMembers.has(internalModel)) { return;}
+    this.canonicalState = null;
+    super.removeCanonicalInternalModelFromOwn(internalModel);
+  }
+
+  findRecord() {
+    if (this.inverseInternalModel) {
+      return this.store._findByInternalModel(this.inverseInternalModel);
     } else {
-      promise = this.findRecord();
+      return Ember.RSVP.Promise.resolve(null);
     }
+  }
 
-    return PromiseObject.create({
-      promise: promise,
-      content: this.inverseRecord ? this.inverseRecord.getRecord() : null
+  fetchLink() {
+    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((internalModel) => {
+      if (internalModel) {
+        this.addInternalModel(internalModel);
+      }
+      return internalModel;
     });
-  } else {
-    if (this.inverseRecord === null) {
-      return null;
+  }
+
+  getRecord() {
+    //TODO(Igor) flushCanonical here once our syncing is not stupid
+    if (this.isAsync) {
+      let promise;
+      if (this.link) {
+        if (this.hasLoaded) {
+          promise = this.findRecord();
+        } else {
+          promise = this.findLink().then(() => this.findRecord());
+        }
+      } else {
+        promise = this.findRecord();
+      }
+
+      return PromiseObject.create({
+        promise: promise,
+        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
+      });
+    } else {
+      if (this.inverseInternalModel === null) {
+        return null;
+      }
+      let toReturn = this.inverseInternalModel.getRecord();
+      assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+      return toReturn;
     }
-    var toReturn = this.inverseRecord.getRecord();
-    assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
-    return toReturn;
-  }
-};
-
-BelongsToRelationship.prototype.reload = function() {
-  // TODO handle case when reload() is triggered multiple times
-
-  if (this.link) {
-    return this.fetchLink();
   }
 
-  // reload record, if it is already loaded
-  if (this.inverseRecord && this.inverseRecord.record) {
-    return this.inverseRecord.record.reload();
+  reload() {
+    // TODO handle case when reload() is triggered multiple times
+
+    if (this.link) {
+      return this.fetchLink();
+    }
+
+    // reload record, if it is already loaded
+    if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
+      return this.inverseInternalModel.getRecord().reload();
+    }
+
+    return this.findRecord();
   }
 
-  return this.findRecord();
-};
+  updateData(data, initial) {
+    assert(`Ember Data expected the data for the ${this.key} relationship on a ${this.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${Ember.inspect(data)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`, data === null || data.id !== undefined && data.type !== undefined);
+    let internalModel = this.store._pushResourceIdentifier(this, data);
+    if (initial) {
+      this.setInitialCanonicalInternalModel(internalModel);
+    } else {
+      this.setCanonicalInternalModel(internalModel);
+    }
+  }
+}

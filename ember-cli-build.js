@@ -4,7 +4,7 @@ var merge    = require('broccoli-merge-trees');
 var Funnel   = require('broccoli-funnel');
 var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
-var stripClassCallCheck = require('babel5-plugin-strip-class-callcheck');
+var StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 var path = require('path');
 
 // allow toggling of heimdall instrumentation
@@ -20,10 +20,11 @@ for (var i = 0; i < args.length; i++) {
 
 module.exports = function(defaults) {
   var app = new EmberAddon(defaults, {
-    babel: {
-      plugins: [
+    // use babel6 options until we are using ember-cli@2.13
+    babel6: {
+      postTransformPlugins: [
         // while ember-data strips itself, ember does not currently
-        {transformer: stripClassCallCheck, position: 'after'}
+        [StripClassCallCheck]
       ]
     }
   });

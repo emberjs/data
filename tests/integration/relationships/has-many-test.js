@@ -25,48 +25,58 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       messages: hasMany('message', { polymorphic: true, async: false }),
       contacts: hasMany('user', { inverse: null, async: false })
     });
+    User.reopenClass({ toString: () => 'User' });
 
     Contact = DS.Model.extend({
       user: belongsTo('user', { async: false })
     });
+    Contact.reopenClass({ toString: () => 'Contact' });
 
     Email = Contact.extend({
       email: attr('string')
     });
+    Email.reopenClass({ toString: () => 'Email' });
 
     Phone = Contact.extend({
       number: attr('string')
     });
+    Phone.reopenClass({ toString: () => 'Phone' });
 
     Message = DS.Model.extend({
       user: belongsTo('user', { async: false }),
       created_at: attr('date')
     });
+    Message.reopenClass({ toString: () => 'Message' });
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment', { async: false })
     });
+    Post.reopenClass({ toString: () => 'Post' });
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('post', { polymorphic: true, async: true })
     });
+    Comment.reopenClass({ toString: () => 'Comment' });
 
     Book = DS.Model.extend({
       title: attr(),
       chapters: hasMany('chapter', { async: true })
     });
+    Book.reopenClass({ toString: () => 'Book' });
 
     Chapter = DS.Model.extend({
       title: attr(),
       pages: hasMany('page', { async: false })
     });
+    Chapter.reopenClass({ toString: () => 'Chapter' });
 
     Page = DS.Model.extend({
       number: attr('number'),
       chapter: belongsTo('chapter', { async: false })
     });
+    Page.reopenClass({ toString: () => 'Page' });
 
     env = setupStore({
       user: User,
@@ -1260,12 +1270,12 @@ testInDebug("Only records of the same type can be added to a monomorphic hasMany
     ]).then(function(records) {
       assert.expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
-      }, /You cannot add a record of type 'post' to the 'post.comments' relationship \(only 'comment' allowed\)/);
+      }, /You cannot add a record of modelClass 'post' to the 'post.comments' relationship \(only 'comment' allowed\)/);
     });
   });
 });
 
-testInDebug("Only records of the same base type can be added to a polymorphic hasMany relationship", function(assert) {
+testInDebug("Only records of the same base modelClass can be added to a polymorphic hasMany relationship", function(assert) {
   assert.expect(2);
   env.adapter.shouldBackgroundReloadRecord = () => false;
   run(function() {
@@ -1321,7 +1331,7 @@ testInDebug("Only records of the same base type can be added to a polymorphic ha
 
       assert.expectAssertion(function() {
         records.messages.pushObject(records.anotherUser);
-      }, /You cannot add a record of type 'user' to the 'user.messages' relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of modelClass 'user' to the 'user.messages' relationship \(only 'message' allowed\)/);
     });
   });
 });
@@ -1611,9 +1621,8 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 });
 
-testInDebug("A sync hasMany errors out if there are unlaoded records in it", function(assert) {
-  var post;
-  run(function() {
+testInDebug('A sync hasMany errors out if there are unlaoded records in it', function(assert) {
+  let post = run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -1628,12 +1637,12 @@ testInDebug("A sync hasMany errors out if there are unlaoded records in it", fun
         }
       }
     });
-    post = env.store.peekRecord('post', 1);
+    return env.store.peekRecord('post', 1);
   });
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     run(post, 'get', 'comments');
-  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
+  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
 });
 
 test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
@@ -1678,8 +1687,9 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
       }
     });
     post = env.store.peekRecord('post', 1);
+
+    assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
   });
-  assert.deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
 
   run(function() {
     env.store.push({
@@ -2116,6 +2126,10 @@ test("Relationship.clear removes all records correctly", function(assert) {
   });
 
   run(function() {
+    // unclear what the semantics of clearing a yet to be created relationship
+    // ought to be.
+    env.store.peekAll('comment').mapBy('post');
+
     post._internalModel._relationships.get('comments').clear();
     var comments = Ember.A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);
@@ -2196,10 +2210,12 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
   });
+  Post.reopenClass({ toString: () => 'Post' });
 
   var Comment = DS.Model.extend({
     post: DS.belongsTo('post', { async: false })
   });
+  Comment.reopenClass({ toString: () => 'Comment' });
 
   env = setupStore({
     post: Post,
@@ -2775,7 +2791,73 @@ test("unloading and reloading a record with hasMany relationship - #3084", funct
 
     user = env.store.peekRecord('user', 'user-1');
 
-    assert.equal(get(user, 'messages.firstObject.id'), 'message-1');
-    assert.equal(get(message, 'user.id'), 'user-1');
+    assert.equal(get(user, 'messages.firstObject.id'), 'message-1', 'user points to message');
+    assert.equal(get(message, 'user.id'), 'user-1', 'message points to user');
+  });
+});
+
+test("deleted records should stay deleted", function(assert) {
+  var user;
+  var message;
+
+  env.adapter.deleteRecord = function(store, type, id) {
+    return null;
+  };
+
+  run(function() {
+    env.store.push({
+      data: [{
+        type: 'user',
+        id: 'user-1',
+        attributes: {
+          name: 'Adolfo Builes'
+        },
+        relationships: {
+          messages: {
+            data: [
+              { type: 'message', id: 'message-1' },
+              { type: 'message', id: 'message-2' }
+            ]
+          }
+        }
+      }, {
+        type: 'message',
+        id: 'message-1'
+      }, {
+        type: 'message',
+        id: 'message-2'
+      }]
+    });
+
+    user = env.store.peekRecord('user', 'user-1');
+    message = env.store.peekRecord('message', 'message-1');
+
+    assert.equal(get(user, 'messages.length'), 2);
+  });
+
+  run(function() {
+    message.destroyRecord()
+  });
+
+  run(function() {
+    // a new message is added to the user should not resurrected the
+    // deleted message
+    env.store.push({
+      data: [{
+        type: 'message',
+        id: 'message-3',
+        relationships: {
+          user: {
+            data: { type: 'user', id: 'user-1' }
+          }
+        }
+      }]
+    });
+
+    assert.deepEqual(
+      get(user, 'messages').mapBy('id'),
+      ['message-2', 'message-3'],
+      'user should have 2 message since 1 was deleted'
+    );
   });
 });

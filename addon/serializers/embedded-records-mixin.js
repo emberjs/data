@@ -1,9 +1,9 @@
 import Ember from 'ember';
 import { warn } from "ember-data/-private/debug";
 
-var get = Ember.get;
-var set = Ember.set;
-var camelize = Ember.String.camelize;
+const get = Ember.get;
+const set = Ember.set;
+const camelize = Ember.String.camelize;
 
 /**
   ## Using Embedded Records
@@ -12,6 +12,8 @@ var camelize = Ember.String.camelize;
 
   To set up embedded records, include the mixin when extending a serializer,
   then define and configure embedded (model) relationships.
+
+  Note that embedded records will serialize with the serializer for their model instead of the serializer in which they are defined.
 
   Below is an example of a per-type serializer (`post` type).
 
@@ -125,7 +127,7 @@ export default Ember.Mixin.create({
    @return {Object} the normalized hash
   **/
   normalize(typeClass, hash, prop) {
-    var normalizedHash = this._super(typeClass, hash, prop);
+    let normalizedHash = this._super(typeClass, hash, prop);
     return this._extractEmbeddedRecords(this, this.store, typeClass, normalizedHash);
   },
 
@@ -190,16 +192,16 @@ export default Ember.Mixin.create({
     @param {Object} relationship
   */
   serializeBelongsTo(snapshot, json, relationship) {
-    var attr = relationship.key;
+    let attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
     }
-    var includeIds = this.hasSerializeIdsOption(attr);
-    var includeRecords = this.hasSerializeRecordsOption(attr);
-    var embeddedSnapshot = snapshot.belongsTo(attr);
+    let includeIds = this.hasSerializeIdsOption(attr);
+    let includeRecords = this.hasSerializeRecordsOption(attr);
+    let embeddedSnapshot = snapshot.belongsTo(attr);
     if (includeIds) {
-      var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+      let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
       if (serializedKey === relationship.key && this.keyForRelationship) {
         serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
       }
@@ -220,7 +222,7 @@ export default Ember.Mixin.create({
 
   _serializeEmbeddedBelongsTo(snapshot, json, relationship) {
     let embeddedSnapshot = snapshot.belongsTo(relationship.key);
-    var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+    let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
     }
@@ -373,7 +375,7 @@ export default Ember.Mixin.create({
     @param {Object} relationship
   */
   serializeHasMany(snapshot, json, relationship) {
-    var attr = relationship.key;
+    let attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(snapshot, json, relationship);
       return;
@@ -395,7 +397,7 @@ export default Ember.Mixin.create({
     }
   },
 
-  /**
+  /*
     Serializes a hasMany relationship as an array of objects containing only `id` and `type`
     keys.
     This has its use case on polymorphic hasMany relationships where the server is not storing
@@ -404,8 +406,8 @@ export default Ember.Mixin.create({
     TODO: Make the default in Ember-data 3.0??
   */
   _serializeHasManyAsIdsAndTypes(snapshot, json, relationship) {
-    var serializedKey = this.keyForAttribute(relationship.key, 'serialize');
-    var hasMany = snapshot.hasMany(relationship.key);
+    let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
+    let hasMany = snapshot.hasMany(relationship.key);
 
     json[serializedKey] = Ember.A(hasMany).map(function (recordSnapshot) {
       //
@@ -417,7 +419,7 @@ export default Ember.Mixin.create({
   },
 
   _serializeEmbeddedHasMany(snapshot, json, relationship) {
-    var serializedKey = this._getMappedKey(relationship.key, snapshot.type);
+    let serializedKey = this._getMappedKey(relationship.key, snapshot.type);
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, "serialize");
     }
@@ -467,49 +469,49 @@ export default Ember.Mixin.create({
     @param {Object} json
   */
   removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json) {
-    if (relationship.kind === 'hasMany') {
-      return;
-    } else if (relationship.kind === 'belongsTo') {
-      var parentRecord = snapshot.type.inverseFor(relationship.key, this.store);
+    if (relationship.kind === 'belongsTo') {
+      let parentRecord = snapshot.type.inverseFor(relationship.key, this.store);
       if (parentRecord) {
-        var name = parentRecord.name;
-        var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
-        var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
+        let name = parentRecord.name;
+        let embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
+        let parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
         }
       }
-    }
+    } /*else if (relationship.kind === 'hasMany') {
+      return;
+    }*/
   },
 
   // checks config for attrs option to embedded (always) - serialize and deserialize
   hasEmbeddedAlwaysOption(attr) {
-    var option = this.attrsOption(attr);
+    let option = this.attrsOption(attr);
     return option && option.embedded === 'always';
   },
 
   // checks config for attrs option to serialize ids
   hasSerializeRecordsOption(attr) {
-    var alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
-    var option = this.attrsOption(attr);
+    let alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
+    let option = this.attrsOption(attr);
     return alwaysEmbed || (option && (option.serialize === 'records'));
   },
 
   // checks config for attrs option to serialize records
   hasSerializeIdsOption(attr) {
-    var option = this.attrsOption(attr);
+    let option = this.attrsOption(attr);
     return option && (option.serialize === 'ids' || option.serialize === 'id');
   },
 
   // checks config for attrs option to serialize records as objects containing id and types
   hasSerializeIdsAndTypesOption(attr) {
-    var option = this.attrsOption(attr);
+    let option = this.attrsOption(attr);
     return option && (option.serialize === 'ids-and-types' || option.serialize === 'id-and-type');
   },
 
   // checks config for attrs option to serialize records
   noSerializeOptionSpecified(attr) {
-    var option = this.attrsOption(attr);
+    let option = this.attrsOption(attr);
     return !(option && (option.serialize || option.embedded));
   },
 
@@ -517,13 +519,13 @@ export default Ember.Mixin.create({
   // a defined option object for a resource is treated the same as
   // `deserialize: 'records'`
   hasDeserializeRecordsOption(attr) {
-    var alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
-    var option = this.attrsOption(attr);
+    let alwaysEmbed = this.hasEmbeddedAlwaysOption(attr);
+    let option = this.attrsOption(attr);
     return alwaysEmbed || (option && option.deserialize === 'records');
   },
 
   attrsOption(attr) {
-    var attrs = this.get('attrs');
+    let attrs = this.get('attrs');
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   },
 

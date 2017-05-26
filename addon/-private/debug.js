@@ -32,16 +32,16 @@ export function debugSeal() {
   return Ember.debugSeal(...arguments);
 }
 
-function checkPolymorphic(typeClass, addedRecord) {
-  if (typeClass.__isMixin) {
+function checkPolymorphic(modelClass, addedModelClass) {
+  if (modelClass.__isMixin) {
     //TODO Need to do this in order to support mixins, should convert to public api
     //once it exists in Ember
-    return typeClass.__mixin.detect(addedRecord.type.PrototypeMixin);
+    return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
   }
   if (Ember.MODEL_FACTORY_INJECTIONS) {
-    typeClass = typeClass.superclass;
+    modelClass = modelClass.superclass;
   }
-  return typeClass.detect(addedRecord.type);
+  return modelClass.detect(addedModelClass);
 }
 
 /*
@@ -57,19 +57,19 @@ function checkPolymorphic(typeClass, addedRecord) {
   `record.relationshipFor(key)`.
 
   @method assertPolymorphicType
-  @param {InternalModel} record
+  @param {InternalModel} internalModel
   @param {RelationshipMeta} relationshipMeta retrieved via
          `record.relationshipFor(key)`
   @param {InternalModel} addedRecord record which
          should be added/set for the relationship
 */
-export function assertPolymorphicType(record, relationshipMeta, addedRecord) {
-  var addedType = addedRecord.type.modelName;
-  var recordType = record.type.modelName;
-  var key = relationshipMeta.key;
-  var typeClass = record.store.modelFor(relationshipMeta.type);
+export function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel) {
+  let addedModelName = addedInternalModel.modelName;
+  let parentModelName = parentInternalModel.modelName;
+  let key = relationshipMeta.key;
+  let relationshipModelName = relationshipMeta.type;
+  let relationshipClass = parentInternalModel.store.modelFor(relationshipModelName);
+  let assertionMessage = `You cannot add a record of modelClass '${addedModelName}' to the '${parentModelName}.${key}' relationship (only '${relationshipModelName}' allowed)`;
 
-  var assertionMessage = `You cannot add a record of type '${addedType}' to the '${recordType}.${key}' relationship (only '${typeClass.modelName}' allowed)`;
-
-  assert(assertionMessage, checkPolymorphic(typeClass, addedRecord));
+  assert(assertionMessage, checkPolymorphic(relationshipClass, addedInternalModel.modelClass));
 }

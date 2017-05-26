@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { assert, warn } from "ember-data/-private/debug";
-import normalizeModelName from "ember-data/-private/system/normalize-model-name";
+import normalizeModelName from "../normalize-model-name";
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -75,7 +75,7 @@ import normalizeModelName from "ember-data/-private/system/normalize-model-name"
   @return {Ember.computed} relationship
 */
 export default function belongsTo(modelName, options) {
-  var opts, userEnteredModelName;
+  let opts, userEnteredModelName;
   if (typeof modelName === 'object') {
     opts = modelName;
     userEnteredModelName = undefined;
@@ -92,11 +92,12 @@ export default function belongsTo(modelName, options) {
 
   opts = opts || {};
 
-  var meta = {
+  let meta = {
     type: userEnteredModelName,
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',
+    name: 'Belongs To',
     key: null
   };
 
@@ -123,22 +124,12 @@ export default function belongsTo(modelName, options) {
       if (value && value.then) {
         this._internalModel._relationships.get(key).setRecordPromise(value);
       } else if (value) {
-        this._internalModel._relationships.get(key).setRecord(value._internalModel);
+        this._internalModel._relationships.get(key).setInternalModel(value._internalModel);
       } else {
-        this._internalModel._relationships.get(key).setRecord(value);
+        this._internalModel._relationships.get(key).setInternalModel(value);
       }
 
       return this._internalModel._relationships.get(key).getRecord();
     }
   }).meta(meta);
 }
-
-/*
-  These observers observe all `belongsTo` relationships on the record. See
-  `relationships/ext` to see how these observers get their dependencies.
-*/
-export const BelongsToMixin = Ember.Mixin.create({
-  notifyBelongsToChanged(key) {
-    this.notifyPropertyChange(key);
-  }
-});

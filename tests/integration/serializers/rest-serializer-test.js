@@ -109,8 +109,17 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   };
 
   var jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
-    super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
+    home_planets: [{
+      id: "1",
+      name: "Umber",
+      superVillains: [1]
+    }],
+    super_villains: [{
+      id: "1",
+      firstName: "Tom",
+      lastName: "Dale",
+      homePlanet: "1"
+    }]
   };
   var array;
 
@@ -147,8 +156,8 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
   });
 });
 
-test("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
-  assert.expect(2);
+testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
+  assert.expect(isEnabled("ds-payload-type-hooks") ? 3 : 2);
 
   var homePlanetNormalizeCount = 0;
 
@@ -168,6 +177,10 @@ test("normalizeResponse with type and custom modelNameFromPayloadKey", function(
   };
   var array;
 
+
+  if (isEnabled("ds-payload-type-hooks")) {
+    assert.expectDeprecation('You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType');
+  }
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
   });
@@ -273,7 +286,6 @@ test("serialize polymorphicType", function(assert) {
 });
 
 test("serialize polymorphicType with decamelized modelName", function(assert) {
-  YellowMinion.modelName = 'yellow-minion';
   var tom, ray;
   run(function() {
     tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
@@ -525,7 +537,6 @@ test("serializeIntoHash", function(assert) {
 });
 
 test("serializeIntoHash with decamelized modelName", function(assert) {
-  HomePlanet.modelName = 'home-planet';
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
   });

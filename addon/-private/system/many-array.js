@@ -3,11 +3,11 @@
 */
 import Ember from 'ember';
 import { assert } from "ember-data/-private/debug";
-import { PromiseArray } from "ember-data/-private/system/promise-proxies";
-import { _objectIsAlive } from "ember-data/-private/system/store/common";
+import { PromiseArray } from "./promise-proxies";
+import { _objectIsAlive } from "./store/common";
+import diffArray from './diff-array';
 
-var get = Ember.get;
-var set = Ember.set;
+const { get } = Ember;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -55,73 +55,25 @@ var set = Ember.set;
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init() {
     this._super(...arguments);
-    this.currentState = Ember.A([]);
-  },
 
-  record: null,
-
-  canonicalState: null,
-  currentState: null,
-
-  length: 0,
-
-  objectAt(index) {
-    //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
-    if (!this.currentState[index]) {
-      return undefined;
-    }
-    return this.currentState[index].getRecord();
-  },
-
-  flushCanonical() {
-    //TODO make this smarter, currently its plenty stupid
-    var toSet = this.canonicalState.filter((internalModel) => !internalModel.isDeleted());
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    var newRecords = this.currentState.filter(
-      // only add new records which are not yet in the canonical state of this
-      // relationship (a new record can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
-    );
-    toSet = toSet.concat(newRecords);
-    var oldLength = this.length;
-    this.arrayContentWillChange(0, this.length, toSet.length);
-    // It’s possible the parent side of the relationship may have been unloaded by this point
-    if (_objectIsAlive(this)) {
-      this.set('length', toSet.length);
-    }
-    this.currentState = toSet;
-    this.arrayContentDidChange(0, oldLength, this.length);
-    //TODO Figure out to notify only on additions and maybe only if unloaded
-    this.relationship.notifyHasManyChanged();
-    this.record.updateRecordArrays();
-  },
-  /**
-    `true` if the relationship is polymorphic, `false` otherwise.
-
-    @property {Boolean} isPolymorphic
-    @private
-  */
-  isPolymorphic: false,
-
-  /**
+    /**
     The loading state of this array
 
     @property {Boolean} isLoaded
-  */
-  isLoaded: false,
+    */
+    this.isLoaded = false;
+    this.length = 0;
 
-  /**
-    The relationship which manages this array.
+    /**
+    Used for async `hasMany` arrays
+    to keep track of when they will resolve.
 
-    @property {ManyRelationship} relationship
+    @property {Ember.RSVP.Promise} promise
     @private
-  */
-  relationship: null,
+    */
+    this.promise = null;
 
-  /**
+    /**
     Metadata associated with the request for async hasMany relationships.
 
     Example
@@ -135,7 +87,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
         "id": 1,
         "comment": "This is the first comment",
       }, {
-        // ...
+    // ...
       }],
 
       "meta": {
@@ -151,15 +103,76 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     post.get('comments').then(function(comments) {
       var meta = comments.get('meta');
 
-      // meta.page => 1
-      // meta.total => 5
+    // meta.page => 1
+    // meta.total => 5
     });
     ```
 
     @property {Object} meta
     @public
-  */
-  meta: null,
+    */
+    this.meta = this.meta ||  null;
+
+    /**
+    `true` if the relationship is polymorphic, `false` otherwise.
+
+    @property {Boolean} isPolymorphic
+    @private
+    */
+    this.isPolymorphic = this.isPolymorphic || false;
+
+    /**
+    The relationship which manages this array.
+
+    @property {ManyRelationship} relationship
+    @private
+    */
+    this.relationship = this.relationship || null;
+
+    this.currentState = [];
+    this.flushCanonical(false);
+  },
+
+  objectAt(index) {
+    let internalModel = this.currentState[index];
+    if (internalModel === undefined) { return; }
+
+    return internalModel.getRecord();
+  },
+
+  flushCanonical(isInitialized = true) {
+    // It’s possible the parent side of the relationship may have been unloaded by this point
+    if (!_objectIsAlive(this)) {
+      return;
+    }
+    let toSet = this.canonicalState;
+
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    let newInternalModels = this.currentState.filter(
+      // only add new internalModels which are not yet in the canonical state of this
+      // relationship (a new internalModel can be in the canonical state if it has
+      // been 'acknowleged' to be in the relationship via a store.push)
+      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
+    );
+    toSet = toSet.concat(newInternalModels);
+
+    // diff to find changes
+    let diff = diffArray(this.currentState, toSet);
+
+    if (diff.firstChangeIndex !== null) { // it's null if no change found
+      // we found a change
+      this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      this.set('length', toSet.length);
+      this.currentState = toSet;
+      this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
+      if (isInitialized && diff.addedCount > 0) {
+        //notify only on additions
+        //TODO only notify if unloaded
+        this.relationship.notifyHasManyChanged();
+      }
+    }
+  },
 
   internalReplace(idx, amt, objects) {
     if (!objects) {
@@ -169,71 +182,55 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     this.set('length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
-    if (objects) {
-      //TODO(Igor) probably needed only for unloaded records
-      this.relationship.notifyHasManyChanged();
-    }
-    this.record.updateRecordArrays();
   },
 
   //TODO(Igor) optimize
-  internalRemoveRecords(records) {
-    var index;
-    for (var i=0; i < records.length; i++) {
-      index = this.currentState.indexOf(records[i]);
+  _removeInternalModels(internalModels) {
+    for (let i=0; i < internalModels.length; i++) {
+      let index = this.currentState.indexOf(internalModels[i]);
       this.internalReplace(index, 1);
     }
   },
 
   //TODO(Igor) optimize
-  internalAddRecords(records, idx) {
+  _addInternalModels(internalModels, idx) {
     if (idx === undefined) {
       idx = this.currentState.length;
     }
-    this.internalReplace(idx, 0, records);
+    this.internalReplace(idx, 0, internalModels);
   },
 
   replace(idx, amt, objects) {
-    var records;
+    let internalModels;
     if (amt > 0) {
-      records = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeRecords(records);
+      internalModels = this.currentState.slice(idx, idx+amt);
+      this.get('relationship').removeInternalModels(internalModels);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects.map((obj) => obj._internalModel), idx);
-    }
-  },
-  /**
-    Used for async `hasMany` arrays
-    to keep track of when they will resolve.
-
-    @property {Ember.RSVP.Promise} promise
-    @private
-  */
-  promise: null,
-
-  /**
-    @method loadingRecordsCount
-    @param {Number} count
-    @private
-  */
-  loadingRecordsCount(count) {
-    this.loadingRecordsCount = count;
-  },
-
-  /**
-    @method loadedRecord
-    @private
-  */
-  loadedRecord() {
-    this.loadingRecordsCount--;
-    if (this.loadingRecordsCount === 0) {
-      set(this, 'isLoaded', true);
-      this.trigger('didLoad');
+      this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
     }
   },
 
   /**
+    Reloads all of the records in the manyArray. If the manyArray
+    holds a relationship that was originally fetched using a links url
+    Ember Data will revisit the original links url to repopulate the
+    relationship.
+
+    If the manyArray holds the result of a `store.query()` reload will
+    re-run the original query.
+
+    Example
+
+    ```javascript
+    var user = store.peekRecord('user', 1)
+    user.login().then(function() {
+      user.get('permissions').then(function(permissions) {
+        return permissions.reload();
+      });
+    });
+    ```
+
     @method reload
     @public
   */
@@ -261,11 +258,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    var manyArray = this;
-    var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
-    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return manyArray;
-    }, null, "DS: ManyArray#save return ManyArray");
+    let manyArray = this;
+    let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
+    let promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).
+      then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
 
     return PromiseArray.create({ promise });
   },
@@ -279,12 +275,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.Model} record
   */
   createRecord(hash) {
-    var store = get(this, 'store');
-    var type = get(this, 'type');
-    var record;
+    const store = get(this, 'store');
+    const type = get(this, 'type');
 
-    assert("You cannot add '" + type.modelName + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
-    record = store.createRecord(type.modelName, hash);
+    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
+    let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
