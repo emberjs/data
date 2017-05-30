@@ -45,8 +45,25 @@ test("When a query is made, the adapter should receive a record array it can pop
   adapter.query = function(store, type, query, recordArray) {
     assert.equal(type, Person, "the query method is called with the correct type");
 
-    return Ember.RSVP.resolve([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
-  };
+    return Ember.RSVP.resolve({
+      data: [
+        {
+          id: 1,
+          type: 'person',
+          attributes: {
+            name: "Peter Wagenet"
+          }
+        },
+        {
+          id: 2,
+          type: "person",
+          attributes: {
+            name: "Brohuda Katz"
+          }
+        }
+      ]
+    });
+  }
 
   store.query('person', { page: 1 }).then(assert.wait(function(queryResults) {
     assert.equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
@@ -59,7 +76,7 @@ test("When a query is made, the adapter should receive a record array it can pop
 
 test("a query can be updated via `update()`", function(assert) {
   adapter.query = function() {
-    return Ember.RSVP.resolve([{ id: 'first' }]);
+    return Ember.RSVP.resolve({ data: [{ id: 'first', type: 'person' }] });
   };
 
   run(function() {
@@ -70,7 +87,7 @@ test("a query can be updated via `update()`", function(assert) {
 
       adapter.query = function() {
         assert.ok('query is called a second time');
-        return Ember.RSVP.resolve([{ id: 'second' }]);
+        return Ember.RSVP.resolve({data: [{ id: 'second', type: 'person' }] });
       };
 
       let updateQuery = query.update();
@@ -96,7 +113,7 @@ testInDebug("The store asserts when query is made and the adapter responses with
   adapter.query = function(store, type, query, recordArray) {
     assert.equal(type, Person, "the query method is called with the correct type");
 
-    return Ember.RSVP.resolve({ people: { id: 1, name: "Peter Wagenet" } });
+    return Ember.RSVP.resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Peter Wagenet" } }] });
   };
 
   assert.expectAssertion(function() {

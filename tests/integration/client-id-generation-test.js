@@ -87,7 +87,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
 
   env.adapter.createRecord = function(store, type, record) {
     assert.equal(typeof get(record, 'id'), 'object', 'correct type');
-    return Ember.RSVP.resolve({ id: id++ });
+    return Ember.RSVP.resolve({ data: { id: id++, type: type.modelName } });
   };
 
   run(function() {

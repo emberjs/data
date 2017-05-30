@@ -165,10 +165,12 @@ test('pass record array to adapter.query based on arity', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;
 
-  let payload = [
-    { id: '1', name: 'Scumbag Dale' },
-    { id: '2', name: 'Scumbag Katz' }
-  ];
+  let payload = {
+    data: [
+      { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+      { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } }
+    ]
+  };
 
   env.adapter.query = function(store, type, query) {
     assert.equal(arguments.length, 3);
@@ -188,10 +190,12 @@ test('pass record array to adapter.query based on arity', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;
 
-  let payload = [
-    { id: '1', name: 'Scumbag Dale' },
-    { id: '2', name: 'Scumbag Katz' }
-  ];
+  let payload = {
+    data: [
+      { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+      { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } }
+    ]
+  };
 
   let actualQuery = { };
 
@@ -234,10 +238,12 @@ test('loadRecord re-syncs internalModels recordArrays', function(assert) {
   let env = setupStore({ person: Person });
   let store = env.store;
 
-  let payload = [
-    { id: '1', name: 'Scumbag Dale' },
-    { id: '2', name: 'Scumbag Katz' }
-  ];
+  let payload = {
+    data: [
+      { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+      { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } }
+    ]
+  };
 
   env.adapter.query = function(store, type, query, recordArray) {
     return payload;
@@ -247,10 +253,12 @@ test('loadRecord re-syncs internalModels recordArrays', function(assert) {
     return recordArray.update().then(recordArray => {
       assert.deepEqual(recordArray.getEach('name'), ['Scumbag Dale', 'Scumbag Katz'], 'expected query to contain specific records');
 
-      payload = [
-        { id: '1', name: 'Scumbag Dale' },
-        { id: '3', name: 'Scumbag Penner' }
-      ];
+      payload = {
+        data: [
+          { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+          { id: '3', type: 'person', attributes: { name: 'Scumbag Penner' } }
+        ]
+      };
 
       return recordArray.update();
     }).then(recordArray => {
@@ -265,17 +273,17 @@ test('when an adapter populated record gets updated the array contents are also 
   let filteredPromise, filteredArr, findPromise, findArray;
   let env = setupStore({ person: Person });
   let store = env.store;
-  let array = [{ id: '1', name: 'Scumbag Dale' }];
+  let array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
 
   // resemble server side filtering
   env.adapter.query = function(store, type, query, recordArray) {
-    return array.slice(query.slice);
+    return { data: array.slice(query.slice) };
   };
 
   // implement findAll to further test that query updates won't muddle
   // with the non-query record arrays
   env.adapter.findAll = function(store, type, sinceToken) {
-    return array.slice(0);
+    return { data: array.slice(0) };
   };
 
   run(() => {
@@ -298,7 +306,7 @@ test('when an adapter populated record gets updated the array contents are also 
 
   // a new element gets pushed in record array
   run(() => {
-    array.push({ id: '2', name: 'Scumbag Katz' });
+    array.push({ id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } });
     filteredArr.update().then(() => {
       assert.equal(filteredArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
       assert.equal(filteredArr.get('isUpdating'), false, 'Record array isUpdating state updated');

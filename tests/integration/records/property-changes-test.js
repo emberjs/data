@@ -115,7 +115,7 @@ test('Saving a record trigger observers for locally changed attributes with the 
   var person;
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 'wat', lastName: 'Katz' });
+    return Ember.RSVP.resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
   };
 
   run(function() {

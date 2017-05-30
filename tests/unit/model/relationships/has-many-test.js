@@ -564,7 +564,7 @@ test('hasMany lazily loads async relationships', function(assert) {
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
-      return { id: 12, name: 'oohlala' };
+      return { data: { id: 12, type: 'tag', attributes: { name: 'oohlala' } } };
     } else {
       assert.ok(false, 'findRecord() should not be called with these values');
     }
@@ -809,17 +809,28 @@ test('hasMany relationships work when the data hash has not been loaded', functi
     assert.equal(type, Tag, 'type should be Tag');
     assert.deepEqual(ids, ['5', '2'], 'ids should be 5 and 2');
 
-    return [
-      { id: 5, name: 'friendly' },
-      { id: 2, name: 'smarmy' }
-    ];
+    return { data: [
+      { id: 5, type: 'tag', attributes: { name: 'friendly' } },
+      { id: 2, type: 'tag', attributes: { name: 'smarmy' } }
+    ]};
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.equal(type, Person, 'type should be Person');
     assert.equal(id, 1, 'id should be 1');
 
-    return { id: 1, name: 'Tom Dale', tags: [5, 2] };
+    return {
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: { name: 'Tom Dale' },
+        relationships: {
+          tags: {
+            data: [{ id: 5, type: 'tag'}, { id: 2, type: 'tag'}]
+          }
+        }
+      }
+    };
   };
 
   return run(() => {
@@ -1211,8 +1222,10 @@ testInDebug('checks if passed array only contains instances of DS.Model', functi
 
   env.adapter.findRecord = function() {
     return {
-      type: 'person',
-      id: 1
+      data: {
+        type: 'person',
+        id: 1
+      }
     };
   };
 

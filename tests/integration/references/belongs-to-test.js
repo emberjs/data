@@ -410,7 +410,11 @@ test("load() fetches the record", function(assert) {
 
   env.adapter.findRecord = function(store, type, id) {
     return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -447,7 +451,11 @@ test("load() fetches link when remoteType is link", function(assert) {
     assert.equal(link, "/families/1");
 
     return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -487,7 +495,11 @@ test("reload() - loads the record when not yet loaded", function(assert) {
     assert.equal(count, 1);
 
     return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -526,7 +538,11 @@ test("reload() - reloads the record when already loaded", function(assert) {
     assert.equal(count, 1);
 
     return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -569,7 +585,11 @@ test("reload() - uses link to reload record", function(assert) {
     assert.equal(link, "/families/1");
 
     return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 

@@ -8,7 +8,7 @@ import DS from 'ember-data';
 
 const { get, run, RSVP: { Promise }} = Ember;
 
-let array;
+let results;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
@@ -25,11 +25,13 @@ const Tool = DS.Model.extend({
 
 module('unit/record_array - DS.RecordArray', {
   beforeEach() {
-    array = Ember.A([
-      { id: '1', name: 'Scumbag Dale' },
-      { id: '2', name: 'Scumbag Katz' },
-      { id: '3', name: 'Scumbag Bryn' }
-    ]);
+    results = {
+      data: [
+        { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+        { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },
+        { id: '3', type: 'person', attributes: { name: 'Scumbag Bryn' } }
+      ]
+    };
   }
 });
 
@@ -74,8 +76,9 @@ test('a record array is backed by records', function(assert) {
 
   return run(() => {
     return store.findByIds('person', [1,2,3]).then(records => {
-      for (let i=0, l = get(array, 'length'); i<l; i++) {
-        assert.deepEqual(records[i].getProperties('id', 'name'), array[i], 'a record array materializes objects on demand');
+      for (let i=0, l = get(results, 'data.length'); i<l; i++) {
+        let { id, attributes: { name }} = results.data[i];
+        assert.deepEqual(records[i].getProperties('id', 'name'), { id, name }, 'a record array materializes objects on demand');
       }
     });
   });
@@ -442,7 +445,7 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function(asse
   let store = env.store;
 
   env.adapter.query = function(store, type, query, recordArray) {
-    return Promise.resolve(array);
+    return Promise.resolve(results);
   };
 
   return run(() => {

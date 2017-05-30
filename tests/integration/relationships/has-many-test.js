@@ -102,27 +102,29 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
   assert.expect(0);
 
+  let postData = {
+    type: 'post',
+    id: '1',
+    relationships: {
+      comments: {
+        data: [
+          { type: 'comment', id: '1' }
+        ]
+      }
+    }
+  };
+
   env.adapter.findMany = function(store, type, ids, snapshots) {
     assert.ok(false, "The adapter's find method should not be called");
   };
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1, comments: [1] };
+    return { data: postData };
   };
 
   run(function() {
     env.store.push({
-      data: {
-        type: 'post',
-        id: '1',
-        relationships: {
-          comments: {
-            data: [
-              { type: 'comment', id: '1' }
-            ]
-          }
-        }
-      },
+      data: postData,
       included: [{
         type: 'comment',
         id: '1'
@@ -137,35 +139,39 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
 test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function(assert) {
   assert.expect(2);
 
+  let bookData = {
+    type: 'book',
+    id: '1',
+    relationships: {
+      chapters: {
+        data: [
+          { type: 'chapter', id: '2' },
+          { type: 'chapter', id: '3' },
+          { type: 'chapter', id: '3' }
+        ]
+      }
+    }
+  };
+
   env.adapter.findMany = function(store, type, ids, snapshots) {
     assert.equal(type, Chapter, 'type passed to adapter.findMany is correct');
     assert.deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
 
-    return Ember.RSVP.resolve([
-      { id: 2, title: 'Chapter One' },
-      { id: 3, title: 'Chapter Two' }
-    ]);
+    return Ember.RSVP.resolve({
+      data: [
+        { id: 2, type: 'chapter', attributes: { title: 'Chapter One' } },
+        { id: 3, type: 'chapter', attributes: { title: 'Chapter Two' } }
+      ]
+    });
   };
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1, chapters: [2, 3, 3] };
+    return { data: bookData };
   };
 
   run(function() {
     env.store.push({
-      data: {
-        type: 'book',
-        id: '1',
-        relationships: {
-          chapters: {
-            data: [
-              { type: 'chapter', id: '2' },
-              { type: 'chapter', id: '3' },
-              { type: 'chapter', id: '3' }
-            ]
-          }
-        }
-      }
+      data: bookData
     });
     env.store.findRecord('book', 1).then(function(book) {
       return book.get('chapters');
@@ -188,8 +194,21 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: {
+              related: "/posts/1/comments"
+            }
+          }
+        }
+      }
+    });
   };
+  //({ id: 1, links: { comments: "/posts/1/comments" } });
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
     throw new Error("Adapter's findMany should not be called");
@@ -199,10 +218,12 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
     assert.equal(relationship.type, "comment", "relationship was passed correctly");
 
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({
+      data: [
+        { id: 1, type: 'comment', attributes: { body: "First" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]
+    });
   };
 
   run(function() {
@@ -251,10 +272,12 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
     assert.equal(count, 1, "findHasMany has only been called once");
     return new Ember.RSVP.Promise(function(resolve, reject) {
       setTimeout(function() {
-        var value = [
-          { id: 1, body: "First" },
-          { id: 2, body: "Second" }
-        ];
+        var value = {
+          data: [
+            { id: 1, type: 'comment', attributes: { body: "First" } },
+            { id: 2, type: 'comment', attributes: { body: "Second" } }
+          ]
+        };
         resolve(value);
       }, 100);
     });
@@ -294,10 +317,12 @@ test("A hasMany backed by a link remains a promise after a record has been added
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({
+      data: [
+        { id: 1, type: 'comment', attributes: { body: "First" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]
+    });
   };
   var post;
   run(function() {
@@ -347,14 +372,19 @@ test("A hasMany updated link should not remove new children", function(assert) {
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([]);
+    return Ember.RSVP.resolve({ data: [] });
   };
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({
-      id: 1,
-      links: {
-        comments: '/some/link'
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: '/some/link' }
+          }
+        }
       }
     });
   };
@@ -388,14 +418,21 @@ test("A hasMany updated link should not remove new children when the parent reco
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([{ id: 5, body: 'hello' }]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 5, type: 'comment', attributes: { body: 'hello' } }
+    ]});
   };
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({
-      id: 1,
-      links: {
-        comments: '/some/link'
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: '/some/link' }
+          }
+        }
       }
     });
   };
@@ -430,9 +467,7 @@ test("A hasMany relationship doesn't contain duplicate children, after the canon
   });
 
   env.adapter.createRecord = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve({
-      id: 1
-    });
+    return Ember.RSVP.resolve({ data: { id: 1, type: 'post' } });
   };
 
   run(function() {
@@ -498,7 +533,17 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: "/posts/1/comments" }
+          }
+        }
+      }
+    });
   };
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
@@ -506,10 +551,10 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
     assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
     assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
 
   run(function() {
@@ -524,11 +569,11 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
         assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
         assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
-        return Ember.RSVP.resolve([
-          { id: 1, body: "First" },
-          { id: 2, body: "Second" },
-          { id: 3, body: "Thirds" }
-        ]);
+        return Ember.RSVP.resolve({ data: [
+          { id: 1, type: 'comment', attributes: { body: "First" } },
+          { id: 2, type: 'comment', attributes: { body: "Second" } },
+          { id: 3, type: 'comment', attributes: { body: "Thirds" } }
+        ]});
       };
 
       return comments.reload();
@@ -547,7 +592,20 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, comments: [1, 2] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            data: [
+              { id: 1, type: 'comment' },
+              { id: 2, type: 'comment' }
+            ]
+          }
+        }
+      }
+    });
   };
 
   run(function() {
@@ -573,10 +631,10 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
       assert.equal(comments.get('length'), 2, "comments have a length of 2");
 
       env.adapter.findMany = function(store, type, ids, snapshots) {
-        return Ember.RSVP.resolve([
-          { id: 1, body: "FirstUpdated" },
-          { id: 2, body: "Second" }
-        ]);
+        return Ember.RSVP.resolve({ data: [
+          { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+          { id: 2, type: 'comment', attributes: { body: "Second" } }
+        ]});
       };
 
       return comments.reload();
@@ -595,14 +653,24 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }]
+          }
+        }
+      }
+    });
   };
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
 
   run(function() {
@@ -613,10 +681,10 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
       assert.equal(comments.get('length'), 2, "comments have 2 length");
 
       env.adapter.findMany = function(store, type, ids, snapshots) {
-        return Ember.RSVP.resolve([
-          { id: 1, body: "FirstUpdated" },
-          { id: 2, body: "Second" }
-        ]);
+        return Ember.RSVP.resolve({ data: [
+          { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+          { id: 2, type: 'comment', attributes: { body: "Second" } }
+        ]});
       };
 
       return comments.reload();
@@ -634,7 +702,17 @@ test("A hasMany relationship can be reloaded even if it failed at the first time
   });
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: "/posts/1/comments" }
+          }
+        }
+      }
+    });
   };
 
   var loadingCount = -1;
@@ -643,10 +721,10 @@ test("A hasMany relationship can be reloaded even if it failed at the first time
     if (loadingCount % 2 === 0) {
       return Ember.RSVP.reject();
     } else {
-      return Ember.RSVP.resolve([
-        { id: 1, body: "FirstUpdated" },
-        { id: 2, body: "Second" }
-      ]);
+      return Ember.RSVP.resolve({ data: [
+        { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]});
     }
   };
   run(function() {
@@ -679,16 +757,26 @@ test("A hasMany relationship can be directly reloaded if it was fetched via link
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: "/posts/1/comments" }
+          }
+        }
+      }
+    });
   };
 
   env.adapter.findHasMany = function(store, record, link, relationship) {
     assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
-    return Ember.RSVP.resolve([
-      { id: 1, body: "FirstUpdated" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
   run(function() {
     env.store.findRecord('post', 1).then(function(post) {
@@ -710,16 +798,26 @@ test("Has many via links - Calling reload multiple times does not send a new req
   });
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: "/posts/1/comments" }
+          }
+        }
+      }
+    });
   };
 
   let count = 0;
   env.adapter.findHasMany = function(store, record, link, relationship) {
     count++;
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
   run(function() {
     env.store.findRecord('post', 1).then(function(post) {
@@ -742,14 +840,24 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
     assert.equal(type, Post, "find type was Post");
     assert.equal(id, "1", "find id was 1");
 
-    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }]
+          }
+        }
+      }
+    });
   };
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "FirstUpdated" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
 
   run(function() {
@@ -772,16 +880,26 @@ test("Has many via ids - Calling reload multiple times does not send a new reque
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            data: [{ id: 1, type: 'comment' }, { id: 2, type: 'comment' }]
+          }
+        }
+      }
+    });
   };
 
   let count = 0;
   env.adapter.findMany = function(store, type, ids, snapshots) {
     count++;
-    return Ember.RSVP.resolve([
-      { id: 1, body: "FirstUpdated" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "FirstUpdated" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
 
   run(function() {
@@ -804,10 +922,10 @@ test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loa
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
   var post;
 
@@ -848,10 +966,10 @@ test("PromiseArray proxies evented methods to its ManyArray", function(assert) {
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
   var post, comments;
 
@@ -915,16 +1033,16 @@ test("An updated `links` value should invalidate a relationship cache", function
     assert.equal(relationship.type, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
-      return Ember.RSVP.resolve([
-        { id: 1, body: "First" },
-        { id: 2, body: "Second" }
-      ]);
+      return Ember.RSVP.resolve({ data: [
+        { id: 1, type: 'comment', attributes: { body: "First" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]});
     } else if (link === '/second') {
-      return Ember.RSVP.resolve([
-        { id: 3, body: "Third" },
-        { id: 4, body: "Fourth" },
-        { id: 5, body: "Fifth" }
-      ]);
+      return Ember.RSVP.resolve({ data: [
+        { id: 3, type: 'comment', attributes: { body: "Third" } },
+        { id: 4, type: 'comment', attributes: { body: "Fourth" } },
+        { id: 5, type: 'comment', attributes: { body: "Fifth" } }
+      ]});
     }
   };
   var post;
@@ -976,28 +1094,30 @@ test("An updated `links` value should invalidate a relationship cache", function
 test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
   assert.expect(1);
 
+  let userData = {
+    type: 'user',
+    id: '1',
+    relationships: {
+      messages: {
+        data: [
+          { type: 'post', id: '1' },
+          { type: 'comment', id: '3' }
+        ]
+      }
+    }
+  };
+
   env.adapter.findMany = function(store, type, ids, snapshots) {
     assert.ok(false, "The adapter's find method should not be called");
   };
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1, messages: [{ id: 1, type: 'post' }, { id: 3, type: 'comment' }] };
+    return { data: userData };
   };
 
   run(function() {
     env.store.push({
-      data: {
-        type: 'user',
-        id: '1',
-        relationships: {
-          messages: {
-            data: [
-              { type: 'post', id: '1' },
-              { type: 'comment', id: '3' }
-            ]
-          }
-        }
-      },
+      data: userData,
       included: [{
         type: 'post',
         id: '1'
@@ -1023,9 +1143,9 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Post) {
-      return Ember.RSVP.resolve({ id: 1 });
+      return Ember.RSVP.resolve({ data: { id: 1, type: 'post' } });
     } else if (type === Comment) {
-      return Ember.RSVP.resolve({ id: 3 });
+      return Ember.RSVP.resolve({ data: { id: 3, type: 'comment' } });
     }
   };
 
@@ -1081,7 +1201,17 @@ test("Type can be inferred from the key of a hasMany relationship", function(ass
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1, contacts: [1] };
+    return {
+      data: {
+        id: 1,
+        type: 'user',
+        relationships: {
+          contacts: {
+            data: [{ id: 1, type: 'contact' }]
+          }
+        }
+      }
+    };
   };
 
   run(function() {
@@ -1120,7 +1250,17 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
   });
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1, contacts: [1] };
+    return {
+      data: {
+        id: 1,
+        type: 'user',
+        relationships: {
+          contacts: {
+            data: [{ id: 1, type: 'contact' }]
+          }
+        }
+      }
+    };
   };
 
   run(function() {
@@ -1157,7 +1297,7 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
   });
 
   env.adapter.findRecord = function(store, type, ids, snapshots) {
-    return { id: 1 };
+    return { data: { id: 1, type: 'user' } };
   };
 
   assert.expect(1);
@@ -1489,7 +1629,7 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
   var post, comment;
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 1 });
+    return Ember.RSVP.resolve({ data: { id: 1, type: snapshot.modelName } });
   };
 
   run(function () {
@@ -1512,9 +1652,9 @@ test("dual non-async HM <-> BT", function(assert) {
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    var data = snapshot.record.serialize();
-    data.id = 2;
-    return Ember.RSVP.resolve(data);
+    var serialized = snapshot.record.serialize();
+    serialized.data.id = 2;
+    return Ember.RSVP.resolve(serialized);
   };
   var post, firstComment;
 
@@ -1568,11 +1708,14 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   });
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
-    return resolve([{ id: 1, body: 'first' }, { id: 2, body: 'second' }]);
+    return resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: 'first' } },
+      { id: 2, type: 'comment', attributes: { body: 'second' } }
+    ]});
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return resolve({ id: 3, body: 'third' });
+    return resolve({ data: { id: 3, type: 'comment', attributes: { body: 'third' } } });
   };
   var post;
 
@@ -2304,7 +2447,18 @@ test("hasMany hasData async loaded", function(assert) {
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'chapter',
+        attributes: { title: 'The Story Begins' },
+        relationships: {
+          pages: {
+            data: [{ id: 2, type: 'page' }, { id: 3, type: 'page' }]
+          }
+        }
+      }
+    });
   };
 
   run(function() {
@@ -2319,7 +2473,18 @@ test("hasMany hasData sync loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'chapter',
+        attributes: { title: 'The Story Begins' },
+        relationships: {
+          pages: {
+            data: [{ id: 2, type: 'page' }, { id: 3, type: 'page' }]
+          }
+        }
+      }
+    });
   };
 
   run(function() {
@@ -2338,7 +2503,18 @@ test("hasMany hasData async not loaded", function(assert) {
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', links: { pages: 'pages' } });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'chapter',
+        attributes: { title: 'The Story Begins' },
+        relationships: {
+          pages: {
+            links: { related: 'pages' }
+          }
+        }
+      }
+    });
   };
 
   run(function() {
@@ -2353,7 +2529,13 @@ test("hasMany hasData sync not loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins' });
+    return Ember.RSVP.resolve({
+      data: {
+        id: 1,
+        type: 'chapter',
+        attributes: { title: 'The Story Begins' }
+      }
+    });
   };
 
   run(function() {
@@ -2577,9 +2759,9 @@ test("Related link should be fetched when no local data is present", function(as
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
     assert.equal(url, 'comments', 'url is correct');
     assert.ok(true, "The adapter's findHasMany method should be called");
-    return Ember.RSVP.resolve([
-      { id: 1, body: 'This is comment' }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: 'This is comment' } }
+    ]});
   };
 
   run(function() {
@@ -2614,7 +2796,7 @@ test("Local data should take precedence over related link", function(assert) {
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, body: 'This is comment' });
+    return Ember.RSVP.resolve({ data: { id: 1, type: 'comment', attributes: { body: 'This is comment' } } });
   };
 
   run(function() {
@@ -2650,9 +2832,9 @@ test("Updated related link should take precedence over local data", function(ass
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
     assert.equal(url, 'comments-updated-link', 'url is correct');
     assert.ok(true, "The adapter's findHasMany method should be called");
-    return Ember.RSVP.resolve([
-      { id: 1, body: 'This is comment' }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: 'This is comment' } }
+    ]});
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2705,10 +2887,10 @@ test("PromiseArray proxies createRecord to its ManyArray before the hasMany is l
   });
 
   env.adapter.findHasMany = function(store, record, link, relationship) {
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
+    return Ember.RSVP.resolve({ data: [
+      { id: 1, type: 'comment', attributes: { body: "First" } },
+      { id: 2, type: 'comment', attributes: { body: "Second" } }
+    ]});
   };
 
   run(function() {

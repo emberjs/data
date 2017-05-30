@@ -78,7 +78,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
     assert.equal(type, Person, "the type is correct");
     assert.equal(snapshot.record, tom, "the record is correct");
 
-    return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
+    return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
   };
 
   run(function() {
@@ -92,7 +92,7 @@ test("After a created record has been assigned an ID, finding a record by that I
   var tom;
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
+    return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
   };
 
   run(function() {
@@ -178,9 +178,9 @@ test("An adapter can notify the store that records were updated by calling `didS
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
     if (snapshot.id === "1") {
-      return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });
+      return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
     } else if (snapshot.id === "2") {
-      return Ember.RSVP.resolve({ id: 2, name: "Yehuda Katz", updatedAt: "now!" });
+      return Ember.RSVP.resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
     }
   };
 
@@ -249,9 +249,9 @@ test("An adapter can notify the store that a record was updated and provide new 
   env.adapter.updateRecord = function(store, type, snapshot) {
     switch (snapshot.id) {
       case "1":
-        return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });
+        return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
       case "2":
-        return Ember.RSVP.resolve({ id: 2, name: "Yehuda Katz", updatedAt: "now!" });
+        return Ember.RSVP.resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
     }
   };
 

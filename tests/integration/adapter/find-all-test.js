@@ -45,7 +45,13 @@ test("When all records for a type are requested, the store should call the adapt
       // this will get called twice
       assert.ok(true, "the adapter's findAll method should be invoked");
 
-      return resolve([{ id: 1, name: "Braaaahm Dale" }]);
+      return resolve({ data: [{
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: "Braaaahm Dale"
+        }
+      }]});
     }
   }));
 
@@ -75,7 +81,13 @@ test("When all records for a type are requested, a rejection should reject the p
       if (count++ === 0) {
         return reject();
       } else {
-        return resolve([{ id: 1, name: "Braaaahm Dale" }]);
+        return resolve({ data: [{
+          id: 1,
+          type: 'person',
+          attributes: {
+            name: "Braaaahm Dale"
+          }
+        }]});
       }
     }
   }));
@@ -185,7 +197,7 @@ test("isUpdating is true while records are fetched", function(assert) {
 
   assert.equal(persons.get("isUpdating"), true);
 
-  findAllDeferred.resolve([{ id: 2 }]);
+  findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
 });
 
 test("isUpdating is true while records are fetched in the background", function(assert) {
@@ -223,7 +235,7 @@ test("isUpdating is true while records are fetched in the background", function(
   assert.equal(persons.get("isUpdating"), true);
 
   run(function() {
-    findAllDeferred.resolve([{ id: 2 }]);
+    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
   });
 
   run(function() {

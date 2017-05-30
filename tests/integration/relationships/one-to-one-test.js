@@ -588,13 +588,13 @@ test("Setting a BelongsTo to a promise multiple times is resistant to race condi
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (id === '5') {
-      return Ember.RSVP.resolve({ id: 5, name: "Igor's friend" });
+      return Ember.RSVP.resolve({ data: { id: 5, type: 'user', attributes: { name: "Igor's friend" } } });
     } else if (id === '2') {
       let done = assert.async();
       return new Ember.RSVP.Promise(function(resolve, reject) {
         setTimeout(function() {
           done();
-          resolve({ id: 2, name: "Stanley's friend" });
+          resolve({ data: { id: 2, type: 'user', attributes: { name: "Stanley's friend" } } });
         }, 1);
       });
     }

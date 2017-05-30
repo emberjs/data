@@ -7,7 +7,7 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var Post, post, Comment, comment, Favorite, favorite, env;
+var Post, post, Comment, comment, Favorite, favorite, env, serializer;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
@@ -31,6 +31,7 @@ module("integration/serializer/json - JSONSerializer", {
     env.store.modelFor('post');
     env.store.modelFor('comment');
     env.store.modelFor('favorite');
+    serializer = env.store.serializerFor('-json');
   },
 
   afterEach() {
@@ -44,7 +45,7 @@ test("serialize doesn't include ID when includeId is false", function(assert) {
   });
   var json = {};
 
-  json = env.serializer.serialize(post._createSnapshot(), { includeId: false });
+  json = serializer.serialize(post._createSnapshot(), { includeId: false });
 
   assert.deepEqual(json, {
     title: "Rails is omakase",
@@ -59,7 +60,7 @@ test("serialize includes id when includeId is true", function(assert) {
   });
   var json = {};
 
-  json = env.serializer.serialize(post._createSnapshot(), { includeId: true });
+  json = serializer.serialize(post._createSnapshot(), { includeId: true });
 
   assert.deepEqual(json, {
     id: 'test',
@@ -76,7 +77,7 @@ if (isEnabled("ds-serialize-id")) {
     });
     var json = {};
 
-    env.serializer.serializeId(post._createSnapshot(), json, 'id');
+    serializer.serializeId(post._createSnapshot(), json, 'id');
 
     assert.deepEqual(json, {
       id: 'test'
@@ -134,7 +135,7 @@ test("serializeAttribute", function(assert) {
   });
   var json = {};
 
-  env.serializer.serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
+  serializer.serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
 
   assert.deepEqual(json, {
     title: "Rails is omakase"
@@ -166,7 +167,7 @@ test("serializeBelongsTo", function(assert) {
 
   var json = {};
 
-  env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
+  serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
   assert.deepEqual(json, { post: "1" });
 });
@@ -177,7 +178,7 @@ test("serializeBelongsTo with null", function(assert) {
   });
   var json = {};
 
-  env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
+  serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
   assert.deepEqual(json, {
     post: null
@@ -193,7 +194,7 @@ test("async serializeBelongsTo with null", function(assert) {
   });
   var json = {};
 
-  env.serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
+  serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
   assert.deepEqual(json, {
     post: null
@@ -294,7 +295,7 @@ test("serializeIntoHash", function(assert) {
 
   var json = {};
 
-  env.serializer.serializeIntoHash(json, Post, post._createSnapshot());
+  serializer.serializeIntoHash(json, Post, post._createSnapshot());
 
   assert.deepEqual(json, {
     title: "Rails is omakase",
@@ -441,6 +442,7 @@ test('Serializer should respect the attrs hash when serializing records', functi
 });
 
 test('Serializer respects if embedded model has an attribute named "type" - #3726', function(assert) {
+  env.registry.register("serializer:child", DS.JSONSerializer);
   env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       child: { embedded: 'always' }
@@ -476,6 +478,7 @@ test('Serializer respects if embedded model has an attribute named "type" - #372
 });
 
 test('Serializer respects if embedded model has a relationship named "type" - #3726', function(assert) {
+  env.registry.register("serializer:child", DS.JSONSerializer);
   env.registry.register("serializer:parent", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       child: { embedded: 'always' }
@@ -919,6 +922,7 @@ test('normalizeResponse returns empty `included` payload when relationship is un
 });
 
 test('normalizeResponse respects `included` items (single response)', function(assert) {
+  env.registry.register("serializer:comment", DS.JSONSerializer);
   env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       comments: { embedded: 'always' }
@@ -943,6 +947,7 @@ test('normalizeResponse respects `included` items (single response)', function(a
 });
 
 test('normalizeResponse respects `included` items (array response)', function(assert) {
+  env.registry.register("serializer:comment", DS.JSONSerializer);
   env.registry.register("serializer:post", DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       comments: { embedded: 'always' }
@@ -1013,7 +1018,7 @@ test('options are passed to transform for serialization', function(assert) {
     post = env.store.createRecord('post', { custom: 'value' });
   });
 
-  env.serializer.serialize(post._createSnapshot());
+  serializer.serialize(post._createSnapshot());
 });
 
 test('options are passed to transform for normalization', function(assert) {
@@ -1031,7 +1036,7 @@ test('options are passed to transform for normalization', function(assert) {
     })
   });
 
-  env.serializer.normalize(Post, {
+  serializer.normalize(Post, {
     custom: 'value'
   });
 });
@@ -1060,7 +1065,7 @@ test('Serializer should respect the attrs hash in links', function(assert) {
 if (isEnabled("ds-payload-type-hooks")) {
 
   test("mapping of model name can be customized via modelNameFromPayloadType", function(assert) {
-    env.serializer.modelNameFromPayloadType = function(payloadType) {
+    serializer.modelNameFromPayloadType = function(payloadType) {
       return payloadType.replace("api::v1::", "");
     };
 
@@ -1074,7 +1079,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
     assert.expectNoDeprecation();
 
-    let normalized = env.serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
+    let normalized = serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
 
     assert.deepEqual(normalized, {
       data: {
@@ -1095,7 +1100,7 @@ if (isEnabled("ds-payload-type-hooks")) {
   });
 
   testInDebug("DEPRECATED - mapping of model name can be customized via modelNameFromPayloadKey", function(assert) {
-    env.serializer.modelNameFromPayloadKey = function(payloadType) {
+    serializer.modelNameFromPayloadKey = function(payloadType) {
       return payloadType.replace("api::v1::", "");
     };
 
@@ -1109,7 +1114,7 @@ if (isEnabled("ds-payload-type-hooks")) {
 
     assert.expectDeprecation("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead");
 
-    let normalized = env.serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
+    let normalized = serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
 
     assert.deepEqual(normalized, {
       data: {

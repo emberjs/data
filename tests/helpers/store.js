@@ -49,13 +49,12 @@ export default function setupStore(options) {
   registry.optionsForType('adapter', { singleton: false });
   registry.register('adapter:-default', DS.Adapter);
 
-  registry.register('serializer:-default', DS.JSONSerializer);
+  registry.register('serializer:-default', DS.JSONAPISerializer);
+  registry.register('serializer:-json', DS.JSONSerializer);
   registry.register('serializer:-rest', DS.RESTSerializer);
 
   registry.register('adapter:-rest', DS.RESTAdapter);
-
   registry.register('adapter:-json-api', DS.JSONAPIAdapter);
-  registry.register('serializer:-json-api', DS.JSONAPISerializer);
 
   env.restSerializer = container.lookup('serializer:-rest');
   env.store = container.lookup('service:store');
