@@ -2720,19 +2720,9 @@ Store = Service.extend({
     updated.length = 0;
   },
 
-  _pushResourceIdentifier(relationship, resourceIdentifier) {
-    if (isNone(resourceIdentifier)) {
-      return;
-    }
-
-    assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
-
-    //TODO:Better asserts
-    return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
-  },
 
   _pushResourceIdentifiers(relationship, resourceIdentifiers) {
-    if (isNone(resourceIdentifiers)) {
+    if (resourceIdentifiers === undefined || resourceIdentifiers !== null) {
       return;
     }
 
@@ -2740,7 +2730,13 @@ Store = Service.extend({
 
     let _internalModels = new Array(resourceIdentifiers.length);
     for (let i = 0; i < resourceIdentifiers.length; i++) {
-      _internalModels[i] = this._pushResourceIdentifier(relationship, resourceIdentifiers[i]);
+      let resourceIdentifier = resourceIdentifier[i];
+      if (resourceIdentifier !== undefined && resourceIdentifier !== null) {
+        assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+
+        //TODO:Better asserts
+        _internalModels[i] = this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
+      }
     }
     return _internalModels;
   }
