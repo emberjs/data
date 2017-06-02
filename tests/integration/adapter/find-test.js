@@ -168,3 +168,33 @@ testInDebug("warns when returned record has different id", function(assert) {
     env.store.findRecord('person', 'me');
   });
 });
+
+test('findRecord() does not fetch a new record with client side id - GH#3678', function(assert) {
+  const done = assert.async();
+
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    shouldBackgroundReloadRecord() {
+      assert.ok(false, 'shouldBackgroundReloadRecord should not be called');
+    },
+
+    shouldReloadRecord() {
+      assert.ok(false, 'shouldReloadRecord should not be called');
+    },
+
+    findRecord() {
+      assert.ok(false, 'findRecord should not be called');
+    }
+  }));
+
+  run(function() {
+    let person = env.store.createRecord('person', {
+      id: 'client-side-id'
+    });
+
+    env.store.findRecord('person', person.get('id')).then(function(foundPerson) {
+      assert.deepEqual(foundPerson, person);
+
+      done();
+    });
+  });
+});
