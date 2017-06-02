@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import { deprecate } from '@ember/debug';
 
+let PreheatGuid = 0;
+
 /**
   @module ember-data
 */
@@ -133,6 +135,9 @@ export default function attr(type, options) {
     isAttribute: true,
     options: options
   };
+
+  // this exists for perf because meta is cached via Ember.Map which uses guid to key the Map
+  meta[Ember.GUID_KEY] = PreheatGuid++ + 'attribute';
 
   return Ember.computed({
     get(key) {

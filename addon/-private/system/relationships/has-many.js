@@ -9,6 +9,8 @@ import isArrayLike from "../is-array-like";
 
 const { get } = Ember;
 
+let PreheatGuid = 0;
+
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
   relationships on a [DS.Model](/api/data/classes/DS.Model.html).
@@ -141,6 +143,9 @@ export default function hasMany(type, options) {
     name: 'Has Many',
     key: null
   };
+
+  // this exists for perf because meta is cached via Ember.Map which uses guid to key the Map
+  meta[Ember.GUID_KEY] = PreheatGuid++ + 'hasMany';
 
   return Ember.computed({
     get(key) {
