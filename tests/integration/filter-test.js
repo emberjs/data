@@ -558,7 +558,7 @@ test('it is possible to filter created records by dirtiness', function(assert) {
           data: {
             id: snapshot.id,
             type: model.modelName,
-            attributes: Ember.merge(Ember.merge({}, snapshot._attributes))
+            attributes: snapshot._attributes
           }
         }
       },
