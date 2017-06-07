@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.14.0-beta.3 (June 7, 2017)
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
+
 ### Release 2.14.0-beta.2 (May 5, 2017)
 - [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
 - [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
