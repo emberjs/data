@@ -1,1 +1,1 @@
-export { Transform } from './-private';
+export { default } from './transforms/transform';
