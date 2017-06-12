@@ -49,7 +49,7 @@ export default function setupStore(options) {
   registry.optionsForType('adapter', { singleton: false });
   registry.register('adapter:-default', DS.Adapter);
 
-  registry.register('serializer:-default', DS.JSONSerializer);
+  registry.register('serializer:-default', DS.JSONAPISerializer);
   registry.register('serializer:-rest', DS.RESTSerializer);
 
   registry.register('adapter:-rest', DS.RESTAdapter);
