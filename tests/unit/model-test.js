@@ -6,7 +6,7 @@ import {module, test} from 'qunit';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 
-const { get, set, run } = Ember;
+const { get, getOwner, set, run } = Ember;
 
 let Person, store, env;
 
@@ -360,7 +360,7 @@ test('changedAttributes() works while the record is being saved', function(asser
         likes: [undefined, 'Cheese']
       });
 
-      return { id: 1 };
+      return { data: { id: 1, type: 'mascot' } };
     }
   });
 
@@ -396,7 +396,7 @@ test('changedAttributes() works while the record is being updated', function(ass
         likes: ['Cheese', 'Mussels']
       });
 
-      return { id: '1', type: 'mascot' };
+      return { data: { id: '1', type: 'mascot' } };
     }
   });
 
@@ -1006,6 +1006,7 @@ function converts(assert, type, provided, expected, options = {}) {
   let testStore = createStore({
     model: Model
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   run(() => {
     testStore.push(testStore.normalize('model', { id: 1, name: provided }));
@@ -1041,6 +1042,7 @@ function convertsFromServer(assert, type, provided, expected) {
       shouldBackgroundReloadRecord() { return false; }
     })
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   return run(() => {
     testStore.push(testStore.normalize('model', {
@@ -1141,6 +1143,7 @@ function convertsWhenSet(assert, type, provided, expected) {
       }
     })
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   return run(() => {
     testStore.push({
@@ -1180,8 +1183,11 @@ test('ensure model exits loading state, materializes data and fulfills promise o
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
         return Ember.RSVP.resolve({
-          id: 1,
-          name: 'John'
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: { name: 'John' }
+          }
         });
       }
     }),
@@ -1204,7 +1210,7 @@ test('A DS.Model can be JSONified', function(assert) {
   let store = createStore({ person: Person });
   let record = run(() => store.createRecord('person', { name: 'TomHuda' }));
 
-  assert.deepEqual(record.toJSON(), { name: 'TomHuda' });
+  assert.deepEqual(record.toJSON(), { data: { type: 'people', attributes: { name: 'TomHuda' } } });
 });
 
 testInDebug('A subclass of DS.Model can not use the `data` property', function(assert) {
@@ -1325,7 +1331,7 @@ test('toJSON looks up the JSONSerializer using the store instead of using JSONSe
   }
 
   assert.ok(!errorThrown, 'error not thrown due to missing store');
-  assert.deepEqual(json, {});
+  assert.deepEqual(json, { data: { type: 'people' }});
 });
 
 test('internalModel is ready by `init`', function(assert) {

@@ -122,7 +122,13 @@ test("load() fetches the record", function(assert) {
 
   env.adapter.findRecord = function(store, type, id) {
     return Ember.RSVP.resolve({
-      id: 1, name: "Vito"
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito'
+        }
+      }
     });
   };
 
@@ -162,7 +168,13 @@ test("load() only a single find is triggered", function(assert) {
 
   run(function() {
     deferred.resolve({
-      id: 1, name: "Vito"
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito'
+        }
+      }
     });
   });
 
@@ -184,7 +196,13 @@ test("reload() loads the record if not yet loaded", function(assert) {
     assert.equal(count, 1);
 
     return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito Coreleone'
+        }
+      }
     });
   };
 
@@ -204,7 +222,13 @@ test("reload() fetches the record", function(assert) {
 
   env.adapter.findRecord = function(store, type, id) {
     return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito Coreleone'
+        }
+      }
     });
   };
 

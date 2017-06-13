@@ -59,7 +59,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     });
 
     store = env.store;
-    serializer = store.serializerFor('-json-api');
+    serializer = env.serializer;
   },
 
   afterEach() {

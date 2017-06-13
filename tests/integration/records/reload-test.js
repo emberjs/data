@@ -33,10 +33,10 @@ test("When a single record is requested, the adapter's find method should be cal
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (count === 0) {
       count++;
-      return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
+      return Ember.RSVP.resolve({ data: { id: id, type: 'person', attributes: { name: "Tom Dale" } } });
     } else if (count === 1) {
       count++;
-      return Ember.RSVP.resolve({ id: id, name: "Braaaahm Dale" });
+      return Ember.RSVP.resolve({ data: { id: id, type: 'person', attributes: { name: "Braaaahm Dale" } } });
     } else {
       assert.ok(false, "Should not get here");
     }
@@ -77,7 +77,7 @@ test("When a record is reloaded and fails, it can try again", function(assert) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
-      return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
+      return Ember.RSVP.resolve({ data: { id: 1, type: 'person', attributes: { name: "Thomas Dale" } } });
     }
   };
 
@@ -96,19 +96,20 @@ test("When a record is reloaded and fails, it can try again", function(assert) {
 });
 
 test("When a record is loaded a second time, isLoaded stays true", function(assert) {
+  let record = {
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Tom Dale'
+      }
+    }
+  };
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return { id: 1, name: "Tom Dale" };
+    return record;
   };
   run(function() {
-    env.store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Tom Dale'
-        }
-      }
-    });
+    env.store.push(record);
   });
 
   run(function() {
@@ -117,15 +118,7 @@ test("When a record is loaded a second time, isLoaded stays true", function(asse
       person.addObserver('isLoaded', isLoadedDidChange);
 
       // Reload the record
-      env.store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Tom Dale'
-          }
-        }
-      });
+      env.store.push(record);
 
       assert.equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
 
@@ -154,9 +147,23 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
   env.adapter.findRecord = function(store, type, id, snapshot) {
     switch (type.modelName) {
       case 'person':
-        return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });
+        return Ember.RSVP.resolve({
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: { name: "Tom" },
+            relationships: {
+              tags: {
+                data: [
+                  { id: 1, type: 'tag' },
+                  { id: 2, type: 'tag' }
+                ]
+              }
+            }
+          }
+        });
       case 'tag':
-        return Ember.RSVP.resolve({ id: id, name: tags[id] });
+        return Ember.RSVP.resolve({ data: { id: id, type: 'tag', attributes: { name: tags[id] } } });
     }
   };
 

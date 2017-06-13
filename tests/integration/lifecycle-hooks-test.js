@@ -31,7 +31,7 @@ test("When the adapter acknowledges that a record has been created, a `didCreate
   assert.expect(3);
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return resolve({ id: 99, name: "Yehuda Katz" });
+    return resolve({ data: { id: 99, type: "person", attributes: { name: "Yehuda Katz" } } });
   };
   var person;
 

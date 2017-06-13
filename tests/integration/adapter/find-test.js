@@ -51,7 +51,15 @@ test("When a single record is requested, the adapter's find method should be cal
       assert.equal(count, 0, "the find method is only called once");
 
       count++;
-      return { id: 1, name: "Braaaahm Dale" };
+      return {
+        data: {
+          id: 1,
+          type: "person",
+          attributes: {
+            name: "Braaaahm Dale"
+          }
+        }
+      };
     }
   }));
 
@@ -101,7 +109,14 @@ test("When a single record is requested multiple times, all .findRecord() calls 
     }));
   });
 
-  run(() => deferred.resolve({ id: 1, name: "Braaaahm Dale" }));
+  run(() => deferred.resolve({
+    data: {
+      id: 1,
+      type: "person",
+      attributes: {
+        name: "Braaaahm Dale"
+      }
+    }}));
 });
 
 test("When a single record is requested, and the promise is rejected, .findRecord() is rejected.", (assert) => {
@@ -158,7 +173,15 @@ testInDebug('When multiple records are requested, and the payload is blank', (as
 testInDebug("warns when returned record has different id", function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return { id: 1, name: "Braaaahm Dale" };
+      return {
+        data: {
+          id: 1,
+          type: "person",
+          attributes: {
+            name: "Braaaahm Dale"
+          }
+        }
+      };
     }
   }));
 

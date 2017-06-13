@@ -47,7 +47,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord(store, type, query) {
       assert.equal(type, Person, "the query method is called with the correct type");
-      return Ember.RSVP.resolve({ id: 1, name: "Peter Wagenet" });
+      return Ember.RSVP.resolve({ data: { id: 1, type: 'person', attributes: { name: "Peter Wagenet" } } });
     }
   }));
 

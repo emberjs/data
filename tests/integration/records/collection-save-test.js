@@ -33,7 +33,7 @@ test("Collection will resolve save on success", function(assert) {
   var posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: id++ });
+    return Ember.RSVP.resolve({ data: { id: id++ , type: 'post' } });
   };
 
   run(function() {
@@ -77,12 +77,12 @@ test("Retry is allowed in a failure handler", function(assert) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
-      return Ember.RSVP.resolve({ id: id++ });
+      return Ember.RSVP.resolve({ data: { id: id++, type: 'post' } });
     }
   };
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: snapshot.id });
+    return Ember.RSVP.resolve({ data: { id: snapshot.id, type: 'post' } });
   };
 
   run(function() {

@@ -251,17 +251,31 @@ test('Calling push with a normalized hash containing IDs of related records retu
   env.adapter.findRecord = function(store, type, id) {
     if (id === '1') {
       return Ember.RSVP.resolve({
-        id: 1,
-        number: '5551212',
-        person: 'wat'
+        data: {
+          id: 1,
+          type: 'phone-number',
+          attributes: { number: '5551212' },
+          relationships: {
+            person: {
+              data: { id: 'wat', type: 'person' }
+            }
+          }
+        }
       });
     }
 
     if (id === "2") {
       return Ember.RSVP.resolve({
-        id: 2,
-        number: '5552121',
-        person: 'wat'
+        data: {
+          id: 2,
+          type: 'phone-number',
+          attributes: { number: '5552121' },
+          relationships: {
+            person: {
+              data: { id: 'wat', type: 'person' }
+            }
+          }
+        }
       });
     }
   };
@@ -269,9 +283,16 @@ test('Calling push with a normalized hash containing IDs of related records retu
   return run(() => {
     let person = store.push(store.normalize('person', {
       id: 'wat',
-      firstName: 'John',
-      lastName: 'Smith',
-      phoneNumbers: ["1", "2"]
+      type: 'person',
+      attributes: {
+        'first-name': 'John',
+        'last-name': 'Smith'
+      },
+      relationships: {
+        'phone-numbers': {
+          data: [{ id: 1, type: 'phone-number' }, { id: 2, type: 'phone-number' }]
+        }
+      }
     }));
 
     return person.get('phoneNumbers').then(phoneNumbers => {
@@ -573,10 +594,13 @@ test('Calling push with a link containing an object', function(assert) {
   run(() => {
     store.push(store.normalize('person', {
       id: '1',
-      firstName: 'Tan',
-      links: {
-        phoneNumbers: {
-          href: '/api/people/1/phone-numbers'
+      type: 'person',
+      attributes: {
+        'first-name': 'Tan'
+      },
+      relationships: {
+        'phone-numbers': {
+          links: { related: '/api/people/1/phone-numbers' }
         }
       }
     }));
@@ -591,9 +615,16 @@ test('Calling push with a link containing the value null', function(assert) {
   run(() => {
     store.push(store.normalize('person', {
       id: '1',
-      firstName: 'Tan',
-      links: {
-        phoneNumbers: null
+      type: 'person',
+      attributes: {
+        'first-name': 'Tan'
+      },
+      relationships: {
+        'phone-numbers': {
+          links: {
+            related: null
+          }
+        }
       }
     }));
   });

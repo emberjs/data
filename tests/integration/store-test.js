@@ -162,10 +162,11 @@ test("destroying the store correctly cleans everything up", function(assert) {
   });
 
   env.adapter.query = function() {
-    return [{
+    return { data: [{
       id: 2,
-      name: 'Yehuda'
-    }];
+      type: 'person',
+      attributes: { name: 'Yehuda' }
+    }]};
   };
   var adapterPopulatedPeople, filterdPeople;
 

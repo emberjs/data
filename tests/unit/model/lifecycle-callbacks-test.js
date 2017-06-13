@@ -21,7 +21,7 @@ test('a record receives a didLoad callback when it has finished loading', functi
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { id: 1, name: 'Foo' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
     }
   });
 
@@ -78,7 +78,7 @@ test('a record receives a didUpdate callback when it has finished updating', fun
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { id: 1, name: 'Foo' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
     },
 
     updateRecord(store, type, snapshot) {
@@ -165,7 +165,7 @@ test('a record receives a didDelete callback when it has finished deleting', fun
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { id: 1, name: 'Foo' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
     },
 
     deleteRecord(store, type, snapshot) {
@@ -244,7 +244,7 @@ test('a record receives a becameInvalid callback when it became invalid', functi
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { id: 1, name: "Foo" };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
     },
 
     updateRecord(store, type, snapshot) {

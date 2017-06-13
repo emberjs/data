@@ -40,7 +40,7 @@ test("Will resolve save on success", function(assert) {
     // `save` returns a PromiseObject which allows to call get on it
     assert.equal(saved.get('id'), undefined);
 
-    deferred.resolve({ id: 123 });
+    deferred.resolve({ data: { id: 123, type: 'post' } });
     saved.then(function(model) {
       assert.ok(true, 'save operation was resolved');
       assert.equal(saved.get('id'), 123);
@@ -82,7 +82,7 @@ test("Retry is allowed in a failure handler", function(assert) {
     if (count++ === 0) {
       return Ember.RSVP.reject(error);
     } else {
-      return Ember.RSVP.resolve({ id: 123 });
+      return Ember.RSVP.resolve({ data: { id: 123, type: 'post' } });
     }
   };
 

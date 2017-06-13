@@ -106,6 +106,8 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
     var camelized = Ember.String.camelize(root);
     return Ember.String.singularize(camelized);
   };
+  env.registry.register('serializer:home-planet', DS.JSONSerializer);
+  env.registry.register('serializer:super-villain', DS.JSONSerializer);
 
   var jsonHash = {
     home_planets: [{
@@ -201,6 +203,8 @@ testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", fu
 testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
   var homePlanet;
   var oldModelNameFromPayloadKey = env.restSerializer.modelNameFromPayloadKey;
+  env.registry.register('serializer:super-villain', DS.JSONSerializer);
+  env.registry.register('serializer:home-planet', DS.JSONSerializer);
   env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
     return "garbage";
@@ -235,6 +239,8 @@ testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", fun
 
 testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", function(assert) {
   var homePlanets;
+  env.registry.register('serializer:super-villain', DS.JSONSerializer);
+  env.registry.register('serializer:home-planet', DS.JSONSerializer);
   env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
     return "garbage";
@@ -310,6 +316,7 @@ test("serialize polymorphic when associated object is null", function(assert) {
 test("normalizeResponse loads secondary records with correct serializer", function(assert) {
   var superVillainNormalizeCount = 0;
 
+  env.registry.register('serializer:evil-minion', DS.JSONSerializer);
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
     normalize() {
       superVillainNormalizeCount++;
@@ -347,6 +354,7 @@ test("normalizeResponse returns null if payload contains null", function(assert)
 test("normalizeResponse loads secondary records with correct serializer", function(assert) {
   var superVillainNormalizeCount = 0;
 
+  env.registry.register('serializer:evil-minion', DS.JSONSerializer);
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
     normalize() {
       superVillainNormalizeCount++;
@@ -776,6 +784,7 @@ test("normalizeResponse can load secondary records of the same type without affe
     ]
   };
   var array;
+  env.registry.register('serializer:comment', DS.JSONSerializer);
 
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
@@ -905,6 +914,7 @@ test('Serializer should respect the attrs hash in links', function(assert) {
 
 // https://github.com/emberjs/data/issues/3805
 test('normalizes sideloaded single record so that it sideloads correctly - belongsTo - GH-3805', function(assert) {
+  env.registry.register('serializer:evil-minion', DS.JSONSerializer);
   env.registry.register("serializer:doomsday-device", DS.RESTSerializer.extend());
   let payload = {
     doomsdayDevice: {
@@ -937,6 +947,7 @@ test('normalizes sideloaded single record so that it sideloads correctly - belon
 
 // https://github.com/emberjs/data/issues/3805
 test('normalizes sideloaded single record so that it sideloads correctly - hasMany - GH-3805', function(assert) {
+  env.registry.register('serializer:super-villain', DS.JSONSerializer);
   env.registry.register("serializer:home-planet", DS.RESTSerializer.extend());
   let payload = {
     homePlanet: {

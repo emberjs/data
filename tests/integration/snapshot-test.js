@@ -372,7 +372,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
   assert.expect(2);
 
   env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve({ id: 1, title: 'Hello World' });
+    return Ember.RSVP.resolve({ data: { id: 1, type: 'post', attributes: { title: 'Hello World' } } });
   };
 
   run(function() {
@@ -804,7 +804,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
   assert.expect(2);
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve([{ id: 2, body: 'This is comment' }]);
+    return Ember.RSVP.resolve({ data: [{ id: 2, type: 'comment', attributes: { body: 'This is comment' } }]});
   };
 
   run(function() {
@@ -1055,7 +1055,17 @@ test("snapshot.serialize() serializes itself", function(assert) {
 
     post.set('title', 'New Title');
 
-    assert.deepEqual(snapshot.serialize(), { author: undefined, title: 'Hello World' }, 'shapshot serializes correctly');
-    assert.deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options');
+    var expected = {
+      data: {
+        attributes: {
+          author: undefined,
+          title: 'Hello World'
+        },
+        type: 'posts'
+      }
+    };
+    assert.deepEqual(snapshot.serialize(), expected, 'shapshot serializes correctly');
+    expected.data.id = '1';
+    assert.deepEqual(snapshot.serialize({ includeId: true }), expected, 'serialize takes options');
   });
 });
