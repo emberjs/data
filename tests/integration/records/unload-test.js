@@ -419,3 +419,160 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
 
   assert.equal(relPayloads.get('person', 1, 'cars'), null, 'person - cars relationship payload unloaded');
 });
+
+
+test("Unloading a record twice only schedules destroy once", function(assert) {
+  const store = env.store;
+  let record;
+
+  // populate initial record
+  run(function() {
+    record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  });
+
+  const internalModel = record._internalModel;
+
+  run(function() {
+    store.unloadRecord(record);
+    store.unloadRecord(record);
+    internalModel.cancelDestroy();
+  });
+
+  assert.equal(internalModel.isDestroyed, false, 'We cancelled destroy');
+});
+
+test("Cancelling destroy leaves the record in the empty state", function(assert) {
+  const store = env.store;
+  let record;
+
+  // populate initial record
+  run(function() {
+    record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  });
+
+  const internalModel = record._internalModel;
+  assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+
+  run(function() {
+    store.unloadRecord(record);
+    assert.equal(record.isDestroying, true, 'the record is destroying');
+    assert.equal(internalModel.isDestroyed, false, 'the internal model is not destroyed');
+    assert.equal(internalModel._isDematerializing, true, 'the internal model is dematerializing');
+    internalModel.cancelDestroy();
+    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+  });
+
+  assert.equal(internalModel.isDestroyed, false, 'the internal model was not destroyed');
+  assert.equal(internalModel._isDematerializing, false, 'the internal model is no longer dematerializing');
+  assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
+});
+
+test("after unloading a record, the record can be fetched again immediately", function(assert) {
+  const store = env.store;
+  let record;
+
+  // stub findRecord
+  env.adapter.findRecord = () => {
+    return Ember.RSVP.Promise.resolve({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  };
+
+  // populate initial record
+  run(function() {
+    record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  });
+
+  const internalModel = record._internalModel;
+  assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+
+  // we test that we can sync call unloadRecord followed by findRecord
+  run(function() {
+    store.unloadRecord(record);
+    assert.equal(record.isDestroying, true, 'the record is destroying');
+    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+    store.findRecord('person', '1');
+  });
+
+  assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
+});
+
+
+test("after unloading a record, the record can be fetched again soon there after", function(assert) {
+  const store = env.store;
+  let record;
+
+  // stub findRecord
+  env.adapter.findRecord = () => {
+    return Ember.RSVP.Promise.resolve({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  };
+
+  // populate initial record
+  run(function() {
+    record = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }
+    });
+  });
+
+  let internalModel = record._internalModel;
+  assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
+
+  run(function() {
+    store.unloadRecord(record);
+    assert.equal(record.isDestroying, true, 'the record is destroying');
+    assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+  });
+
+  run(function() {
+    store.findRecord('person', '1');
+  });
+
+  record = store.peekRecord('person', '1');
+  internalModel = record._internalModel;
+
+  assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
+});
