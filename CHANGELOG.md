@@ -283,7 +283,6 @@
 - [#4545](https://github.com/emberjs/data/pull/4545) [BUGFIX beta] Make `Model#data` a plain getter.
 - [#4541](https://github.com/emberjs/data/pull/4541) [BUGFIX release] Include initializers for global production build
 
-
 ### Release 2.8.0 (September 8, 2016)
 
 - [#4464](https://github.com/emberjs/data/pull/4464) Add benchmarks directory to npmignore
@@ -633,7 +632,7 @@
 
 ### Release 2.3.0 (January 12, 2016)
 
-Ember Data 2.3 is now published as and Ember CLI addon in addition to a bower package. 
+Ember Data 2.3 is now published as and Ember CLI addon in addition to a bower package.
 See the [release notes](http://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
 for instruction on how to upgrade your Ember CLI project to take advantage of the Ember Data addon.
 
@@ -651,7 +650,7 @@ for instruction on how to upgrade your Ember CLI project to take advantage of th
 - [#4019](https://github.com/emberjs/data/pull/4019) Use JSON-API adapter and serializer in blueprints
 - [#4021](https://github.com/emberjs/data/pull/4021) [BUGFIX beta] Move ember-inflector to an explicit dependency for the …
 - [#4025](https://github.com/emberjs/data/pull/4025) Use keyForReliationship for belongsTo and hasMany
-- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder 
+- [#4029](https://github.com/emberjs/data/pull/4029) [BUGFIX beta] Move public modules out of the `-private` folder
 - [#4026](https://github.com/emberjs/data/pull/4026) [BUGFIX beta] ignores keys that are not found in the map
 - [#3813](https://github.com/emberjs/data/pull/3813) ember-data should provide its blueprints
 - [#3996](https://github.com/emberjs/data/pull/3996) Update ember-cli-shims to 0.1.0 to silence ED's own warning
