@@ -2,6 +2,25 @@
 
 ### Master
 
+### Release 2.15.0-beta.1 (June 18, 2017)
+- [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
+- [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4960](https://github.com/emberjs/data/pull/4960) ensure we don't compile typeof checks poorly
+- [#4962](https://github.com/emberjs/data/pull/4962) Update to use built-in debug code stripping functionality.
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#4984](https://github.com/emberjs/data/pull/4984) [DOC release] Fix doc for `diffArray`
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4978](https://github.com/emberjs/data/pull/4978) Lock ember-cli-htmlbars to 1.3.0 to get the build passing again
+- [#4980](https://github.com/emberjs/data/pull/4980) [DOC release] Docs for has-many, belongs-to ref meta
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#5003](https://github.com/emberjs/data/pull/5003) Change setupStore helper default serializer to JSONAPISerializer #4754 (#5003)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5009](https://github.com/emberjs/data/pull/5009) cleanup `index.js` and drop `0.12` node
+- [#5011](https://github.com/emberjs/data/pull/5011) Fix and tests for unloadRecord => findRecord issue
+
 ### Release 2.14.0 (June 18, 2017)
 - [#5013](https://github.com/emberjs/data/pull/5013) [BUGFIX beta] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
 - [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
