@@ -2,16 +2,13 @@
 
 ### Master
 
-### Release 2.14.0-beta.3 (June 7, 2017)
+### Release 2.14.0 (June 18, 2017)
+- [#5013](https://github.com/emberjs/data/pull/5013) [BUGFIX beta] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
 - [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
-
-### Release 2.14.0-beta.2 (May 5, 2017)
 - [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
 - [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
 - [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
 - [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
-
-### Release 2.14.0-beta.1 (April 28, 2017)
 - [#4885](https://github.com/emberjs/data/pull/4885) Lazy snapshot.type
 - [#4855](https://github.com/emberjs/data/pull/4855) Update the changelog for the Ember Data 2.12.0 release
 - [#4821](https://github.com/emberjs/data/pull/4821) Pay go setup relationships
