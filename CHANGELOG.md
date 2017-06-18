@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.13.2 (June 18, 2017)
+- [#5012](https://github.com/emberjs/data/pull/5012) [BUGFIX release] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
+
 ### Release 2.13.1 (May 5, 2017)
 - [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
 - [#4970](https://github.com/emberjs/data/pull/4970) [BUGFIX release] Ensure Engines can boot without error.
