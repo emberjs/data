@@ -25,6 +25,7 @@ const {
   isEmpty,
   isEqual,
   setOwner,
+  run,
   RSVP,
   RSVP: { Promise }
 } = Ember;
@@ -137,6 +138,7 @@ export default class InternalModel {
     // `objectAt(len - 1)` to test whether or not `firstObject` or `lastObject`
     // have changed.
     this._isDematerializing = false;
+    this._scheduledDestroy = null;
 
     this.resetRecord();
 
@@ -477,11 +479,22 @@ export default class InternalModel {
   unloadRecord() {
     this.send('unloadRecord');
     this.dematerializeRecord();
-    Ember.run.schedule('destroy', this, '_checkForOrphanedInternalModels');
+    if (this._scheduledDestroy === null) {
+      this._scheduledDestroy = run.schedule('destroy', this, '_checkForOrphanedInternalModels');
+    }
+  }
+
+  cancelDestroy() {
+    assert(`You cannot cancel the destruction of an InternalModel once it has already been destroyed`, !this.isDestroyed);
+
+    this._isDematerializing = false;
+    run.cancel(this._scheduledDestroy);
+    this._scheduledDestroy = null;
   }
 
   _checkForOrphanedInternalModels() {
     this._isDematerializing = false;
+    this._scheduledDestroy = null;
     if (this.isDestroyed) { return; }
 
     this._cleanupOrphanedInternalModels();
