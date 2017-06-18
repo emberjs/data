@@ -1874,7 +1874,8 @@ Store = Service.extend({
       let operation;
 
       if (internalModel.currentState.stateName === 'root.deleted.saved') {
-        return resolver.resolve();
+        resolver.resolve();
+        continue;
       } else if (internalModel.isNew()) {
         operation = 'createRecord';
       } else if (internalModel.isDeleted()) {

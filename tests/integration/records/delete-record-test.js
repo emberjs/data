@@ -289,3 +289,29 @@ test("Destroying an invalid newly created record should remove it from the store
   assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
   assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
 });
+
+test("Will resolve destroy and save in same loop", function(assert) {
+  let adam, dave;
+  let promises;
+
+  assert.expect(1);
+
+  env.adapter.createRecord = function() {
+    assert.ok(true, 'save operation resolves');
+    return Ember.RSVP.Promise.resolve({ id: 123 });
+  };
+
+  run(function() {
+    adam = env.store.createRecord('person', { name: 'Adam Sunderland' });
+    dave = env.store.createRecord('person', { name: 'Dave Sunderland' });
+  });
+
+  run(function() {
+    promises = [
+      adam.destroyRecord(),
+      dave.save()
+    ];
+  });
+
+  return Ember.RSVP.all(promises);
+});
