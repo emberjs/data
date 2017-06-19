@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.14.1 (June 19, 2017)
+- [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+
 ### Release 2.14.0 (June 18, 2017)
 - [#5013](https://github.com/emberjs/data/pull/5013) [BUGFIX beta] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
 - [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
