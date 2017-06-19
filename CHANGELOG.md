@@ -1,6 +1,11 @@
 # Ember Data Changelog
 
+
+
 ### Master
+
+### Release 2.14.2 (June 19, 2017)
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
 
 ### Release 2.14.1 (June 19, 2017)
 - [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
