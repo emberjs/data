@@ -39,10 +39,10 @@ bower install ember-data --save
 ```
 
 The latest passing build from the "master" branch is available on
-[http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
+[https://emberjs.com/builds/#/canary](https://emberjs.com/builds/#/canary).
 
 Similarly, the latest passing build from the "beta" branch can be found
-on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
+on [https://emberjs.com/builds/#/beta](https://emberjs.com/builds/#/beta)
 
 Or build ember-data.js yourself. Clone the repository and run `npm run build:production`
 after [setup](#setup). You'll find ember-data.js in the `dist` directory.
@@ -142,7 +142,7 @@ By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON
 
 To learn more about adapters, including what conventions the
 various adapters follow and how to build your own, see the Ember.js
-Guides: [Customizing Adapters](http://emberjs.com/guides/models/customizing-adapters).
+Guides: [Customizing Adapters](https://emberjs.com/guides/models/customizing-adapters).
 
 ### Fetching a Collection of Models
 
@@ -167,7 +167,7 @@ promise will be rejected.
 ### Even More Documentation
 
 For much more detail on how to use Ember Data, see the [Ember.js Guides
-on models](http://emberjs.com/guides/models/).
+on models](https://emberjs.com/guides/models/).
 
 # Building Ember Data
 

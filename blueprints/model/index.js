@@ -70,7 +70,7 @@ function dsAttr(name, type) {
     return 'DS.hasMany(\'' + name + '\')';
   case '':
     //"If you don't specify the type of the attribute, it will be whatever was provided by the server"
-    //http://emberjs.com/guides/models/defining-models/
+    //https://emberjs.com/guides/models/defining-models/
     return 'DS.attr()';
   default:
     return 'DS.attr(\'' + type + '\')';
