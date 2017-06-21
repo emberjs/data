@@ -1181,6 +1181,18 @@ export default class InternalModel {
     has updated the value and the key is added to the list of changed
     keys.
 
+    Attributes are compared using standard Ember.isEqual method,
+    however if a property is an array/plain object, then the attribute
+    comparison will always return true and any observers added for this property
+    will fire. In order to prevent this `deepCompare` option can be used when
+    defining the property. For example:
+
+     ```javascript
+     DS.Model.extend({
+      emails: DS.attr({ deepCompare: true })
+    });
+     ```
+
     @method _changedKeys
     @private
   */
@@ -1188,13 +1200,13 @@ export default class InternalModel {
     let changedKeys = [];
 
     if (updates) {
-      let original, i, value, key;
+      let original, i, value, key, oldValue;
       let keys = Object.keys(updates);
       let length = keys.length;
       let hasAttrs = this.hasChangedAttributes();
       let attrs;
       if (hasAttrs) {
-        attrs= this._attributes;
+        attrs = this._attributes;
       }
 
       original = emberAssign(Object.create(null), this._data);
@@ -1212,13 +1224,33 @@ export default class InternalModel {
           continue;
         }
 
-        if (!isEqual(original[key], value)) {
-          changedKeys.push(key);
+        oldValue = original[key];
+
+        if (this._isDeepCompareProperty(key) && !this._deepComparePropertyChanged(oldValue, value)) {
+          continue;
         }
+
+        if (isEqual(oldValue, value)) {
+          continue;
+        }
+
+        changedKeys.push(key);
       }
     }
 
     return changedKeys;
+  }
+
+  _isDeepCompareProperty(propertyKey) {
+    let propertyMeta = this.type.metaForProperty(propertyKey);
+    let options = propertyMeta.options;
+    let type = propertyMeta.type;
+
+    return !type && 'deepCompare' in options;
+  }
+
+  _deepComparePropertyChanged(oldValue, newValue) {
+    return JSON.stringify(oldValue) !== JSON.stringify(newValue);
   }
 
   toString() {
