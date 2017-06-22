@@ -21,7 +21,7 @@ export default function parseResponseHeaders(headersString) {
     }
 
     if (foundSep === false) {
-      break;
+      continue;
     }
 
     let field = header.substring(0, j).trim();
