@@ -298,7 +298,12 @@ test("Will resolve destroy and save in same loop", function(assert) {
 
   env.adapter.createRecord = function() {
     assert.ok(true, 'save operation resolves');
-    return Ember.RSVP.Promise.resolve({ id: 123 });
+    return Ember.RSVP.Promise.resolve({
+      data: {
+        id: 123,
+        type: 'person'
+      }
+    });
   };
 
   run(function() {
