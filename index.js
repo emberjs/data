@@ -9,6 +9,7 @@ const Babel = require('broccoli-babel-transpiler');
 const merge = require('broccoli-merge-trees');
 const semver = require('semver');
 const version = require('./lib/version');
+const BroccoliDebug = require('broccoli-debug');
 
 // allow toggling of heimdall instrumentation
 let INSTRUMENT_HEIMDALL = false;
@@ -51,6 +52,8 @@ module.exports = {
 
   init() {
     this._super.init && this._super.init.apply(this, arguments);
+
+    this.debugTree = BroccoliDebug.buildDebugCallback('ember-data');
 
     let bowerDeps = this.project.bowerDependencies();
 
@@ -113,6 +116,8 @@ module.exports = {
   treeForAddon(tree) {
     if (this._forceBowerUsage) { return NOOP_TREE(tree); }
 
+    tree = this.debugTree(tree, 'input');
+
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
     let treeWithVersion = merge([
@@ -130,21 +135,25 @@ module.exports = {
       destDir: 'ember-data'
     });
 
-    let privateTree = babel.transpileTree(withPrivate, {
+    let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
       babel: this.buildBabelOptions(),
       'ember-cli-babel': {
         compileModules: false
       }
     });
 
+    privateTree = this.debugTree(privateTree, 'babel-private:output');
+
     // use the default options
-    let publicTree = babel.transpileTree(withoutPrivate);
+    let publicTree = babel.transpileTree(this.debugTree(withoutPrivate, 'babel-public:input'));
+
+    publicTree = this.debugTree(publicTree, 'babel-public:output');
 
     privateTree = new Rollup(privateTree, {
       rollup: {
         entry: '-private/index.js',
         targets: [
-          { dest: '-private.js', format: 'amd', moduleId: 'ember-data/-private' }
+          { dest: 'ember-data/-private.js', format: babel.shouldCompileModules() ? 'amd' : 'es', moduleId: 'ember-data/-private' }
         ],
         external: [
           'ember',
@@ -157,14 +166,16 @@ module.exports = {
       }
     });
 
+    privateTree = this.debugTree(privateTree, 'rollup-output');
+
     // the output of treeForAddon is required to be modules/<your files>
     publicTree  = new Funnel(publicTree,  { destDir: 'modules' });
     privateTree = new Funnel(privateTree, { destDir: 'modules' });
 
-    return merge([
+    return this.debugTree(merge([
       publicTree,
       privateTree
-    ]);
+    ]), 'final');
   },
 
   buildBabelOptions() {
@@ -204,3 +215,4 @@ module.exports = {
     }
   }
 };
+
