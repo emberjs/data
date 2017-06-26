@@ -1,4 +1,4 @@
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
 
 /**
@@ -20,24 +20,12 @@ export default class InternalModelMap {
   }
 
   /**
-    A "map" of records based on their ID for this modelName
-   */
-  get idToRecord() {
-    deprecate('Use of InternalModelMap.idToRecord is deprecated, use InternalModelMap.get(id) instead.', false, {
-      id: 'ds.record-map.idToRecord',
-      until: '2.13'
-    });
-    return this._idToModel;
-  }
-
-  /**
    *
    * @param id
    * @returns {InternalModel}
    */
   get(id) {
-    let r = this._idToModel[id];
-    return r;
+    return this._idToModel[id];
   }
 
   has(id) {
@@ -68,9 +56,7 @@ export default class InternalModelMap {
   }
 
   remove(internalModel, id) {
-    if (id) {
-      delete this._idToModel[id];
-    }
+    delete this._idToModel[id];
 
     let loc = this._models.indexOf(internalModel);
 
@@ -112,21 +98,15 @@ export default class InternalModelMap {
    @method clear
    */
   clear() {
-    if (this._models) {
-      let models = this._models;
-      this._models = [];
+    let models = this._models;
+    this._models = [];
 
-      for (let i = 0; i < models.length; i++) {
-        let model = models[i];
-        model.unloadRecord();
-      }
+    for (let i = 0; i < models.length; i++) {
+      let model = models[i];
+      model.unloadRecord();
     }
 
     this._metadata = null;
   }
 
-  destroy() {
-    this._store = null;
-    this._modelClass = null;
-  }
 }
