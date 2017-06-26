@@ -1,9 +1,8 @@
 import Ember from 'ember';
 import { warn } from '@ember/debug';
 
-const get = Ember.get;
-const set = Ember.set;
-const camelize = Ember.String.camelize;
+const { get, set } = Ember;
+const { camelize } = Ember.String;
 
 /**
   ## Using Embedded Records

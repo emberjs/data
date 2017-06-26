@@ -1,12 +1,7 @@
 import Ember from 'ember';
 import { deprecate, warn } from '@ember/debug';
 
-const get = Ember.get;
-const set = Ember.set;
-const isEmpty = Ember.isEmpty;
-const makeArray = Ember.makeArray;
-
-const MapWithDefault = Ember.MapWithDefault;
+const { get, set, isEmpty, makeArray, MapWithDefault } = Ember;
 
 /**
 @module ember-data

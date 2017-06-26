@@ -10,7 +10,7 @@ import { DEBUG } from '@glimmer/env';
 import JSONSerializer from "../serializers/json";
 import { coerceId, modelHasAttributeOrRelationshipNamedType, normalizeModelName, isEnabled } from '../-private';
 
-let camelize = Ember.String.camelize;
+const { camelize } = Ember.String;
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing

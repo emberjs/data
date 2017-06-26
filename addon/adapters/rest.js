@@ -23,10 +23,10 @@ import { instrument } from 'ember-data/-debug';
 import { warn, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-
 const {
   MapWithDefault,
-  get
+  get,
+  run
 } = Ember;
 
 const Promise = Ember.RSVP.Promise;
@@ -1061,7 +1061,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       hash.success = function(payload, textStatus, jqXHR) {
         heimdall.stop(token);
         let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-        Ember.run.join(null, resolve, response);
+        run.join(null, resolve, response);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
@@ -1071,7 +1071,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           errorThrown
         };
         let error = ajaxError(adapter, jqXHR, requestData, responseData);
-        Ember.run.join(null, reject, error);
+        run.join(null, reject, error);
       };
 
       adapter._ajaxRequest(hash);
@@ -1442,12 +1442,12 @@ if (isEnabled('ds-improved-ajax')) {
       let { method, url } = request;
       let requestData = { method, url };
 
-      return new Ember.RSVP.Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
           heimdall.stop(token);
           let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-          Ember.run.join(null, resolve, response);
+          run.join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
@@ -1457,7 +1457,7 @@ if (isEnabled('ds-improved-ajax')) {
             errorThrown
           };
           let error = ajaxError(adapter, jqXHR, requestData, responseData);
-          Ember.run.join(null, reject, error);
+          run.join(null, reject, error);
         };
 
         instrument(function() {
