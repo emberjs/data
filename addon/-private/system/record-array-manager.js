@@ -449,7 +449,7 @@ export default class RecordArrayManager {
 
   destroy() {
     this.isDestroying = true;
-    Ember.run.schedule('actions', this, this.willDestroy);
+    emberRun.schedule('actions', this, this.willDestroy);
   }
 }
 
