@@ -724,25 +724,27 @@ export default class InternalModel {
 
   notifyHasManyAdded(key, record, idx) {
     if (this.hasRecord) {
-      this._record.notifyHasManyAdded(key, record, idx);
+      Ember.run.join(() => this._record.notifyHasManyAdded(key, record, idx));
     }
   }
 
   notifyHasManyRemoved(key, record, idx) {
     if (this.hasRecord) {
-      this._record.notifyHasManyRemoved(key, record, idx);
+      Ember.run.join(() => this._record.notifyHasManyRemoved(key, record, idx));
     }
   }
 
   notifyBelongsToChanged(key, record) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChanged(key, record);
+      Ember.run.join(() => this._record.notifyBelongsToChanged(key, record));
     }
   }
 
   notifyPropertyChange(key) {
     if (this.hasRecord) {
+      Ember.beginPropertyChanges();
       this._record.notifyPropertyChange(key);
+      Ember.endPropertyChanges();
     }
   }
 
