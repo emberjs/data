@@ -963,13 +963,13 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object | DS.AdapterError} response
   */
   handleResponse(status, headers, payload, requestData) {
-    if (this.isSuccess(status, headers, payload)) {
+    if (this.isSuccess(status)) {
       return payload;
-    } else if (this.isInvalid(status, headers, payload)) {
+    } else if (this.isInvalid(status)) {
       return new InvalidError(payload.errors);
     }
 
-    let errors          = this.normalizeErrorResponse(status, headers, payload);
+    let errors          = this.normalizeErrorResponse(status, payload);
     let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
     if (isEnabled('ds-extended-errors')) {
@@ -999,11 +999,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @since 1.13.0
     @method isSuccess
     @param  {Number} status
-    @param  {Object} headers
-    @param  {Object} payload
     @return {Boolean}
   */
-  isSuccess(status, headers, payload) {
+  isSuccess(status) {
     return status >= 200 && status < 300 || status === 304;
   },
 
@@ -1014,11 +1012,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @since 1.13.0
     @method isInvalid
     @param  {Number} status
-    @param  {Object} headers
-    @param  {Object} payload
     @return {Boolean}
   */
-  isInvalid(status, headers, payload) {
+  isInvalid(status) {
     return status === 422;
   },
 
@@ -1155,11 +1151,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @method normalizeErrorResponse
     @private
     @param  {Number} status
-    @param  {Object} headers
     @param  {Object} payload
     @return {Array} errors payload
   */
-  normalizeErrorResponse(status, headers, payload) {
+  normalizeErrorResponse(status, payload) {
     if (payload && typeof payload === 'object' && payload.errors) {
       return payload.errors;
     } else {
