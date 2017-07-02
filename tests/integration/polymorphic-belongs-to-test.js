@@ -130,13 +130,11 @@ test('using store.push with a null value for a payload in relationships sets the
     }
   };
 
-  let done = assert.async();
-  book.get('author').then((author) => {
+  return book.get('author').then(author => {
     assert.equal(author.get('id'), 1);
     run(() => store.push(payloadThatResetsBelongToRelationship));
     return book.get('author');
-  }).then((author) => {
+  }).then(author => {
     assert.equal(author, null);
-    done();
   });
 });

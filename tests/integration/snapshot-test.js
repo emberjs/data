@@ -5,8 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var run = Ember.run;
-var env, Post, Comment;
+const { run } = Ember;
+let env, Post, Comment;
 
 module("integration/snapshot - DS.Snapshot", {
   beforeEach() {
@@ -27,7 +27,7 @@ module("integration/snapshot - DS.Snapshot", {
   },
 
   afterEach() {
-    run(function() {
+    run(() => {
       env.store.destroy();
     });
   }
@@ -36,7 +36,7 @@ module("integration/snapshot - DS.Snapshot", {
 test("record._createSnapshot() returns a snapshot", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -46,8 +46,8 @@ test("record._createSnapshot() returns a snapshot", function(assert) {
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
     assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
   });
@@ -56,7 +56,7 @@ test("record._createSnapshot() returns a snapshot", function(assert) {
 test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", function(assert) {
   assert.expect(3);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -66,8 +66,8 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
     assert.equal(snapshot.id, '1', 'id is correct');
     assert.ok(DS.Model.detect(snapshot.type), 'type is correct');
@@ -87,7 +87,7 @@ test('snapshot.type loads the class lazily', function(assert) {
     return modelFor.call(env.store, name);
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -109,7 +109,7 @@ test('snapshot.type loads the class lazily', function(assert) {
 test("snapshot.attr() does not change when record changes", function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -119,8 +119,8 @@ test("snapshot.attr() does not change when record changes", function(assert) {
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
     assert.equal(snapshot.attr('title'), 'Hello World', 'snapshot title is correct');
     post.set('title', 'Tomster');
@@ -131,7 +131,7 @@ test("snapshot.attr() does not change when record changes", function(assert) {
 test("snapshot.attr() throws an error attribute not found", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -141,10 +141,10 @@ test("snapshot.attr() throws an error attribute not found", function(assert) {
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
-    assert.throws(function() {
+    assert.throws(() => {
       snapshot.attr('unknown');
     }, /has no attribute named 'unknown' defined/, 'attr throws error');
   });
@@ -153,7 +153,7 @@ test("snapshot.attr() throws an error attribute not found", function(assert) {
 test("snapshot.attributes() returns a copy of all attributes for the current snapshot", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -163,10 +163,10 @@ test("snapshot.attributes() returns a copy of all attributes for the current sna
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
-    var attributes = snapshot.attributes();
+    let attributes = snapshot.attributes();
 
     assert.deepEqual(attributes, { author: undefined, title: 'Hello World' }, 'attributes are returned correctly');
   });
@@ -175,7 +175,7 @@ test("snapshot.attributes() returns a copy of all attributes for the current sna
 test("snapshot.changedAttributes() returns a copy of all changed attributes for the current snapshot", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -185,11 +185,11 @@ test("snapshot.changedAttributes() returns a copy of all changed attributes for 
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
+    let post = env.store.peekRecord('post', 1);
     post.set('title', 'Hello World!');
-    var snapshot = post._createSnapshot();
+    let snapshot = post._createSnapshot();
 
-    var changes = snapshot.changedAttributes();
+    let changes = snapshot.changedAttributes();
 
     assert.deepEqual(changes.title, ['Hello World', 'Hello World!'], 'changed attributes are returned correctly');
   });
@@ -198,7 +198,7 @@ test("snapshot.changedAttributes() returns a copy of all changed attributes for 
 test("snapshot.belongsTo() returns undefined if relationship is undefined", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'comment',
@@ -208,9 +208,9 @@ test("snapshot.belongsTo() returns undefined if relationship is undefined", func
         }
       }
     });
-    var comment = env.store.peekRecord('comment', 1);
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post');
+    let comment = env.store.peekRecord('comment', 1);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
 
     assert.equal(relationship, undefined, 'relationship is undefined');
   });
@@ -219,7 +219,7 @@ test("snapshot.belongsTo() returns undefined if relationship is undefined", func
 test("snapshot.belongsTo() returns null if relationship is unset", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -240,9 +240,9 @@ test("snapshot.belongsTo() returns null if relationship is unset", function(asse
         }
       }]
     });
-    var comment = env.store.peekRecord('comment', 2);
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post');
+    let comment = env.store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
 
     assert.equal(relationship, null, 'relationship is unset');
   });
@@ -251,7 +251,7 @@ test("snapshot.belongsTo() returns null if relationship is unset", function(asse
 test("snapshot.belongsTo() returns a snapshot if relationship is set", function(assert) {
   assert.expect(3);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -272,9 +272,9 @@ test("snapshot.belongsTo() returns a snapshot if relationship is set", function(
         }
       }]
     });
-    var comment = env.store.peekRecord('comment', 2);
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post');
+    let comment = env.store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
 
     assert.ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
     assert.equal(relationship.id, '1', 'post id is correct');
@@ -285,7 +285,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship is set", function(
 test("snapshot.belongsTo() returns null if relationship is deleted", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -306,13 +306,13 @@ test("snapshot.belongsTo() returns null if relationship is deleted", function(as
         }
       }]
     });
-    var post = env.store.peekRecord('post', 1);
-    var comment = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 1);
+    let comment = env.store.peekRecord('comment', 2);
 
     post.deleteRecord();
 
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post');
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
 
     assert.equal(relationship, null, 'relationship unset after deleted');
   });
@@ -321,7 +321,7 @@ test("snapshot.belongsTo() returns null if relationship is deleted", function(as
 test("snapshot.belongsTo() returns undefined if relationship is a link", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'comment',
@@ -338,9 +338,9 @@ test("snapshot.belongsTo() returns undefined if relationship is a link", functio
         }
       }
     });
-    var comment = env.store.peekRecord('comment', 2);
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post');
+    let comment = env.store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post');
 
     assert.equal(relationship, undefined, 'relationship is undefined');
   });
@@ -349,7 +349,7 @@ test("snapshot.belongsTo() returns undefined if relationship is a link", functio
 test("snapshot.belongsTo() throws error if relation doesn't exist", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -359,10 +359,10 @@ test("snapshot.belongsTo() throws error if relation doesn't exist", function(ass
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
-    assert.throws(function() {
+    assert.throws(() => {
       snapshot.belongsTo('unknown');
     }, /has no belongsTo relationship named 'unknown'/, 'throws error');
   });
@@ -375,7 +375,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
     return Ember.RSVP.resolve({ data: { id: 1, type: 'post', attributes: { title: 'Hello World' } } });
   };
 
-  run(function() {
+  return run(() => {
     env.store.push({
       data: {
         type: 'comment',
@@ -392,11 +392,11 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
         }
       }
     });
-    var comment = env.store.peekRecord('comment', 2);
+    let comment = env.store.peekRecord('comment', 2);
 
-    comment.get('post').then(function(post) {
-      var snapshot = comment._createSnapshot();
-      var relationship = snapshot.belongsTo('post');
+    return comment.get('post').then(post => {
+      let snapshot = comment._createSnapshot();
+      let relationship = snapshot.belongsTo('post');
 
       assert.ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
       assert.equal(relationship.id, '1', 'post id is correct');
@@ -407,7 +407,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
 test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding an object to a hasMany relationship", function(assert) {
   assert.expect(4);
 
-  run(function() {
+  return run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -423,17 +423,17 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding 
         }
       }]
     });
-    var post = env.store.peekRecord('post', 1);
-    var comment = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 1);
+    let comment = env.store.peekRecord('comment', 2);
 
-    post.get('comments').then(function(comments) {
+    return post.get('comments').then(comments => {
       comments.addObject(comment);
 
-      var postSnapshot = post._createSnapshot();
-      var commentSnapshot = comment._createSnapshot();
+      let postSnapshot = post._createSnapshot();
+      let commentSnapshot = comment._createSnapshot();
 
-      var hasManyRelationship = postSnapshot.hasMany('comments');
-      var belongsToRelationship = commentSnapshot.belongsTo('post');
+      let hasManyRelationship = postSnapshot.hasMany('comments');
+      let belongsToRelationship = commentSnapshot.belongsTo('post');
 
       assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
       assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
@@ -447,7 +447,7 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding 
 test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting an object to a belongsTo relationship", function(assert) {
   assert.expect(4);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -463,16 +463,16 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting
         }
       }]
     });
-    var post = env.store.peekRecord('post', 1);
-    var comment = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 1);
+    let comment = env.store.peekRecord('comment', 2);
 
     comment.set('post', post);
 
-    var postSnapshot = post._createSnapshot();
-    var commentSnapshot = comment._createSnapshot();
+    let postSnapshot = post._createSnapshot();
+    let commentSnapshot = comment._createSnapshot();
 
-    var hasManyRelationship = postSnapshot.hasMany('comments');
-    var belongsToRelationship = commentSnapshot.belongsTo('post');
+    let hasManyRelationship = postSnapshot.hasMany('comments');
+    let belongsToRelationship = commentSnapshot.belongsTo('post');
 
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
@@ -485,7 +485,7 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting
 test("snapshot.belongsTo() returns ID if option.id is set", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -506,9 +506,9 @@ test("snapshot.belongsTo() returns ID if option.id is set", function(assert) {
         }
       }]
     });
-    var comment = env.store.peekRecord('comment', 2);
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post', { id: true });
+    let comment = env.store.peekRecord('comment', 2);
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post', { id: true });
 
     assert.equal(relationship, '1', 'relationship ID correctly returned');
   });
@@ -517,7 +517,7 @@ test("snapshot.belongsTo() returns ID if option.id is set", function(assert) {
 test("snapshot.belongsTo() returns null if option.id is set but relationship was deleted", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',
@@ -538,13 +538,13 @@ test("snapshot.belongsTo() returns null if option.id is set but relationship was
         }
       }]
     });
-    var post = env.store.peekRecord('post', 1);
-    var comment = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 1);
+    let comment = env.store.peekRecord('comment', 2);
 
     post.deleteRecord();
 
-    var snapshot = comment._createSnapshot();
-    var relationship = snapshot.belongsTo('post', { id: true });
+    let snapshot = comment._createSnapshot();
+    let relationship = snapshot.belongsTo('post', { id: true });
 
     assert.equal(relationship, null, 'relationship unset after deleted');
   });
@@ -553,7 +553,7 @@ test("snapshot.belongsTo() returns null if option.id is set but relationship was
 test("snapshot.hasMany() returns undefined if relationship is undefined", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -563,9 +563,9 @@ test("snapshot.hasMany() returns undefined if relationship is undefined", functi
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.equal(relationship, undefined, 'relationship is undefined');
   });
@@ -574,7 +574,7 @@ test("snapshot.hasMany() returns undefined if relationship is undefined", functi
 test("snapshot.hasMany() returns empty array if relationship is empty", function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -589,9 +589,9 @@ test("snapshot.hasMany() returns empty array if relationship is empty", function
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.equal(relationship.length, 0, 'relationship is empty');
@@ -601,7 +601,7 @@ test("snapshot.hasMany() returns empty array if relationship is empty", function
 test("snapshot.hasMany() returns array of snapshots if relationship is set", function(assert) {
   assert.expect(5);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'comment',
@@ -631,14 +631,14 @@ test("snapshot.hasMany() returns array of snapshots if relationship is set", fun
         }
       }]
     });
-    var post = env.store.peekRecord('post', 3);
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let post = env.store.peekRecord('post', 3);
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.equal(relationship.length, 2, 'relationship has two items');
 
-    var relationship1 = relationship[0];
+    let relationship1 = relationship[0];
 
     assert.ok(relationship1 instanceof DS.Snapshot, 'relationship item is an instance of DS.Snapshot');
 
@@ -650,7 +650,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship is set", fun
 test("snapshot.hasMany() returns empty array if relationship records are deleted", function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'comment',
@@ -680,15 +680,15 @@ test("snapshot.hasMany() returns empty array if relationship records are deleted
         }
       }]
     });
-    var comment1 = env.store.peekRecord('comment', 1);
-    var comment2 = env.store.peekRecord('comment', 2);
-    var post = env.store.peekRecord('post', 3);
+    let comment1 = env.store.peekRecord('comment', 1);
+    let comment2 = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 3);
 
     comment1.deleteRecord();
     comment2.deleteRecord();
 
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.equal(relationship.length, 0, 'relationship is empty');
@@ -698,7 +698,7 @@ test("snapshot.hasMany() returns empty array if relationship records are deleted
 test("snapshot.hasMany() returns array of IDs if option.ids is set", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -716,9 +716,9 @@ test("snapshot.hasMany() returns array of IDs if option.ids is set", function(as
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments', { ids: true });
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments', { ids: true });
 
     assert.deepEqual(relationship, ['2', '3'], 'relationship IDs correctly returned');
   });
@@ -727,7 +727,7 @@ test("snapshot.hasMany() returns array of IDs if option.ids is set", function(as
 test("snapshot.hasMany() returns empty array of IDs if option.ids is set but relationship records were deleted", function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'comment',
@@ -757,15 +757,15 @@ test("snapshot.hasMany() returns empty array of IDs if option.ids is set but rel
         }
       }]
     });
-    var comment1 = env.store.peekRecord('comment', 1);
-    var comment2 = env.store.peekRecord('comment', 2);
-    var post = env.store.peekRecord('post', 3);
+    let comment1 = env.store.peekRecord('comment', 1);
+    let comment2 = env.store.peekRecord('comment', 2);
+    let post = env.store.peekRecord('post', 3);
 
     comment1.deleteRecord();
     comment2.deleteRecord();
 
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments', { ids: true });
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments', { ids: true });
 
     assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
     assert.equal(relationship.length, 0, 'relationship is empty');
@@ -775,7 +775,7 @@ test("snapshot.hasMany() returns empty array of IDs if option.ids is set but rel
 test("snapshot.hasMany() returns undefined if relationship is a link", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -792,9 +792,9 @@ test("snapshot.hasMany() returns undefined if relationship is a link", function(
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.equal(relationship, undefined, 'relationship is undefined');
   });
@@ -807,7 +807,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
     return Ember.RSVP.resolve({ data: [{ id: 2, type: 'comment', attributes: { body: 'This is comment' } }]});
   };
 
-  run(function() {
+  return run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -824,11 +824,12 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
 
-    post.get('comments').then(function(comments) {
-      var snapshot = post._createSnapshot();
-      var relationship = snapshot.hasMany('comments');
+    let post = env.store.peekRecord('post', 1);
+
+    return post.get('comments').then(comments => {
+      let snapshot = post._createSnapshot();
+      let relationship = snapshot.hasMany('comments');
 
       assert.ok(relationship instanceof Array, 'relationship is an instance of Array');
       assert.equal(relationship.length, 1, 'relationship has one item');
@@ -839,7 +840,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
 test("snapshot.hasMany() throws error if relation doesn't exist", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -849,10 +850,10 @@ test("snapshot.hasMany() throws error if relation doesn't exist", function(asser
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
-    assert.throws(function() {
+    assert.throws(() => {
       snapshot.hasMany('unknown');
     }, /has no hasMany relationship named 'unknown'/, 'throws error');
   });
@@ -861,7 +862,7 @@ test("snapshot.hasMany() throws error if relation doesn't exist", function(asser
 test("snapshot.hasMany() respects the order of items in the relationship", function(assert) {
   assert.expect(3);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'comment',
@@ -898,14 +899,14 @@ test("snapshot.hasMany() respects the order of items in the relationship", funct
         }
       }]
     });
-    var comment3 = env.store.peekRecord('comment', 3);
-    var post = env.store.peekRecord('post', 4);
+    let comment3 = env.store.peekRecord('comment', 3);
+    let post = env.store.peekRecord('post', 4);
 
     post.get('comments').removeObject(comment3);
     post.get('comments').insertAt(0, comment3);
 
-    var snapshot = post._createSnapshot();
-    var relationship = snapshot.hasMany('comments');
+    let snapshot = post._createSnapshot();
+    let relationship = snapshot.hasMany('comments');
 
     assert.equal(relationship[0].id, '3', 'order of comment 3 is correct');
     assert.equal(relationship[1].id, '1', 'order of comment 1 is correct');
@@ -916,7 +917,7 @@ test("snapshot.hasMany() respects the order of items in the relationship", funct
 test("snapshot.eachAttribute() proxies to record", function(assert) {
   assert.expect(1);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -926,13 +927,11 @@ test("snapshot.eachAttribute() proxies to record", function(assert) {
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
-    var attributes = [];
-    snapshot.eachAttribute(function(name) {
-      attributes.push(name);
-    });
+    let attributes = [];
+    snapshot.eachAttribute(name => attributes.push(name));
     assert.deepEqual(attributes, ['author', 'title'], 'attributes are iterated correctly');
   });
 });
@@ -940,15 +939,13 @@ test("snapshot.eachAttribute() proxies to record", function(assert) {
 test("snapshot.eachRelationship() proxies to record", function(assert) {
   assert.expect(2);
 
-  var getRelationships = function(snapshot) {
-    var relationships = [];
-    snapshot.eachRelationship(function(name) {
-      relationships.push(name);
-    });
+  let getRelationships = function(snapshot) {
+    let relationships = [];
+    snapshot.eachRelationship(name => relationships.push(name));
     return relationships;
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'comment',
@@ -964,9 +961,9 @@ test("snapshot.eachRelationship() proxies to record", function(assert) {
         }
       }]
     });
-    var comment = env.store.peekRecord('comment', 1);
-    var post = env.store.peekRecord('post', 2);
-    var snapshot;
+    let comment = env.store.peekRecord('comment', 1);
+    let post = env.store.peekRecord('post', 2);
+    let snapshot;
 
     snapshot = comment._createSnapshot();
     assert.deepEqual(getRelationships(snapshot), ['post'], 'relationships are iterated correctly');
@@ -983,7 +980,7 @@ test("snapshot.belongsTo() does not trigger a call to store._scheduleFetch", fun
     assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'comment',
@@ -998,8 +995,8 @@ test("snapshot.belongsTo() does not trigger a call to store._scheduleFetch", fun
         }
       }
     });
-    var comment = env.store.peekRecord('comment', 1);
-    var snapshot = comment._createSnapshot();
+    let comment = env.store.peekRecord('comment', 1);
+    let snapshot = comment._createSnapshot();
 
     snapshot.belongsTo('post');
   });
@@ -1012,7 +1009,7 @@ test("snapshot.hasMany() does not trigger a call to store._scheduleFetch", funct
     assert.ok(false, 'store._scheduleFetch should not be called');
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -1030,8 +1027,8 @@ test("snapshot.hasMany() does not trigger a call to store._scheduleFetch", funct
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
     snapshot.hasMany('comments');
   });
@@ -1040,7 +1037,7 @@ test("snapshot.hasMany() does not trigger a call to store._scheduleFetch", funct
 test("snapshot.serialize() serializes itself", function(assert) {
   assert.expect(2);
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'post',
@@ -1050,12 +1047,12 @@ test("snapshot.serialize() serializes itself", function(assert) {
         }
       }
     });
-    var post = env.store.peekRecord('post', 1);
-    var snapshot = post._createSnapshot();
+    let post = env.store.peekRecord('post', 1);
+    let snapshot = post._createSnapshot();
 
     post.set('title', 'New Title');
 
-    var expected = {
+    let expected = {
       data: {
         attributes: {
           author: undefined,

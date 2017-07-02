@@ -6,11 +6,10 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store, User, Job, ReflexiveModel;
+let env, store, User, Job, ReflexiveModel;
 
-var attr = DS.attr;
-var belongsTo = DS.belongsTo;
-var run = Ember.run;
+const { attr, belongsTo } = DS;
+const { run } = Ember;
 
 function stringify(string) {
   return function() { return string; };
@@ -109,7 +108,7 @@ testInDebug("Errors out if you define 2 inverses to the same model", function(as
     job: belongsTo('job', { async: false })
   });
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     User.inverseFor('job', store);
   }, "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at https://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
@@ -129,9 +128,9 @@ test("Caches findInverseFor return value", function(assert) {
 testInDebug("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
-  assert.expectWarning(function() {
+  assert.expectWarning(() => {
     var reflexiveModel;
-    run(function() {
+    run(() => {
       store.push({
         data: {
           type: 'reflexive-model',
