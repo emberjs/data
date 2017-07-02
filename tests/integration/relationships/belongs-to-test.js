@@ -955,26 +955,49 @@ test("belongsTo hasData sync not loaded", function(assert) {
   });
 });
 
-test("belongsTo hasData async created", function(assert) {
-  assert.expect(1);
+test("belongsTo hasData NOT created", function(assert) {
+  assert.expect(2);
 
   Book.reopen({
     author: belongsTo('author', { async: true })
   });
 
   run(() => {
+    let author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
     let relationship = book._internalModel._relationships.get('author');
+
+    assert.equal(relationship.hasData, false, 'relationship does not have data');
+
+    book = store.createRecord('book', {
+      name: 'The Greatest Book',
+      author
+    });
+
+    relationship = book._internalModel._relationships.get('author');
+
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
 
 test("belongsTo hasData sync created", function(assert) {
-  assert.expect(1);
+  assert.expect(2);
 
   run(() => {
-    let book = store.createRecord('book', { name: 'The Greatest Book' });
+    let author = store.createRecord('author');
+    let book = store.createRecord('book', {
+      name: 'The Greatest Book'
+    });
+
     let relationship = book._internalModel._relationships.get('author');
+    assert.equal(relationship.hasData, false, 'relationship does not have data');
+
+    book = store.createRecord('book', {
+      name: 'The Greatest Book',
+      author
+    });
+
+    relationship = book._internalModel._relationships.get('author');
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
