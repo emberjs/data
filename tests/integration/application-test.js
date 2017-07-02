@@ -5,13 +5,13 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var run = Ember.run;
-var Application = Ember.Application;
-var Controller = Ember.Controller;
-var Store = DS.Store;
-var Namespace = Ember.Namespace;
+const run = Ember.run;
+const Application = Ember.Application;
+const Controller = Ember.Controller;
+const Store = DS.Store;
+const Namespace = Ember.Namespace;
 
-var app, App, container;
+let app, App, container;
 
 /*
   These tests ensure that Ember Data works with Ember.js' application
@@ -28,7 +28,7 @@ function lookup(thing) {
 
 module("integration/application - Injecting a Custom Store", {
   beforeEach() {
-    run(function() {
+    run(() => {
       app = Application.create({
         StoreService: Store.extend({ isCustom: true }),
         FooController: Controller.extend(),
@@ -48,22 +48,21 @@ module("integration/application - Injecting a Custom Store", {
 });
 
 test("If a Store property exists on an Ember.Application, it should be instantiated.", function(assert) {
-  run(function() {
+  run(() => {
     assert.ok(getStore().get('isCustom'), "the custom store was instantiated");
   });
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function(assert) {
-  var fooController = lookup('controller:foo');
-  var isCustom = run(fooController, 'get', 'store.isCustom');
+  let fooController = lookup('controller:foo');
+  let isCustom = run(fooController, 'get', 'store.isCustom');
   assert.ok(isCustom, "the custom store was injected");
 });
 
 test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function(assert) {
-  run(function() {
-    var store = getStore();
-
-    var adapter = store.adapterFor('application');
+  run(() => {
+    let store = getStore();
+    let adapter = store.adapterFor('application');
 
     assert.ok(adapter instanceof DS.JSONAPIAdapter, 'default adapter should be the JSONAPIAdapter');
   });
@@ -71,7 +70,7 @@ test("The JSONAPIAdapter is the default adapter when no custom adapter is provid
 
 module("integration/application - Injecting the Default Store", {
   beforeEach() {
-    run(function() {
+    run(() => {
       app = Application.create({
         FooController: Controller.extend(),
         BazController: {},
@@ -93,14 +92,14 @@ test("If a Store property exists on an Ember.Application, it should be instantia
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function(assert) {
-  run(function() {
-    var fooController = lookup('controller:foo');
+  run(() => {
+    let fooController = lookup('controller:foo');
     assert.ok(fooController.get('store') instanceof DS.Store, "the store was injected");
   });
 });
 
 test("the DS namespace should be accessible", function(assert) {
-  run(function() {
+  run(() => {
     assert.ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
   });
 });
@@ -108,7 +107,7 @@ test("the DS namespace should be accessible", function(assert) {
 if (Ember.inject && Ember.inject.service) {
   module("integration/application - Using the store as a service", {
     beforeEach() {
-      run(function() {
+      run(() => {
         app = Application.create({
           DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
         });
@@ -124,8 +123,8 @@ if (Ember.inject && Ember.inject.service) {
   });
 
   test("The store can be injected as a service", function(assert) {
-    run(function() {
-      var doodleService = lookup('service:doodle');
+    run(() => {
+      let doodleService = lookup('service:doodle');
       assert.ok(doodleService.get('store') instanceof Store, "the store can be used as a service");
     });
   });
@@ -145,14 +144,14 @@ module("integration/application - Attaching initializer", {
 });
 
 test("ember-data initializer is run", function(assert) {
-  var ran = false;
+  let ran = false;
   App.initializer({
     name:       "after-ember-data",
     after:      "ember-data",
     initialize() { ran = true; }
   });
 
-  run(function() {
+  run(() => {
     app = App.create();
   });
 
@@ -161,7 +160,7 @@ test("ember-data initializer is run", function(assert) {
 
 test("ember-data initializer does not register the store service when it was already registered", function(assert) {
 
-  var AppStore = Store.extend({
+  let AppStore = Store.extend({
     isCustomStore: true
   });
 
@@ -173,26 +172,26 @@ test("ember-data initializer does not register the store service when it was alr
     }
   });
 
-  run(function() {
+  run(() => {
     app = App.create();
     container = app.__container__;
   });
 
-  var store = getStore();
+  let store = getStore();
   assert.ok(store && store.get('isCustomStore'), 'ember-data initializer does not overwrite the previous registered service store');
 
 });
 
 testInDebug("store initializer is run (DEPRECATED)", function(assert) {
-  var ran = false;
+  let ran = false;
   App.initializer({
     name:       "after-store",
     after:      'store',
     initialize() { ran = true; }
   });
 
-  assert.expectDeprecation(function() {
-    run(function() {
+  assert.expectDeprecation(() => {
+    run(() => {
       app = App.create();
     });
   }, /The initializer `store` has been deprecated/)
@@ -201,15 +200,15 @@ testInDebug("store initializer is run (DEPRECATED)", function(assert) {
 });
 
 testInDebug("injectStore initializer is run (DEPRECATED)", function(assert) {
-  var ran = false;
+  let ran = false;
   App.initializer({
     name:       "after-store",
     after:      'injectStore',
     initialize() { ran = true; }
   });
 
-  assert.expectDeprecation(function() {
-    run(function() {
+  assert.expectDeprecation(() => {
+    run(() => {
       app = App.create();
     });
   }, /The initializer `injectStore` has been deprecated/)
@@ -218,15 +217,15 @@ testInDebug("injectStore initializer is run (DEPRECATED)", function(assert) {
 });
 
 testInDebug("transforms initializer is run (DEPRECATED)", function(assert) {
-  var ran = false;
+  let ran = false;
   App.initializer({
     name:       "after-store",
     after:      'transforms',
     initialize() { ran = true; }
   });
 
-  assert.expectDeprecation(function() {
-    run(function() {
+  assert.expectDeprecation(() => {
+    run(() => {
       app = App.create();
     });
   }, /The initializer `transforms` has been deprecated/)

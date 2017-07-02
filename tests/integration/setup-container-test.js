@@ -4,12 +4,10 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var run = Ember.run;
-var Store = DS.Store;
-var EmberObject = Ember.Object;
-var setupContainer = DS._setupContainer;
+const { run, Object: EmberObject } = Ember;
+const { Store, _setupContainer: setupContainer } = DS;
 
-var container, registry, application;
+let container, registry, application;
 
 /*
   These tests ensure that Ember Data works with Ember.js' container
@@ -18,14 +16,12 @@ var container, registry, application;
 
 module("integration/setup-container - Setting up a container", {
   beforeEach() {
-    run(function() {
-      application = Ember.Application.create();
-    });
+    application = run(() => Ember.Application.create());
 
     container = application.__container__;
     registry = application.__registry__;
 
-    var setupContainerArgument;
+    let setupContainerArgument;
     if (registry) {
       setupContainerArgument = application;
     } else {
@@ -37,9 +33,7 @@ module("integration/setup-container - Setting up a container", {
   },
 
   afterEach() {
-    run(function() {
-      application.destroy();
-    });
+    run(() => application.destroy());
   }
 });
 
@@ -53,19 +47,19 @@ test("The store should be registered into the container as a service.", function
 
 test("If a store is instantiated, it should be made available to each controller.", function(assert) {
   registry.register('controller:foo', EmberObject.extend({}));
-  var fooController = container.lookup('controller:foo');
+  let fooController = container.lookup('controller:foo');
   assert.ok(fooController.get('store') instanceof Store, "the store was injected");
 });
 
 test("serializers are not returned as singletons - each lookup should return a different instance", function(assert) {
-  var serializer1, serializer2;
+  let serializer1, serializer2;
   serializer1 = container.lookup('serializer:-rest');
   serializer2 = container.lookup('serializer:-rest');
   assert.notEqual(serializer1, serializer2);
 });
 
 test("adapters are not returned as singletons - each lookup should return a different instance", function(assert) {
-  var adapter1, adapter2;
+  let adapter1, adapter2;
   adapter1 = container.lookup('adapter:-rest');
   adapter2 = container.lookup('adapter:-rest');
   assert.notEqual(adapter1, adapter2);

@@ -5,9 +5,8 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
-var Post, Comment, Misc, env;
-var run = Ember.run;
+const { get, run } = Ember;
+let Post, Comment, Misc, env;
 
 module("integration/client_id_generation - Client-side ID Generation", {
   beforeEach() {
@@ -38,7 +37,7 @@ module("integration/client_id_generation - Client-side ID Generation", {
 test("If an adapter implements the `generateIdForRecord` method, the store should be able to assign IDs without saving to the persistence layer.", function(assert) {
   assert.expect(6);
 
-  var idCount = 1;
+  let idCount = 1;
 
   env.adapter.generateIdForRecord = function(passedStore, record) {
     assert.equal(env.store, passedStore, "store is the first parameter");
@@ -56,7 +55,7 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
     }
   };
 
-  var comment, post;
+  let comment, post;
   run(function() {
     comment = env.store.createRecord('comment');
     post = env.store.createRecord('post');
@@ -75,10 +74,10 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
 
 test("empty string and undefined ids should coerce to null", function(assert) {
   assert.expect(6);
-  var comment, post;
-  var idCount = 0;
+  let comment, post;
+  let idCount = 0;
   let id = 1;
-  var ids = [undefined, ''];
+  let ids = [undefined, ''];
   env.adapter.generateIdForRecord = function(passedStore, record) {
     assert.equal(env.store, passedStore, "store is the first parameter");
 
@@ -90,7 +89,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
     return Ember.RSVP.resolve({ data: { id: id++, type: type.modelName } });
   };
 
-  run(function() {
+  run(() => {
     comment = env.store.createRecord('misc');
     post = env.store.createRecord('misc');
   });
@@ -100,7 +99,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  run(function() {
+  run(() => {
     comment.save();
     post.save();
   });
