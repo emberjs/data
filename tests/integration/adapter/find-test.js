@@ -6,7 +6,7 @@ import DS from 'ember-data';
 
 const { run } = Ember;
 const { attr } = DS;
-const { reject } = Ember.RSVP;
+const { reject, Promise } = Ember.RSVP;
 
 let Person, store, env;
 
@@ -30,7 +30,7 @@ module("integration/adapter/find - Finding Records", {
   }
 });
 
-testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", (assert) => {
+testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", function(assert) {
   assert.expectAssertion(() => {
     store.find('person', undefined);
   }, `You cannot pass 'undefined' as id to the store's find method`);
@@ -40,10 +40,10 @@ testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", (
   }, `You cannot pass 'null' as id to the store's find method`);
 });
 
-test("When a single record is requested, the adapter's find method should be called unless it's loaded.", (assert) => {
+test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function(assert) {
   assert.expect(2);
 
-  var count = 0;
+  let count = 0;
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord(_, type) {
@@ -69,84 +69,79 @@ test("When a single record is requested, the adapter's find method should be cal
   });
 });
 
-test("When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved", (assert) => {
-  var deferred = Ember.RSVP.defer();
+test("When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved", function(assert) {
+  let deferred = Ember.RSVP.defer();
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: () => deferred.promise
+    findRecord() {
+      return deferred.promise;
+    }
   }));
 
-  run(() => {
-    store.findRecord('person', 1).then(assert.wait(function(person) {
+  let requestOne = run(() => {
+    return store.findRecord('person', 1).then(person => {
       assert.equal(person.get('id'), "1");
       assert.equal(person.get('name'), "Braaaahm Dale");
-
-      let done = assert.async();
-      deferred.promise.then(() => {
-        assert.ok(true, 'expected deferred.promise to fulfill');
-        done();
-      }, () => {
-        assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
-        done();
-      });
-    }));
+    });
   });
 
-  run(() => {
-    store.findRecord('person', 1).then(assert.wait((post) => {
+  let requestTwo = run(() => {
+    return store.findRecord('person', 1).then(post => {
       assert.equal(post.get('id'), "1");
       assert.equal(post.get('name'), "Braaaahm Dale");
-
-      let done = assert.async();
-      deferred.promise.then(() => {
-        assert.ok(true, 'expected deferred.promise to fulfill');
-        done();
-      }, () => {
-        assert.ok(false, 'expected deferred.promise to fulfill, but rejected');
-        done();
-      });
-
-    }));
+    });
   });
-
-  run(() => deferred.resolve({
-    data: {
-      id: 1,
-      type: "person",
-      attributes: {
-        name: "Braaaahm Dale"
-      }
-    }}));
-});
-
-test("When a single record is requested, and the promise is rejected, .findRecord() is rejected.", (assert) => {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: () => reject()
-  }));
 
   run(() => {
-    store.findRecord('person', 1).then(null, assert.wait(() => {
-      assert.ok(true, "The rejection handler was called");
-    }));
+    deferred.resolve({
+      data: {
+        id: 1,
+        type: "person",
+        attributes: {
+          name: "Braaaahm Dale"
+        }
+      }
+    });
+  });
+
+  return Promise.all([
+    requestOne,
+    requestTwo
+  ])
+});
+
+test("When a single record is requested, and the promise is rejected, .findRecord() is rejected.", function(assert) {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findRecord() {
+      return reject();
+    }
+  }));
+
+  return run(() => {
+    return store.findRecord('person', 1).catch(() => {
+      assert.ok(true, 'The rejection handler was called');
+    });
   });
 });
 
-test("When a single record is requested, and the promise is rejected, the record should be unloaded.", (assert) => {
+test("When a single record is requested, and the promise is rejected, the record should be unloaded.", function(assert) {
   assert.expect(2);
 
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: () => reject()
+    findRecord() {
+      return reject();
+    }
   }));
 
-  run(() => {
-    store.findRecord('person', 1).then(null, assert.wait((reason) => {
+  return run(() => {
+    return store.findRecord('person', 1).catch(reason => {
       assert.ok(true, "The rejection handler was called");
       assert.ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
-    }));
+    });
   });
 });
 
-testInDebug('When a single record is requested, and the payload is blank', (assert) => {
+testInDebug('When a single record is requested, and the payload is blank', function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord: () => Ember.RSVP.resolve({})
   }));
@@ -156,7 +151,7 @@ testInDebug('When a single record is requested, and the payload is blank', (asse
   }, /You made a 'findRecord' request for a 'person' with id 'the-id', but the adapter's response did not have any data/);
 });
 
-testInDebug('When multiple records are requested, and the payload is blank', (assert) => {
+testInDebug('When multiple records are requested, and the payload is blank', function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     coalesceFindRequests: true,
     findMany: () => Ember.RSVP.resolve({})
@@ -187,7 +182,5 @@ testInDebug("warns when returned record has different id", function(assert) {
 
   assert.expectWarning(/You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
 
-  run(function() {
-    env.store.findRecord('person', 'me');
-  });
+  return run(() => env.store.findRecord('person', 'me'));
 });

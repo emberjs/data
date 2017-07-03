@@ -5,12 +5,13 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var run = Ember.run;
-var env, store, adapter, serializer;
+const { run } = Ember;
+
+let env, store, adapter, serializer;
 
 module("integration/adapter/serialize - DS.Adapter integration test", {
   beforeEach() {
-    var Person = DS.Model.extend({
+    const Person = DS.Model.extend({
       name: DS.attr('string')
     });
 
@@ -32,8 +33,8 @@ test("serialize() is delegated to the serializer", function(assert) {
     assert.deepEqual(options, { foo: 'bar' });
   };
 
-  run(function() {
-    var person = store.createRecord('person');
+  run(() => {
+    let person = store.createRecord('person');
     adapter.serialize(person._createSnapshot(), { foo: 'bar' });
   });
 });
