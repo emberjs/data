@@ -134,6 +134,88 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   });
 });
 
+test("hasMany + canonical vs currentState + destroyRecord  ", function(assert) {
+  assert.expect(6);
+
+  let postData = {
+    type: 'user',
+    id: '1',
+    attributes: {
+      name: 'omg'
+    },
+    relationships: {
+      contacts: {
+        data: [
+          {
+            type: 'user',
+            id: 2
+          },
+          {
+            type: 'user',
+            id: 3
+          },
+          {
+            type: 'user',
+            id: 4
+          }
+        ]
+      }
+    }
+  };
+
+  run(() => {
+    env.store.push({
+      data: postData,
+      included: [
+        {
+          type: 'user',
+          id: 2
+        },
+        {
+          type: 'user',
+          id: 3
+        },
+        {
+          type: 'user',
+          id: 4
+        }
+      ]
+    });
+  });
+
+  let user = env.store.peekRecord('user', 1);
+  let contacts = user.get('contacts');
+
+  env.store.adapterFor('user').deleteRecord = function() {
+    return { data: { type: 'user', id: 2 } };
+  };
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4'], 'user should have expected contacts');
+
+  run(() => {
+    contacts.addObject(env.store.createRecord('user', { id: 5 }));
+    contacts.addObject(env.store.createRecord('user', { id: 6 }));
+    contacts.addObject(env.store.createRecord('user', { id: 7 }));
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4','5','6','7'], 'user should have expected contacts');
+
+  run(() => {
+    env.store.peekRecord('user', 2).destroyRecord();
+    env.store.peekRecord('user', 6).destroyRecord();
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7'], `user's contacts should have expected contacts`);
+  assert.equal(contacts, user.get('contacts'));
+
+  run(() => {
+    contacts.addObject(env.store.createRecord('user', { id: 8 }));
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7','8'], `user's contacts should have expected contacts`);
+  assert.equal(contacts, user.get('contacts'));
+});
+
 test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function(assert) {
   assert.expect(2);
 
