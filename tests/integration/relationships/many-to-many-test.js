@@ -7,11 +7,10 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var Account, Topic, User, store, env;
-var run = Ember.run;
+const { run } = Ember;
+const { attr, hasMany } = DS;
 
-var attr = DS.attr;
-var hasMany = DS.hasMany;
+let Account, Topic, User, store, env;
 
 module('integration/relationships/many_to_many_test - ManyToMany relationships', {
   beforeEach() {
@@ -44,9 +43,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   },
 
   afterEach() {
-    run(function() {
-      env.container.destroy();
-    });
+    run(() => env.container.destroy());
   }
 });
 
@@ -55,7 +52,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 */
 
 test("Loading from one hasMany side reflects on the other hasMany side - async", function(assert) {
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: '1',
@@ -78,7 +75,7 @@ test("Loading from one hasMany side reflects on the other hasMany side - async",
     });
   });
 
-  var topic = run(function() {
+  let topic = run(() => {
     return store.push({
       data: {
         id: '2',
@@ -90,17 +87,16 @@ test("Loading from one hasMany side reflects on the other hasMany side - async",
     });
   });
 
-  run(function() {
-    topic.get('users').then(assert.wait(function(fetchedUsers) {
+  return run(() => {
+    return topic.get('users').then(fetchedUsers => {
       assert.equal(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
-    }));
+    });
   });
 });
 
-
 test("Relationship is available from one hasMany side even if only loaded from the other hasMany side - sync", function(assert) {
   var account;
-  run(function() {
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -129,14 +125,15 @@ test("Relationship is available from one hasMany side even if only loaded from t
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(account.get('users.length'), 1, 'User relationship was set up correctly');
   });
 });
 
 test("Fetching a hasMany where a record was removed reflects on the other hasMany side - async", function(assert) {
-  var user, topic;
-  run(function() {
+  let user, topic;
+
+  run(() => {
     user = store.push({
       data: {
         id: '1',
@@ -169,21 +166,22 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
       }
     });
   });
-  run(function() {
-    user.get('topics').then(assert.wait(function(fetchedTopics) {
+
+  return run(() => {
+    return user.get('topics').then(fetchedTopics => {
       assert.equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
       assert.equal(fetchedTopics.objectAt(0), null, "Topics can't be fetched");
-      topic.get('users').then(assert.wait(function(fetchedUsers) {
+      return topic.get('users').then(fetchedUsers => {
         assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
-      }));
-    }));
+      });
+    });
   });
 });
 
 test("Fetching a hasMany where a record was removed reflects on the other hasMany side - sync", function(assert) {
-  var account, user;
-  run(function() {
+  let account, user;
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -226,7 +224,7 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
     assert.equal(account.get('users.length'), 0, 'Users were removed correctly');
   });
@@ -238,9 +236,9 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
 
 test("Pushing to a hasMany reflects on the other hasMany side - async", function(assert) {
   assert.expect(1);
-  var user, topic;
+  let user, topic;
 
-  run(function() {
+  run(() => {
     user = store.push({
       data: {
         id: '1',
@@ -266,19 +264,19 @@ test("Pushing to a hasMany reflects on the other hasMany side - async", function
     });
   });
 
-  run(function() {
-    topic.get('users').then(assert.wait(function(fetchedUsers) {
+  return run(() => {
+    return topic.get('users').then(fetchedUsers => {
       fetchedUsers.pushObject(user);
-      user.get('topics').then(assert.wait(function(fetchedTopics) {
+      return user.get('topics').then(fetchedTopics => {
         assert.equal(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
-      }));
-    }));
+      });
+    });
   });
 });
 
 test("Pushing to a hasMany reflects on the other hasMany side - sync", function(assert) {
-  var account, stanley;
-  run(function() {
+  let account, stanley;
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -300,14 +298,14 @@ test("Pushing to a hasMany reflects on the other hasMany side - sync", function(
     stanley.get('accounts').pushObject(account);
   });
 
-  run(function() {
+  run(() => {
     assert.equal(account.get('users.length'), 1, 'User relationship was set up correctly');
   });
 });
 
 test("Removing a record from a hasMany reflects on the other hasMany side - async", function(assert) {
-  var user, topic;
-  run(function() {
+  let user, topic;
+  run(() => {
     user = store.push({
       data: {
         id: '1',
@@ -336,21 +334,21 @@ test("Removing a record from a hasMany reflects on the other hasMany side - asyn
     });
   });
 
-  run(function() {
-    user.get('topics').then(assert.wait(function(fetchedTopics) {
+  return run(() => {
+    return user.get('topics').then(fetchedTopics => {
       assert.equal(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
       fetchedTopics.removeObject(topic);
-      topic.get('users').then(assert.wait(function(fetchedUsers) {
+      return topic.get('users').then(fetchedUsers => {
         assert.equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
-      }));
-    }));
+      });
+    });
   });
 });
 
 test("Removing a record from a hasMany reflects on the other hasMany side - sync", function(assert) {
-  var account, user;
-  run(function() {
+  let account, user;
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -379,7 +377,7 @@ test("Removing a record from a hasMany reflects on the other hasMany side - sync
     });
   });
 
-  run(function() {
+  run(() => {
     assert.equal(account.get('users.length'), 1, 'Users were setup correctly');
     account.get('users').removeObject(user);
     assert.equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
@@ -392,8 +390,8 @@ test("Removing a record from a hasMany reflects on the other hasMany side - sync
 */
 
 test("Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async", function(assert) {
-  var user, topic;
-  run(function() {
+  let user, topic;
+  run(() => {
     user = store.push({
       data: {
         id: '1',
@@ -422,23 +420,30 @@ test("Rollbacking attributes for a deleted record that has a ManyToMany relation
     });
   });
 
-  run(function() {
+  run(() => {
     topic.deleteRecord();
     topic.rollbackAttributes();
   });
-  run(function() {
-    topic.get('users').then(assert.wait(function(fetchedUsers) {
+
+  return run(() => {
+    let users = topic.get('users').then(fetchedUsers => {
       assert.equal(fetchedUsers.get('length'), 1, 'Users are still there');
-    }));
-    user.get('topics').then(assert.wait(function(fetchedTopics) {
+    });
+
+    let topics = user.get('topics').then(fetchedTopics => {
       assert.equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
-    }));
+    });
+
+    return Ember.RSVP.Promise.all([
+      users,
+      topics
+    ]);
   });
 });
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function(assert) {
-  var account, user;
-  run(function() {
+  let account, user;
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -467,7 +472,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
     });
   });
 
-  run(function() {
+  run(() => {
     account.deleteRecord();
     account.rollbackAttributes();
     assert.equal(account.get('users.length'), 1, 'Users are still there');
@@ -476,8 +481,8 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
 });
 
 test("Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async", function(assert) {
-  var user, topic;
-  run(function() {
+  let user, topic;
+  run(() => {
     user = store.push({
       data: {
         id: '1',
@@ -490,25 +495,33 @@ test("Rollbacking attributes for a created record that has a ManyToMany relation
 
     topic = store.createRecord('topic');
   });
-  run(function() {
-    user.get('topics').then(assert.wait(function(fetchedTopics) {
+
+  return run(() => {
+    return user.get('topics').then(fetchedTopics => {
       fetchedTopics.pushObject(topic);
       topic.rollbackAttributes();
-      topic.get('users').then(assert.wait(function(fetchedUsers) {
+
+      let users = topic.get('users').then(fetchedUsers => {
         assert.equal(fetchedUsers.get('length'), 0, 'Users got removed');
         assert.equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
-      }));
-      user.get('topics').then(assert.wait(function(fetchedTopics) {
+      });
+
+      let topics = user.get('topics').then(fetchedTopics => {
         assert.equal(fetchedTopics.get('length'), 0, 'Topics got removed');
         assert.equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
-      }));
-    }));
+      });
+
+      return Ember.RSVP.Promise.all([
+        users,
+        topics
+      ]);
+    });
   });
 });
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function(assert) {
-  var account, user;
-  run(function() {
+  let account, user;
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -521,18 +534,20 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
 
     user = store.createRecord('user');
   });
-  run(function() {
+
+  run(() => {
     account.get('users').pushObject(user);
     user.rollbackAttributes();
   });
+
   assert.equal(account.get('users.length'), 0, 'Users got removed');
   assert.equal(user.get('accounts.length'), 0, 'Accounts got rolledback correctly');
 });
 
-
 test("Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship", function(assert) {
-  var account, ada, byron;
-  run(function() {
+  let account, ada, byron;
+
+  run(() => {
     account = store.push({
       data: {
         id: '2',
@@ -598,7 +613,6 @@ test("Re-loading a removed record should re add it to the relationship when the 
       }
     });
   });
-
 
   assert.equal(account.get('users.length'), 2, 'Accounts were updated correctly');
 });

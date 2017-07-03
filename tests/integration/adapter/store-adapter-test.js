@@ -19,13 +19,11 @@ import DS from 'ember-data';
  the given record or record array changes state appropriately.
 */
 
-var get = Ember.get;
-var set = Ember.set;
-var run = Ember.run;
-var Person, Dog, env, store, adapter;
+const { get, set, run } = Ember;
+let Person, Dog, env, store, adapter;
 
 function moveRecordOutOfInFlight(record) {
-  run(function() {
+  run(() => {
     // move record out of the inflight state so the tests can clean up
     // correctly
     let { store, _internalModel } = record;
@@ -77,11 +75,11 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
     });
   };
 
-  run(store, 'query', 'person', { q: 'bla' }).then(assert.wait(function(people) {
-    var people2 = store.query('person', { q: 'bla2' });
+  return run(store, 'query', 'person', { q: 'bla' }).then(people => {
+    let people2 = store.query('person', { q: 'bla2' });
 
     return Ember.RSVP.hash({ people: people, people2: people2 });
-  })).then(assert.wait(function(results) {
+  }).then(results => {
     assert.equal(results.people2.get('length'), 2, 'return the elements');
     assert.ok(results.people2.get('isLoaded'), 'array is loaded');
 
@@ -90,12 +88,11 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
 
     // delete record will not throw exception
     person.deleteRecord();
-  }));
-
+  });
 });
 
 test("by default, createRecords calls createRecord once per record", function(assert) {
-  var count = 1;
+  let count = 1;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.createRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -108,8 +105,8 @@ test("by default, createRecords calls createRecord once per record", function(as
       assert.ok(false, "should not have invoked more than 2 times");
     }
 
-    var hash = snapshot.attributes();
-    var recordId = count;
+    let hash = snapshot.attributes();
+    let recordId = count;
     hash['updated-at'] = "now";
 
     count++;
@@ -121,21 +118,22 @@ test("by default, createRecords calls createRecord once per record", function(as
       }
     });
   };
-  var tom, yehuda;
 
-  run(function() {
+  let tom, yehuda;
+
+  run(() => {
     tom = store.createRecord('person', { name: "Tom Dale" });
     yehuda = store.createRecord('person', { name: "Yehuda Katz" });
   });
 
-  var promise = run(function() {
+  let promise = run(() => {
     return Ember.RSVP.hash({
       tom: tom.save(),
       yehuda: yehuda.save()
     });
   });
 
-  promise.then(assert.wait(function(records) {
+  return promise.then(records => {
     tom = records.tom;
     yehuda = records.yehuda;
 
@@ -143,12 +141,11 @@ test("by default, createRecords calls createRecord once per record", function(as
     assert.asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, findRecord returns the same object");
     assert.equal(get(tom, 'updatedAt'), "now", "The new information is received");
     assert.equal(get(yehuda, 'updatedAt'), "now", "The new information is received");
-
-  }));
+  });
 });
 
 test("by default, updateRecords calls updateRecord once per record", function(assert) {
-  var count = 0;
+  let count = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -168,7 +165,7 @@ test("by default, updateRecords calls updateRecord once per record", function(as
     return Ember.RSVP.resolve();
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'person',
@@ -186,35 +183,38 @@ test("by default, updateRecords calls updateRecord once per record", function(as
     });
   });
 
-  var promise = run(function() {
+  let promise = run(() => {
     return Ember.RSVP.hash({
       tom: store.findRecord('person', 1),
       yehuda: store.findRecord('person', 2)
     });
   });
 
-  promise.then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+  return promise.then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
     set(yehuda, "name", "Yehuda Katz");
 
-    return Ember.RSVP.hash({ tom: tom.save(), yehuda: yehuda.save() });
-  })).then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+    return Ember.RSVP.hash({
+      tom: tom.save(),
+      yehuda: yehuda.save()
+    });
+  }).then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
     assert.equal(tom.get('isSaving'), false, "record is no longer saving");
     assert.equal(tom.get('isLoaded'), true, "record is loaded");
 
     assert.equal(yehuda.get('isSaving'), false, "record is no longer saving");
     assert.equal(yehuda.get('isLoaded'), true, "record is loaded");
-  }));
+  });
 });
 
 test("calling store.didSaveRecord can provide an optional hash", function(assert) {
-  var count = 0;
+  let count = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -231,7 +231,7 @@ test("calling store.didSaveRecord can provide an optional hash", function(assert
     }
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'person',
@@ -249,36 +249,40 @@ test("calling store.didSaveRecord can provide an optional hash", function(assert
     });
   });
 
-  var promise = run(function() {
+  let promise = run(() => {
     return Ember.RSVP.hash({
       tom: store.findRecord('person', 1),
       yehuda: store.findRecord('person', 2)
     });
   });
-  promise.then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+
+  return promise.then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
     set(yehuda, "name", "Yehuda Katz");
 
-    return Ember.RSVP.hash({ tom: tom.save(), yehuda: yehuda.save() });
-  })).then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+    return Ember.RSVP.hash({
+      tom: tom.save(),
+      yehuda: yehuda.save()
+    });
+  }).then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
     assert.equal(get(tom, 'hasDirtyAttributes'), false, "the record should not be dirty");
     assert.equal(get(tom, 'updatedAt'), "now", "the hash was updated");
 
     assert.equal(get(yehuda, 'hasDirtyAttributes'), false, "the record should not be dirty");
     assert.equal(get(yehuda, 'updatedAt'), "now!", "the hash was updated");
-  }));
+  });
 });
 
 test("by default, deleteRecord calls deleteRecord once per record", function(assert) {
   assert.expect(4);
 
-  var count = 0;
+  let count = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -296,7 +300,7 @@ test("by default, deleteRecord calls deleteRecord once per record", function(ass
     return Ember.RSVP.resolve();
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'person',
@@ -314,29 +318,32 @@ test("by default, deleteRecord calls deleteRecord once per record", function(ass
     });
   });
 
-  var promise = run(function() {
+  let promise = run(() => {
     return Ember.RSVP.hash({
       tom: store.findRecord('person', 1),
       yehuda: store.findRecord('person', 2)
     });
   });
 
-  promise.then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+  return promise.then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
     tom.deleteRecord();
     yehuda.deleteRecord();
 
-    tom.save();
-    yehuda.save();
-  }));
+    return Ember.RSVP.Promise.all([
+      tom.save(),
+      yehuda.save()
+    ]);
+  });
 });
 
 test("by default, destroyRecord calls deleteRecord once per record without requiring .save", function(assert) {
   assert.expect(4);
 
-  var count = 0;
+  let count = 0;
+
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -354,7 +361,7 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
     return Ember.RSVP.resolve();
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [{
         type: 'person',
@@ -372,26 +379,28 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
     });
   });
 
-  var promise = run(function() {
+  let promise = run(() => {
     return Ember.RSVP.hash({
       tom: store.findRecord('person', 1),
       yehuda: store.findRecord('person', 2)
     });
   });
 
-  promise.then(assert.wait(function(records) {
-    var tom = records.tom;
-    var yehuda = records.yehuda;
+  return promise.then(records => {
+    let tom = records.tom;
+    let yehuda = records.yehuda;
 
-    tom.destroyRecord();
-    yehuda.destroyRecord();
-  }));
+    return Ember.RSVP.Promise.all([
+      tom.destroyRecord(),
+      yehuda.destroyRecord()
+    ]);
+  });
 });
 
 test("if an existing model is edited then deleted, deleteRecord is called on the adapter", function(assert) {
   assert.expect(5);
 
-  var count = 0;
+  let count = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
     count++;
@@ -406,7 +415,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   };
 
   // Load data for a record into the store.
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -419,22 +428,22 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   });
 
   // Retrieve that loaded record and edit it so it becomes dirty
-  run(store, 'findRecord', 'person', 'deleted-record').then(assert.wait(function(tom) {
+  return run(store, 'findRecord', 'person', 'deleted-record').then(tom => {
     tom.set('name', "Tom Mothereffin' Dale");
 
     assert.equal(get(tom, 'hasDirtyAttributes'), true, "precond - record should be dirty after editing");
 
     tom.deleteRecord();
     return tom.save();
-  })).then(assert.wait(function(tom) {
+  }).then(tom => {
     assert.equal(get(tom, 'hasDirtyAttributes'), false, "record should not be dirty");
     assert.equal(get(tom, 'isDeleted'), true, "record should be considered deleted");
-  }));
+  });
 });
 
 test("if a deleted record errors, it enters the error state", function(assert) {
-  var count = 0;
-  var error = new DS.AdapterError();
+  let count = 0;
+  let error = new DS.AdapterError();
 
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = function(store, type, snapshot) {
@@ -445,7 +454,7 @@ test("if a deleted record errors, it enters the error state", function(assert) {
     }
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -457,23 +466,22 @@ test("if a deleted record errors, it enters the error state", function(assert) {
     });
   });
 
-  var tom;
-
-  run(function() {
-    store.findRecord('person', 'deleted-record').then(assert.wait(function(person) {
+  return run(() => {
+    let tom;
+    store.findRecord('person', 'deleted-record').then(person => {
       tom = person;
       person.deleteRecord();
       return person.save();
-    })).then(null, assert.wait(function() {
+    }).catch(() => {
       assert.equal(tom.get('isError'), true, "Tom is now errored");
       assert.equal(tom.get('adapterError'), error, "error object is exposed");
 
       // this time it succeeds
       return tom.save();
-    })).then(assert.wait(function() {
+    }).then(() => {
       assert.equal(tom.get('isError'), false, "Tom is not errored anymore");
       assert.equal(tom.get('adapterError'), null, "error object is discarded");
-    }));
+    });
   });
 });
 
@@ -496,13 +504,13 @@ test("if a created record is marked as invalid by the server, it enters an error
     }
   };
 
-  var yehuda = run(function() {
+  let yehuda = run(() => {
     return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
   });
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
-  Ember.run(function() {
-    yehuda.save().then(null, assert.wait(function(error) {
+  return Ember.run(function() {
+    return yehuda.save().catch(error => {
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
       assert.ok(get(yehuda, 'errors.name'), "The errors.name property exists");
 
@@ -517,12 +525,12 @@ test("if a created record is marked as invalid by the server, it enters an error
       assert.equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
       return yehuda.save();
-    })).then(assert.wait(function(person) {
+    }).then(person => {
       assert.strictEqual(person, yehuda, "The promise resolves with the saved record");
 
       assert.equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
       assert.equal(get(yehuda, 'isNew'), false, "record is no longer new");
-    }));
+    });
   });
 });
 
@@ -543,14 +551,14 @@ test("allows errors on arbitrary properties on create", function(assert) {
     }
   };
 
-  var yehuda = run(function () {
+  let yehuda = run(() => {
     return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
   });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
-  run(function() {
-    yehuda.save().then(null, assert.wait(function(error) {
+  return run(() => {
+    return yehuda.save().catch(error => {
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
       assert.ok(get(yehuda, 'errors.base'), "The errors.base property exists");
       assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), [{ attribute: 'base', message: "is a generally unsavoury character" }]);
@@ -566,18 +574,18 @@ test("allows errors on arbitrary properties on create", function(assert) {
       assert.equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
       return yehuda.save();
-    })).then(assert.wait(function(person) {
+    }).then(person => {
       assert.strictEqual(person, yehuda, "The promise resolves with the saved record");
       assert.ok(!get(yehuda, 'errors.base'), "The errors.base property does not exist");
       assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
       assert.equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
       assert.equal(get(yehuda, 'isNew'), false, "record is no longer new");
-    }));
+    });
   });
 });
 
 test("if a created record is marked as invalid by the server, you can attempt the save again", function(assert) {
-  var saveCount = 0;
+  let saveCount = 0;
   adapter.createRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
     saveCount++;
@@ -597,14 +605,14 @@ test("if a created record is marked as invalid by the server, you can attempt th
     }
   };
 
-  var yehuda = run(function() {
+  let yehuda = run(() => {
     return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
   });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
-  Ember.run(function() {
-    yehuda.save().then(null, assert.wait(function(reason) {
+  return Ember.run(() => {
+    return yehuda.save().catch(reason => {
       assert.equal(saveCount, 1, "The record has been saved once");
       assert.ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
@@ -612,7 +620,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       assert.ok(get(yehuda, 'errors.name'), "The errors.name property exists");
       assert.equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       return yehuda.save();
-    })).then(null, assert.wait(function(reason) {
+    }).catch(reason => {
       assert.equal(saveCount, 2, "The record has been saved twice");
       assert.ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       assert.equal(get(yehuda, 'isValid'), false, "the record is still invalid");
@@ -621,29 +629,29 @@ test("if a created record is marked as invalid by the server, you can attempt th
       assert.equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       set(yehuda, 'name', 'Brohuda Brokatz');
       return yehuda.save();
-    })).then(assert.wait(function(person) {
+    }).then(person => {
       assert.equal(saveCount, 3, "The record has been saved thrice");
       assert.equal(get(yehuda, 'isValid'), true, "record is valid");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), false, "record is not dirty");
       assert.equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
-    }));
+    });
   });
 });
 
 test("if a created record is marked as erred by the server, it enters an error state", function(assert) {
-  var error = new DS.AdapterError();
+  let error = new DS.AdapterError();
 
   adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject(error);
   };
 
-  Ember.run(function() {
-    var person = store.createRecord('person', { id: 1, name: "John Doe" });
+  return Ember.run(() => {
+    let person = store.createRecord('person', { id: 1, name: "John Doe" });
 
-    person.save().then(null, assert.wait(function() {
+    return person.save().catch(() => {
       assert.ok(get(person, 'isError'), "the record is in the error state");
       assert.equal(get(person, 'adapterError'), error, "error object is exposed");
-    }));
+    });
   });
 });
 
@@ -667,7 +675,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     }
   };
 
-  var yehuda = run(function() {
+  let yehuda = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -677,11 +685,12 @@ test("if an updated record is marked as invalid by the server, it enters an erro
         }
       }
     });
+
     return store.peekRecord('person', 1);
   });
 
-  return Ember.run(function() {
-    return store.findRecord('person', 1).then(assert.wait(function(person) {
+  return Ember.run(() => {
+    return store.findRecord('person', 1).then(person => {
       assert.equal(person, yehuda, "The same object is passed through");
 
       assert.equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -691,7 +700,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
-    })).then(null, assert.wait(function(reason) {
+    }).catch(reason => {
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
 
@@ -703,13 +712,12 @@ test("if an updated record is marked as invalid by the server, it enters an erro
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       return yehuda.save();
-    })).then(assert.wait(function(yehuda) {
+    }).then(yehuda => {
       assert.equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), false, "record is no longer new");
-    }));
+    });
   });
 });
-
 
 test("records can have errors on arbitrary properties after update", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
@@ -729,7 +737,7 @@ test("records can have errors on arbitrary properties after update", function(as
     }
   };
 
-  var yehuda = run(function() {
+  let yehuda = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -742,8 +750,8 @@ test("records can have errors on arbitrary properties after update", function(as
     return store.peekRecord('person', 1);
   });
 
-  run(function() {
-    store.findRecord('person', 1).then(assert.wait(function(person) {
+  return run(() => {
+    return store.findRecord('person', 1).then(person => {
       assert.equal(person, yehuda, "The same object is passed through");
 
       assert.equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -753,7 +761,7 @@ test("records can have errors on arbitrary properties after update", function(as
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
-    })).then(null, assert.wait(function(reason) {
+    }).catch(reason => {
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
       assert.ok(get(yehuda, 'errors.base'), "The errors.base property exists");
@@ -767,19 +775,17 @@ test("records can have errors on arbitrary properties after update", function(as
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       return yehuda.save();
-    })).then(assert.wait(function(yehuda) {
+    }).then(yehuda => {
       assert.equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), false, "record is no longer new");
       assert.ok(!get(yehuda, 'errors.base'), "The errors.base property does not exist");
       assert.deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
-    }));
+    });
   });
 });
 
-
-
 test("if an updated record is marked as invalid by the server, you can attempt the save again", function(assert) {
-  var saveCount = 0;
+  let saveCount = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     assert.equal(type, Person, "the type is correct");
@@ -799,7 +805,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
     }
   };
 
-  var yehuda = run(function() {
+  let yehuda = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -812,8 +818,8 @@ test("if an updated record is marked as invalid by the server, you can attempt t
     return store.peekRecord('person', 1);
   });
 
-  Ember.run(function() {
-    store.findRecord('person', 1).then(assert.wait(function(person) {
+  return Ember.run(() => {
+    return store.findRecord('person', 1).then(person => {
       assert.equal(person, yehuda, "The same object is passed through");
 
       assert.equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -823,38 +829,37 @@ test("if an updated record is marked as invalid by the server, you can attempt t
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
-    })).then(null, assert.wait(function(reason) {
+    }).catch(reason => {
       assert.equal(saveCount, 1, "The record has been saved once");
       assert.ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       assert.equal(get(yehuda, 'isValid'), false, "the record is invalid");
       return yehuda.save();
-    })).then(null, assert.wait(function(reason) {
+    }).catch(reason => {
       assert.equal(saveCount, 2, "The record has been saved twice");
       assert.ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       assert.equal(get(yehuda, 'isValid'), false, "record is still invalid");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), true, "record is still dirty");
       set(yehuda, 'name', 'Brohuda Brokatz');
       return yehuda.save();
-    })).then(assert.wait(function(person) {
+    }).then(person => {
       assert.equal(saveCount, 3, "The record has been saved thrice");
       assert.equal(get(yehuda, 'isValid'), true, "record is valid");
       assert.equal(get(yehuda, 'hasDirtyAttributes'), false, "record is not dirty");
       assert.equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
-    }));
+    });
   });
 });
 
-
 test("if a updated record is marked as erred by the server, it enters an error state", function(assert) {
-  var error = new DS.AdapterError();
+  let error = new DS.AdapterError();
 
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject(error);
   };
 
-  var person = run(function() {
+  let person = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -867,14 +872,14 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return store.peekRecord('person', 1);
   });
 
-  run(store, 'findRecord', 'person', 1).then(assert.wait(function(record) {
+  return run(store, 'findRecord', 'person', 1).then(record => {
     assert.equal(record, person, "The person was resolved");
     person.set('name', "Jonathan Doe");
     return person.save();
-  })).then(null, assert.wait(function(reason) {
+  }).catch(reason => {
     assert.ok(get(person, 'isError'), "the record is in the error state");
     assert.equal(get(person, 'adapterError'), error, "error object is exposed");
-  }));
+  });
 });
 
 test("can be created after the DS.Store", function(assert) {
@@ -885,9 +890,7 @@ test("can be created after the DS.Store", function(assert) {
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
   };
 
-  run(function() {
-    store.findRecord('person', 1);
-  });
+  run(() => store.findRecord('person', 1));
 });
 
 test("the filter method can optionally take a server query as well", function(assert) {
@@ -913,19 +916,19 @@ test("the filter method can optionally take a server query as well", function(as
     });
   };
 
-  var asyncFilter = store.filter('person', { page: 1 }, function(data) {
+  let asyncFilter = store.filter('person', { page: 1 }, data => {
     return data.get('name') === "Tom Dale";
   });
 
-  var loadedFilter;
+  let loadedFilter;
 
-  asyncFilter.then(assert.wait(function(filter) {
+  return asyncFilter.then(filter => {
     loadedFilter = filter;
     return store.findRecord('person', 2);
-  })).then(assert.wait(function(tom) {
+  }).then(tom => {
     assert.equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
     assert.deepEqual(loadedFilter.toArray(), [tom], "The filter has a single entry in it");
-  }));
+  });
 });
 
 test("relationships returned via `commit` do not trigger additional findManys", function(assert) {
@@ -933,7 +936,7 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     dogs: DS.hasMany('dog', { async: false })
   });
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'dog',
@@ -961,7 +964,7 @@ test("relationships returned via `commit` do not trigger additional findManys", 
   };
 
   adapter.updateRecord = function(store, type, snapshot) {
-    return new Ember.RSVP.Promise(function(resolve, reject) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
       env.store.push({
         data: {
           type: 'person',
@@ -995,15 +998,15 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     assert.ok(false, "Should not get here");
   };
 
-  run(function() {
-    store.findRecord('person', 1).then(assert.wait(function(person) {
+  return run(() => {
+    store.findRecord('person', 1).then(person => {
       return Ember.RSVP.hash({ tom: person, dog: store.findRecord('dog', 1) });
-    })).then(assert.wait(function(records) {
+    }).then(records => {
       records.tom.get('dogs');
       return records.dog.save();
-    })).then(assert.wait(function(tom) {
+    }).then(tom => {
       assert.ok(true, "Tom was saved");
-    }));
+    });
   });
 });
 
@@ -1013,7 +1016,7 @@ test("relationships don't get reset if the links is the same", function(assert) 
     dogs: DS.hasMany({ async: true })
   });
 
-  var count = 0;
+  let count = 0;
 
   adapter.findHasMany = function(store, snapshot, link, relationship) {
     assert.ok(count++ === 0, "findHasMany is only called once");
@@ -1021,7 +1024,7 @@ test("relationships don't get reset if the links is the same", function(assert) 
     return Ember.RSVP.resolve({ data: [{ id: 1, type: "dog", attributes: { name: "Scruffy" } }] });
   };
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1040,13 +1043,13 @@ test("relationships don't get reset if the links is the same", function(assert) 
     });
   });
 
-  var tom, dogs;
+  let tom, dogs;
 
-  run(store, 'findRecord', 'person', 1).then(assert.wait(function(person) {
+  return run(store, 'findRecord', 'person', 1).then(person => {
     tom = person;
     dogs = tom.get('dogs');
     return dogs;
-  })).then(assert.wait(function(dogs) {
+  }).then(dogs => {
     assert.equal(dogs.get('length'), 1, "The dogs are loaded");
     store.push({
       data: {
@@ -1066,9 +1069,9 @@ test("relationships don't get reset if the links is the same", function(assert) 
     });
     assert.ok(tom.get('dogs') instanceof DS.PromiseArray, 'dogs is a promise');
     return tom.get('dogs');
-  })).then(assert.wait(function(dogs) {
+  }).then(dogs => {
     assert.equal(dogs.get('length'), 1, "The same dogs are loaded");
-  }));
+  });
 });
 
 test("async hasMany always returns a promise", function(assert) {
@@ -1090,20 +1093,17 @@ test("async hasMany always returns a promise", function(assert) {
       }
     });
   };
-  var tom;
 
-  run(function() {
-    tom = store.createRecord('person', { name: "Tom Dale" });
-  });
+  let tom = run(() => store.createRecord('person', { name: "Tom Dale" }));
 
-  run(function() {
+  run(() => {
     assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
   });
 
-  run(function() {
-    tom.save().then(assert.wait(function() {
+  return run(() => {
+    return tom.save().then(() => {
       assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
-    }));
+    });
   });
 });
 
@@ -1117,7 +1117,7 @@ test("createRecord receives a snapshot", function(assert) {
 
   var person;
 
-  run(function() {
+  run(() => {
     person = store.createRecord('person', { name: "Tom Dale", id: 1 });
     person.save();
   });
@@ -1131,9 +1131,9 @@ test("updateRecord receives a snapshot", function(assert) {
     return Ember.RSVP.resolve();
   };
 
-  var person;
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1146,7 +1146,7 @@ test("updateRecord receives a snapshot", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  run(function() {
+  run(() => {
     set(person, "name", "Tomster");
     person.save();
   });
@@ -1160,9 +1160,9 @@ test("deleteRecord receives a snapshot", function(assert) {
     return Ember.RSVP.resolve();
   };
 
-  var person;
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1175,9 +1175,9 @@ test("deleteRecord receives a snapshot", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  run(function() {
+  return run(() => {
     person.deleteRecord();
-    person.save();
+    return person.save();
   });
 });
 
@@ -1189,9 +1189,7 @@ test("findRecord receives a snapshot", function(assert) {
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
   };
 
-  run(function() {
-    store.findRecord('person', 1);
-  });
+  return run(() => store.findRecord('person', 1));
 });
 
 test("findMany receives an array of snapshots", function(assert) {
@@ -1208,9 +1206,9 @@ test("findMany receives an array of snapshots", function(assert) {
     return Ember.RSVP.resolve({ data: [{ id: 2, type: "dog" }, { id: 3, type: "dog" }] });
   };
 
-  var person;
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1228,9 +1226,7 @@ test("findMany receives an array of snapshots", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  run(function() {
-    person.get('dogs');
-  });
+  run(() => person.get('dogs'));
 });
 
 test("findHasMany receives a snapshot", function(assert) {
@@ -1245,9 +1241,9 @@ test("findHasMany receives a snapshot", function(assert) {
     return Ember.RSVP.resolve({ data: [{ id: 2, type: "dog" }, { id: 3, type: "dog" }] });
   };
 
-  var person;
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1264,9 +1260,7 @@ test("findHasMany receives a snapshot", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  run(function() {
-    person.get('dogs');
-  });
+  return run(() => person.get('dogs'));
 });
 
 test("findBelongsTo receives a snapshot", function(assert) {
@@ -1276,14 +1270,14 @@ test("findBelongsTo receives a snapshot", function(assert) {
     dog: DS.belongsTo({ async: true })
   });
 
-  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
     assert.ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
     return Ember.RSVP.resolve({ data: { id: 2, type: "dog" } });
-  });
+  };
 
-  var person;
+  let person;
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1300,20 +1294,18 @@ test("findBelongsTo receives a snapshot", function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  run(function() {
-    person.get('dog');
-  });
+  return run(() => person.get('dog'));
 });
 
 test("record.save should pass adapterOptions to the updateRecord method", function(assert) {
   assert.expect(1);
 
-  env.adapter.updateRecord = assert.wait(function(store, type, snapshot) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
-  });
+  };
 
-  run(function() {
+  return run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1323,34 +1315,34 @@ test("record.save should pass adapterOptions to the updateRecord method", functi
         }
       }
     });
-    var person = store.peekRecord('person', 1);
-    person.save({ adapterOptions: { subscribe: true } });
+    let person = store.peekRecord('person', 1);
+    return person.save({ adapterOptions: { subscribe: true } });
   });
 });
 
 test("record.save should pass adapterOptions to the createRecord method", function(assert) {
   assert.expect(1);
 
-  env.adapter.createRecord = assert.wait(function(store, type, snapshot) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
-  });
+  };
 
-  run(function() {
-    var person = store.createRecord('person', { name: 'Tom' });
-    person.save({ adapterOptions: { subscribe: true } });
+  return run(() => {
+    let person = store.createRecord('person', { name: 'Tom' });
+    return person.save({ adapterOptions: { subscribe: true } });
   });
 });
 
 test("record.save should pass adapterOptions to the deleteRecord method", function(assert) {
   assert.expect(1);
 
-  env.adapter.deleteRecord = assert.wait(function(store, type, snapshot) {
+  env.adapter.deleteRecord = function(store, type, snapshot) {
     assert.deepEqual(snapshot.adapterOptions, { subscribe: true });
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
-  });
+  };
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -1360,32 +1352,31 @@ test("record.save should pass adapterOptions to the deleteRecord method", functi
         }
       }
     });
-    var person = store.peekRecord('person', 1);
+    let person = store.peekRecord('person', 1);
     person.destroyRecord({ adapterOptions: { subscribe: true } });
   });
 });
 
-
 test("store.findRecord should pass adapterOptions to adapter.findRecord", function(assert) {
   assert.expect(1);
 
-  env.adapter.findRecord = assert.wait(function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
-  });
+  };
 
-  run(function() {
-    store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
+  return run(() => {
+    return store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
   });
 });
 
 test("store.findRecord should pass 'include' to adapter.findRecord", function(assert) {
   assert.expect(1);
 
-  env.adapter.findRecord = assert.wait((store, type, id, snapshot) => {
+  env.adapter.findRecord = (store, type, id, snapshot) => {
     assert.equal(snapshot.include,  'books', 'include passed to adapter.findRecord');
     return Ember.RSVP.resolve({ data: { id: 1, type: "person" } });
-  });
+  };
 
   run(() => store.findRecord('person', 1, { include: 'books' }));
 });
@@ -1393,35 +1384,35 @@ test("store.findRecord should pass 'include' to adapter.findRecord", function(as
 test("store.findAll should pass adapterOptions to the adapter.findAll method", function(assert) {
   assert.expect(1);
 
-  env.adapter.findAll = assert.wait(function(store, type, sinceToken, arraySnapshot) {
-    var adapterOptions = arraySnapshot.adapterOptions;
+  env.adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
+    let adapterOptions = arraySnapshot.adapterOptions;
     assert.deepEqual(adapterOptions, { query: { embed: true } });
     return Ember.RSVP.resolve({ data: [{ id: 1, type: "person" }] });
-  });
+  };
 
-  run(function() {
-    store.findAll('person', { adapterOptions: { query: { embed: true } } });
+  return run(() => {
+    return store.findAll('person', { adapterOptions: { query: { embed: true } } });
   });
 });
 
 test("store.findAll should pass 'include' to adapter.findAll", function(assert) {
   assert.expect(1);
 
-  env.adapter.findAll = assert.wait((store, type, sinceToken, arraySnapshot) => {
+  env.adapter.findAll = function(store, type, sinceToken, arraySnapshot) {
     assert.equal(arraySnapshot.include, 'books', 'include passed to adapter.findAll');
     return Ember.RSVP.resolve({ data: [{ id: 1, type: "person" }] });
-  });
+  };
 
   run(() => store.findAll('person', { include: 'books' }));
 });
 
 test("An async hasMany relationship with links should not trigger shouldBackgroundReloadRecord", function(assert) {
-  var Post = DS.Model.extend({
+  const Post = DS.Model.extend({
     name: DS.attr("string"),
     comments: DS.hasMany('comment', { async: true })
   });
 
-  var Comment = DS.Model.extend({
+  const Comment = DS.Model.extend({
     name: DS.attr("string")
   });
 
@@ -1455,19 +1446,19 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
 
   store = env.store;
 
-  run(store, 'findRecord', 'post', '1').then(assert.wait(function(post) {
+  return run(store, 'findRecord', 'post', '1').then(post => {
     return post.get('comments');
-  })).then(assert.wait(function(comments) {
+  }).then(comments => {
     assert.equal(comments.get('length'), 3);
-  }));
+  });
 });
 
 testInDebug("There should be a friendly error for if the adapter does not implement createRecord", function(assert) {
   adapter.createRecord = null;
 
   let tom;
-  assert.expectAssertion(function() {
-    run(function() {
+  assert.expectAssertion(() => {
+    run(() => {
       tom = store.createRecord('person', { name: "Tom Dale" });
       tom.save();
     });
@@ -1480,8 +1471,8 @@ testInDebug("There should be a friendly error for if the adapter does not implem
   adapter.updateRecord = null;
 
   let tom;
-  assert.expectAssertion(function() {
-    run(function() {
+  assert.expectAssertion(() => {
+    run(() => {
       tom = store.push({ data: { type: 'person', id: 1 } });
       tom.save();
     });
@@ -1494,8 +1485,8 @@ testInDebug("There should be a friendly error for if the adapter does not implem
   adapter.deleteRecord = null;
 
   let tom;
-  assert.expectAssertion(function() {
-    run(function() {
+  assert.expectAssertion(() => {
+    run(() => {
       tom = store.push({ data: { type: 'person', id: 1 } });
       tom.deleteRecord();
       tom.save();
