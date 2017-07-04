@@ -109,6 +109,33 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
   });
 });
 
+test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany', function(assert) {
+  assert.expect(2);
+
+  const Adapter = TestAdapter.extend({
+    findMany(store, type, ids, snapshots) {
+      snapshots.forEach(snapshot => {
+        assert.equal(snapshot.include, 'someResource', 'Snapshots retain the `include` adapter option');
+      });
+      return Ember.RSVP.resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
+    },
+    coalesceFindRequests: true
+  });
+
+  const Type = DS.Model.extend();
+  let store = createStore({
+    adapter: Adapter,
+    test: Type
+  });
+
+  return run(() => {
+    return Ember.RSVP.all([
+      store.findRecord('test', 1, { include: 'someResource' }),
+      store.findRecord('test', 2, { include: 'someResource' })
+    ]);
+  });
+});
+
 test('Returning a promise from `findRecord` asynchronously loads data', function(assert) {
   assert.expect(1);
 
