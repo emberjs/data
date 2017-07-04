@@ -116,6 +116,64 @@ module('unit/store/adapter-interop - Store working with a Adapter', function (ho
     });
   });
 
+  test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany and adapter#findRecord', function (assert) {
+    const includedResourcesForIds = {
+      1: 'someResource',
+      2: 'differentResource',
+      3: 'anotherResource',
+    };
+
+    assert.expect(Object.keys(includedResourcesForIds).length);
+
+    const ApplicationAdapter = Adapter.extend({
+      groupRecordsForFindMany(store, snapshots) {
+        // this ensures that `findRecord` is also called
+        return [snapshots.slice(0, -1), snapshots.slice(-1)];
+      },
+
+      findMany(store, type, ids, snapshots) {
+        snapshots.forEach((snapshot) => {
+          assert.equal(
+            snapshot.include,
+            includedResourcesForIds[snapshot.id],
+            `Snapshot #${snapshot.id} retains the 'include' adapter option in #findMany`
+          );
+        });
+        return resolve({
+          data: snapshots.map(({ id }) => ({ id, type: type.modelName })),
+        });
+      },
+
+      findRecord(store, type, id, snapshot) {
+        assert.equal(
+          snapshot.include,
+          includedResourcesForIds[snapshot.id],
+          `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
+        );
+
+        return resolve({
+          data: { id, type: type.modelName },
+        });
+      },
+
+      coalesceFindRequests: true,
+    });
+
+    this.owner.register('adapter:application', ApplicationAdapter);
+    this.owner.register('serializer:application', JSONAPISerializer.extend());
+    this.owner.register('model:test', Model.extend());
+
+    let store = this.owner.lookup('service:store');
+
+    return run(() => {
+      return all(
+        Object.keys(includedResourcesForIds).map((id) =>
+          store.findRecord('test', id, { include: includedResourcesForIds[id] })
+        )
+      );
+    });
+  });
+
   test('Returning a promise from `findRecord` asynchronously loads data', function (assert) {
     assert.expect(1);
 

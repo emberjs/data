@@ -236,7 +236,7 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', f
 
     adapter.buildURL = function (type, ids, snapshots) {
       if (Array.isArray(snapshots)) {
-        return '/posts/' + snapshots.firstObject.belongsTo('post', { id: true }) + '/comments/';
+        return '/posts/' + snapshots[0].belongsTo('post', { id: true }) + '/comments/';
       }
       return '';
     };
