@@ -52,9 +52,13 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   }, `DS: Extract payload of '${modelName}'`);
 }
 
-export function _findMany(adapter, store, modelName, ids, internalModels) {
+export function _findMany(adapter, store, modelName, ids, internalModels, snapshots) {
   if (DEBUG) { incrementRequestCount(); }
-  let snapshots = A(internalModels).invoke('createSnapshot');
+  if (snapshots) {
+    snapshots = A(snapshots);
+  } else {
+    snapshots = A(internalModels).invoke('createSnapshot');
+  }
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;

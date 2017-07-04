@@ -909,7 +909,9 @@ Store = Service.extend({
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot();
+        let internalModel = internalModels[i];
+        let pendingItem = seeking[internalModel.id];
+        snapshots[i] = internalModel.createSnapshot(pendingItem.options);
       }
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
@@ -928,15 +930,15 @@ Store = Service.extend({
         }
 
         if (totalInGroup > 1) {
-          (function(groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels)
+          (function(groupedInternalModels, group) {
+            _findMany(adapter, store, modelName, ids, groupedInternalModels, group)
               .then(function(foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
               .catch(function(error) {
                 rejectInternalModels(groupedInternalModels, error);
               });
-          }(groupedInternalModels));
+          }(groupedInternalModels, group));
         } else if (ids.length === 1) {
           var pair = seeking[groupedInternalModels[0].id];
           _fetchRecord(pair);
