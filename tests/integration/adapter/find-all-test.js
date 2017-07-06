@@ -56,12 +56,12 @@ test("When all records for a type are requested, the store should call the adapt
   }));
 
   return run(() => {
-    return store.findAll('person').then((all) => {
+    return store.findAll('person').then(all => {
       let allRecords = all;
       assert.equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       assert.equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
 
-      return store.findAll('person').then((all) => {
+      return store.findAll('person').then(all => {
         // Only one record array per type should ever be created (identity map)
         assert.strictEqual(allRecords, all, "the same record array is returned every time all records of a type are requested");
       });
@@ -92,11 +92,11 @@ test("When all records for a type are requested, a rejection should reject the p
     }
   }));
 
-  run(() => {
-    store.findAll('person').then(null, () => {
+  return run(() => {
+    return store.findAll('person').catch(() => {
       assert.ok(true, "The rejection should get here");
       return store.findAll('person');
-    }).then((all) => {
+    }).then(all => {
       assert.equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       assert.equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
     });
@@ -163,8 +163,6 @@ testInDebug('When all records are requested, assert the payload is not blank', (
 });
 
 test("isUpdating is true while records are fetched", function(assert) {
-  let done = assert.async();
-
   let findAllDeferred = Ember.RSVP.defer();
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll() {
@@ -174,7 +172,7 @@ test("isUpdating is true while records are fetched", function(assert) {
     shouldReloadAll: () => true
   }));
 
-  run(function() {
+  run(() => {
     store.push({
       data: [{
         type: 'person',
@@ -186,34 +184,36 @@ test("isUpdating is true while records are fetched", function(assert) {
   let persons = store.peekAll('person');
   assert.equal(persons.get("length"), 1);
 
-  run(function() {
-    store.findAll('person').then(function(persons) {
+  let wait = run(() => {
+    return store.findAll('person').then(persons => {
       assert.equal(persons.get("isUpdating"), false);
       assert.equal(persons.get("length"), 2);
-
-      done();
     });
   });
 
   assert.equal(persons.get("isUpdating"), true);
 
   findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
+
+  return wait;
 });
 
 test("isUpdating is true while records are fetched in the background", function(assert) {
-  let done = assert.async();
-
   let findAllDeferred = Ember.RSVP.defer();
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll() {
       return findAllDeferred.promise;
     },
 
-    shouldReloadAll: () => false,
-    shouldBackgroundReloadAll: () => true
+    shouldReloadAll() {
+      return false;
+    },
+    shouldBackgroundReloadAll() {
+      return true;
+    }
   }));
 
-  run(function() {
+  run(() => {
     store.push({
       data: [{
         type: 'person',
@@ -225,25 +225,23 @@ test("isUpdating is true while records are fetched in the background", function(
   let persons = store.peekAll('person');
   assert.equal(persons.get("length"), 1);
 
-  run(function() {
-    store.findAll('person').then(function(persons) {
+  return run(() => {
+    return store.findAll('person').then(persons => {
       assert.equal(persons.get("isUpdating"), true);
       assert.equal(persons.get("length"), 1, "persons are updated in the background");
     });
-  });
+  }).then(() => {
+    assert.equal(persons.get("isUpdating"), true);
 
-  assert.equal(persons.get("isUpdating"), true);
+    run(() => {
+      findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
+    });
 
-  run(function() {
-    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
-  });
-
-  run(function() {
-    findAllDeferred.promise.then(function() {
-      assert.equal(persons.get("isUpdating"), false);
-      assert.equal(persons.get("length"), 2);
-
-      done();
+    return run(() => {
+      return findAllDeferred.promise.then(() => {
+        assert.equal(persons.get("isUpdating"), false);
+        assert.equal(persons.get("length"), 2);
+      });
     });
   });
 });
@@ -258,7 +256,7 @@ test("isUpdating is false if records are not fetched in the background", functio
     shouldBackgroundReloadAll: () => false
   }));
 
-  run(function() {
+  run(() => {
     store.push({
       data: [{
         type: 'person',
@@ -270,11 +268,11 @@ test("isUpdating is false if records are not fetched in the background", functio
   let persons = store.peekAll('person');
   assert.equal(persons.get("length"), 1);
 
-  run(function() {
-    store.findAll('person').then(function(persons) {
+  return run(() => {
+    return store.findAll('person').then(persons => {
       assert.equal(persons.get("isUpdating"), false);
     });
+  }).then(() => {
+    assert.equal(persons.get("isUpdating"), false);
   });
-
-  assert.equal(persons.get("isUpdating"), false);
 });

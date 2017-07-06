@@ -271,14 +271,13 @@ test('a loaded record is not removed from a record array when it is deleted even
     scumbag.deleteRecord();
   });
 
-  run(function() {
+  run(() => {
     assert.equal(tag.get('people.length'), 1, 'record is not removed from the record array');
     assert.equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
   });
 });
 
 test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function(assert) {
-
   let env = setupStore({
     tag: Tag,
     person: Person,
@@ -326,7 +325,7 @@ test("a loaded record is not removed from both the record array and from the bel
     tool = store.peekRecord('tool', 1);
   });
 
-  run(function() {
+  run(() => {
     assert.equal(tag.get('people.length'), 1, 'record is in the record array');
     assert.equal(tool.get('person'), scumbag, 'the tool belongs to the record');
   });

@@ -6,14 +6,12 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var env, store, User, Message, Post, Comment, Book, Chapter, Author, NewMessage;
-var get = Ember.get;
-var run = Ember.run;
+const { get, run, RSVP } = Ember;
+const { attr, hasMany, belongsTo } = DS;
+const { hash } = RSVP;
 
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-var hash = Ember.RSVP.hash;
+let env, store, User, Message, Post, Comment, Book, Chapter, Author, NewMessage;
+const injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   beforeEach() {
@@ -85,6 +83,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   },
 
   afterEach() {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
     run(env.container, 'destroy');
   }
 });
@@ -109,7 +108,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     });
   };
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         id: '1',
@@ -126,8 +125,8 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     });
   });
 
-  run(function() {
-    env.store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return env.store.findRecord('post', 1).then(post => {
       post.get('user');
     });
   });
@@ -136,7 +135,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 testInDebug("Only a record of the same modelClass can be used with a monomorphic belongsTo relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: '1',
@@ -152,12 +151,12 @@ testInDebug("Only a record of the same modelClass can be used with a monomorphic
   });
 
 
-  run(function() {
-    hash({
+  return run(() => {
+    return hash({
       post: store.findRecord('post', 1),
       comment: store.findRecord('comment', 2)
-    }).then(function(records) {
-      assert.expectAssertion(function() {
+    }).then(records => {
+      assert.expectAssertion(() => {
         records.post.set('user', records.comment);
       }, /You cannot add a record of modelClass 'comment' to the 'post.user' relationship/);
     });
@@ -167,7 +166,7 @@ testInDebug("Only a record of the same modelClass can be used with a monomorphic
 testInDebug("Only a record of the same base modelClass can be used with a polymorphic belongsTo relationship", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   assert.expect(1);
-  run(function() {
+  run(() => {
     store.push({
       data: [{
         id: '1',
@@ -193,22 +192,22 @@ testInDebug("Only a record of the same base modelClass can be used with a polymo
 
   });
 
-  run(function() {
-    var asyncRecords = hash({
+  return run(() => {
+    let asyncRecords = hash({
       user: store.findRecord('user', 3),
       post: store.findRecord('post', 1),
       comment: store.findRecord('comment', 1),
       anotherComment: store.findRecord('comment', 2)
     });
 
-    asyncRecords.then(function(records) {
-      var comment = records.comment;
+    return asyncRecords.then(records =>  {
+      let comment = records.comment;
 
       comment.set('message', records.anotherComment);
       comment.set('message', records.post);
       comment.set('message', null);
 
-      assert.expectAssertion(function() {
+      assert.expectAssertion(() => {
         comment.set('message', records.user);
       }, /You cannot add a record of modelClass 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
     });
@@ -217,7 +216,7 @@ testInDebug("Only a record of the same base modelClass can be used with a polymo
 
 test("The store can load a polymorphic belongsTo association", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         id: '1',
@@ -241,11 +240,11 @@ test("The store can load a polymorphic belongsTo association", function(assert) 
     });
   });
 
-  run(function() {
-    hash({
+  return run(() => {
+    return hash({
       message: store.findRecord('post', 1),
       comment: store.findRecord('comment', 2)
-    }).then(function(records) {
+    }).then(records => {
       assert.equal(records.comment.get('message'), records.message);
     });
   });
@@ -253,19 +252,21 @@ test("The store can load a polymorphic belongsTo association", function(assert) 
 
 test("The store can serialize a polymorphic belongsTo association", function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  var serializerInstance = store.serializerFor('comment');
+  let serializerInstance = store.serializerFor('comment');
 
   serializerInstance.serializePolymorphicType = function(record, json, relationship) {
     assert.ok(true, "The serializer's serializePolymorphicType method should be called");
     json["message_type"] = "post";
   };
-  run(function() {
+
+  return run(() => {
     env.store.push({
       data: {
         id: '1',
         type: 'post'
       }
     });
+
     env.store.push({
       data: {
         id: '2',
@@ -281,8 +282,8 @@ test("The store can serialize a polymorphic belongsTo association", function(ass
       }
     });
 
-    store.findRecord('comment', 2).then(function(comment) {
-      var serialized = comment.serialize({ includeId: true });
+    return store.findRecord('comment', 2).then(comment => {
+      let serialized = comment.serialize({ includeId: true });
       assert.equal(serialized.data.relationships.message.data.id, 1);
       assert.equal(serialized.data.relationships.message.data.type, 'posts');
     });
@@ -290,20 +291,19 @@ test("The store can serialize a polymorphic belongsTo association", function(ass
 });
 
 test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function(assert) {
-  let done = assert.async();
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  var Group = DS.Model.extend({
+  let Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
 
-  var Person = DS.Model.extend({
+  let Person = DS.Model.extend({
     group: DS.belongsTo({ async: true })
   });
 
   env.registry.register('model:group', Group);
   env.registry.register('model:person', Person);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: '1',
@@ -323,7 +323,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
     assert.equal(relationship.type, 'group');
     assert.equal(relationship.key, 'group');
     assert.equal(link, "/people/1/group");
@@ -339,34 +339,32 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
         }
       }
     });
-  });
+  };
 
-  run(function() {
-    env.store.findRecord('person', 1).then(function(person) {
+  return run(() => {
+    return env.store.findRecord('person', 1).then(person => {
       return person.get('group');
-    }).then(function(group) {
+    }).then(group => {
       assert.ok(group instanceof Group, "A group object is loaded");
       assert.ok(group.get('id') === '1', 'It is the group we are expecting');
-      done();
     });
   });
 });
 
 test('A record with an async belongsTo relationship always returns a promise for that relationship', function(assert) {
-  let done = assert.async();
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  var Seat = DS.Model.extend({
+  let Seat = DS.Model.extend({
     person: DS.belongsTo('person', { async: false })
   });
 
-  var Person = DS.Model.extend({
+  let Person = DS.Model.extend({
     seat: DS.belongsTo('seat', { async: true })
   });
 
   env.registry.register('model:seat', Seat);
   env.registry.register('model:person', Person);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: '1',
@@ -386,18 +384,17 @@ test('A record with an async belongsTo relationship always returns a promise for
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({ data: { id: 1, type: 'seat' } });
-  });
+  };
 
-  run(function() {
-    env.store.findRecord('person', 1).then(function(person) {
-      person.get('seat').then(function(seat) {
+  return run(() => {
+    return env.store.findRecord('person', 1).then(person => {
+      return person.get('seat').then(seat => {
         // this assertion fails too
         // ok(seat.get('person') === person, 'parent relationship should be populated');
         seat.set('person', person);
         assert.ok(person.get('seat').then, 'seat should be a PromiseObject');
-        done();
       });
     });
   });
@@ -407,18 +404,18 @@ test("A record with an async belongsTo relationship returning null should resolv
   assert.expect(1);
 
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  var Group = DS.Model.extend({
+  let Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
 
-  var Person = DS.Model.extend({
+  let Person = DS.Model.extend({
     group: DS.belongsTo({ async: true })
   });
 
   env.registry.register('model:group', Group);
   env.registry.register('model:person', Person);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: '1',
@@ -438,33 +435,33 @@ test("A record with an async belongsTo relationship returning null should resolv
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = assert.wait(function(store, snapshot, link, relationship) {
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({ data: null });
-  });
+  };
 
-  env.store.findRecord('person', '1').then(assert.wait(function(person) {
+  return env.store.findRecord('person', '1').then(person => {
     return person.get('group');
-  })).then(assert.wait(function(group) {
+  }).then(group => {
     assert.ok(group === null, "group should be null");
-  }));
+  });
 });
 
 test("A record can be created with a resolved belongsTo promise", function(assert) {
   assert.expect(1);
 
   env.adapter.shouldBackgroundReloadRecord = () => false;
-  var Group = DS.Model.extend({
+  let Group = DS.Model.extend({
     people: DS.hasMany('person', { async: false })
   });
 
-  var Person = DS.Model.extend({
+  let Person = DS.Model.extend({
     group: DS.belongsTo({ async: true })
   });
 
   env.registry.register('model:group', Group);
   env.registry.register('model:person', Person);
 
-  run(function() {
+  run(() => {
     store.push({
       data: {
         id: 1,
@@ -473,58 +470,42 @@ test("A record can be created with a resolved belongsTo promise", function(asser
     });
   });
 
-  var groupPromise = store.findRecord('group', 1);
-  groupPromise.then(assert.wait(function(group) {
-    var person = env.store.createRecord('person', {
+  let groupPromise = store.findRecord('group', 1);
+  return groupPromise.then(group => {
+    let person = env.store.createRecord('person', {
       group: groupPromise
     });
     assert.equal(person.get('group.content'), group);
-  }));
+  });
 });
 
 test("polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
   assert.expect(1);
 
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  run(() => {
+    let igor = env.store.createRecord('user', { name: 'Igor' });
+    let post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
 
-  try {
-    run(function () {
-      var igor = env.store.createRecord('user', { name: 'Igor' });
-      var post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
+    igor.set('favouriteMessage', post);
 
-      igor.set('favouriteMessage', post);
-
-      assert.equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
-    });
-  } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
-  }
+    assert.equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
+  });
 });
 
 test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function(assert) {
   assert.expect(1);
-
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
-
-  try {
-    run(function () {
-      var message = env.store.createRecord('message', { id: 1 });
-      var comment = env.store.createRecord('comment', { id: 2, message: message });
-      assert.ok(comment instanceof Message, 'a comment is an instance of a message');
-    });
-
-  } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
-  }
+  run(() => {
+    let message = env.store.createRecord('message', { id: 1 });
+    let comment = env.store.createRecord('comment', { id: 2, message: message });
+    assert.ok(comment instanceof Message, 'a comment is an instance of a message');
+  });
 });
 
 test("relationshipsByName does not cache a factory", function(assert) {
 
   // The model is loaded up via a container. It has relationshipsByName
   // called on it.
-  var modelViaFirstFactory = store.modelFor('user');
+  let modelViaFirstFactory = store.modelFor('user');
   get(modelViaFirstFactory, 'relationshipsByName');
 
   // An app is reset, or the container otherwise destroyed.
@@ -542,26 +523,26 @@ test("relationshipsByName does not cache a factory", function(assert) {
   store = env.store;
 
   // relationshipsByName is called again.
-  var modelViaSecondFactory = store.modelFor('user');
-  var relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName');
-  var messageType           = relationshipsByName.get('messages').type;
+  let modelViaSecondFactory = store.modelFor('user');
+  let relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName');
+  let messageType           = relationshipsByName.get('messages').type;
 
   // A model is looked up in the store based on a string, via user input
-  var messageModelFromStore        = store.modelFor('message');
+  let messageModelFromStore        = store.modelFor('message');
   // And the model is lookup up internally via the relationship type
-  var messageModelFromRelationType = store.modelFor(messageType);
+  let messageModelFromRelationType = store.modelFor(messageType);
 
   assert.equal(messageModelFromRelationType, messageModelFromStore,
         "model factory based on relationship type matches the model based on store.modelFor");
 });
 
 test("relationshipsByName is cached in production", function(assert) {
-  var model = store.modelFor('user');
-  var oldTesting = Ember.testing;
+  let model = store.modelFor('user');
+  let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relationshipsByName = model.relationshipsByName;
-  var oldCacheable = relationshipsByName._cacheable;
+  let relationshipsByName = model.relationshipsByName;
+  let oldCacheable = relationshipsByName._cacheable;
   relationshipsByName._cacheable = true;
   Ember.testing = false;
   try {
@@ -574,12 +555,12 @@ test("relationshipsByName is cached in production", function(assert) {
 });
 
 test("relatedTypes is cached in production", function(assert) {
-  var model = store.modelFor('user');
-  var oldTesting = Ember.testing;
+  let model = store.modelFor('user');
+  let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relatedTypes = model.relatedTypes;
-  var oldCacheable = relatedTypes._cacheable;
+  let relatedTypes = model.relatedTypes;
+  let oldCacheable = relatedTypes._cacheable;
   relatedTypes._cacheable = true;
   Ember.testing = false;
   try {
@@ -592,12 +573,12 @@ test("relatedTypes is cached in production", function(assert) {
 });
 
 test("relationships is cached in production", function(assert) {
-  var model = store.modelFor('user');
-  var oldTesting = Ember.testing;
+  let model = store.modelFor('user');
+  let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var relationships = model.relationships;
-  var oldCacheable = relationships._cacheable;
+  let relationships = model.relationships;
+  let oldCacheable = relationships._cacheable;
   relationships._cacheable = true;
   Ember.testing = false;
   try {
@@ -635,8 +616,8 @@ test("relationship changes shouldn’t cause async fetches", function(assert) {
   env.store.modelFor('comment').reopen({
     post: DS.belongsTo('post', { async: false })
   });
-  var comment;
-  run(function() {
+  let comment;
+  run(() => {
     env.store.push({
       data: {
         id: '1',
@@ -689,7 +670,7 @@ test("relationship changes shouldn’t cause async fetches", function(assert) {
 
 test("Destroying a record with an unloaded aync belongsTo association does not fetch the record", function(assert) {
   assert.expect(2);
-  var post;
+  let post;
 
   env.store.modelFor('message').reopen({
     user: DS.hasMany('user', {
@@ -704,7 +685,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     })
   });
 
-  run(function() {
+  run(() => {
     post = env.store.push({
       data: {
         id: '1',
@@ -752,8 +733,8 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
 });
 
 testInDebug("A sync belongsTo errors out if the record is unlaoded", function(assert) {
-  var message;
-  run(function() {
+  let message;
+  run(() => {
     message = env.store.push({
       data: {
         id: '1',
@@ -771,7 +752,7 @@ testInDebug("A sync belongsTo errors out if the record is unlaoded", function(as
 
   });
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     message.get('user');
   }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
 });
@@ -780,8 +761,8 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
   });
-  var book, author;
-  run(function() {
+  let book, author;
+  run(() => {
     book = env.store.push({
       data: {
         id: '1',
@@ -810,18 +791,20 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
     });
 
   });
-  run(function() {
+  return run(() => {
     author.deleteRecord();
     author.rollbackAttributes();
-    book.get('author').then(function(fetchedAuthor) {
+
+    return book.get('author').then(fetchedAuthor => {
       assert.equal(fetchedAuthor, author, 'Book has an author after rollback attributes');
     });
   });
 });
 
 test("Rollbacking attributes for a deleted record restores implicit relationship - sync", function(assert) {
-  var book, author;
-  run(function() {
+  let book, author;
+
+  run(() => {
     book = env.store.push({
       data: {
         id: '1',
@@ -839,6 +822,7 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
         }
       }
     });
+
     author = env.store.push({
       data: {
         id: '2',
@@ -848,19 +832,20 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
         }
       }
     });
-
   });
-  run(function() {
+
+  run(() =>{
     author.deleteRecord();
     author.rollbackAttributes();
   });
+
   assert.equal(book.get('author'), author, 'Book has an author after rollback attributes');
 });
 
 testInDebug("Passing a model as type to belongsTo should not work", function(assert) {
   assert.expect(1);
 
-  assert.expectAssertion(function() {
+  assert.expectAssertion(() => {
     User = DS.Model.extend();
 
     DS.Model.extend({
@@ -889,9 +874,9 @@ test("belongsTo hasData async loaded", function(assert) {
     });
   };
 
-  run(function() {
-    store.findRecord('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships.get('author');
+  return run(() => {
+    return store.findRecord('book', 1).then(book => {
+      let relationship = book._internalModel._relationships.get('author');
       assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -913,9 +898,9 @@ test("belongsTo hasData sync loaded", function(assert) {
     });
   };
 
-  run(function() {
-    store.findRecord('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships.get('author');
+  return run(() => {
+    return store.findRecord('book', 1).then(book => {
+      let relationship = book._internalModel._relationships.get('author');
       assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -941,9 +926,9 @@ test("belongsTo hasData async not loaded", function(assert) {
     });
   };
 
-  run(function() {
-    store.findRecord('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships.get('author');
+  return run(() => {
+    return store.findRecord('book', 1).then(book => {
+      let relationship = book._internalModel._relationships.get('author');
       assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -962,9 +947,9 @@ test("belongsTo hasData sync not loaded", function(assert) {
     });
   }
 
-  run(function() {
-    store.findRecord('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships.get('author');
+  return run(() => {
+    return store.findRecord('book', 1).then(book => {
+      let relationship = book._internalModel._relationships.get('author');
       assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -977,9 +962,9 @@ test("belongsTo hasData async created", function(assert) {
     author: belongsTo('author', { async: true })
   });
 
-  run(function() {
-    var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._internalModel._relationships.get('author');
+  run(() => {
+    let book = store.createRecord('book', { name: 'The Greatest Book' });
+    let relationship = book._internalModel._relationships.get('author');
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -987,16 +972,17 @@ test("belongsTo hasData async created", function(assert) {
 test("belongsTo hasData sync created", function(assert) {
   assert.expect(1);
 
-  run(function() {
-    var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._internalModel._relationships.get('author');
+  run(() => {
+    let book = store.createRecord('book', { name: 'The Greatest Book' });
+    let relationship = book._internalModel._relationships.get('author');
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
 
 test("Model's belongsTo relationship should not be created during model creation", function(assert) {
-  var user;
-  run(function () {
+  let user;
+
+  run(() => {
     user = env.store.push({
       data: {
         id: '1',
@@ -1009,8 +995,9 @@ test("Model's belongsTo relationship should not be created during model creation
 });
 
 test("Model's belongsTo relationship should be created during model creation if relationship passed in constructor", function(assert) {
-  var user, message;
-  run(function () {
+  let user, message;
+
+  run(() => {
     message = env.store.createRecord('message');
     user = env.store.createRecord('user', {
       name: 'John Doe',
@@ -1021,8 +1008,9 @@ test("Model's belongsTo relationship should be created during model creation if 
 });
 
 test("Model's belongsTo relationship should be created during 'set' method", function(assert) {
-  var user, message;
-  run(function () {
+  let user, message;
+
+  run(() => {
     message = env.store.createRecord('message');
     user = env.store.createRecord('user');
     user.set('favouriteMessage', message);
@@ -1031,8 +1019,9 @@ test("Model's belongsTo relationship should be created during 'set' method", fun
 });
 
 test("Model's belongsTo relationship should be created during 'get' method", function(assert) {
-  var user;
-  run(function () {
+  let user;
+
+  run(() => {
     user = env.store.createRecord('user');
     user.get('favouriteMessage');
     assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
@@ -1058,7 +1047,7 @@ test("Related link should be fetched when no local data is present", function(as
     });
   };
 
-  run(function() {
+  return run(() => {
     let book = env.store.push({
       data: {
         type: 'book',
@@ -1072,7 +1061,8 @@ test("Related link should be fetched when no local data is present", function(as
         }
       }
     });
-    book.get('author').then((author) => {
+
+    return book.get('author').then(author => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
     });
   });
@@ -1099,7 +1089,7 @@ test("Local data should take precedence over related link", function(assert) {
     });
   };
 
-  run(function() {
+  return run(() => {
     let book = env.store.push({
       data: {
         type: 'book',
@@ -1114,7 +1104,8 @@ test("Local data should take precedence over related link", function(assert) {
         }
       }
     });
-    book.get('author').then((author) => {
+
+    return book.get('author').then(author => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
     });
   });
@@ -1143,7 +1134,7 @@ test("New related link should take precedence over local data", function(assert)
     assert.ok(false, "The adapter's findRecord method should not be called");
   };
 
-  run(function() {
+  return run(() => {
     let book = env.store.push({
       data: {
         type: 'book',
@@ -1202,7 +1193,7 @@ test("Updated related link should take precedence over local data", function(ass
     assert.ok(false, "The adapter's findRecord method should not be called");
   };
 
-  run(function() {
+  return run(() => {
     let book = env.store.push({
       data: {
         type: 'book',
@@ -1225,26 +1216,26 @@ test("Updated related link should take precedence over local data", function(ass
       }]
     });
 
-    book.get('author').then((author) => {
+    return book.get('author').then((author) => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
-    });
-
-    env.store.push({
-      data: {
-        type: 'book',
-        id: '1',
-        relationships: {
-          author: {
-            links: {
-              related: 'author-updated-link'
+    }).then(() => {
+      env.store.push({
+        data: {
+          type: 'book',
+          id: '1',
+          relationships: {
+            author: {
+              links: {
+                related: 'author-updated-link'
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    book.get('author').then((author) => {
-      assert.equal(author.get('name'), 'This is updated author', 'author name is correct');
+      return book.get('author').then((author) => {
+        assert.equal(author.get('name'), 'This is updated author', 'author name is correct');
+      });
     });
   });
 });
@@ -1264,7 +1255,7 @@ test("Updated identical related link should not take precedence over local data"
     assert.ok(false, "The adapter's findRecord method should not be called");
   };
 
-  run(function() {
+  return run(() => {
     let book = env.store.push({
       data: {
         type: 'book',
@@ -1287,33 +1278,32 @@ test("Updated identical related link should not take precedence over local data"
       }]
     });
 
-    book.get('author').then((author) => {
+    return book.get('author').then((author) => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
-    });
+    }).then(() => {
 
-    env.store.push({
-      data: {
-        type: 'book',
-        id: '1',
-        relationships: {
-          author: {
-            links: {
-              related: 'author'
+      env.store.push({
+        data: {
+          type: 'book',
+          id: '1',
+          relationships: {
+            author: {
+              links: {
+                related: 'author'
+              }
             }
           }
         }
-      }
-    });
+      });
 
-    book.get('author').then((author) => {
-      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+      return book.get('author').then((author) => {
+        assert.equal(author.get('name'), 'This is author', 'author name is correct');
+      });
     });
   });
 });
 
 test("A belongsTo relationship can be reloaded using the reference if it was fetched via link", function(assert) {
-  var done = assert.async();
-
   Chapter.reopen({
     book: DS.belongsTo({ async: true })
   });
@@ -1342,13 +1332,14 @@ test("A belongsTo relationship can be reloaded using the reference if it was fet
     });
   };
 
-  run(function() {
-    var chapter;
-    store.findRecord('chapter', 1).then(function(_chapter) {
+  return run(() => {
+    let chapter;
+
+    return store.findRecord('chapter', 1).then(_chapter => {
       chapter = _chapter;
 
       return chapter.get('book');
-    }).then(function(book) {
+    }).then(book =>  {
       assert.equal(book.get('name'), "book title");
 
       env.adapter.findBelongsTo = function() {
@@ -1362,23 +1353,19 @@ test("A belongsTo relationship can be reloaded using the reference if it was fet
       };
 
       return chapter.belongsTo('book').reload();
-    }).then(function(book) {
+    }).then(book => {
       assert.equal(book.get('name'), "updated book title");
-
-      done();
     });
   });
 });
 
 test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
-  var done = assert.async();
-
   Chapter.reopen({
     book: DS.belongsTo()
   });
 
-  var chapter;
-  run(function() {
+  let chapter;
+  run(() => {
     chapter = env.store.push({
       data: {
         type: 'chapter',
@@ -1411,27 +1398,23 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
     });
   };
 
-  run(function() {
-    var book = chapter.get('book');
+  return run(() => {
+    let book = chapter.get('book');
     assert.equal(book.get('name'), "book title");
 
-    chapter.belongsTo('book').reload().then(function(book) {
+    return chapter.belongsTo('book').reload().then(function(book) {
       assert.equal(book.get('name'), "updated book title");
-
-      done();
     });
   });
 });
 
 test("A belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
-  var done = assert.async();
-
   Chapter.reopen({
     book: DS.belongsTo({ async: true })
   });
 
-  var chapter;
-  run(function() {
+  let chapter;
+  run(() => {
     chapter = env.store.push({
       data: {
         type: 'chapter',
@@ -1455,8 +1438,8 @@ test("A belongsTo relationship can be reloaded using a reference if it was fetch
     });
   };
 
-  run(function() {
-    chapter.get('book').then(function(book) {
+  return run(() => {
+    return chapter.get('book').then(book => {
       assert.equal(book.get('name'), "book title");
 
       env.adapter.findRecord = function() {
@@ -1470,17 +1453,15 @@ test("A belongsTo relationship can be reloaded using a reference if it was fetch
       };
 
       return chapter.belongsTo('book').reload();
-    }).then(function(book) {
+    }).then(book => {
       assert.equal(book.get('name'), "updated book title");
-
-      done();
     });
   });
 });
 
 testInDebug("A belongsTo relationship warns if malformatted data is pushed into the store", function(assert) {
-  assert.expectAssertion(function() {
-    run(function() {
+  assert.expectAssertion(() => {
+    run(() => {
       let chapter = env.store.push({
         data: {
           type: 'chapter',

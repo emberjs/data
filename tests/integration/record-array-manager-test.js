@@ -35,12 +35,12 @@ module('integration/record_array_manager', {
 });
 
 function tap(obj, methodName, callback) {
-  var old = obj[methodName];
+  let old = obj[methodName];
 
-  var summary = { called: [] };
+  let summary = { called: [] };
 
   obj[methodName] = function() {
-    var result = old.apply(obj, arguments);
+    let result = old.apply(obj, arguments);
     if (callback) {
       callback.apply(obj, arguments);
     }

@@ -7,12 +7,12 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 
-var env, store, adapter;
-var passedUrl, passedVerb, passedHash;
+let env, store, adapter;
+let passedUrl, passedVerb, passedHash;
 
-var run = Ember.run;
+const { run } = Ember;
 
-var User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
+let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
   beforeEach() {
@@ -84,8 +84,8 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
 });
 
 function ajaxResponse(responses) {
-  var counter = 0;
-  var index;
+  let counter = 0;
+  let index;
 
   passedUrl = [];
   passedVerb = [];
@@ -127,8 +127,8 @@ test('find a single record', function(assert) {
     }
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
@@ -192,8 +192,8 @@ test('find all records with sideloaded relationships', function(assert) {
     }]
   }]);
 
-  run(function() {
-    store.findAll('post').then(function(posts) {
+  return run(() => {
+    return store.findAll('post').then(posts => {
       assert.equal(passedUrl[0], '/posts');
 
       assert.equal(posts.get('length'), '2');
@@ -224,8 +224,8 @@ test('find many records', function(assert) {
     }]
   }]);
 
-  run(function() {
-    store.query('post', { filter: { id: 1 } }).then(function(posts) {
+  return run(() => {
+    return store.query('post', { filter: { id: 1 } }).then(posts => {
       assert.equal(passedUrl[0], '/posts');
       assert.deepEqual(passedHash[0], { data: { filter: { id: 1 } } });
 
@@ -246,8 +246,8 @@ test('queryRecord - primary data being a single record', function(assert) {
     }
   }]);
 
-  run(function() {
-    store.queryRecord('post', {}).then(function(post) {
+  return run(() => {
+    return store.queryRecord('post', {}).then(post => {
       assert.equal(passedUrl[0], '/posts');
 
       assert.equal(post.get('title'), 'Ember.js rocks');
@@ -260,8 +260,8 @@ test('queryRecord - primary data being null', function(assert) {
     data: null
   }]);
 
-  run(function() {
-    store.queryRecord('post', {}).then(function(post) {
+  return run(() => {
+    return store.queryRecord('post', {}).then(post => {
       assert.equal(passedUrl[0], '/posts');
 
       assert.strictEqual(post, null);
@@ -277,10 +277,8 @@ testInDebug('queryRecord - primary data being an array throws an assertion', fun
     }]
   }]);
 
-  assert.expectAssertion(function() {
-    run(function() {
-      store.queryRecord('post', {});
-    });
+  assert.expectAssertion(() => {
+    run(() => store.queryRecord('post', {}));
   }, "Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.");
 });
 
@@ -313,14 +311,14 @@ test('find a single record with belongsTo link as object { related }', function(
     }
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('author').then(function(author) {
+      return post.get('author').then(author => {
         assert.equal(passedUrl[1], 'http://example.com/user/2');
 
         assert.equal(author.get('id'), '2');
@@ -358,14 +356,14 @@ test('find a single record with belongsTo link as object { data }', function(ass
     }
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('author').then(function(author) {
+      return post.get('author').then(author => {
         assert.equal(passedUrl[1], '/users/2');
 
         assert.equal(author.get('id'), '2');
@@ -404,15 +402,15 @@ test('find a single record with belongsTo link as object { data } (polymorphic)'
     }
   }]);
 
-  run(function() {
-    store.findRecord('user', 1).then(function(user) {
+  return run(() => {
+    return store.findRecord('user', 1).then(user => {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
       assert.equal(user.get('firstName'), 'Yehuda');
       assert.equal(user.get('lastName'), 'Katz');
 
-      user.get('company').then(function(company) {
+      return user.get('company').then(company => {
         assert.equal(passedUrl[1], '/development-shops/2');
 
         assert.equal(company.get('id'), '2');
@@ -449,15 +447,14 @@ test('find a single record with sideloaded belongsTo link as object { data }', f
     }]
   }]);
 
-  run(function() {
-
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('author').then(function(author) {
+      return post.get('author').then(author => {
         assert.equal(passedUrl.length, 1);
 
         assert.equal(author.get('id'), '2');
@@ -502,14 +499,14 @@ test('find a single record with hasMany link as object { related }', function(as
     }]
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('comments').then(function(comments) {
+      return post.get('comments').then(comments => {
         assert.equal(passedUrl[1], 'http://example.com/post/1/comments');
 
         assert.equal(comments.get('length'), 2);
@@ -557,14 +554,14 @@ test('find a single record with hasMany link as object { data }', function(asser
     }
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('comments').then(function(comments) {
+      return post.get('comments').then(comments => {
         assert.equal(passedUrl[1], '/comments/2');
         assert.equal(passedUrl[2], '/comments/3');
 
@@ -614,15 +611,15 @@ test('find a single record with hasMany link as object { data } (polymorphic)', 
     }
   }]);
 
-  run(function() {
-    store.findRecord('user', 1).then(function(user) {
+  return run(() => {
+    return store.findRecord('user', 1).then(user => {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
       assert.equal(user.get('firstName'), 'Yehuda');
       assert.equal(user.get('lastName'), 'Katz');
 
-      user.get('handles').then(function(handles) {
+      return user.get('handles').then(handles => {
         assert.equal(passedUrl[1], '/github-handles/2');
         assert.equal(passedUrl[2], '/twitter-handles/3');
 
@@ -668,14 +665,14 @@ test('find a single record with sideloaded hasMany link as object { data }', fun
     }]
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
-      post.get('comments').then(function(comments) {
+      return post.get('comments').then(comments => {
         assert.equal(passedUrl.length, 1);
 
         assert.equal(comments.get('length'), 2);
@@ -721,15 +718,15 @@ test('find a single record with sideloaded hasMany link as object { data } (poly
     }]
   }]);
 
-  run(function() {
-    store.findRecord('user', 1).then(function(user) {
+  return run(() => {
+    return store.findRecord('user', 1).then(user => {
       assert.equal(passedUrl[0], '/users/1');
 
       assert.equal(user.get('id'), '1');
       assert.equal(user.get('firstName'), 'Yehuda');
       assert.equal(user.get('lastName'), 'Katz');
 
-      user.get('handles').then(function(handles) {
+      return user.get('handles').then(handles => {
         assert.equal(passedUrl.length, 1);
 
         assert.equal(handles.get('length'), 2);
@@ -750,9 +747,9 @@ test('create record', function(assert) {
     }
   }]);
 
-  run(function() {
+  return run(() => {
 
-    var company = store.push({ data: {
+    let company = store.push({ data: {
       type: 'company',
       id: '1',
       attributes: {
@@ -760,7 +757,7 @@ test('create record', function(assert) {
       }
     } });
 
-    var githubHandle = store.push({ data: {
+    let githubHandle = store.push({ data: {
       type: 'github-handle',
       id: '2',
       attributes: {
@@ -768,16 +765,16 @@ test('create record', function(assert) {
       }
     } });
 
-    var user = store.createRecord('user', {
+    let user = store.createRecord('user', {
       firstName: 'Yehuda',
       lastName: 'Katz',
       company: company
     });
 
-    user.get('handles').then(function(handles) {
+    return user.get('handles').then(handles => {
       handles.addObject(githubHandle);
 
-      user.save().then(function() {
+      return user.save().then(() => {
         assert.equal(passedUrl[0], '/users');
         assert.equal(passedVerb[0], 'POST');
         assert.deepEqual(passedHash[0], {
@@ -811,8 +808,8 @@ test('update record', function(assert) {
     }
   }]);
 
-  run(function() {
-    var user = store.push({ data: {
+  return run(() => {
+    let user = store.push({ data: {
       type: 'user',
       id: '1',
       attributes: {
@@ -821,7 +818,7 @@ test('update record', function(assert) {
       }
     } });
 
-    var company = store.push({ data: {
+    let company = store.push({ data: {
       type: 'company',
       id: '2',
       attributes: {
@@ -829,7 +826,7 @@ test('update record', function(assert) {
       }
     } });
 
-    var githubHandle = store.push({ data: {
+    let githubHandle = store.push({ data: {
       type: 'github-handle',
       id: '3',
       attributes: {
@@ -840,10 +837,10 @@ test('update record', function(assert) {
     user.set('firstName', 'Yehuda!');
     user.set('company', company);
 
-    user.get('handles').then(function(handles) {
+    return user.get('handles').then(handles => {
       handles.addObject(githubHandle);
 
-      user.save().then(function() {
+      return user.save().then(() => {
         assert.equal(passedUrl[0], '/users/1');
         assert.equal(passedVerb[0], 'PATCH');
         assert.deepEqual(passedHash[0], {
@@ -864,7 +861,6 @@ test('update record', function(assert) {
           }
         });
       });
-
     });
   });
 });
@@ -885,8 +881,8 @@ test('update record - serialize hasMany', function(assert) {
     }
   }));
 
-  run(function() {
-    var user = store.push({ data: {
+  return run(() => {
+    let user = store.push({ data: {
       type: 'user',
       id: '1',
       attributes: {
@@ -895,7 +891,7 @@ test('update record - serialize hasMany', function(assert) {
       }
     } });
 
-    var githubHandle = store.push({ data: {
+    let githubHandle = store.push({ data: {
       type: 'github-handle',
       id: '2',
       attributes: {
@@ -903,7 +899,7 @@ test('update record - serialize hasMany', function(assert) {
       }
     } });
 
-    var twitterHandle = store.push({ data: {
+    let twitterHandle = store.push({ data: {
       type: 'twitter-handle',
       id: '3',
       attributes: {
@@ -913,11 +909,11 @@ test('update record - serialize hasMany', function(assert) {
 
     user.set('firstName', 'Yehuda!');
 
-    user.get('handles').then(function(handles) {
+    return user.get('handles').then(handles => {
       handles.addObject(githubHandle);
       handles.addObject(twitterHandle);
 
-      user.save().then(function() {
+      return user.save().then(() => {
         assert.equal(passedUrl[0], '/users/1');
         assert.equal(passedVerb[0], 'PATCH');
         assert.deepEqual(passedHash[0], {
@@ -941,7 +937,6 @@ test('update record - serialize hasMany', function(assert) {
           }
         });
       });
-
     });
   });
 });
@@ -968,12 +963,11 @@ test('fetching a belongsTo relationship link that returns null', function(assert
     data: null
   }]);
 
-  run(function() {
-    store.findRecord('post', 1).then(function(post) {
+  return run(() => {
+    return store.findRecord('post', 1).then(post => {
       assert.equal(passedUrl[0], '/posts/1');
       return post.get('author');
-
-    }).then(function(author) {
+    }).then(author => {
       assert.equal(passedUrl[1], 'http://example.com/post/1/author');
       assert.equal(author, null);
     });
