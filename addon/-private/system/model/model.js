@@ -1118,8 +1118,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
   notifyHasManyRemoved(key) {
     // We need to notifyPropertyChange in the removing case to flush ui state
     //  Goes away if we remove/improve the outer PromiseProxy on async relationships
-    // this.notifyPropertyChange(key);
-    this.notifyPropertyChange(`${key}.length`);
+    //  Notifying `${key}.length` does not work here
+    this.get(key).notifyPropertyChange('length');
   },
 
   eachAttribute(callback, binding) {

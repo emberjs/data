@@ -128,6 +128,7 @@ export default class ManyRelationship extends Relationship {
 
       if (idx !== -1) {
         currentState.splice(idx, 1);
+
         manyArray.set('length', currentState.length);
         manyArray.notifyPropertyChange('length');
 
