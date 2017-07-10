@@ -266,6 +266,31 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
+  unloadInverseInternalModel(internalModel) {
+    this.unloadInverseInternalModelFromOwn(internalModel);
+    this.unloadInverseInternalModelFromInverses(internalModel);
+  }
+
+  unloadInverseInternalModelFromOwn(internalModel) {
+    this.canonicalMembers.delete(internalModel);
+    this.members.delete(internalModel);
+    this.notifyRecordRelationshipRemoved(internalModel);
+  }
+
+  unloadInverseInternalModelFromInverses(internalModel) {
+    if (!this.inverseKey) { return; }
+
+    let allMembers =
+      // we actually want a union of members and canonicalMembers
+      // they should be disjoint but currently are not due to a bug
+      this.members.toArray().concat(this.canonicalMembers.toArray());
+
+    allMembers.forEach(inverseInternalModel => {
+      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
+      relationship.unloadInverseInternalModelFromOwn(internalModel);
+    });
+  }
+
   flushCanonical() {
     heimdall.increment(flushCanonical);
     let list = this.members.list;

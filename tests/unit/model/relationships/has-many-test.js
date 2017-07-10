@@ -906,6 +906,100 @@ test('it is possible to add a new item to a relationship', function(assert) {
   });
 });
 
+
+test('new items added to a relationship are not cleared by a delete', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany('pet', { async: false, inverse: null })
+  });
+
+  const Pet = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false, inverse: null })
+  });
+
+  let env = setupStore({
+    person: Person,
+    pet: Pet
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  const pets = run(() => person.get('pets'));
+
+  const shen = pets.objectAt(0);
+  const rambo = store.peekRecord('pet', '2');
+  const rebel = store.peekRecord('pet', '3');
+
+  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.equal(get(pets, 'length'), 1, 'precond - relationship has only one pet to start');
+
+  run(() => {
+    pets.pushObjects([rambo, rebel]);
+  });
+
+  assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
+
+  run(() => {
+    shen.destroyRecord({})
+      .then(() => {
+        shen.unloadRecord();
+      });
+  });
+
+  assert.equal(get(pets, 'length'), 2, 'relationship now has two pets');
+});
+
+
 test('possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)', function(assert) {
   assert.expect(2);
 

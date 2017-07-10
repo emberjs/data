@@ -715,7 +715,7 @@ export default class InternalModel {
     heimdall.increment(send);
     let currentState = this.currentState;
 
-    if (!currentState[name]) {
+    if (typeof currentState[name] !== 'function') {
       this._unhandledEvent(currentState, name, context);
     }
 
@@ -768,7 +768,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.clearRelationships();
+      this.clearRelationships(true);
     }
 
     if (this.isValid()) {
@@ -885,17 +885,28 @@ export default class InternalModel {
     @method clearRelationships
     @private
   */
-  clearRelationships() {
+  clearRelationships(resetAll = false) {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
-        rel.clear();
-        rel.removeInverseRelationships();
+
+        if (resetAll === true) {
+          rel.clear();
+          rel.removeInverseRelationships();
+        } else {
+          rel.unloadInverseInternalModel(this);
+        }
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
-      this._implicitRelationships[key].clear();
-      this._implicitRelationships[key].removeInverseRelationships();
+      let rel = this._implicitRelationships[key];
+
+      if (resetAll === true) {
+        rel.clear();
+        rel.removeInverseRelationships();
+      } else {
+        rel.unloadInverseInternalModel(this);
+      }
     });
   }
 

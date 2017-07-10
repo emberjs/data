@@ -2520,7 +2520,9 @@ test("adding and removing records from hasMany relationship #2666", function(ass
         return comments.get('lastObject').destroyRecord();
       }).then(() => {
         let comments = post.get('comments');
-        assert.equal(comments.get('length'), 3, "Comments count after destroy");
+        let length = comments.get('length');
+
+        assert.equal(length, 3, "Comments count after destroy");
 
         // Add another comment #4
         let comment = env.store.createRecord('comment');

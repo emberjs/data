@@ -63,6 +63,25 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
+  unloadInverseInternalModelFromOwn(internalModel) {
+    super.unloadInverseInternalModelFromOwn(internalModel);
+    let didChange = false;
+
+    if (this.canonicalState === internalModel) {
+      this.canonicalState = null;
+      didChange = true;
+    }
+
+    if (this.inverseInternalModel === internalModel) {
+      this.inverseInternalModel = this.canonicalState;
+      didChange = true;
+    }
+
+    if (didChange === true) {
+      this.notifyBelongsToChanged();
+    }
+  }
+
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
