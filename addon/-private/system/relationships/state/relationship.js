@@ -2,6 +2,9 @@
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
+import Ember from 'ember';
+
+const { guidFor } = Ember;
 
 const {
   addCanonicalInternalModel,
@@ -269,15 +272,22 @@ export default class Relationship {
   unloadDeletedInverseInternalModel(internalModel) {
     if (!this.inverseKey) { return; }
 
-    let allMembers =
-      // we actually want a union of members and canonicalMembers
-      // they should be disjoint but currently are not due to a bug
-      this.members.toArray().concat(this.canonicalMembers.toArray());
+    // we actually want a union of members and canonicalMembers
+    // they should be disjoint but currently are not due to a bug
+    let seen = Object.create(null);
 
-    allMembers.forEach(inverseInternalModel => {
-      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
-      relationship.unloadDeletedInverseInternalModelFromOwn(internalModel);
-    });
+    const unload = inverseInternalModel => {
+      const id = guidFor(inverseInternalModel);
+
+      if (seen[id] === undefined) {
+        const relationship = inverseInternalModel._relationships.get(this.inverseKey);
+        relationship.unloadInverseInternalModelFromOwn(internalModel);
+        seen[id] = true;
+      }
+    };
+
+    this.members.forEach(unload);
+    this.canonicalMembers(unload);
   }
 
   unloadDeletedInverseInternalModelFromOwn(internalModel) {
