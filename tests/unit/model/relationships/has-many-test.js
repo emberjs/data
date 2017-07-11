@@ -980,13 +980,13 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   const rebel = store.peekRecord('pet', '3');
 
   assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-  assert.equal(get(pets, 'length'), 1, 'precond - relationship has only one pet to start');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
 
   run(() => {
     pets.pushObjects([rambo, rebel]);
   });
 
-  assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
 
   run(() => {
     return shen.destroyRecord({})
@@ -995,7 +995,7 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
       });
   });
 
-  assert.equal(get(pets, 'length'), 2, 'relationship now has two pets');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
 });
 
 test('new items added to an async hasMany relationship are not cleared by a delete', function(assert) {
@@ -1074,19 +1074,19 @@ test('new items added to an async hasMany relationship are not cleared by a dele
       const rebel = store.peekRecord('pet', '3');
 
       assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-      assert.equal(get(pets, 'length'), 1, 'precond - relationship has only one pet to start');
+      assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pet to start');
       assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
 
       pets.pushObjects([rambo, rebel]);
 
-      assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
+      assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
       assert.equal(get(petsProxy, 'length'), 3, 'precond2 - proxy now reflects three pets');
 
       return shen.destroyRecord({})
         .then(() => {
           shen.unloadRecord();
 
-          assert.equal(get(pets, 'length'), 2, 'relationship now has two pets');
+          assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
           assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
         });
     });
@@ -1257,7 +1257,7 @@ test('new items added to an async belongsTo relationship are not cleared by a de
   });
 });
 
-test('deleting an item that is the current state of a belongsTo restores canonicalState', function(assert) {
+test('deleting an item that is the current state of a belongsTo clears currentState', function(assert) {
   assert.expect(4);
 
   const Person = DS.Model.extend({
@@ -1334,7 +1334,7 @@ test('deleting an item that is the current state of a belongsTo restores canonic
         rambo.unloadRecord();
 
         dog = person.get('dog');
-        assert.equal(dog, shen, 'The canonical state of the belongsTo was restored after the delete');
+        assert.equal(dog, null, 'The current state of the belongsTo was clearer');
       });
   });
 });
@@ -1348,8 +1348,8 @@ test('deleting an item that is the current state of a belongsTo restores canonic
   the parent record's hasMany is a situation in which this limitation will be encountered should other
   local changes to the relationship still exist.
  */
-test('returning new hasMany relationship info from a delete supplements local state', function(assert) {
-  assert.expect(5);
+test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state', function(assert) {
+  assert.expect(4);
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
@@ -1437,17 +1437,16 @@ test('returning new hasMany relationship info from a delete supplements local st
   const pets = run(() => person.get('pets'));
 
   const shen = store.peekRecord('pet', '1');
-  const rambo = store.peekRecord('pet', '2');
   const rebel = store.peekRecord('pet', '3');
 
   assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-  assert.equal(get(pets, 'length'), 2, 'precond - relationship has only one pet to start');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
 
   run(() => {
     pets.pushObjects([rebel]);
   });
 
-  assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
 
   return run(() => {
     return shen.destroyRecord({})
@@ -1455,8 +1454,7 @@ test('returning new hasMany relationship info from a delete supplements local st
         shen.unloadRecord();
 
         // were ember-data to now preserve local edits during a relationship push, this would be '2'
-        assert.equal(get(pets, 'length'), 1, 'relationship now has one pet');
-        assert.equal(pets.objectAt(0), rambo, 'the expected pet remains');
+        assert.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has only one pet, we lost the local change');
       });
   });
 });

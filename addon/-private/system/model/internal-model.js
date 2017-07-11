@@ -913,13 +913,13 @@ export default class InternalModel {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
 
-        rel.removeDeletedInternalModelFromInverse(this);
+        rel.removeDeletedInternalModelFromInverse();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
-      rel.removeDeletedInternalModelFromInverse(this);
+      rel.removeDeletedInternalModelFromInverse();
     });
   }
 
