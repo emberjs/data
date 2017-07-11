@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.15.0-beta.2 (July 11, 2017)
+- [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+
 ### Release 2.15.0-beta.1 (June 18, 2017)
 - [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
 - [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
