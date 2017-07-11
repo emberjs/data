@@ -370,7 +370,9 @@ Store = Service.extend({
 
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {
-      internalModel._relationships.get(key).setHasData(true);
+      if (properties[key] !== undefined) {
+        internalModel._relationships.get(key).setHasData(true);
+      }
     });
 
     return record;

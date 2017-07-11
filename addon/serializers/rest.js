@@ -54,7 +54,7 @@ let camelize = Ember.String.camelize;
   @namespace DS
   @extends DS.JSONSerializer
 */
-let RESTSerializer = JSONSerializer.extend({
+const RESTSerializer = JSONSerializer.extend({
 
   /**
    `keyForPolymorphicType` can be used to define a custom key when
