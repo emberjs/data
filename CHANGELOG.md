@@ -4,6 +4,12 @@
 
 ### Master
 
+### Release 2.14.4 (July 11, 2017)
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+
+### Release 2.14.3 (June 22, 2017)
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+
 ### Release 2.14.2 (June 19, 2017)
 - [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
 
