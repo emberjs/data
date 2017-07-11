@@ -269,7 +269,15 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
-  unloadDeletedInverseInternalModel(internalModel) {
+  /*
+    Call this method once a record deletion has been persisted
+    to purge it from both current and canonical state of all
+    relationships.
+
+    @method removeDeletedInternalModelFromInverse
+    @private
+   */
+  removeDeletedInternalModelFromInverse(internalModel) {
     if (!this.inverseKey) { return; }
 
     // we actually want a union of members and canonicalMembers
@@ -281,7 +289,7 @@ export default class Relationship {
 
       if (seen[id] === undefined) {
         const relationship = inverseInternalModel._relationships.get(this.inverseKey);
-        relationship.unloadDeletedInverseInternalModelFromOwn(internalModel);
+        relationship.removeDeletedInternalModelFromOwn(internalModel);
         seen[id] = true;
       }
     };
@@ -290,7 +298,7 @@ export default class Relationship {
     this.canonicalMembers.forEach(unload);
   }
 
-  unloadDeletedInverseInternalModelFromOwn(internalModel) {
+  removeDeletedInternalModelFromOwn(internalModel) {
     this.canonicalMembers.delete(internalModel);
     this.members.delete(internalModel);
     this.notifyRecordRelationshipRemoved(internalModel);

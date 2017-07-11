@@ -111,8 +111,8 @@ export default class ManyRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
   }
 
-  unloadDeletedInverseInternalModelFromOwn(internalModel) {
-    super.unloadDeletedInverseInternalModelFromOwn(internalModel);
+  removeDeletedInternalModelFromOwn(internalModel) {
+    super.removeDeletedInternalModelFromOwn(internalModel);
 
     const canonicalIndex = this.canonicalState.indexOf(internalModel);
 

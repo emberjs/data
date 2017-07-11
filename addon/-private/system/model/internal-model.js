@@ -762,7 +762,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.clearRelationships();
+      this._resetAllRelationshipsToEmpty();
     }
 
     if (this.isValid()) {
@@ -876,10 +876,14 @@ export default class InternalModel {
   }
 
   /*
-    @method clearRelationships
+    This method should only be called by records in the `isNew()` state.
+    It will completely reset all relationships to an empty state and remove
+    the record from any associated inverses as well.
+
+    @method _resetAllRelationshipsToEmpty
     @private
   */
-  clearRelationships() {
+  _resetAllRelationshipsToEmpty() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
@@ -897,20 +901,25 @@ export default class InternalModel {
   }
 
   /*
+    This method should only be called once the record has been deleted
+    and that deletion has been persisted. It will remove this record from
+    any associated relationships.
+
     @method unloadDeletedRecordFromRelationships
+    @private
    */
   unloadDeletedRecordFromRelationships() {
     this.eachRelationship((name) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
 
-        rel.unloadDeletedInverseInternalModel(this);
+        rel.removeDeletedInternalModelFromInverse(this);
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
-      rel.unloadDeletedInverseInternalModel(this);
+      rel.removeDeletedInternalModelFromInverse(this);
     });
   }
 
