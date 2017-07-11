@@ -715,7 +715,7 @@ export default class InternalModel {
     heimdall.increment(send);
     let currentState = this.currentState;
 
-    if (typeof currentState[name] !== 'function') {
+    if (!currentState[name]) {
       this._unhandledEvent(currentState, name, context);
     }
 
@@ -725,12 +725,6 @@ export default class InternalModel {
   notifyHasManyAdded(key, record, idx) {
     if (this.hasRecord) {
       this._record.notifyHasManyAdded(key, record, idx);
-    }
-  }
-
-  notifyHasManyRemoved(key, record, idx) {
-    if (this.hasRecord) {
-      this._record.notifyHasManyRemoved(key, record, idx);
     }
   }
 
@@ -768,7 +762,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.clearRelationships(true);
+      this.clearRelationships();
     }
 
     if (this.isValid()) {
@@ -885,28 +879,38 @@ export default class InternalModel {
     @method clearRelationships
     @private
   */
-  clearRelationships(resetAll = false) {
+  clearRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
 
-        if (resetAll === true) {
-          rel.clear();
-          rel.removeInverseRelationships();
-        } else {
-          rel.unloadInverseInternalModel(this);
-        }
+        rel.clear();
+        rel.removeInverseRelationships();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
-      if (resetAll === true) {
-        rel.clear();
-        rel.removeInverseRelationships();
-      } else {
-        rel.unloadInverseInternalModel(this);
+      rel.clear();
+      rel.removeInverseRelationships();
+    });
+  }
+
+  /*
+    @method unloadDeletedRecordFromRelationships
+   */
+  unloadDeletedRecordFromRelationships() {
+    this.eachRelationship((name) => {
+      if (this._relationships.has(name)) {
+        let rel = this._relationships.get(name);
+
+        rel.unloadDeletedInverseInternalModel(this);
       }
+    });
+    Object.keys(this._implicitRelationships).forEach((key) => {
+      let rel = this._implicitRelationships[key];
+
+      rel.unloadDeletedInverseInternalModel(this);
     });
   }
 

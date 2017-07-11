@@ -111,8 +111,8 @@ export default class ManyRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
   }
 
-  unloadInverseInternalModelFromOwn(internalModel) {
-    super.unloadInverseInternalModelFromOwn(internalModel);
+  unloadDeletedInverseInternalModelFromOwn(internalModel) {
+    super.unloadDeletedInverseInternalModelFromOwn(internalModel);
 
     const canonicalIndex = this.canonicalState.indexOf(internalModel);
 
@@ -123,16 +123,10 @@ export default class ManyRelationship extends Relationship {
     const manyArray = this._manyArray;
 
     if (manyArray) {
-      const currentState = manyArray.currentState;
-      const idx = currentState.indexOf(internalModel);
+      const idx = manyArray.currentState.indexOf(internalModel);
 
       if (idx !== -1) {
-        currentState.splice(idx, 1);
-
-        manyArray.set('length', currentState.length);
-        manyArray.notifyPropertyChange('length');
-
-        this.internalModel.notifyHasManyRemoved(this.key, internalModel, idx);
+        manyArray.internalReplace(idx, 1);
       }
     }
   }

@@ -989,7 +989,7 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
 
   run(() => {
-    shen.destroyRecord({})
+    return shen.destroyRecord({})
       .then(() => {
         shen.unloadRecord();
       });
@@ -1066,9 +1066,9 @@ test('new items added to an async hasMany relationship are not cleared by a dele
 
   return run(() => {
     const person = store.peekRecord('person', '1');
-    const petsProxy = person.get('pets');
+    const petsProxy = run(() => person.get('pets'));
 
-    petsProxy.then((pets) => {
+    return petsProxy.then((pets) => {
       const shen = pets.objectAt(0);
       const rambo = store.peekRecord('pet', '2');
       const rebel = store.peekRecord('pet', '3');
@@ -1077,22 +1077,18 @@ test('new items added to an async hasMany relationship are not cleared by a dele
       assert.equal(get(pets, 'length'), 1, 'precond - relationship has only one pet to start');
       assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
 
-      run(() => {
-        pets.pushObjects([rambo, rebel]);
-      });
+      pets.pushObjects([rambo, rebel]);
 
       assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
       assert.equal(get(petsProxy, 'length'), 3, 'precond2 - proxy now reflects three pets');
 
-      run(() => {
-        shen.destroyRecord({})
-          .then(() => {
-            shen.unloadRecord();
-          });
-      });
+      return shen.destroyRecord({})
+        .then(() => {
+          shen.unloadRecord();
 
-      assert.equal(get(pets, 'length'), 2, 'relationship now has two pets');
-      assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
+          assert.equal(get(pets, 'length'), 2, 'relationship now has two pets');
+          assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
+        });
     });
   });
 });
@@ -1168,15 +1164,15 @@ test('new items added to a belongsTo relationship are not cleared by a delete', 
   dog = person.get('dog');
   assert.equal(dog, rambo, 'precond2 - relationship was updated');
 
-  run(() => {
-    shen.destroyRecord({})
+  return run(() => {
+    return shen.destroyRecord({})
       .then(() => {
         shen.unloadRecord();
+
+        dog = person.get('dog');
+        assert.equal(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
       });
   });
-
-  dog = person.get('dog');
-  assert.equal(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
 });
 
 test('new items added to an async belongsTo relationship are not cleared by a delete', function(assert) {
@@ -1244,23 +1240,19 @@ test('new items added to an async belongsTo relationship are not cleared by a de
       assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
       assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
 
-      run(() => {
-        person.set('dog', rambo);
-      });
+      person.set('dog', rambo);
 
       dog = person.get('dog.content');
 
       assert.ok(dog === rambo, 'precond2 - relationship was updated');
 
-      run(() => {
-        shen.destroyRecord({})
-          .then(() => {
-            shen.unloadRecord();
-          });
-      });
+      return shen.destroyRecord({})
+        .then(() => {
+          shen.unloadRecord();
 
-      dog = person.get('dog.content');
-      assert.ok(dog === rambo, 'The currentState of the belongsTo was preserved after the delete');
+          dog = person.get('dog.content');
+          assert.ok(dog === rambo, 'The currentState of the belongsTo was preserved after the delete');
+        });
     });
   });
 });
@@ -1336,15 +1328,15 @@ test('deleting an item that is the current state of a belongsTo restores canonic
   dog = person.get('dog');
   assert.equal(dog, rambo, 'precond2 - relationship was updated');
 
-  run(() => {
-    rambo.destroyRecord({})
+  return run(() => {
+    return rambo.destroyRecord({})
       .then(() => {
         rambo.unloadRecord();
+
+        dog = person.get('dog');
+        assert.equal(dog, shen, 'The canonical state of the belongsTo was restored after the delete');
       });
   });
-
-  dog = person.get('dog');
-  assert.equal(dog, shen, 'The canonical state of the belongsTo was restored after the delete');
 });
 
 /*
@@ -1457,16 +1449,16 @@ test('returning new hasMany relationship info from a delete supplements local st
 
   assert.equal(get(pets, 'length'), 3, 'precond2 - relationship now has three pets');
 
-  run(() => {
-    shen.destroyRecord({})
+  return run(() => {
+    return shen.destroyRecord({})
       .then(() => {
         shen.unloadRecord();
+
+        // were ember-data to now preserve local edits during a relationship push, this would be '2'
+        assert.equal(get(pets, 'length'), 1, 'relationship now has one pet');
+        assert.equal(pets.objectAt(0), rambo, 'the expected pet remains');
       });
   });
-
-  // were ember-data to now preserve local edits during a relationship push, this would be '2'
-  assert.equal(get(pets, 'length'), 1, 'relationship now has one pet');
-  assert.equal(pets.objectAt(0), rambo, 'the expected pet remains');
 });
 
 test('possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)', function(assert) {

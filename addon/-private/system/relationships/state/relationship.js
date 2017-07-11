@@ -266,18 +266,7 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
-  unloadInverseInternalModel(internalModel) {
-    this.unloadInverseInternalModelFromOwn(internalModel);
-    this.unloadInverseInternalModelFromInverses(internalModel);
-  }
-
-  unloadInverseInternalModelFromOwn(internalModel) {
-    this.canonicalMembers.delete(internalModel);
-    this.members.delete(internalModel);
-    this.notifyRecordRelationshipRemoved(internalModel);
-  }
-
-  unloadInverseInternalModelFromInverses(internalModel) {
+  unloadDeletedInverseInternalModel(internalModel) {
     if (!this.inverseKey) { return; }
 
     let allMembers =
@@ -287,8 +276,14 @@ export default class Relationship {
 
     allMembers.forEach(inverseInternalModel => {
       let relationship = inverseInternalModel._relationships.get(this.inverseKey);
-      relationship.unloadInverseInternalModelFromOwn(internalModel);
+      relationship.unloadDeletedInverseInternalModelFromOwn(internalModel);
     });
+  }
+
+  unloadDeletedInverseInternalModelFromOwn(internalModel) {
+    this.canonicalMembers.delete(internalModel);
+    this.members.delete(internalModel);
+    this.notifyRecordRelationshipRemoved(internalModel);
   }
 
   flushCanonical() {

@@ -63,8 +63,8 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
-  unloadInverseInternalModelFromOwn(internalModel) {
-    super.unloadInverseInternalModelFromOwn(internalModel);
+  unloadDeletedInverseInternalModelFromOwn(internalModel) {
+    super.unloadDeletedInverseInternalModelFromOwn(internalModel);
     let didChange = false;
 
     if (this.canonicalState === internalModel) {
