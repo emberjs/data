@@ -885,14 +885,14 @@ export default class InternalModel {
         let rel = this._relationships.get(name);
 
         rel.clear();
-        // rel.removeInverseRelationships();
+        rel.removeInverseRelationships();
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
       rel.clear();
-      // rel.removeInverseRelationships();
+      rel.removeInverseRelationships();
     });
   }
 
