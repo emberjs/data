@@ -651,7 +651,9 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
     }
   }));
 
-  env.container.lookup('serializer:home-planet').serializeIntoHash(json, HomePlanet, league._createSnapshot());
+  let serializer = env.store.serializerFor('home-planet');
+
+  serializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
 
   assert.deepEqual(json, {
     'home-planet': {

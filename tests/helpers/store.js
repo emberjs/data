@@ -57,9 +57,13 @@ export default function setupStore(options) {
   registry.register('adapter:-json-api', DS.JSONAPIAdapter);
   registry.register('serializer:-json-api', DS.JSONAPISerializer);
 
-  env.restSerializer = container.lookup('serializer:-rest');
+  registry.injection('serializer', 'store', 'service:store');
+
   env.store = container.lookup('service:store');
+  env.restSerializer = container.lookup('serializer:-rest');
+  env.restSerializer.store = env.store;
   env.serializer = env.store.serializerFor('-default');
+  env.serializer.store = env.store;
   env.adapter = env.store.get('defaultAdapter');
 
   return env;

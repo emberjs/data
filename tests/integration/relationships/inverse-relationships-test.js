@@ -600,16 +600,17 @@ test("inverseFor short-circuits when inverse is null", function(assert) {
   });
 });
 
-testInDebug("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
+testInDebug("Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship", function(assert) {
   User = DS.Model.extend({
     post: DS.belongsTo('post', { inverse: null })
   });
 
-  var env = setupStore({ user: User });
+  let env = setupStore({ user: User });
 
-  assert.throws(function() {
-    run(function() {
-      env.store.createRecord('user');
-    });
+  assert.throws(() => {
+    run(() => env.store.createRecord('user', { post: {}}));
   }, /No model was found for 'post'/);
+
+  // but don't error if the relationship is not used
+  run(() => env.store.createRecord('user', {}));
 });

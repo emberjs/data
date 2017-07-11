@@ -7,7 +7,7 @@ import {module, test} from 'qunit';
 
 import DS from 'ember-data';
 
-var Post, post, Comment, comment, Favorite, favorite, env;
+var Post, post, Comment, comment, Favorite, favorite, env, serializer;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
@@ -31,6 +31,7 @@ module("integration/serializer/json - JSONSerializer", {
     env.store.modelFor('post');
     env.store.modelFor('comment');
     env.store.modelFor('favorite');
+    serializer = env.store.serializerFor('-json');
   },
 
   afterEach() {
@@ -39,12 +40,11 @@ module("integration/serializer/json - JSONSerializer", {
 });
 
 test("serialize doesn't include ID when includeId is false", function(assert) {
-  run(function() {
-    post = env.store.createRecord('post', { title: 'Rails is omakase' });
+  run(() => {
+    post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
   });
-  var json = {};
 
-  json = env.serializer.serialize(post._createSnapshot(), { includeId: false });
+  let json = serializer.serialize(post._createSnapshot(), { includeId: false });
 
   assert.deepEqual(json, {
     title: "Rails is omakase",
@@ -52,14 +52,26 @@ test("serialize doesn't include ID when includeId is false", function(assert) {
   });
 });
 
-test("serialize includes id when includeId is true", function(assert) {
-  run(function() {
+
+test("serialize doesn't include relationship if not aware of one", function(assert) {
+  run(() => {
     post = env.store.createRecord('post', { title: 'Rails is omakase' });
+  });
+
+  let json = serializer.serialize(post._createSnapshot());
+
+  assert.deepEqual(json, {
+    title: "Rails is omakase"
+  });
+});
+
+test("serialize includes id when includeId is true", function(assert) {
+  run(() => {
+    post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
     post.set('id', 'test');
   });
-  var json = {};
 
-  json = env.serializer.serialize(post._createSnapshot(), { includeId: true });
+  let json = serializer.serialize(post._createSnapshot(), { includeId: true });
 
   assert.deepEqual(json, {
     id: 'test',
@@ -70,13 +82,13 @@ test("serialize includes id when includeId is true", function(assert) {
 
 if (isEnabled("ds-serialize-id")) {
   test("serializeId", function(assert) {
-    run(function() {
+    run(() => {
       post = env.store.createRecord('post');
       post.set('id', 'test');
     });
-    var json = {};
 
-    env.serializer.serializeId(post._createSnapshot(), json, 'id');
+    let json = {};
+    serializer.serializeId(post._createSnapshot(), json, 'id');
 
     assert.deepEqual(json, {
       id: 'test'
@@ -101,8 +113,7 @@ if (isEnabled("ds-serialize-id")) {
 
     assert.deepEqual(json, {
       id: 'TEST',
-      title: 'Rails is omakase',
-      comments: []
+      title: 'Rails is omakase'
     });
   });
 
@@ -121,8 +132,7 @@ if (isEnabled("ds-serialize-id")) {
 
     assert.deepEqual(json, {
       _ID_: 'test',
-      title: 'Rails is omakase',
-      comments: []
+      title: 'Rails is omakase'
     });
   });
 
@@ -288,13 +298,12 @@ if (isEnabled("ds-check-should-serialize-relationships")) {
 }
 
 test("serializeIntoHash", function(assert) {
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
+  run(() => {
+    post = env.store.createRecord('post', { title: "Rails is omakase", comments: [] });
   });
 
-  var json = {};
-
-  env.serializer.serializeIntoHash(json, Post, post._createSnapshot());
+  let json = {};
+  serializer.serializeIntoHash(json, Post, post._createSnapshot());
 
   assert.deepEqual(json, {
     title: "Rails is omakase",
@@ -307,8 +316,8 @@ test("serializePolymorphicType sync", function(assert) {
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType(record, json, relationship) {
-      var key = relationship.key;
-      var belongsTo = record.belongsTo(key);
+      let key = relationship.key;
+      let belongsTo = record.belongsTo(key);
       json[relationship.key + "TYPE"] = belongsTo.modelName;
 
       assert.ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
