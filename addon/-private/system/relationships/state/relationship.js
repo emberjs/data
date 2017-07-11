@@ -281,13 +281,13 @@ export default class Relationship {
 
       if (seen[id] === undefined) {
         const relationship = inverseInternalModel._relationships.get(this.inverseKey);
-        relationship.unloadInverseInternalModelFromOwn(internalModel);
+        relationship.unloadDeletedInverseInternalModelFromOwn(internalModel);
         seen[id] = true;
       }
     };
 
     this.members.forEach(unload);
-    this.canonicalMembers(unload);
+    this.canonicalMembers.forEach(unload);
   }
 
   unloadDeletedInverseInternalModelFromOwn(internalModel) {
