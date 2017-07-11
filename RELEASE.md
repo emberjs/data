@@ -20,7 +20,7 @@ STEPS:
 * Git tag version
   * `git tag vX.Y.Z-beta.n`
 * Do a production build. 
-  * `rm -rf node_modules bower_components; npm install; bower install; npm run production`
+  * `rm -rf node_modules bower_components; yarn install; bower install; npm run production`
 * Publish to Bower
   * Commit built globals code to the https://github.com/components/ember-data repo
   * `cp dist/globals/* ../components-ember-data/`
