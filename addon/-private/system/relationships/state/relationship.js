@@ -283,7 +283,7 @@ export default class Relationship {
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     let seen = Object.create(null);
-    const internalModel = this.indernalModel;
+    const internalModel = this.internalModel;
 
     const unload = inverseInternalModel => {
       const id = guidFor(inverseInternalModel);
