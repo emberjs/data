@@ -2642,7 +2642,7 @@ test("hasMany hasData sync not loaded", function(assert) {
 });
 
 test("hasMany hasData async created", function(assert) {
-  assert.expect(1);
+  assert.expect(2);
 
   Chapter.reopen({
     pages: hasMany('pages', { async: true })
@@ -2650,17 +2650,36 @@ test("hasMany hasData async created", function(assert) {
 
   run(() => {
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+    let page = store.createRecord('page');
+
     let relationship = chapter._internalModel._relationships.get('pages');
+    assert.equal(relationship.hasData, false, 'relationship does not have data');
+
+    chapter = store.createRecord('chapter', {
+      title: 'The Story Begins',
+      pages: [page]
+    });
+
+    relationship = chapter._internalModel._relationships.get('pages');
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
 
 test("hasMany hasData sync created", function(assert) {
-  assert.expect(1);
+  assert.expect(2);
 
   run(() => {
     let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
     let relationship = chapter._internalModel._relationships.get('pages');
+
+    assert.equal(relationship.hasData, false, 'relationship does not have data');
+
+    chapter = store.createRecord('chapter', {
+      title: 'The Story Begins',
+      pages: [store.createRecord('page')]
+    });
+    relationship = chapter._internalModel._relationships.get('pages');
+
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });

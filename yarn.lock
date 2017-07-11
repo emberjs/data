@@ -5168,6 +5168,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
+
 rimraf@2.5.2, rimraf@^2.2.8, rimraf@^2.3.4, rimraf@^2.4.3, rimraf@^2.4.4:
   version "2.5.2"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-2.5.2.tgz#62ba947fa4c0b4363839aefecd4f0fbad6059726"
