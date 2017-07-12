@@ -314,7 +314,7 @@ HasManyReference.prototype._isLoaded = function() {
 };
 
 /**
-   `value()` sycronously returns the current value of the has-many
+   `value()` synchronously returns the current value of the has-many
     relationship. Unlike `record.get('relationshipName')`, calling
     `value()` on a reference does not trigger a fetch if the async
     relationship is not yet loaded. If the relationship is not loaded
