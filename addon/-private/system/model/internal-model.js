@@ -905,10 +905,10 @@ export default class InternalModel {
     and that deletion has been persisted. It will remove this record from
     any associated relationships.
 
-    @method unloadDeletedRecordFromRelationships
+    @method removeFromInverseRelationships
     @private
    */
-  unloadDeletedRecordFromRelationships() {
+  removeFromInverseRelationships() {
     this.eachRelationship((name) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
