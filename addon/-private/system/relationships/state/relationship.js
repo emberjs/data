@@ -320,6 +320,7 @@ export default class Relationship {
 
   updateInternalModelsFromAdapter(internalModels) {
     heimdall.increment(updateInternalModelsFromAdapter);
+    this.setHasData(true);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(internalModels);

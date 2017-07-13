@@ -563,6 +563,59 @@ test('initial values of hasMany can be passed in as the third argument to find a
   return run(() => store.findRecord('person', 1, { preload: { friends: [2] } }));
 });
 
+test('initial empty values of hasMany can be passed in as the third argument to find as records', function(assert) {
+  assert.expect(1);
+
+  const Adapter = TestAdapter.extend({
+    findRecord(store, type, id, snapshot) {
+      assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+      return { data: { id, type: 'person' } };
+    }
+  });
+
+  let env = setupStore({
+    adapter: Adapter
+  });
+
+  let { store } = env;
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    friends: DS.hasMany('person', { inverse: null, async: true })
+  });
+
+  env.registry.register('model:person', Person);
+
+  return run(() => {
+    return store.findRecord('person', 1, { preload: { friends: [] } });
+  });
+});
+
+test('initial values of hasMany can be passed in as the third argument to find as ids', function(assert) {
+  assert.expect(1);
+
+  const Adapter = TestAdapter.extend({
+    findRecord(store, type, id, snapshot) {
+      assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+      return { data: { id, type: 'person' } };
+    }
+  });
+
+  let env = setupStore({
+    adapter: Adapter
+  });
+  let { store } = env;
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    friends: DS.hasMany('person', { async: true, inverse: null })
+  });
+
+  env.registry.register('model:person', Person);
+
+  return run(() => store.findRecord('person', 1, { preload: { friends: [] } }));
+});
+
 test('records should have their ids updated when the adapter returns the id data', function(assert) {
   assert.expect(2);
 
