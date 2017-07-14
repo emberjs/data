@@ -906,6 +906,559 @@ test('it is possible to add a new item to a relationship', function(assert) {
   });
 });
 
+test('new items added to a hasMany relationship are not cleared by a delete', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany('pet', { async: false, inverse: null })
+  });
+
+  const Pet = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false, inverse: null })
+  });
+
+  let env = setupStore({
+    person: Person,
+    pet: Pet
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  const pets = run(() => person.get('pets'));
+
+  const shen = pets.objectAt(0);
+  const rambo = store.peekRecord('pet', '2');
+  const rebel = store.peekRecord('pet', '3');
+
+  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
+
+  run(() => {
+    pets.pushObjects([rambo, rebel]);
+  });
+
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
+
+  run(() => {
+    return shen.destroyRecord({})
+      .then(() => {
+        shen.unloadRecord();
+      });
+  });
+
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
+});
+
+test('new items added to an async hasMany relationship are not cleared by a delete', function(assert) {
+  assert.expect(7);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany('pet', { async: true, inverse: null })
+  });
+
+  const Pet = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false, inverse: null })
+  });
+
+  let env = setupStore({
+    person: Person,
+    pet: Pet
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel'
+          }
+        }
+      ]
+    });
+  });
+
+  return run(() => {
+    const person = store.peekRecord('person', '1');
+    const petsProxy = run(() => person.get('pets'));
+
+    return petsProxy.then((pets) => {
+      const shen = pets.objectAt(0);
+      const rambo = store.peekRecord('pet', '2');
+      const rebel = store.peekRecord('pet', '3');
+
+      assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+      assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pet to start');
+      assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
+
+      pets.pushObjects([rambo, rebel]);
+
+      assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
+      assert.equal(get(petsProxy, 'length'), 3, 'precond2 - proxy now reflects three pets');
+
+      return shen.destroyRecord({})
+        .then(() => {
+          shen.unloadRecord();
+
+          assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
+          assert.equal(get(petsProxy, 'length'), 2, 'proxy now reflects two pets');
+        });
+    });
+  });
+});
+
+test('new items added to a belongsTo relationship are not cleared by a delete', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    dog: DS.belongsTo('dog', { async: false, inverse: null })
+  });
+
+  const Dog = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  let env = setupStore({
+    person: Person,
+    dog: Dog
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          dog: {
+            data: { type: 'dog', id: '1' }
+          }
+        }
+      },
+      included: [
+        {
+          type: 'dog',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'dog',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  let dog = run(() => person.get('dog'));
+  const shen = store.peekRecord('dog', '1');
+  const rambo = store.peekRecord('dog', '2');
+
+  assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+  assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+
+  run(() => {
+    person.set('dog', rambo);
+  });
+
+  dog = person.get('dog');
+  assert.equal(dog, rambo, 'precond2 - relationship was updated');
+
+  return run(() => {
+    return shen.destroyRecord({})
+      .then(() => {
+        shen.unloadRecord();
+
+        dog = person.get('dog');
+        assert.equal(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
+      });
+  });
+});
+
+test('new items added to an async belongsTo relationship are not cleared by a delete', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    dog: DS.belongsTo('dog', { async: true, inverse: null })
+  });
+
+  const Dog = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  let env = setupStore({
+    person: Person,
+    dog: Dog
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          dog: {
+            data: { type: 'dog', id: '1' }
+          }
+        }
+      },
+      included: [
+        {
+          type: 'dog',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'dog',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        }
+      ]
+    });
+  });
+
+  return run(() => {
+    const person = store.peekRecord('person', '1');
+    const shen = store.peekRecord('dog', '1');
+    const rambo = store.peekRecord('dog', '2');
+
+    return person.get('dog').then((dog) => {
+      assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+      assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+
+      person.set('dog', rambo);
+
+      dog = person.get('dog.content');
+
+      assert.ok(dog === rambo, 'precond2 - relationship was updated');
+
+      return shen.destroyRecord({})
+        .then(() => {
+          shen.unloadRecord();
+
+          dog = person.get('dog.content');
+          assert.ok(dog === rambo, 'The currentState of the belongsTo was preserved after the delete');
+        });
+    });
+  });
+});
+
+test('deleting an item that is the current state of a belongsTo clears currentState', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    dog: DS.belongsTo('dog', { async: false, inverse: null })
+  });
+
+  const Dog = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  let env = setupStore({
+    person: Person,
+    dog: Dog
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          dog: {
+            data: { type: 'dog', id: '1' }
+          }
+        }
+      },
+      included: [
+        {
+          type: 'dog',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'dog',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  let dog = run(() => person.get('dog'));
+  const shen = store.peekRecord('dog', '1');
+  const rambo = store.peekRecord('dog', '2');
+
+  assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
+  assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+
+  run(() => {
+    person.set('dog', rambo);
+  });
+
+  dog = person.get('dog');
+  assert.equal(dog, rambo, 'precond2 - relationship was updated');
+
+  return run(() => {
+    return rambo.destroyRecord({})
+      .then(() => {
+        rambo.unloadRecord();
+
+        dog = person.get('dog');
+        assert.equal(dog, null, 'The current state of the belongsTo was clearer');
+      });
+  });
+});
+
+/*
+  This test, when passing, affirms that a known limitation of ember-data still exists.
+
+  When pushing new data into the store, ember-data is currently incapable of knowing whether
+  a relationship has been persisted. In order to update relationship state effectively, ember-data
+  blindly "flushes canonical" state, removing any `currentState` changes. A delete that sideloads
+  the parent record's hasMany is a situation in which this limitation will be encountered should other
+  local changes to the relationship still exist.
+ */
+test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany('pet', { async: false, inverse: null })
+  });
+
+  const Pet = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false, inverse: null })
+  });
+
+  let env = setupStore({
+    person: Person,
+    pet: Pet
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.Promise.resolve({
+      data: null,
+      included: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Chris Thoburn'
+          },
+          relationships: {
+            pets: {
+              data: [
+                { type: 'pet', id: '2' }
+              ]
+            }
+          }
+        }
+      ]
+    });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' },
+              { type: 'pet', id: '2' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  const pets = run(() => person.get('pets'));
+
+  const shen = store.peekRecord('pet', '1');
+  const rebel = store.peekRecord('pet', '3');
+
+  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
+
+  run(() => {
+    pets.pushObjects([rebel]);
+  });
+
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
+
+  return run(() => {
+    return shen.destroyRecord({})
+      .then(() => {
+        shen.unloadRecord();
+
+        // were ember-data to now preserve local edits during a relationship push, this would be '2'
+        assert.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has only one pet, we lost the local change');
+      });
+  });
+});
+
 test('possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)', function(assert) {
   assert.expect(2);
 
