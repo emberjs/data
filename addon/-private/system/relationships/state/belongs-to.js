@@ -63,8 +63,8 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
-  removeDeletedInternalModelFromOwn(internalModel) {
-    super.removeDeletedInternalModelFromOwn(internalModel);
+  removeCompletelyFromOwn(internalModel) {
+    super.removeCompletelyFromOwn(internalModel);
 
     if (this.canonicalState === internalModel) {
       this.canonicalState = null;

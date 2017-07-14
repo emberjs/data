@@ -881,8 +881,8 @@ export default class InternalModel {
 
    It will remove this record from any associated relationships.
 
-   If `isNew` is true (default false), it will completely reset all relationships
-   to an empty state as well.
+   If `isNew` is true (default false), it will also completely reset all
+    relationships to an empty state as well.
 
     @method removeFromInverseRelationships
     @param {Boolean} isNew whether to unload from the `isNew` perspective
@@ -893,7 +893,7 @@ export default class InternalModel {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
 
-        rel.removeDeletedInternalModelFromInverse();
+        rel.removeCompletelyFromInverse();
         if (isNew === true) {
           rel.clear();
         }
@@ -902,13 +902,17 @@ export default class InternalModel {
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
-      rel.removeDeletedInternalModelFromInverse();
+      rel.removeCompletelyFromInverse();
       if (isNew === true) {
         rel.clear();
       }
     });
   }
 
+  /*
+    Notify all inverses that this internalModel has been dematerialized
+    and destroys any ManyArrays.
+   */
   destroyRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
@@ -992,6 +996,8 @@ export default class InternalModel {
   }
 
   /*
+    Used to notify the store to update FilteredRecordArray membership.
+
     @method updateRecordArrays
     @private
   */
