@@ -671,7 +671,7 @@ const RootState = {
       isDirty: false,
 
       setup(internalModel) {
-        internalModel.clearRelationships();
+        internalModel.removeFromInverseRelationships();
       },
 
       invokeLifecycleCallbacks(internalModel) {
