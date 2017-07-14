@@ -250,7 +250,6 @@ export default class Relationship {
   removeInternalModelFromOwn(internalModel) {
     heimdall.increment(removeInternalModelFromOwn);
     this.members.delete(internalModel);
-    this.notifyRecordRelationshipRemoved(internalModel);
     this.internalModel.updateRecordArrays();
   }
 
@@ -302,8 +301,6 @@ export default class Relationship {
   removeDeletedInternalModelFromOwn(internalModel) {
     this.canonicalMembers.delete(internalModel);
     this.members.delete(internalModel);
-    this.notifyRecordRelationshipRemoved(internalModel);
-    // this.internalModel.updateRecordArrays();
   }
 
   flushCanonical() {
@@ -366,7 +363,6 @@ export default class Relationship {
   }
 
   notifyRecordRelationshipAdded() { }
-  notifyRecordRelationshipRemoved() { }
 
   /*
    `hasData` for a relationship is a flag to indicate if we consider the
