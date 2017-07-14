@@ -303,6 +303,7 @@ export default class Relationship {
     this.canonicalMembers.delete(internalModel);
     this.members.delete(internalModel);
     this.notifyRecordRelationshipRemoved(internalModel);
+    // this.internalModel.updateRecordArrays();
   }
 
   flushCanonical() {

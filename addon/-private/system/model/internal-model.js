@@ -762,7 +762,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this._resetAllRelationshipsToEmpty();
+      this.removeFromInverseRelationships(true);
     }
 
     if (this.isValid()) {
@@ -876,50 +876,36 @@ export default class InternalModel {
   }
 
   /*
-    This method should only be called by records in the `isNew()` state.
-    It will completely reset all relationships to an empty state and remove
-    the record from any associated inverses as well.
+   This method should only be called by records in the `isNew()` state OR once the record
+   has been deleted and that deletion has been persisted.
 
-    @method _resetAllRelationshipsToEmpty
-    @private
-  */
-  _resetAllRelationshipsToEmpty() {
-    this.eachRelationship((name, relationship) => {
-      if (this._relationships.has(name)) {
-        let rel = this._relationships.get(name);
+   It will remove this record from any associated relationships.
 
-        rel.clear();
-        rel.removeInverseRelationships();
-      }
-    });
-    Object.keys(this._implicitRelationships).forEach((key) => {
-      let rel = this._implicitRelationships[key];
-
-      rel.clear();
-      rel.removeInverseRelationships();
-    });
-  }
-
-  /*
-    This method should only be called once the record has been deleted
-    and that deletion has been persisted. It will remove this record from
-    any associated relationships.
+   It will completely reset all relationships to an empty state and remove
+   the record from any associated inverses as well.
 
     @method removeFromInverseRelationships
+    @param {Boolean} isNew whether to unload from the `isNew` perspective
     @private
    */
-  removeFromInverseRelationships() {
+  removeFromInverseRelationships(isNew = false) {
     this.eachRelationship((name) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
 
         rel.removeDeletedInternalModelFromInverse();
+        if (isNew === true) {
+          rel.clear();
+        }
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
       let rel = this._implicitRelationships[key];
 
       rel.removeDeletedInternalModelFromInverse();
+      if (isNew === true) {
+        rel.clear();
+      }
     });
   }
 
