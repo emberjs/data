@@ -881,8 +881,8 @@ export default class InternalModel {
 
    It will remove this record from any associated relationships.
 
-   It will completely reset all relationships to an empty state and remove
-   the record from any associated inverses as well.
+   If `isNew` is true (default false), it will completely reset all relationships
+   to an empty state as well.
 
     @method removeFromInverseRelationships
     @param {Boolean} isNew whether to unload from the `isNew` perspective
