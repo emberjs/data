@@ -2,9 +2,6 @@
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import Ember from 'ember';
-
-const { guidFor } = Ember;
 
 const {
   addCanonicalInternalModel,
@@ -250,6 +247,7 @@ export default class Relationship {
   removeInternalModelFromOwn(internalModel) {
     heimdall.increment(removeInternalModelFromOwn);
     this.members.delete(internalModel);
+    this.notifyRecordRelationshipRemoved(internalModel);
     this.internalModel.updateRecordArrays();
   }
 
@@ -266,48 +264,6 @@ export default class Relationship {
     heimdall.increment(removeCanonicalInternalModelFromOwn);
     this.canonicalMembers.delete(internalModel);
     this.flushCanonicalLater();
-  }
-
-  /*
-    Call this method once a record deletion has been persisted
-    to purge it from BOTH current and canonical state of all
-    relationships.
-
-    @method removeCompletelyFromInverse
-    @private
-   */
-  removeCompletelyFromInverse() {
-    if (!this.inverseKey) { return; }
-
-    // we actually want a union of members and canonicalMembers
-    // they should be disjoint but currently are not due to a bug
-    let seen = Object.create(null);
-    const internalModel = this.internalModel;
-
-    const unload = inverseInternalModel => {
-      const id = guidFor(inverseInternalModel);
-
-      if (seen[id] === undefined) {
-        const relationship = inverseInternalModel._relationships.get(this.inverseKey);
-        relationship.removeCompletelyFromOwn(internalModel);
-        seen[id] = true;
-      }
-    };
-
-    this.members.forEach(unload);
-    this.canonicalMembers.forEach(unload);
-  }
-
-  /*
-    Removes the given internalModel from BOTH canonical AND current state.
-
-    This method is useful when either a deletion or a rollback on a new record
-    needs to entirely purge itself from an inverse relationship.
-   */
-  removeCompletelyFromOwn(internalModel) {
-    this.canonicalMembers.delete(internalModel);
-    this.members.delete(internalModel);
-    this.internalModel.updateRecordArrays();
   }
 
   flushCanonical() {
@@ -371,6 +327,7 @@ export default class Relationship {
   }
 
   notifyRecordRelationshipAdded() { }
+  notifyRecordRelationshipRemoved() { }
 
   /*
    `hasData` for a relationship is a flag to indicate if we consider the
