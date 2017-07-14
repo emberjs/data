@@ -110,6 +110,26 @@ export default class ManyRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
   }
 
+  removeCompletelyFromOwn(internalModel) {
+    super.removeCompletelyFromOwn(internalModel);
+
+    const canonicalIndex = this.canonicalState.indexOf(internalModel);
+
+    if (canonicalIndex !== -1) {
+      this.canonicalState.splice(canonicalIndex, 1);
+    }
+
+    const manyArray = this._manyArray;
+
+    if (manyArray) {
+      const idx = manyArray.currentState.indexOf(internalModel);
+
+      if (idx !== -1) {
+        manyArray.internalReplace(idx, 1);
+      }
+    }
+  }
+
   flushCanonical() {
     if (this._manyArray) {
       this._manyArray.flushCanonical();

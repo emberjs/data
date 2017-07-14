@@ -87,7 +87,7 @@ export default class RecordArrayManager {
       return;
     }
 
-    internalModel._pendingRecordArrayManagerFlush = true
+    internalModel._pendingRecordArrayManagerFlush = true;
 
     let pending = this._pending;
     let models = pending[modelName] = pending[modelName] || [];
