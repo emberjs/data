@@ -1040,7 +1040,9 @@ const Model = Ember.Object.extend(Ember.Evented, {
   },
 
   notifyBelongsToChanged(key) {
+    Ember.beginPropertyChanges();
     this.notifyPropertyChange(key);
+    Ember.endPropertyChanges();
   },
   /**
    Given a callback, iterates over each of the relationships in the model,
@@ -1112,7 +1114,9 @@ const Model = Ember.Object.extend(Ember.Evented, {
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
 
     //Goes away once hasMany is double promisified
+    Ember.beginPropertyChanges();
     this.notifyPropertyChange(key);
+    Ember.endPropertyChanges();
   },
 
   eachAttribute(callback, binding) {
