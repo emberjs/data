@@ -101,12 +101,6 @@ alter@~0.2.0:
   dependencies:
     stable "~0.1.3"
 
-amd-name-resolver@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.npmjs.org/amd-name-resolver/-/amd-name-resolver-0.0.5.tgz#76962dac876ed3311b05d29c6a58c14e1ef3304b"
-  dependencies:
-    ensure-posix-path "^1.0.1"
-
 amd-name-resolver@0.0.6:
   version "0.0.6"
   resolved "https://registry.npmjs.org/amd-name-resolver/-/amd-name-resolver-0.0.6.tgz#d3e4ba2dfcaab1d820c1be9de947c67828cfe595"
@@ -2088,11 +2082,11 @@ ember-ajax@^2.4.1:
   dependencies:
     ember-cli-babel "^5.1.5"
 
-ember-cli-app-version@^2.0.0:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/ember-cli-app-version/-/ember-cli-app-version-2.0.2.tgz#aaeede608e92fae6c2e11f63d28a373c1cc3f070"
+ember-cli-app-version@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/ember-cli-app-version/-/ember-cli-app-version-3.0.0.tgz#d67a33aeec7bd03187fbe72c5663dadec4c3368a"
   dependencies:
-    ember-cli-babel "^5.1.6"
+    ember-cli-babel "^6.0.0-beta.7"
     ember-cli-htmlbars "^1.0.0"
     git-repo-version "0.4.1"
 
@@ -2943,7 +2937,7 @@ extglob@^0.3.1:
   dependencies:
     is-extglob "^1.0.0"
 
-fake-xml-http-request@^1.3.0, fake-xml-http-request@^1.4.0:
+fake-xml-http-request@^1.4.0:
   version "1.5.0"
   resolved "https://registry.npmjs.org/fake-xml-http-request/-/fake-xml-http-request-1.5.0.tgz#d79602a97043d4d8fea671d5d904af38847b451d"
 
@@ -4818,13 +4812,6 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
-pretender@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/pretender/-/pretender-1.0.0.tgz#9137c38718b4d89814478b7f208f70d3e441a0e9"
-  dependencies:
-    fake-xml-http-request "^1.3.0"
-    route-recognizer "^0.1.9"
-
 pretender@^1.4.2:
   version "1.4.2"
   resolved "https://registry.npmjs.org/pretender/-/pretender-1.4.2.tgz#dde9995dfdf75b28a3dd7a73cde2f9f612e5e8f4"
@@ -5168,14 +5155,13 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-
-rimraf@2.5.2, rimraf@^2.2.8, rimraf@^2.3.4, rimraf@^2.4.3, rimraf@^2.4.4:
+rimraf@2.5.2, rimraf@^2.4.3, rimraf@^2.4.4:
   version "2.5.2"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-2.5.2.tgz#62ba947fa4c0b4363839aefecd4f0fbad6059726"
   dependencies:
     glob "^7.0.0"
 
-rimraf@^2.1.4, rimraf@^2.3.2, rimraf@^2.4.1, rimraf@^2.5.1, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1:
+rimraf@^2.1.4, rimraf@^2.2.8, rimraf@^2.3.2, rimraf@^2.3.4, rimraf@^2.4.1, rimraf@^2.5.1, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1:
   version "2.6.1"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-2.6.1.tgz#c2338ec643df7a1b7fe5c54fa86f57428a55f33d"
   dependencies:
@@ -5190,10 +5176,6 @@ rollup@^0.41.4:
   resolved "https://registry.npmjs.org/rollup/-/rollup-0.41.6.tgz#e0d05497877a398c104d816d2733a718a7a94e2a"
   dependencies:
     source-map-support "^0.4.0"
-
-route-recognizer@^0.1.9:
-  version "0.1.11"
-  resolved "https://registry.npmjs.org/route-recognizer/-/route-recognizer-0.1.11.tgz#810d8e5702abb4056d6dcb8e865c5685e7c14eb7"
 
 route-recognizer@^0.2.3:
   version "0.2.10"
