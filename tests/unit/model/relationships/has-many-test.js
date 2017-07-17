@@ -925,7 +925,7 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return { data: null };
   };
 
   let { store } = env;
@@ -1017,7 +1017,7 @@ test('new items added to an async hasMany relationship are not cleared by a dele
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return { data: null };
   };
 
   let { store } = env;
@@ -1111,7 +1111,7 @@ test('new items added to a belongsTo relationship are not cleared by a delete', 
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return { data: null };
   };
 
   let { store } = env;
@@ -1193,7 +1193,7 @@ test('new items added to an async belongsTo relationship are not cleared by a de
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return { data: null };
   };
 
   let { store } = env;
@@ -1275,7 +1275,7 @@ test('deleting an item that is the current state of a belongsTo clears currentSt
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return { data: null };
   };
 
   let { store } = env;
@@ -1367,7 +1367,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({
+    return {
       data: null,
       included: [
         {
@@ -1385,7 +1385,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
           }
         }
       ]
-    });
+    };
   };
 
   let { store } = env;
