@@ -137,8 +137,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeDocumentHelper(documentHash) {
-
-    if (Ember.typeOf(documentHash.data) === 'object') {
+    if (typeof documentHash.data === 'object' && documentHash.data !== null) {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
     } else if (Array.isArray(documentHash.data)) {
       let ret = new Array(documentHash.data.length);
@@ -301,7 +300,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   extractRelationship(relationshipHash) {
 
-    if (Ember.typeOf(relationshipHash.data) === 'object') {
+    if (typeof relationshipHash.data === 'object' && relationshipHash.data !== null) {
       relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
     }
 
