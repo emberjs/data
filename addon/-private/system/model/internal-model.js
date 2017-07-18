@@ -727,12 +727,6 @@ export default class InternalModel {
     }
   }
 
-  notifyHasManyRemoved(key, record, idx) {
-    if (this.hasRecord) {
-      this._record.notifyHasManyRemoved(key, record, idx);
-    }
-  }
-
   notifyBelongsToChanged(key, record) {
     if (this.hasRecord) {
       this._record.notifyBelongsToChanged(key, record);
@@ -767,7 +761,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.clearRelationships();
+      this.removeFromInverseRelationships(true);
     }
 
     if (this.isValid()) {
@@ -881,23 +875,43 @@ export default class InternalModel {
   }
 
   /*
-    @method clearRelationships
+   This method should only be called by records in the `isNew()` state OR once the record
+   has been deleted and that deletion has been persisted.
+
+   It will remove this record from any associated relationships.
+
+   If `isNew` is true (default false), it will also completely reset all
+    relationships to an empty state as well.
+
+    @method removeFromInverseRelationships
+    @param {Boolean} isNew whether to unload from the `isNew` perspective
     @private
-  */
-  clearRelationships() {
-    this.eachRelationship((name, relationship) => {
+   */
+  removeFromInverseRelationships(isNew = false) {
+    this.eachRelationship((name) => {
       if (this._relationships.has(name)) {
         let rel = this._relationships.get(name);
-        rel.clear();
-        rel.removeInverseRelationships();
+
+        rel.removeCompletelyFromInverse();
+        if (isNew === true) {
+          rel.clear();
+        }
       }
     });
     Object.keys(this._implicitRelationships).forEach((key) => {
-      this._implicitRelationships[key].clear();
-      this._implicitRelationships[key].removeInverseRelationships();
+      let rel = this._implicitRelationships[key];
+
+      rel.removeCompletelyFromInverse();
+      if (isNew === true) {
+        rel.clear();
+      }
     });
   }
 
+  /*
+    Notify all inverses that this internalModel has been dematerialized
+    and destroys any ManyArrays.
+   */
   destroyRelationships() {
     this.eachRelationship((name, relationship) => {
       if (this._relationships.has(name)) {
@@ -981,6 +995,8 @@ export default class InternalModel {
   }
 
   /*
+    Used to notify the store to update FilteredRecordArray membership.
+
     @method updateRecordArrays
     @private
   */
