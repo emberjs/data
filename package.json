@@ -46,7 +46,7 @@
     "npm-git-info": "^1.0.0",
     "semver": "^5.1.0",
     "silent-error": "^1.0.0",
-    "testem": "1.15.0"
+    "testem": "^1.15.0"
   },
   "devDependencies": {
     "babel-plugin-debug-macros": "^0.1.7",
