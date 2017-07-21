@@ -2277,9 +2277,7 @@ test("Relationship.clear removes all records correctly", function(assert) {
     var comments = Ember.A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);
   });
-
 });
-
 
 test('unloading a record with associated records does not prevent the store from tearing down', function(assert) {
   var post;
@@ -2933,6 +2931,70 @@ test("PromiseArray proxies createRecord to its ManyArray before the hasMany is l
     comments.createRecord();
     comments.then(function(comments) {
       assert.equal(comments.get('length'), 3, "comments have 3 length, including new record");
+    });
+  });
+});
+
+test("deleteRecord + unloadRecord fun", function(assert) {
+  User.reopen({
+    posts: DS.hasMany('posts', { inverse: null })
+  });
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'user',
+          id: 'user-1',
+          attributes: {
+            name: 'Adolfo Builes'
+          },
+          relationships: {
+            posts: {
+              data: [
+                { type: 'post', id: 'post-1' },
+                { type: 'post', id: 'post-2' },
+                { type: 'post', id: 'post-3' },
+                { type: 'post', id: 'post-4' },
+                { type: 'post', id: 'post-5' }
+              ]
+            }
+          }
+        },
+        { type: 'post', id: 'post-1' },
+        { type: 'post', id: 'post-2' },
+        { type: 'post', id: 'post-3' },
+        { type: 'post', id: 'post-4' },
+        { type: 'post', id: 'post-5' }
+      ]
+    });
+
+    let user = env.store.peekRecord('user', 'user-1');
+    let posts = user.get('posts');
+
+    env.store.adapterFor('post').deleteRecord = function() {
+      // just acknowledge all deletes, but with a noop
+      return { data: null };
+    };
+
+    assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-2', 'post-3', 'post-4', 'post-5']);
+
+    return run(() => {
+      return env.store.peekRecord('post', 'post-2').destroyRecord().then(record => {
+        return env.store.unloadRecord(record);
+      });
+    }).then(() => {
+      assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-3', 'post-4', 'post-5']);
+      return env.store.peekRecord('post', 'post-3').destroyRecord().then(record => {
+        return env.store.unloadRecord(record);
+      });
+    }).then(() => {
+      assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-4', 'post-5']);
+      return env.store.peekRecord('post', 'post-4').destroyRecord().then(record => {
+        return env.store.unloadRecord(record);
+      });
+    }).then(() => {
+      assert.deepEqual(posts.map(x => x.get('id')), ['post-1', 'post-5']);
     });
   });
 });
