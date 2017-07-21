@@ -23,6 +23,7 @@
     "amd-name-resolver": "0.0.5",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^0.3.1",
+    "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "babel6-plugin-strip-heimdall": "^6.0.1",
     "broccoli-babel-transpiler": "^6.0.0",
@@ -50,7 +51,6 @@
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
-    "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
     "babel-plugin-transform-es2015-classes": "^6.23.0",
     "babel-plugin-transform-es2015-computed-properties": "^6.22.0",
     "babel-plugin-transform-es2015-constants": "^6.1.4",
