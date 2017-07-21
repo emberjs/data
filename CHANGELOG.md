@@ -4,6 +4,11 @@
 
 ### Master
 
+### Release 2.14.5 (July 20, 2017)
+
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+
 ### Release 2.14.4 (July 11, 2017)
 - [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
 
