@@ -898,8 +898,12 @@ export default class InternalModel {
         }
       }
     });
-    Object.keys(this._implicitRelationships).forEach((key) => {
-      let rel = this._implicitRelationships[key];
+
+    let implicitRelationships = this._implicitRelationships;
+    this.__implicitRelationships = null;
+
+    Object.keys(implicitRelationships).forEach((key) => {
+      let rel = implicitRelationships[key];
 
       rel.removeCompletelyFromInverse();
       if (isNew === true) {
@@ -919,8 +923,11 @@ export default class InternalModel {
         rel.removeInverseRelationships();
       }
     });
-    Object.keys(this._implicitRelationships).forEach((key) => {
-      this._implicitRelationships[key].removeInverseRelationships();
+
+    let implicitRelationships = this._implicitRelationships;
+    this.__implicitRelationships = null;
+    Object.keys(implicitRelationships).forEach((key) => {
+      implicitRelationships[key].removeInverseRelationships();
     });
   }
 
