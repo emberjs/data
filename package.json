@@ -20,7 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "amd-name-resolver": "0.0.5",
+    "amd-name-resolver": "0.0.7",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^0.3.1",
     "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
