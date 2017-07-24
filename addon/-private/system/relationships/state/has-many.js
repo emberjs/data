@@ -201,17 +201,25 @@ export default class ManyRelationship extends Relationship {
   }
 
   setInitialInternalModels(internalModels) {
-    if (!internalModels) {
+    if (Array.isArray(internalModels) === false || internalModels.length === 0) {
       return;
     }
 
-    let args = [0, this.canonicalState.length].concat(internalModels);
-    this.canonicalState.splice.apply(this.canonicalState, args);
-    internalModels.forEach(internalModel => {
+    let forCanonical = [];
+
+    for (let i = 0; i< internalModels.length; i++) {
+      let internalModel = internalModels[i];
+      if (this.canonicalMembers.has(internalModel)) {
+        continue;
+      }
+
+      forCanonical.push(internalModel);
       this.canonicalMembers.add(internalModel);
       this.members.add(internalModel);
       this.setupInverseRelationship(internalModel);
-    });
+    }
+
+    this.canonicalState.splice(0, this.canonicalState.length, ...forCanonical);
   }
 
   fetchLink() {

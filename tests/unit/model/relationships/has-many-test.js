@@ -399,6 +399,72 @@ test('hasMany with explicit initial null works even when the inverse was set to 
   });
 });
 
+test('hasMany with duplicates from payload', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: false })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  run(() => {
+    // first we push in data with the relationship
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'David J. Hamilton'
+        },
+        relationships: {
+          tag: {
+            data: {
+              type: 'tag',
+              id: 1
+            }
+          }
+        }
+      },
+      included: [
+        {
+          type: 'tag',
+          id: 1,
+          attributes: {
+            name: 'whatever'
+          },
+          relationships: {
+            people: {
+              data: [
+                {
+                  type: 'person',
+                  id: 1
+                },
+                {
+                  type: 'person',
+                  id: 1
+                }
+              ]
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  run(() => {
+    let tag = store.peekRecord('tag', 1);
+    assert.equal(tag.get('people.length'), 1, 'relationship does not contain duplicates');
+  });
+});
+
 test('hasMany with explicit null works even when the inverse was set to not null', function(assert) {
   assert.expect(3);
 
@@ -485,18 +551,7 @@ test('hasMany with explicit null works even when the inverse was set to not null
     let tag = store.peekRecord('tag', 1);
 
     assert.equal(person.get('tag'), null,'relationship is now empty');
-
-    /*
-      TODO this should be asserting `0` however
-      before pushing null, length is actually secretly out-of-sync with
-      the canonicalState array, which has duplicated the addCanonicalRecord
-      leading to length `2`, so when we splice out the record we are left
-      with length 1.
-
-      This is fixed by the relationship cleanup PR which noticed this churn
-      and removed it: https://github.com/emberjs/data/pull/4882
-     */
-    assert.equal(tag.get('people.length'), 1, 'relationship is correct');
+    assert.equal(tag.get('people.length'), 0, 'relationship is correct');
   });
 });
 
