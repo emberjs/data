@@ -837,3 +837,28 @@ test('destroying filteredRecordArray unregisters models from being filtered', fu
 
   assert.equal(filterFn.summary.called.length, 1, 'expected the filter function not being called anymore');
 });
+
+test('unloading records in the filter', function(assert) {
+  run(() => store.push({ data }));
+
+  let people = run(() => {
+    return store.filter('person', hash => {
+      if (hash.get('name').match(/Scumbag/)) {
+        return true;
+      }
+    });
+  });
+
+  assert.equal(get(people, 'length'), 3, 'precond - three items in the RecordArray');
+
+  run(() => {
+    people.objectAt(0).unloadRecord();
+
+    assert.equal(get(people, 'length'), 3, 'Unload does not complete until the end of the loop');
+    assert.ok(get(people.objectAt(0), 'name'), 'Scumbag Dale', 'Dale is still the first object until the end of the loop');
+  });
+
+  assert.equal(get(people, 'length'), 2, 'Unloaded record removed from the array');
+  assert.ok(get(people.objectAt(0), 'name'), 'Scumbag Katz', 'Katz shifted down after the unload');
+  assert.ok(get(people.objectAt(1), 'name'), 'Scumbag Bryn', 'Bryn shifted down after the unload');
+});
