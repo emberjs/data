@@ -1383,6 +1383,71 @@ test('deleting an item that is the current state of a belongsTo clears currentSt
   });
 });
 
+test('hasMany.firstObject.unloadRecord should not break that hasMany', function(assert) {
+  const Person = DS.Model.extend({
+    cars: DS.hasMany('car', { async: false }),
+    name: DS.attr()
+  });
+
+  Person.reopenClass({
+    toString() {
+      return 'person';
+    }
+  });
+
+  const Car = DS.Model.extend({
+    name: DS.attr()
+  });
+
+  Car.reopenClass({
+    toString() {
+      return 'car';
+    }
+  });
+
+  let env = setupStore({
+    person: Person,
+    car: Car
+  });
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'person',
+          id: 1,
+          attributes: {
+            name: 'marvin'
+          },
+          relationships: {
+            cars: {
+              data: [
+                { type: 'car', id: 1 },
+                { type: 'car', id: 2 }
+              ]
+            }
+          }
+        },
+        { type: 'car', id: 1, attributes: { name: 'a' } },
+        { type: 'car', id: 2, attributes: { name: 'b' } }
+      ]
+    })
+  });
+
+  let person = env.store.peekRecord('person', 1);
+  let cars = person.get('cars');
+
+  assert.equal(cars.get('length'), 2);
+
+  run(() => {
+    cars.get('firstObject').unloadRecord();
+    assert.equal(cars.get('length'), 1); // unload now..
+    assert.equal(person.get('cars.length'), 1); // unload now..
+  });
+
+  assert.equal(cars.get('length'), 1); // unload now..
+  assert.equal(person.get('cars.length'), 1); // unload now..
+});
 /*
   This test, when passing, affirms that a known limitation of ember-data still exists.
 
@@ -1747,16 +1812,19 @@ test('DS.hasMany proxy is destroyed', function(assert) {
   let { store } = setupStore({ tag: Tag, person: Person });
 
   let tag = run(() => store.createRecord('tag'));
-  let people = tag.get('people');
+  let peopleProxy = tag.get('people');
 
-  return people.then(() => {
+  return peopleProxy.then(people => {
     Ember.run(() => {
       tag.unloadRecord();
-      assert.equal(people.get('isDestroying'), true);
-      assert.equal(people.get('isDestroyed'),  false);
+      assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
+      assert.equal(people.isDestroyed, false, 'people is NOT destroyed sync after unloadRecord');
+      assert.equal(peopleProxy.isDestroying, false, 'peopleProxy is destroying sync after unloadRecord');
+      assert.equal(peopleProxy.isDestroyed, false, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
     });
-    assert.equal(people.get('isDestroying'), true);
-    assert.equal(people.get('isDestroyed'), true);
+
+    assert.equal(peopleProxy.isDestroying, true, 'peopleProxy IS destroying after the run post unloadRecord');
+    assert.equal(peopleProxy.isDestroyed, true, 'peopleProxy IS destroyed after the run post unloadRecord');
   })
 });
 
