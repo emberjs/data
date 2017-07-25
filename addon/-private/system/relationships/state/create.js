@@ -46,6 +46,13 @@ export default class Relationships {
     return !!this.initializedRelationships[key];
   }
 
+  forEach(cb) {
+    let rels = this.initializedRelationships;
+    Object.keys(rels).forEach(name => {
+      cb(name, rels[name]);
+    });
+  }
+
   get(key) {
     let relationships = this.initializedRelationships;
     let relationship = relationships[key];
