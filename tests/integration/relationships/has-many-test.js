@@ -205,16 +205,17 @@ test("hasMany + canonical vs currentState + unloadRecord", function(assert) {
     env.store.peekRecord('user', 6).unloadRecord();
   });
 
-  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4','5','6','7'], `user's contacts should have expected contacts`);
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7'], `user's contacts should have expected contacts`);
   assert.equal(contacts, user.get('contacts'));
 
   run(() => {
     contacts.addObject(env.store.createRecord('user', { id: 8 }));
   });
 
-  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4','5','6','7','8'], `user's contacts should have expected contacts`);
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7','8'], `user's contacts should have expected contacts`);
   assert.equal(contacts, user.get('contacts'));
 });
+
 test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function(assert) {
   assert.expect(2);
 

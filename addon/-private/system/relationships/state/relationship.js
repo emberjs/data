@@ -83,6 +83,13 @@ export default class Relationship {
     return this.internalModel.modelName;
   }
 
+  _inverseIsAsync() {
+    if (!this.inverseKey || !this.inverseInternalModel) {
+      return false;
+    }
+    return this.inverseInternalModel._relationships.get(this.inverseKey).isAsync;
+  }
+
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
@@ -174,7 +181,7 @@ export default class Relationship {
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] =
-          new Relationship(this.store, internalModel, this.key,  { options: {} });
+          new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
       }
       relationship.addCanonicalInternalModel(this.internalModel);
     }
@@ -215,7 +222,7 @@ export default class Relationship {
         internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
       } else {
         if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: {} });
+          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
         }
         internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
       }
@@ -453,4 +460,7 @@ export default class Relationship {
   }
 
   updateData() {}
+
+  destroy() {
+  }
 }
