@@ -146,22 +146,47 @@ test("an async has many relationship to an unloaded record can restore that reco
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  env.adapter.findRecord = function() {
-    assert.ok('adapter called');
-    return Ember.RSVP.Promise.resolve({
-      data: {
-        type: 'boat',
-        id: '1',
-        attributes: {
-          name: "Boaty McBoatface"
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
+  const BOAT_ONE = {
+    type: 'boat',
+    id: '1',
+    attributes: {
+      name: "Boaty McBoatface"
+    },
+    relationships: {
+      person: {
+        data: { type: 'person', id: '1' }
       }
-    });
+    }
+  };
+
+  const BOAT_TWO = {
+    type: 'boat',
+    id: '2',
+    attributes: {
+      name: 'Some other boat'
+    },
+    relationships: {
+      person: {
+        data: { type: 'person', id: '1' }
+      }
+    }
+  };
+
+  env.adapter.findRecord = function(store, model, param) {
+    assert.ok('adapter called');
+
+    let data;
+    if (param === '1') {
+      data = BOAT_ONE;
+    } else if (param === '1') {
+      data = BOAT_TWO;
+    } else {
+      throw new Error(`404: no such boat with id=${param}`);
+    }
+
+    return {
+      data
+    };
   }
 
   run(function() {
@@ -186,29 +211,7 @@ test("an async has many relationship to an unloaded record can restore that reco
 
   run(function() {
     env.store.push({
-      data: [{
-        type: 'boat',
-        id: '2',
-        attributes: {
-          name: 'Some other boat'
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }, {
-        type: 'boat',
-        id: '1',
-        attributes: {
-          name: 'Boaty McBoatface'
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }]
+      data: [BOAT_ONE, BOAT_TWO]
     });
   });
 
@@ -220,22 +223,16 @@ test("an async has many relationship to an unloaded record can restore that reco
   assert.equal(env.store.hasRecordForId('boat', 1), true, 'The boat is in the store');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is loaded');
 
-  let boats = run(() => {
-    return adam.get('boats');
-  });
+  let boats = run(() => adam.get('boats'));
 
   assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
-  run(function() {
-    boaty.unloadRecord();
-  });
+  run(() => boaty.unloadRecord());
 
   assert.equal(env.store.hasRecordForId('boat', 1), false, 'The boat is unloaded');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
 
-  let rematerializedBoaty = run(() => {
-    return rematerializedBoaty = adam.get('boats').objectAt(1);
-  });
+  let rematerializedBoaty = run(() => adam.get('boats')).objectAt(0);
 
   assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
   assert.equal(rematerializedBoaty.get('id'), '1');

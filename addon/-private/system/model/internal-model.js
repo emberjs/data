@@ -431,14 +431,10 @@ export default class InternalModel {
   */
   _directlyRelatedInternalModels() {
     let array = [];
-    this.type.eachRelationship((key, relationship) => {
-      if (this._relationships.has(key)) {
-        let relationship = this._relationships.get(key);
-        let localRelationships = relationship.members.toArray();
-        let serverRelationships = relationship.canonicalMembers.toArray();
-
-        array = array.concat(localRelationships, serverRelationships);
-      }
+    this._relationships.forEach((name, rel) => {
+      let local = rel.members.toArray();
+      let server = rel.canonicalMembers.toArray();
+      array = array.concat(local, server);
     });
     return array;
   }
@@ -492,6 +488,7 @@ export default class InternalModel {
   unloadRecord() {
     this.send('unloadRecord');
     this.dematerializeRecord();
+
     if (this._scheduledDestroy === null) {
       this._scheduledDestroy = run.schedule('destroy', this, '_checkForOrphanedInternalModels');
     }
@@ -511,6 +508,7 @@ export default class InternalModel {
     if (this.isDestroyed) { return; }
 
     this._cleanupOrphanedInternalModels();
+
   }
 
   _cleanupOrphanedInternalModels() {
@@ -533,6 +531,9 @@ export default class InternalModel {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
 
     this.store._internalModelDestroyed(this);
+
+    this._relationships.forEach((name, rel) => rel.destroy());
+
     this._isDestroyed = true;
   }
 
@@ -889,14 +890,10 @@ export default class InternalModel {
     @private
    */
   removeFromInverseRelationships(isNew = false) {
-    this.eachRelationship((name) => {
-      if (this._relationships.has(name)) {
-        let rel = this._relationships.get(name);
-
-        rel.removeCompletelyFromInverse();
-        if (isNew === true) {
-          rel.clear();
-        }
+    this._relationships.forEach((name, rel) => {
+      rel.removeCompletelyFromInverse();
+      if (isNew === true) {
+        rel.clear();
       }
     });
 
@@ -918,17 +915,28 @@ export default class InternalModel {
     and destroys any ManyArrays.
    */
   destroyRelationships() {
-    this.eachRelationship((name, relationship) => {
-      if (this._relationships.has(name)) {
-        let rel = this._relationships.get(name);
+    this._relationships.forEach((name, rel) => {
+      if (rel._inverseIsAsync()) {
+        rel.removeInternalModelFromInverse(this);
         rel.removeInverseRelationships();
+      } else {
+        rel.removeCompletelyFromInverse();
       }
     });
 
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
     Object.keys(implicitRelationships).forEach((key) => {
-      implicitRelationships[key].removeInverseRelationships();
+      let rel = implicitRelationships[key];
+
+      if (rel._inverseIsAsync()) {
+        rel.removeInternalModelFromInverse(this);
+        rel.removeInverseRelationships();
+      } else {
+        rel.removeCompletelyFromInverse();
+      }
+
+      rel.destroy();
     });
   }
 

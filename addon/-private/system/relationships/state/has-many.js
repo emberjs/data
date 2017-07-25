@@ -281,6 +281,20 @@ export default class ManyRelationship extends Relationship {
       this.updateInternalModelsFromAdapter(internalModels);
     }
   }
+
+  destroy() {
+    super.destroy();
+    let manyArray = this._manyArray;
+    if (manyArray) {
+      manyArray.destroy();
+    }
+
+    let proxy = this.__loadingPromise;
+
+    if (proxy) {
+      proxy.destroy();
+    }
+  }
 }
 
 function setForArray(array) {
