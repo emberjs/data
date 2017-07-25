@@ -216,6 +216,88 @@ test("hasMany + canonical vs currentState + destroyRecord  ", function(assert) {
   assert.equal(contacts, user.get('contacts'));
 });
 
+test("hasMany + canonical vs currentState + unloadRecord", function(assert) {
+  assert.expect(6);
+
+  let postData = {
+    type: 'user',
+    id: '1',
+    attributes: {
+      name: 'omg'
+    },
+    relationships: {
+      contacts: {
+        data: [
+          {
+            type: 'user',
+            id: 2
+          },
+          {
+            type: 'user',
+            id: 3
+          },
+          {
+            type: 'user',
+            id: 4
+          }
+        ]
+      }
+    }
+  };
+
+  run(() => {
+    env.store.push({
+      data: postData,
+      included: [
+        {
+          type: 'user',
+          id: 2
+        },
+        {
+          type: 'user',
+          id: 3
+        },
+        {
+          type: 'user',
+          id: 4
+        }
+      ]
+    });
+  });
+
+  let user = env.store.peekRecord('user', 1);
+  let contacts = user.get('contacts');
+
+  env.store.adapterFor('user').deleteRecord = function() {
+    return { data: { type: 'user', id: 2 } };
+  };
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4'], 'user should have expected contacts');
+
+  run(() => {
+    contacts.addObject(env.store.createRecord('user', { id: 5 }));
+    contacts.addObject(env.store.createRecord('user', { id: 6 }));
+    contacts.addObject(env.store.createRecord('user', { id: 7 }));
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['2','3','4','5','6','7'], 'user should have expected contacts');
+
+  run(() => {
+    env.store.peekRecord('user', 2).unloadRecord();
+    env.store.peekRecord('user', 6).unloadRecord();
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7'], `user's contacts should have expected contacts`);
+  assert.equal(contacts, user.get('contacts'));
+
+  run(() => {
+    contacts.addObject(env.store.createRecord('user', { id: 8 }));
+  });
+
+  assert.deepEqual(contacts.map(c => c.get('id')), ['3','4','5','7','8'], `user's contacts should have expected contacts`);
+  assert.equal(contacts, user.get('contacts'));
+});
+
 test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function(assert) {
   assert.expect(2);
 
@@ -1865,6 +1947,37 @@ testInDebug('A sync hasMany errors out if there are unlaoded records in it', fun
   assert.expectAssertion(() => {
     run(post, 'get', 'comments');
   }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
+});
+
+test('After removing and unloading a record, a hasMany relationship should still be valid', function(assert) {
+  const post = run(() => {
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        { type: 'comment', id: '1' }
+      ]
+    });
+    const post = env.store.peekRecord('post', 1);
+    const comments = post.get('comments');
+    const comment = comments.objectAt(0);
+    comments.removeObject(comment);
+    env.store.unloadRecord(comment);
+    assert.equal(comments.get('length'), 0);
+    return post;
+  });
+
+  // Explicitly re-get comments
+  assert.equal(run(post, 'get', 'comments.length'), 0);
 });
 
 test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function(assert) {
