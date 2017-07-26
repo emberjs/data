@@ -2,6 +2,27 @@
 
 ### Master
 
+### Release 2.15.0-beta.3 (July 27, 2017)
+
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [84041a5f](https://github.com/emberjs/data/commit/84041a5f73b5b2a8f6d6d6475f7aa71d5b83b939) Update RELEASE.md
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#5071](https://github.com/emberjs/data/pull/5071) [BACKPORT] Update doc for deprecated function.
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#4992](https://github.com/emberjs/data/pull/4992) Use https in references to emberjs website (#4992)
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5068](https://github.com/emberjs/data/pull/5068) [BUGFIX release] Preserve local relationship changes after persisting a delet…
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+
 ### Release 2.15.0-beta.2 (July 11, 2017)
 - [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
 - [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
