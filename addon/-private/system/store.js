@@ -2566,15 +2566,23 @@ Store = Service.extend({
 
     assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
 
-    let recordMap = this._internalModelsFor(modelName);
+    let internalModels = this._internalModelsFor(modelName);
+    let existingInternalModel = internalModels.get(id);
 
-    assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !id || !recordMap.get(id));
+    if (existingInternalModel && existingInternalModel.hasScheduledDestroy()) {
+      // unloadRecord is async, if one attempts to unload + then sync create,
+      // we must ensure the unload is complete before starting the create
+      existingInternalModel.destroySync();
+      existingInternalModel = null;
+    }
+
+    assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !existingInternalModel);
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
     let internalModel = new InternalModel(modelName, id, this, data);
 
-    recordMap.add(internalModel, id);
+    internalModels.add(internalModel, id);
 
     return internalModel;
   },
