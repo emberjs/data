@@ -100,6 +100,18 @@ test('unload a record', function(assert) {
   });
 });
 
+test('unload followed by create of the same type + id', function(assert) {
+  let record = run(() => store.createRecord('record', { id: 1 }));
+
+  assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
+
+  return run(() => {
+    record.unloadRecord();
+    let createdRecord = store.createRecord('record', { id: 1 });
+    assert.ok(record !== createdRecord, 'newly created record is fresh (and was created)');
+  });
+});
+
 module("DS.Store - unload record with relationships");
 
 test('can commit store after unload record with relationships', function(assert) {

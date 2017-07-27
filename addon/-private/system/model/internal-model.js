@@ -493,12 +493,34 @@ export default class InternalModel {
     }
   }
 
+  hasScheduledDestroy() {
+    return !!this._scheduledDestroy;
+  }
+
   cancelDestroy() {
     assert(`You cannot cancel the destruction of an InternalModel once it has already been destroyed`, !this.isDestroyed);
 
     this._isDematerializing = false;
     run.cancel(this._scheduledDestroy);
     this._scheduledDestroy = null;
+  }
+
+  // typically, we prefer to async destroy this lets us batch cleanup work.
+  // Unfortunately, some scenarios where that is not possible. Such as:
+  //
+  // ```js
+  // const record = store.find(‘record’, 1);
+  // record.unloadRecord();
+  // store.createRecord(‘record’, 1);
+  // ```
+  //
+  // In those scenarios, we make that model's cleanup work, sync.
+  //
+  destroySync() {
+    if (this._isDematerializing) {
+      this.cancelDestroy();
+    }
+    this._checkForOrphanedInternalModels();
   }
 
   _checkForOrphanedInternalModels() {
