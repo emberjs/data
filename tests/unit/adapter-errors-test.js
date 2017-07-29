@@ -1,6 +1,5 @@
 import Ember from 'ember';
 
-import { isEnabled } from 'ember-data/-private';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 
@@ -44,69 +43,67 @@ test('DS.AbortError', function(assert) {
   assert.equal(error.message, 'The adapter operation was aborted');
 });
 
-if (isEnabled('ds-extended-errors')) {
-  test('DS.UnauthorizedError', function(assert) {
-    let error = new DS.UnauthorizedError();
+test('DS.UnauthorizedError', function(assert) {
+  let error = new DS.UnauthorizedError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation is unauthorized');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation is unauthorized');
+});
 
-  test('DS.ForbiddenError', function(assert) {
-    let error = new DS.ForbiddenError();
+test('DS.ForbiddenError', function(assert) {
+  let error = new DS.ForbiddenError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation is forbidden');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation is forbidden');
+});
 
-  test('DS.NotFoundError', function(assert) {
-    let error = new DS.NotFoundError();
+test('DS.NotFoundError', function(assert) {
+  let error = new DS.NotFoundError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter could not find the resource');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter could not find the resource');
+});
 
-  test('DS.ConflictError', function(assert) {
-    let error = new DS.ConflictError();
+test('DS.ConflictError', function(assert) {
+  let error = new DS.ConflictError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation failed due to a conflict');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation failed due to a conflict');
+});
 
-  test('DS.ServerError', function(assert) {
-    let error = new DS.ServerError();
+test('DS.ServerError', function(assert) {
+  let error = new DS.ServerError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'The adapter operation failed due to a server error');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'The adapter operation failed due to a server error');
+});
 
-  test('CustomAdapterError', function(assert) {
-    let CustomAdapterError = DS.AdapterError.extend();
-    let error = new CustomAdapterError();
+test('CustomAdapterError', function(assert) {
+  let CustomAdapterError = DS.AdapterError.extend();
+  let error = new CustomAdapterError();
 
-    assert.ok(error instanceof Error);
-    assert.ok(error instanceof DS.AdapterError);
-    assert.ok(error.isAdapterError);
-    assert.equal(error.message, 'Adapter operation failed');
-  });
+  assert.ok(error instanceof Error);
+  assert.ok(error instanceof DS.AdapterError);
+  assert.ok(error.isAdapterError);
+  assert.equal(error.message, 'Adapter operation failed');
+});
 
-  test('CustomAdapterError with default message', function(assert) {
-    let CustomAdapterError = DS.AdapterError.extend({ message: 'custom error!' });
-    let error = new CustomAdapterError();
+test('CustomAdapterError with default message', function(assert) {
+  let CustomAdapterError = DS.AdapterError.extend({ message: 'custom error!' });
+  let error = new CustomAdapterError();
 
-    assert.equal(error.message, 'custom error!');
-  });
-}
+  assert.equal(error.message, 'custom error!');
+});
 
 const errorsHash = {
   name: ['is invalid', 'must be a string'],

@@ -22,7 +22,6 @@ import {
   belongsTo,
   hasMany,
   global,
-  isEnabled,
   Errors,
   RootState,
   Model,
@@ -93,13 +92,11 @@ DS.InvalidError = InvalidError;
 DS.TimeoutError = TimeoutError;
 DS.AbortError   = AbortError;
 
-if (isEnabled('ds-extended-errors')) {
-  DS.UnauthorizedError = UnauthorizedError;
-  DS.ForbiddenError    = ForbiddenError;
-  DS.NotFoundError     = NotFoundError;
-  DS.ConflictError     = ConflictError;
-  DS.ServerError       = ServerError;
-}
+DS.UnauthorizedError = UnauthorizedError;
+DS.ForbiddenError    = ForbiddenError;
+DS.NotFoundError     = NotFoundError;
+DS.ConflictError     = ConflictError;
+DS.ServerError       = ServerError;
 
 DS.errorsHashToArray = errorsHashToArray;
 DS.errorsArrayToHash = errorsArrayToHash;
