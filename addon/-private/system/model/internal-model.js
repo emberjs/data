@@ -521,6 +521,11 @@ export default class InternalModel {
       this.cancelDestroy();
     }
     this._checkForOrphanedInternalModels();
+    if (this.isDestroyed || this.isDestroying) { return; }
+
+    // just in-case we are not one of the orphaned, we should still
+    // still destroy ourselves
+    this.destroy();
   }
 
   _checkForOrphanedInternalModels() {
