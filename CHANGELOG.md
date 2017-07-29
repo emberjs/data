@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.14.9 (July 29, 2017)
+
+- [#5097] (https://github.com/emberjs/data/pull/5102) [BUGFIX release] unloadRecord + findRecord + orphaned relationships
+
 ### Release 2.14.8 (July 28, 2017)
 
 - [#5097](https://github.com/emberjs/data/pull/5097) [BUGFIX release] restore unloadRecord + createRecord
