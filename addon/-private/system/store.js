@@ -1127,15 +1127,16 @@ Store = Service.extend({
     let trueId = coerceId(id);
     let internalModel = this._internalModelsFor(modelName).get(trueId);
 
-    if (!internalModel) {
-      internalModel = this._buildInternalModel(modelName, trueId);
+    if (internalModel) {
+      if (internalModel.hasScheduledDestroy()) {
+        internalModel.destroySync();
+        return this._buildInternalModel(modelName, trueId);
+      } else {
+        return internalModel;
+      }
     } else {
-      // if we already have an internalModel, we need to ensure any async teardown is cancelled
-      //   since we want it again.
-      internalModel.cancelDestroy();
+      return this._buildInternalModel(modelName, trueId);
     }
-
-    return internalModel;
   },
 
   _internalModelDidReceiveRelationshipData(modelName, id, relationshipData) {
