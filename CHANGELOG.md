@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.14.8 (July 28, 2017)
+
+- [#5097](https://github.com/emberjs/data/pull/5097) [BUGFIX release] restore unloadRecord + createRecord
+
 ### Release 2.14.7 (July 25, 2017)
 
 - [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
