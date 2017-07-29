@@ -1,8 +1,6 @@
 import Ember from 'ember';
 import { assert } from 'ember-data/-debug';
 
-import isEnabled from '../features';
-
 const EmberError = Ember.Error;
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
@@ -88,11 +86,6 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
-let extendedErrorsEnabled = false;
-if (isEnabled('ds-extended-errors')) {
-  extendedErrorsEnabled = true;
-}
-
 function extendFn(ErrorClass) {
   return function({ message: defaultMessage } = {}) {
     return extend(ErrorClass, defaultMessage);
@@ -105,19 +98,14 @@ function extend(ParentErrorClass, defaultMessage) {
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };
   ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
-
-  if (extendedErrorsEnabled) {
-    ErrorClass.extend = extendFn(ErrorClass);
-  }
+  ErrorClass.extend = extendFn(ErrorClass);
 
   return ErrorClass;
 }
 
 AdapterError.prototype = Object.create(EmberError.prototype);
 
-if (extendedErrorsEnabled) {
-  AdapterError.extend = extendFn(AdapterError);
-}
+AdapterError.extend = extendFn(AdapterError);
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -260,8 +248,7 @@ export const AbortError = extend(AdapterError,
   @class UnauthorizedError
   @namespace DS
 */
-export const UnauthorizedError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation is unauthorized') : null;
+export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
 
 /**
   A `DS.ForbiddenError` equates to a HTTP `403 Forbidden` response status.
@@ -273,8 +260,7 @@ export const UnauthorizedError = extendedErrorsEnabled ?
   @class ForbiddenError
   @namespace DS
 */
-export const ForbiddenError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation is forbidden') : null;
+export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
 
 /**
   A `DS.NotFoundError` equates to a HTTP `404 Not Found` response status.
@@ -312,8 +298,7 @@ export const ForbiddenError = extendedErrorsEnabled ?
   @class NotFoundError
   @namespace DS
 */
-export const NotFoundError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter could not find the resource') : null;
+export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
 
 /**
   A `DS.ConflictError` equates to a HTTP `409 Conflict` response status.
@@ -325,8 +310,7 @@ export const NotFoundError = extendedErrorsEnabled ?
   @class ConflictError
   @namespace DS
 */
-export const ConflictError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation failed due to a conflict') : null;
+export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
 
 /**
   A `DS.ServerError` equates to a HTTP `500 Internal Server Error` response
@@ -336,8 +320,7 @@ export const ConflictError = extendedErrorsEnabled ?
   @class ServerError
   @namespace DS
 */
-export const ServerError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation failed due to a server error') : null;
+export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
 
 /**
   Convert an hash of errors into an array with errors in JSON-API format.
