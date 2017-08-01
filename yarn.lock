@@ -1490,6 +1490,12 @@ calculate-cache-key-for-tree@^1.0.0:
   dependencies:
     json-stable-stringify "^1.0.1"
 
+calculate-cache-key-for-tree@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/calculate-cache-key-for-tree/-/calculate-cache-key-for-tree-1.1.0.tgz#0c3e42c9c134f3c9de5358c0f16793627ea976d6"
+  dependencies:
+    json-stable-stringify "^1.0.1"
+
 caller-path@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/caller-path/-/caller-path-0.1.0.tgz#94085ef63581ecd3daa92444a8fe94e82577751f"
