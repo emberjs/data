@@ -352,6 +352,7 @@ BelongsToReference.prototype.value = function() {
     userRef.load().then(function(user) {
       userRef.value() === user
     });
+    ```
 
    @method load
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
@@ -398,6 +399,7 @@ BelongsToReference.prototype.load = function() {
     userRef.reload().then(function(user) {
       userRef.value() === user
     });
+    ```
 
    @method reload
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
