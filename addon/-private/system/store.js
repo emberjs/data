@@ -2881,7 +2881,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
 
     if (relationshipRequiresNotification) {
       let relationshipData = data.relationships[relationshipName];
-      relationships.get(relationshipName).push(relationshipData);
+      relationships.get(relationshipName).push(relationshipData, false);
     }
 
     // in debug, assert payload validity eagerly
