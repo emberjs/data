@@ -1500,3 +1500,38 @@ testInDebug("A belongsTo relationship warns if malformatted data is pushed into 
     });
   }, /expected the data for the book relationship on a <chapter:1> to be in a JSON API format/);
 });
+
+test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function(assert) {
+  Chapter.reopen({
+    book: DS.belongsTo({ async: true })
+  });
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'chapter',
+        id: '1',
+        relationships: {
+          book: {
+            data: { type: 'book', id: '1' },
+            links: { related: '/chapter/1/book' }
+          }
+        }
+      },
+      included: [{ type: 'book', id: '1' }]
+    });
+  });
+
+  let chapter = env.store.peekRecord('chapter', '1');
+  let count = 0;
+
+  chapter.addObserver('book', () => {
+    count++;
+  });
+
+  run(() => {
+    chapter.get('book');
+  });
+
+  assert.equal(count, 0);
+});
