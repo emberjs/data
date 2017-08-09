@@ -346,7 +346,7 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link) {
+  updateLink(link, initial) {
     heimdall.increment(updateLink);
     warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
       id: 'ds.store.push-link-for-sync-relationship'
@@ -355,7 +355,10 @@ export default class Relationship {
 
     this.link = link;
     this.linkPromise = null;
-    this.internalModel.notifyPropertyChange(this.key);
+
+    if (!initial) {
+      this.internalModel.notifyPropertyChange(this.key);
+    }
   }
 
   findLink() {
