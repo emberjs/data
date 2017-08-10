@@ -2,9 +2,12 @@
 
 ### Master
 
+### Release 2.14.10 (August 10, 2017)
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+
 ### Release 2.14.9 (July 29, 2017)
 
-- [#5097] (https://github.com/emberjs/data/pull/5102) [BUGFIX release] unloadRecord + findRecord + orphaned relationships
+- [#5097](https://github.com/emberjs/data/pull/5102) [BUGFIX release] unloadRecord + findRecord + orphaned relationships
 
 ### Release 2.14.8 (July 28, 2017)
 
