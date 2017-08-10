@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.15.0-beta.4 (August 10, 2017)
+- [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
+- [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+
 ### Release 2.15.0-beta.3 (July 27, 2017)
 
 - [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
