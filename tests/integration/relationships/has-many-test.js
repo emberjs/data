@@ -3334,3 +3334,34 @@ test("deleted records should stay deleted", function(assert) {
     );
   });
 });
+
+test("hasMany relationship with links doesn't trigger extra change notifications - #4942", function(assert) {
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          chapters: {
+            data: [{ type: 'chapter', id: '1' }],
+            links: { related: '/book/1/chapters' }
+          }
+        }
+      },
+      included: [{ type: 'chapter', id: '1' }]
+    });
+  });
+
+  let book = env.store.peekRecord('book', '1');
+  let count = 0;
+
+  book.addObserver('chapters', () => {
+    count++;
+  });
+
+  run(() => {
+    book.get('chapters');
+  });
+
+  assert.equal(count, 0);
+});
