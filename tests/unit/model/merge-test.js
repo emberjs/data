@@ -1,12 +1,12 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { resolve, Promise as EmberPromise } from 'rsvp';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let Person;
-const { run } = Ember;
 
 module('unit/model/merge - Merging', {
   beforeEach() {
@@ -55,7 +55,7 @@ test('Make sure snapshot is created at save time not at flush time', function(as
     updateRecord(store, type, snapshot) {
       assert.equal(snapshot.attr('name'), 'Thomas Dale');
 
-      return Ember.RSVP.resolve();
+      return resolve();
     }
   });
 
@@ -97,7 +97,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   const Adapter = DS.Adapter.extend({
     updateRecord(store, type, snapshot) {
       // Make sure saving isn't resolved synchronously
-      return new Ember.RSVP.Promise(resolve =>  {
+      return new EmberPromise(resolve =>  {
         run.next(null, resolve, { data: { id: 1, type: 'person', attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' } } });
       });
     }

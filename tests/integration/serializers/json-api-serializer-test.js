@@ -1,17 +1,15 @@
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import { isEnabled } from 'ember-data/-private';
 
 import DS from 'ember-data';
 
 var env, store, serializer;
-
-var get = Ember.get;
-var run = Ember.run;
 
 var User, Handle, GithubHandle, TwitterHandle, Company, Project;
 

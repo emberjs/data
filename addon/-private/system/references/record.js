@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { resolve } from 'rsvp';
 import Reference from './reference';
 
 /**
@@ -90,7 +90,7 @@ RecordReference.prototype.remoteType = function() {
   @return Promise<record> a promise for the value (record or relationship)
 */
 RecordReference.prototype.push = function(objectOrPromise) {
-  return Ember.RSVP.resolve(objectOrPromise).then((data) => {
+  return resolve(objectOrPromise).then((data) => {
     return this.store.push(data);
   });
 };

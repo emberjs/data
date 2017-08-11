@@ -1,12 +1,12 @@
+import { computed } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let Person, Place, store, adapter, env;
-const { run } = Ember;
 
 module("unit/adapters/json-api-adapter/ajax - building requests", {
   beforeEach() {
@@ -55,7 +55,7 @@ test('ajaxOptions() adds Accept header to existing headers', function(assert) {
 });
 
 test('ajaxOptions() adds Accept header to existing computed properties headers', function(assert) {
-  adapter.headers = Ember.computed(function() {
+  adapter.headers = computed(function() {
     return { 'Other-key': 'Other Value' };
   });
   let url = 'example.com';

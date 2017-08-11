@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { computed } from '@ember/object';
 import { deprecate } from '@ember/debug';
 
 /**
@@ -134,7 +134,7 @@ export default function attr(type, options) {
     options: options
   };
 
-  return Ember.computed({
+  return computed({
     get(key) {
       let internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {

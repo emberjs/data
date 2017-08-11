@@ -1,12 +1,12 @@
+import { reject } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 const { hasMany } = DS;
-const { run } = Ember;
 
 let Post, Comment, env;
 
@@ -28,7 +28,7 @@ module("integration/load - Loading Records", {
 
 test("When loading a record fails, the record is not left behind", function(assert) {
   env.adapter.findRecord = function(store, type, id, snapshot) {
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   return run(() => {

@@ -1,11 +1,11 @@
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { run } = Ember;
 let env, Post, Comment;
 
 module("integration/snapshot - DS.Snapshot", {
@@ -372,7 +372,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
   assert.expect(2);
 
   env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve({ data: { id: 1, type: 'post', attributes: { title: 'Hello World' } } });
+    return resolve({ data: { id: 1, type: 'post', attributes: { title: 'Hello World' } } });
   };
 
   return run(() => {
@@ -804,7 +804,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
   assert.expect(2);
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    return Ember.RSVP.resolve({ data: [{ id: 2, type: 'comment', attributes: { body: 'This is comment' } }]});
+    return resolve({ data: [{ id: 2, type: 'comment', attributes: { body: 'This is comment' } }]});
   };
 
   return run(() => {

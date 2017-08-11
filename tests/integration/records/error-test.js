@@ -1,12 +1,11 @@
-import Ember from 'ember';
-import {module} from 'qunit';
+import { run } from '@ember/runloop';
+import { module } from 'qunit';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 var env, store, Person;
 var attr = DS.attr;
-var run = Ember.run;
 
 function updateErrors(func) {
   window.expectWarning(function() {
@@ -29,7 +28,7 @@ module('integration/records/error', {
   },
 
   afterEach: function() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -52,7 +51,7 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
     return store.peekRecord('person', 'wat');
   });
 
-  Ember.run(() => {
+  run(() => {
     person.set('firstName', null);
     person.set('lastName', null);
   });
@@ -83,7 +82,7 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
     });
   });
 
-  Ember.run(() => {
+  run(() => {
     person.set('firstName', null);
     person.set('lastName', null);
   });
@@ -112,7 +111,7 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
     });
   });
 
-  Ember.run(() => {
+  run(() => {
     person.set('firstName', null);
   });
 
@@ -143,7 +142,7 @@ testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)
     });
   });
 
-  Ember.run(() => {
+  run(() => {
     person.set('firstName', null);
   });
 

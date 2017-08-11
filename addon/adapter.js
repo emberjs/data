@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 /**
   An adapter is an object that receives requests from a store and
@@ -60,7 +60,7 @@ import Ember from 'ember';
   @extends Ember.Object
 */
 
-export default Ember.Object.extend({
+export default EmberObject.extend({
 
   /**
     If you would like your adapter to use a custom serializer you can
@@ -94,13 +94,14 @@ export default Ember.Object.extend({
     Here is an example `findRecord` implementation:
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.getJSON(`/${type.modelName}/${id}`).then(function(data) {
+        return new RSVP.Promise(function(resolve, reject) {
+          $.getJSON(`/${type.modelName}/${id}`).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -125,15 +126,16 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       findAll(store, type, sinceToken) {
         let query = { since: sinceToken };
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
+        return new RSVP.Promise(function(resolve, reject) {
+          $.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -158,13 +160,14 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       query(store, type, query) {
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
+        return new RSVP.Promise(function(resolve, reject) {
+          $.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -196,13 +199,14 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend(DS.BuildURLMixin, {
       queryRecord(store, type, query) {
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.getJSON(`/${type.modelName}`, query).then(function(data) {
+        return new RSVP.Promise(function(resolve, reject) {
+          $.getJSON(`/${type.modelName}`, query).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -290,24 +294,26 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import { run } from '@ember/runloop';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       createRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.ajax({
+        return new RSVP.Promise(function(resolve, reject) {
+          $.ajax({
             type: 'POST',
             url: `/${type.modelName}`,
             dataType: 'json',
             data: data
           }).then(function(data) {
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            run(null, reject, jqXHR);
           });
         });
       }
@@ -339,25 +345,27 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import { run } from '@ember/runloop';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       updateRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.ajax({
+        return new RSVP.Promise(function(resolve, reject) {
+          $.ajax({
             type: 'PUT',
             url: `/${type.modelName}/${id}`,
             dataType: 'json',
             data: data
           }).then(function(data) {
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            run(null, reject, jqXHR);
           });
         });
       }
@@ -381,25 +389,27 @@ export default Ember.Object.extend({
     Example
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import { run } from '@ember/runloop';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       deleteRecord(store, type, snapshot) {
         let data = this.serialize(snapshot, { includeId: true });
         let id = snapshot.id;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.ajax({
+        return new RSVP.Promise(function(resolve, reject) {
+          $.ajax({
             type: 'DELETE',
             url: `/${type.modelName}/${id}`,
             dataType: 'json',
             data: data
           }).then(function(data) {
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            run(null, reject, jqXHR);
           });
         });
       }
@@ -431,22 +441,24 @@ export default Ember.Object.extend({
     is true.
 
     ```app/adapters/application.js
-    import Ember from 'ember';
     import DS from 'ember-data';
+    import { run } from '@ember/runloop';
+    import RSVP from 'RSVP';
+    import $ from 'jquery';
 
     export default DS.Adapter.extend({
       findMany(store, type, ids, snapshots) {
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          Ember.$.ajax({
+        return new RSVP.Promise(function(resolve, reject) {
+          $.ajax({
             type: 'GET',
             url: `/${type.modelName}/`,
             dataType: 'json',
             data: { filter: { id: ids.join(',') } }
           }).then(function(data) {
-            Ember.run(null, resolve, data);
+            run(null, resolve, data);
           }, function(jqXHR) {
             jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
+            run(null, reject, jqXHR);
           });
         });
       }

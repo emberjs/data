@@ -1,14 +1,17 @@
+import { run } from '@ember/runloop';
+import Mixin from '@ember/object/mixin';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 import Model from 'ember-data/model';
 
 import { assertPolymorphicType } from 'ember-data/-debug';
-import { modelHasAttributeOrRelationshipNamedType } from 'ember-data/-private';
+import {
+  modelHasAttributeOrRelationshipNamedType
+} from 'ember-data/-private';
 
 let env, User, Message, Post, Person, Video, Medium;
 
@@ -24,7 +27,7 @@ module('unit/utils', {
       medias: DS.hasMany('medium', { async: false })
     });
 
-    Medium = Ember.Mixin.create();
+    Medium = Mixin.create();
     Video = Model.extend(Medium);
 
     env = setupStore({
@@ -39,14 +42,14 @@ module('unit/utils', {
   },
 
   afterEach() {
-    Ember.run(env.container, 'destroy');
+    run(env.container, 'destroy');
   }
 });
 
 testInDebug('assertPolymorphicType works for subclasses', function(assert) {
   let user, post, person;
 
-  Ember.run(() => {
+  run(() => {
     env.store.push({
       data: [{
         type: 'user',
@@ -107,7 +110,7 @@ test('modelHasAttributeOrRelationshipNamedType', function(assert) {
 testInDebug('assertPolymorphicType works for mixins', function(assert) {
   let post, video, person;
 
-  Ember.run(() => {
+  run(() => {
     env.store.push({
       data: [{
         type: 'post',

@@ -1,12 +1,12 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { Promise, hash } from 'rsvp';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, run, RSVP: { Promise }} = Ember;
 
 let results;
 
@@ -204,7 +204,7 @@ test('a loaded record is removed from a record array when it is deleted', functi
   });
 
   return run(() => {
-    return Ember.RSVP.hash({
+    return hash({
       scumbag: store.findRecord('person', 1),
       tag: store.findRecord('tag', 1)
     }).then(records => {
@@ -224,7 +224,7 @@ test('a loaded record is removed from a record array when it is deleted', functi
 
       assert.equal(get(recordArray, 'length'), 1, 'record is still in the record array until it is saved');
 
-      Ember.run(scumbag, 'save');
+      run(scumbag, 'save');
 
       assert.equal(get(recordArray, 'length'), 0, 'record is removed from the array when it is saved');
     });
@@ -352,7 +352,7 @@ test('a newly created record is removed from a record array when it is deleted',
   assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
   // guarantee coalescence
-  Ember.run(() => {
+  run(() => {
     store.createRecord('person', { name: 'p1' });
     store.createRecord('person', { name: 'p2' });
     store.createRecord('person', { name: 'p3' });

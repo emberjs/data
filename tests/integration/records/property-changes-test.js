@@ -1,13 +1,13 @@
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var env, store, Person;
 var attr = DS.attr;
-var run = Ember.run;
 
 module('integration/records/property-changes - Property changes', {
   beforeEach() {
@@ -23,7 +23,7 @@ module('integration/records/property-changes - Property changes', {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -115,7 +115,7 @@ test('Saving a record trigger observers for locally changed attributes with the 
   var person;
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
+    return resolve({ data: { id: 'wat', type: 'person', attributes: { 'last-name': 'Katz' } } });
   };
 
   run(function() {

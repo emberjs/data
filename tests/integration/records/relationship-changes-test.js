@@ -1,10 +1,11 @@
+import { alias } from '@ember/object/computed';
+import { run } from '@ember/runloop';
+import EmberObject, { set, get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
-const { run, get, set, computed } = Ember;
 const { attr, belongsTo, hasMany, Model } = DS;
 
 let env, store;
@@ -169,9 +170,9 @@ test('Calling push with relationship triggers observers once if the relationship
 test('Calling push with relationship recalculates computed alias property if the relationship was empty and is added to', function(assert) {
   assert.expect(1);
 
-  let Obj = Ember.Object.extend({
+  let Obj = EmberObject.extend({
     person: null,
-    siblings: computed.alias('person.siblings')
+    siblings: alias('person.siblings')
   });
 
   const obj = Obj.create();
@@ -224,9 +225,9 @@ test('Calling push with relationship recalculates computed alias property if the
 test('Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to', function(assert) {
   assert.expect(1);
 
-  let Obj = Ember.Object.extend({
+  let Obj = EmberObject.extend({
     person: null,
-    firstSibling: computed.alias('person.siblings.firstObject')
+    firstSibling: alias('person.siblings.firstObject')
   });
 
   const obj = Obj.create();

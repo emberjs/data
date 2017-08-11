@@ -1,11 +1,12 @@
+import { resolve } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 let Post, Comment, Misc, env;
 
 module("integration/client_id_generation - Client-side ID Generation", {
@@ -48,10 +49,10 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
   env.adapter.createRecord = function(store, type, snapshot) {
     if (type === Comment) {
       assert.equal(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
-      return Ember.RSVP.resolve();
+      return resolve();
     } else {
       assert.equal(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
-      return Ember.RSVP.resolve();
+      return resolve();
     }
   };
 
@@ -86,7 +87,7 @@ test("empty string and undefined ids should coerce to null", function(assert) {
 
   env.adapter.createRecord = function(store, type, record) {
     assert.equal(typeof get(record, 'id'), 'object', 'correct type');
-    return Ember.RSVP.resolve({ data: { id: id++, type: type.modelName } });
+    return resolve({ data: { id: id++, type: type.modelName } });
   };
 
   run(() => {

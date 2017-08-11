@@ -1,8 +1,4 @@
-import Ember from 'ember';
-
-const {
-  get
-} = Ember;
+import { get } from '@ember/object';
 
 const {
   __bind,

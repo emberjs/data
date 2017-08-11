@@ -1,7 +1,5 @@
-import Ember from 'ember';
+import { isNone } from '@ember/utils';
 import Transform from './transform';
-
-const { isNone } = Ember;
 
 /**
   The `DS.BooleanTransform` class is used to serialize and deserialize

@@ -1,14 +1,13 @@
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let Person, env;
 const { attr } = DS;
-const { run } = Ember;
-const { resolve } = Ember.RSVP;
 
 module("integration/lifecycle_hooks - Lifecycle Hooks", {
   beforeEach() {
@@ -50,7 +49,7 @@ test("When the adapter acknowledges that a record has been created without a new
   assert.expect(3);
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   let person = run(() => env.store.createRecord('person', { id: 99, name: "Yehuda Katz" }));

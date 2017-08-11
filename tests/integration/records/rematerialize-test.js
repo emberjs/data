@@ -1,16 +1,16 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { run } from '@ember/runloop';
 
-import {module, test} from 'qunit';
+import setupStore from 'dummy/tests/helpers/store';
+
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let attr = DS.attr;
 let belongsTo = DS.belongsTo;
 let hasMany = DS.hasMany;
-let run = Ember.run;
 let env;
 
 let Person = DS.Model.extend({
@@ -50,7 +50,7 @@ module("integration/unload - Rematerializing Unloaded Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }

@@ -1,4 +1,5 @@
-import Ember from 'ember';
+import { A } from '@ember/array';
+import { Promise } from 'rsvp';
 import { assert, warn } from '@ember/debug';
 import {
   _bind,
@@ -8,8 +9,6 @@ import {
 
 import { normalizeResponseHelper } from "./serializer-response";
 import { serializerForAdapter } from "./serializers";
-
-const { Promise } = Ember.RSVP;
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -50,7 +49,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 }
 
 export function _findMany(adapter, store, modelName, ids, internalModels) {
-  let snapshots = Ember.A(internalModels).invoke('createSnapshot');
+  let snapshots = A(internalModels).invoke('createSnapshot');
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;

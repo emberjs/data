@@ -1,4 +1,4 @@
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import { diffArray } from 'ember-data/-private';
 

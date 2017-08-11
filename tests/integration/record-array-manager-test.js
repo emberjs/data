@@ -1,13 +1,13 @@
+import { A } from '@ember/array';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let store, env, manager;
-
-const { run } = Ember;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
@@ -112,20 +112,20 @@ test('destroying the store correctly cleans everything up', function(assert) {
 
   assert.equal(internalPersonModel._recordArrays.size, 3, 'expected the person to be a member of 3 recordArrays');
 
-  Ember.run(filterd2, filterd2.destroy);
+  run(filterd2, filterd2.destroy);
 
   assert.equal(internalPersonModel._recordArrays.size, 2, 'expected the person to be a member of 2 recordArrays');
   assert.equal(filterd2Summary.called.length, 1);
 
   assert.equal('person' in manager._liveRecordArrays, true);
 
-  Ember.run(all, all.destroy);
+  run(all, all.destroy);
 
   assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
   assert.equal(allSummary.called.length, 1);
   assert.equal('person' in manager._liveRecordArrays, false);
 
-  Ember.run(manager, manager.destroy);
+  run(manager, manager.destroy);
 
   assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
   assert.equal(filterdSummary.called.length, 1);
@@ -309,7 +309,7 @@ test('createRecordArray \w optional content', function(assert) {
       return record;
     }
   };
-  let content = Ember.A([internalModel]);
+  let content = A([internalModel]);
   let recordArray = manager.createRecordArray('foo', content);
 
   assert.equal(recordArray.modelName, 'foo');

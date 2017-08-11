@@ -1,12 +1,13 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { resolve } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 let store, tryToFind, Record;
 
 module('unit/store/unload - Store unloading records', {
@@ -27,7 +28,7 @@ module('unit/store/unload - Store unloading records', {
       adapter: DS.Adapter.extend({
         findRecord(store, type, id, snapshot) {
           tryToFind = true;
-          return Ember.RSVP.resolve({ data: { id, type: snapshot.modelName, attributes: { 'was-fetched': true } } });
+          return resolve({ data: { id, type: snapshot.modelName, attributes: { 'was-fetched': true } } });
         }
       }),
 
@@ -36,7 +37,7 @@ module('unit/store/unload - Store unloading records', {
   },
 
   afterEach() {
-    Ember.run(store, 'destroy');
+    run(store, 'destroy');
   }
 });
 
@@ -155,7 +156,7 @@ test('can commit store after unload record with relationships', function(assert)
   let store = createStore({
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return Ember.RSVP.resolve({
+        return resolve({
           data: {
             id: 1,
             type: snapshot.modelName,
@@ -168,7 +169,7 @@ test('can commit store after unload record with relationships', function(assert)
       },
 
       createRecord(store, type, snapshot) {
-        return Ember.RSVP.resolve();
+        return resolve();
       }
     }),
     brand: Brand,
@@ -206,7 +207,7 @@ test('can commit store after unload record with relationships', function(assert)
     return like.save();
   }).then(() => {
     // TODO: this is strange, future travelers please address
-    Ember.run(() => store.unloadRecord(store.peekRecord('product', 1)));
+    run(() => store.unloadRecord(store.peekRecord('product', 1)));
   }).then(() => {
     return store.findRecord('product', 1);
   }).then(product => {

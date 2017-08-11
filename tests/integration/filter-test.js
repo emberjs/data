@@ -1,5 +1,7 @@
+import { hash, all } from 'rsvp';
+import { set, get, computed } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import { module, test } from 'qunit';
 
@@ -7,18 +9,12 @@ import DS from 'ember-data';
 
 import customAdapter from 'dummy/tests/helpers/custom-adapter';
 
-const {
-  get,
-  set,
-  run
-} = Ember;
-
 let store, env, data, recordArray;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
   bestFriend: DS.belongsTo('person', { inverse: null, async: false }),
-  upperName: Ember.computed('name', function() {
+  upperName: computed('name', function() {
     return this.get('name').toUpperCase();
   }).readOnly()
 });
@@ -235,7 +231,7 @@ test('a Record Array can update its filter', function(assert) {
     }
   }).then(recordArray => {
 
-    return Ember.RSVP.hash(asyncData).then(records => {
+    return hash(asyncData).then(records => {
       assert.contains(recordArray, records.dale);
       assert.contains(recordArray, records.katz);
       assert.without(recordArray,  dickens);
@@ -334,7 +330,7 @@ test('a Record Array can update its filter and notify array observers', function
       });
     });
 
-    return Ember.RSVP.all(asyncData).then(() => {
+    return all(asyncData).then(() => {
       assert.equal(didChangeRemoved, 1, 'removed one item from array');
       didChangeRemoved = 0;
 

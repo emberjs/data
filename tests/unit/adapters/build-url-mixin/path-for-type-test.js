@@ -1,11 +1,10 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import DS from 'ember-data';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 let env, adapter;
-let { run } = Ember;
 
 module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {
   beforeEach() {

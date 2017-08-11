@@ -1,5 +1,5 @@
+import { resolve } from 'rsvp';
 import Model from '../model/model';
-import Ember from 'ember';
 import Reference from './reference';
 
 import isEnabled from '../../features';
@@ -240,7 +240,7 @@ BelongsToReference.prototype.meta = function() {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
 */
 BelongsToReference.prototype.push = function(objectOrPromise) {
-  return Ember.RSVP.resolve(objectOrPromise).then((data) => {
+  return resolve(objectOrPromise).then((data) => {
     let record;
 
     if (data instanceof Model) {
