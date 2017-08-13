@@ -3,9 +3,8 @@ module.exports = {
   scenarios: [
     {
       name: 'default',
-      bower: {
-        dependencies: { }
-      }
+      bower: { },
+      npm: { }
     },
     {
       name: 'ember-1-13',
@@ -18,7 +17,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -32,7 +33,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -46,7 +49,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -60,7 +65,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -74,7 +81,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -88,7 +97,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     },
     {
@@ -102,7 +113,9 @@ module.exports = {
         }
       },
       npm: {
-        'ember-source': null
+        devDependencies: {
+          'ember-source': null
+        }
       }
     }
   ]
