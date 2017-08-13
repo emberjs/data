@@ -16,7 +16,6 @@ before_install:
 
 install:
   - yarn
-  - ./node_modules/.bin/bower install
 
 script:
   - ./bin/lint-features

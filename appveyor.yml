@@ -19,8 +19,6 @@ install:
   # Typical npm stuff.
   - md C:\nc
   - appveyor-retry yarn install
-  # Workaround https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows
-  - yarn run bower
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
