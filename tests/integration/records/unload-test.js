@@ -735,3 +735,31 @@ test("after unloading a record, the record can be fetched again soon there after
 
   assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
 });
+
+test('after unloading a record, the record can be saved again immediately', function (assert) {
+  assert.expect(0);
+
+  const store = env.store;
+  const data = {
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Adam Sunderland'
+      }
+    }
+  };
+
+  env.adapter.createRecord = () => Ember.RSVP.Promise.resolve(data);
+
+  run(() => {
+    // add an initial record with id '1' to the store
+    store.push(data);
+
+    // unload the initial record
+    store.peekRecord('person', '1').unloadRecord();
+
+    // create a new record that will again get id '1' from the backend
+    store.createRecord('person').save();
+  });
+});
