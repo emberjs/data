@@ -1987,6 +1987,11 @@ Store = Service.extend({
       return;
     }
 
+    let existingInternalModel = this._existingInternalModelForId(modelName, id);
+
+    assert(`'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
+      isNone(existingInternalModel) || existingInternalModel === internalModel);
+
     this._internalModelsFor(internalModel.modelName).set(id, internalModel);
 
     internalModel.setId(id);
@@ -2567,15 +2572,7 @@ Store = Service.extend({
 
     assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
 
-    let internalModels = this._internalModelsFor(modelName);
-    let existingInternalModel = internalModels.get(id);
-
-    if (existingInternalModel && existingInternalModel.hasScheduledDestroy()) {
-      // unloadRecord is async, if one attempts to unload + then sync create,
-      // we must ensure the unload is complete before starting the create
-      existingInternalModel.destroySync();
-      existingInternalModel = null;
-    }
+    let existingInternalModel = this._existingInternalModelForId(modelName, id);
 
     assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !existingInternalModel);
 
@@ -2583,8 +2580,20 @@ Store = Service.extend({
     // instances with the injections applied
     let internalModel = new InternalModel(modelName, id, this, data);
 
-    internalModels.add(internalModel, id);
+    this._internalModelsFor(modelName).add(internalModel, id);
 
+    return internalModel;
+  },
+
+  _existingInternalModelForId(modelName, id) {
+    let internalModel = this._internalModelsFor(modelName).get(id);
+
+    if (internalModel && internalModel.hasScheduledDestroy()) {
+      // unloadRecord is async, if one attempts to unload + then sync create,
+      // we must ensure the unload is complete before starting the create
+      internalModel.destroySync();
+      internalModel = null;
+    }
     return internalModel;
   },
 
