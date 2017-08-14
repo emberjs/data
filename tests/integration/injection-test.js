@@ -1,10 +1,13 @@
+import {
+  setup as setupModelFactoryInjections,
+  reset as resetModelFactoryInjections
+} from 'dummy/tests/helpers/model-factory-injection';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
 let env, hasFactoryFor, originalLookupFactory, originalOwnerLookupFactory, originalFactoryFor;
-let originalMODEL_FACTORY_INJECTIONS = Ember.MODEL_FACTORY_INJECTIONS;
 const { run } = Ember;
 
 const model = {
@@ -79,7 +82,7 @@ test('modelFor', function(assert) {
 
 module('integration/injection eager injections', {
   setup() {
-    Ember.MODEL_FACTORY_INJECTIONS = true;
+    setupModelFactoryInjections();
     env = setupStore();
 
     env.registry.injection('model:foo', 'apple', 'service:apple');
@@ -90,7 +93,7 @@ module('integration/injection eager injections', {
 
   teardown() {
     // can be removed once we no longer support ember versions without lookupFactory
-    Ember.MODEL_FACTORY_INJECTIONS = originalMODEL_FACTORY_INJECTIONS;
+    resetModelFactoryInjections();
 
     run(env.store, 'destroy');
   }

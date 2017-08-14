@@ -1,3 +1,8 @@
+import {
+  setup as setupModelFactoryInjections,
+  reset as resetModelFactoryInjections
+} from 'dummy/tests/helpers/model-factory-injection';
+
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
@@ -170,8 +175,7 @@ testInDebug("Pushing a an object that does not implement the mixin to the mixin 
 });
 
 test("Pushing to the hasMany reflects the change on the belongsTo side - model injections true", function(assert) {
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  setupModelFactoryInjections();
 
   try {
     var user, video;
@@ -209,7 +213,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
       });
     });
   } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjections();
   }
 });
 
@@ -217,8 +221,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - model i
   Local edits
 */
 testInDebug("Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true", function(assert) {
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  setupModelFactoryInjections();
 
   try {
     var user,notMessage;
@@ -255,7 +258,6 @@ testInDebug("Pushing a an object that does not implement the mixin to the mixin 
       });
     });
   } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjections();
   }
 });
-
