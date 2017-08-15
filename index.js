@@ -10,6 +10,7 @@ const merge = require('broccoli-merge-trees');
 const semver = require('semver');
 const version = require('./lib/version');
 const BroccoliDebug = require('broccoli-debug');
+const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 
 // allow toggling of heimdall instrumentation
 let INSTRUMENT_HEIMDALL = false;
@@ -213,6 +214,9 @@ module.exports = {
         production: app.bowerDirectory + '/ember-data/ember-data.prod.js'
       });
     }
+  },
+
+  cacheKeyForTree(treeType) {
+    return calculateCacheKeyForTree(treeType, this);
   }
 };
-

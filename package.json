@@ -14,7 +14,6 @@
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
     "test:production": "ember test --environment=production",
-    "bower": "bower install",
     "production": "ember build --environment=production"
   },
   "author": "",
@@ -32,6 +31,7 @@
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^2.0.0",
     "broccoli-rollup": "^1.2.0",
+    "calculate-cache-key-for-tree": "^1.1.0",
     "chalk": "^1.1.1",
     "ember-cli-babel": "^6.4.1",
     "ember-cli-path-utils": "^1.0.0",
@@ -61,7 +61,6 @@
     "babel-plugin-transform-es2015-shorthand-properties": "^6.22.0",
     "babel-plugin-transform-es2015-spread": "^6.22.0",
     "babel-plugin-transform-es2015-template-literals": "^6.22.0",
-    "bower": "^1.6.5",
     "broccoli-asset-rev": "^2.4.5",
     "broccoli-concat": "^3.2.2",
     "broccoli-stew": "^1.4.2",

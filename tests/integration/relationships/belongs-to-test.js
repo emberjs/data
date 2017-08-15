@@ -11,7 +11,6 @@ const { attr, hasMany, belongsTo } = DS;
 const { hash } = RSVP;
 
 let env, store, User, Message, Post, Comment, Book, Chapter, Author, NewMessage;
-const injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   beforeEach() {
@@ -83,7 +82,6 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   },
 
   afterEach() {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
     run(env.container, 'destroy');
   }
 });
