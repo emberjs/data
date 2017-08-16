@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import { singularize } from 'ember-inflector';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
@@ -104,7 +105,7 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
 
   env.restSerializer.modelNameFromPayloadKey = function(root) {
     var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
+    return singularize(camelized);
   };
 
   var jsonHash = {
@@ -250,7 +251,7 @@ testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", fun
 
   // should not warn if a model is found.
   env.restSerializer.modelNameFromPayloadKey = function(root) {
-    return Ember.String.camelize(Ember.String.singularize(root));
+    return Ember.String.camelize(singularize(root));
   };
 
   jsonHash = {

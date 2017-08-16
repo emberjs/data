@@ -4,6 +4,7 @@
 */
 
 import Ember from 'ember';
+import { pluralize } from 'ember-inflector';
 import RESTAdapter from "./rest";
 import { isEnabled } from '../-private';
 import { instrument, deprecate } from 'ember-data/-debug';
@@ -257,7 +258,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
 
   pathForType(modelName) {
     let dasherized = Ember.String.dasherize(modelName);
-    return Ember.String.pluralize(dasherized);
+    return pluralize(dasherized);
   },
 
   // TODO: Remove this once we have a better way to override HTTP verbs.

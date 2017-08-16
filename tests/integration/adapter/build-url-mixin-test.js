@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import { pluralize } from 'ember-inflector';
 import { isEnabled } from 'ember-data/-private';
 
 import {module, test} from 'qunit';
@@ -183,7 +184,7 @@ test('buildURL - with camelized names', function(assert) {
   adapter.setProperties({
     pathForType(type) {
       var decamelized = Ember.String.decamelize(type);
-      return Ember.String.underscore(Ember.String.pluralize(decamelized));
+      return Ember.String.underscore(pluralize(decamelized));
     }
   });
 
