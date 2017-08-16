@@ -5,8 +5,9 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
+import { getOwner } from 'ember-data/-private';
 
-const { get, getOwner, set, run } = Ember;
+const { get, set, run } = Ember;
 
 let Person, store, env;
 

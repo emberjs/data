@@ -28,7 +28,10 @@ function getOwner(context) {
 
   if (owner && owner.lookupFactory && !owner._lookupFactory) {
     // `owner` is a container, we are just making this work
-    owner._lookupFactory = owner.lookupFactory;
+    owner._lookupFactory = function() {
+      return owner.lookupFactory(...arguments);
+    }
+
     owner.register = function() {
       let registry = owner.registry || owner._registry || owner;
 
