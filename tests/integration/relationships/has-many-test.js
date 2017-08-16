@@ -1,5 +1,9 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
+import {
+  setup as setupModelFactoryInjections,
+  reset as resetModelFactoryInjections
+} from 'dummy/tests/helpers/model-factory-injection';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
@@ -1338,8 +1342,7 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
 test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function(assert) {
   assert.expect(1);
 
-  let injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  setupModelFactoryInjections();
 
   try {
     run(function () {
@@ -1351,7 +1354,7 @@ test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_IN
       assert.equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
     });
   } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjections();
   }
 });
 

@@ -2,6 +2,10 @@ import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import {
+  setup as setupModelFactoryInjections,
+  reset as resetModelFactoryInjection
+} from 'dummy/tests/helpers/model-factory-injection';
 import {module, test} from 'qunit';
 
 import DS from 'ember-data';
@@ -11,7 +15,6 @@ const { attr, hasMany, belongsTo } = DS;
 const { hash } = RSVP;
 
 let env, store, User, Message, Post, Comment, Book, Chapter, Author, NewMessage;
-const injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   beforeEach() {
@@ -83,7 +86,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   },
 
   afterEach() {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjection();
     run(env.container, 'destroy');
   }
 });
@@ -493,6 +496,7 @@ test("polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY
 });
 
 test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function(assert) {
+  setupModelFactoryInjections(false);
   assert.expect(1);
   run(() => {
     let message = env.store.createRecord('message', { id: 1 });

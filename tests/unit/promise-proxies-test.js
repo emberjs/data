@@ -13,7 +13,7 @@ test('.reload should NOT leak the internal promise, rather return another promis
 
   content.reload = () => Ember.RSVP.Promise.resolve(content);
 
-  let array = new DS.PromiseManyArray({
+  let array = DS.PromiseManyArray.create({
     content
   });
 
@@ -32,7 +32,7 @@ test('.reload should be stable', function(assert) {
   content.reload = () => Ember.RSVP.Promise.resolve(content);
   let promise = Ember.RSVP.Promise.resolve(content);
 
-  let array = new DS.PromiseManyArray({
+  let array = DS.PromiseManyArray.create({
     promise
   });
 
@@ -75,7 +75,7 @@ test('.set to new promise should be like reload', function(assert) {
 
   let promise = Ember.RSVP.Promise.resolve(content);
 
-  let array = new DS.PromiseManyArray({
+  let array = DS.PromiseManyArray.create({
     promise
   });
 
