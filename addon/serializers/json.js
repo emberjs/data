@@ -959,6 +959,7 @@ const JSONSerializer = Serializer.extend({
 
     ```app/serializers/application.js
     import DS from 'ember-data';
+    import { singularize } from 'ember-inflector';
 
     export default DS.JSONSerializer.extend({
       serialize(snapshot, options) {
@@ -987,7 +988,7 @@ const JSONSerializer = Serializer.extend({
     }
 
     function serverHasManyName(name) {
-      return serverAttributeName(name.singularize()) + "_IDS";
+      return serverAttributeName(singularize(name)) + "_IDS";
     }
     ```
 
