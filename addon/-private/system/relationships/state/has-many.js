@@ -23,7 +23,7 @@ export default class ManyRelationship extends Relationship {
       }
       this.__loadingPromise.set('promise', promise)
     } else {
-      this.__loadingPromise = new PromiseManyArray({
+      this.__loadingPromise = PromiseManyArray.create({
         promise,
         content
       });
