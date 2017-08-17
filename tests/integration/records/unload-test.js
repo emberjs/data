@@ -765,3 +765,49 @@ test('after unloading a record, the record can be saved again immediately', func
     store.createRecord('person').save();
   });
 });
+
+test('after unloading a record, pushing a new copy will setup relatioonships', function (assert) {
+  const store = env.store;
+  const personData = {
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Adam Sunderland'
+      }
+    }
+  };
+  const carData = {
+    data: {
+      type: 'car',
+      id: '10',
+      attributes: {
+        make: 'VW',
+        model: 'Beetle'
+      },
+      relationships: {
+        person: {
+          data: { type: 'person', id: '1' }
+        }
+      }
+    }
+  };
+
+  function pushCar() {
+    store.push(Ember.copy(carData, true));
+  }
+
+  Ember.run(() => { store.push(personData) });
+
+  let adam = env.store.peekRecord('person', 1);
+  assert.equal(adam.get('cars.length'), 0, 'cars hasMany starts off empty');
+
+  Ember.run(() => pushCar());
+  assert.equal(adam.get('cars.length'), 1, 'pushing car setups inverse relationship');
+
+  Ember.run(() => adam.get('cars.firstObject').unloadRecord());
+  assert.equal(adam.get('cars.length'), 0, 'unloading car cleaned up hasMany');
+
+  Ember.run(() => pushCar());
+  assert.equal(adam.get('cars.length'), 1, 'pushing car again setups inverse relationship');
+});
