@@ -755,8 +755,8 @@ const Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
 
-   If you pass an object on the `adapterOptions` property of the options
-   argument it will be passed to you adapter via the snapshot
+   If you pass an object using the `adapterOptions` property of the options
+   argument it will be passed to your adapter via the snapshot.
 
     ```js
     record.save({ adapterOptions: { subscribe: false } });
