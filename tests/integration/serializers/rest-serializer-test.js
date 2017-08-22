@@ -1,6 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import { singularize } from 'ember-inflector';
+import Inflector, { singularize } from 'ember-inflector';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
@@ -75,7 +75,7 @@ module("integration/serializer/rest - RESTSerializer", {
 
 test("modelNameFromPayloadKey returns always same modelName even for uncountable multi words keys", function(assert) {
   assert.expect(2);
-  Ember.Inflector.inflector.uncountable('words');
+  Inflector.inflector.uncountable('words');
   var expectedModelName = 'multi-words';
   assert.equal(env.restSerializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
   assert.equal(env.restSerializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
