@@ -465,6 +465,136 @@ test('hasMany with duplicates from payload', function(assert) {
   });
 });
 
+test('many2many loads both sides #5140', function(assert) {
+  assert.expect(3);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { async: false })
+  });
+
+  Tag.reopenClass({
+    toString() {
+      return 'tag';
+    }
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tags', { async: false })
+  });
+
+  Person.reopenClass({
+    toString() {
+      return 'person';
+    }
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  run(() => {
+    // first we push in data with the relationship
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: 1,
+          attributes: {
+            name: 'David J. Hamilton'
+          },
+          relationships: {
+            tags: [{
+              data: {
+                type: 'tag',
+                id: 1
+              }
+            },
+            {
+              data: {
+                type: 'tag',
+                id: 2
+              }
+            }]
+          }
+        },
+        {
+          type: 'person',
+          id: 2,
+          attributes: {
+            name: 'Gerald Dempsey Posey'
+          },
+          relationships: {
+            tags: [{
+              data: {
+                type: 'tag',
+                id: 1
+              }
+            },
+            {
+              data: {
+                type: 'tag',
+                id: 2
+              }
+            }]
+          }
+        },
+        {
+          type: 'tag',
+          id: 1,
+          attributes: {
+            name: 'whatever'
+          },
+          relationships: {
+            people: {
+              data: [
+                {
+                  type: 'person',
+                  id: 1
+                },
+                {
+                  type: 'person',
+                  id: 2
+                }
+              ]
+            }
+          }
+        },
+        {
+          type: 'tag',
+          id: 2,
+          attributes: {
+            name: 'nothing'
+          },
+          relationships: {
+            people: {
+              data: [
+                {
+                  type: 'person',
+                  id: 1
+                },
+                {
+                  type: 'person',
+                  id: 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  run(() => {
+    let tag = store.peekRecord('tag', 1);
+    assert.equal(tag.get('people.length'), 2, 'relationship does contain all data');
+    let person1 = store.peekRecord('person', 1);
+    assert.equal(person1.get('tags.length'), 2, 'relationship does contain all data');
+    let person2 = store.peekRecord('person', 2);
+    assert.equal(person2.get('tags.length'), 2, 'relationship does contain all data');
+  });
+});
+
 test('hasMany with explicit null works even when the inverse was set to not null', function(assert) {
   assert.expect(3);
 
