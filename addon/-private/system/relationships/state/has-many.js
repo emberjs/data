@@ -209,7 +209,7 @@ export default class ManyRelationship extends Relationship {
 
     for (let i = 0; i< internalModels.length; i++) {
       let internalModel = internalModels[i];
-      if (this.canonicalMembers.has(internalModel)) {
+      if (forCanonical.indexOf(internalModel) !== -1) {
         continue;
       }
 
