@@ -57,12 +57,10 @@ module("integration/unload - Rematerializing Unloaded Records", {
 });
 
 test("a sync belongs to relationship to an unloaded record can restore that record", function(assert) {
-  let adam, bob;
-
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  run(function() {
+  let adam = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -79,10 +77,11 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
         }
       }
     });
-    adam = env.store.peekRecord('person', 1);
+
+    return env.store.peekRecord('person', 1);
   });
 
-  run(function() {
+  let bob = run(() => {
     env.store.push({
       data: {
         type: 'car',
@@ -98,7 +97,8 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
         }
       }
     });
-    bob = env.store.peekRecord('car', 1);
+
+    return env.store.peekRecord('car', 1);
   });
 
   let person = env.store.peekRecord('person', 1);
@@ -107,9 +107,7 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
   assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
   assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is loaded');
 
-  run(function() {
-    person.unloadRecord();
-  });
+  run(() => person.unloadRecord());
 
   assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
   assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is retained');
@@ -141,7 +139,7 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
 });
 
 test("an async has many relationship to an unloaded record can restore that record", function(assert) {
-  assert.expect(14);
+  assert.expect(15);
 
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
@@ -189,7 +187,7 @@ test("an async has many relationship to an unloaded record can restore that reco
     };
   }
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -209,7 +207,7 @@ test("an async has many relationship to an unloaded record can restore that reco
     });
   });
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: [BOAT_ONE, BOAT_TWO]
     });
@@ -228,6 +226,7 @@ test("an async has many relationship to an unloaded record can restore that reco
   assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
   run(() => boaty.unloadRecord());
+  assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
   assert.equal(env.store.hasRecordForId('boat', 1), false, 'The boat is unloaded');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
