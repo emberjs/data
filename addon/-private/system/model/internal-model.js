@@ -68,6 +68,14 @@ function areAllModelsUnloaded(internalModels) {
   return true;
 }
 
+function destroyRelationship(rel) {
+  if (rel._inverseIsAsync()) {
+    rel.removeInternalModelFromInverse(rel.inverseInternalModel);
+    rel.removeInverseRelationships();
+  } else {
+    rel.removeCompletelyFromInverse();
+  }
+}
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
@@ -432,9 +440,7 @@ export default class InternalModel {
   _directlyRelatedInternalModels() {
     let array = [];
     this._relationships.forEach((name, rel) => {
-      let local = rel.members.toArray();
-      let server = rel.canonicalMembers.toArray();
-      array = array.concat(local, server);
+      array = array.concat(rel.members.list, rel.canonicalMembers.list);
     });
     return array;
   }
@@ -486,6 +492,7 @@ export default class InternalModel {
     once all models that refer to it via some relationship are also unloaded.
   */
   unloadRecord() {
+    if (this.isDestroyed) { return; }
     this.send('unloadRecord');
     this.dematerializeRecord();
 
@@ -539,7 +546,6 @@ export default class InternalModel {
     if (this.isDestroyed) { return; }
 
     this._cleanupOrphanedInternalModels();
-
   }
 
   _cleanupOrphanedInternalModels() {
@@ -946,26 +952,15 @@ export default class InternalModel {
     and destroys any ManyArrays.
    */
   destroyRelationships() {
-    this._relationships.forEach((name, rel) => {
-      if (rel._inverseIsAsync()) {
-        rel.removeInternalModelFromInverse(this);
-        rel.removeInverseRelationships();
-      } else {
-        rel.removeCompletelyFromInverse();
-      }
-    });
+    let relationships = this._relationships;
+    relationships.forEach((name, rel) => destroyRelationship(rel));
 
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
     Object.keys(implicitRelationships).forEach((key) => {
       let rel = implicitRelationships[key];
 
-      if (rel._inverseIsAsync()) {
-        rel.removeInternalModelFromInverse(this);
-        rel.removeInverseRelationships();
-      } else {
-        rel.removeCompletelyFromInverse();
-      }
+      destroyRelationship(rel);
 
       rel.destroy();
     });
