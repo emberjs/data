@@ -220,7 +220,13 @@ export default class RelationshipPayloads {
       // Then we will initially have set user:2 as having helicopter:1, which we
       // need to remove before adding helicopter:1 to user:4
       //
-      this._removeInverse(id, previousPayload, inverseIdToPayloads);
+      // only remove relationship information before adding if there is relationshipData.data
+      // * null is considered new information "empty", and it should win
+      // * undefined is NOT considered new information, we should keep original state
+      // * anything else is considered new information, and it should win
+      if (relationshipData.data !== undefined) {
+        this._removeInverse(id, previousPayload, inverseIdToPayloads);
+      }
       idToPayloads[id] = relationshipData;
       this._populateInverse(relationshipData, inverseRelationshipData, inverseIdToPayloads, inverseIsMany);
     }
