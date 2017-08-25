@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { pluralize } from 'ember-inflector';
 
 const get = Ember.get;
 
@@ -420,11 +421,12 @@ export default Ember.Mixin.create({
 
     ```app/adapters/application.js
     import DS from 'ember-data';
+    import { pluralize } from 'ember-inflector';
 
     export default DS.RESTAdapter.extend({
       pathForType: function(modelName) {
         var decamelized = Ember.String.decamelize(modelName);
-        return Ember.String.pluralize(decamelized);
+        return pluralize(decamelized);
       }
     });
     ```
@@ -435,6 +437,6 @@ export default Ember.Mixin.create({
   **/
   pathForType(modelName) {
     let camelized = Ember.String.camelize(modelName);
-    return Ember.String.pluralize(camelized);
+    return pluralize(camelized);
   }
 });

@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
+import { singularize } from 'ember-inflector';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {module, test} from 'qunit';
@@ -2087,7 +2088,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
         var underscored = Ember.String.underscore(rel);
         return underscored + '_id';
       } else {
-        var singular = Ember.String.singularize(rel);
+        var singular = singularize(rel);
         return Ember.String.underscore(singular) + '_ids';
       }
     }
