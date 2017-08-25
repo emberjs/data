@@ -96,12 +96,13 @@ export default class Relationship {
     let allMembers =
       // we actually want a union of members and canonicalMembers
       // they should be disjoint but currently are not due to a bug
-      this.members.toArray().concat(this.canonicalMembers.toArray());
+      this.members.list.concat(this.canonicalMembers.list);
 
-    allMembers.forEach(inverseInternalModel => {
+    for (let i = 0; i < allMembers.length; i++) {
+      let inverseInternalModel = allMembers[i];
       let relationship = inverseInternalModel._relationships.get(this.inverseKey);
       relationship.inverseDidDematerialize();
-    });
+    }
   }
 
   inverseDidDematerialize() {}
