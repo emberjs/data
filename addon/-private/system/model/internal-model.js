@@ -366,7 +366,6 @@ export default class InternalModel {
 
   resetRecord() {
     this._record = null;
-    this.dataHasInitialized = false;
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
@@ -594,18 +593,6 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
-    this.didInitializeData();
-  }
-
-  becameReady() {
-    this.store.recordArrayManager.recordWasLoaded(this);
-  }
-
-  didInitializeData() {
-    if (!this.dataHasInitialized) {
-      this.becameReady();
-      this.dataHasInitialized = true;
-    }
   }
 
   get isDestroyed() {
@@ -640,7 +627,6 @@ export default class InternalModel {
   */
   loadedData() {
     this.send('loadedData');
-    this.didInitializeData();
   }
 
   /*
@@ -785,14 +771,6 @@ export default class InternalModel {
     if (get(this, 'isError')) {
       this._inFlightAttributes = null;
       this.didCleanError();
-    }
-
-    //Eventually rollback will always work for relationships
-    //For now we support it only out of deleted state, because we
-    //have an explicit way of knowing when the server acked the relationship change
-    if (this.isDeleted()) {
-      //TODO: Should probably move this to the state machine somehow
-      this.becameReady();
     }
 
     if (this.isNew()) {
