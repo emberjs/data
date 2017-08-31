@@ -2016,9 +2016,15 @@ Store = Service.extend({
     heimdall.increment(_load);
     let internalModel = this._internalModelForId(data.type, data.id);
 
+    let isUpdate = internalModel.currentState.isEmpty === false;
+
     internalModel.setupData(data);
 
-    this.recordArrayManager.recordDidChange(internalModel);
+    if (isUpdate) {
+      this.recordArrayManager.recordDidChange(internalModel);
+    } else {
+      this.recordArrayManager.recordWasLoaded(internalModel);
+    }
 
     return internalModel;
   },
