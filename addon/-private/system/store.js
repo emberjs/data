@@ -2435,9 +2435,10 @@ Store = Service.extend({
     // payload push.  In the common case where we are pushing many more
     // instances than types we want to minimize the cost of looking up the
     // inverse map and the overhead of Ember.get adds up.
-    let modelNameToInverseMap = Object.create(null);
+    let modelNameToInverseMap;
 
     for (let i = 0, l = pushed.length; i < l; i += 2) {
+      modelNameToInverseMap = modelNameToInverseMap || Object.create(null);
       // This will convert relationships specified as IDs into DS.Model instances
       // (possibly unloaded) and also create the data structures used to track
       // relationships.
@@ -2876,13 +2877,8 @@ function isInverseRelationshipInitialized(store, internalModel, data, key, model
 }
 
 function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
-  let relationships = internalModel._relationships;
-
-  internalModel.type.eachRelationship(relationshipName => {
-    if (!data.relationships[relationshipName]) {
-      return;
-    }
-
+  Object.keys(data.relationships).forEach(relationshipName => {
+    let relationships = internalModel._relationships;
     let relationshipRequiresNotification = relationships.has(relationshipName) ||
       isInverseRelationshipInitialized(store, internalModel, data, relationshipName, modelNameToInverseMap);
 
