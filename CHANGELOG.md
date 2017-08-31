@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 2.15.0-beta.5 (August 31, 2017)
+
+- [#5132](https://github.com/emberjs/data/pull/5132) [BUGFIX] Fixes saving a record immediately after unloading a record with the same id
+- [#5145](https://github.com/emberjs/data/pull/5145) [BUGFIX] Load many2many relationships correctly
+- [#5148](https://github.com/emberjs/data/pull/5148) [BUGFIX] Relationships now update properly with new information
+- [#5155](https://github.com/emberjs/data/pull/5155) [BUGFIX] Ensure symmetry between async and sync relationships
+
 ### Release 2.15.0-beta.4 (August 10, 2017)
 - [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
 - [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
