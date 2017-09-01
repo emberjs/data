@@ -2,20 +2,15 @@
 
 ### Master
 
-### Release 2.15.0-beta.5 (August 31, 2017)
+### Release 2.15.0 (September 1, 2017)
 
 - [#5132](https://github.com/emberjs/data/pull/5132) [BUGFIX] Fixes saving a record immediately after unloading a record with the same id
 - [#5145](https://github.com/emberjs/data/pull/5145) [BUGFIX] Load many2many relationships correctly
 - [#5148](https://github.com/emberjs/data/pull/5148) [BUGFIX] Relationships now update properly with new information
 - [#5155](https://github.com/emberjs/data/pull/5155) [BUGFIX] Ensure symmetry between async and sync relationships
-
-### Release 2.15.0-beta.4 (August 10, 2017)
 - [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
 - [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
 - [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
-
-### Release 2.15.0-beta.3 (July 27, 2017)
-
 - [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
 - [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
 - [84041a5f](https://github.com/emberjs/data/commit/84041a5f73b5b2a8f6d6d6475f7aa71d5b83b939) Update RELEASE.md
@@ -34,12 +29,8 @@
 - [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
 - [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
 - [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
-
-### Release 2.15.0-beta.2 (July 11, 2017)
 - [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
 - [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
-
-### Release 2.15.0-beta.1 (June 18, 2017)
 - [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
 - [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
 - [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
