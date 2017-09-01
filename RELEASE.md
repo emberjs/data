@@ -34,11 +34,6 @@ STEPS:
   * Edit [lastRelease, futureVersion and date](https://github.com/emberjs/website/blob/master/source/javascripts/app/builds/app.js#L238-L241) values for the release channel we are releasing.
   * Commit updated `javascripts/app/builds/app.js` file
   * `rake deploy`
-* Website API docs (This step does not happen for beta releases)
-  * `cd ../website`
-  * `rake generate_ember_data_docs`
-  * Commit updated `data/data_api.yml` file
-  * `rake deploy`
 * Write a Release Blog Post (Does not happen for beta releases)
   * Commits since last release: `git log --oneline release..beta | wc -l`.
   * Contributors since last release: `git shortlog -s -n release...beta | wc -l`
