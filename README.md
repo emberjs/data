@@ -185,11 +185,9 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 1. Install Node.js from http://nodejs.org or your favorite package manager.
 
-2. Install Ember CLI and bower. `npm install -g ember-cli bower`
+2. Install Ember CLI. `npm install -g ember-cli`
 
 3. Run `npm install` inside the project root to install the JS dependencies.
-
-4. Run `bower install` inside the project root to install Ember dependencies.
 
 ### In Your Browser
 
