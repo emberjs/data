@@ -173,7 +173,7 @@ on models](https://emberjs.com/guides/models/).
 
 1. Ensure that [Node.js](http://nodejs.org/) is installed.
 2. Run `npm install` to ensure the required dependencies are installed.
-3. Run `npm run build:production` to build Ember Data. The builds will be placed in the `dist/` directory.
+3. Run `npm run production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
 
