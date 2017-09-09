@@ -89,11 +89,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
    @property type
    @type DS.Model
    */
-  type: computed('modelName', function() {
-    if (!this.modelName) {
+  type: computed('recordModelName', function() {
+    if (!this.recordModelName) {
       return null;
     }
-    return this.store._modelFor(this.modelName);
+    return this.store._modelFor(this.recordModelName);
   }).readOnly(),
 
   /**
@@ -106,7 +106,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   objectAtContent(index) {
     let internalModel = get(this, 'content').objectAt(index);
-    return internalModel && internalModel.getRecord();
+    return internalModel && internalModel.getRecord(null, this.recordModelName);
   },
 
   /**
@@ -149,6 +149,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     is finished.
    */
   _update() {
+    // TODO Not sure what to do with these?
     return this.store.findAll(this.modelName, { reload: true });
   },
 
@@ -194,7 +195,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save() {
-    let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
+    let promiseLabel = `DS: RecordArray#save ${this.internalModelName}`;
     let promise = Promise.all(this.invoke('save'), promiseLabel)
       .then(() => this, null, 'DS: RecordArray#save return RecordArray');
 

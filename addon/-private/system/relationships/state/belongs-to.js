@@ -129,7 +129,7 @@ export default class BelongsToRelationship extends Relationship {
 
   findRecord() {
     if (this.inverseInternalModel) {
-      return this.store._findByInternalModel(this.inverseInternalModel);
+      return this.store._findEmptyInternalModel(this.inverseInternalModel);
     } else {
       return Ember.RSVP.Promise.resolve(null);
     }
@@ -144,7 +144,7 @@ export default class BelongsToRelationship extends Relationship {
     });
   }
 
-  getRecord() {
+  getRecord(modelName) {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     if (this.isAsync) {
       let promise;
@@ -159,20 +159,21 @@ export default class BelongsToRelationship extends Relationship {
       }
 
       return PromiseObject.create({
-        promise: promise,
-        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
+        promise: promise.then((internalModel) => internalModel.getRecord(null, modelName)),
+        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord(null, modelName) : null
       });
     } else {
       if (this.inverseInternalModel === null) {
         return null;
       }
-      let toReturn = this.inverseInternalModel.getRecord();
+      let toReturn = this.inverseInternalModel.getRecord(null, modelName);
       assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
       return toReturn;
     }
   }
 
   reload() {
+    // TODO Change it to handle multi-records by accepting the model name
     // TODO handle case when reload() is triggered multiple times
 
     if (this.link) {
@@ -185,7 +186,7 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     return this.findRecord();
-  }
+   }
 
   updateData(data, initial) {
     assert(`Ember Data expected the data for the ${this.key} relationship on a ${this.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${Ember.inspect(data)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`, data === null || data.id !== undefined && data.type !== undefined);

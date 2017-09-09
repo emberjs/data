@@ -624,7 +624,7 @@ const Model = Ember.Object.extend(Ember.Evented, {
   */
   unloadRecord() {
     if (this.isDestroyed) { return; }
-    this._internalModel.unloadRecord();
+    this._internalModel.unloadRecord(this._modelName);
   },
 
   /**

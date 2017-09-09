@@ -106,8 +106,8 @@ export default class RecordArrayManager {
     this._pending = Object.create(null);
     let modelsToRemove = [];
 
-    for (let modelName in pending) {
-      let internalModels = pending[modelName];
+    for (let internalModelName in pending) {
+      let internalModels = pending[internalModelName];
       for (let j = 0; j < internalModels.length; j++) {
         let internalModel = internalModels[j];
         // mark internalModels, so they can once again be processed by the
@@ -120,18 +120,22 @@ export default class RecordArrayManager {
       }
 
       // process filteredRecordArrays
-      if (this._filteredRecordArrays[modelName]) {
-        let recordArrays = this.filteredRecordArraysFor(modelName);
+      if (this._filteredRecordArrays[internalModelName]) {
+        let recordArrays = this.filteredRecordArraysFor(internalModelName);
         for (let i = 0; i < recordArrays.length; i++) {
-          this.updateFilterRecordArray(recordArrays[i], modelName, internalModels);
+          this.updateFilterRecordArray(recordArrays[i], internalModelName, internalModels);
         }
       }
 
-      let array = this._liveRecordArrays[modelName];
-      if (array) {
+      if (this._liveRecordArrays[internalModelName]) {
         // TODO: skip if it only changed
-        // process liveRecordArrays
-        this.updateLiveRecordArray(array, internalModels);
+        let recordArrays = this._liveRecordArrays[internalModelName];
+        let recordModelNames = Object.keys(recordArrays);
+        for (let i = 0; i < recordModelNames.length; i++) {
+          // process liveRecordArrays
+          let array = recordArrays[recordModelNames[i]];
+          this.updateLiveRecordArray(array, internalModels);
+        }
       }
 
       // process adapterPopulatedRecordArrays
@@ -181,10 +185,10 @@ export default class RecordArrayManager {
   }
 
   // TODO: remove, utilize existing flush code but make it flush sync based on 1 modelName
-  _syncLiveRecordArray(array, modelName) {
-    assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
+  _syncLiveRecordArray(array) {
+    const internalModelName = array.internalModelName;
     let hasNoPotentialDeletions = Object.keys(this._pending).length === 0;
-    let map = this.store._internalModelsFor(modelName);
+    let map = this.store._internalModelsFor(internalModelName);
     let hasNoInsertionsOrRemovals = get(map, 'length') === get(array, 'length');
 
     /*
@@ -197,7 +201,7 @@ export default class RecordArrayManager {
       return;
     }
 
-    let internalModels = this._visibleInternalModelsByType(modelName);
+    let internalModels = this._visibleInternalModelsByType(internalModelName);
     let modelsToAdd = [];
     for (let i = 0; i < internalModels.length; i++) {
       let internalModel = internalModels[i];
@@ -247,22 +251,23 @@ export default class RecordArrayManager {
     @param {String} modelName
     @return {DS.RecordArray}
   */
-  liveRecordArrayFor(modelName) {
-    assert(`recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`, typeof modelName === 'string');
+  liveRecordArrayFor(internalModelName, recordModelName = internalModelName) {
+    assert(`recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`, typeof internalModelName === 'string' && typeof recordModelName === 'string');
 
     heimdall.increment(liveRecordArrayFor);
 
-    let array = this._liveRecordArrays[modelName];
+    const recordArrays = this._liveRecordArrays[internalModelName];
+    let array = recordArrays && recordArrays[recordModelName];
 
     if (array) {
       // if the array already exists, synchronize
-      this._syncLiveRecordArray(array, modelName);
+      this._syncLiveRecordArray(array);
     } else {
       // if the array is being newly created merely create it with its initial
       // content already set. This prevents unneeded change events.
-      let internalModels = this._visibleInternalModelsByType(modelName);
-      array = this.createRecordArray(modelName, internalModels);
-      this._liveRecordArrays[modelName] = array;
+      let internalModels = this._visibleInternalModelsByType(internalModelName);
+      array = this.createRecordArray(internalModelName, recordModelName, internalModels);
+      this.registerLiveRecordArray(array, internalModelName, recordModelName);
     }
 
     return array;
@@ -302,12 +307,13 @@ export default class RecordArrayManager {
     @param {Array} _content (optional|private)
     @return {DS.RecordArray}
   */
-  createRecordArray(modelName, content) {
-    assert(`recordArrayManger.createRecordArray expects modelName not modelClass as the param`, typeof modelName === 'string');
+  createRecordArray(internalModelName, recordModelName, content) {
+    assert(`recordArrayManger.createRecordArray expects modelName not modelClass as the param`, typeof internalModelName === 'string' && typeof recordModelName === 'string');
     heimdall.increment(createRecordArray);
 
     let array = RecordArray.create({
-      modelName,
+      internalModelName,
+      recordModelName,
       content: Ember.A(content || []),
       store: this.store,
       isLoaded: true,
@@ -407,6 +413,14 @@ export default class RecordArrayManager {
 
     this.filteredRecordArraysFor(modelName).push(array);
     this.updateFilter(array, modelName, filter);
+   }
+
+  registerLiveRecordArray(array, internalModelName, modelName) {
+    let allArrays = this._liveRecordArrays[internalModelName];
+    if (!allArrays) {
+      allArrays = this._liveRecordArrays[internalModelName] = Object.create(null);
+    }
+    allArrays[modelName] = array;
   }
 
   /**
@@ -419,7 +433,7 @@ export default class RecordArrayManager {
   unregisterRecordArray(array) {
     heimdall.increment(unregisterRecordArray);
 
-    let modelName = array.modelName;
+    let modelName = array.internalModelName;
 
     // unregister filtered record array
     let recordArrays = this.filteredRecordArraysFor(modelName);
@@ -442,7 +456,10 @@ export default class RecordArrayManager {
 
   willDestroy() {
     Object.keys(this._filteredRecordArrays).forEach(modelName => flatten(this._filteredRecordArrays[modelName]).forEach(destroy));
-    Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
+    Object.keys(this._liveRecordArrays).forEach(internalModelName => {
+      let recordsArray = this._liveRecordArrays[internalModelName];
+      Object.keys(recordsArray).forEach((modelName) => recordsArray[modelName].destroy());
+    });
     this._adapterPopulatedRecordArrays.forEach(destroy);
     this.isDestroyed = true;
   }
