@@ -308,7 +308,6 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
     ```
 
    @method value
-   @param {Object|Promise} objectOrPromise a promise that resolves to a JSONAPI document object describing the new value of this relationship.
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
