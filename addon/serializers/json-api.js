@@ -152,11 +152,13 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     if (Array.isArray(documentHash.included)) {
-      let ret = new Array(documentHash.included.length);
-
+      let ret = new Array();
       for (let i = 0; i < documentHash.included.length; i++) {
         let included = documentHash.included[i];
-        ret[i] = this._normalizeResourceHelper(included);
+        let normalized = this._normalizeResourceHelper(included);
+        if (normalized !== null) { // can be null when unknown type is encountered
+          ret.push(normalized);
+        }
       }
 
       documentHash.included = ret;

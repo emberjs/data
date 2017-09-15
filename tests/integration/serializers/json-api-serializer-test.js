@@ -138,6 +138,71 @@ testInDebug('Warns when normalizing an unknown type', function(assert) {
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
 });
 
+testInDebug('Warns when normalizing payload with unknown type included', function(assert) {
+  var documentHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first-name': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        company: {
+          data: { type: 'unknown-types', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'unknown-types',
+      id: '2',
+      attributes: {
+        name: 'WyKittens'
+      }
+    }]
+  };
+
+  assert.expectWarning(function() {
+    run(function() {
+      env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+    });
+  }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
+});
+
+testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
+  var documentHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first-name': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        company: {
+          data: { type: 'unknown-types', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'unknown-types',
+      id: '2',
+      attributes: {
+        name: 'WyKittens'
+      }
+    }]
+  };
+
+  assert.expectWarning(function() {
+    run(function() {
+      env.store.pushPayload(documentHash);
+    });
+  }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
+
+  var user = store.peekRecord('user', 1);
+  assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+});
+
 testInDebug('Warns when normalizing with type missing', function(assert) {
   var documentHash = {
     data: {
