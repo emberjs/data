@@ -728,6 +728,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {DS.Store} store
     @param {DS.Snapshot} snapshot
     @param {String} url
+    @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
   findBelongsTo(store, snapshot, url, relationship) {
