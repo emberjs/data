@@ -1184,7 +1184,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findHasMany(internalModel, link, relationship) {
-    let adapter = this.adapterFor(internalModel.modelName);
+    let adapter = this.adapterFor(relationship.type);
 
     assert(`You tried to load a hasMany relationship but you have no adapter (for ${internalModel.modelName})`, adapter);
     assert(`You tried to load a hasMany relationship from a specified 'link' in the original payload but your adapter does not implement 'findHasMany'`, typeof adapter.findHasMany === 'function');
@@ -1201,7 +1201,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo(internalModel, link, relationship) {
-    let adapter = this.adapterFor(internalModel.modelName);
+    let adapter = this.adapterFor(relationship.type);
 
     assert(`You tried to load a belongsTo relationship but you have no adapter (for ${internalModel.modelName})`, adapter);
     assert(`You tried to load a belongsTo relationship from a specified 'link' in the original payload but your adapter does not implement 'findBelongsTo'`, typeof adapter.findBelongsTo === 'function');

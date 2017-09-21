@@ -97,7 +97,7 @@ test('findHasMany does not load a serializer until the adapter promise resolves'
 
   let deferedFind = defer();
 
-  this.env.registry.register('adapter:person', DS.Adapter.extend({
+  this.env.registry.register('adapter:dog', DS.Adapter.extend({
     findHasMany: () => deferedFind.promise
   }));
 
@@ -149,7 +149,7 @@ test('findBelongsTo does not load a serializer until the adapter promise resolve
 
   let deferedFind = defer();
 
-  this.env.registry.register('adapter:person', DS.Adapter.extend({
+  this.env.registry.register('adapter:dog', DS.Adapter.extend({
     findBelongsTo: () => deferedFind.promise
   }));
 
@@ -282,4 +282,3 @@ test('queryRecord does not load a serializer until the adapter promise resolves'
     });
   });
 });
-
