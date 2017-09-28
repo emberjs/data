@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.15.1 (September 27, 2017)
+- [#5188](https://github.com/emberjs/data/pull/5188) Backport to release
+
 ### Release 2.15.0 (September 1, 2017)
 
 - [#5132](https://github.com/emberjs/data/pull/5132) [BUGFIX] Fixes saving a record immediately after unloading a record with the same id
