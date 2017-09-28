@@ -22,22 +22,6 @@ entry in `config/features.json`.
   Enables `pushPayload` to return the model(s) that are created or
   updated via the internal `store.push`.
 
-- `ds-extended-errors` [#3586](https://github.com/emberjs/data/pull/3586) [#4287](https://github.com/emberjs/data/pull/4287)
-
-  Enables `extend` method on errors. It means you can extend from `DS.AdapterError`.
-
-  ```js
-    const MyCustomError = DS.AdapterError.extend({ message: "My custom error." });
-  ```
-
-  It will also add a few new errors to rest adapter based on http status.
-
-  * [401] `DS.UnauthorizedError`
-  * [403] `DS.ForbiddenError`
-  * [404] `DS.NotFoundError`
-  * [409] `DS.ConflictError`
-  * [500] `DS.ServerError`
-
 - `ds-payload-type-hooks` [#4318](https://github.com/emberjs/data/pull/4318)
 
   Adds two new hooks `modelNameFromPayloadType` and `payloadTypeFromModelName`

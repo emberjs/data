@@ -2396,75 +2396,77 @@ test('on error appends errorThrown for sanity', function(assert) {
   });
 });
 
-if (isEnabled('ds-extended-errors')) {
-  test("rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes", function(assert) {
-    assert.expect(10);
+test("rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes", function(assert) {
+  assert.expect(10);
 
-    let jqXHR = {
-      getAllResponseHeaders() { return ''; }
-    };
+  let jqXHR = {
+    getAllResponseHeaders() { return ''; }
+  };
+  let originalAjax = Ember.$.ajax;
 
-    Ember.$.ajax = function(hash) {
-      jqXHR.status = 401;
-      hash.error(jqXHR, 'error');
-    };
+  Ember.$.ajax = function(hash) {
+    jqXHR.status = 401;
+    hash.error(jqXHR, 'error');
+  };
 
-    Ember.run(() => {
-      store.find('post', '1').catch(reason => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
-      });
-    });
-
-    Ember.$.ajax = function(hash) {
-      jqXHR.status = 403;
-      hash.error(jqXHR, 'error');
-    };
-
-    Ember.run(() => {
-      store.find('post', '1').catch(reason => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
-      });
-    });
-
-    Ember.$.ajax = function(hash) {
-      jqXHR.status = 404;
-      hash.error(jqXHR, 'error');
-    };
-
-    Ember.run(() => {
-      store.find('post', '1').catch(reason => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
-      });
-    });
-
-    Ember.$.ajax = function(hash) {
-      jqXHR.status = 409;
-      hash.error(jqXHR, 'error');
-    };
-
-    Ember.run(() => {
-      store.find('post', '1').catch(reason => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
-      });
-    });
-
-    Ember.$.ajax = function(hash) {
-      jqXHR.status = 500;
-      hash.error(jqXHR, 'error');
-    };
-
-    Ember.run(() => {
-      store.find('post', '1').catch(reason => {
-        assert.ok(true, 'promise should be rejected');
-        assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
-      });
+  Ember.run(() => {
+    store.find('post', '1').catch(reason => {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
     });
   });
-}
+
+  Ember.$.ajax = function(hash) {
+    jqXHR.status = 403;
+    hash.error(jqXHR, 'error');
+  };
+
+  Ember.run(() => {
+    store.find('post', '1').catch(reason => {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
+    });
+  });
+
+  Ember.$.ajax = function(hash) {
+    jqXHR.status = 404;
+    hash.error(jqXHR, 'error');
+  };
+
+  Ember.run(() => {
+    store.find('post', '1').catch(reason => {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
+    });
+  });
+
+  Ember.$.ajax = function(hash) {
+    jqXHR.status = 409;
+    hash.error(jqXHR, 'error');
+  };
+
+  Ember.run(() => {
+    store.find('post', '1').catch(reason => {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
+    });
+  });
+
+  Ember.$.ajax = function(hash) {
+    jqXHR.status = 500;
+    hash.error(jqXHR, 'error');
+  };
+
+  Ember.run(() => {
+    store.find('post', '1').catch(reason => {
+      assert.ok(true, 'promise should be rejected');
+      assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
+    });
+
+  });
+
+  Ember.$.ajax = originalAjax;
+});
 
 test('on error wraps the error string in an DS.AdapterError object', function(assert) {
   assert.expect(2);
