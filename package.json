@@ -27,6 +27,7 @@
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "babel6-plugin-strip-heimdall": "^6.0.1",
     "broccoli-babel-transpiler": "^6.0.0",
+    "broccoli-debug": "^0.6.2",
     "broccoli-file-creator": "^1.0.0",
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^1.0.0",
