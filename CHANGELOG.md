@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.15.2 (September 28, 2017)
+- [#5193](https://github.com/emberjs/data/pull/5193) Remove feature flagging for ds-extended-errors.
+
 ### Release 2.15.1 (September 27, 2017)
 - [#5188](https://github.com/emberjs/data/pull/5188) Backport to release
 
