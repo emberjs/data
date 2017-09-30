@@ -1452,3 +1452,106 @@ test("Rollbacking attributes of a created record works correctly when the belong
   assert.equal(user.get('accounts.length'), 0, "User does not have the account anymore");
   assert.equal(account.get('user'), null, 'Account does not have the user anymore');
 });
+
+/*
+ Rollback from dirty state
+ */
+
+test("Rollback one-to-many relationships when the hasMany side has changed - async", function (assert) {
+  let user, message1, message2;
+  run(function () {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' } } });
+    message1 = store.push({ data: { type: 'message', id: 1, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message2 = store.push({ data: { type: 'message', id: 2, relationships: { user: { data: null } } } });
+    message2.set('user', user);
+  });
+  run(() => {
+    message2.rollback();
+    message2.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, 'Message does not have the user anymore');
+    });
+    user.get('messages').then(function (fetchedMessages) {
+      assert.equal(fetchedMessages.get('length'), 1, 'User does not have the message anymore');
+      assert.deepEqual(fetchedMessages.toArray(), [message1], 'User only has the original message');
+    });
+  });
+});
+
+test("Rollback one-to-many relationships when the hasMany side has changed - sync", function (assert) {
+  let user, account1, account2;
+  run(function () {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' } } });
+    account1 = store.push({ data: { type: 'account', id: 1, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    account2 = store.push({ data: { type: 'account', id: 2, relationships: { user: { data: null } } } });
+    account2.set('user', user);
+  });
+  run(account2, 'rollback');
+  assert.equal(account2.get('user'), null, 'Account does not have the user anymore');
+  assert.equal(user.get('accounts.length'), 1, "User does not have the account anymore");
+  assert.deepEqual(user.get('accounts').toArray(), [account1], "User only has the original account");
+});
+
+test("Rollback one-to-many relationships when the belongsTo side has changed - async", function (assert) {
+  let user, message1, message2, message3, message4, message5, message6, message7, message8, message9;
+  run(function () {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' } } });
+    message1 = store.push({ data: { type: 'message', id: 1, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message2 = store.push({ data: { type: 'message', id: 2, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message3 = store.push({ data: { type: 'message', id: 3, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message4 = store.push({ data: { type: 'message', id: 4, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message5 = store.push({ data: { type: 'message', id: 5, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    message6 = store.push({ data: { type: 'message', id: 6, relationships: { user: { data: null } } } });
+    message7 = store.push({ data: { type: 'message', id: 7, relationships: { user: { data: null } } } });
+    message8 = store.push({ data: { type: 'message', id: 8, relationships: { user: { data: null } } } });
+    message9 = store.push({ data: { type: 'message', id: 9, relationships: { user: { data: null } } } });
+    user.get('messages').addObject(message8);
+    user.get('messages').addObject(message6);
+    user.get('messages').removeObject(message3);
+    user.get('messages').addObject(message9);
+    user.get('messages').addObject(message7);
+    user.get('messages').removeObject(message1);
+    user.get('messages').removeObject(message5);
+    user.get('messages').addObject(message3);
+  });
+  run(() => {
+    [message1,message3,message5,message6,message7,message8,message9].forEach(m => m.rollback());
+    message8.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, 'Message 8 does not belong to the user');
+    });
+    message6.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, 'Message 6 does not belong to the user');
+    });
+    message9.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, 'Message 9 does not belong to the user');
+    });
+    message7.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, 'Message 7 does not belong to the user');
+    });
+    message1.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, user, 'Message 1 does belong to the user');
+    });
+    message5.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, user, 'Message 5 does belong to the user');
+    });
+    message3.get('user').then(function (fetchedUser) {
+      assert.equal(fetchedUser, user, 'Message 3 does belong to the user');
+    });
+    user.get('messages').then(function (fetchedMessages) {
+      assert.deepEqual(fetchedMessages.toArray(), [message1, message2, message3, message4, message5], 'User still has the original 5 messages');
+    });
+  });
+});
+
+test("Rollback one-to-many relationships when the belongsTo side has changed - sync", function (assert) {
+  let user, account1, account2;
+  run(() => {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' } } });
+    account1 = store.push({ data: { type: 'account', id: 1, relationships: { user: { data: { type: 'user', id: 1 } } } } });
+    account2 = store.push({ data: { type: 'account', id: 2, relationships: { user: { data: null } } } });
+    user.get('accounts').pushObject(account2);
+  });
+  run(account2, 'rollback');
+  assert.equal(account1.get('user'), user, 'Account 1 still has the user');
+  assert.equal(account2.get('user'), null, 'Account 2 still does not have the user');
+  assert.deepEqual(user.get('accounts').toArray(), [account1], "User only has the original account");
+});

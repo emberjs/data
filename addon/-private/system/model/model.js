@@ -711,6 +711,26 @@ const Model = EmberObject.extend(Evented, {
   */
 
   /**
+    If the model `isDirty` this function will discard any unsaved
+    changes. If the model `isNew` it will be removed from the store.
+
+    Example
+
+    ```javascript
+    record.get('name'); // 'Untitled Document'
+    record.set('name', 'Doc 1');
+    record.get('name'); // 'Doc 1'
+    record.rollback();
+    record.get('name'); // 'Untitled Document'
+    ```
+
+    @method rollback
+  */
+  rollback() {
+    this._internalModel.rollback();
+  },
+
+  /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
     changes. If the model `isNew` it will be removed from the store.
 
@@ -1043,8 +1063,17 @@ const Model = EmberObject.extend(Evented, {
   },
 
   notifyBelongsToChanged(key) {
-    this.notifyPropertyChange(key);
+    const relationship = this._internalModel._relationships.get(key);
+    this._internalModel.notifyPropertyChange(key);
+    this._internalModel.send('didSetProperty', {
+      key: key,
+      kind: 'belongsTo',
+      isRelationship: true,
+      originalValue: relationship.canonicalState,
+      value: relationship.inverseInternalModel
+    });
   },
+
   /**
    Given a callback, iterates over each of the relationships in the model,
    invoking the callback with the name of each relationship and its relationship
@@ -1109,13 +1138,30 @@ const Model = EmberObject.extend(Evented, {
     return this.constructor.inverseFor(key, this.store);
   },
 
-  notifyHasManyAdded(key) {
+  notifyHasManyAdded(key, internalModelAdded) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+    const internalModel = this._internalModel;
+    internalModel.notifyPropertyChange(key);
+    internalModel.send('didSetProperty', {
+      key: key,
+      kind: 'hasMany',
+      isRelationship: true,
+      originalValue: internalModel._relationships.get(key).canonicalMembers,
+      added: internalModelAdded
+    });
+  },
 
-    //Goes away once hasMany is double promisified
-    this.notifyPropertyChange(key);
+  notifyHasManyRemoved(key, internalModelRemoved) {
+    const internalModel = this._internalModel;
+    internalModel.send('didSetProperty', {
+      key: key,
+      kind: 'hasMany',
+      isRelationship: true,
+      originalValue: internalModel._relationships.get(key).canonicalMembers,
+      removed: internalModelRemoved
+    });
   },
 
   eachAttribute(callback, binding) {
@@ -1907,6 +1953,7 @@ if (DEBUG) {
         // the computed property.
         let meta = value.meta();
 
+        meta.key = key;
         meta.parentType = proto.constructor;
       }
     }

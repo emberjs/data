@@ -752,6 +752,51 @@ test("Rollbacking attributes for a deleted record restores implicit relationship
   });
 });
 
+test("Rollbacking for a deleted record restores implicit relationship - async (remove deleted prior to save)", function(assert) {
+  env.adapter.removeDeletedFromRelationshipsPriorToSave = true;
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+  var book, author;
+  run(function() {
+    book = env.store.push({
+      data: {
+        id: '1',
+        type: 'book',
+        attributes: {
+          name: "Stanley's Amazing Adventures"
+        },
+        relationships: {
+          author: {
+            data: {
+              id: '2',
+              type: 'author'
+            }
+          }
+        }
+      }
+    });
+    author = env.store.push({
+      data: {
+        id: '2',
+        type: 'author',
+        attributes: {
+          name: 'Stanley'
+        }
+      }
+    });
+
+  });
+  run(() => {
+    author.deleteRecord();
+    author.rollback();
+    book.get('author').then((fetchedAuthor) => {
+      assert.equal(fetchedAuthor, author, 'Book has an author after rollback');
+    });
+  });
+  env.adapter.removeDeletedFromRelationshipsPriorToSave = false;
+});
+
 test("Rollbacking attributes for a deleted record restores implicit relationship - sync", function(assert) {
   let book, author;
 

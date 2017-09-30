@@ -267,6 +267,80 @@ test('a loaded record is removed from a record array when it is deleted', functi
   });
 });
 
+test('a loaded record is removed from a record array when it is deleted (remove deleted prior to save)', function(assert) {
+  assert.expect(5);
+
+  let env = setupStore({
+    tag: Tag,
+    person: Person,
+    adapter: DS.Adapter.extend({
+      deleteRecord() {
+        return Promise.resolve();
+      },
+      removeDeletedFromRelationshipsPriorToSave: true,
+      shouldBackgroundReloadRecord() {
+        return false;
+      }
+    })
+  });
+
+  let store = env.store;
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Dale'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Scumbag Katz'
+        }
+      }, {
+        type: 'person',
+        id: '3',
+        attributes: {
+          name: 'Scumbag Bryn'
+        }
+      }, {
+        type: 'tag',
+        id: '1'
+      }]
+    });
+  });
+
+  return run(() => {
+    return hash({
+      scumbag: store.findRecord('person', 1),
+      tag: store.findRecord('tag', 1)
+    }).then(records => {
+      let scumbag = records.scumbag;
+      let tag = records.tag;
+
+      run(() => tag.get('people').addObject(scumbag));
+
+      assert.equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+
+      let recordArray = tag.get('people');
+
+      assert.equal(get(recordArray, 'length'), 1, 'precond - record array has one item');
+      assert.equal(get(recordArray.objectAt(0), 'name'), 'Scumbag Dale', "item at index 0 is record with id 1");
+
+      scumbag.deleteRecord();
+
+      assert.equal(get(recordArray, 'length'), 0, "record is removed from the record array");
+
+      run(scumbag, 'save');
+
+      assert.equal(get(recordArray, 'length'), 0, 'record is still removed from the array when it is saved');
+    });
+  });
+});
+
 test('a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn\'t defined', function(assert) {
   let env = setupStore({
     tag: Tag,
@@ -313,7 +387,55 @@ test('a loaded record is not removed from a record array when it is deleted even
   });
 });
 
-test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function(assert) {
+test('a loaded record is removed from a record array when it is deleted even if the belongsTo side isn\'t defined (remove deleted prior to save)', function(assert) {
+  let env = setupStore({
+    tag: Tag,
+    person: Person.reopen({tags: null }),
+    adapter: DS.Adapter.extend({
+      deleteRecord() {
+        return Promise.resolve();
+      },
+      removeDeletedFromRelationshipsPriorToSave: true
+    })
+  });
+
+  let store = env.store;
+  let scumbag, tag;
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Tom'
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        relationships: {
+          people: {
+            data: [
+              { type: 'person', id: '1' }
+            ]
+          }
+        }
+      }]
+    });
+    scumbag = store.peekRecord('person', 1);
+    tag = store.peekRecord('tag', 1);
+
+    scumbag.deleteRecord();
+  });
+
+  run(function() {
+    assert.equal(tag.get('people.length'), 0, 'record is removed from the record array');
+    assert.equal(tag.get('people').objectAt(0), null, 'tag does not have the scumbag');
+  });
+});
+
+test('a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn\'t defined', function(assert) {
+
   let env = setupStore({
     tag: Tag,
     person: Person,
@@ -361,15 +483,75 @@ test("a loaded record is not removed from both the record array and from the bel
     tool = store.peekRecord('tool', 1);
   });
 
-  run(() => {
-    assert.equal(tag.get('people.length'), 1, 'record is in the record array');
-    assert.equal(tool.get('person'), scumbag, 'the tool belongs to the record');
+  run(function() {
+    assert.equal(tag.get('people.length'), 1, 'person is in the record array');
+    assert.equal(tool.get('person'), scumbag, 'the tool belongs to the person');
   });
 
   run(() => scumbag.deleteRecord());
 
-  assert.equal(tag.get('people.length'), 1, 'record is stil in the record array');
-  assert.equal(tool.get('person'), scumbag, 'the tool still belongs to the record');
+  assert.equal(tag.get('people.length'), 1, 'person is still in the record array');
+  assert.equal(tool.get('person'), scumbag, 'the tool still belongs to the person');
+});
+
+test('a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn\'t defined (remove deleted prior to save)', function(assert) {
+  let env = setupStore({
+    tag: Tag,
+    person: Person,
+    tool: Tool,
+    adapter: DS.Adapter.extend({
+      deleteRecord() {
+        return Promise.resolve();
+      },
+      removeDeletedFromRelationshipsPriorToSave: true
+    })
+  });
+
+  let store = env.store;
+  let scumbag, tag, tool;
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Scumbag Tom'
+        }
+      }, {
+        type: 'tag',
+        id: '1',
+        relationships: {
+          people: {
+            data: [
+              { type: 'person', id: '1' }
+            ]
+          }
+        }
+      }, {
+        type: 'tool',
+        id: '1',
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }]
+    });
+    scumbag = store.peekRecord('person', 1);
+    tag = store.peekRecord('tag', 1);
+    tool = store.peekRecord('tool', 1);
+  });
+
+  run(() => {
+    assert.equal(tag.get('people.length'), 1, 'person is in the record array');
+    assert.equal(tool.get('person'), scumbag, 'the tool belongs to the person');
+  });
+
+  run(() => scumbag.deleteRecord());
+
+  assert.equal(tag.get('people.length'), 0, 'person is not in the record array');
+  assert.equal(tool.get('person'), null, 'the tool does not belong to the person');
 });
 
 // GitHub Issue #168

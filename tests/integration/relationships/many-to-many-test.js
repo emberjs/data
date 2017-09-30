@@ -618,3 +618,43 @@ test("Re-loading a removed record should re add it to the relationship when the 
 
   assert.equal(account.get('users.length'), 2, 'Accounts were updated correctly');
 });
+
+/*
+Rollback Relationships tests
+*/
+
+test("Rollback many-to-many relationships works correctly - async", function (assert) {
+  let user, topic1, topic2;
+  run(() => {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' }, relationships: { topics: { data: [{ type: 'topic', id: 1 }] } } } });
+    topic1 = store.push({ data: { type: 'topic', id: 1, attributes: { title: "This year's EmberFest was great" } } });
+    topic2 = store.push({ data: { type: 'topic', id: 2, attributes: { title: "Last year's EmberFest was great" } } });
+    topic2.get('users').addObject(user);
+  });
+  run(() => {
+    topic2.rollback();
+    topic1.get('users').then(function (fetchedUsers) {
+      assert.deepEqual(fetchedUsers.toArray(), [user], 'Users are still there');
+    });
+    topic2.get('users').then(function (fetchedUsers) {
+      assert.deepEqual(fetchedUsers.toArray(), [], 'Users are still empty');
+    });
+    user.get('topics').then(function (fetchedTopics) {
+      assert.deepEqual(fetchedTopics.toArray(), [topic1], 'Topics are still there');
+    });
+  });
+});
+
+test("Rollback many-to-many relationships works correctly - sync", function (assert) {
+  let user, account1, account2;
+  run(() => {
+    user = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' }, relationships: { accounts: { data: [{ type: 'account', id: 1 }] } } } });
+    account1 = store.push({ data: { type: 'account', id: 1, attributes: { state: 'lonely' } } });
+    account2 = store.push({ data: { type: 'account', id: 2, attributes: { state: 'content' } } });
+    account2.get('users').addObject(user);
+  });
+  run(account2, 'rollback');
+  assert.deepEqual(user.get('accounts').toArray(), [account1], 'Accounts are still there');
+  assert.deepEqual(account1.get('users').toArray(), [user], 'Users are still there');
+  assert.deepEqual(account2.get('users').toArray(), [], 'Users are still empty');
+});

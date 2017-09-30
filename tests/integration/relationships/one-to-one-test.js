@@ -955,3 +955,43 @@ test("Rollbacking attributes of created record removes the relationship on both 
   assert.equal(user.get('job'), null, 'Job got rollbacked correctly');
   assert.equal(job.get('user'), null, 'Job does not have user anymore');
 });
+
+/*
+Rollback relationships tests
+*/
+
+test("Rollback one-to-one relationships restores both sides of the relationship - async", function (assert) {
+  let stanley, bob, jim;
+  run(() => {
+    stanley = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' }, relationships: { bestFriend: { data: { type: 'user', id: 2 } } } } });
+    bob = store.push({ data: { type: 'user', id: 2, name: "Stanley's friend" } });
+    jim = store.push({ data: { type: 'user', id: 3, name: "Stanley's other friend" } });
+    stanley.set('bestFriend', jim);
+  });
+  run(() => {
+    stanley.rollback();
+    stanley.get('bestFriend').then(function (fetchedUser) {
+      assert.equal(fetchedUser, bob, "Stanley's bestFriend is still Bob");
+    });
+    bob.get('bestFriend').then(function (fetchedUser) {
+      assert.equal(fetchedUser, stanley, "Bob's  bestFriend is still Stanley");
+    });
+    jim.get('bestFriend').then(function (fetchedUser) {
+      assert.equal(fetchedUser, null, "Jim still has no bestFriend");
+    });
+  });
+});
+
+test("Rollback one-to-one relationships restores both sides of the relationship - sync", function (assert) {
+  let job, stanley, bob;
+  run(function () {
+    job = store.push({ data: { type: 'job', id: 2, attributes: { isGood: true } } });
+    stanley = store.push({ data: { type: 'user', id: 1, attributes: { name: 'Stanley' }, relationships: { job: { data: { type: 'job', id: 2 } } } } });
+    bob = store.push({ data: { type: 'user', id: 2, attributes: { name: 'Bob' } } });
+    job.set('user', bob);
+  });
+  run(job,'rollback');
+  assert.equal(stanley.get('job'), job, 'Stanley still has a job');
+  assert.equal(bob.get('job'), null, 'Bob still has no job');
+  assert.equal(job.get('user'), stanley, 'The job still belongs to Stanley');
+});

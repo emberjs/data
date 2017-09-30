@@ -10,6 +10,8 @@ const {
   addCanonicalInternalModel,
   addCanonicalInternalModels,
   addInternalModel,
+  addInternalModelToInverse,
+  addInternalModelToOwn,
   addInternalModels,
   clear,
   findLink,
@@ -34,6 +36,8 @@ const {
   'addCanonicalInternalModel',
   'addCanonicalInternalModels',
   'addInternalModel',
+  'addInternalModelToInverse',
+  'addInternalModelToOwn',
   'addInternalModels',
   'clear',
   'findLink',
@@ -78,6 +82,7 @@ export default class Relationship {
     this.hasData = false;
     this.hasLoaded = false;
     this.__inverseMeta = undefined;
+    this.isDirty = false;
   }
 
   _inverseIsAsync() {
@@ -279,6 +284,27 @@ export default class Relationship {
     this.setHasData(true);
   }
 
+  addInternalModelToInverse(internalModel) {
+    heimdall.increment(addInternalModelToInverse);
+    let inverseRelationship = internalModel._relationships.get(this.inverseKey);
+    //Need to check for existence, as the record might unloading at the moment
+    if (inverseRelationship) {
+      inverseRelationship.addInternalModelToOwn(this.internalModel);
+    }
+  }
+
+  addInternalModelsToInverse() {
+    this.members.forEach((internalModel) => {
+      this.addInternalModelToInverse(internalModel);
+    });
+  }
+
+  addInternalModelToOwn(internalModel) {
+    heimdall.increment(addInternalModelToOwn);
+    this.members.add(internalModel);
+    this.internalModel.updateRecordArrays();
+  }
+
   removeInternalModel(internalModel) {
     heimdall.increment(removeInternalModel);
     if (this.members.has(internalModel)) {
@@ -300,6 +326,12 @@ export default class Relationship {
     if (inverseRelationship) {
       inverseRelationship.removeInternalModelFromOwn(this.internalModel);
     }
+  }
+
+  removeInternalModelsFromInverse() {
+    this.members.forEach((internalModel) => {
+      this.removeInternalModelFromInverse(internalModel);
+    });
   }
 
   removeInternalModelFromOwn(internalModel) {
@@ -539,6 +571,7 @@ export default class Relationship {
 
   updateData() {}
 
-  destroy() {
-  }
+  rollback() {}
+
+  destroy() {}
 }

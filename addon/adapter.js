@@ -425,6 +425,26 @@ export default EmberObject.extend({
   deleteRecord: null,
 
   /**
+    This method is used by the store to determine if the store should
+    remove deleted records from relationships prior to save.
+
+    If this method returns `true` records will remain part of any
+    associated relationships after being deleted prior to being saved.
+
+    If this method returns `false` records will be removed from any
+    associated relationships immediately after being deleted.
+
+    By default this method returns `false`.
+
+    @since 2.15.2
+    @property shouldRemoveFromRelationshipsOnDelete
+    @param {DS.Store} store
+    @param {DS.Snapshot} snapshot
+    @return {Boolean}
+  */
+  removeDeletedFromRelationshipsPriorToSave: false,
+
+  /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
     into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
     You can opt out of this behaviour by either not implementing the findMany hook or by setting
@@ -492,7 +512,6 @@ export default EmberObject.extend({
   groupRecordsForFindMany(store, snapshots) {
     return [snapshots];
   },
-
 
   /**
     This method is used by the store to determine if the store should
@@ -677,5 +696,28 @@ export default EmberObject.extend({
   */
   shouldBackgroundReloadAll(store, snapshotRecordArray) {
     return true;
+  },
+
+  dirtyRecordForAttrChange(snapshot, context) {
+    return context.value !== context.originalValue;
+  },
+
+  dirtyRecordForBelongsToChange(snapshot, context) {
+    return context.value !== context.originalValue;
+  },
+
+  dirtyRecordForHasManyChange(snapshot, context) {
+    const relationshipType = snapshot.type.determineRelationshipType({
+      key: context.key,
+      kind: context.kind
+    }, snapshot.store);
+
+    if (relationshipType === 'manyToMany' || relationshipType === 'manyToNone') {
+      if (context.added) {
+        return !context.originalValue.has(context.added);
+      }
+      return context.originalValue.has(context.removed);
+    }
+    return false;
   }
 });
