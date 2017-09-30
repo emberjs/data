@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.15.3 (September 30, 2017)
+- [#5195](https://github.com/emberjs/data/pull/5195) Ensure `ember-data/-private` module is emitted properly for ember-cli…
+
 ### Release 2.15.2 (September 28, 2017)
 - [#5193](https://github.com/emberjs/data/pull/5193) Remove feature flagging for ds-extended-errors.
 
