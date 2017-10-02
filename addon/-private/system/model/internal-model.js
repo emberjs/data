@@ -60,9 +60,16 @@ function extractPivotName(name) {
 
 function areAllModelsUnloaded(internalModels) {
   for (let i=0; i<internalModels.length; ++i) {
-    let record = internalModels[i]._record;
-    if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
-      return false;
+    let records = internalModels[i]._records;
+    if (!records) {
+      continue;
+    }
+    let modelNames = Object.keys(records);
+    for (let i = 0; i < modelNames.length; i++) {
+      let record = records[modelNames[i]];
+      if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
+        return false;
+      }
     }
   }
   return true;
@@ -134,7 +141,7 @@ export default class InternalModel {
     this.store = store;
     this.modelName = modelName;
     this._loadingPromise = null;
-    this._record = null;
+    this._records = null;
     this._isDestroyed = false;
     this.isError = false;
     this._isUpdatingRecordArrays = false; // used by the recordArrayManager
@@ -328,44 +335,54 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord(properties) {
-    if (!this._record && !this._isDematerializing) {
-      heimdall.increment(materializeRecord);
-      let token = heimdall.start('InternalModel.getRecord');
-
-      // lookupFactory should really return an object that creates
-      // instances with the injections applied
-      let createOptions = {
-        store: this.store,
-        _internalModel: this,
-        id: this.id,
-        currentState: this.currentState,
-        isError: this.isError,
-        adapterError: this.error
-      };
-
-      if (typeof properties === 'object' && properties !== null) {
-        assign(createOptions, properties);
-      }
-
-      if (setOwner) {
-        // ensure that `getOwner(this)` works inside a model instance
-        setOwner(createOptions, getOwner(this.store));
-      } else {
-        createOptions.container = this.store.container;
-      }
-
-      this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
-
-      this._triggerDeferredTriggers();
-      heimdall.stop(token);
+  getRecord(properties, modelName) {
+    if (modelName === null || modelName === undefined) {
+      // unspecified, use the internal model one
+      modelName = this.modelName;
+    }
+    if (this._records && this._records[modelName]) {
+      return this._records[modelName];
+    }
+    if (this._isDematerializing) {
+      return null;
     }
 
-    return this._record;
+    heimdall.increment(materializeRecord);
+    let token = heimdall.start('InternalModel.getRecord');
+
+    // lookupFactory should really return an object that creates
+    // instances with the injections applied
+    let createOptions = {
+      store: this.store,
+      _internalModel: this,
+      id: this.id,
+      currentState: this.currentState,
+      isError: this.isError,
+      adapterError: this.error
+    };
+
+    if (typeof properties === 'object' && properties !== null) {
+      assign(createOptions, properties);
+    }
+
+    if (setOwner) {
+      // ensure that `getOwner(this)` works inside a model instance
+      setOwner(createOptions, getOwner(this.store));
+    } else {
+      createOptions.container = this.store.container;
+    }
+
+    this._records = this._records || Object.create(null);
+    const newRecord = this._records[modelName] = this.store.modelFactoryFor(modelName).create(createOptions);
+
+    this._triggerDeferredTriggersFor(modelName);
+    heimdall.stop(token);
+
+    return newRecord;
   }
 
   resetRecord() {
-    this._record = null;
+    this._records = null;
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
@@ -374,10 +391,10 @@ export default class InternalModel {
     this._data = null;
   }
 
-  dematerializeRecord() {
-    if (this._record) {
+  dematerializeRecords() {
+    if (this._records) {
       this._isDematerializing = true;
-      this._record.destroy();
+      this.applyToRecords((record) => record.destroy());
       this.destroyRelationships();
       this.updateRecordArrays();
       this.resetRecord();
@@ -396,18 +413,24 @@ export default class InternalModel {
     return resolver.promise;
   }
 
+  applyToRecords(fn) {
+    if (!this._records) {
+      return;
+    }
+    let materializedRecords = Object.keys(this._records);
+    for (let i = 0; i < materializedRecords.length; i++) {
+      fn.call(this, this._records[materializedRecords[i]]);
+    }
+  }
+
   startedReloading() {
     this.isReloading = true;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', true);
-    }
+    this.applyToRecords((rec) => set(rec, 'isReloading', true));
   }
 
   finishedReloading() {
     this.isReloading = false;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', false);
-    }
+    this.applyToRecords((rec) => set(rec, 'isReloading', false));
   }
 
   reload() {
@@ -479,7 +502,35 @@ export default class InternalModel {
 
 
   /**
-    Unload the record for this internal model. This will cause the record to be
+    Unload a single record for the given internal model. This will cause the record to
+    be destroyed and freed up.
+
+    If this is the last materialized records, the `unloadRecords` function will be invoked
+    to do proper garbage collection of the associated internal models.
+  */
+  unloadRecord(record) {
+    // skip trying to remove from records if there are no known records
+    if (this.hasRecord) {
+      const recordKeys = Object.keys(this._records);
+      for (let i = 0; i < recordKeys.length; i++) {
+        if (this._records[recordKeys[i]] === record) {
+          delete this._records[recordKeys[i]];
+        }
+      }
+    }
+
+    record.destroy();
+
+    if (this.hasRecord) {
+      // nothing to do if there are still records associated with the internal model
+      return;
+    }
+    // if there are no more records, garbage collect the internal model as well
+    this.unloadRecords()
+  }
+
+  /**
+    Unload all materialized records for this internal model. This will cause the records to be
     destroyed and freed up for garbage collection. It will also do a check
     for cleaning up internal models.
 
@@ -490,12 +541,11 @@ export default class InternalModel {
     This means that this internal model will be freed up for garbage collection
     once all models that refer to it via some relationship are also unloaded.
   */
-  unloadRecord() {
-    if (this.isDestroyed) { return; }
+  unloadRecords() {
     this.send('unloadRecord');
-    this.dematerializeRecord();
+    this.dematerializeRecords();
 
-    if (this._scheduledDestroy === null) {
+    if (!this.hasScheduledDestroy()) {
       // TODO: use run.schedule once we drop 1.13
       if (!Ember.run.currentRunLoop) {
         assert('You have turned on testing mode, which disabled the run-loop\'s autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run', Ember.testing);
@@ -564,7 +614,7 @@ export default class InternalModel {
   }
 
   destroy() {
-    assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
+    assert("Cannot destroy an internalModel while its record is materialized", !this.hasRecord || this.records.every(rec => rec.get('isDestroyed')) || this.records.every(rec => rec.get('isDestroying')));
 
     this.store._internalModelDestroyed(this);
 
@@ -595,7 +645,7 @@ export default class InternalModel {
     this.pushedData();
 
     if (this.hasRecord) {
-      this._record._notifyProperties(changedKeys);
+      this.applyToRecords((record) => record._notifyProperties(changedKeys));
     }
   }
 
@@ -604,7 +654,18 @@ export default class InternalModel {
   }
 
   get hasRecord() {
-    return !!this._record;
+    return this._records && Object.keys(this._records).length > 0;
+  }
+
+  get records() {
+    if (!this.hasRecord) {
+      return [];
+    }
+    return Object.keys(this._records).map((modelName) => this._records[modelName]);
+  }
+
+  hasRecordFor(modelName) {
+    return !!(this._records && this._records[modelName]);
   }
 
   /*
@@ -748,19 +809,19 @@ export default class InternalModel {
 
   notifyHasManyAdded(key, record, idx) {
     if (this.hasRecord) {
-      this._record.notifyHasManyAdded(key, record, idx);
+      this.applyToRecords((record) => record.notifyHasManyAdded(key, record, idx));
     }
   }
 
   notifyBelongsToChanged(key, record) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChanged(key, record);
+      this.applyToRecords((record) => record.notifyBelongsToChanged(key, record));
     }
   }
 
   notifyPropertyChange(key) {
     if (this.hasRecord) {
-      this._record.notifyPropertyChange(key);
+      this.applyToRecords((record) => record.notifyPropertyChange(key));
     }
   }
 
@@ -788,7 +849,7 @@ export default class InternalModel {
     this.send('rolledBack');
 
     if (dirtyKeys && dirtyKeys.length > 0) {
-      this._record._notifyProperties(dirtyKeys);
+      this.applyToRecords((record) => record._notifyProperties(dirtyKeys));
     }
   }
 
@@ -843,7 +904,7 @@ export default class InternalModel {
 
     this.currentState = state;
     if (this.hasRecord) {
-      set(this._record, 'currentState', state);
+      this.applyToRecords((record) => set(record, 'currentState', state));
     }
 
     for (i = 0, l = setups.length; i < l; i++) {
@@ -866,7 +927,7 @@ export default class InternalModel {
   }
 
   triggerLater(...args) {
-    if (this._deferredTriggers.push(args) !== 1) {
+    if (this._deferredTriggers.push(args) - this._processedTriggers !== 1) {
       return;
     }
 
@@ -874,21 +935,36 @@ export default class InternalModel {
   }
 
   _triggerDeferredTriggers() {
+    if (!this.hasRecord) {
+      return;
+    }
+    Object.keys(this._records).forEach(this._triggerDeferredTriggersFor.bind(this));
+  }
+
+  _triggerDeferredTriggersFor(modelName) {
     heimdall.increment(_triggerDeferredTriggers);
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record
-    if (!this.hasRecord) {
+    if (!this.hasRecordFor(modelName)) {
       return;
     }
+    // TODO This is an interesting challenge - with dynamic records, there is always a possibility to have
+    // new record materialized, keeping the old behavior requires all events ever fired on the record to
+    // be fired for the new record (including the possibility of duplications), for now, we will do just
+    // this and use a pointer in the deferred triggers to keep track, which events were fired on which record
     let triggers = this._deferredTriggers;
-    let record = this._record;
+    let record = this._records[modelName];
+    if (!this._recordNextTrigger) {
+      this._recordNextTrigger = {};
+    }
+    let nextTrigger = this._recordNextTrigger[modelName] || 0;
     let trigger = record.trigger;
-    for (let i = 0, l= triggers.length; i<l; i++) {
+    for (let i = nextTrigger, l= triggers.length; i<l; i++) {
       trigger.apply(record, triggers[i]);
     }
-
-    triggers.length = 0;
+    this._recordNextTrigger[modelName] = triggers.length;
+    this._processedTriggers = triggers.length;
   }
 
   /*
@@ -1027,9 +1103,11 @@ export default class InternalModel {
   setId(id) {
     assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
     this.id = id;
-    if (this._record.get('id') !== id) {
-      this._record.set('id', id);
-    }
+    this.applyToRecords((record) => {
+      if (record.get('id') !== id) {
+        record.set('id', id);
+      }
+    });
   }
 
   didError(error) {
@@ -1037,9 +1115,11 @@ export default class InternalModel {
     this.isError = true;
 
     if (this.hasRecord) {
-      this._record.setProperties({
-        isError: true,
-        adapterError: error
+      this.applyToRecords((record) => {
+        record.setProperties({
+          isError: true,
+          adapterError: error
+        });
       });
     }
   }
@@ -1049,9 +1129,11 @@ export default class InternalModel {
     this.isError = false;
 
     if (this.hasRecord) {
-      this._record.setProperties({
-        isError: false,
-        adapterError: null
+      this.applyToRecords((record) => {
+        record.setProperties({
+          isError: false,
+          adapterError: null
+        });
       });
     }
   }
@@ -1085,7 +1167,7 @@ export default class InternalModel {
 
     if (!data) { return; }
 
-    this._record._notifyProperties(changedKeys);
+    this.applyToRecords((record) => record._notifyProperties(changedKeys));
   }
 
   addErrorMessageToAttribute(attribute, message) {
