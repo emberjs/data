@@ -2,7 +2,7 @@
 
 ### Master
 
-### Release 2.16.0-beta.1 (September 28, 2017)
+### Release 2.16.0 (October 3, 2017)
 - [#5192](https://github.com/emberjs/data/pull/5192) Remove feature flagging for ds-extended-errors.
 - [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
 - [#5089](https://github.com/emberjs/data/pull/5089) Bump `amd-name-resolver` version to enable parallel babel transpile
