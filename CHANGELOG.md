@@ -2,6 +2,98 @@
 
 ### Master
 
+### Release 2.15.3 (September 30, 2017)
+- [#5195](https://github.com/emberjs/data/pull/5195) Ensure `ember-data/-private` module is emitted properly for ember-cli…
+
+### Release 2.15.2 (September 28, 2017)
+- [#5193](https://github.com/emberjs/data/pull/5193) Remove feature flagging for ds-extended-errors.
+
+### Release 2.15.1 (September 27, 2017)
+- [#5188](https://github.com/emberjs/data/pull/5188) Backport to release
+
+### Release 2.15.0 (September 1, 2017)
+
+- [#5132](https://github.com/emberjs/data/pull/5132) [BUGFIX] Fixes saving a record immediately after unloading a record with the same id
+- [#5145](https://github.com/emberjs/data/pull/5145) [BUGFIX] Load many2many relationships correctly
+- [#5148](https://github.com/emberjs/data/pull/5148) [BUGFIX] Relationships now update properly with new information
+- [#5155](https://github.com/emberjs/data/pull/5155) [BUGFIX] Ensure symmetry between async and sync relationships
+- [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
+- [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [84041a5f](https://github.com/emberjs/data/commit/84041a5f73b5b2a8f6d6d6475f7aa71d5b83b939) Update RELEASE.md
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#5071](https://github.com/emberjs/data/pull/5071) [BACKPORT] Update doc for deprecated function.
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#4992](https://github.com/emberjs/data/pull/4992) Use https in references to emberjs website (#4992)
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5068](https://github.com/emberjs/data/pull/5068) [BUGFIX release] Preserve local relationship changes after persisting a delet…
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+- [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+- [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
+- [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4960](https://github.com/emberjs/data/pull/4960) ensure we don't compile typeof checks poorly
+- [#4962](https://github.com/emberjs/data/pull/4962) Update to use built-in debug code stripping functionality.
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#4984](https://github.com/emberjs/data/pull/4984) [DOC release] Fix doc for `diffArray`
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4978](https://github.com/emberjs/data/pull/4978) Lock ember-cli-htmlbars to 1.3.0 to get the build passing again
+- [#4980](https://github.com/emberjs/data/pull/4980) [DOC release] Docs for has-many, belongs-to ref meta
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#5003](https://github.com/emberjs/data/pull/5003) Change setupStore helper default serializer to JSONAPISerializer #4754 (#5003)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5009](https://github.com/emberjs/data/pull/5009) cleanup `index.js` and drop `0.12` node
+- [#5011](https://github.com/emberjs/data/pull/5011) Fix and tests for unloadRecord => findRecord issue
+
+### Release 2.14.10 (August 10, 2017)
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+
+### Release 2.14.9 (July 29, 2017)
+- [#5097](https://github.com/emberjs/data/pull/5102) [BUGFIX release] unloadRecord + findRecord + orphaned relationships
+
+### Release 2.14.8 (July 28, 2017)
+- [#5097](https://github.com/emberjs/data/pull/5097) [BUGFIX release] restore unloadRecord + createRecord
+
+### Release 2.14.7 (July 25, 2017)
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+
+### Release 2.14.6 (July 25, 2017)
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+
+### Release 2.14.5 (July 20, 2017)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+
+### Release 2.14.4 (July 11, 2017)
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+
+### Release 2.14.3 (June 22, 2017)
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+
+### Release 2.14.2 (June 19, 2017)
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
+
+### Release 2.14.1 (June 19, 2017)
+- [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+
 ### Release 2.14.0 (June 18, 2017)
 - [#5013](https://github.com/emberjs/data/pull/5013) [BUGFIX beta] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
 - [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
