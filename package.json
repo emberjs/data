@@ -11,6 +11,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember try:testall",
+    "test-appveyor": "ember test",
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
     "test:production": "ember test --environment=production",
