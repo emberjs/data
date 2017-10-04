@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.16.1 (October 4, 2017)
+- [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
+- [#5197](https://github.com/emberjs/data/pull/5197) Fix ember-data Node 4.x builds
+- [#5206](https://github.com/emberjs/data/pull/5206) [BUGFIX beta] Fix broccoli-babel-transpiler cache warnings
+
 ### Release 2.16.0 (October 3, 2017)
 - [#5192](https://github.com/emberjs/data/pull/5192) Remove feature flagging for ds-extended-errors.
 - [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
