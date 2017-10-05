@@ -1,3 +1,5 @@
+'use strict';
+
 const BroccoliTestHelper = require('broccoli-test-helper');
 const co = require('co');
 const Babel = require('broccoli-babel-transpiler');
@@ -5,7 +7,7 @@ const chai = require('ember-cli-blueprint-test-helpers/chai');
 const stripIndent = require('common-tags').stripIndent;
 const StripFilteredImports = require('../../lib/transforms/babel-plugin-remove-imports');
 
-const { expect } = chai;
+const expect = chai.expect;
 const createTempDir = BroccoliTestHelper.createTempDir;
 const createBuilder = BroccoliTestHelper.createBuilder;
 
