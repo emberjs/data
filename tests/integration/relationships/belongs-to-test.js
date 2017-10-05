@@ -1539,3 +1539,97 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
 
   assert.equal(count, 0);
 });
+
+test("multiple hasMany-belongsTo relationship to the same model", function(assert) {
+  Author.reopen({
+    favoriteBooks: hasMany('book', { async: false })
+  });
+
+  Book.reopen({
+    author: belongsTo('author', { async: false, inverse: null })
+  });
+
+  // Works
+  // run(() => {
+  //   env.store.push({
+  //     data: {
+  //       type: 'author',
+  //       id: '1',
+  //       relationships: {
+  //         favoriteBooks: {
+  //           data: [{ type: 'book', id: '1' }]
+  //         },
+  //         books: {
+  //           data: [{ type: 'book', id: '2' }]
+  //         }
+  //       }
+  //     }
+  //   });
+  //   env.store.push({
+  //     data: [
+  //       {
+  //         type: 'book',
+  //         id: '1',
+  //         relationships: {
+  //           author: {
+  //             data: { type: 'author', id: '1' }
+  //           }
+  //         }
+  //       },
+  //       {
+  //         type: 'book',
+  //         id: '2',
+  //         relationships: {
+  //           author: {
+  //             data: { type: 'author', id: '1' }
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  // });
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'author',
+        id: '1',
+        relationships: {
+          favoriteBooks: {
+            data: [{ type: 'book', id: '1' }]
+          },
+          books: {
+            data: [{ type: 'book', id: '2' }]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'book',
+          id: '1',
+          relationships: {
+            author: {
+              data: { type: 'author', id: '1' }
+            }
+          }
+        },
+        {
+          type: 'book',
+          id: '2',
+          relationships: {
+            author: {
+              data: { type: 'author', id: '1' }
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  let book = env.store.peekRecord('book', '1');
+  let author = env.store.peekRecord('author', '1');
+  run(() => {
+    assert.ok(author.get('favoriteBooks').includes(book));
+    assert.equal(book.get('author.id'), author.get('id'));
+  });
+});
