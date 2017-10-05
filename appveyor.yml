@@ -22,7 +22,7 @@ install:
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
-  - cmd: yarn run test
+  - cmd: yarn run test-appveyor
   - cmd: yarn run test:optional-features
   - cmd: yarn run test:production
   - cmd: yarn run node-tests
