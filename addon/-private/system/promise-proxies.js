@@ -2,6 +2,7 @@ import Ember from 'ember';
 import { assert } from '@ember/debug';
 
 const { get , RSVP: { Promise }} = Ember;
+const { computed: { reads } } = Ember;
 
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
@@ -32,7 +33,9 @@ const { get , RSVP: { Promise }} = Ember;
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin, {
+  meta: reads('content.meta')
+});
 
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
