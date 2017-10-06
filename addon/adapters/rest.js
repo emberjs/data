@@ -1244,7 +1244,7 @@ if (isEnabled('ds-improved-ajax')) {
 
   RESTAdapter.reopen({
 
-    /**
+    /*
      * Get the data (body or query params) for a request.
      *
      * @public
@@ -1302,7 +1302,7 @@ if (isEnabled('ds-improved-ajax')) {
       return data;
     },
 
-    /**
+    /*
      * Get the HTTP method for a request.
      *
      * @public
@@ -1322,7 +1322,7 @@ if (isEnabled('ds-improved-ajax')) {
       return 'GET';
     },
 
-    /**
+    /*
      * Get the URL for a request.
      *
      * @public
@@ -1359,7 +1359,7 @@ if (isEnabled('ds-improved-ajax')) {
       return this.buildURL(type.modelName, id, snapshot, requestType, query);
     },
 
-    /**
+    /*
      * Get the headers for a request.
      *
      * By default the value of the `headers` property of the adapter is
@@ -1374,7 +1374,7 @@ if (isEnabled('ds-improved-ajax')) {
       return this.get('headers');
     },
 
-    /**
+    /*
      * Get an object which contains all properties for a request which should
      * be made.
      *
@@ -1392,7 +1392,7 @@ if (isEnabled('ds-improved-ajax')) {
       return { method, url, headers, data };
     },
 
-    /**
+    /*
      * Convert a request object into a hash which can be passed to `jQuery.ajax`.
      *
      * @private
@@ -1427,7 +1427,7 @@ if (isEnabled('ds-improved-ajax')) {
       return hash;
     },
 
-    /**
+    /*
      * Make a request using `jQuery.ajax`.
      *
      * @private
