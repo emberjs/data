@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 2.16.2 (October 7, 2017)
+
+- [#5214](https://github.com/emberjs/data/pull/5214) Fix Node 4 incompatibilities.
+
 ### Release 2.16.1 (October 4, 2017)
 - [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
 - [#5197](https://github.com/emberjs/data/pull/5197) Fix ember-data Node 4.x builds
