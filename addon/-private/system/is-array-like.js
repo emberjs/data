@@ -1,4 +1,5 @@
-import Ember from 'ember';
+import { typeOf } from '@ember/utils';
+import EmberArray from '@ember/array';
 
 /*
   We're using this to detect arrays and "array-like" objects.
@@ -13,9 +14,9 @@ import Ember from 'ember';
 export default function isArrayLike(obj) {
   if (!obj || obj.setInterval) { return false; }
   if (Array.isArray(obj)) { return true; }
-  if (Ember.Array.detect(obj)) { return true; }
+  if (EmberArray.detect(obj)) { return true; }
 
-  let type = Ember.typeOf(obj);
+  let type = typeOf(obj);
   if ('array' === type) { return true; }
   if ((obj.length !== undefined) && 'object' === type) { return true; }
   return false;

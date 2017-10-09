@@ -1,12 +1,12 @@
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, run } = Ember;
 
 let Person, env, store, adapter;
 
@@ -45,7 +45,7 @@ test("When a query is made, the adapter should receive a record array it can pop
   adapter.query = function(store, type, query, recordArray) {
     assert.equal(type, Person, "the query method is called with the correct type");
 
-    return Ember.RSVP.Promise.resolve({
+    return EmberPromise.resolve({
       data: [
         {
           id: 1,
@@ -76,7 +76,7 @@ test("When a query is made, the adapter should receive a record array it can pop
 
 test("a query can be updated via `update()`", function(assert) {
   adapter.query = function() {
-    return Ember.RSVP.resolve({ data: [{ id: 'first', type: 'person' }] });
+    return resolve({ data: [{ id: 'first', type: 'person' }] });
   };
 
   return run(() => {
@@ -87,7 +87,7 @@ test("a query can be updated via `update()`", function(assert) {
 
       adapter.query = function() {
         assert.ok('query is called a second time');
-        return Ember.RSVP.resolve({data: [{ id: 'second', type: 'person' }] });
+        return resolve({data: [{ id: 'second', type: 'person' }] });
       };
 
       let updateQuery = query.update();
@@ -113,10 +113,10 @@ testInDebug("The store asserts when query is made and the adapter responses with
   adapter.query = function(store, type, query, recordArray) {
     assert.equal(type, Person, "the query method is called with the correct type");
 
-    return Ember.RSVP.resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Peter Wagenet" } }] });
+    return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Peter Wagenet" } }] });
   };
 
   assert.expectAssertion(() => {
-    Ember.run(() => store.query('person', { page: 1 }));
+    run(() => store.query('person', { page: 1 }));
   }, /The response to store.query is expected to be an array but it was a single record/);
 });

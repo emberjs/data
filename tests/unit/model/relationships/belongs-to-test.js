@@ -1,12 +1,11 @@
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, run } = Ember;
 
 module('unit/model/relationships - DS.belongsTo');
 

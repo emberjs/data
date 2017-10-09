@@ -15,16 +15,23 @@ import 'ember-data';
 
   For example, imagine an Ember.js application with the following classes:
 
-  App.StoreService = DS.Store.extend({
+  ```app/services/store.js
+  import DS from 'ember-data';
+
+  export default DS.Store.extend({
     adapter: 'custom'
   });
+  ```
 
-  App.PostsController = Ember.Controller.extend({
+  ```app/controllers/posts.js
+  import { Controller } from '@ember/controller';
+
+  export default Controller.extend({
     // ...
   });
 
-  When the application is initialized, `App.ApplicationStore` will automatically be
-  instantiated, and the instance of `App.PostsController` will have its `store`
+  When the application is initialized, `ApplicationStore` will automatically be
+  instantiated, and the instance of `PostsController` will have its `store`
   property set to that instance.
 
   Note that this code will only be run if the `ember-application` package is

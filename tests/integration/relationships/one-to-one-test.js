@@ -1,13 +1,13 @@
+import { resolve, Promise as EmberPromise } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var env, store, User, Job;
-var run = Ember.run;
 
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
@@ -29,7 +29,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
       user: User,
       job: Job,
       adapter: DS.Adapter.extend({
-        deleteRecord: () => Ember.RSVP.resolve()
+        deleteRecord: () => resolve()
       })
     });
 
@@ -532,7 +532,7 @@ testInDebug("Setting a BelongsTo to a promise that didn't come from a relationsh
 
   assert.expectAssertion(function() {
     run(function() {
-      stanley.set('bestFriend', Ember.RSVP.resolve(igor));
+      stanley.set('bestFriend', resolve(igor));
     });
   }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
 });
@@ -588,10 +588,10 @@ test("Setting a BelongsTo to a promise multiple times is resistant to race condi
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (id === '5') {
-      return Ember.RSVP.resolve({ data: { id: 5, type: 'user', attributes: { name: "Igor's friend" } } });
+      return resolve({ data: { id: 5, type: 'user', attributes: { name: "Igor's friend" } } });
     } else if (id === '2') {
       let done = assert.async();
-      return new Ember.RSVP.Promise(function(resolve, reject) {
+      return new EmberPromise(function(resolve, reject) {
         setTimeout(function() {
           done();
           resolve({ data: { id: 2, type: 'user', attributes: { name: "Stanley's friend" } } });

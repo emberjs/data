@@ -1,11 +1,11 @@
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 const { attr, hasMany, belongsTo } = DS;
 
 let env, store, serializer, Elder, MiddleAger, Kid;

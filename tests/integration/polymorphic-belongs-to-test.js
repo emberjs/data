@@ -1,12 +1,11 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 const { attr, belongsTo } = DS;
-const { run } = Ember;
 
 let store;
 

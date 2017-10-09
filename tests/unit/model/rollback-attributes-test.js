@@ -1,13 +1,15 @@
+import { isEmpty, isPresent } from '@ember/utils';
+import { addObserver } from '@ember/object/observers';
+import { Promise as EmberPromise, reject } from 'rsvp';
+import { run, later } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person;
-const { run  } = Ember;
 
 module('unit/model/rollbackAttributes - model.rollbackAttributes()', {
   beforeEach() {
@@ -75,7 +77,7 @@ test('changes to unassigned attributes can be rolled back', function(assert) {
 test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
     // Make sure the save is async
-    return new Ember.RSVP.Promise(resolve => Ember.run.later(null, resolve, 15));
+    return new EmberPromise(resolve => later(null, resolve, 15));
   };
 
   let person = run(() => {
@@ -119,7 +121,7 @@ test('changes to attributes made after a record is in-flight only rolls back the
 
 test("a record's changes can be made if it fails to save", function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   let person = run(() => {
@@ -159,7 +161,7 @@ test("a record's changes can be made if it fails to save", function(assert) {
 test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function(assert) {
   assert.expect(8);
   env.adapter.deleteRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   let person, people;
@@ -204,7 +206,7 @@ test(`new record's attributes can be rollbacked`, function(assert) {
   assert.equal(person.get('isNew'), true, 'must be new');
   assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
 
-  Ember.run(person, 'rollbackAttributes');
+  run(person, 'rollbackAttributes');
 
   assert.equal(person.get('isNew'), false, 'must not be new');
   assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
@@ -223,13 +225,13 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   }
@@ -261,14 +263,14 @@ test(`invalid record's attributes can be rollbacked after multiple failed calls 
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
         let error = new DS.InvalidError();
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
         let error = new DS.InvalidError();
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   }
@@ -351,13 +353,13 @@ test("invalid record's attributes can be rollbacked", function(assert) {
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   }
@@ -380,7 +382,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
   });
 
   return run(() => {
-    Ember.addObserver(dog, 'errors.name', function() {
+    addObserver(dog, 'errors.name', function() {
       assert.ok(true, 'errors.name did change');
     });
 
@@ -400,7 +402,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
 
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(dog.get('name'), 'Pluto');
-      assert.ok(Ember.isEmpty(dog.get('errors.name')));
+      assert.ok(isEmpty(dog.get('errors.name')));
       assert.ok(dog.get('isValid'));
     });
   });
@@ -424,13 +426,13 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   }
@@ -454,7 +456,7 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
   });
 
   return run(() => {
-    Ember.addObserver(dog, 'errors.name', function() {
+    addObserver(dog, 'errors.name', function() {
       assert.ok(true, 'errors.name did change');
     });
 
@@ -462,7 +464,7 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
       assert.equal(reason, error);
       assert.equal(dog.get('name'), 'is a dwarf planet');
       assert.equal(dog.get('breed'), 'planet');
-      assert.ok(Ember.isPresent(dog.get('errors.name')));
+      assert.ok(isPresent(dog.get('errors.name')));
       assert.equal(dog.get('errors.name.length'), 1);
 
       run(() => dog.set('name', 'Seymour Asses'));
@@ -475,7 +477,7 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
       assert.equal(dog.get('name'), 'Pluto');
       assert.equal(dog.get('breed'), 'Disney');
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-      assert.ok(Ember.isEmpty(dog.get('errors.name')));
+      assert.ok(isEmpty(dog.get('errors.name')));
       assert.ok(dog.get('isValid'));
     });
   });
@@ -497,13 +499,13 @@ test(`when destroying a record setup the record state to invalid, the record's a
   if (isEnabled('ds-improved-ajax')) {
     adapter = DS.RESTAdapter.extend({
       _makeRequest() {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   } else {
     adapter = DS.RESTAdapter.extend({
       ajax(url, type, hash) {
-        return Ember.RSVP.reject(error);
+        return reject(error);
       }
     });
   }

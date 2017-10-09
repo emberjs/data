@@ -1,10 +1,10 @@
+import { defer, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import DS from 'ember-data';
-import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
-var get = Ember.get;
-var run = Ember.run;
 var env, Person;
 
 module("integration/references/record", {
@@ -66,7 +66,7 @@ test("push(promise)", function(assert) {
   var done = assert.async();
 
   var push;
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   var recordReference = env.store.getReference('person', 1);
 
   run(function() {
@@ -121,7 +121,7 @@ test("load() fetches the record", function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
+    return resolve({
       data: {
         id: 1,
         type: 'person',
@@ -145,7 +145,7 @@ test("load() fetches the record", function(assert) {
 test("load() only a single find is triggered", function(assert) {
   var done = assert.async();
 
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   var count = 0;
 
   env.adapter.shouldReloadRecord = function() { return false; };
@@ -195,7 +195,7 @@ test("reload() loads the record if not yet loaded", function(assert) {
     count++;
     assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
+    return resolve({
       data: {
         id: 1,
         type: 'person',
@@ -221,7 +221,7 @@ test("reload() fetches the record", function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
+    return resolve({
       data: {
         id: 1,
         type: 'person',

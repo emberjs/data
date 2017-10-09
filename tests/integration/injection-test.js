@@ -2,13 +2,14 @@ import {
   setup as setupModelFactoryInjections,
   reset as resetModelFactoryInjections
 } from 'dummy/tests/helpers/model-factory-injection';
+import EmberObject from '@ember/object';
+import { getOwner } from '@ember/application';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
 let env, hasFactoryFor, originalLookupFactory, originalOwnerLookupFactory, originalFactoryFor;
-const { run } = Ember;
 
 const model = {
   isModel: true,
@@ -22,8 +23,8 @@ module('integration/injection factoryFor enabled', {
   setup() {
     env = setupStore();
 
-    if (Ember.getOwner) {
-      let owner = Ember.getOwner(env.store);
+    if (getOwner) {
+      let owner = getOwner(env.store);
 
       hasFactoryFor = !!owner.factoryFor;
       originalFactoryFor = owner.factoryFor;
@@ -49,8 +50,8 @@ module('integration/injection factoryFor enabled', {
   },
 
   teardown() {
-    if (Ember.getOwner) {
-      let owner = Ember.getOwner(env.store);
+    if (getOwner) {
+      let owner = getOwner(env.store);
 
       if (owner.factoryFor) {
         owner.factoryFor = originalFactoryFor;
@@ -87,7 +88,7 @@ module('integration/injection eager injections', {
 
     env.registry.injection('model:foo', 'apple', 'service:apple');
     env.registry.register('model:foo',     DS.Model);
-    env.registry.register('service:apple', Ember.Object.extend({ isService: true }));
+    env.registry.register('service:apple', EmberObject.extend({ isService: true }));
     // container injection
   },
 

@@ -1,14 +1,20 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { A } from '@ember/array';
+import {
+  resolve,
+  all,
+  Promise as EmberPromise
+} from 'rsvp';
+import { set, get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, set , run } = Ember;
-const resolve = Ember.RSVP.resolve;
 let TestAdapter, store, oldFilterEnabled;
 
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
@@ -59,7 +65,7 @@ test('Calling Store#find invokes its adapter#find', function(assert) {
       assert.equal(id, 1, "Adapter#find was called with the id passed into Store#find");
       assert.equal(snapshot.id, '1', "Adapter#find was called with the record created from Store#find");
 
-      return Ember.RSVP.resolve({
+      return resolve({
         data: {
           id: 1,
           type: 'test'
@@ -88,7 +94,7 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
     findMany(store, type, ids, snapshots) {
       assert.ok(true, 'Adapter#findMany was called');
       assert.deepEqual(ids, ['1','2'], 'Correct ids were passed in to findMany');
-      return Ember.RSVP.resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
+      return resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
     },
     coalesceFindRequests: true
   });
@@ -100,7 +106,7 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
   });
 
   return run(() => {
-    return Ember.RSVP.all([
+    return all([
       store.findRecord('test', 1),
       store.findRecord('test', 2)
     ]);
@@ -232,7 +238,7 @@ test('loadMany takes an optional Object and passes it on to the Adapter', functi
     query(store, type, query) {
       assert.equal(type, store.modelFor('person'), 'The type was Person');
       assert.equal(query, passedQuery, 'The query was passed in');
-      return Ember.RSVP.resolve({ data: [] });
+      return resolve({ data: [] });
     }
   });
 
@@ -253,7 +259,7 @@ test('Find with query calls the correct normalizeResponse', function(assert) {
 
   const Adapter = TestAdapter.extend({
     query(store, type, query) {
-      return Ember.RSVP.resolve([]);
+      return resolve([]);
     }
   });
 
@@ -652,7 +658,7 @@ test('records should have their ids updated when the adapter returns the id data
   });
 
   return run(() => {
-    return Ember.RSVP.all([
+    return all([
       tom.save(),
       yehuda.save()
     ]).then(() => {
@@ -695,7 +701,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
     findRecord(store, type, id, snapshot) {
       let record = { id, type: type.modelName };
 
-      return new Ember.RSVP.Promise(resolve => {
+      return new EmberPromise(resolve => {
         run.later(() => resolve({ data: record }), 5);
       });
     },
@@ -703,7 +709,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
     findMany(store, type, ids, snapshots) {
       let records = ids.map(id => ( { id, type: type.modelName }) );
 
-      return new Ember.RSVP.Promise(resolve => {
+      return new EmberPromise(resolve => {
         run.later(() => {
           resolve({data: records });
         }, 15);
@@ -727,7 +733,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
 
   return run(() => {
     return store._scheduleFetchMany(internalModels).then(() => {
-      let unloadedRecords = Ember.A(internalModels.map(r => r.getRecord())).filterBy('isEmpty');
+      let unloadedRecords = A(internalModels.map(r => r.getRecord())).filterBy('isEmpty');
 
       assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
     });
@@ -797,7 +803,7 @@ test('the promise returned by `_scheduleFetch`, when it resolves, does not depen
     findRecord(store, type, id, snapshot) {
       let record = { id, type: 'test' };
 
-      return new Ember.RSVP.Promise(function(resolve, reject) {
+      return new EmberPromise(function(resolve, reject) {
         if (id === 'igor') {
           resolve({ data: record });
         } else {
@@ -828,7 +834,7 @@ test('the promise returned by `_scheduleFetch`, when it resolves, does not depen
       assert.equal(davidResolved, true, 'David resolved');
     }));
 
-    return Ember.RSVP.all(wait);
+    return all(wait);
   });
 });
 
@@ -849,7 +855,7 @@ test('the promise returned by `_scheduleFetch`, when it rejects, does not depend
     findRecord(store, type, id, snapshot) {
       let record = { id, type: 'test' };
 
-      return new Ember.RSVP.Promise((resolve, reject) => {
+      return new EmberPromise((resolve, reject) => {
         if (id === 'igor') {
           reject({ data: record });
         } else {
@@ -880,7 +886,7 @@ test('the promise returned by `_scheduleFetch`, when it rejects, does not depend
       assert.equal(davidResolved, true, 'David resolved');
     }));
 
-    return Ember.RSVP.Promise.all(wait);
+    return EmberPromise.all(wait);
   });
 });
 
@@ -912,7 +918,7 @@ testInDebug('store._fetchRecord reject records that were not found, even when th
     });
   }, /expected to find records with the following ids/);
 
-  return Ember.RSVP.Promise.all(wait);
+  return EmberPromise.all(wait);
 });
 
 testInDebug('store._fetchRecord warns when records are missing', function(assert) {
@@ -944,7 +950,7 @@ testInDebug('store._fetchRecord warns when records are missing', function(assert
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
 
-  return Ember.RSVP.Promise.all(wait).then(() => {
+  return EmberPromise.all(wait).then(() => {
     assert.ok(igorDidReject, 'expected rejection that <test:igor> could not be found in the payload, but no such rejection occured');
   });
 });

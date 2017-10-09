@@ -1,10 +1,8 @@
-import Ember from 'ember';
+import { get } from '@ember/object';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
-import {createStore} from 'dummy/tests/helpers/store';
-import {module, test} from 'qunit';
-
-const { get } = Ember;
+import { createStore } from 'dummy/tests/helpers/store';
+import { module, test } from 'qunit';
 
 module('unit/system/relationships/relationship-payloads-manager', {
   beforeEach() {

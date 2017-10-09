@@ -1,10 +1,11 @@
+import { set, get } from '@ember/object';
+import { run } from '@ember/runloop';
+import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 
-const { get, set, run, RSVP } = Ember;
 const { all, hash } = RSVP;
 const { attr } = DS;
 
@@ -40,7 +41,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
     assert.equal(type, Person, "the type is correct");
     assert.equal(snapshot.record, tom, "the record is correct");
 
-    return run(Ember.RSVP, 'resolve');
+    return run(RSVP, 'resolve');
   };
 
   run(() => {
@@ -74,7 +75,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
     assert.equal(type, Person, "the type is correct");
     assert.equal(snapshot.record, tom, "the record is correct");
 
-    return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
+    return resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
   };
 
   return run(() => {
@@ -88,7 +89,7 @@ test("After a created record has been assigned an ID, finding a record by that I
   let tom;
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
+    return resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale" } } });
   };
 
   return run(() => {
@@ -106,7 +107,7 @@ test("when a store is committed, the adapter's `commit` method should be called 
     assert.equal(type, Person, "the type is correct");
     assert.equal(snapshot.record, tom, "the record is correct");
 
-    return run(Ember.RSVP, 'resolve');
+    return run(RSVP, 'resolve');
   };
 
   let tom;
@@ -138,7 +139,7 @@ test("An adapter can notify the store that records were updated by calling `didS
   let tom, yehuda;
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   run(() => {
@@ -185,9 +186,9 @@ test("An adapter can notify the store that records were updated by calling `didS
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
     if (snapshot.id === "1") {
-      return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
+      return resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
     } else if (snapshot.id === "2") {
-      return Ember.RSVP.resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
+      return resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
     }
   };
 
@@ -230,7 +231,7 @@ test("An adapter can notify the store that records were updated and provide new 
 
 test("An adapter can notify the store that a record was updated by calling `didSaveRecord`.", function(assert) {
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   run(() => {
@@ -264,9 +265,9 @@ test("An adapter can notify the store that a record was updated and provide new 
   env.adapter.updateRecord = function(store, type, snapshot) {
     switch (snapshot.id) {
       case "1":
-        return Ember.RSVP.resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
+        return resolve({ data: { id: 1, type: "person", attributes: { name: "Tom Dale", "updated-at": "now" } } });
       case "2":
-        return Ember.RSVP.resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
+        return resolve({ data: { id: 2, type: "person", attributes: { name: "Yehuda Katz", "updated-at": "now!" } } });
     }
   };
 
@@ -309,7 +310,7 @@ test("An adapter can notify the store that a record was updated and provide new 
 
 test("An adapter can notify the store that records were deleted by calling `didSaveRecords`.", function(assert) {
   env.adapter.deleteRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   run(() => {

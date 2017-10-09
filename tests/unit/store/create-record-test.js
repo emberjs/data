@@ -1,11 +1,11 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { A } from '@ember/array';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 
 let store, Record, Storage;
-const { run } = Ember;
 
 module('unit/store/createRecord - Store creating records', {
   beforeEach() {
@@ -65,8 +65,8 @@ test('allow passing relationships as well as attributes', function(assert) {
   });
 
   assert.equal(storage.get('name'), 'Great store', 'The attribute is well defined');
-  assert.equal(storage.get('records').findBy('id', '1'), Ember.A(records).findBy('id', '1'), 'Defined relationships are allowed in createRecord');
-  assert.equal(storage.get('records').findBy('id', '2'), Ember.A(records).findBy('id', '2'), 'Defined relationships are allowed in createRecord');
+  assert.equal(storage.get('records').findBy('id', '1'), A(records).findBy('id', '1'), 'Defined relationships are allowed in createRecord');
+  assert.equal(storage.get('records').findBy('id', '2'), A(records).findBy('id', '2'), 'Defined relationships are allowed in createRecord');
 });
 
 module('unit/store/createRecord - Store with models by dash', {

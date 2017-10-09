@@ -1,12 +1,11 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let env, store, Person;
-const { run } = Ember;
 
 module('unit/store/peekRecord - Store peekRecord', {
   beforeEach() {
@@ -20,7 +19,7 @@ module('unit/store/peekRecord - Store peekRecord', {
   },
 
   afterEach() {
-    Ember.run(store, 'destroy');
+    run(store, 'destroy');
   }
 });
 

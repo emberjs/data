@@ -1,12 +1,13 @@
+import { hash, Promise as EmberPromise } from 'rsvp';
+import { get, observer } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 let env;
 
 module('unit/model/relationships - DS.hasMany', {
@@ -839,7 +840,7 @@ test('hasMany lazily loads async relationships', function(assert) {
 
       assert.equal(get(wycats, 'name'), 'Yehuda Katz', 'precond - retrieves person record from store');
 
-      return Ember.RSVP.hash({
+      return hash({
         wycats,
         tags: wycats.get('tags')
       });
@@ -1122,7 +1123,7 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return EmberPromise.resolve({ data: null });
   };
 
   let { store } = env;
@@ -1214,7 +1215,7 @@ test('new items added to an async hasMany relationship are not cleared by a dele
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return EmberPromise.resolve({ data: null });
   };
 
   let { store } = env;
@@ -1308,7 +1309,7 @@ test('new items added to a belongsTo relationship are not cleared by a delete', 
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return EmberPromise.resolve({ data: null });
   };
 
   let { store } = env;
@@ -1390,7 +1391,7 @@ test('new items added to an async belongsTo relationship are not cleared by a de
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return EmberPromise.resolve({ data: null });
   };
 
   let { store } = env;
@@ -1472,7 +1473,7 @@ test('deleting an item that is the current state of a belongsTo clears currentSt
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({ data: null });
+    return EmberPromise.resolve({ data: null });
   };
 
   let { store } = env;
@@ -1629,7 +1630,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   });
   env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.deleteRecord = () => {
-    return Ember.RSVP.Promise.resolve({
+    return EmberPromise.resolve({
       data: null,
       included: [
         {
@@ -1935,7 +1936,7 @@ test('DS.hasMany is stable', function(assert) {
 
   assert.equal(people, notifiedPeople);
 
-  return Ember.RSVP.Promise.all([
+  return EmberPromise.all([
     people
   ]);
 });
@@ -1957,7 +1958,7 @@ test('DS.hasMany proxy is destroyed', function(assert) {
   let peopleProxy = tag.get('people');
 
   return peopleProxy.then(people => {
-    Ember.run(() => {
+    run(() => {
       tag.unloadRecord();
       assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
       assert.equal(people.isDestroyed, false, 'people is NOT destroyed sync after unloadRecord');
@@ -1967,7 +1968,7 @@ test('DS.hasMany proxy is destroyed', function(assert) {
 
     assert.equal(peopleProxy.isDestroying, true, 'peopleProxy is destroying after the run post unloadRecord');
     assert.equal(peopleProxy.isDestroyed, true, 'peopleProxy is destroyed after the run post unloadRecord');
-  })
+  });
 });
 
 test('DS.ManyArray is lazy', function(assert) {
@@ -1975,7 +1976,7 @@ test('DS.ManyArray is lazy', function(assert) {
   const Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person'),
-    peopleDidChange: Ember.observer('people', function() {
+    peopleDidChange: observer('people', function() {
       peopleDidChange++;
     })
   });
@@ -2000,9 +2001,9 @@ test('DS.ManyArray is lazy', function(assert) {
   assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (after access, but after the current run loop)');
   assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
 
-  let person = Ember.run(() => env.store.createRecord('person'));
+  let person = run(() => env.store.createRecord('person'));
 
-  Ember.run(() => {
+  run(() => {
     assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
     tag.get('people').addObject(person);
     assert.equal(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');

@@ -1,6 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 

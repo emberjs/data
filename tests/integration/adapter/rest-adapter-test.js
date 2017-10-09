@@ -1,9 +1,14 @@
+import { underscore } from '@ember/string';
+import { copy } from '@ember/object/internals';
+import RSVP, { resolve, reject } from 'rsvp';
+import $ from 'jquery';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import { singularize } from 'ember-inflector';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import Pretender from "pretender";
 
@@ -12,8 +17,7 @@ import { isEnabled } from 'ember-data/-private';
 
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
-const { run, get } = Ember;
-let originalAjax = Ember.$.ajax;
+let originalAjax = $.ajax;
 let server;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
@@ -41,7 +45,7 @@ module("integration/adapter/rest_adapter - REST Adapter", {
     passedUrl = passedVerb = passedHash = null;
   },
   afterEach() {
-    Ember.$.ajax = originalAjax;
+    $.ajax = originalAjax;
 
     if (server) {
       server.shutdown();
@@ -57,7 +61,7 @@ function ajaxResponse(value) {
       passedVerb = request.method;
       passedHash = request.data ? { data: request.data } : undefined;
 
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   } else {
     adapter.ajax = function(url, verb, hash) {
@@ -65,7 +69,7 @@ function ajaxResponse(value) {
       passedVerb = verb;
       passedHash = hash;
 
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   }
 }
@@ -1979,12 +1983,12 @@ test('groupRecordsForFindMany groups records based on their url', function(asser
 
   adapter.findRecord = function(store, type, id, snapshot) {
     assert.equal(id, '1');
-    return Ember.RSVP.resolve({ comments: { id: 1 } });
+    return resolve({ comments: { id: 1 } });
   };
 
   adapter.findMany = function(store, type, ids, snapshots) {
     assert.deepEqual(ids, ['2', '3']);
-    return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
+    return resolve({ comments: [{ id: 2 }, { id: 3 }] });
   };
 
   let post;
@@ -2025,12 +2029,12 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 
   adapter.findRecord = function(store, type, id, snapshot) {
     assert.equal(id, '1');
-    return Ember.RSVP.resolve({ comments: { id: 1 } });
+    return resolve({ comments: { id: 1 } });
   };
 
   adapter.findMany = function(store, type, ids, snapshots) {
     assert.deepEqual(ids, ['2', '3']);
-    return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
+    return resolve({ comments: [{ id: 2 }, { id: 3 }] });
   };
   let post;
 
@@ -2059,7 +2063,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 test('normalizeKey - to set up _ids and _id', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     keyForAttribute(attr) {
-      return Ember.String.underscore(attr);
+      return underscore(attr);
     },
 
     keyForBelongsTo(belongsTo) {
@@ -2067,11 +2071,11 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
 
     keyForRelationship(rel, kind) {
       if (kind === 'belongsTo') {
-        let underscored = Ember.String.underscore(rel);
+        let underscored = underscore(rel);
         return underscored + '_id';
       } else {
         let singular = singularize(rel);
-        return Ember.String.underscore(singular) + '_ids';
+        return underscore(singular) + '_ids';
       }
     }
   }));
@@ -2163,12 +2167,12 @@ test('groupRecordsForFindMany splits up calls for large ids', function(assert) {
       assert.ok(true, "Found " + id);
     }
 
-    return Ember.RSVP.resolve({ comments: { id: id } });
+    return resolve({ comments: { id: id } });
   };
 
   adapter.findMany = function(store, type, ids, snapshots) {
     assert.ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000");
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   run(() => post.get('comments'));
@@ -2210,12 +2214,12 @@ test('groupRecordsForFindMany groups calls for small ids', function(assert) {
 
   adapter.findRecord = function(store, type, id, snapshot) {
     assert.ok(false, "findRecord should not be called - we expect 1 call to findMany for a100 and b100");
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   adapter.findMany = function(store, type, ids, snapshots) {
     assert.deepEqual(ids, [a100, b100]);
-    return Ember.RSVP.resolve({ comments: [{ id: a100 }, { id: b100 }] });
+    return resolve({ comments: [{ id: a100 }, { id: b100 }] });
   };
 
   run(() => post.get('comments'));
@@ -2235,7 +2239,7 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
     }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.success(data, 'ok', jqXHR);
   };
 
@@ -2261,7 +2265,7 @@ test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', fun
     url:    "/posts/1"
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
   };
 
@@ -2286,7 +2290,7 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
     something: 'is invalid'
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.success(data, 'ok', jqXHR);
   };
 
@@ -2295,7 +2299,7 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
     return new DS.AdapterError(json);
   };
 
-  return Ember.run(() => {
+  return run(() => {
     return store.findRecord('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.AdapterError, 'reason should be an instance of DS.AdapterError');
@@ -2310,7 +2314,7 @@ test("gracefully handles exceptions in handleResponse", function(assert) {
     getAllResponseHeaders() { return ''; }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     setTimeout(function() { hash.success({}, 'ok', jqXHR); }, 1)
   };
 
@@ -2332,7 +2336,7 @@ test("gracefully handles exceptions in handleResponse where the ajax request err
     getAllResponseHeaders() { return ''; }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     setTimeout(() => hash.error({}, 'Internal Server Error', jqXHR) , 1);
   };
 
@@ -2355,7 +2359,7 @@ test('treats status code 0 as an abort', function(assert) {
     getAllResponseHeaders() { return ''; }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, 'error');
   };
 
@@ -2380,7 +2384,7 @@ test('on error appends errorThrown for sanity', function(assert) {
 
   let errorThrown = new Error('nope!');
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, jqXHR.responseText, errorThrown);
   };
 
@@ -2402,62 +2406,62 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
   let jqXHR = {
     getAllResponseHeaders() { return ''; }
   };
-  let originalAjax = Ember.$.ajax;
+  let originalAjax = $.ajax;
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     jqXHR.status = 401;
     hash.error(jqXHR, 'error');
   };
 
-  Ember.run(() => {
+  run(() => {
     store.find('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.UnauthorizedError, 'reason should be an instance of DS.UnauthorizedError');
     });
   });
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     jqXHR.status = 403;
     hash.error(jqXHR, 'error');
   };
 
-  Ember.run(() => {
+  run(() => {
     store.find('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ForbiddenError, 'reason should be an instance of DS.ForbiddenError');
     });
   });
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     jqXHR.status = 404;
     hash.error(jqXHR, 'error');
   };
 
-  Ember.run(() => {
+  run(() => {
     store.find('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.NotFoundError, 'reason should be an instance of DS.NotFoundError');
     });
   });
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     jqXHR.status = 409;
     hash.error(jqXHR, 'error');
   };
 
-  Ember.run(() => {
+  run(() => {
     store.find('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ConflictError, 'reason should be an instance of DS.ConflictError');
     });
   });
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     jqXHR.status = 500;
     hash.error(jqXHR, 'error');
   };
 
-  Ember.run(() => {
+  run(() => {
     store.find('post', '1').catch(reason => {
       assert.ok(true, 'promise should be rejected');
       assert.ok(reason instanceof DS.ServerError, 'reason should be an instance of DS.ServerError');
@@ -2465,7 +2469,7 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
 
   });
 
-  Ember.$.ajax = originalAjax;
+  $.ajax = originalAjax;
 });
 
 test('on error wraps the error string in an DS.AdapterError object', function(assert) {
@@ -2478,7 +2482,7 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
 
   let errorThrown = 'nope!';
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, 'error', errorThrown);
   };
 
@@ -2498,7 +2502,7 @@ test('error handling includes a detailed message from the server', (assert) => {
     getAllResponseHeaders() { return 'Content-Type: text/plain'; }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, 'error');
   };
 
@@ -2520,7 +2524,7 @@ test('error handling with a very long HTML-formatted payload truncates the frien
     getAllResponseHeaders() { return 'Content-Type: text/html'; }
   };
 
-  Ember.$.ajax = function(hash) {
+  $.ajax = function(hash) {
     hash.error(jqXHR, 'error');
   };
 

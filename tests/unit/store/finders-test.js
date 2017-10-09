@@ -1,10 +1,8 @@
+import { defer } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
-
-const { run } = Ember;
-const { defer } = Ember.RSVP;
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 

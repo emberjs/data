@@ -1,4 +1,5 @@
-import Ember from 'ember';
+import { all, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 
 export function wait(callback, timeout) {
   let done = this.async();
@@ -14,7 +15,7 @@ export function wait(callback, timeout) {
     let args = arguments;
     let result;
     try {
-      result = Ember.run(() => callback.apply(this, args));
+      result = run(() => callback.apply(this, args));
     } finally {
       done();
     }
@@ -23,9 +24,9 @@ export function wait(callback, timeout) {
 }
 
 export function asyncEqual(a, b, message) {
-  return Ember.RSVP.all([
-    Ember.RSVP.resolve(a),
-    Ember.RSVP.resolve(b)
+  return all([
+    resolve(a),
+    resolve(b)
   ]).then(this.wait((array) => {
     this.push(array[0] === array[1], array[0], array[1], message);
   }));

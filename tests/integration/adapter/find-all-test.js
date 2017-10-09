@@ -1,13 +1,13 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { reject, resolve, defer } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 
 const { attr } = DS;
-const { get, run } = Ember;
-const { resolve, reject } = Ember.RSVP;
 
 let Person, store, allRecords, env;
 
@@ -154,7 +154,7 @@ test("When all records for a type are requested, records that are created on the
 
 testInDebug('When all records are requested, assert the payload is not blank', (assert) => {
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findAll: () => Ember.RSVP.resolve({})
+    findAll: () => resolve({})
   }));
 
   assert.expectAssertion(() => {
@@ -163,7 +163,7 @@ testInDebug('When all records are requested, assert the payload is not blank', (
 });
 
 test("isUpdating is true while records are fetched", function(assert) {
-  let findAllDeferred = Ember.RSVP.defer();
+  let findAllDeferred = defer();
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll() {
       return findAllDeferred.promise;
@@ -199,7 +199,7 @@ test("isUpdating is true while records are fetched", function(assert) {
 });
 
 test("isUpdating is true while records are fetched in the background", function(assert) {
-  let findAllDeferred = Ember.RSVP.defer();
+  let findAllDeferred = defer();
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll() {
       return findAllDeferred.promise;
@@ -247,7 +247,7 @@ test("isUpdating is true while records are fetched in the background", function(
 });
 
 test("isUpdating is false if records are not fetched in the background", function(assert) {
-  let findAllDeferred = Ember.RSVP.defer();
+  let findAllDeferred = defer();
   env.registry.register('adapter:person', DS.Adapter.extend({
     findAll() {
       return findAllDeferred.promise;

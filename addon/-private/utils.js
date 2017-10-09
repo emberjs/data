@@ -1,6 +1,5 @@
-import Ember from 'ember';
-
-const get = Ember.get;
+import { getOwner as emberGetOwner } from '@ember/application';
+import { get } from '@ember/object';
 
 /*
   Check if the passed model has a `type` attribute or a relationship named `type`.
@@ -20,8 +19,8 @@ function modelHasAttributeOrRelationshipNamedType(modelClass) {
 function getOwner(context) {
   let owner;
 
-  if (Ember.getOwner) {
-    owner = Ember.getOwner(context);
+  if (emberGetOwner) {
+    owner = emberGetOwner(context);
   } else if (context.container) {
     owner = context.container;
   }

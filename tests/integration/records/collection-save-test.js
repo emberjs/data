@@ -1,11 +1,10 @@
+import { resolve, reject } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { run } = Ember;
 
 let Post, env;
 
@@ -34,7 +33,7 @@ test("Collection will resolve save on success", function(assert) {
   let posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ data: { id: id++ , type: 'post' } });
+    return resolve({ data: { id: id++ , type: 'post' } });
   };
 
   return run(() => {
@@ -53,7 +52,7 @@ test("Collection will reject save on error", function(assert) {
   let posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   return run(() => {
@@ -76,14 +75,14 @@ test("Retry is allowed in a failure handler", function(assert) {
 
   env.adapter.createRecord = function(store, type, snapshot) {
     if (count++ === 0) {
-      return Ember.RSVP.reject();
+      return reject();
     } else {
-      return Ember.RSVP.resolve({ data: { id: id++, type: 'post' } });
+      return resolve({ data: { id: id++, type: 'post' } });
     }
   };
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ data: { id: snapshot.id, type: 'post' } });
+    return resolve({ data: { id: snapshot.id, type: 'post' } });
   };
 
   return run(() => {
@@ -108,10 +107,10 @@ test("Collection will reject save on invalid", function(assert) {
   let posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject({ title: 'invalid' });
+    return reject({ title: 'invalid' });
   };
 
-  return Ember.run(() => {
+  return run(() => {
     return posts.save().catch(() => {
       assert.ok(true, 'save operation was rejected');
     });

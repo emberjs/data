@@ -1,14 +1,14 @@
+import { resolve, reject } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
 var attr = DS.attr;
 var Person, env;
-var run = Ember.run;
 
 module("integration/reload - Reloading Records", {
   beforeEach() {
@@ -33,10 +33,10 @@ test("When a single record is requested, the adapter's find method should be cal
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (count === 0) {
       count++;
-      return Ember.RSVP.resolve({ data: { id: id, type: 'person', attributes: { name: "Tom Dale" } } });
+      return resolve({ data: { id: id, type: 'person', attributes: { name: "Tom Dale" } } });
     } else if (count === 1) {
       count++;
-      return Ember.RSVP.resolve({ data: { id: id, type: 'person', attributes: { name: "Braaaahm Dale" } } });
+      return resolve({ data: { id: id, type: 'person', attributes: { name: "Braaaahm Dale" } } });
     } else {
       assert.ok(false, "Should not get here");
     }
@@ -75,9 +75,9 @@ test("When a record is reloaded and fails, it can try again", function(assert) {
   env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.equal(tom.get('isReloading'), true, "Tom is reloading");
     if (count++ === 0) {
-      return Ember.RSVP.reject();
+      return reject();
     } else {
-      return Ember.RSVP.resolve({ data: { id: 1, type: 'person', attributes: { name: "Thomas Dale" } } });
+      return resolve({ data: { id: 1, type: 'person', attributes: { name: "Thomas Dale" } } });
     }
   };
 
@@ -147,7 +147,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
   env.adapter.findRecord = function(store, type, id, snapshot) {
     switch (type.modelName) {
       case 'person':
-        return Ember.RSVP.resolve({
+        return resolve({
           data: {
             id: 1,
             type: 'person',
@@ -163,7 +163,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
           }
         });
       case 'tag':
-        return Ember.RSVP.resolve({ data: { id: id, type: 'tag', attributes: { name: tags[id] } } });
+        return resolve({ data: { id: id, type: 'tag', attributes: { name: tags[id] } } });
     }
   };
 

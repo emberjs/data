@@ -1,13 +1,15 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
-import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { resolve, Promise as EmberPromise } from 'rsvp';
 
-import {module, test} from 'qunit';
+import { run } from '@ember/runloop';
+
+import setupStore from 'dummy/tests/helpers/store';
+
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { run } = Ember;
 const { attr, hasMany } = DS;
 
 let Account, Topic, User, store, env;
@@ -35,7 +37,7 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       topic: Topic,
       account: Account,
       adapter: DS.Adapter.extend({
-        deleteRecord: () => Ember.RSVP.resolve()
+        deleteRecord: () => resolve()
       })
     });
 
@@ -434,7 +436,7 @@ test("Rollbacking attributes for a deleted record that has a ManyToMany relation
       assert.equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
     });
 
-    return Ember.RSVP.Promise.all([
+    return EmberPromise.all([
       users,
       topics
     ]);
@@ -511,7 +513,7 @@ test("Rollbacking attributes for a created record that has a ManyToMany relation
         assert.equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
       });
 
-      return Ember.RSVP.Promise.all([
+      return EmberPromise.all([
         users,
         topics
       ]);

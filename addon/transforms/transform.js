@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 /**
   The `DS.Transform` class is used to serialize and deserialize model
@@ -67,7 +67,7 @@ import Ember from 'ember';
   @class Transform
   @namespace DS
  */
-export default Ember.Object.extend({
+export default EmberObject.extend({
   /**
     When given a deserialized value from a record attribute this
     method must return the serialized value.
@@ -75,8 +75,10 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
+    import { isEmpty } from '@ember/utils';
+
     serialize(deserialized, options) {
-      return Ember.isEmpty(deserialized) ? null : Number(deserialized);
+      return isEmpty(deserialized) ? null : Number(deserialized);
     }
     ```
 

@@ -1,3 +1,4 @@
+import EmberError from '@ember/error';
 import Ember from "ember";
 import { deprecate } from '@ember/debug';
 
@@ -8,7 +9,7 @@ import { deprecate } from '@ember/debug';
 */
 
 if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
-  throw new Ember.Error("Ember Data requires at least Ember 1.13.0, but you have " +
+  throw new EmberError("Ember Data requires at least Ember 1.13.0, but you have " +
                         Ember.VERSION +
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }

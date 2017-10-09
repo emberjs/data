@@ -1,11 +1,14 @@
 /**
   @module ember-data
 */
-import Ember from 'ember';
+import { addObserver, removeObserver } from '@ember/object/observers';
+
+import { A } from '@ember/array';
+import DataAdapter from '@ember/debug/data-adapter';
+import { capitalize, underscore } from '@ember/string';
+import { assert } from '@ember/debug';
+import { get } from '@ember/object';
 import Model from '../model/model';
-const capitalize = Ember.String.capitalize;
-const underscore = Ember.String.underscore;
-const { assert, get } = Ember;
 
 /*
   Extend `Ember.DataAdapter` with ED specific code.
@@ -15,7 +18,7 @@ const { assert, get } = Ember;
   @extends Ember.DataAdapter
   @private
 */
-export default Ember.DataAdapter.extend({
+export default DataAdapter.extend({
   getFilters() {
     return [
       { name: 'isNew', desc: 'New' },
@@ -73,7 +76,7 @@ export default Ember.DataAdapter.extend({
 
   getRecordKeywords(record) {
     let keywords = [];
-    let keys = Ember.A(['id']);
+    let keys = A(['id']);
     record.eachAttribute((key) => keys.push(key));
     keys.forEach((key) => keywords.push(get(record, key)));
     return keywords;
@@ -98,8 +101,8 @@ export default Ember.DataAdapter.extend({
   },
 
   observeRecord(record, recordUpdated) {
-    let releaseMethods = Ember.A();
-    let keysToObserve = Ember.A(['id', 'isNew', 'hasDirtyAttributes']);
+    let releaseMethods = A();
+    let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
 
     record.eachAttribute((key) => keysToObserve.push(key));
     let adapter = this;
@@ -108,9 +111,9 @@ export default Ember.DataAdapter.extend({
       let handler = function() {
         recordUpdated(adapter.wrapRecord(record));
       };
-      Ember.addObserver(record, key, handler);
+      addObserver(record, key, handler);
       releaseMethods.push(function() {
-        Ember.removeObserver(record, key, handler);
+        removeObserver(record, key, handler);
       });
     });
 

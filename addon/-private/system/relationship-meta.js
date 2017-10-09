@@ -1,4 +1,4 @@
-import {singularize} from 'ember-inflector';
+import { singularize } from 'ember-inflector';
 import normalizeModelName from './normalize-model-name';
 import { DEBUG } from '@glimmer/env';
 

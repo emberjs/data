@@ -1,6 +1,6 @@
 import DS from 'ember-data';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 module('unit/transform - DS.BooleanTransform');
 

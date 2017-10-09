@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { dasherize } from '@ember/string';
 
 // All modelNames are dasherized internally. Changing this function may
 // require changes to other normalization hooks (such as typeForRoot).
@@ -14,5 +14,5 @@ import Ember from 'ember';
   @for DS
 */
 export default function normalizeModelName(modelName) {
-  return Ember.String.dasherize(modelName);
+  return dasherize(modelName);
 }

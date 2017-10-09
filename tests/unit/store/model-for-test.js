@@ -1,14 +1,12 @@
+import { run } from '@ember/runloop';
+import { dasherize, camelize } from '@ember/string';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let container, store, registry, env;
-
-const { camelize, dasherize } = Ember.String;
-const { run } = Ember;
 
 module('unit/store/model_for - DS.Store#modelFor', {
   beforeEach() {

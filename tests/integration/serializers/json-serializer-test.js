@@ -1,14 +1,14 @@
+import { underscore } from '@ember/string';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import { isEnabled } from 'ember-data/-private';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var Post, post, Comment, comment, Favorite, favorite, env, serializer;
-var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
   beforeEach() {
@@ -400,7 +400,7 @@ test('Serializer should map `attrs` attributes directly when keyForAttribute als
     post: Post
   });
   env.registry.register("serializer:post", DS.JSONSerializer.extend({
-    keyForAttribute: Ember.String.underscore,
+    keyForAttribute: underscore,
     attrs: {
       authorName: 'author_name_key'
     }
