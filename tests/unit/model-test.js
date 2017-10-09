@@ -161,6 +161,83 @@ test('a record becomes clean again only if all changed properties are reset', fu
   });
 });
 
+test('an invalid record becomes clean again if changed property is reset', function(assert) {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.updateRecord = () => {
+    var error = new DS.InvalidError([{ name: 'not valid' }]);
+
+    return EmberPromise.reject(error);
+  };
+
+  return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Peter',
+          isDrugAddict: true
+        }
+      }
+    });
+
+    let person = store.peekRecord('person', 1);
+
+    assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
+    person.set('name', 'Wolf');
+    assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting one property to a new value');
+
+    return person.save().catch(() => {
+      assert.equal(person.get('isValid'), false, 'record is not valid');
+      assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
+
+      person.set('name', 'Peter');
+
+      assert.equal(person.get('isValid'), true, 'record is valid after resetting attribute to old value');
+      assert.equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting property to the old value");
+    });
+  });
+});
+
+test('an invalid record stays dirty if only invalid property is reset', function(assert) {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.updateRecord = () => {
+    var error = new DS.InvalidError([{ name: 'not valid' }]);
+
+    return EmberPromise.reject(error);
+  };
+
+  return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Peter',
+          isDrugAddict: true
+        }
+      }
+    });
+
+    let person = store.peekRecord('person', 1);
+
+    assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
+    person.set('name', 'Wolf');
+    person.set('isDrugAddict', false);
+    assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting one property to a new value');
+
+    return person.save().catch(() => {
+      assert.equal(person.get('isValid'), false, 'record is not valid');
+      assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
+
+      person.set('name', 'Peter');
+
+      assert.equal(person.get('isValid'), true, 'record is valid after resetting invalid attribute to old value');
+      assert.equal(person.get('hasDirtyAttributes'), true, "record still has dirty attributes");
+    });
+  });
+});
+
 test('a record reports its unique id via the `id` property', function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;

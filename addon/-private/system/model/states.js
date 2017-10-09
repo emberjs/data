@@ -434,6 +434,13 @@ function assertAgainstUnloadRecord(internalModel) {
   assert("You can only unload a record which is not inFlight. `" + internalModel + "`", false);
 }
 
+updatedState.invalid.becameValid = function(internalModel) {
+  // we're eagerly transition into the loaded.saved state, even though we could
+  // be still dirty; but the setup hook of the loaded.saved state checks for
+  // dirty attributes and transitions into the corresponding dirty state
+  internalModel.transitionTo('loaded.saved');
+};
+
 updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
 
 updatedState.uncommitted.deleteRecord = function(internalModel) {
