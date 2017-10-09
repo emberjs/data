@@ -1,7 +1,5 @@
-import Ember from 'ember';
+import { get } from '@ember/object';
 import RelationshipPayloads from './relationship-payloads';
-
-const get = Ember.get;
 
 /**
   Manages relationship payloads for a given store, for uninitialized

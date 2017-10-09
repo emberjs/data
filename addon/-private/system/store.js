@@ -2,14 +2,21 @@
   @module ember-data
 */
 
+import { A } from '@ember/array';
+
+import { copy } from '@ember/object/internals';
+import EmberError from '@ember/error';
+import MapWithDefault from '@ember/map/with-default';
+import { run as emberRun } from '@ember/runloop';
+import { set, get, computed } from '@ember/object';
+import RSVP from 'rsvp';
+import Service from '@ember/service';
+import { typeOf, isPresent, isNone } from '@ember/utils';
+
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
-import {
-  assert,
-  deprecate,
-  warn
-} from '@ember/debug';
+import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
@@ -50,22 +57,8 @@ import isEnabled from '../features';
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
 const {
-  A,
   _Backburner: Backburner,
-  computed,
-  copy,
-  ENV,
-  Error: EmberError,
-  get,
-  inspect,
-  isNone,
-  isPresent,
-  MapWithDefault,
-  run: emberRun,
-  set,
-  RSVP,
-  Service,
-  typeOf
+  ENV
 } = Ember;
 
 const { Promise } = RSVP;
@@ -455,7 +448,7 @@ Store = Service.extend({
     @private
   */
   find(modelName, id, options) {
-    // The default `model` hook in Ember.Route calls `find(modelName, id)`,
+    // The default `model` hook in Route calls `find(modelName, id)`,
     // that's why we have to keep this method around even though `findRecord` is
     // the public way to get a record by modelName and id.
     assert(`Using store.find(type) has been removed. Use store.findAll(modelName) to retrieve all records for a given type.`, arguments.length !== 1);
@@ -482,9 +475,9 @@ Store = Service.extend({
     Example
 
     ```app/routes/post.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
         return this.store.findRecord('post', params.post_id);
       }
@@ -602,22 +595,22 @@ Store = Service.extend({
     `findRecord`.
 
     ```app/routes/post/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
         return this.store.findRecord('post', params.post_id, { backgroundReload: false });
       }
     });
     ```
 
-   If you pass an object on the `adapterOptions` property of the options
-   argument it will be passed to you adapter via the snapshot
+    If you pass an object on the `adapterOptions` property of the options
+    argument it will be passed to you adapter via the snapshot
 
     ```app/routes/post/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
         return this.store.findRecord('post', params.post_id, {
           adapterOptions: { subscribe: false }
@@ -656,11 +649,11 @@ Store = Service.extend({
     comments in the same request:
 
     ```app/routes/post.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
-       return this.store.findRecord('post', params.post_id, { include: 'comments' });
+        return this.store.findRecord('post', params.post_id, { include: 'comments' });
       }
     });
 
@@ -674,11 +667,11 @@ Store = Service.extend({
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/post.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
-       return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
+        return this.store.findRecord('post', params.post_id, { include: 'comments,comments.author' });
       }
     });
 
@@ -1329,11 +1322,12 @@ Store = Service.extend({
     The request is made through the adapters' `queryRecord`:
 
     ```app/adapters/user.js
+    import $ from 'jquery';
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
       queryRecord(modelName, query) {
-        return Ember.$.getJSON('/api/current_user');
+        return $.getJSON('/api/current_user');
       }
     });
     ```
@@ -1418,9 +1412,9 @@ Store = Service.extend({
     of them.
 
     ```app/routes/authors.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
         return this.store.findAll('author');
       }
@@ -1467,8 +1461,8 @@ Store = Service.extend({
     which the promise resolves, is updated automatically so it contains all the
     records in the store:
 
-    ```js
-    // app/adapters/application.js
+    ```app/adapters/application.js
+    import DS from 'ember-data';
     export default DS.Adapter.extend({
       shouldReloadAll(store, snapshotsArray) {
         return false;
@@ -1511,9 +1505,9 @@ Store = Service.extend({
     `findAll`.
 
     ```app/routes/post/edit.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model() {
         return this.store.findAll('post', { backgroundReload: false });
       }
@@ -1524,9 +1518,9 @@ Store = Service.extend({
     argument it will be passed to you adapter via the `snapshotRecordArray`
 
     ```app/routes/posts.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model(params) {
         return this.store.findAll('post', {
           adapterOptions: { subscribe: false }
@@ -1566,11 +1560,11 @@ Store = Service.extend({
     all of the posts' comments in the same request:
 
     ```app/routes/posts.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model() {
-       return this.store.findAll('post', { include: 'comments' });
+        return this.store.findAll('post', { include: 'comments' });
       }
     });
 
@@ -1581,11 +1575,11 @@ Store = Service.extend({
     comments and the authors of those comments the request would look like this:
 
     ```app/routes/posts.js
-    import Ember from 'ember';
+    import Route from '@ember/routing/route';
 
-    export default Ember.Route.extend({
+    export default Route.extend({
       model() {
-       return this.store.findAll('post', { include: 'comments,comments.author' });
+        return this.store.findAll('post', { include: 'comments,comments.author' });
       }
     });
 
@@ -1700,18 +1694,18 @@ Store = Service.extend({
   },
 
   /**
-   This method unloads all records in the store.
-   It schedules unloading to happen during the next run loop.
+    This method unloads all records in the store.
+    It schedules unloading to happen during the next run loop.
 
-   Optionally you can pass a type which unload all records for a given type.
+    Optionally you can pass a type which unload all records for a given type.
 
-   ```javascript
-   store.unloadAll();
-   store.unloadAll('post');
-   ```
+    ```javascript
+    store.unloadAll();
+    store.unloadAll('post');
+    ```
 
-   @method unloadAll
-   @param {String} modelName
+    @method unloadAll
+    @param {String} modelName
   */
   unloadAll(modelName) {
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, !modelName || typeof modelName === 'string');

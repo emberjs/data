@@ -1,12 +1,12 @@
-import {setupStore, createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { run } from '@ember/runloop';
+import { Promise } from 'rsvp';
+import { setupStore, createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let store;
-const { run, RSVP: { Promise } } = Ember;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),

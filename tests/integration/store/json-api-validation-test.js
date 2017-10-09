@@ -1,11 +1,11 @@
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import QUnit, { module } from 'qunit';
 import DS from 'ember-data';
 
 var Person, store, env;
-var run = Ember.run;
 
 function payloadError(payload, expectedError) {
   env.registry.register('serializer:person', DS.Serializer.extend({
@@ -15,7 +15,7 @@ function payloadError(payload, expectedError) {
   }));
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve(payload);
+      return resolve(payload);
     }
   }));
   this.throws(function () {
@@ -58,7 +58,7 @@ testInDebug("when normalizeResponse returns undefined (or doesn't return), throw
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({ data: {} });
+      return resolve({ data: {} });
     }
   }));
 
@@ -77,7 +77,7 @@ testInDebug("when normalizeResponse returns null, throws an error", function(ass
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({ data: {} });
+      return resolve({ data: {} });
     }
   }));
 
@@ -97,7 +97,7 @@ testInDebug("when normalizeResponse returns an empty object, throws an error", f
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({ data: {} });
+      return resolve({ data: {} });
     }
   }));
 
@@ -121,7 +121,7 @@ testInDebug("when normalizeResponse returns a document with both data and errors
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
-      return Ember.RSVP.resolve({ data: {} });
+      return resolve({ data: {} });
     }
   }));
 

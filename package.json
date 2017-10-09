@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "amd-name-resolver": "0.0.7",
+    "babel-plugin-ember-modules-api-polyfill": "^1.4.2",
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^0.3.1",
     "babel-plugin-transform-es2015-block-scoping": "^6.24.1",
@@ -37,7 +38,7 @@
     "chalk": "^1.1.1",
     "co": "^4.6.0",
     "common-tags": "^1.4.0",
-    "ember-cli-babel": "^6.4.1",
+    "ember-cli-babel": "^6.8.2",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",

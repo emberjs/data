@@ -1,8 +1,12 @@
+import { inspect } from '@ember/debug';
+import EmberObject from '@ember/object';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -10,7 +14,6 @@ import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
-const { run } = Ember;
 
 module('unit/store/push - DS.Store#push', {
   beforeEach() {
@@ -144,7 +147,7 @@ test('Supplying a model class for `push` is the same as supplying a string', fun
 test(`Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`, function(assert) {
   assert.expect(1);
 
-  let didLoad = new Ember.RSVP.Promise((resolve, reject) => {
+  let didLoad = new EmberPromise((resolve, reject) => {
     Person.reopen({
       didLoad() {
         try {
@@ -250,7 +253,7 @@ test('Calling push with a normalized hash containing IDs of related records retu
 
   env.adapter.findRecord = function(store, type, id) {
     if (id === '1') {
-      return Ember.RSVP.resolve({
+      return resolve({
         data: {
           id: 1,
           type: 'phone-number',
@@ -265,7 +268,7 @@ test('Calling push with a normalized hash containing IDs of related records retu
     }
 
     if (id === "2") {
-      return Ember.RSVP.resolve({
+      return resolve({
         data: {
           id: 2,
           type: 'phone-number',
@@ -505,8 +508,8 @@ test('calling push without data argument as an object raises an error', function
     null,
     1,
     'string',
-    Ember.Object.create(),
-    Ember.Object.extend(),
+    EmberObject.create(),
+    EmberObject.extend(),
     true
   ];
 
@@ -638,8 +641,8 @@ testInDebug('calling push with hasMany relationship the value must be an array',
   let invalidValues = [
     1,
     'string',
-    Ember.Object.create(),
-    Ember.Object.extend(),
+    EmberObject.create(),
+    EmberObject.extend(),
     true
   ];
 
@@ -665,7 +668,7 @@ testInDebug('calling push with hasMany relationship the value must be an array',
         store._pushedInternalModels.length = 0;
         throw e;
       }
-    }, /must be an array/, `Expect that '${Ember.inspect(invalidValue)}' is not an array`);
+    }, /must be an array/, `Expect that '${inspect(invalidValue)}' is not an array`);
   });
 });
 

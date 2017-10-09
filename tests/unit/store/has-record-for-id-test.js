@@ -1,13 +1,12 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let env, store, Person, PhoneNumber;
 const { attr, hasMany, belongsTo } = DS;
-const { run } = Ember;
 
 module('unit/store/hasRecordForId - Store hasRecordForId', {
   beforeEach() {
@@ -33,7 +32,7 @@ module('unit/store/hasRecordForId - Store hasRecordForId', {
   },
 
   afterEach() {
-    Ember.run(store, 'destroy');
+    run(store, 'destroy');
   }
 });
 

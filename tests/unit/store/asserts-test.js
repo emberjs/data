@@ -1,6 +1,6 @@
-import {module} from 'qunit';
+import { module } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {createStore} from 'dummy/tests/helpers/store';
+import { createStore } from 'dummy/tests/helpers/store';
 
 module('unit/store/asserts - DS.Store methods produce useful assertion messages');
 

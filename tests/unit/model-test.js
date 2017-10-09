@@ -1,13 +1,15 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { guidFor } from '@ember/object/internals';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { set, get, observer, computed } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 import { getOwner } from 'ember-data/-private';
-
-const { get, set, run } = Ember;
 
 let Person, store, env;
 
@@ -96,7 +98,7 @@ test('resetting a property to the current in-flight value causes it to become cl
   assert.expect(4);
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.Promise.resolve()
+    return EmberPromise.resolve();
   };
 
   return run(() => {
@@ -190,7 +192,7 @@ test("a record's id is included in its toString representation", function(assert
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<(subclass of DS.Model):${Ember.guidFor(record)}:1>`, 'reports id in toString');
+      assert.equal(record.toString(), `<(subclass of DS.Model):${guidFor(record)}:1>`, 'reports id in toString');
     });
   });
 });
@@ -523,7 +525,7 @@ if (isEnabled('ds-rollback-attribute')) {
 
     // Make sure the save is async
     env.adapter.updateRecord = function(store, type, snapshot) {
-      return Ember.RSVP.resolve();
+      return resolve();
     };
 
     return run(() => {
@@ -558,7 +560,7 @@ if (isEnabled('ds-rollback-attribute')) {
     assert.expect(7);
 
     let person, finishSaving;
-    let updateRecordPromise = new Ember.RSVP.Promise(resolve => finishSaving = resolve);
+    let updateRecordPromise = new EmberPromise(resolve => finishSaving = resolve);
 
     // Make sure the save is async
     env.adapter.updateRecord = function(store, type, snapshot) {
@@ -609,7 +611,7 @@ if (isEnabled('ds-rollback-attribute')) {
       finishSaving();
     });
 
-    return Ember.RSVP.Promise.all(saving);
+    return EmberPromise.all(saving);
   });
 }
 
@@ -1183,7 +1185,7 @@ test('ensure model exits loading state, materializes data and fulfills promise o
   let store = createStore({
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return Ember.RSVP.resolve({
+        return resolve({
           data: {
             id: 1,
             type: 'person',
@@ -1347,7 +1349,7 @@ test('internalModel is ready by `init`', function(assert) {
       this.set('name', 'my-name-set-in-init');
     },
 
-    nameDidChange: Ember.observer('name', () => nameDidChange++)
+    nameDidChange: observer('name', () => nameDidChange++)
   });
 
   let { store } = setupStore({ person: Person });
@@ -1403,7 +1405,7 @@ test('updating the id with store.updateId should correctly when the id property 
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    idComputed: Ember.computed('id', function() {})
+    idComputed: computed('id', function() {})
   });
 
   let { store } = setupStore({
@@ -1427,7 +1429,7 @@ test('accessing the model id without the get function should work when id is wat
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    idComputed: Ember.computed('id', function() {})
+    idComputed: computed('id', function() {})
   });
 
   let { store } = setupStore({

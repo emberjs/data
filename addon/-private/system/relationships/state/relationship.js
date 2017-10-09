@@ -1,10 +1,9 @@
 /* global heimdall */
+import { guidFor } from '@ember/object/internals';
+
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import Ember from 'ember';
-
-const { guidFor } = Ember;
 
 const {
   addCanonicalInternalModel,

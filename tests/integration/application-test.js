@@ -1,13 +1,14 @@
+import Service, { inject as service } from '@ember/service';
+import Controller from '@ember/controller';
+import Application from '@ember/application';
+import { run } from '@ember/runloop';
 import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const run = Ember.run;
-const Application = Ember.Application;
-const Controller = Ember.Controller;
 const Store = DS.Store;
 const Namespace = Ember.Namespace;
 
@@ -104,12 +105,12 @@ test("the DS namespace should be accessible", function(assert) {
   });
 });
 
-if (Ember.inject && Ember.inject.service) {
+if (Ember.inject && service) {
   module("integration/application - Using the store as a service", {
     beforeEach() {
       run(() => {
         app = Application.create({
-          DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
+          DoodleService: Service.extend({ store: service() })
         });
       });
 

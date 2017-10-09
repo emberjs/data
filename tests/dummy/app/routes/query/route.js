@@ -1,5 +1,5 @@
 /* global window, heimdall, console */
-import Ember from 'ember';
+import Route from '@ember/routing/route';
 
 // fallback if no-heimdall happens to be present when loading the dummy app
 let heimdall = self.heimdall;
@@ -10,10 +10,6 @@ if (typeof heimdall !== 'object') {
   };
 }
 
-
-const {
-  Route
-} = Ember;
 
 export default Route.extend({
   queryParams: {

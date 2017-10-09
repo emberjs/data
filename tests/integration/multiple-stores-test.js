@@ -1,12 +1,11 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let env;
 let SuperVillain, HomePlanet, EvilMinion;
-const { run } = Ember;
 
 module("integration/multiple_stores - Multiple Stores Tests", {
   setup() {

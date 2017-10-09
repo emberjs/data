@@ -1,11 +1,11 @@
+import { A } from '@ember/array';
+import { set, get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, set, run } = Ember;
 
 module('unit/model/relationships - RecordArray');
 
@@ -42,7 +42,7 @@ test('updating the content of a RecordArray updates its content', function(asser
       }]
     });
     tags = DS.RecordArray.create({
-      content: Ember.A(internalModels.slice(0, 2)),
+      content: A(internalModels.slice(0, 2)),
       store: store,
       modelName: 'tag'
     });
@@ -51,7 +51,7 @@ test('updating the content of a RecordArray updates its content', function(asser
   let tag = tags.objectAt(0);
   assert.equal(get(tag, 'name'), 'friendly', `precond - we're working with the right tags`);
 
-  run(() => set(tags, 'content', Ember.A(internalModels.slice(1, 3))));
+  run(() => set(tags, 'content', A(internalModels.slice(1, 3))));
 
   tag = tags.objectAt(0);
   assert.equal(get(tag, 'name'), 'smarmy', 'the lookup was updated');

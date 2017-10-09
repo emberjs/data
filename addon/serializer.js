@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 /**
   `DS.Serializer` is an abstract base class that you should override in your
@@ -24,7 +24,7 @@ import Ember from 'ember';
   @extends Ember.Object
 */
 
-export default Ember.Object.extend({
+export default EmberObject.extend({
 
   /**
     The `store` property is the application's `store` that contains

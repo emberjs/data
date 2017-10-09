@@ -2,13 +2,13 @@
 /**
   @module ember-data
 */
-
-import Ember from 'ember';
-import { pluralize } from 'ember-inflector';
+import { dasherize } from '@ember/string';
+import $ from 'jquery';
 import RESTAdapter from "./rest";
 import { isEnabled } from '../-private';
 import { deprecate } from '@ember/debug';
 import { instrument } from 'ember-data/-debug';
+import { pluralize } from 'ember-inflector';
 
 /**
   The `JSONAPIAdapter` is the default adapter used by Ember Data. It
@@ -170,7 +170,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = Ember.$.parseJSON(payload);
+            json = $.parseJSON(payload);
           } catch (e) {
             json = payload;
           }
@@ -258,7 +258,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
   },
 
   pathForType(modelName) {
-    let dasherized = Ember.String.dasherize(modelName);
+    let dasherized = dasherize(modelName);
     return pluralize(dasherized);
   },
 

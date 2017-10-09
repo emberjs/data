@@ -1,5 +1,5 @@
-import Ember from 'ember';
-import { assert, warn } from '@ember/debug';
+import { computed } from '@ember/object';
+import { assert, warn, inspect } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
 
 /**
@@ -88,7 +88,7 @@ export default function belongsTo(modelName, options) {
     userEnteredModelName = normalizeModelName(userEnteredModelName);
   }
 
-  assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
+  assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
 
   opts = opts || {};
 
@@ -101,7 +101,7 @@ export default function belongsTo(modelName, options) {
     key: null
   };
 
-  return Ember.computed({
+  return computed({
     get(key) {
       if (opts.hasOwnProperty('serialize')) {
         warn(`You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`, false, {

@@ -1,8 +1,9 @@
-import Ember from 'ember';
+import { typeOf } from '@ember/utils';
+import { A } from '@ember/array';
+import Mixin from '@ember/object/mixin';
+import { camelize } from '@ember/string';
+import { set, get } from '@ember/object';
 import { warn } from '@ember/debug';
-
-const { get, set } = Ember;
-const { camelize } = Ember.String;
 
 /**
   ## Using Embedded Records
@@ -96,7 +97,7 @@ const { camelize } = Ember.String;
   @class EmbeddedRecordsMixin
   @namespace DS
 */
-export default Ember.Mixin.create({
+export default Mixin.create({
 
   /**
     Normalize the record and recursively normalize/extract all the embedded records
@@ -408,7 +409,7 @@ export default Ember.Mixin.create({
     let serializedKey = this.keyForAttribute(relationship.key, 'serialize');
     let hasMany = snapshot.hasMany(relationship.key);
 
-    json[serializedKey] = Ember.A(hasMany).map(function (recordSnapshot) {
+    json[serializedKey] = A(hasMany).map(function (recordSnapshot) {
       //
       // I'm sure I'm being utterly naive here. Propably id is a configurate property and
       // type too, and the modelName has to be normalized somehow.
@@ -426,7 +427,7 @@ export default Ember.Mixin.create({
 
     warn(
       `The embedded relationship '${serializedKey}' is undefined for '${snapshot.modelName}' with id '${snapshot.id}'. Please include it in your original payload.`,
-      Ember.typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
+      typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
       { id: 'ds.serializer.embedded-relationship-undefined' }
     );
 
@@ -438,7 +439,7 @@ export default Ember.Mixin.create({
   */
   _generateSerializedHasMany(snapshot, relationship) {
     let hasMany = snapshot.hasMany(relationship.key);
-    let manyArray = Ember.A(hasMany);
+    let manyArray = A(hasMany);
     let ret = new Array(manyArray.length);
 
     for (let i = 0; i < manyArray.length; i++) {

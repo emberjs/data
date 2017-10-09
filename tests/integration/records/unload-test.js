@@ -1,16 +1,18 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { Promise as EmberPromise } from 'rsvp';
 
-import {module, test} from 'qunit';
+import { run } from '@ember/runloop';
+
+import setupStore from 'dummy/tests/helpers/store';
+
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let attr = DS.attr;
 let belongsTo = DS.belongsTo;
 let hasMany = DS.hasMany;
-let run = Ember.run;
 let env;
 
 let Person = DS.Model.extend({
@@ -57,7 +59,7 @@ module("integration/unload - Unloading Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
@@ -101,7 +103,7 @@ test("can unload a single record", function(assert) {
   assert.equal(relPayloads.get('person', 1, 'cars').data.length, 1, 'one car relationship payload is cached');
   assert.equal(relPayloads.get('person', 1, 'boats').data.length, 1, 'one boat relationship payload is cached');
 
-  Ember.run(function() {
+  run(function() {
     adam.unloadRecord();
   });
 
@@ -162,7 +164,7 @@ test("can unload all records for a given type", function(assert) {
 
   assert.equal(relPayloads.get('car', 1, 'person').data.id, 1, 'car - person payload is loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll('person');
   });
 
@@ -171,7 +173,7 @@ test("can unload all records for a given type", function(assert) {
   assert.equal(env.store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
   assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.push({
       data: {
         id: 1,
@@ -233,7 +235,7 @@ test("can unload all records", function(assert) {
   assert.equal(env.store.peekAll('car').get('length'), 1, 'one car record loaded');
   assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll();
   });
 
@@ -270,7 +272,7 @@ test("removes findAllCache after unloading all records", function(assert) {
   assert.equal(env.store.peekAll('person').get('length'), 2, 'two person records loaded');
   assert.equal(env.store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
 
-  Ember.run(function() {
+  run(function() {
     env.store.peekAll('person');
     env.store.unloadAll('person');
   });
@@ -305,7 +307,7 @@ test("unloading all records also updates record array from peekAll()", function(
   assert.equal(all.get('length'), 2);
 
 
-  Ember.run(function() {
+  run(function() {
     env.store.unloadAll('person');
   });
   assert.equal(all.get('length'), 0);
@@ -693,7 +695,7 @@ test("after unloading a record, the record can be fetched again soon there after
 
   // stub findRecord
   env.adapter.findRecord = () => {
-    return Ember.RSVP.Promise.resolve({
+    return EmberPromise.resolve({
       data: {
         type: 'person',
         id: '1',
@@ -750,7 +752,7 @@ test('after unloading a record, the record can be saved again immediately', func
     }
   };
 
-  env.adapter.createRecord = () => Ember.RSVP.Promise.resolve(data);
+  env.adapter.createRecord = () => EmberPromise.resolve(data);
 
   run(() => {
     // add an initial record with id '1' to the store

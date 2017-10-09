@@ -1,13 +1,13 @@
+import { resolve, reject } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var Person, store, env;
-var run = Ember.run;
 
 module("integration/store/query-record - Query one record with a query hash", {
   beforeEach() {
@@ -47,7 +47,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord(store, type, query) {
       assert.equal(type, Person, "the query method is called with the correct type");
-      return Ember.RSVP.resolve({ data: { id: 1, type: 'person', attributes: { name: "Peter Wagenet" } } });
+      return resolve({ data: { id: 1, type: 'person', attributes: { name: "Peter Wagenet" } } });
     }
   }));
 
@@ -59,7 +59,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
 test("When a record is requested, and the promise is rejected, .queryRecord() is rejected.", function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord(store, type, query) {
-      return Ember.RSVP.reject();
+      return reject();
     }
   }));
 
@@ -82,7 +82,7 @@ test("When a record is requested, the serializer's normalizeQueryRecordResponse 
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     queryRecord(store, type, query) {
-      return Ember.RSVP.resolve({
+      return resolve({
         data: {
           id: '1',
           type: 'person',

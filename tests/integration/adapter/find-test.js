@@ -1,12 +1,11 @@
+import { Promise, reject, defer, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 
-const { run } = Ember;
 const { attr } = DS;
-const { reject, Promise } = Ember.RSVP;
 
 let Person, store, env;
 
@@ -70,7 +69,7 @@ test("When a single record is requested, the adapter's find method should be cal
 });
 
 test("When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved", function(assert) {
-  let deferred = Ember.RSVP.defer();
+  let deferred = defer();
 
   env.registry.register('adapter:person', DS.Adapter.extend({
     findRecord() {
@@ -143,7 +142,7 @@ test("When a single record is requested, and the promise is rejected, the record
 
 testInDebug('When a single record is requested, and the payload is blank', function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: () => Ember.RSVP.resolve({})
+    findRecord: () => resolve({})
   }));
 
   assert.expectAssertion(() => {
@@ -154,7 +153,7 @@ testInDebug('When a single record is requested, and the payload is blank', funct
 testInDebug('When multiple records are requested, and the payload is blank', function(assert) {
   env.registry.register('adapter:person', DS.Adapter.extend({
     coalesceFindRequests: true,
-    findMany: () => Ember.RSVP.resolve({})
+    findMany: () => resolve({})
   }));
 
   assert.expectAssertion(() => {

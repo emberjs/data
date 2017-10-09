@@ -1,16 +1,18 @@
-import Ember from 'ember';
+import { A } from '@ember/array';
+import Application from '@ember/application';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let App, store, debugAdapter;
-const { get, run } = Ember;
 
 module('DS.DebugAdapter', {
   beforeEach() {
-    Ember.run(function() {
-      App = Ember.Application.extend({
+    run(function() {
+      App = Application.extend({
         toString() { return 'debug-app'; }
       }).create();
 
@@ -44,7 +46,7 @@ module('DS.DebugAdapter', {
 
     debugAdapter.reopen({
       getModelTypes() {
-        return Ember.A([{ klass, name: 'post' }]);
+        return A([{ klass, name: 'post' }]);
       }
     });
   },
@@ -86,7 +88,7 @@ test('Watching Model Types', function(assert) {
 test("Watching Records", function(assert) {
   var post, record, addedRecords, updatedRecords, removedIndex, removedCount;
 
-  Ember.run(function() {
+  run(function() {
     store.push({
       data: {
         type: 'post',
@@ -124,11 +126,11 @@ test("Watching Records", function(assert) {
   assert.deepEqual(record.searchKeywords, ['1', 'Clean Post']);
   assert.deepEqual(record.color, 'black');
 
-  Ember.run(function() {
+  run(function() {
     post = store.findRecord('post', 1);
   });
 
-  Ember.run(function() {
+  run(function() {
     post.set('title', 'Modified Post');
   });
 
@@ -149,7 +151,7 @@ test("Watching Records", function(assert) {
   assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
   assert.deepEqual(record.color, 'green');
 
-  Ember.run(post, 'unloadRecord');
+  run(post, 'unloadRecord');
 
   assert.equal(removedIndex, 1);
   assert.equal(removedCount, 1);

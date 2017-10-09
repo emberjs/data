@@ -1,9 +1,7 @@
-import Ember from 'ember';
+import { get } from '@ember/object';
 import ManyRelationship from "./has-many";
 import BelongsToRelationship from "./belongs-to";
 import { DEBUG } from '@glimmer/env';
-
-const { get } = Ember;
 
 function shouldFindInverse(relationshipMeta) {
   let options = relationshipMeta.options;

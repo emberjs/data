@@ -1,6 +1,5 @@
 /* global heimdall */
-import Ember from 'ember';
-const { set } = Ember;
+import { set } from '@ember/object';
 
 const  {
   __get,

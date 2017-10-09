@@ -2,11 +2,13 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import Evented from '@ember/object/evented';
+
+import ArrayProxy from '@ember/array/proxy';
+import { set, get, computed } from '@ember/object';
+import { Promise } from 'rsvp';
 import { PromiseArray } from "../promise-proxies";
 import SnapshotRecordArray from "../snapshot-record-array";
-
-const { computed, get, set, RSVP: { Promise } } = Ember;
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -21,7 +23,7 @@ const { computed, get, set, RSVP: { Promise } } = Ember;
   @uses Ember.Evented
 */
 
-export default Ember.ArrayProxy.extend(Ember.Evented, {
+export default ArrayProxy.extend(Evented, {
   init() {
     this._super(...arguments);
 

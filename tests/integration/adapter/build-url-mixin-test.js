@@ -1,15 +1,17 @@
+import { decamelize, underscore } from '@ember/string';
+import { copy } from '@ember/object/internals';
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import { pluralize } from 'ember-inflector';
 import { isEnabled } from 'ember-data/-private';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl;
-const { run } = Ember;
 
 module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
   beforeEach() {
@@ -46,13 +48,13 @@ function ajaxResponse(value) {
     adapter._makeRequest = function(request) {
       passedUrl = request.url;
 
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   } else {
     adapter.ajax = function(url, verb, hash) {
       passedUrl = url;
 
-      return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
+      return run(RSVP, 'resolve', copy(value, true));
     };
   }
 }
@@ -184,8 +186,8 @@ test('buildURL - with full URLs in links', function(assert) {
 test('buildURL - with camelized names', function(assert) {
   adapter.setProperties({
     pathForType(type) {
-      let decamelized = Ember.String.decamelize(type);
-      return Ember.String.underscore(pluralize(decamelized));
+      let decamelized = decamelize(type);
+      return underscore(pluralize(decamelized));
     }
   });
 

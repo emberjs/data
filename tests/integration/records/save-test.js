@@ -1,12 +1,12 @@
+import { defer, reject, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var Post, env;
-var run = Ember.run;
 
 module("integration/records/save - Save Record", {
   beforeEach() {
@@ -29,7 +29,7 @@ test("Will resolve save on success", function(assert) {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   env.adapter.createRecord = function(store, type, snapshot) {
     return deferred.promise;
   };
@@ -58,7 +58,7 @@ test("Will reject save on error", function(assert) {
   env.adapter.createRecord = function(store, type, snapshot) {
     var error = new DS.InvalidError([{ title: 'not valid' }]);
 
-    return Ember.RSVP.reject(error);
+    return reject(error);
   };
 
   run(function() {
@@ -80,9 +80,9 @@ test("Retry is allowed in a failure handler", function(assert) {
     var error = new DS.InvalidError([{ title: 'not valid' }]);
 
     if (count++ === 0) {
-      return Ember.RSVP.reject(error);
+      return reject(error);
     } else {
-      return Ember.RSVP.resolve({ data: { id: 123, type: 'post' } });
+      return resolve({ data: { id: 123, type: 'post' } });
     }
   };
 
@@ -104,7 +104,7 @@ test("Repeated failed saves keeps the record in uncommited state", function(asse
   });
 
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.reject();
+    return reject();
   };
 
   run(function() {
@@ -136,7 +136,7 @@ test("Repeated failed saves with invalid error marks the record as invalid", fun
       }
     ]);
 
-    return Ember.RSVP.reject(error);
+    return reject(error);
   };
 
   run(function() {
@@ -161,7 +161,7 @@ test("Repeated failed saves with invalid error without payload marks the record 
   env.adapter.createRecord = function(store, type, snapshot) {
     var error = new DS.InvalidError();
 
-    return Ember.RSVP.reject(error);
+    return reject(error);
   };
 
   run(function() {
@@ -185,7 +185,7 @@ test("Will reject save on invalid", function(assert) {
   env.adapter.createRecord = function(store, type, snapshot) {
     var error = new DS.InvalidError([{ title: 'not valid' }]);
 
-    return Ember.RSVP.reject(error);
+    return reject(error);
   };
 
   run(function() {

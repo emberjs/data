@@ -1,8 +1,10 @@
-import Ember from 'ember';
+import ObjectProxy from '@ember/object/proxy';
+import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
+import ArrayProxy from '@ember/array/proxy';
+import { get } from '@ember/object';
+import { reads } from '@ember/object/computed';
+import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
-
-const { get , RSVP: { Promise }} = Ember;
-const { computed: { reads } } = Ember;
 
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
@@ -33,7 +35,7 @@ const { computed: { reads } } = Ember;
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin, {
+export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
   meta: reads('content.meta')
 });
 
@@ -66,7 +68,7 @@ export const PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin, {
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-export let PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+export let PromiseObject = ObjectProxy.extend(PromiseProxyMixin);
 
 export function promiseObject(promise, label) {
   return PromiseObject.create({

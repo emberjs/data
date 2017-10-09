@@ -1,14 +1,13 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var Post, Comment, Message, User;
-var run = Ember.run;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
 

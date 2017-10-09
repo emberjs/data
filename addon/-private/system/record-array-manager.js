@@ -2,7 +2,10 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import { A } from '@ember/array';
+
+import { set, get } from '@ember/object';
+import { run as emberRun } from '@ember/runloop';
 import {
   RecordArray,
   FilteredRecordArray,
@@ -11,12 +14,6 @@ import {
 
 import cloneNull from "./clone-null";
 import { assert } from '@ember/debug';
-
-const {
-  get,
-  set,
-  run: emberRun
-} = Ember;
 
 const {
   _flush,
@@ -308,7 +305,7 @@ export default class RecordArrayManager {
 
     let array = RecordArray.create({
       modelName,
-      content: Ember.A(content || []),
+      content: A(content || []),
       store: this.store,
       isLoaded: true,
       manager: this
@@ -337,7 +334,7 @@ export default class RecordArrayManager {
     let array = FilteredRecordArray.create({
       query,
       modelName,
-      content: Ember.A(),
+      content: A(),
       store: this.store,
       manager: this,
       filterFunction: filter
@@ -365,7 +362,7 @@ export default class RecordArrayManager {
       array = AdapterPopulatedRecordArray.create({
         modelName,
         query: query,
-        content: Ember.A(internalModels),
+        content: A(internalModels),
         store: this.store,
         manager: this,
         isLoaded: true,
@@ -379,7 +376,7 @@ export default class RecordArrayManager {
       array = AdapterPopulatedRecordArray.create({
         modelName,
         query: query,
-        content: Ember.A(),
+        content: A(),
         store: this.store,
         manager: this
       });

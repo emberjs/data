@@ -1,4 +1,4 @@
-import Ember from 'ember';
+import { isEmpty } from '@ember/utils';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
@@ -79,7 +79,7 @@ export function normalizeResponseHelper(serializer, store, modelClass, payload, 
   if (DEBUG) {
     validationErrors = validateDocumentStructure(normalizedResponse);
   }
-  assert(`normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`, Ember.isEmpty(validationErrors));
+  assert(`normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`, isEmpty(validationErrors));
 
   return normalizedResponse;
 }

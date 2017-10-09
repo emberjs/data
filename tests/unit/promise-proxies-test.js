@@ -1,6 +1,7 @@
-import Ember from 'ember';
+import { Promise as EmberPromise } from 'rsvp';
+import { A } from '@ember/array';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -9,9 +10,9 @@ module('PromiseManyArray');
 test('.reload should NOT leak the internal promise, rather return another promiseArray', function(assert) {
   assert.expect(2);
 
-  let content = Ember.A();
+  let content = A();
 
-  content.reload = () => Ember.RSVP.Promise.resolve(content);
+  content.reload = () => EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
     content
@@ -27,10 +28,10 @@ test('.reload should NOT leak the internal promise, rather return another promis
 test('.reload should be stable', function(assert) {
   assert.expect(19);
 
-  let content = Ember.A();
+  let content = A();
 
-  content.reload = () => Ember.RSVP.Promise.resolve(content);
-  let promise = Ember.RSVP.Promise.resolve(content);
+  content.reload = () => EmberPromise.resolve(content);
+  let promise = EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
     promise
@@ -71,9 +72,9 @@ test('.reload should be stable', function(assert) {
 test('.set to new promise should be like reload', function(assert) {
   assert.expect(18);
 
-  let content = Ember.A([1,2,3]);
+  let content = A([1,2,3]);
 
-  let promise = Ember.RSVP.Promise.resolve(content);
+  let promise = EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
     promise
@@ -90,7 +91,7 @@ test('.set to new promise should be like reload', function(assert) {
     assert.equal(array.get('isSettled'), true, 'should be settled');
     assert.equal(array.get('isFulfilled'), true, 'should be fulfilled');
 
-    array.set('promise', Ember.RSVP.Promise.resolve(content));
+    array.set('promise', EmberPromise.resolve(content));
 
     assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
     assert.equal(array.get('isPending'), true, 'should be pending');

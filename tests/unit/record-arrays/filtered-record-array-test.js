@@ -1,9 +1,10 @@
+import { run } from '@ember/runloop';
+import { A } from '@ember/array';
+import { get } from '@ember/object';
 import DS from 'ember-data';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
-const { get } = Ember;
 const { FilteredRecordArray } = DS;
 
 module('unit/record-arrays/filtered-record-array - DS.FilteredRecordArray');
@@ -19,7 +20,7 @@ test('default initial state', function(assert) {
 });
 
 test('custom initial state', function(assert) {
-  let content = Ember.A();
+  let content = A();
   let store = {};
   let filterFunction = () => true;
   let recordArray = FilteredRecordArray.create({
@@ -63,12 +64,12 @@ test('updateFilter', function(assert) {
   let recordArray = FilteredRecordArray.create({
     modelName: 'recordType',
     manager,
-    content: Ember.A()
+    content: A()
   });
 
   assert.equal(didUpdateFilter, 0, 'no filterFunction should have been changed yet');
 
-  Ember.run(() => {
+  run(() => {
     recordArray.set('filterFunction', updatedFilterFunction);
     assert.equal(didUpdateFilter, 0, 'record array manager should not yet be informed of the filterFunction change');
     recordArray.set('filterFunction', updatedFilterFunction);
@@ -78,7 +79,7 @@ test('updateFilter', function(assert) {
   assert.equal(didUpdateFilter, 1, 'record array manager should have been informed once that the array filterFunction has changed');
 
   didUpdateFilter = 0;
-  Ember.run(() => {
+  run(() => {
     recordArray.set('filterFunction', updatedFilterFunction);
     assert.equal(didUpdateFilter, 0, 'record array manager should not be informed of this change');
     recordArray.destroy();

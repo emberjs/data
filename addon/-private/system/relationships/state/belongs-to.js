@@ -1,7 +1,5 @@
-import Ember from 'ember';
-import {
-  assert
-} from '@ember/debug';
+import { Promise as EmberPromise } from 'rsvp';
+import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import {
   PromiseObject
@@ -131,7 +129,7 @@ export default class BelongsToRelationship extends Relationship {
     if (this.inverseInternalModel) {
       return this.store._findByInternalModel(this.inverseInternalModel);
     } else {
-      return Ember.RSVP.Promise.resolve(null);
+      return EmberPromise.resolve(null);
     }
   }
 
@@ -188,7 +186,7 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   updateData(data, initial) {
-    assert(`Ember Data expected the data for the ${this.key} relationship on a ${this.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${Ember.inspect(data)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`, data === null || data.id !== undefined && data.type !== undefined);
+    assert(`Ember Data expected the data for the ${this.key} relationship on a ${this.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${inspect(data)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`, data === null || data.id !== undefined && data.type !== undefined);
     let internalModel = this.store._pushResourceIdentifier(this, data);
     if (initial) {
       this.setInitialCanonicalInternalModel(internalModel);

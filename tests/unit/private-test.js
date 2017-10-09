@@ -1,5 +1,9 @@
 import { module, test } from 'qunit';
-import { ContainerInstanceCache, InternalModel, RootState } from 'ember-data/-private';
+import {
+  ContainerInstanceCache,
+  InternalModel,
+  RootState
+} from 'ember-data/-private';
 
 module('-private');
 

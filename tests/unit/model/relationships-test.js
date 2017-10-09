@@ -1,11 +1,11 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 let Occupation, Person, store;
 
 module('unit/model/relationships - DS.Model', {

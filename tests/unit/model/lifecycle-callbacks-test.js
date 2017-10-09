@@ -1,11 +1,11 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { resolve, reject } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, run } = Ember;
 
 module('unit/model/lifecycle_callbacks - Lifecycle Callbacks');
 
@@ -84,7 +84,7 @@ test('a record receives a didUpdate callback when it has finished updating', fun
     updateRecord(store, type, snapshot) {
       assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
 
-      return Ember.RSVP.resolve();
+      return resolve();
     }
   });
 
@@ -126,7 +126,7 @@ test('a record receives a didCreate callback when it has finished updating', fun
     createRecord(store, type, snapshot) {
       assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
 
-      return Ember.RSVP.resolve();
+      return resolve();
     }
   });
 
@@ -171,7 +171,7 @@ test('a record receives a didDelete callback when it has finished deleting', fun
     deleteRecord(store, type, snapshot) {
       assert.equal(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
 
-      return Ember.RSVP.resolve();
+      return resolve();
     }
   });
 
@@ -250,7 +250,7 @@ test('a record receives a becameInvalid callback when it became invalid', functi
     updateRecord(store, type, snapshot) {
       assert.equal(callCount, 0, 'becameInvalid callback was not called until recordWasInvalid is called');
 
-      return Ember.RSVP.reject(new DS.InvalidError([
+      return reject(new DS.InvalidError([
         {
           title: 'Invalid Attribute',
           detail: 'error',

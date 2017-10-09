@@ -1,15 +1,15 @@
+import { w } from '@ember/string';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
 var HomePlanet, SuperVillain, CommanderVillain, NormalMinion, EvilMinion, YellowMinion, RedMinion, SecretLab, SecretWeapon, BatCave, Comment,
   league, superVillain, commanderVillain, evilMinion, yellowMinion, redMinion, secretWeapon, homePlanet, secretLab, env;
-var run = Ember.run;
 var LightSaber;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
@@ -2117,7 +2117,7 @@ test("serializing relationships with an embedded and without calls super when no
       var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
       var relationshipType = snapshot.type.determineRelationshipType(relationship);
       // "manyToOne" not supported in DS.ActiveModelSerializer.prototype.serializeHasMany
-      var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
+      var relationshipTypes = w('manyToNone manyToMany manyToOne');
       if (relationshipTypes.indexOf(relationshipType) > -1) {
         json[payloadKey] = snapshot.hasMany(key, { ids: true });
       }

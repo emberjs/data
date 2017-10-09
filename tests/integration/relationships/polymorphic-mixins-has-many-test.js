@@ -3,16 +3,16 @@ import {
   reset as resetModelFactoryInjections
 } from 'dummy/tests/helpers/model-factory-injection';
 
+import Mixin from '@ember/object/mixin';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var env, store, User, Message, NotMessage, Video;
-var run = Ember.run;
 
 var attr = DS.attr;
 var hasMany = DS.hasMany;
@@ -25,7 +25,7 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
       messages: hasMany('message', { async: true, polymorphic: true })
     });
 
-    Message = Ember.Mixin.create({
+    Message = Mixin.create({
       title: attr('string'),
       user: belongsTo('user', { async: true })
     });

@@ -1,7 +1,8 @@
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
@@ -9,8 +10,6 @@ import { isEnabled } from 'ember-data/-private';
 
 let env, store, adapter;
 let passedUrl, passedVerb, passedHash;
-
-const { run } = Ember;
 
 let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
 
@@ -99,7 +98,7 @@ function ajaxResponse(responses) {
       passedVerb[index] = request.method;
       passedHash[index] = request.data ? { data: request.data } : undefined;
 
-      return run(Ember.RSVP, 'resolve', responses[index]);
+      return run(RSVP, 'resolve', responses[index]);
     };
   } else {
     adapter.ajax = function(url, verb, hash) {
@@ -109,7 +108,7 @@ function ajaxResponse(responses) {
       passedVerb[index] = verb;
       passedHash[index] = hash;
 
-      return run(Ember.RSVP, 'resolve', responses[index]);
+      return run(RSVP, 'resolve', responses[index]);
     };
   }
 }

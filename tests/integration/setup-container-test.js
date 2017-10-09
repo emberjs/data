@@ -1,10 +1,11 @@
-import Ember from 'ember';
+import Application from '@ember/application';
+import { run } from '@ember/runloop';
+import EmberObject from '@ember/object';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { run, Object: EmberObject } = Ember;
 const { Store, _setupContainer: setupContainer } = DS;
 
 let container, registry, application;
@@ -16,7 +17,7 @@ let container, registry, application;
 
 module("integration/setup-container - Setting up a container", {
   beforeEach() {
-    application = run(() => Ember.Application.create());
+    application = run(() => Application.create());
 
     container = application.__container__;
     registry = application.__registry__;
