@@ -38,7 +38,7 @@
     "chalk": "^1.1.1",
     "co": "^4.6.0",
     "common-tags": "^1.4.0",
-    "ember-cli-babel": "^6.7.2",
+    "ember-cli-babel": "^6.8.2",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.0.0",
     "ember-cli-test-info": "^1.0.0",
