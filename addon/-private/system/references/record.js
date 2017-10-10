@@ -115,6 +115,7 @@ RecordReference.prototype.value = function() {
   if (this.internalModel.hasRecord) {
     return this.internalModel.getRecord();
   }
+  return null;
 };
 
 /**

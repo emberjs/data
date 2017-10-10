@@ -99,7 +99,7 @@ test("push(promise)", function(assert) {
 
 test("value() returns null when not yet loaded", function(assert) {
   var recordReference = env.store.getReference('person', 1);
-  assert.equal(recordReference.value(), null);
+  assert.strictEqual(recordReference.value(), null);
 });
 
 test("value() returns the record when loaded", function(assert) {
