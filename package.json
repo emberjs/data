@@ -110,9 +110,6 @@
     "testdouble": "^3.2.6",
     "testem": "^1.15.0"
   },
-  "peerDependencies": {
-    "ember-inflector": "^2.0.0"
-  },
   "engines": {
     "node": ">= 4.0.0"
   },
