@@ -930,7 +930,7 @@ testInDebug('a null defaultValue is not deprecated', function(assert) {
   let tag = run(() => store.createRecord('tag'));
 
   assert.expectNoDeprecation();
-  assert.equal(get(tag, 'tagInfo'), null);
+  assert.strictEqual(get(tag, 'tagInfo'), null);
 });
 
 test('setting a property to undefined on a newly created record should not impact the current state', function(assert) {

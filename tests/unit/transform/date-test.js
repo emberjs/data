@@ -14,9 +14,9 @@ let date = new Date(dateString);
 test('#serialize', function(assert) {
   let transform = new DS.DateTransform();
 
-  assert.equal(transform.serialize(null), null);
-  assert.equal(transform.serialize(undefined), null);
-  assert.equal(transform.serialize(new Date('invalid')), null);
+  assert.strictEqual(transform.serialize(null), null);
+  assert.strictEqual(transform.serialize(undefined), null);
+  assert.strictEqual(transform.serialize(new Date('invalid')), null);
 
   assert.equal(transform.serialize(date), dateString);
 });
@@ -31,10 +31,10 @@ test('#deserialize', function(assert) {
   assert.equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
 
   // from other
-  assert.equal(transform.deserialize({}), null);
+  assert.strictEqual(transform.deserialize({}), null);
 
   // from none
-  assert.equal(transform.deserialize(null), null);
+  assert.strictEqual(transform.deserialize(null), null);
   assert.equal(transform.deserialize(undefined), null);
 });
 

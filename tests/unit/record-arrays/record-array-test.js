@@ -15,8 +15,8 @@ test('default initial state', function(assert) {
   assert.equal(get(recordArray, 'isLoaded'), false);
   assert.equal(get(recordArray, 'isUpdating'), false);
   assert.equal(get(recordArray, 'modelName'), 'recordType');
-  assert.equal(get(recordArray, 'content'), null);
-  assert.equal(get(recordArray, 'store'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'store'), null);
 });
 
 test('custom initial state', function(assert) {
@@ -281,7 +281,7 @@ test('#destroy', function(assert) {
   assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
   recordArray.destroy();
 
-  assert.equal(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });
@@ -352,7 +352,7 @@ test('#destroy', function(assert) {
   assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
   recordArray.destroy();
 
-  assert.equal(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });
