@@ -35,7 +35,7 @@ test('#deserialize', function(assert) {
 
   // from none
   assert.strictEqual(transform.deserialize(null), null);
-  assert.equal(transform.deserialize(undefined), null);
+  assert.strictEqual(transform.deserialize(undefined), undefined);
 });
 
 testInDebug('#deserialize with different offset formats', function(assert) {
