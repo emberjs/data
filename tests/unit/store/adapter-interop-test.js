@@ -1126,7 +1126,7 @@ test('store should not reload a record when `shouldBackgroundReloadRecord` is fa
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.get('name'), undefined);
+      assert.strictEqual(record.get('name'), undefined);
     });
   });
 });
@@ -1164,7 +1164,7 @@ test('store should reload the record in the background when `shouldBackgroundRel
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.get('name'), undefined);
+      assert.strictEqual(record.get('name'), undefined);
     });
   });
 
@@ -1292,7 +1292,7 @@ test('store should not reload all records when `shouldBackgroundReloadAll` is fa
 
   return run(() => {
     return store.findAll('person').then(records => {
-      assert.equal(records.get('firstObject'), undefined);
+      assert.strictEqual(records.get('firstObject'), undefined);
     });
   });
 });
@@ -1327,7 +1327,7 @@ test('store should reload all records in the background when `shouldBackgroundRe
 
   let done = run(() => {
     return store.findAll('person').then(records => {
-      assert.equal(records.get('firstObject.name'), undefined);
+      assert.strictEqual(records.get('firstObject.name'), undefined);
     });
   });
 

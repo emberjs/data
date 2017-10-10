@@ -60,7 +60,7 @@ test('#objectAtContent', function(assert) {
   assert.equal(recordArray.objectAtContent(0), 'foo');
   assert.equal(recordArray.objectAtContent(1), 'bar');
   assert.equal(recordArray.objectAtContent(2), 'baz');
-  assert.equal(recordArray.objectAtContent(3), undefined);
+  assert.strictEqual(recordArray.objectAtContent(3), undefined);
 });
 
 test('#update', function(assert) {

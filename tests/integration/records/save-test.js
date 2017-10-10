@@ -38,7 +38,7 @@ test("Will resolve save on success", function(assert) {
     var saved = post.save();
 
     // `save` returns a PromiseObject which allows to call get on it
-    assert.equal(saved.get('id'), undefined);
+    assert.strictEqual(saved.get('id'), undefined);
 
     deferred.resolve({ data: { id: 123, type: 'post' } });
     saved.then(function(model) {

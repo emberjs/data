@@ -889,7 +889,7 @@ test("deleteRecord - an empty payload is a basic success", function(assert) {
   }).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
-    assert.equal(passedHash, undefined);
+    assert.strictEqual(passedHash, undefined);
 
     assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     assert.equal(post.get('isDeleted'), true, "the post is now deleted");
@@ -946,7 +946,7 @@ test("deleteRecord - a payload with sideloaded updates pushes the updates", func
   }).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
-    assert.equal(passedHash, undefined);
+    assert.strictEqual(passedHash, undefined);
 
     assert.equal(post.get('hasDirtyAttributes'), false, "the post isn't dirty anymore");
     assert.equal(post.get('isDeleted'), true, "the post is now deleted");
@@ -978,7 +978,7 @@ test("deleteRecord - a payload with sidloaded updates pushes the updates when th
   }).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "DELETE");
-    assert.equal(passedHash, undefined);
+    assert.strictEqual(passedHash, undefined);
 
     assert.equal(post.get('hasDirtyAttributes'), false, "the original post isn't dirty anymore");
     assert.equal(post.get('isDeleted'), true, "the original post is now deleted");
@@ -1738,7 +1738,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
   }).then(comments => {
     assert.equal(passedUrl, '/posts/1/comments');
     assert.equal(passedVerb, 'GET');
-    assert.equal(passedHash, undefined);
+    assert.strictEqual(passedHash, undefined);
 
     let comment1 = store.peekRecord('comment', 1);
     let comment2 = store.peekRecord('comment', 2);
