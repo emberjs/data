@@ -17,7 +17,7 @@ import EmberObject from '@ember/object';
     * `normalize()`
 
   For an example implementation, see
-  [DS.JSONSerializer](DS.JSONSerializer.html), the included JSON serializer.
+  [DS.JSONSerializer](DS.JSONSerializer), the included JSON serializer.
 
   @class Serializer
   @namespace DS
