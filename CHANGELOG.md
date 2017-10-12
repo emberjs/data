@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 2.16.3 (October 12, 2017)
+
+- [#5223](https://github.com/emberjs/data/pull/5223) Move test only dependencies to `devDependencies`.
+- [#5220](https://github.com/emberjs/data/pull/5220) Remove `ember-inflector` as a peer dependency.
+
 ### Release 2.16.2 (October 7, 2017)
 
 - [#5214](https://github.com/emberjs/data/pull/5214) Fix Node 4 incompatibilities.
