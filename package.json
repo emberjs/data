@@ -32,11 +32,8 @@
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^2.0.0",
     "broccoli-rollup": "^1.2.0",
-    "broccoli-test-helper": "^1.2.0",
     "calculate-cache-key-for-tree": "^1.1.0",
     "chalk": "^1.1.1",
-    "co": "^4.6.0",
-    "common-tags": "^1.4.0",
     "ember-cli-babel": "^6.8.2",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.0.0",
@@ -50,8 +47,7 @@
     "inflection": "^1.8.0",
     "npm-git-info": "^1.0.0",
     "semver": "^5.1.0",
-    "silent-error": "^1.0.0",
-    "testem": "^1.15.0"
+    "silent-error": "^1.0.0"
   },
   "devDependencies": {
     "babel-plugin-debug-macros": "^0.1.7",
@@ -69,8 +65,11 @@
     "broccoli-concat": "^3.2.2",
     "broccoli-stew": "^1.4.2",
     "broccoli-string-replace": "^0.1.1",
+    "broccoli-test-helper": "^1.2.0",
     "broccoli-uglify-sourcemap": "^1.0.1",
     "broccoli-yuidoc": "^2.1.0",
+    "co": "^4.6.0",
+    "common-tags": "^1.4.0",
     "ember-ajax": "^2.4.1",
     "ember-cli": "^2.11.1",
     "ember-cli-app-version": "^3.0.0",
@@ -108,7 +107,9 @@
     "mocha-only-detector": "0.0.2",
     "morgan": "^1.7.0",
     "rimraf": "2.5.2",
-    "rsvp": "3.6.0"
+    "rsvp": "4.7.0",
+    "testdouble": "^3.2.6",
+    "testem": "^1.15.0"
   },
   "peerDependencies": {
     "ember-inflector": "^2.0.0"
