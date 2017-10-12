@@ -1,18 +1,16 @@
 import { expect } from 'chai';
-import { describeModule, it } from 'ember-mocha';
+import { describe, it } from 'mocha';
+import { setupTest } from 'ember-mocha';
 
-describeModule(
-  'transform:<%= dasherizedModuleName %>',
-  '<%= friendlyTestDescription %>',
-  {
+describe('<%= friendlyTestDescription %>', function() {
+  setupTest('transform:<%= dasherizedModuleName %>', {
     // Specify the other units that are required for this test.
     // needs: ['transform:foo']
-  },
-  function() {
-    // Replace this with your real tests.
-    it('exists', function() {
-      let transform = this.subject();
-      expect(transform).to.be.ok;
-    });
-  }
-);
+  });
+
+  // Replace this with your real tests.
+  it('exists', function() {
+    let transform = this.subject();
+    expect(transform).to.be.ok;
+  });
+});
