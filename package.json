@@ -109,7 +109,8 @@
     "mocha-only-detector": "0.0.2",
     "morgan": "^1.7.0",
     "rimraf": "2.5.2",
-    "rsvp": "4.7.0"
+    "rsvp": "4.7.0",
+    "testdouble": "^3.2.6"
   },
   "peerDependencies": {
     "ember-inflector": "^2.0.0"
