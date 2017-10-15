@@ -1,8 +1,12 @@
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { copy } from '@ember/object/internals';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import { createStore } from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
+
+const { Model, hasMany, belongsTo, attr } = DS;
 
 module('unit/system/relationships/relationship-payloads-manager', {
   beforeEach() {
@@ -39,7 +43,7 @@ test('get throws for invalid models', function(assert) {
     if (name === 'fish') {
       throw new Error('What is fish?');
     }
-  }
+  };
 
   assert.throws(() => {
     this.relationshipPayloadsManager.get('fish', 9, 'hobbies');
@@ -673,4 +677,73 @@ test('get can retrieve payloads with self-links in reflexive relationships', fun
 
   let entry = this.relationshipPayloadsManager.get('user', 1, 'friends');
   assert.deepEqual(entry, friendsPayload, 'self-link in reflexive relationship');
+});
+
+test('handles relationships where one side is polymorphic', function(assert) {
+  const hatData = {
+    relationships: {
+      person: {
+        data: { id: '1' , type: 'person' }
+      }
+    }
+  };
+
+  let id = 1;
+  function makeHat(type) {
+    const resource = copy(hatData, true);
+    resource.id = `${id++}`;
+    resource.type = type;
+
+    return resource;
+  }
+
+  const bigHatData1 = makeHat('big-hat');
+  const bigHatData2 = makeHat('big-hat');
+  const smallHatData1 = makeHat('small-hat');
+  const smallHatData2 = makeHat('small-hat');
+  const smallHatData3 = makeHat('small-hat');
+
+  const personData = {
+    data: {
+      id: '1',
+      type: 'person',
+      attributes: {}
+    },
+    included: [
+      bigHatData1,
+      smallHatData1,
+      bigHatData2,
+      smallHatData2,
+      smallHatData3
+    ]
+  };
+
+  const PersonModel = Model.extend({
+    hats: hasMany('hat', {
+      async: false,
+      polymorphic: true,
+      inverse: 'person'
+    }),
+  });
+  const HatModel = Model.extend({
+    type: attr('string'),
+    person: belongsTo('person', { async: false, inverse: 'hats' })
+  });
+  const BigHatModel = HatModel.extend({});
+  const SmallHatModel = HatModel.extend({});
+
+  const store = this.store = createStore({
+    person: PersonModel,
+    hat: HatModel,
+    bigHat: BigHatModel,
+    smallHat: SmallHatModel
+  });
+
+  const person = run(() => {
+    return store.push(personData);
+  });
+
+  const finalResult = person.get('hats').toArray();
+
+  assert.equal(finalResult.length, 5, 'We got all our hats!');
 });

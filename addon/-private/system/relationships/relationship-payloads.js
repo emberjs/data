@@ -44,10 +44,32 @@ export default class RelationshipPayloads {
   constructor(store, modelName, relationshipName, relationshipMeta, inverseModelName, inverseRelationshipName, inverseRelationshipMeta) {
     this._store = store;
 
+    this._lhsIsPolymorphic = relationshipMeta !== null &&
+      relationshipMeta.options !== undefined &&
+      relationshipMeta.options.polymorphic === true;
+    let lhs = this._lhs = [];
+    lhs.push({
+      modelName,
+      relationshipName,
+      relationshipMeta
+    });
+
     this._lhsModelName = modelName;
     this._lhsRelationshipName = relationshipName;
     this._lhsRelationshipMeta = relationshipMeta;
 
+    this._rhsIsPolymorphic = inverseRelationshipMeta !== null &&
+      inverseRelationshipMeta.options !== undefined &&
+      inverseRelationshipMeta.options.polymorphic === true;
+
+    assert(`Both side of a relationship cannot be polymorphic`, !this._lhsIsPolymorphic || !this._rhsIsPolymorphic);
+
+    let rhs = this._rhs = [];
+    rhs.push({
+      modelName: inverseModelName,
+      relationshipName: inverseRelationshipName,
+      relationshipMeta: inverseRelationshipMeta
+    });
     this._rhsModelName = inverseModelName;
     this._rhsRelationshipName = inverseRelationshipName;
     this._rhsRelationshipMeta = inverseRelationshipMeta;
@@ -76,6 +98,17 @@ export default class RelationshipPayloads {
     // This is a queue of the relationship payloads that have been pushed for
     // either side of this relationship
     this._pendingPayloads = [];
+  }
+
+  addPolymorphicType(modelName, relationshipName, relationshipMeta) {
+    assert(`Cannot add a polymorphic relationship payload to a non-polymorphic relationship`, this._rhsIsPolymorphic || this._lhsIsPolymorphic);
+    let cache = this._rhsIsPolymorphic ? this._lhs : this._rhs;
+
+    cache.push({
+      modelName,
+      relationshipName,
+      relationshipMeta
+    });
   }
 
   /**
@@ -126,6 +159,20 @@ export default class RelationshipPayloads {
     }
   }
 
+  _isSide(potentialMatches, modelName, relationshipName) {
+    for (let i = 0; i < potentialMatches.length; i++) {
+      let polymorphicOption = potentialMatches[i];
+      let isModel = modelName === polymorphicOption.modelName;
+      let isRelationship = relationshipName === polymorphicOption.relationshipName;
+
+      if (isModel === true && isRelationship === true) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   /**
     @return {boolean} true iff `modelName` and `relationshipName` refer to the
     left hand side of this relationship, as opposed to the right hand side.
@@ -133,7 +180,7 @@ export default class RelationshipPayloads {
     @method
   */
   _isLHS(modelName, relationshipName) {
-    return modelName === this._lhsModelName && relationshipName === this._lhsRelationshipName;
+    return this._isSide(this._lhs, modelName, relationshipName);
   }
 
   /**
@@ -143,7 +190,7 @@ export default class RelationshipPayloads {
     @method
   */
   _isRHS(modelName, relationshipName) {
-    return modelName === this._rhsModelName && relationshipName === this._rhsRelationshipName;
+    return this._isSide(this._rhs, modelName, relationshipName);
   }
 
   _flushPending() {
@@ -162,7 +209,7 @@ export default class RelationshipPayloads {
           id: id,
           type: modelName
         }
-      }
+      };
 
       // start flushing this individual payload.  The logic is the same whether
       // it's for the left hand side of the relationship or the right hand side,

@@ -156,7 +156,7 @@ export default class RelationshipPayloadsManager {
       relationshipPayloads.get('user', 'hobbies') === relationshipPayloads.get('hobby', 'user');
 
     The signature has a somewhat large arity to avoid extra work, such as
-      a)  string maipulation & allocation with `modelName` and
+      a)  string manipulation & allocation with `modelName` and
          `relationshipName`
       b)  repeatedly getting `relationshipsByName` via `Ember.get`
 
@@ -188,14 +188,18 @@ export default class RelationshipPayloadsManager {
     let inverseModelName;
     let inverseRelationshipName;
     let inverseRelationshipMeta;
+    let inverseIsPolymorphic = false;
+    let existingPolymorphicCache;
 
     // figure out the inverse relationship; we need two things
     //  a) the inverse model name
     //- b) the name of the inverse relationship
     if (inverseMeta) {
-      inverseRelationshipName = inverseMeta.name
+      inverseRelationshipName = inverseMeta.name;
       inverseModelName = relationshipMeta.type;
       inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
+      inverseIsPolymorphic = inverseRelationshipMeta.options !== undefined && inverseRelationshipMeta.options.polymorphic === true;
+
     } else {
       // relationship has no inverse
       inverseModelName = inverseRelationshipName = '';
@@ -204,6 +208,22 @@ export default class RelationshipPayloadsManager {
 
     let lhsKey = `${modelName}:${relationshipName}`;
     let rhsKey = `${inverseModelName}:${inverseRelationshipName}`;
+
+    if (inverseIsPolymorphic === true) {
+      existingPolymorphicCache = this._cache[rhsKey]
+    }
+
+    if (existingPolymorphicCache !== undefined) {
+      this._cache[lhsKey] = existingPolymorphicCache;
+
+      existingPolymorphicCache.addPolymorphicType(
+        modelName,
+        relationshipName,
+        relationshipMeta
+      );
+
+      return existingPolymorphicCache;
+    }
 
     // populate the cache for both sides of the relationship, as they both use
     // the same `RelationshipPayloads`.
