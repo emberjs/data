@@ -723,7 +723,7 @@ test('handles relationships where one side is polymorphic', function(assert) {
       async: false,
       polymorphic: true,
       inverse: 'person'
-    }),
+    })
   });
   const HatModel = Model.extend({
     type: attr('string'),
