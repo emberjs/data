@@ -747,6 +747,32 @@ test('supports pushedData in root.deleted.uncommitted', function(assert) {
   });
 });
 
+test('supports pushedData in root.deleted.uncommitted', function(assert) {
+  let done = assert.async();
+  let hash = {
+    data: {
+      type: 'person',
+      id: '1'
+    }
+  };
+  env.adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  run(() => {
+    let record = store.push(hash);
+    record.destroyRecord().then(() => {
+      assert.equal(store.peekRecord('person', '1'), null, 'person removed from store');
+      assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved',
+        'record accepts pushedData is in root.deleted.uncommitted state');
+      store.push(hash);
+      assert.notEqual(get(record, 'currentState.stateName'), 'root.deleted.saved',
+        'record accepts pushedData is in root.deleted.uncommitted state');
+      done();
+    });
+  });
+});
+
 test('currentState is accessible when the record is created', function(assert) {
   let hash = {
     data: {
