@@ -553,14 +553,14 @@ const Model = EmberObject.extend(Evented, {
 
     export default Route.extend({
       actions: {
-        softDelete: function() {
-          this.controller.get('model').deleteRecord();
+        softDelete() {
+          this.get('controller.model').deleteRecord();
         },
-        confirm: function() {
-          this.controller.get('model').save();
+        confirm() {
+          this.get('controller.model').save();
         },
-        undo: function() {
-          this.controller.get('model').rollbackAttributes();
+        undo() {
+          this.get('controller.model').rollbackAttributes();
         }
       }
     });
@@ -582,9 +582,8 @@ const Model = EmberObject.extend(Evented, {
 
     export default Route.extend({
       actions: {
-        delete: function() {
-          let controller = this.controller;
-          controller.get('model').destroyRecord().then(function() {
+        delete() {
+          this.get('controller.model').destroyRecord().then(function() {
             controller.transitionToRoute('model.index');
           });
         }
@@ -603,7 +602,7 @@ const Model = EmberObject.extend(Evented, {
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -771,7 +770,7 @@ const Model = EmberObject.extend(Evented, {
     import MyCustomAdapter from './custom-adapter';
 
     export default MyCustomAdapter.extend({
-      updateRecord: function(store, type, snapshot) {
+      updateRecord(store, type, snapshot) {
         if (snapshot.adapterOptions.subscribe) {
           // ...
         }
@@ -803,7 +802,7 @@ const Model = EmberObject.extend(Evented, {
 
     export default Route.extend({
       actions: {
-        reload: function() {
+        reload() {
           this.controller.get('model').reload().then(function(model) {
             // do something with the reloaded model
           });
