@@ -52,7 +52,7 @@ import {
 
 import "ember-inflector";
 import setupContainer from "./setup-container";
-import initializeStoreService from './instance-initializers/initialize-store-service';
+import initializeStoreService from './initialize-store-service';
 
 import Transform from './transforms/transform';
 import NumberTransform from './transforms/number';
