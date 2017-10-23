@@ -38,6 +38,13 @@ function isProductionEnv() {
 module.exports = {
   name: 'ember-data',
 
+  _prodLikeWarning() {
+    let emberEnv = process.env.EMBER_ENV
+    if(emberEnv !== 'production' && /production/.test(emberEnv)) {
+      this._warn(`Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`);
+    }
+  },
+
   _warn(message) {
     let chalk = require('chalk');
     let warning = chalk.yellow('WARNING: ' + message);
@@ -53,7 +60,7 @@ module.exports = {
 
   init() {
     this._super.init && this._super.init.apply(this, arguments);
-
+    this._prodLikeWarning();
     this.debugTree = BroccoliDebug.buildDebugCallback('ember-data');
 
     let bowerDeps = this.project.bowerDependencies();
