@@ -51,11 +51,7 @@ test('custom initial state', function(assert) {
   assert.equal(recordArray.get('content'), content);
   assert.equal(recordArray.get('store'), store);
   assert.equal(recordArray.get('query'), 'some-query');
-<<<<<<< HEAD
-  assert.equal(recordArray.get('links'), 'foo');
-=======
-  assert.strictEqual(recordArray.get('links'), null);
->>>>>>> Update assert against nulls (#5218)
+  assert.strictEqual(recordArray.get('links'), 'foo');
 });
 
 test('#replace() throws error', function(assert) {
