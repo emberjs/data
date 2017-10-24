@@ -52,7 +52,7 @@ export default DataAdapter.extend({
       let containerKey = modelClass._debugContainerKey;
       if (containerKey) {
         let match = containerKey.match(/model:(.*)/);
-        if (match) {
+        if (match !== null) {
           modelName = match[1];
         }
       }

@@ -39,16 +39,15 @@ import Transform from './transform';
  */
 export default Transform.extend({
   deserialize(serialized, options) {
-    let type = typeof serialized;
-
     if (isNone(serialized) && options.allowNull === true) {
       return null;
     }
 
+    let type = typeof serialized;
     if (type === "boolean") {
       return serialized;
     } else if (type === "string") {
-      return serialized.match(/^true$|^t$|^1$/i) !== null;
+      return /^(true|t|1)$/i.test(serialized);
     } else if (type === "number") {
       return serialized === 1;
     } else {
