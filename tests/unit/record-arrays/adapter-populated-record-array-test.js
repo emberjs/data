@@ -51,7 +51,7 @@ test('custom initial state', function(assert) {
   assert.equal(recordArray.get('content'), content);
   assert.equal(recordArray.get('store'), store);
   assert.equal(recordArray.get('query'), 'some-query');
-  assert.equal(recordArray.get('links'), null);
+  assert.equal(recordArray.get('links'), 'foo');
 });
 
 test('#replace() throws error', function(assert) {
