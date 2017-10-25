@@ -2009,7 +2009,8 @@ Store = Service.extend({
   */
   _load(data) {
     heimdall.increment(_load);
-    let internalModel = this._internalModelForId(data.type, data.id);
+    let modelName = normalizeModelName(data.type);
+    let internalModel = this._internalModelForId(modelName, data.id);
 
     let isUpdate = internalModel.currentState.isEmpty === false;
 
