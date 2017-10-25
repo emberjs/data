@@ -70,7 +70,7 @@ test('changes to unassigned attributes can be rolled back', function(assert) {
 
   run(() => person.rollbackAttributes());
 
-  assert.equal(person.get('firstName'), undefined);
+  assert.strictEqual(person.get('firstName'), undefined);
   assert.equal(person.get('hasDirtyAttributes'), false);
 });
 

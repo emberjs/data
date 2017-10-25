@@ -20,21 +20,21 @@ const z = "zzz";
 
 test('diff array returns no change given two empty arrays', function(assert) {
   const result = diffArray([], []);
-  assert.equal(result.firstChangeIndex, null);
+  assert.strictEqual(result.firstChangeIndex, null);
   assert.equal(result.addedCount, 0);
   assert.equal(result.removedCount, 0);
 });
 
 test('diff array returns no change given two identical arrays length 1', function(assert) {
   const result = diffArray([a], [a]);
-  assert.equal(result.firstChangeIndex, null);
+  assert.strictEqual(result.firstChangeIndex, null);
   assert.equal(result.addedCount, 0);
   assert.equal(result.removedCount, 0);
 });
 
 test('diff array returns no change given two identical arrays length 3', function(assert) {
   const result = diffArray([a,b,c], [a,b,c]);
-  assert.equal(result.firstChangeIndex, null);
+  assert.strictEqual(result.firstChangeIndex, null);
   assert.equal(result.addedCount, 0);
   assert.equal(result.removedCount, 0);
 });
