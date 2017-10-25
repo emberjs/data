@@ -119,6 +119,42 @@ test('acts as a live query', function(assert) {
   assert.equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
+test('acts as a live query (normalized names)', function (assert) {
+  let store = createStore({
+    person: Person,
+    Person: Person
+  });
+
+  let recordArray = store.peekAll('Person');
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'Person',
+        id: '1',
+        attributes: {
+          name: 'John Churchill'
+        }
+      }
+    });
+  });
+
+  assert.deepEqual(recordArray.mapBy('name'), ['John Churchill']);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'Person',
+        id: '2',
+        attributes: {
+          name: 'Winston Churchill'
+        }
+      }
+    });
+  });
+  assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
+});
+
 test('stops updating when destroyed', function(assert) {
   assert.expect(3);
 
