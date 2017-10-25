@@ -159,14 +159,14 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(post2.get('bestComment'), null);
+  assert.strictEqual(post2.get('bestComment'), null);
 
   run(function() {
     comment.set('post', post2);
   });
 
   assert.equal(comment.get('post'), post2);
-  assert.equal(post.get('bestComment'), null);
+  assert.strictEqual(post.get('bestComment'), null);
   assert.equal(post2.get('bestComment'), comment);
 });
 
@@ -197,14 +197,14 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(post2.get('bestComment'), null);
+  assert.strictEqual(post2.get('bestComment'), null);
 
   run(function() {
     post2.set('bestComment', comment);
   });
 
   assert.equal(comment.get('post'), post2);
-  assert.equal(post.get('bestComment'), null);
+  assert.strictEqual(post.get('bestComment'), null);
   assert.equal(post2.get('bestComment'), comment);
 });
 
@@ -233,13 +233,13 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(comment2.get('post'), null);
+  assert.strictEqual(comment2.get('post'), null);
 
   run(function() {
     post.set('bestComment', comment2);
   });
 
-  assert.equal(comment.get('post'), null);
+  assert.strictEqual(comment.get('post'), null);
   assert.equal(post.get('bestComment'), comment2);
   assert.equal(comment2.get('post'), post);
 });

@@ -67,7 +67,7 @@ test('Changed attributes are reset when matching data is pushed', function(asser
   run(() => person.set('firstName', 'updated first name'));
 
   assert.equal(person.get('firstName'), 'updated first name');
-  assert.equal(person.get('lastName'), undefined);
+  assert.strictEqual(person.get('lastName'), undefined);
   assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
   assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
 

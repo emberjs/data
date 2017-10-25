@@ -7,8 +7,8 @@ module('unit/transform - DS.BooleanTransform');
 test("#serialize", function(assert) {
   let transform = new DS.BooleanTransform();
 
-  assert.equal(transform.serialize(null, { allowNull: true }), null);
-  assert.equal(transform.serialize(undefined, { allowNull: true }), null);
+  assert.strictEqual(transform.serialize(null, { allowNull: true }), null);
+  assert.strictEqual(transform.serialize(undefined, { allowNull: true }), null);
 
   assert.equal(transform.serialize(null, { allowNull: false }), false);
   assert.equal(transform.serialize(undefined, { allowNull: false }), false);
@@ -23,8 +23,8 @@ test("#serialize", function(assert) {
 test('#deserialize', function(assert) {
   let transform = new DS.BooleanTransform();
 
-  assert.equal(transform.deserialize(null, { allowNull: true }), null);
-  assert.equal(transform.deserialize(undefined, { allowNull: true }), null);
+  assert.strictEqual(transform.deserialize(null, { allowNull: true }), null);
+  assert.strictEqual(transform.deserialize(undefined, { allowNull: true }), null);
 
   assert.equal(transform.deserialize(null, { allowNull: false }), false);
   assert.equal(transform.deserialize(undefined, { allowNull: false }), false);

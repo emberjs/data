@@ -39,7 +39,7 @@ test("meta is proxied correctly on the PromiseArray", function(assert) {
     result = store.query('person', {});
   });
 
-  assert.equal(result.get('meta.foo'), undefined);
+  assert.notOk(result.get('meta.foo'), 'precond: meta is not yet set');
 
   run(function() {
     defered.resolve({ data: [], meta: { foo: 'bar' } });

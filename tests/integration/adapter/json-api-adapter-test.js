@@ -968,7 +968,7 @@ test('fetching a belongsTo relationship link that returns null', function(assert
       return post.get('author');
     }).then(author => {
       assert.equal(passedUrl[1], 'http://example.com/post/1/author');
-      assert.equal(author, null);
+      assert.strictEqual(author, null);
     });
   });
 });

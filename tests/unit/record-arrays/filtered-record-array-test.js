@@ -14,9 +14,9 @@ test('default initial state', function(assert) {
 
   assert.equal(get(recordArray, 'isLoaded'), true);
   assert.equal(get(recordArray, 'modelName'), 'recordType');
-  assert.equal(get(recordArray, 'content'), null);
-  assert.equal(get(recordArray, 'filterFunction'), null);
-  assert.equal(get(recordArray, 'store'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'filterFunction'), null);
+  assert.strictEqual(get(recordArray, 'store'), null);
 });
 
 test('custom initial state', function(assert) {
