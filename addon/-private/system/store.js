@@ -2493,7 +2493,7 @@ Store = Service.extend({
     ```
 
     ```js
-    store.pushPayload('comment', pushData); // Will use the application serializer
+    store.pushPayload(pushData); // Will use the application serializer
     store.pushPayload('post', pushData); // Will use the post serializer
     ```
 
