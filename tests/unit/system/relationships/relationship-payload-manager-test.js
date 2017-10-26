@@ -8,14 +8,28 @@ import { module, test } from 'qunit';
 
 const { Model, hasMany, belongsTo, attr } = DS;
 
+let id = 1;
+
+function makeHat(type, props) {
+  const resource = copy(props, true);
+  resource.id = `${id++}`;
+  resource.type = type;
+  resource.attributes.type = type;
+  return resource;
+}
+
 module('unit/system/relationships/relationship-payloads-manager', {
   beforeEach() {
     const User = DS.Model.extend({
       purpose: DS.belongsTo('purpose', { inverse: 'user' }),
       hobbies: DS.hasMany('hobby', { inverse: 'user'}),
-      friends: DS.hasMany('user', { inverse: 'friends' })
+      friends: DS.hasMany('user', { inverse: 'friends' }),
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' })
     });
     User.toString = () => 'User';
+
+    const Alien = User.extend({});
+    Alien.toString = () => 'Alien';
 
     const Hobby = DS.Model.extend({
       user: DS.belongsTo('user', { inverse: 'hobbies' })
@@ -27,10 +41,21 @@ module('unit/system/relationships/relationship-payloads-manager', {
     });
     Purpose.toString = () => 'Purpose';
 
+    const Hat = Model.extend({
+      type: attr('string'),
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true })
+    });
+    const BigHat = Hat.extend({});
+    const SmallHat = Hat.extend({});
+
     let store = this.store = createStore({
       user: User,
+      alien: Alien,
       Hobby: Hobby,
-      purpose: Purpose
+      purpose: Purpose,
+      hat: Hat,
+      bigHat: BigHat,
+      smallHat: SmallHat
     });
 
     this.relationshipPayloadsManager = new RelationshipPayloadsManager(store);
@@ -679,71 +704,134 @@ test('get can retrieve payloads with self-links in reflexive relationships', fun
   assert.deepEqual(entry, friendsPayload, 'self-link in reflexive relationship');
 });
 
-test('handles relationships where one side is polymorphic', function(assert) {
+test('push one side is polymorphic, baseType then subTypes', function(assert) {
   const hatData = {
+    attributes: {},
     relationships: {
-      person: {
-        data: { id: '1' , type: 'person' }
+      user: {
+        data: { id: '1' , type: 'user' }
       }
     }
   };
 
-  let id = 1;
-  function makeHat(type) {
-    const resource = copy(hatData, true);
-    resource.id = `${id++}`;
-    resource.type = type;
+  const hatData1      = makeHat('hat', hatData),
+        bigHatData1   = makeHat('big-hat', hatData),
+        smallHatData1 = makeHat('small-hat', hatData);
 
-    return resource;
-  }
-
-  const bigHatData1 = makeHat('big-hat');
-  const bigHatData2 = makeHat('big-hat');
-  const smallHatData1 = makeHat('small-hat');
-  const smallHatData2 = makeHat('small-hat');
-  const smallHatData3 = makeHat('small-hat');
-
-  const personData = {
+  const userData = {
     data: {
       id: '1',
-      type: 'person',
+      type: 'user',
       attributes: {}
     },
     included: [
+      hatData1,
       bigHatData1,
-      smallHatData1,
-      bigHatData2,
-      smallHatData2,
-      smallHatData3
+      smallHatData1
     ]
   };
 
-  const PersonModel = Model.extend({
-    hats: hasMany('hat', {
-      async: false,
-      polymorphic: true,
-      inverse: 'person'
-    })
-  });
-  const HatModel = Model.extend({
-    type: attr('string'),
-    person: belongsTo('person', { async: false, inverse: 'hats' })
-  });
-  const BigHatModel = HatModel.extend({});
-  const SmallHatModel = HatModel.extend({});
+  const user = run(() => this.store.push(userData));
 
-  const store = this.store = createStore({
-    person: PersonModel,
-    hat: HatModel,
-    bigHat: BigHatModel,
-    smallHat: SmallHatModel
-  });
+  const finalResult = user.get('hats').mapBy('type');
 
-  const person = run(() => {
-    return store.push(personData);
-  });
+  assert.deepEqual(finalResult, ['hat', 'big-hat', 'small-hat'], 'We got all our hats!');
+});
 
-  const finalResult = person.get('hats').toArray();
+test('push one side is polymorphic, subType then baseType', function(assert) {
+  const hatData = {
+    attributes: {},
+    relationships: {
+      user: {
+        data: { id: '1' , type: 'user' }
+      }
+    }
+  };
 
-  assert.equal(finalResult.length, 5, 'We got all our hats!');
+  const bigHatData1   = makeHat('hat', hatData),
+        smallHatData1 = makeHat('small-hat', hatData),
+        hatData1      = makeHat('big-hat', hatData),
+        included      = [bigHatData1, smallHatData1, hatData1];
+
+  const userData = {
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: {}
+    },
+    included
+  };
+
+  const user            = run(() => this.store.push(userData)),
+        finalResult     = user.get('hats').mapBy('type'),
+        expectedResults = included.map(m=>m.type);
+
+  assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
+});
+
+test('push one side is polymorphic, different subtypes', function(assert) {
+  const hatData = {
+    attributes:{},
+    relationships: {
+      user: {
+        data: { id: '1' , type: 'user' }
+      }
+    }
+  };
+
+  const bigHatData1   = makeHat('big-hat', hatData),
+        smallHatData1 = makeHat('small-hat', hatData),
+        bigHatData2   = makeHat('big-hat', hatData),
+        smallHatData2 = makeHat('small-hat', hatData),
+        included      = [
+          bigHatData1,
+          smallHatData1,
+          bigHatData2,
+          smallHatData2
+        ];
+
+  const userData = {
+    data: {
+      id: '1',
+      type: 'user',
+      attributes: {}
+    },
+    included
+  };
+
+  const user            = run(() => this.store.push(userData)),
+        finalResult     = user.get('hats').mapBy('type'),
+        expectedResults = included.map(m => m.type);
+
+  assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
+});
+
+test('push both sides are polymorphic', function(assert) {
+  const alienHatData = {
+    attributes: {},
+    relationships: {
+      user: {
+        data: { id: '2' , type: 'alien' }
+      }
+    }
+  };
+
+  const bigHatData1   = makeHat('hat', alienHatData),
+        hatData1      = makeHat('big-hat', alienHatData),
+        alienIncluded = [bigHatData1, hatData1];
+
+  const alienData = {
+          data: {
+            id: '1',
+            type: 'alien',
+            attributes: {}
+          },
+          included: alienIncluded
+        };
+
+  const alien                = run(() => this.store.push(alienData)),
+        alienFinalResult     = alien.get('hats').mapBy('type'),
+        expectedAlienResults = alienIncluded.map(m => m.type);
+
+  assert.deepEqual(alienFinalResult, expectedAlienResults, 'We got all alien hats!');
 });
