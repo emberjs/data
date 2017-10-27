@@ -248,6 +248,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   notifyHasManyChanged() {
+    // debugger;
     this.internalModel.notifyHasManyAdded(this.key);
   }
 

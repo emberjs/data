@@ -1,5 +1,4 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
-
 import {
   setup as setupModelFactoryInjections,
   reset as resetModelFactoryInjections
@@ -112,7 +111,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 test("When an object is destroyed, it's hasMany parent is updated", function(assert) {
   assert.expect(3);
 
-  var Post = DS.Model.extend({
+  const Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true }),
 
     hasComments: computed('comments.[]', function() {
@@ -121,7 +120,7 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
   });
   Post.reopenClass({ toString: () => 'Post' });
 
-  var Comment = DS.Model.extend({
+  const Comment = DS.Model.extend({
     post: DS.belongsTo('post', { async: true })
   });
   Comment.reopenClass({ toString: () => 'Comment' });
@@ -135,8 +134,8 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
   });
 
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
-    deleteRecord(record) {
-      return Ember.RSVP.resolve();
+    deleteRecord(/*record*/) {
+      return resolve();
     }
   }));
 
@@ -167,12 +166,73 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
         assert.ok(comment);
 
         return comment.destroyRecord().then(function() {
+          debugger;
           assert.notOk(post.get('hasComments'));
         });
       });
     });
   });
-}),
+});
+
+
+test("When an object is added, it's hasMany parent is updated", function(assert) {
+  assert.expect(5);
+
+  const Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: false, inverse: 'post' }),
+
+    hasComments: computed('comments.[]', function() {
+      // return this.get('comments.length') > 0;
+      return this.hasMany('comments').ids().length > 0;
+    })
+  });
+
+  const Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
+  });
+
+  env = setupStore({
+    post: Post,
+    comment: Comment
+  });
+
+  const store = env.store;
+
+  const post = run(() => {
+    return store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: []
+          }
+        }
+      },
+    });
+  });
+
+  assert.notOk(post.get('hasComments'), 'we have no comments');
+  // assert.ok(post.get('comments.length') === 0, 'we have 0 comments');
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'comment',
+        id: '2',
+        relationships: {
+          post: {
+            data: { type: 'post', id: '1' }
+          }
+        }
+      }
+    });
+  });
+
+  assert.ok(post.get('hasComments'), 'we have comments');
+  assert.ok(post.get('comments.length') === 1, 'we have 1 comment');
+  assert.ok(post.hasMany('comments').ids().length === 1, 'we really have a comment');
+});
 
 test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
   assert.expect(0);
