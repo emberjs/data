@@ -44,33 +44,29 @@ export default class RelationshipPayloads {
   constructor(store, modelName, relationshipName, relationshipMeta, inverseModelName, inverseRelationshipName, inverseRelationshipMeta) {
     this._store = store;
 
+    this._lhsModelName = inverseRelationshipMeta !== null ? inverseRelationshipMeta.type : modelName;
     this._lhsIsPolymorphic = relationshipMeta !== null &&
       relationshipMeta.options !== undefined &&
       relationshipMeta.options.polymorphic === true;
-    let lhs = this._lhs = [];
-    lhs.push({
-      modelName,
-      relationshipName,
-      relationshipMeta
-    });
-
-    this._lhsModelName = modelName;
     this._lhsRelationshipName = relationshipName;
     this._lhsRelationshipMeta = relationshipMeta;
+    this._lhsModelNames = [this._lhsModelName];
 
+    if (this._lhsModelName !== modelName) {
+      this._lhsModelNames.push(modelName);
+    }
+
+    this._rhsModelName = relationshipMeta.type;
     this._rhsIsPolymorphic = inverseRelationshipMeta !== null &&
       inverseRelationshipMeta.options !== undefined &&
       inverseRelationshipMeta.options.polymorphic === true;
 
-    assert(`Both side of a relationship cannot be polymorphic`, !this._lhsIsPolymorphic || !this._rhsIsPolymorphic);
+    this._rhsModelNames = [this._rhsModelName];
 
-    let rhs = this._rhs = [];
-    rhs.push({
-      modelName: inverseModelName,
-      relationshipName: inverseRelationshipName,
-      relationshipMeta: inverseRelationshipMeta
-    });
-    this._rhsModelName = inverseModelName;
+    if (inverseModelName !== this._rhsModelName) {
+      this._rhsModelNames.push(inverseModelName);
+    }
+
     this._rhsRelationshipName = inverseRelationshipName;
     this._rhsRelationshipMeta = inverseRelationshipMeta;
 
@@ -100,15 +96,16 @@ export default class RelationshipPayloads {
     this._pendingPayloads = [];
   }
 
-  addPolymorphicType(modelName, relationshipName, relationshipMeta) {
-    assert(`Cannot add a polymorphic relationship payload to a non-polymorphic relationship`, this._rhsIsPolymorphic || this._lhsIsPolymorphic);
-    let cache = this._rhsIsPolymorphic ? this._lhs : this._rhs;
+  addPolymorphicType(baseModelName, modelName) {
+    let isLhs = this._lhsModelName === baseModelName;
 
-    cache.push({
-      modelName,
-      relationshipName,
-      relationshipMeta
-    });
+    assert(`Cannot add a relationship payload for an instance of '${modelName}' to the non-polymorphic relationship '${isLhs ? this._lhsRelationshipName : this._rhsRelationshipName}' on type '${isLhs ? this._lhsModelName : this._rhsModelName}'`, (isLhs && this._rhsIsPolymorphic) || (!isLhs && this._lhsIsPolymorphic));
+
+    let cache = isLhs ? this._lhsModelNames : this._rhsModelNames;
+
+    if (cache.indexOf(modelName) === -1) {
+      cache.push(modelName);
+    }
   }
 
   /**
@@ -159,20 +156,6 @@ export default class RelationshipPayloads {
     }
   }
 
-  _isSide(potentialMatches, modelName, relationshipName) {
-    for (let i = 0; i < potentialMatches.length; i++) {
-      let polymorphicOption = potentialMatches[i];
-      let isModel = modelName === polymorphicOption.modelName;
-      let isRelationship = relationshipName === polymorphicOption.relationshipName;
-
-      if (isModel === true && isRelationship === true) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   /**
     @return {boolean} true iff `modelName` and `relationshipName` refer to the
     left hand side of this relationship, as opposed to the right hand side.
@@ -180,7 +163,17 @@ export default class RelationshipPayloads {
     @method
   */
   _isLHS(modelName, relationshipName) {
-    return this._isSide(this._lhs, modelName, relationshipName);
+    let isPolymorphic = this._rhsIsPolymorphic;
+    let isModel;
+    let isRelationship = relationshipName === this._lhsRelationshipName;
+
+    if (!isPolymorphic) {
+      isModel = modelName === this._lhsModelName;
+    } else {
+      isModel = this._lhsModelNames.indexOf(modelName) !== -1;
+    }
+
+    return isModel === true && isRelationship === true;
   }
 
   /**
@@ -190,7 +183,17 @@ export default class RelationshipPayloads {
     @method
   */
   _isRHS(modelName, relationshipName) {
-    return this._isSide(this._rhs, modelName, relationshipName);
+    let isPolymorphic = this._lhsIsPolymorphic;
+    let isModel;
+    let isRelationship = relationshipName === this._rhsRelationshipName;
+
+    if (!isPolymorphic) {
+      isModel = modelName === this._rhsModelName;
+    } else {
+      isModel = this._rhsModelNames.indexOf(modelName) !== -1;
+    }
+
+    return isModel === true && isRelationship === true;
   }
 
   _flushPending() {

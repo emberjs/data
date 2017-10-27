@@ -835,3 +835,98 @@ test('push both sides are polymorphic', function(assert) {
 
   assert.deepEqual(alienFinalResult, expectedAlienResults, 'We got all alien hats!');
 });
+
+test('handles relationships where both sides are polymorphic', function(assert) {
+  let id = 1;
+  function makeHat(type, isForBigPerson = true) {
+    return {
+      id: `${id++}`,
+      type,
+      relationships: {
+        person: {
+          data: {
+            id: isForBigPerson ? '1' : '2',
+            type: isForBigPerson ? 'big-person' : 'small-person'
+          }
+        }
+      }
+    };
+  }
+
+  const bigHatData1 = makeHat('big-hat');
+  const bigHatData2 = makeHat('big-hat');
+  const bigHatData3 = makeHat('big-hat', false);
+  const smallHatData1 = makeHat('small-hat');
+  const smallHatData2 = makeHat('small-hat');
+  const smallHatData3 = makeHat('small-hat', false);
+
+  const bigPersonData = {
+    data: {
+      id: '1',
+      type: 'big-person',
+      attributes: {}
+    },
+    included: [
+      bigHatData1,
+      smallHatData1,
+      bigHatData2,
+      smallHatData2
+    ]
+  };
+
+  const smallPersonData = {
+    data: {
+      id: '2',
+      type: 'small-person',
+      attributes: {}
+    },
+    included: [
+      bigHatData3,
+      smallHatData3
+    ]
+  };
+
+  const PersonModel = Model.extend({
+    hats: hasMany('hat', {
+      async: false,
+      polymorphic: true,
+      inverse: 'person'
+    })
+  });
+  const HatModel = Model.extend({
+    type: attr('string'),
+    person: belongsTo('person', {
+      async: false,
+      inverse: 'hats',
+      polymorphic: true
+    })
+  });
+  const BigHatModel = HatModel.extend({});
+  const SmallHatModel = HatModel.extend({});
+
+  const BigPersonModel = PersonModel.extend({});
+  const SmallPersonModel = PersonModel.extend({});
+
+  const store = this.store = createStore({
+    person: PersonModel,
+    bigPerson: BigPersonModel,
+    smallPerson: SmallPersonModel,
+    hat: HatModel,
+    bigHat: BigHatModel,
+    smallHat: SmallHatModel
+  });
+
+  const bigPerson = run(() => {
+    return store.push(bigPersonData);
+  });
+
+  const smallPerson = run(() => {
+    return store.push(smallPersonData);
+  });
+
+  const finalBigResult = bigPerson.get('hats').toArray();
+  const finalSmallResult = smallPerson.get('hats').toArray();
+
+  assert.equal(finalBigResult.length, 4, 'We got all our hats!');
+  assert.equal(finalSmallResult.length, 2, 'We got all our hats!');
+});

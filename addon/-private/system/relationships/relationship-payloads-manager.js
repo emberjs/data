@@ -56,6 +56,7 @@ import RelationshipPayloads from './relationship-payloads';
 */
 export default class RelationshipPayloadsManager {
   constructor(store) {
+    window._payloadsManager = this;
     this._store = store;
     // cache of `RelationshipPayload`s
     this._cache = Object.create(null);
@@ -172,7 +173,28 @@ export default class RelationshipPayloadsManager {
       return this._initializeRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName);
     }
 
-    return this._cache[key];
+    let cache = this._cache[key];
+
+    if (cache === undefined) {
+      let inverseMeta = modelClass.inverseFor(relationshipName, this._store);
+
+      if (inverseMeta) {
+        let inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseMeta.name);
+        let baseModelName = inverseRelationshipMeta.type;
+
+        if (baseModelName !== modelName) {
+          let baseKey = `${baseModelName}:${relationshipName}`;
+          cache = this._cache[baseKey];
+
+          if (cache !== undefined) {
+            cache.addPolymorphicType(baseModelName, modelName);
+            this._cache[key] = cache;
+          }
+        }
+      }
+    }
+
+    return cache;
   }
 
   /**
@@ -184,7 +206,8 @@ export default class RelationshipPayloadsManager {
   _initializeRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName) {
     let relationshipMeta = relationshipsByName.get(relationshipName);
     let inverseMeta = modelClass.inverseFor(relationshipName, this._store);
-
+    let selfIsPolymorphic = relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
+    let baseModelName = modelName;
     let inverseModelName;
     let inverseRelationshipName;
     let inverseRelationshipMeta;
@@ -200,6 +223,7 @@ export default class RelationshipPayloadsManager {
       inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
       inverseIsPolymorphic = inverseRelationshipMeta.options !== undefined && inverseRelationshipMeta.options.polymorphic === true;
 
+      baseModelName = inverseRelationshipMeta.type;
     } else {
       // relationship has no inverse
       inverseModelName = inverseRelationshipName = '';
@@ -208,19 +232,18 @@ export default class RelationshipPayloadsManager {
 
     let lhsKey = `${modelName}:${relationshipName}`;
     let rhsKey = `${inverseModelName}:${inverseRelationshipName}`;
+    let lhsBaseKey = `${baseModelName}:${relationshipName}`;
 
     if (inverseIsPolymorphic === true) {
-      existingPolymorphicCache = this._cache[rhsKey]
+      existingPolymorphicCache = this._cache[rhsKey];
+    } else if (selfIsPolymorphic) {
+      existingPolymorphicCache = this._cache[lhsBaseKey];
     }
 
     if (existingPolymorphicCache !== undefined) {
       this._cache[lhsKey] = existingPolymorphicCache;
 
-      existingPolymorphicCache.addPolymorphicType(
-        modelName,
-        relationshipName,
-        relationshipMeta
-      );
+      existingPolymorphicCache.addPolymorphicType(baseModelName, modelName);
 
       return existingPolymorphicCache;
     }
@@ -231,7 +254,7 @@ export default class RelationshipPayloadsManager {
     // This works out better than creating a single common key, because to
     // compute that key we would need to do work to look up the inverse
     //
-    return this._cache[lhsKey] =
+    return this._cache[lhsBaseKey] = this._cache[lhsKey] =
       this._cache[rhsKey] =
       new RelationshipPayloads(
         this._store,
