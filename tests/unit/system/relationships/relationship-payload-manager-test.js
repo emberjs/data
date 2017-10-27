@@ -500,7 +500,7 @@ test('push populates the same RelationshipPayloads for either side of a relation
       'hobbies',
       userModel,
       get(userModel, 'relationshipsByName')
-  );
+    );
 
   let hobbyModel = this.store.modelFor('hobby');
   let hobbyPayloads =
@@ -531,7 +531,7 @@ test('push does not eagerly populate inverse payloads', function(assert) {
       'hobbies',
       userModel,
       get(userModel, 'relationshipsByName')
-  );
+    );
 
   assert.deepEqual(
     Object.keys(relationshipPayloads._lhsPayloads),
@@ -542,7 +542,7 @@ test('push does not eagerly populate inverse payloads', function(assert) {
     Object.keys(relationshipPayloads._rhsPayloads),
     [] ,
     'hobby.user payloads not eagerly populated'
-    );
+  );
 
   relationshipPayloads.get('user', 1, 'hobbies');
 
@@ -555,7 +555,7 @@ test('push does not eagerly populate inverse payloads', function(assert) {
     Object.keys(relationshipPayloads._rhsPayloads),
     ['2'] ,
     'hobby.user payloads lazily populated'
-    );
+  );
 });
 
 test('push populates each individual relationship in a payload', function(assert) {
@@ -714,9 +714,9 @@ test('push one side is polymorphic, baseType then subTypes', function(assert) {
     }
   };
 
-  const hatData1      = makeHat('hat', hatData),
-        bigHatData1   = makeHat('big-hat', hatData),
-        smallHatData1 = makeHat('small-hat', hatData);
+  const hatData1 = makeHat('hat', hatData),
+    bigHatData1 = makeHat('big-hat', hatData),
+    smallHatData1 = makeHat('small-hat', hatData);
 
   const userData = {
     data: {
@@ -748,10 +748,10 @@ test('push one side is polymorphic, subType then baseType', function(assert) {
     }
   };
 
-  const bigHatData1   = makeHat('hat', hatData),
-        smallHatData1 = makeHat('small-hat', hatData),
-        hatData1      = makeHat('big-hat', hatData),
-        included      = [bigHatData1, smallHatData1, hatData1];
+  const bigHatData1 = makeHat('hat', hatData),
+    smallHatData1 = makeHat('small-hat', hatData),
+    hatData1 = makeHat('big-hat', hatData),
+    included = [bigHatData1, smallHatData1, hatData1];
 
   const userData = {
     data: {
@@ -762,9 +762,9 @@ test('push one side is polymorphic, subType then baseType', function(assert) {
     included
   };
 
-  const user            = run(() => this.store.push(userData)),
-        finalResult     = user.get('hats').mapBy('type'),
-        expectedResults = included.map(m=>m.type);
+  const user = run(() => this.store.push(userData)),
+    finalResult = user.get('hats').mapBy('type'),
+    expectedResults = included.map(m=>m.type);
 
   assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
 });
@@ -779,16 +779,16 @@ test('push one side is polymorphic, different subtypes', function(assert) {
     }
   };
 
-  const bigHatData1   = makeHat('big-hat', hatData),
-        smallHatData1 = makeHat('small-hat', hatData),
-        bigHatData2   = makeHat('big-hat', hatData),
-        smallHatData2 = makeHat('small-hat', hatData),
-        included      = [
-          bigHatData1,
-          smallHatData1,
-          bigHatData2,
-          smallHatData2
-        ];
+  const bigHatData1 = makeHat('big-hat', hatData),
+    smallHatData1 = makeHat('small-hat', hatData),
+    bigHatData2 = makeHat('big-hat', hatData),
+    smallHatData2 = makeHat('small-hat', hatData),
+    included = [
+      bigHatData1,
+      smallHatData1,
+      bigHatData2,
+      smallHatData2
+    ];
 
   const userData = {
     data: {
@@ -799,9 +799,9 @@ test('push one side is polymorphic, different subtypes', function(assert) {
     included
   };
 
-  const user            = run(() => this.store.push(userData)),
-        finalResult     = user.get('hats').mapBy('type'),
-        expectedResults = included.map(m => m.type);
+  const user = run(() => this.store.push(userData)),
+    finalResult = user.get('hats').mapBy('type'),
+    expectedResults = included.map(m => m.type);
 
   assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
 });
@@ -811,29 +811,29 @@ test('push both sides are polymorphic', function(assert) {
     attributes: {},
     relationships: {
       user: {
-        data: { id: '2' , type: 'alien' }
+        data: { id: '1' , type: 'alien' }
       }
     }
   };
 
-  const bigHatData1   = makeHat('hat', alienHatData),
-        hatData1      = makeHat('big-hat', alienHatData),
-        alienIncluded = [bigHatData1, hatData1];
+  const bigHatData1 = makeHat('hat', alienHatData),
+    hatData1 = makeHat('big-hat', alienHatData),
+    alienIncluded = [bigHatData1, hatData1];
 
   const alienData = {
-          data: {
-            id: '1',
-            type: 'alien',
-            attributes: {}
-          },
-          included: alienIncluded
-        };
+    data: {
+      id: '1',
+      type: 'alien',
+      attributes: {}
+    },
+    included: alienIncluded
+  };
 
-  const alien                = run(() => this.store.push(alienData)),
-        alienFinalResult     = alien.get('hats').mapBy('type'),
-        expectedAlienResults = alienIncluded.map(m => m.type);
+  const expectedAlienResults = alienIncluded.map(m => m.type),
+    alien = run(() => this.store.push(alienData)),
+    alienFinalHats = alien.get('hats').mapBy('type');
 
-  assert.deepEqual(alienFinalResult, expectedAlienResults, 'We got all alien hats!');
+  assert.deepEqual(alienFinalHats, expectedAlienResults, 'We got all alien hats!');
 });
 
 test('handles relationships where both sides are polymorphic', function(assert) {
