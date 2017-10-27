@@ -143,7 +143,6 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
 
   flushCanonical(isInitialized = true) {
-    debugger;
     // It’s possible the parent side of the relationship may have been unloaded by this point
     if (!_objectIsAlive(this)) {
       return;

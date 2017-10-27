@@ -109,29 +109,26 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 });
 
 test("When an object is destroyed, it's hasMany parent is updated", function(assert) {
-  assert.expect(3);
+  assert.expect(2);
 
   const Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { async: true }),
+    comments: DS.hasMany('comment', { async: false, inverse: 'post' }),
 
     hasComments: computed('comments.[]', function() {
       return this.hasMany('comments').ids().length > 0;
     })
   });
-  Post.reopenClass({ toString: () => 'Post' });
 
   const Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: true })
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
   });
-  Comment.reopenClass({ toString: () => 'Comment' });
 
   env = setupStore({
     post: Post,
-    comment: Comment,
-    adapter: DS.RESTAdapter.extend({
-      shouldBackgroundReloadRecord: () => false
-    })
+    comment: Comment
   });
+
+  const store = env.store;
 
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
     deleteRecord(/*record*/) {
@@ -139,9 +136,9 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
     }
   }));
 
-  run(function() {
-    env.store.push({
-      data: [{
+  const post = run(() => {
+    return store.push({
+      data: {
         type: 'post',
         id: '1',
         relationships: {
@@ -151,38 +148,37 @@ test("When an object is destroyed, it's hasMany parent is updated", function(ass
             ]
           }
         }
-      }, {
-        type: 'comment',
-        id: '1'
-      }]
+      },
+      included: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {}
+        }
+      ]
     });
   });
 
-  run(function() {
-    return env.store.findRecord('post', 1).then(function (post) {
-      assert.ok(post.get('hasComments'));
+  assert.ok(post.get('hasComments'), 'we initially show has having comments');
 
-      return env.store.findRecord('comment', 1).then(function (comment) {
-        assert.ok(comment);
+  run(() => {
+    const comment = store.peekRecord('comment', 1);
 
-        return comment.destroyRecord().then(function() {
-          debugger;
-          assert.notOk(post.get('hasComments'));
-        });
-      });
-    });
+    return comment.destroyRecord()
+      .then(() => {
+        assert.notOk(post.get('hasComments'), 'we now show as having no comments');
+      })
   });
 });
 
 
 test("When an object is added, it's hasMany parent is updated", function(assert) {
-  assert.expect(5);
+  assert.expect(4);
 
   const Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: false, inverse: 'post' }),
 
     hasComments: computed('comments.[]', function() {
-      // return this.get('comments.length') > 0;
       return this.hasMany('comments').ids().length > 0;
     })
   });
@@ -208,11 +204,13 @@ test("When an object is added, it's hasMany parent is updated", function(assert)
             data: []
           }
         }
-      },
+      }
     });
   });
 
   assert.notOk(post.get('hasComments'), 'we have no comments');
+  // We cannot do the following assert BECAUSE it materializes the manyArray
+  //  ergo fixing the bug
   // assert.ok(post.get('comments.length') === 0, 'we have 0 comments');
 
   run(() => {
