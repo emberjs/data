@@ -56,7 +56,6 @@ import RelationshipPayloads from './relationship-payloads';
 */
 export default class RelationshipPayloadsManager {
   constructor(store) {
-    window._payloadsManager = this;
     this._store = store;
     // cache of `RelationshipPayload`s
     this._cache = Object.create(null);

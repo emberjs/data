@@ -930,3 +930,218 @@ test('handles relationships where both sides are polymorphic', function(assert) 
   assert.equal(finalBigResult.length, 4, 'We got all our hats!');
   assert.equal(finalSmallResult.length, 2, 'We got all our hats!');
 });
+
+test('handles relationships where both sides are polymorphic reflexive', function(assert) {
+  function link(a, b, relationshipName, recurse = true) {
+    a.relationships = a.relationships || {};
+    const rel = a.relationships[relationshipName] = a.relationships[relationshipName] || {};
+
+    if (Array.isArray(b)) {
+      rel.data = b.map((i) => {
+        let {type, id} = i;
+
+        if (recurse === true) {
+          link(i, [a], relationshipName, false);
+        }
+
+        return { type, id };
+      });
+    } else {
+      rel.data = {
+        type: b.type,
+        id: b.id
+      };
+
+      if (recurse === true) {
+        link(b, a, relationshipName, false);
+      }
+    }
+  }
+
+  let id = 1;
+  const Person = Model.extend({
+    name: attr(),
+    family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
+    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' })
+  });
+  const Girl = Person.extend({});
+  const Boy = Person.extend({});
+  const Grownup = Person.extend({});
+
+  const brotherPayload = {
+    type: 'boy',
+    id: `${id++}`,
+    attributes: {
+      name: 'Gavin'
+    }
+  };
+  const sisterPayload = {
+    type: 'girl',
+    id: `${id++}`,
+    attributes: {
+      name: 'Rose'
+    }
+  };
+  const fatherPayload = {
+    type: 'grownup',
+    id: `${id++}`,
+    attributes: {
+      name: 'Garak'
+    }
+  };
+  const motherPayload = {
+    type: 'grownup',
+    id: `${id++}`,
+    attributes: {
+      name: 'Kira'
+    }
+  };
+
+  link(brotherPayload, sisterPayload, 'twin');
+  link(brotherPayload, [sisterPayload, fatherPayload, motherPayload], 'family');
+
+  const payload = {
+    data: brotherPayload,
+    included: [
+      sisterPayload,
+      fatherPayload,
+      motherPayload
+    ]
+  };
+  const expectedFamilyReferences = [
+    { type: 'girl', id: sisterPayload.id },
+    { type: 'grownup', id: fatherPayload.id },
+    { type: 'grownup', id: motherPayload.id }
+  ];
+  const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
+
+  const store = this.store = createStore({
+    person: Person,
+    grownup: Grownup,
+    boy: Boy,
+    girl: Girl
+  });
+
+  const boyInstance = run(() => {
+    return store.push(payload);
+  });
+
+  const familyResultReferences = boyInstance.get('family').toArray()
+    .map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
+  const twinResult = boyInstance.get('twin');
+  const twinResultReference = { type: twinResult.constructor.modelName, id: twinResult.id };
+
+  assert.deepEqual(familyResultReferences, expectedFamilyReferences, 'We linked family correctly');
+  assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
+});
+
+test('handles relationships where both sides are polymorphic reflexive but the primary payload does not include linkage', function(assert) {
+  function link(a, b, relationshipName, recurse = true) {
+    a.relationships = a.relationships || {};
+    const rel = a.relationships[relationshipName] = a.relationships[relationshipName] || {};
+
+    if (Array.isArray(b)) {
+      rel.data = b.map((i) => {
+        let {type, id} = i;
+
+        if (recurse === true) {
+          link(i, [a], relationshipName, false);
+        }
+
+        return { type, id };
+      });
+    } else {
+      rel.data = {
+        type: b.type,
+        id: b.id
+      };
+
+      if (recurse === true) {
+        link(b, a, relationshipName, false);
+      }
+    }
+  }
+
+  let id = 1;
+  const Person = Model.extend({
+    name: attr(),
+    family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
+    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' })
+  });
+  const Girl = Person.extend({});
+  const Boy = Person.extend({});
+  const Grownup = Person.extend({});
+
+  const brotherPayload = {
+    type: 'boy',
+    id: `${id++}`,
+    attributes: {
+      name: 'Gavin'
+    }
+  };
+  const sisterPayload = {
+    type: 'girl',
+    id: `${id++}`,
+    attributes: {
+      name: 'Rose'
+    }
+  };
+  const fatherPayload = {
+    type: 'grownup',
+    id: `${id++}`,
+    attributes: {
+      name: 'Garak'
+    }
+  };
+  const motherPayload = {
+    type: 'grownup',
+    id: `${id++}`,
+    attributes: {
+      name: 'Kira'
+    }
+  };
+
+  link(brotherPayload, sisterPayload, 'twin');
+  link(brotherPayload, [sisterPayload, fatherPayload, motherPayload], 'family');
+
+  // unlink all relationships from the primary payload
+  delete brotherPayload.relationships;
+
+  const payload = {
+    data: brotherPayload,
+    included: [
+      sisterPayload,
+      fatherPayload,
+      motherPayload
+    ]
+  };
+  const expectedFamilyReferences = [
+    { type: 'girl', id: sisterPayload.id },
+    { type: 'grownup', id: fatherPayload.id },
+    { type: 'grownup', id: motherPayload.id }
+  ];
+  const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
+
+  const store = this.store = createStore({
+    person: Person,
+    grownup: Grownup,
+    boy: Boy,
+    girl: Girl
+  });
+
+  const boyInstance = run(() => {
+    return store.push(payload);
+  });
+
+  const familyResultReferences = boyInstance.get('family').toArray()
+    .map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
+  const twinResult = boyInstance.get('twin');
+  const twinResultReference = twinResult && { type: twinResult.constructor.modelName, id: twinResult.id };
+
+  assert.deepEqual(familyResultReferences, expectedFamilyReferences, 'We linked family correctly');
+  assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
+});

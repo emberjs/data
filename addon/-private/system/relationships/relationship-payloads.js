@@ -72,7 +72,7 @@ export default class RelationshipPayloads {
 
     // a map of id -> payloads for the left hand side of the relationship.
     this._lhsPayloads = Object.create(null);
-    if (modelName !== inverseModelName || relationshipName !== inverseRelationshipName) {
+    if (this._lhsModelName !== inverseModelName || relationshipName !== inverseRelationshipName) {
       // The common case of a non-reflexive relationship, or a reflexive
       // relationship whose inverse is not itself
       this._rhsPayloads = Object.create(null);
