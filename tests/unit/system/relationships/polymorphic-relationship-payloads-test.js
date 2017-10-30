@@ -520,18 +520,13 @@ test('handles relationships where both sides are polymorphic reflexive but the p
   assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
 });
 
-test('push one side polymorphic self-referential', function(assert) {
+test('push polymorphic self-referential non-reflexive relationship', function(assert) {
   const store = this.store;
   const hat1Data = {
     data: {
       id: '1',
       type: 'big-hat',
-      attributes: {},
-      relationships: {
-        hat: {
-          data: { id: '2', type: 'big-hat' }
-        }
-      }
+      attributes: {}
     }
   };
   const hat2Data = {
@@ -558,6 +553,42 @@ test('push one side polymorphic self-referential', function(assert) {
       return { type: i.constructor.modelName, id: i.id };
     });
   const hatResult = hat1.get('hat');
+  const finalHatReference = hatResult && { type: hatResult.constructor.modelName, id: hatResult.id };
+
+
+  assert.deepEqual(finalHatReference, expectedHatReference, 'we set hat on hat:1');
+  assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
+});
+
+
+test('push polymorphic self-referential circular non-reflexive relationship', function(assert) {
+  const store = this.store;
+  const hatData = {
+    data: {
+      id: '1',
+      type: 'big-hat',
+      attributes: {},
+      relationships: {
+        hat: {
+          data: { id: '1', type: 'big-hat' }
+        },
+        hats: {
+          data: [{ id: '1', type: 'big-hat' }]
+        }
+      }
+    }
+  };
+
+  const hat = run(() => store.push(hatData));
+
+  const expectedHatReference = { id:  '1', type: 'big-hat' };
+  const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
+
+  const finalHatsReferences = hat.get('hats').toArray()
+    .map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
+  const hatResult = hat.get('hat');
   const finalHatReference = hatResult && { type: hatResult.constructor.modelName, id: hatResult.id };
 
 
