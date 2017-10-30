@@ -72,7 +72,11 @@ export default class RelationshipPayloads {
 
     // a map of id -> payloads for the left hand side of the relationship.
     this._lhsPayloads = Object.create(null);
-    if (this._lhsModelName !== inverseModelName || relationshipName !== inverseRelationshipName) {
+
+    const isSelfReferential = this._isSelfReferential = this._lhsModelName === inverseModelName;
+    const isReflexive = isSelfReferential && relationshipName === inverseRelationshipName;
+
+    if (!isReflexive) {
       // The common case of a non-reflexive relationship, or a reflexive
       // relationship whose inverse is not itself
       this._rhsPayloads = Object.create(null);
@@ -163,6 +167,7 @@ export default class RelationshipPayloads {
     @method
   */
   _isLHS(modelName, relationshipName) {
+    let isSelfReferential = this._isSelfReferential;
     let isPolymorphic = this._rhsIsPolymorphic;
     let isModel;
     let isRelationship = relationshipName === this._lhsRelationshipName;
@@ -173,7 +178,7 @@ export default class RelationshipPayloads {
       isModel = this._lhsModelNames.indexOf(modelName) !== -1;
     }
 
-    return isModel === true && isRelationship === true;
+    return (isSelfReferential === true || isModel === true) && isRelationship === true;
   }
 
   /**
@@ -183,6 +188,7 @@ export default class RelationshipPayloads {
     @method
   */
   _isRHS(modelName, relationshipName) {
+    let isSelfReferential = this._isSelfReferential;
     let isPolymorphic = this._lhsIsPolymorphic;
     let isModel;
     let isRelationship = relationshipName === this._rhsRelationshipName;
@@ -193,7 +199,7 @@ export default class RelationshipPayloads {
       isModel = this._rhsModelNames.indexOf(modelName) !== -1;
     }
 
-    return isModel === true && isRelationship === true;
+    return (isSelfReferential === true || isModel === true) && isRelationship === true;
   }
 
   _flushPending() {

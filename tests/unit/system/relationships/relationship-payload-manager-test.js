@@ -43,7 +43,9 @@ module('unit/system/relationships/relationship-payloads-manager', {
 
     const Hat = Model.extend({
       type: attr('string'),
-      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true })
+      user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true })
     });
     const BigHat = Hat.extend({});
     const SmallHat = Hat.extend({});
@@ -51,11 +53,11 @@ module('unit/system/relationships/relationship-payloads-manager', {
     let store = this.store = createStore({
       user: User,
       alien: Alien,
-      Hobby: Hobby,
+      hobby: Hobby,
       purpose: Purpose,
       hat: Hat,
-      bigHat: BigHat,
-      smallHat: SmallHat
+      'big-hat': BigHat,
+      'small-hat': SmallHat
     });
 
     this.relationshipPayloadsManager = new RelationshipPayloadsManager(store);
@@ -1144,4 +1146,49 @@ test('handles relationships where both sides are polymorphic reflexive but the p
 
   assert.deepEqual(familyResultReferences, expectedFamilyReferences, 'We linked family correctly');
   assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
+});
+
+test('push one side polymorphic self-referential', function(assert) {
+  const store = this.store;
+  const hat1Data = {
+    data: {
+      id: '1',
+      type: 'big-hat',
+      attributes: {},
+      relationships: {
+        hat: {
+          data: { id: '2', type: 'big-hat' }
+        }
+      }
+    }
+  };
+  const hat2Data = {
+    data: {
+      id: '2',
+      type: 'big-hat',
+      attributes: {},
+      relationships: {
+        hats: {
+          data: [{ id: '1', type: 'big-hat' }]
+        }
+      }
+    }
+  };
+
+  const hat1 = run(() => store.push(hat1Data));
+  const hat2 = run(() => store.push(hat2Data));
+
+  const expectedHatReference = { id:  '2', type: 'big-hat' };
+  const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
+
+  const finalHatsReferences = hat2.get('hats').toArray()
+    .map((i) => {
+      return { type: i.constructor.modelName, id: i.id };
+    });
+  const hatResult = hat1.get('hat');
+  const finalHatReference = hatResult && { type: hatResult.constructor.modelName, id: hatResult.id };
+
+
+  assert.deepEqual(finalHatReference, expectedHatReference, 'we set hat on hat:1');
+  assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
 });
