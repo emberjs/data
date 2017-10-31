@@ -33,6 +33,7 @@ export { default as isEnabled } from './features';
 // `ember-data-model-fragments` relies on `RootState`, `InternalModel` and `ContainerInstanceCache`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
+export { default as ModelData } from './system/model/model-data';
 export { default as ContainerInstanceCache } from './system/store/container-instance-cache';
 
 export {
@@ -56,6 +57,4 @@ export { default as DebugAdapter } from './system/debug/debug-adapter';
 
 // Used by tests
 export { default as diffArray } from './system/diff-array';
-export { default as RelationshipPayloadsManager } from './system/relationships/relationship-payloads-manager';
-export { default as RelationshipPayloads } from './system/relationships/relationship-payloads';
 export { default as SnapshotRecordArray } from './system/snapshot-record-array';

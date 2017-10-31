@@ -18,6 +18,7 @@ import isEnabled from '../../features';
 import RootState from '../model/states';
 import {
   relationshipsByNameDescriptor,
+  relationshipsObjectDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
@@ -1114,8 +1115,6 @@ const Model = EmberObject.extend(Evented, {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
-
-    //Goes away once hasMany is double promisified
     this.notifyPropertyChange(key);
   },
 
@@ -1273,24 +1272,12 @@ Model.reopenClass({
    */
   inverseFor(name, store) {
     let inverseMap = get(this, 'inverseMap');
-    if (inverseMap[name] !== undefined) {
+    if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      let relationship = get(this, 'relationshipsByName').get(name);
-      if (!relationship) {
-        inverseMap[name] = null;
-        return null;
-      }
-
-      let options = relationship.options;
-      if (options && options.inverse === null) {
-        // populate the cache with a miss entry so we can skip getting and going
-        // through `relationshipsByName`
-        inverseMap[name] = null;
-        return null;
-      }
-
-      return inverseMap[name] = this._findInverseFor(name, store);
+      let inverse = this._findInverseFor(name, store);
+      inverseMap[name] = inverse;
+      return inverse;
     }
   },
 
@@ -1522,6 +1509,9 @@ Model.reopenClass({
    @readOnly
    */
   relationshipsByName: relationshipsByNameDescriptor,
+
+
+  relationshipsObject: relationshipsObjectDescriptor,
 
   /**
    A map whose keys are the fields of the model and whose values are strings

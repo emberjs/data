@@ -21,10 +21,13 @@ import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
 import IdentityMap from './identity-map';
+import ModelDataWrapper from './store/model-data-wrapper';
+import ManyArray from './many-array';
 
 import {
   promiseArray,
-  promiseObject
+  promiseObject,
+  PromiseObject
 } from "./promise-proxies";
 
 import {
@@ -35,7 +38,6 @@ import {
 
 import { normalizeResponseHelper } from "./store/serializer-response";
 import { serializerForAdapter } from "./store/serializers";
-import RelationshipPayloadsManager from './relationships/relationship-payloads-manager';
 
 import {
   _find,
@@ -52,6 +54,7 @@ import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
 import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
+import ModelData from "./model/model-data";
 import isEnabled from '../features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -62,6 +65,7 @@ const {
 } = Ember;
 
 const { Promise } = RSVP;
+let globalClientIdCounter = 1;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -95,7 +99,6 @@ const {
   _load,
   _modelForMixin,
   _pushInternalModel,
-  _setupRelationships,
   adapterFor,
   _buildInternalModel,
   _didUpdateAll,
@@ -112,7 +115,6 @@ const {
   '_load',
   '_modelForMixin',
   '_pushInternalModel',
-  '_setupRelationships',
   'adapterFor',
   '_buildInternalModel',
   '_didUpdateAll',
@@ -213,7 +215,6 @@ Store = Service.extend({
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._modelFactoryCache = Object.create(null);
-    this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -231,10 +232,15 @@ Store = Service.extend({
     // used for coalescing internal model updates
     this._updatedInternalModels = [];
 
+    // To keep track of clientIds for newly created records
+    this._newlyCreated = Object.create(null);
+
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
 
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+
+    this.modelDataWrapper = new ModelDataWrapper(this);
   },
 
   /**
@@ -361,12 +367,8 @@ Store = Service.extend({
     internalModel.loadedData();
     let record = internalModel.getRecord(properties);
 
-    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
-    internalModel.eachRelationship((key, descriptor) => {
-      if (properties[key] !== undefined) {
-        internalModel._relationships.get(key).setHasData(true);
-      }
-    });
+    // TODO IGOR AND DAVID consider refactoring/renaming?
+    internalModel.didCreateRecord(properties);
 
     return record;
   },
@@ -1115,31 +1117,33 @@ Store = Service.extend({
     return this._internalModelForId(modelName, id).getRecord();
   },
 
-  _internalModelForId(modelName, id) {
+  _internalModelForId(modelName, id, clientId) {
     heimdall.increment(_internalModelForId);
+    let internalModel;
+
+    if (clientId) {
+      internalModel = this._newlyCreated[clientId];
+    }
+
     let trueId = coerceId(id);
-    let internalModel = this._internalModelsFor(modelName).get(trueId);
+    if (!internalModel) {
+      internalModel = this._internalModelsFor(modelName).get(trueId);
+    }
 
     if (internalModel) {
       if (internalModel.hasScheduledDestroy()) {
         internalModel.destroySync();
-        return this._buildInternalModel(modelName, trueId);
+        // TODO IGOR THIS IS CRAPPY, figure out who is responsible for creating the clientId
+        return this._buildInternalModel(modelName, trueId, null, clientId);
       } else {
         return internalModel;
       }
     } else {
-      return this._buildInternalModel(modelName, trueId);
+      return this._buildInternalModel(modelName, trueId, null, clientId);
     }
   },
 
-  _internalModelDidReceiveRelationshipData(modelName, id, relationshipData) {
-    this._relationshipsPayloads.push(modelName, id, relationshipData);
-  },
 
-  _internalModelDestroyed(internalModel) {
-    this._removeFromIdMap(internalModel);
-    this._relationshipsPayloads.unload(internalModel.modelName, internalModel.id);
-  },
 
   /**
     @method findMany
@@ -1842,7 +1846,6 @@ Store = Service.extend({
   */
   scheduleSave(internalModel, resolver, options) {
     let snapshot = internalModel.createSnapshot(options);
-    internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
     this._pendingSave.push({
       snapshot: snapshot,
@@ -1907,7 +1910,7 @@ Store = Service.extend({
     if (data) {
       // normalize relationship IDs into records
       this.updateId(internalModel, data);
-      this._setupRelationshipsForModel(internalModel, data);
+      //this._setupRelationshipsForModel(internalModel, data);
     } else {
       assert(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
@@ -2404,46 +2407,9 @@ Store = Service.extend({
     // Actually load the record into the store.
     let internalModel = this._load(data);
 
-    this._setupRelationshipsForModel(internalModel, data);
+//    this._setupRelationshipsForModel(internalModel, data);
 
     return internalModel;
-  },
-
-  _setupRelationshipsForModel(internalModel, data) {
-    if (data.relationships === undefined) {
-      return;
-    }
-
-    if (this._pushedInternalModels.push(internalModel, data) !== 2) {
-      return;
-    }
-
-    this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
-  },
-
-  _setupRelationships() {
-    heimdall.increment(_setupRelationships);
-    let setupToken = heimdall.start('store._setupRelationships');
-    let pushed = this._pushedInternalModels;
-
-    // Cache the inverse maps for each modelClass that we visit during this
-    // payload push.  In the common case where we are pushing many more
-    // instances than types we want to minimize the cost of looking up the
-    // inverse map and the overhead of Ember.get adds up.
-    let modelNameToInverseMap;
-
-    for (let i = 0, l = pushed.length; i < l; i += 2) {
-      modelNameToInverseMap = modelNameToInverseMap || Object.create(null);
-      // This will convert relationships specified as IDs into DS.Model instances
-      // (possibly unloaded) and also create the data structures used to track
-      // relationships.
-      let internalModel = pushed[i];
-      let data = pushed[i + 1];
-      setupRelationships(this, internalModel, data, modelNameToInverseMap);
-    }
-
-    pushed.length = 0;
-    heimdall.stop(setupToken);
   },
 
   /**
@@ -2521,6 +2487,171 @@ Store = Service.extend({
     }
   },
 
+  reloadManyArray(manyArray, internalModel, key) {
+    return internalModel.reloadHasMany(key);
+  },
+
+  _manyArrayFor(modelName, modelData, meta, key, isPolymorphic, initialState, internalModel) {
+    return ManyArray.create({
+      store: this,
+      type: this.modelFor(modelName),
+      modelData: modelData,
+      meta: meta,
+      key: key,
+      isPolymorphic: isPolymorphic,
+      initialState: initialState.slice(),
+      internalModel: internalModel
+    });
+  },
+
+  _relationshipFor(modelName, id, key) {
+    let modelClass = this._modelFor(modelName);
+    let relationshipsByName = get(modelClass, 'relationshipsByName');
+    return relationshipsByName.get(key);
+  },
+
+  _internalModelForResource(resource) {
+    if (resource.clientId) {
+      return this._newlyCreated[resource.clientId];
+    }
+    return this._internalModelForId(resource.type, resource.id);
+  },
+
+  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+    if (!resource || !resource.links || !resource.links.related) {
+      // should we warn here, not sure cause its an internal method
+      return RSVP.resolve(null);
+    }
+    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then((internalModel) => {
+      let response = internalModel && internalModel._modelData.getResourceIdentifier();
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
+      if (internalModel === null) {
+        return null;
+      }
+      // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
+      return internalModel.getRecord();
+    });
+  },
+
+  _fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+    return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta).then(internalModels => {
+      //parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+      /*
+      if (records.hasOwnProperty('meta')) {
+        this.updateMeta(records.meta);
+      }
+      this.store._backburner.join(() => {
+        this.updateInternalModelsFromAdapter(records);
+        this.manyArray.set('isLoaded', true);
+        this.setHasData(true);
+      });
+      return this.manyArray;
+      */
+      let payload = { data: internalModels.map((im) => im._modelData.getResourceIdentifier()) };
+      if (internalModels.meta !== undefined) {
+        payload.meta = internalModels.meta;
+      }
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
+      return internalModels;
+    });
+  },
+
+  _fetchHasManyByData(resource) {
+    let internalModels = resource.data.map((json) => this._internalModelForResource(json));
+    return { promise: this.findMany(internalModels) };
+  },
+
+  _fetchHasManyByLink(resource, parentInternalModel, relationshipMeta) {
+    let promise = this._fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta);
+    return { promise };
+  },
+
+  _findHasManyAsync(resource, parentInternalModel, relationshipMeta) {
+    if (!resource) {
+      return { promise: RSVP.resolve([]) };
+    }
+    if (resource.hasLoaded) {
+      return this._fetchHasManyByData(resource);
+    }
+    if (resource.links && resource.links.related) {
+      return this._fetchHasManyByLink(resource, parentInternalModel, relationshipMeta);
+    }
+    if (resource.data) {
+      return this._fetchHasManyByData(resource);
+    }
+  },
+
+  // TODO IGOR
+  // DO THE CHECK IF WE HAVE LOADED THE RECORD TO DECIDE WHETHER TO GO TO THE LINK
+  _findBelongsToAsync(resource, parentInternalModel, relationshipMeta) {
+    let promise, content;
+    if (!resource) {
+      return { promise: RSVP.resolve(null) };
+    }
+    if (resource.data !== undefined) {
+      if (resource.data && (resource.data.id || resource.data.clientId)) {
+        let internalModel = this._internalModelForResource(resource.data);
+        promise = this._findByInternalModel(internalModel);
+        content = internalModel.getRecord();
+        return { promise, content };
+      } else if (resource.data === null) {
+        return { promise: RSVP.resolve(null) }
+      }
+    }
+    if (resource.links && resource.links.related) {
+      let promise = this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta);
+      return { promise };
+    }
+  },
+
+  _findByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+    let async = relationshipMeta.options.async;
+    let isAsync = typeof async === 'undefined' ? true : async;
+    let key = relationshipMeta.key;
+    if (isAsync) {
+      return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
+    } else {
+      if (!resource) {
+        return null;
+      } else {
+        let internalModel = this._internalModelForResource(resource.data);
+        let toReturn = internalModel.getRecord();
+        assert("You looked up the '" + key + "' relationship on a '" + parentInternalModel.modelName + "' with id " + parentInternalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+        return toReturn;
+      }
+    }
+  },
+
+  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+    let { promise } = this._findHasManyAsync(resource, parentInternalModel, relationshipMeta);
+    return promise;
+  },
+
+  _getHasManyByJsonApiResource(resource) {
+    let internalModels = [];
+    if (resource && resource.data) {
+      internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
+    }
+    return internalModels;
+  },
+
+  _createModelData(modelName, id, clientId, internalModel) {
+    return this.createModelDataFor(modelName, id, clientId, this.modelDataWrapper);
+  },
+
+  createModelDataFor(modelName, id, clientId, storeWrapper) {
+    return new ModelData(modelName, id, clientId, storeWrapper, this);
+  },
+
+  modelDataFor(modelName, id, clientId) {
+    let internalModel = this._internalModelForId(modelName, id, clientId);
+    return internalModel._modelData;
+  },
+
+  _modelDataToInternalModel(modelData) {
+    let resource = modelData.getResourceIdentifier();
+    return this._internalModelForId(resource.type, resource.id, resource.clientId);
+  },
   /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
@@ -2550,6 +2681,9 @@ Store = Service.extend({
     return serializer.normalize(model, payload);
   },
 
+  newClientId() {
+    return globalClientIdCounter++;
+  },
   /**
     Build a brand new record for a given type, ID, and
     initial data.
@@ -2561,7 +2695,7 @@ Store = Service.extend({
     @param {Object} data
     @return {InternalModel} internal model
   */
-  _buildInternalModel(modelName, id, data) {
+  _buildInternalModel(modelName, id, data, clientId) {
     heimdall.increment(_buildInternalModel);
 
     assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
@@ -2570,9 +2704,15 @@ Store = Service.extend({
 
     assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !existingInternalModel);
 
+    if (id === null && !clientId) {
+      clientId = this.newClientId();
+    }
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    let internalModel = new InternalModel(modelName, id, this, data);
+    let internalModel = new InternalModel(modelName, id, this, data, clientId);
+    if (clientId) {
+      this._newlyCreated[clientId] = internalModel;
+    }
 
     this._internalModelsFor(modelName).add(internalModel, id);
 
@@ -2808,15 +2948,19 @@ function _commit(adapter, store, operation, snapshot) {
       call to `store._push`;
      */
     store._backburner.join(() => {
-      let payload, data;
+      let payload, data, sideloaded;
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         if (payload.included) {
-          store._push({ data: null, included: payload.included });
+          sideloaded = payload.included;
         }
         data = payload.data;
       }
       store.didSaveRecord(internalModel, { data });
+      // seems risky, but if the tests pass might be fine?
+      if (sideloaded) {
+        store._push({ data: null, included: sideloaded });
+      }
     });
 
     return internalModel;
@@ -2833,78 +2977,6 @@ function _commit(adapter, store, operation, snapshot) {
   }, label);
 }
 
-function isInverseRelationshipInitialized(store, internalModel, data, key, modelNameToInverseMap) {
-  let relationshipData = data.relationships[key].data;
-
-  if (!relationshipData) {
-    // can't check inverse for eg { comments: { links: { related: URL }}}
-    return false;
-  }
-
-  let inverseMap = modelNameToInverseMap[internalModel.modelName]
-  if (!inverseMap) {
-    inverseMap = modelNameToInverseMap[internalModel.modelName] = get(internalModel.type, 'inverseMap');
-  }
-  let inverseRelationshipMetadata = inverseMap[key];
-  if (inverseRelationshipMetadata === undefined) {
-    inverseRelationshipMetadata = internalModel.type.inverseFor(key, store);
-  }
-
-  if (!inverseRelationshipMetadata) {
-    return false;
-  }
-
-  let { name: inverseRelationshipName } = inverseRelationshipMetadata;
-
-  if (Array.isArray(relationshipData)) {
-    for (let i=0; i<relationshipData.length; ++i) {
-      let inverseInternalModel = store._internalModelsFor(relationshipData[i].type).get(relationshipData[i].id);
-      if (inverseInternalModel && inverseInternalModel._relationships.has(inverseRelationshipName)) {
-        return true;
-      }
-    }
-
-    return false;
-  } else {
-    let inverseInternalModel = store._internalModelsFor(relationshipData.type).get(relationshipData.id);
-    return inverseInternalModel && inverseInternalModel._relationships.has(inverseRelationshipName);
-  }
-}
-
-function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
-  Object.keys(data.relationships).forEach(relationshipName => {
-    let relationships = internalModel._relationships;
-    let relationshipRequiresNotification = relationships.has(relationshipName) ||
-      isInverseRelationshipInitialized(store, internalModel, data, relationshipName, modelNameToInverseMap);
-
-    if (relationshipRequiresNotification) {
-      let relationshipData = data.relationships[relationshipName];
-      relationships.get(relationshipName).push(relationshipData, false);
-    }
-
-    // in debug, assert payload validity eagerly
-    if (DEBUG) {
-      let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
-      let relationshipData = data.relationships[relationshipName];
-      if (!relationshipData || !relationshipMeta) {
-        return;
-      }
-
-      if (relationshipData.links) {
-        let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
-          id: 'ds.store.push-link-for-sync-relationship'
-        });
-      } else if (relationshipData.data) {
-        if (relationshipMeta.kind === 'belongsTo') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
-        } else if (relationshipMeta.kind === 'hasMany') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
-        }
-      }
-    }
-  });
-}
 
 export { Store };
 export default Store;

@@ -1,5 +1,5 @@
 import { A } from '@ember/array';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import MapWithDefault from '@ember/map/with-default';
 import Map from '@ember/map';
 import Ember from 'ember';
@@ -64,17 +64,26 @@ export const relatedTypesDescriptor = computed(function() {
   return types;
 }).readOnly();
 
-export const relationshipsByNameDescriptor = computed(function() {
-  let map = Map.create();
-
+export const relationshipsObjectDescriptor = computed(function() {
+  let relationships = Object.create(null);
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
       let relationship = relationshipFromMeta(meta);
-      relationship.type = typeForRelationshipMeta(meta);
-      map.set(name, relationship);
+      relationships[name] = relationship;
     }
   });
+  return relationships;
+})
+
+export const relationshipsByNameDescriptor = computed(function() {
+  let map = Map.create();
+
+  let relationships = Object.values(get(this, 'relationshipsObject'));
+
+  for (let i=0; i < relationships.length; i++) {
+    map.set(relationships[i].key, relationships[i]);
+  }
 
   return map;
 }).readOnly();

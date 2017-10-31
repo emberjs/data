@@ -4,7 +4,7 @@
 
 import { A } from '@ember/array';
 
-import { get, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
 import isArrayLike from "../is-array-like";
@@ -144,7 +144,7 @@ export default function hasMany(type, options) {
 
   return computed({
     get(key) {
-      return this._internalModel._relationships.get(key).getRecords();
+      return this._internalModel.getHasMany(key);
     },
     set(key, records) {
       assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
@@ -152,10 +152,8 @@ export default function hasMany(type, options) {
         return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
       })());
 
-      let relationship = this._internalModel._relationships.get(key);
-      relationship.clear();
-      relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
-      return relationship.getRecords();
+      this._internalModel.setHasMany(key, records);
+      return this._internalModel.getHasMany(key);
     }
   }).meta(meta);
 }
