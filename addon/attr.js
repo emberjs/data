@@ -19,20 +19,12 @@ function getDefaultValue(record, options, key) {
   }
 }
 
-function hasValue(record, key) {
-  return key in record._attributes ||
-         key in record._inFlightAttributes ||
-         key in record._data;
+function hasValue(internalModel, key) {
+  return internalModel._modelData.hasAttr(key);
 }
 
-function getValue(record, key) {
-  if (key in record._attributes) {
-    return record._attributes[key];
-  } else if (key in record._inFlightAttributes) {
-    return record._inFlightAttributes[key];
-  } else {
-    return record._data[key];
-  }
+function getValue(internalModel, key) {
+  return internalModel._modelData.getAttr(key);
 }
 
 /**
@@ -144,29 +136,7 @@ export default function attr(type, options) {
       }
     },
     set(key, value) {
-      let internalModel = this._internalModel;
-      let oldValue = getValue(internalModel, key);
-      let originalValue;
-
-      if (value !== oldValue) {
-        // Add the new value to the changed attributes hash; it will get deleted by
-        // the 'didSetProperty' handler if it is no different from the original value
-        internalModel._attributes[key] = value;
-
-        if (key in internalModel._inFlightAttributes) {
-          originalValue = internalModel._inFlightAttributes[key];
-        } else {
-          originalValue = internalModel._data[key];
-        }
-
-        this._internalModel.send('didSetProperty', {
-          name: key,
-          oldValue: oldValue,
-          originalValue: originalValue,
-          value: value
-        });
-      }
-
+      this._internalModel._modelData.setAttr(key, value);
       return value;
     }
   }).meta(meta);
