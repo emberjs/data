@@ -358,6 +358,7 @@ export default class Relationship {
   }
 
   findLink() {
+    debugger
     heimdall.increment(findLink);
     if (this.linkPromise) {
       return this.linkPromise;
@@ -421,6 +422,7 @@ export default class Relationship {
 
     let hasData = false;
     let hasLink = false;
+    debugger
 
     if (payload.meta) {
       this.updateMeta(payload.meta);

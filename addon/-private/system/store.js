@@ -2827,7 +2827,6 @@ function setupRelationships(store, internalModel, data) {
     }
 
     internalModel.pushRelationshipData(key, data.relationships[key]);
-
   });
 }
 

@@ -179,7 +179,8 @@ export default class ModelData {
 
     if (get(this.internalModel, 'isError')) {
       this._inFlightAttributes = null;
-      this.didCleanError();
+      // TODO IGOR DAVID seems bad to have to go back, maybe move to internalModel?
+      this.internalModel.didCleanError();
     }
 
     if (this.internalModel.isNew()) {
