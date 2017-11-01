@@ -102,8 +102,6 @@ export default class ModelData {
   }
 
   setupData(data, calculateChange) {
-    this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
-
     let changedKeys;
 
     if (calculateChange) {
@@ -305,7 +303,7 @@ export default class ModelData {
 
   adapterDidCommit(data) {
     if (data) {
-      this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+      // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
       data = data.attributes;
     }
     let changedKeys = this._changedKeys(data);

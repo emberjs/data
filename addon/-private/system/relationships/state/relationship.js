@@ -59,7 +59,6 @@ export default class Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     heimdall.increment(newRelationship);
     let async = relationshipMeta.options.async;
-    let polymorphic = relationshipMeta.options.polymorphic;
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
@@ -67,7 +66,6 @@ export default class Relationship {
     this.inverseKey = inverseKey;
     this.internalModel = internalModel;
     this.isAsync = typeof async === 'undefined' ? true : async;
-    this.isPolymorphic = typeof polymorphic === 'undefined' ? true : polymorphic;
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames

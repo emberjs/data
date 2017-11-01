@@ -462,8 +462,8 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a bel
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 });
 
-test("inverseFor short-circuits when inverse is null", function(assert) {
-  assert.expect(4);
+test("inverseFor is only called when inverse is not null", function(assert) {
+  assert.expect(2);
   Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: false, inverse: null })
   });
@@ -483,20 +483,20 @@ test("inverseFor short-circuits when inverse is null", function(assert) {
   var env = setupStore({ post: Post, comment: Comment, user: User, message: Message });
   var store = env.store;
 
-  Post._findInverseFor = function() {
-    assert.notOk(true, 'Post model _findInverseFor is not called');
+  Post.inverseFor = function() {
+    assert.notOk(true, 'Post model inverseFor is not called');
   };
 
-  Comment._findInverseFor = function() {
-    assert.notOk(true, 'Comment model _findInverseFor is not called');
+  Comment.inverseFor = function() {
+    assert.notOk(true, 'Comment model inverseFor is not called');
   };
 
-  Message._findInverseFor = function() {
-    assert.ok(true, 'Message model _findInverseFor is called');
+  Message.inverseFor = function() {
+    assert.ok(true, 'Message model inverseFor is called');
   };
 
-  User._findInverseFor = function() {
-    assert.ok(true, 'User model _findInverseFor is called');
+  User.inverseFor = function() {
+    assert.ok(true, 'User model inverseFor is called');
   };
 
   run(function() {

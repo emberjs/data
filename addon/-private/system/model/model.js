@@ -1273,24 +1273,12 @@ Model.reopenClass({
    */
   inverseFor(name, store) {
     let inverseMap = get(this, 'inverseMap');
-    if (inverseMap[name] !== undefined) {
+    if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      let relationship = get(this, 'relationshipsByName').get(name);
-      if (!relationship) {
-        inverseMap[name] = null;
-        return null;
-      }
-
-      let options = relationship.options;
-      if (options && options.inverse === null) {
-        // populate the cache with a miss entry so we can skip getting and going
-        // through `relationshipsByName`
-        inverseMap[name] = null;
-        return null;
-      }
-
-      return inverseMap[name] = this._findInverseFor(name, store);
+      let inverse = this._findInverseFor(name, store);
+      inverseMap[name] = inverse;
+      return inverse;
     }
   },
 

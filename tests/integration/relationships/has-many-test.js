@@ -35,7 +35,6 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       messages: hasMany('message', { polymorphic: true, async: false }),
       contacts: hasMany('user', { inverse: null, async: false })
     });
-    User.reopenClass({ toString: () => 'User' });
 
     Contact = DS.Model.extend({
       user: belongsTo('user', { async: false })
@@ -2488,11 +2487,7 @@ test("Relationship.clear removes all records correctly", function(assert) {
     post = env.store.peekRecord('post', 2);
   });
 
-  run(() => {
-    // unclear what the semantics of clearing a yet to be created relationship
-    // ought to be.
-    env.store.peekAll('comment').mapBy('post');
-
+  run(function() {
     post._internalModel._relationships.get('comments').clear();
     let comments = A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);
@@ -3339,11 +3334,7 @@ test("deleted records should stay deleted", function(assert) {
       }]
     });
 
-    assert.deepEqual(
-      get(user, 'messages').mapBy('id'),
-      ['message-2', 'message-3'],
-      'user should have 2 message since 1 was deleted'
-    );
+    assert.equal(get(user, 'messages.length'), 2, 'user should have 2 message since 1 was deleted');
   });
 });
 

@@ -35,7 +35,6 @@ import {
 
 import { normalizeResponseHelper } from "./store/serializer-response";
 import { serializerForAdapter } from "./store/serializers";
-import RelationshipPayloadsManager from './relationships/relationship-payloads-manager';
 
 import {
   _find,
@@ -213,7 +212,6 @@ Store = Service.extend({
     this._pendingSave = [];
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._modelFactoryCache = Object.create(null);
-    this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -1132,14 +1130,7 @@ Store = Service.extend({
     }
   },
 
-  _internalModelDidReceiveRelationshipData(modelName, id, relationshipData) {
-    this._relationshipsPayloads.push(modelName, id, relationshipData);
-  },
 
-  _internalModelDestroyed(internalModel) {
-    this._removeFromIdMap(internalModel);
-    this._relationshipsPayloads.unload(internalModel.modelName, internalModel.id);
-  },
 
   /**
     @method findMany
@@ -2439,7 +2430,7 @@ Store = Service.extend({
       // relationships.
       let internalModel = pushed[i];
       let data = pushed[i + 1];
-      setupRelationships(this, internalModel, data, modelNameToInverseMap);
+      setupRelationships(this, internalModel, data);
     }
 
     pushed.length = 0;
@@ -2833,76 +2824,14 @@ function _commit(adapter, store, operation, snapshot) {
   }, label);
 }
 
-function isInverseRelationshipInitialized(store, internalModel, data, key, modelNameToInverseMap) {
-  let relationshipData = data.relationships[key].data;
-
-  if (!relationshipData) {
-    // can't check inverse for eg { comments: { links: { related: URL }}}
-    return false;
-  }
-
-  let inverseMap = modelNameToInverseMap[internalModel.modelName]
-  if (!inverseMap) {
-    inverseMap = modelNameToInverseMap[internalModel.modelName] = get(internalModel.type, 'inverseMap');
-  }
-  let inverseRelationshipMetadata = inverseMap[key];
-  if (inverseRelationshipMetadata === undefined) {
-    inverseRelationshipMetadata = internalModel.type.inverseFor(key, store);
-  }
-
-  if (!inverseRelationshipMetadata) {
-    return false;
-  }
-
-  let { name: inverseRelationshipName } = inverseRelationshipMetadata;
-
-  if (Array.isArray(relationshipData)) {
-    for (let i=0; i<relationshipData.length; ++i) {
-      let inverseInternalModel = store._internalModelsFor(relationshipData[i].type).get(relationshipData[i].id);
-      if (inverseInternalModel && inverseInternalModel._relationships.has(inverseRelationshipName)) {
-        return true;
-      }
+function setupRelationships(store, internalModel, data) {
+  internalModel.type.eachRelationship((key, descriptor) => {
+    if (!data.relationships[key]) {
+      return;
     }
 
-    return false;
-  } else {
-    let inverseInternalModel = store._internalModelsFor(relationshipData.type).get(relationshipData.id);
-    return inverseInternalModel && inverseInternalModel._relationships.has(inverseRelationshipName);
-  }
-}
-
-function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
-  Object.keys(data.relationships).forEach(relationshipName => {
-    let relationships = internalModel._relationships;
-    let relationshipRequiresNotification = relationships.has(relationshipName) ||
-      isInverseRelationshipInitialized(store, internalModel, data, relationshipName, modelNameToInverseMap);
-
-    if (relationshipRequiresNotification) {
-      let relationshipData = data.relationships[relationshipName];
-      relationships.get(relationshipName).push(relationshipData, false);
-    }
-
-    // in debug, assert payload validity eagerly
-    if (DEBUG) {
-      let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
-      let relationshipData = data.relationships[relationshipName];
-      if (!relationshipData || !relationshipMeta) {
-        return;
-      }
-
-      if (relationshipData.links) {
-        let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
-          id: 'ds.store.push-link-for-sync-relationship'
-        });
-      } else if (relationshipData.data) {
-        if (relationshipMeta.kind === 'belongsTo') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
-        } else if (relationshipMeta.kind === 'hasMany') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
-        }
-      }
-    }
+    let relationship = internalModel._relationships.get(key);
+    relationship.push(data.relationships[key]);
   });
 }
 
