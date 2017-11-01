@@ -1,10 +1,10 @@
 import isEnabled from '../../features';
 import Relationships from "../relationships/state/create";
 import { assign, merge } from '@ember/polyfills';
-import { isEqual, isEmpty } from '@ember/utils';
-import { assert, inspect } from '@ember/debug';
+import { isEqual } from '@ember/utils';
+import { assert } from '@ember/debug';
 import { copy } from '@ember/object/internals';
-import { set, get } from '@ember/object';
+import { get } from '@ember/object';
 
 const emberAssign = assign || merge;
 export default class ModelData {
@@ -302,9 +302,9 @@ export default class ModelData {
   didCreateLocally(properties) {
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     this.internalModel.eachRelationship((key, descriptor) => {
-        if (properties[key] !== undefined) {
-            this._relationships.get(key).setHasData(true);
-        }
+      if (properties[key] !== undefined) {
+        this._relationships.get(key).setHasData(true);
+      }
     });
   }
 
@@ -382,6 +382,10 @@ export default class ModelData {
       } else {
         originalValue = this._data[key];
       }
+      // If we went back to our original value, we shouldn't keep the attribute around anymore
+      if (value === originalValue) {
+        delete this._attributes[key];
+      }
       // TODO IGOR DAVID whats up with the send
       this.internalModel.send('didSetProperty', {
         name: key,
@@ -394,11 +398,11 @@ export default class ModelData {
 
   getAttr(key) {
     if (key in this._attributes) {
-        return this._attributes[key];
+      return this._attributes[key];
     } else if (key in this._inFlightAttributes) {
-        return this._inFlightAttributes[key];
+      return this._inFlightAttributes[key];
     } else {
-        return this._data[key];
+      return this._data[key];
     }
   }
 

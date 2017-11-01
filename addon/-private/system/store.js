@@ -2821,7 +2821,6 @@ function _commit(adapter, store, operation, snapshot) {
 }
 
 function setupRelationships(store, internalModel, data) {
-  debugger
   internalModel.type.eachRelationship((key, descriptor) => {
     if (!data.relationships[key]) {
       return;

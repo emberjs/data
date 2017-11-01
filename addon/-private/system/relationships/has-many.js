@@ -4,7 +4,7 @@
 
 import { A } from '@ember/array';
 
-import { get, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
 import isArrayLike from "../is-array-like";

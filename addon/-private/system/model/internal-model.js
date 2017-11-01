@@ -1,8 +1,7 @@
 import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
-import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEmpty } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -61,14 +60,6 @@ function areAllModelsUnloaded(internalModels) {
   return true;
 }
 
-function destroyRelationship(rel) {
-  if (rel._inverseIsAsync()) {
-    rel.removeInternalModelFromInverse(rel.inverseInternalModel);
-    rel.removeInverseRelationships();
-  } else {
-    rel.removeCompletelyFromInverse();
-  }
-}
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
@@ -494,7 +485,7 @@ export default class InternalModel {
 
   setHasMany(key, value) {
     this._modelData.setHasMany(key, value);
-  } 
+  }
 
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
@@ -574,6 +565,7 @@ export default class InternalModel {
   }
 
   flushChangedAttributes() {
+    heimdall.increment(flushChangedAttributes);
     this._modelData.flushChangedAttributes();
   }
 

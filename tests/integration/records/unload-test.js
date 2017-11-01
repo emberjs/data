@@ -1,6 +1,7 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { Promise as EmberPromise } from 'rsvp';
+import Ember from 'ember';
 
 import { run } from '@ember/runloop';
 

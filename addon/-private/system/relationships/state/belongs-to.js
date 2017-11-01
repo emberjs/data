@@ -53,9 +53,8 @@ export default class BelongsToRelationship extends Relationship {
       this.removeCanonicalInternalModel(this.canonicalState);
     }
 
-
-    this.inverseInternalModel = this.canonicalState = internalModel;
     // TALK TO DAVID, I've had to do weird things here
+    this.inverseInternalModel = this.canonicalState = internalModel;
     super.addCanonicalInternalModel(internalModel);
   }
 
@@ -188,7 +187,6 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   updateData(data, initial) {
-    debugger
     assert(`Ember Data expected the data for the ${this.key} relationship on a ${this.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${inspect(data)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`, data === null || data.id !== undefined && data.type !== undefined);
     let internalModel = this.store._pushResourceIdentifier(this, data);
     if (initial) {

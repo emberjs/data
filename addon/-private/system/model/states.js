@@ -174,7 +174,6 @@ import { assert } from '@ember/debug';
 
 function didSetProperty(internalModel, context) {
   if (context.value === context.originalValue) {
-    delete internalModel._attributes[context.name];
     internalModel.send('propertyWasReset', context.name);
   } else if (context.value !== context.oldValue) {
     internalModel.send('becomeDirty');
