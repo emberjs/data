@@ -359,12 +359,8 @@ Store = Service.extend({
     internalModel.loadedData();
     let record = internalModel.getRecord(properties);
 
-    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
-    internalModel.eachRelationship((key, descriptor) => {
-      if (properties[key] !== undefined) {
-        internalModel._relationships.get(key).setHasData(true);
-      }
-    });
+    // TODO IGOR AND DAVID consider refactoring/renaming?
+    internalModel.didCreateRecord(properties);
 
     return record;
   },

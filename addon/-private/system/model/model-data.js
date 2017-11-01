@@ -246,7 +246,7 @@ export default class ModelData {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
       let preloadValue = get(preload, key);
-      let relationshipMeta = this.modelClass.metaForProperty(key);
+      let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
         this._preloadRelationship(key, preloadValue);
       } else {
@@ -256,7 +256,7 @@ export default class ModelData {
   }
 
   _preloadRelationship(key, preloadValue) {
-    let relationshipMeta = this.modelClass.metaForProperty(key);
+    let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
     let modelClass = relationshipMeta.type;
     if (relationshipMeta.kind === 'hasMany') {
       this._preloadHasMany(key, preloadValue, modelClass);
@@ -297,6 +297,17 @@ export default class ModelData {
     return value;
   }
 
+
+  // TODO IGOR AND DAVID REFACTOR THIS
+  didCreateLocally(properties) {
+    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
+    this.internalModel.eachRelationship((key, descriptor) => {
+        if (properties[key] !== undefined) {
+            this._relationships.get(key).setHasData(true);
+        }
+    });
+  }
+
   adapterDidCommit(data) {
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
@@ -324,8 +335,8 @@ export default class ModelData {
     return this._relationships.get(key).getRecords();
   }
 
-  setHasMany(key, value) {
-    let relationship = this._internalModel._relationships.get(key);
+  setHasMany(key, records) {
+    let relationship = this._relationships.get(key);
     relationship.clear();
     relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
   }

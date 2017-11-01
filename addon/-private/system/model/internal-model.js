@@ -661,6 +661,10 @@ export default class InternalModel {
     }
   }
 
+  didCreateRecord(properties) {
+    this._modelData.didCreateLocally(properties);
+  }
+
   rollbackAttributes() {
     let dirtyKeys = this._modelData.rollbackAttributes();
     this.send('rolledBack');
