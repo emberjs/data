@@ -164,16 +164,13 @@ export default class Relationship {
   setupInverseRelationship(internalModel) {
     if (this.inverseKey) {
       let relationships = internalModel._modelData._relationships;
-      let relationshipExisted = relationships.has(this.inverseKey);
       let relationship = relationships.get(this.inverseKey);
-      if (relationshipExisted || this.isPolymorphic) {
         // if we have only just initialized the inverse relationship, then it
         // already has this.internalModel in its canonicalMembers, so skip the
         // unnecessary work.  The exception to this is polymorphic
         // relationships whose members are determined by their inverse, as those
         // relationships cannot efficiently find their inverse payloads.
-        relationship.addCanonicalInternalModel(this.internalModel);
-      }
+      relationship.addCanonicalInternalModel(this.internalModel);
     } else {
       let relationships = internalModel._modelData._implicitRelationships;
       let relationship = relationships[this.inverseKeyForImplicit];

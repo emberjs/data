@@ -902,7 +902,7 @@ export default class InternalModel {
 
     this.send('becameInvalid');
 
-    this._saveWasRejected();
+    this._modelData.saveWasRejected();
   }
 
   /*
