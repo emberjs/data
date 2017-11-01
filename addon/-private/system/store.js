@@ -2830,8 +2830,8 @@ function setupRelationships(store, internalModel, data) {
       return;
     }
 
-    let relationship = internalModel._relationships.get(key);
-    relationship.push(data.relationships[key]);
+    internalModel.pushRelationshipData(key, data.relationships[key]);
+
   });
 }
 

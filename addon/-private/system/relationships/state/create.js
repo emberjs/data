@@ -30,8 +30,10 @@ function createRelationshipFor(internalModel, relationshipMeta, store) {
 }
 
 export default class Relationships {
-  constructor(internalModel) {
-    this.internalModel = internalModel;
+  constructor(modelData) {
+    // TODO IGOR DAVID REFACTOR
+    this.modelData = modelData;
+    this.internalModel = modelData.internalModel;
     this.initializedRelationships = Object.create(null);
   }
 

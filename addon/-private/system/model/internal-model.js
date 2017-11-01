@@ -476,6 +476,26 @@ export default class InternalModel {
     return this.modelClass.eachRelationship(callback, binding);
   }
 
+  pushRelationshipData(key, data) {
+    this._modelData.pushRelationshipData(key, data);
+  }
+
+  getBelongsTo(key) {
+    return this._modelData.getBelongsTo(key);
+  }
+
+  setBelongsTo(key, value) {
+    return this._modelData.setBelongsTo(key, value);
+  }
+
+  getHasMany(key) {
+    return this._modelData.getHasMany(key);
+  }
+
+  setHasMany(key, value) {
+    this._modelData.setHasMany(key, value);
+  } 
+
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
 
@@ -899,7 +919,8 @@ export default class InternalModel {
     let reference = this.references[name];
 
     if (!reference) {
-      let relationship = this._relationships.get(name);
+      // TODO IGOR AND DAVID REFACTOR
+      let relationship = this._modelData._relationships.get(name);
 
       if (DEBUG) {
         let modelName = this.modelName;

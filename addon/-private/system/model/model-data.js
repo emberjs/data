@@ -17,7 +17,6 @@ export default class ModelData {
     }
     this.__relationships = null;
     this.__implicitRelationships = null;
-
   }
 
   get _attributes() {
@@ -178,7 +177,6 @@ export default class ModelData {
       this._attributes = null;
     }
 
-
     if (get(this.internalModel, 'isError')) {
       this._inFlightAttributes = null;
       this.didCleanError();
@@ -191,8 +189,6 @@ export default class ModelData {
     if (this.internalModel.isValid()) {
       this._inFlightAttributes = null;
     }
-
-    this.send('rolledBack');
 
     return dirtyKeys;
   }
@@ -319,6 +315,21 @@ export default class ModelData {
     return changedKeys;
   }
 
+  pushRelationshipData(key, data) {
+    let relationship = this._relationships.get(key);
+    relationship.push(data);
+  }
+
+  getHasMany(key) {
+    return this._relationships.get(key).getRecords();
+  }
+
+  setHasMany(key, value) {
+    let relationship = this._internalModel._relationships.get(key);
+    relationship.clear();
+    relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
+  }
+
   saveWasRejected() {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
@@ -330,6 +341,20 @@ export default class ModelData {
       }
     }
     this._inFlightAttributes = null;
+  }
+
+  getBelongsTo(key) {
+    return this._relationships.get(key).getRecord();
+  }
+
+  setBelongsTo(key, value) {
+    if (value && value.then) {
+      this._relationships.get(key).setRecordPromise(value);
+    } else if (value) {
+      this._relationships.get(key).setInternalModel(value._internalModel);
+    } else {
+      this._relationships.get(key).setInternalModel(value);
+    }
   }
 
   setAttr(key, value) {
@@ -346,7 +371,8 @@ export default class ModelData {
       } else {
         originalValue = this._data[key];
       }
-      this._internalModel.send('didSetProperty', {
+      // TODO IGOR DAVID whats up with the send
+      this.internalModel.send('didSetProperty', {
         name: key,
         oldValue: oldValue,
         originalValue: originalValue,

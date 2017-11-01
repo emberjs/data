@@ -84,7 +84,7 @@ export default class Relationship {
     if (!this.inverseKey || !this.inverseInternalModel) {
       return false;
     }
-    return this.inverseInternalModel._relationships.get(this.inverseKey).isAsync;
+    return this.inverseInternalModel._modelData._relationships.get(this.inverseKey).isAsync;
   }
 
   removeInverseRelationships() {
@@ -97,7 +97,7 @@ export default class Relationship {
 
     for (let i = 0; i < allMembers.length; i++) {
       let inverseInternalModel = allMembers[i];
-      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
+      let relationship = inverseInternalModel._modelData._relationships.get(this.inverseKey);
       relationship.inverseDidDematerialize();
     }
   }
@@ -163,7 +163,7 @@ export default class Relationship {
 
   setupInverseRelationship(internalModel) {
     if (this.inverseKey) {
-      let relationships = internalModel._relationships;
+      let relationships = internalModel._modelData._relationships;
       let relationshipExisted = relationships.has(this.inverseKey);
       let relationship = relationships.get(this.inverseKey);
       if (relationshipExisted || this.isPolymorphic) {
@@ -175,7 +175,7 @@ export default class Relationship {
         relationship.addCanonicalInternalModel(this.internalModel);
       }
     } else {
-      let relationships = internalModel._implicitRelationships;
+      let relationships = internalModel._modelData._implicitRelationships;
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] =
@@ -203,8 +203,8 @@ export default class Relationship {
       if (this.inverseKey) {
         this.removeCanonicalInternalModelFromInverse(internalModel);
       } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
+        if (internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
         }
       }
     }
@@ -217,12 +217,13 @@ export default class Relationship {
       this.members.addWithIndex(internalModel, idx);
       this.notifyRecordRelationshipAdded(internalModel, idx);
       if (this.inverseKey) {
-        internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
+        // internalModel doesn't know about relationships, they are dependent on modelData
+        internalModel._modelData._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
       } else {
-        if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
+        if (!internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
         }
-        internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
+        internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
       }
       this.internalModel.updateRecordArrays();
     }
@@ -236,8 +237,8 @@ export default class Relationship {
       if (this.inverseKey) {
         this.removeInternalModelFromInverse(internalModel);
       } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
+        if (internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          internalModel._modelData._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
         }
       }
     }
@@ -245,7 +246,7 @@ export default class Relationship {
 
   removeInternalModelFromInverse(internalModel) {
     heimdall.increment(removeInternalModelFromInverse);
-    let inverseRelationship = internalModel._relationships.get(this.inverseKey);
+    let inverseRelationship = internalModel._modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeInternalModelFromOwn(this.internalModel);
@@ -260,7 +261,7 @@ export default class Relationship {
 
   removeCanonicalInternalModelFromInverse(internalModel) {
     heimdall.increment(removeCanonicalInternalModelFromInverse);
-    let inverseRelationship = internalModel._relationships.get(this.inverseKey);
+    let inverseRelationship = internalModel._modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeCanonicalInternalModelFromOwn(this.internalModel);
@@ -293,7 +294,7 @@ export default class Relationship {
       const id = guidFor(inverseInternalModel);
 
       if (seen[id] === undefined) {
-        const relationship = inverseInternalModel._relationships.get(this.inverseKey);
+        const relationship = inverseInternalModel._modelData._relationships.get(this.inverseKey);
         relationship.removeCompletelyFromOwn(internalModel);
         seen[id] = true;
       }
