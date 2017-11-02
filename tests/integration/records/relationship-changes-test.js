@@ -883,8 +883,14 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
             data: { type: 'author', id: '2' }
           }
         }
-      }
+      },
+      included: [{
+        id: 2,
+        type: 'author'
+      }]
     });
+
+    post.get('author');
 
     post.addObserver('author', function() {
       observerCount++;

@@ -334,6 +334,7 @@ export default class Relationship {
   }
 
   flushCanonicalLater() {
+    debugger
     heimdall.increment(flushCanonicalLater);
     if (this.willSync) {
       return;

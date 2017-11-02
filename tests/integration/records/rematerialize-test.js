@@ -38,7 +38,7 @@ let Boat = DS.Model.extend({
 });
 Boat.toString = function() { return 'Boat'; };
 
-module("integration/unload - Unloading Records", {
+module("integration/unload - Rematerializing Unloaded Records", {
   beforeEach() {
     env = setupStore({
       adapter: DS.JSONAPIAdapter,
@@ -138,7 +138,7 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
 });
 
 test("an async has many relationship to an unloaded record can restore that record", function(assert) {
-  assert.expect(13);
+  assert.expect(15);
 
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
@@ -230,10 +230,11 @@ test("an async has many relationship to an unloaded record can restore that reco
   assert.equal(env.store.hasRecordForId('boat', 1), false, 'The boat is unloaded');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
 
-  let rematerializedBoaty = run(() => adam.get('boats')).objectAt(0);
+  let rematerializedBoaty = run(() => adam.get('boats')).objectAt(1);
 
   assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
   assert.equal(rematerializedBoaty.get('id'), '1');
+  assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface');
   assert.notEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
   assert.equal(env.store.hasRecordForId('boat', 1), true, 'The boat is loaded');
