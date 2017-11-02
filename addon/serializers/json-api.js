@@ -229,7 +229,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     if (!this.store._hasModelFor(modelName)) {
-      debugger
       warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
         id: 'ds.serializer.model-for-type-missing'
       });

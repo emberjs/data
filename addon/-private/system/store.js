@@ -2821,12 +2821,34 @@ function _commit(adapter, store, operation, snapshot) {
 }
 
 function setupRelationships(store, internalModel, data) {
-  internalModel.type.eachRelationship((key, descriptor) => {
-    if (!data.relationships[key]) {
+
+  internalModel.type.eachRelationship((relationshipName, descriptor) => {
+    if (!data.relationships[relationshipName]) {
       return;
     }
+    // in debug, assert payload validity eagerly
+    let relationshipData = data.relationships[relationshipName];
+    if (DEBUG) {
+      let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
+      if (!relationshipData || !relationshipMeta) {
+        return;
+      }
 
-    internalModel.pushRelationshipData(key, data.relationships[key]);
+      if (relationshipData.links) {
+        let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
+        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
+          id: 'ds.store.push-link-for-sync-relationship'
+        });
+      } else if (relationshipData.data) {
+        if (relationshipMeta.kind === 'belongsTo') {
+          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
+        } else if (relationshipMeta.kind === 'hasMany') {
+          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
+        }
+      }
+    }
+
+    internalModel.pushRelationshipData(relationshipName, relationshipData);
   });
 }
 

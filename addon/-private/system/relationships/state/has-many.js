@@ -279,7 +279,6 @@ export default class ManyRelationship extends Relationship {
   }
 
   updateData(data, initial) {
-    debugger
     let internalModels = this.store._pushResourceIdentifiers(this, data);
     if (initial) {
       this.setInitialInternalModels(internalModels);
