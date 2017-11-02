@@ -10,7 +10,8 @@ const { Model, hasMany, belongsTo, attr } = DS;
 module('unit/system/relationships/relationship-payloads-manager', {
   beforeEach() {
     const User = DS.Model.extend({
-      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' })
+      hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
+      sharedHats: hasMany('hat', { async: false, polymorphic: true, inverse: 'sharingUsers' })
     });
     User.toString = () => 'User';
 
@@ -20,6 +21,7 @@ module('unit/system/relationships/relationship-payloads-manager', {
     const Hat = Model.extend({
       type: attr('string'),
       user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
+      sharingUsers: belongsTo('users', { async: false, inverse: 'sharedHats', polymorphic: true }),
       hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
       hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true })
     });
@@ -594,4 +596,79 @@ test('push polymorphic self-referential circular non-reflexive relationship', fu
 
   assert.deepEqual(finalHatReference, expectedHatReference, 'we set hat on hat:1');
   assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
+});
+
+test('polymorphic hasMany to types with separate id-spaces', function(assert) {
+  const user = run(() => this.store.push({
+    data: {
+      id: '1',
+      type: 'user',
+      relationships: {
+        hats: {
+          data: [
+            { id: '1', type: 'big-hat' },
+            { id: '1', type: 'small-hat' }
+          ]
+        }
+      }
+    },
+    included: [{
+      id: '1',
+      type: 'big-hat'
+    }, {
+      id: '1',
+      type: 'small-hat'
+    }]
+  }));
+
+  const hats = user.get('hats');
+
+  assert.deepEqual(
+    hats.map(h => h.constructor.modelName),
+    ['big-hat', 'small-hat']
+  );
+  assert.deepEqual(
+    hats.map(h => h.id),
+    ['1', '1']
+  );
+});
+
+test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function (assert) {
+  const user = run(() => this.store.push({
+    data: {
+      id: '1',
+      type: 'user'
+    },
+    included: [{
+      id: '1',
+      type: 'big-hat',
+      relationships: {
+        user: {
+          data: { id: '1', type: 'user' }
+        }
+      }
+    }, {
+      id: '1',
+      type: 'small-hat',
+      relationships: {
+        user: {
+          data: { id: '1', type: 'user' }
+        }
+      }
+    }]
+  }));
+
+  const hats = user.get('hats');
+
+  assert.deepEqual(
+    hats.map(h => h.constructor.modelName),
+    ['big-hat', 'small-hat']
+  );
+  assert.deepEqual(
+    hats.map(h => h.id),
+    ['1', '1']
+  );
+});
+
+test('poly -> poly mututal separate id-spaces', function (assert) {
 });

@@ -124,7 +124,7 @@ export default class RelationshipPayloads {
     this._flushPending();
 
     if (this._isLHS(modelName, relationshipName)) {
-      return this._lhsPayloads[id];
+      return this._lhsPayloads[`${modelName}:${id}`];
     } else {
       assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
       return this._rhsPayloads[id];
@@ -153,7 +153,7 @@ export default class RelationshipPayloads {
     this._flushPending();
 
     if (this._isLHS(modelName, relationshipName)) {
-      delete this._lhsPayloads[id];
+      delete this._lhsPayloads[`${modelName}:${id}`];
     } else {
       assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
       delete this._rhsPayloads[id];
@@ -229,7 +229,7 @@ export default class RelationshipPayloads {
       let inverseIdToPayloads;
       let inverseIsMany;
       if (this._isLHS(modelName, relationshipName)) {
-        previousPayload = this._lhsPayloads[id];
+        previousPayload = this._lhsPayloads[`${modelName}:${id}`];
         idToPayloads = this._lhsPayloads;
         inverseIdToPayloads = this._rhsPayloads;
         inverseIsMany = this._rhsRelationshipIsMany;
@@ -283,7 +283,7 @@ export default class RelationshipPayloads {
       if (relationshipData.data !== undefined) {
         this._removeInverse(id, previousPayload, inverseIdToPayloads);
       }
-      idToPayloads[id] = relationshipData;
+      idToPayloads[`${modelName}:${id}`] = relationshipData;
       this._populateInverse(relationshipData, inverseRelationshipData, inverseIdToPayloads, inverseIsMany);
     }
   }

@@ -215,7 +215,7 @@ export default class RelationshipPayloadsManager {
 
     // figure out the inverse relationship; we need two things
     //  a) the inverse model name
-    //- b) the name of the inverse relationship
+    //  b) the name of the inverse relationship
     if (inverseMeta) {
       inverseRelationshipName = inverseMeta.name;
       inverseModelName = relationshipMeta.type;
