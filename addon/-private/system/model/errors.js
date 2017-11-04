@@ -339,6 +339,7 @@ export default ArrayProxy.extend(Evented, {
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
+    this.notifyPropertyChange('length');
   },
 
   /**
