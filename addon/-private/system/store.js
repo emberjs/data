@@ -51,6 +51,7 @@ import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
 import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
+import ModelData from "./model/model-data";
 import isEnabled from '../features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -2506,6 +2507,10 @@ Store = Service.extend({
     } else {
       serializer.pushPayload(this, payload);
     }
+  },
+
+  modelDataClassFor(modelName, id) {
+    return ModelData;
   },
 
   /**

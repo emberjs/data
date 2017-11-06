@@ -9,7 +9,6 @@ import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from "./states";
-import ModelData from "./model-data";
 import Snapshot from "../snapshot";
 import OrderedSet from "../ordered-set";
 
@@ -111,13 +110,15 @@ export default class InternalModel {
   constructor(modelName, id, store, data) {
     heimdall.increment(new_InternalModel);
     this.id = id;
+    this.store = store;
+    this.modelName = modelName;
 
-    this._modelData = new ModelData(modelName, id, store, data, this);
+    let ModelDataClass = this.store.modelDataClassFor(modelName, id);
+
+    this._modelData = new ModelDataClass(modelName, id, store, data, this);
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 
-    this.store = store;
-    this.modelName = modelName;
     this._loadingPromise = null;
     this._record = null;
     this._isDestroyed = false;
