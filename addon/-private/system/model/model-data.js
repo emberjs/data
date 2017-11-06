@@ -19,86 +19,7 @@ export default class ModelData {
     this.__implicitRelationships = null;
   }
 
-  get _attributes() {
-    if (this.__attributes === null) {
-      this.__attributes = Object.create(null);
-    }
-    return this.__attributes;
-  }
-
-  set _attributes(v) {
-    this.__attributes = v;
-  }
-
-  get _relationships() {
-    if (this.__relationships === null) {
-      this.__relationships = new Relationships(this);
-    }
-
-    return this.__relationships;
-  }
-
-  get _data() {
-    if (this.__data === null) {
-      this.__data = Object.create(null);
-    }
-    return this.__data;
-  }
-
-  set _data(v) {
-    this.__data = v;
-  }
-
-  /*
-   implicit relationships are relationship which have not been declared but the inverse side exists on
-   another record somewhere
-   For example if there was
-
-   ```app/models/comment.js
-   import DS from 'ember-data';
-
-   export default DS.Model.extend({
-   name: DS.attr()
-   })
-   ```
-
-   but there is also
-
-   ```app/models/post.js
-   import DS from 'ember-data';
-
-   export default DS.Model.extend({
-   name: DS.attr(),
-   comments: DS.hasMany('comment')
-   })
-   ```
-
-   would have a implicit post relationship in order to be do things like remove ourselves from the post
-   when we are deleted
-  */
-  get _implicitRelationships() {
-    if (this.__implicitRelationships === null) {
-      this.__implicitRelationships = Object.create(null);
-    }
-    return this.__implicitRelationships;
-  }
-
-  resetRecord() {
-    this.__attributes = null;
-    this.__inFlightAttributes = null;
-    this._data = null;
-  }
-
-  get _inFlightAttributes() {
-    if (this.__inFlightAttributes === null) {
-      this.__inFlightAttributes = Object.create(null);
-    }
-    return this.__inFlightAttributes;
-  }
-
-  set _inFlightAttributes(v) {
-    this.__inFlightAttributes = v;
-  }
+  // PUBLIC API
 
   setupData(data, calculateChange) {
     let changedKeys;
@@ -120,6 +41,14 @@ export default class ModelData {
   hasChangedAttributes() {
     return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
   }
+
+  // TODO, Maybe can model as destroying model data?
+  resetRecord() {
+    this.__attributes = null;
+    this.__inFlightAttributes = null;
+    this._data = null;
+  }
+
   /*
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.
@@ -194,55 +123,7 @@ export default class ModelData {
     return dirtyKeys;
   }
 
-  /*
-   This method should only be called by records in the `isNew()` state OR once the record
-   has been deleted and that deletion has been persisted.
-
-   It will remove this record from any associated relationships.
-
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
-    @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
-    @private
-   */
-  removeFromInverseRelationships(isNew = false) {
-    this._relationships.forEach((name, rel) => {
-      rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
-    });
-
-    let implicitRelationships = this._implicitRelationships;
-    this.__implicitRelationships = null;
-
-    Object.keys(implicitRelationships).forEach((key) => {
-      let rel = implicitRelationships[key];
-
-      rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
-    });
-  }
-
-  destroyRelationships() {
-    let relationships = this._relationships;
-    relationships.forEach((name, rel) => destroyRelationship(rel));
-
-    let implicitRelationships = this._implicitRelationships;
-    this.__implicitRelationships = null;
-    Object.keys(implicitRelationships).forEach((key) => {
-      let rel = implicitRelationships[key];
-
-      destroyRelationship(rel);
-
-      rel.destroy();
-    });
-  }
-
+  // TODO Consider figuring out how to do using existing apis
   preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
@@ -252,59 +133,6 @@ export default class ModelData {
         this._preloadRelationship(key, preloadValue);
       } else {
         this._data[key] = preloadValue;
-      }
-    });
-  }
-
-  _preloadRelationship(key, preloadValue) {
-    let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
-    let modelClass = relationshipMeta.type;
-    if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, modelClass);
-    } else {
-      this._preloadBelongsTo(key, preloadValue, modelClass);
-    }
-  }
-
-  _preloadHasMany(key, preloadValue, modelClass) {
-    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
-    let recordsToSet = new Array(preloadValue.length);
-
-    for (let i = 0; i < preloadValue.length; i++) {
-      let recordToPush = preloadValue[i];
-      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
-    }
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).updateInternalModelsFromAdapter(recordsToSet);
-  }
-
-  _preloadBelongsTo(key, preloadValue, modelClass) {
-    let internalModelToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).setInternalModel(internalModelToSet);
-  }
-
-  _convertStringOrNumberIntoInternalModel(value, modelClass) {
-    if (typeof value === 'string' || typeof value === 'number') {
-      return this.store._internalModelForId(modelClass, value);
-    }
-    if (value._internalModel) {
-      return value._internalModel;
-    }
-    return value;
-  }
-
-
-  // TODO IGOR AND DAVID REFACTOR THIS
-  didCreateLocally(properties) {
-    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
-    this.internalModel.eachRelationship((key, descriptor) => {
-      if (properties[key] !== undefined) {
-        this._relationships.get(key).setHasData(true);
       }
     });
   }
@@ -412,6 +240,190 @@ export default class ModelData {
          key in this._inFlightAttributes ||
          key in this._data;
   }
+
+
+  get _attributes() {
+    if (this.__attributes === null) {
+      this.__attributes = Object.create(null);
+    }
+    return this.__attributes;
+  }
+
+  set _attributes(v) {
+    this.__attributes = v;
+  }
+
+  get _relationships() {
+    if (this.__relationships === null) {
+      this.__relationships = new Relationships(this);
+    }
+
+    return this.__relationships;
+  }
+
+  get _data() {
+    if (this.__data === null) {
+      this.__data = Object.create(null);
+    }
+    return this.__data;
+  }
+
+  set _data(v) {
+    this.__data = v;
+  }
+
+  /*
+   implicit relationships are relationship which have not been declared but the inverse side exists on
+   another record somewhere
+   For example if there was
+
+   ```app/models/comment.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+   name: DS.attr()
+   })
+   ```
+
+   but there is also
+
+   ```app/models/post.js
+   import DS from 'ember-data';
+
+   export default DS.Model.extend({
+   name: DS.attr(),
+   comments: DS.hasMany('comment')
+   })
+   ```
+
+   would have a implicit post relationship in order to be do things like remove ourselves from the post
+   when we are deleted
+  */
+  get _implicitRelationships() {
+    if (this.__implicitRelationships === null) {
+      this.__implicitRelationships = Object.create(null);
+    }
+    return this.__implicitRelationships;
+  }
+
+  get _inFlightAttributes() {
+    if (this.__inFlightAttributes === null) {
+      this.__inFlightAttributes = Object.create(null);
+    }
+    return this.__inFlightAttributes;
+  }
+
+  set _inFlightAttributes(v) {
+    this.__inFlightAttributes = v;
+  }
+
+  /*
+
+
+    TODO IGOR AND DAVID this shouldn't be public
+   This method should only be called by records in the `isNew()` state OR once the record
+   has been deleted and that deletion has been persisted.
+
+   It will remove this record from any associated relationships.
+
+   If `isNew` is true (default false), it will also completely reset all
+    relationships to an empty state as well.
+
+    @method removeFromInverseRelationships
+    @param {Boolean} isNew whether to unload from the `isNew` perspective
+    @private
+   */
+  removeFromInverseRelationships(isNew = false) {
+    this._relationships.forEach((name, rel) => {
+      rel.removeCompletelyFromInverse();
+      if (isNew === true) {
+        rel.clear();
+      }
+    });
+
+    let implicitRelationships = this._implicitRelationships;
+    this.__implicitRelationships = null;
+
+    Object.keys(implicitRelationships).forEach((key) => {
+      let rel = implicitRelationships[key];
+
+      rel.removeCompletelyFromInverse();
+      if (isNew === true) {
+        rel.clear();
+      }
+    });
+  }
+
+  // TODO IGOR AND DAVID this shouldn't be public
+  destroyRelationships() {
+    let relationships = this._relationships;
+    relationships.forEach((name, rel) => destroyRelationship(rel));
+
+    let implicitRelationships = this._implicitRelationships;
+    this.__implicitRelationships = null;
+    Object.keys(implicitRelationships).forEach((key) => {
+      let rel = implicitRelationships[key];
+
+      destroyRelationship(rel);
+
+      rel.destroy();
+    });
+  }
+
+  _preloadRelationship(key, preloadValue) {
+    let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
+    let modelClass = relationshipMeta.type;
+    if (relationshipMeta.kind === 'hasMany') {
+      this._preloadHasMany(key, preloadValue, modelClass);
+    } else {
+      this._preloadBelongsTo(key, preloadValue, modelClass);
+    }
+  }
+
+  _preloadHasMany(key, preloadValue, modelClass) {
+    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
+    let recordsToSet = new Array(preloadValue.length);
+
+    for (let i = 0; i < preloadValue.length; i++) {
+      let recordToPush = preloadValue[i];
+      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
+    }
+
+    //We use the pathway of setting the hasMany as if it came from the adapter
+    //because the user told us that they know this relationships exists already
+    this._relationships.get(key).updateInternalModelsFromAdapter(recordsToSet);
+  }
+
+  _preloadBelongsTo(key, preloadValue, modelClass) {
+    let internalModelToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
+
+    //We use the pathway of setting the hasMany as if it came from the adapter
+    //because the user told us that they know this relationships exists already
+    this._relationships.get(key).setInternalModel(internalModelToSet);
+  }
+
+  _convertStringOrNumberIntoInternalModel(value, modelClass) {
+    if (typeof value === 'string' || typeof value === 'number') {
+      return this.store._internalModelForId(modelClass, value);
+    }
+    if (value._internalModel) {
+      return value._internalModel;
+    }
+    return value;
+  }
+
+
+  // TODO IGOR AND DAVID REFACTOR THIS
+  didCreateLocally(properties) {
+    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
+    this.internalModel.eachRelationship((key, descriptor) => {
+      if (properties[key] !== undefined) {
+        this._relationships.get(key).setHasData(true);
+      }
+    });
+  }
+
+
   /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
 
