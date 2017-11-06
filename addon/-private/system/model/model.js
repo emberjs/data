@@ -1322,7 +1322,7 @@ Model.reopenClass({
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
       if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
-        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.`, false, {
+        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`, false, {
           id: 'ds.model.reflexive-relationship-without-inverse'
         });
       }
@@ -1337,7 +1337,7 @@ Model.reopenClass({
       });
 
       assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
-        inverseType.toString() + " multiple times. Look at https://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        inverseType.toString() + " multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses",
         filteredRelationships.length < 2);
 
       if (filteredRelationships.length === 1 ) {
@@ -1345,7 +1345,7 @@ Model.reopenClass({
       }
 
       assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
-        this + " were found on " + inverseType + ". Look at https://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        this + " were found on " + inverseType + ". Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses",
         possibleRelationships.length === 1);
 
       inverseName = possibleRelationships[0].name;
