@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 2.17.0-beta.2 (November 6, 2017)
+
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX] setting a property to its previous value clears validation state
+- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX] `store.query` returns a promise proxy that now proxies `meta`
+- [#5242](https://github.com/emberjs/data/pull/5242) [BUGFIX] `store.push` normalizes model names of payloads to match the rest of the store api (eg `store.createRecord`)
+- [#5248](https://github.com/emberjs/data/pull/5248) [BUGFIX] `model.setProperties` will now clear `model` errors correctly
+
 ### Release 2.17.0-beta.1 (October 3, 2017)
 - No Changes from 2.16.0
 
