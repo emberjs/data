@@ -1830,7 +1830,6 @@ Store = Service.extend({
   */
   scheduleSave(internalModel, resolver, options) {
     let snapshot = internalModel.createSnapshot(options);
-    internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
     this._pendingSave.push({
       snapshot: snapshot,

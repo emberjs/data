@@ -65,7 +65,6 @@ const {
   _triggerDeferredTriggers,
   changedAttributes,
   createSnapshot,
-  flushChangedAttributes,
   hasChangedAttributes,
   materializeRecord,
   new_InternalModel,
@@ -77,7 +76,6 @@ const {
   '_triggerDeferredTriggers',
   'changedAttributes',
   'createSnapshot',
-  'flushChangedAttributes',
   'hasChangedAttributes',
   'materializeRecord',
   'new_InternalModel',
@@ -565,11 +563,6 @@ export default class InternalModel {
     this.send('pushedData');
   }
 
-  flushChangedAttributes() {
-    heimdall.increment(flushChangedAttributes);
-    this._modelData.flushChangedAttributes();
-  }
-
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
     return this._modelData.hasChangedAttributes();
@@ -607,6 +600,7 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
+    this._modelData.adapterWillCommit();
     this.send('willCommit');
   }
 

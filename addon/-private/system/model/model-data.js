@@ -33,7 +33,7 @@ export default class ModelData {
     return changedKeys;
   }
 
-  flushChangedAttributes() {
+  adapterWillCommit() {
     this._inFlightAttributes = this._attributes;
     this._attributes = null;
   }
