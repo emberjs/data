@@ -670,5 +670,108 @@ test('polymorphic hasMany to types with separate id-spaces, from inverse payload
   );
 });
 
-test('poly -> poly mututal separate id-spaces', function (assert) {
+test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function (assert) {
+  let bigHatId = 1;
+  let smallHatId = 1;
+  function makePolymorphicHatForPolymorphicPerson(type, isForBigPerson = true) {
+    const isSmallHat = type === 'small-hat';
+    return {
+      id: `${isSmallHat ? smallHatId++ : bigHatId++}`,
+      type,
+      relationships: {
+        person: {
+          data: {
+            id: '1',
+            type: isForBigPerson ? 'big-person' : 'small-person'
+          }
+        }
+      }
+    };
+  }
+
+  const bigHatData1 = makePolymorphicHatForPolymorphicPerson('big-hat');
+  const bigHatData2 = makePolymorphicHatForPolymorphicPerson('big-hat');
+  const bigHatData3 = makePolymorphicHatForPolymorphicPerson('big-hat', false);
+  const smallHatData1 = makePolymorphicHatForPolymorphicPerson('small-hat');
+  const smallHatData2 = makePolymorphicHatForPolymorphicPerson('small-hat');
+  const smallHatData3 = makePolymorphicHatForPolymorphicPerson('small-hat', false);
+
+  const bigPersonData = {
+    data: {
+      id: '1',
+      type: 'big-person',
+      attributes: {}
+    },
+    included: [
+      bigHatData1,
+      smallHatData1,
+      bigHatData2,
+      smallHatData2
+    ]
+  };
+
+  const smallPersonData = {
+    data: {
+      id: '1',
+      type: 'small-person',
+      attributes: {}
+    },
+    included: [
+      bigHatData3,
+      smallHatData3
+    ]
+  };
+
+  const PersonModel = Model.extend({
+    hats: hasMany('hat', {
+      async: false,
+      polymorphic: true,
+      inverse: 'person'
+    })
+  });
+  const HatModel = Model.extend({
+    type: attr('string'),
+    person: belongsTo('person', {
+      async: false,
+      inverse: 'hats',
+      polymorphic: true
+    })
+  });
+  const BigHatModel = HatModel.extend({});
+  const SmallHatModel = HatModel.extend({});
+
+  const BigPersonModel = PersonModel.extend({});
+  const SmallPersonModel = PersonModel.extend({});
+
+  const store = this.store = createStore({
+    person: PersonModel,
+    bigPerson: BigPersonModel,
+    smallPerson: SmallPersonModel,
+    hat: HatModel,
+    bigHat: BigHatModel,
+    smallHat: SmallHatModel
+  });
+
+  const bigPerson = run(() => {
+    return store.push(bigPersonData);
+  });
+
+  const smallPerson = run(() => {
+    return store.push(smallPersonData);
+  });
+
+  const finalBigResult = bigPerson.get('hats').toArray();
+  const finalSmallResult = smallPerson.get('hats').toArray();
+
+  assert.deepEqual(
+    finalBigResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
+    [{ type: 'big-hat', id: '1'}, { type: 'small-hat', id: '1'}, { type: 'big-hat', id: '2'}, { type: 'small-hat', id: '2'}],
+    'big-person hats is all good'
+  );
+
+  assert.deepEqual(
+    finalSmallResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
+    [{ type: 'big-hat', id: '3'}, { type: 'small-hat', id: '3'}],
+    'small-person hats is all good'
+  );
 });
