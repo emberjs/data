@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import MapWithDefault from '@ember/map/with-default';
+import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import RSVP from 'rsvp';
@@ -230,7 +230,7 @@ Store = Service.extend({
     this._updatedInternalModels = [];
 
     // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
+    this._pendingFetch = new MapWithDefault({ defaultValue() { return []; } });
 
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);

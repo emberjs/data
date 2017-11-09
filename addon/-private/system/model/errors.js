@@ -4,7 +4,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { isEmpty } from '@ember/utils';
 import { makeArray, A } from '@ember/array';
-import MapWithDefault from '@ember/map/with-default';
+import MapWithDefault from '../map-with-default';
 import { deprecate, warn } from '@ember/debug';
 
 /**
@@ -121,11 +121,11 @@ export default ArrayProxy.extend(Evented, {
 
   /**
     @property errorsByAttributeName
-    @type {Ember.MapWithDefault}
+    @type {MapWithDefault}
     @private
   */
   errorsByAttributeName: computed(function() {
-    return MapWithDefault.create({
+    return new MapWithDefault({
       defaultValue() {
         return A();
       }
