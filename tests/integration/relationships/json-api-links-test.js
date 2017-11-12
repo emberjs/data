@@ -18,13 +18,12 @@ module("integration/relationship/json-api-links Relationships loaded by links", 
   },
 
   afterEach() {
-    
     resetModelFactoryInjection();
     run(env.container, 'destroy');
   }
 });
 
-test("Loading link with inverse:null on other model caches the two ends separately", function(assert) {
+test("Loading link with inverse:null on other model caches the two ends separately", async function(assert) {
   User = DS.Model.extend({
     organisation: belongsTo('organisation', {inverse: null})
   });
@@ -45,7 +44,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
 
   User = store.modelFor('user');
   Organisation = store.modelFor('organisation');
-  
+
   env.registry.register('adapter:user', DS.JSONAPISerializer.extend({
     findRecord (store, type, id) {
       return new Promise((resolve) => {
@@ -59,7 +58,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
                   data: {id: 1, type: 'organisation'}
                 }
               }
-            }              
+            }
           })
         }, 10);
       });
@@ -81,17 +80,17 @@ test("Loading link with inverse:null on other model caches the two ends separate
                   }
                 }
               }
-            }  
+            }
           })
         }, 10);
       });
     }
   }));
 
-  return run(async () => {
+  await run(async () => {
     const user1 = await store.findRecord('user', 1);
     assert.ok(user1, 'user should be populated');
-    
+
     const org2FromFind = await store.findRecord('organisation', 2);
 
     assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
@@ -99,12 +98,13 @@ test("Loading link with inverse:null on other model caches the two ends separate
 
     const orgFromUser = await user1.get('organisation');
     assert.equal(user1.belongsTo('organisation').belongsToRelationship.hasLoaded, true, 'user should have loaded its belongsTo relationship');
-    
+
+    assert.ok(org2FromFind, 'organisation we found should be populated');
     assert.ok(orgFromUser, 'user\'s organisation should be populated');
   });
 });
 
-test("Pushing child record should not mark parent:children as loaded", function(assert) {
+test("Pushing child record should not mark parent:children as loaded", async function(assert) {
   let Child = DS.Model.extend({
     parent: belongsTo('parent', {inverse: 'children'})
   });
@@ -126,7 +126,7 @@ test("Pushing child record should not mark parent:children as loaded", function(
   Parent = store.modelFor('parent');
   Child = store.modelFor('child');
 
-  return run(async () => {
+  await run(() => {
     const parent = store.push({
       data: {
         id: 'p1',
@@ -140,8 +140,8 @@ test("Pushing child record should not mark parent:children as loaded", function(
         }
       }
     });
-  
-    const child = store.push({
+
+    store.push({
       data: {
         id: 'c1',
         type: 'child',

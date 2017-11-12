@@ -26,9 +26,6 @@ module.exports = function(defaults) {
         // while ember-data strips itself, ember does not currently
         [StripClassCallCheck]
       ]
-    },
-    'ember-cli-babel': {
-      includePolyfill: true
     }
   });
 

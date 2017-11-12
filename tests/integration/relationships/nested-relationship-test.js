@@ -46,7 +46,7 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
                 data: [{
                   id: 1,
                   type: 'kid'
-                }]         
+                }]
               });
             } else {
               resolve({ data: [] });
