@@ -151,10 +151,11 @@ export default class RelationshipPayloads {
 
     let payloadsToBeProcessed = this._pendingPayloads.splice(0, this._pendingPayloads.length);
     for (let i=0; i<payloadsToBeProcessed.length; ++i) {
-      let modelName = payloadsToBeProcessed[i][0];
-      let id = payloadsToBeProcessed[i][1];
-      let relationshipName = payloadsToBeProcessed[i][2];
-      let relationshipData = payloadsToBeProcessed[i][3];
+      const payload = payloadsToBeProcessed[i];
+      let modelName = payload[0];
+      let id = payload[1];
+      let relationshipName = payload[2];
+      let relationshipData = payload[3];
 
       // TODO: maybe delay this allocation slightly?
       let inverseRelationshipData = {
