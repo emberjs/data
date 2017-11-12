@@ -203,7 +203,7 @@ export default class RelationshipPayloadsManager {
     }
 
     let lhsKey = `${modelName}:${relationshipName}`;
-    let rhsKey = `${inverseModelName}:${inverseRelationshipName}`;
+    let rhsKey = inverseRelationshipMeta ? `${inverseModelName}:${inverseRelationshipName}` : null;
 
     // populate the cache for both sides of the relationship, as they both use
     // the same `RelationshipPayloads`.
@@ -211,16 +211,20 @@ export default class RelationshipPayloadsManager {
     // This works out better than creating a single common key, because to
     // compute that key we would need to do work to look up the inverse
     //
-    return this._cache[lhsKey] =
-      this._cache[rhsKey] =
-      new RelationshipPayloads(
-        this._store,
-        modelName,
-        relationshipName,
-        relationshipMeta,
-        inverseModelName,
-        inverseRelationshipName,
-        inverseRelationshipMeta
-      );
+    const newRelationship = new RelationshipPayloads(
+      this._store,
+      modelName,
+      relationshipName,
+      relationshipMeta,
+      inverseModelName,
+      inverseRelationshipName,
+      inverseRelationshipMeta
+    );
+
+    this._cache[lhsKey] = newRelationship;
+    if (rhsKey && !this._cache[rhsKey]) {
+      this._cache[rhsKey] = newRelationship;
+    }
+    return newRelationship;
   }
 }
