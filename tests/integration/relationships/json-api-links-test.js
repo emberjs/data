@@ -11,30 +11,10 @@ import DS from 'ember-data';
 
 const { hasMany, belongsTo } = DS;
 
-let env, store, User, Organisation;
+let env, User, Organisation;
 
 module("integration/relationship/json-api-links Relationships loaded by links", {
   beforeEach() {
-    User = DS.Model.extend({
-      organisation: belongsTo('organisation', {inverse: null})
-    });
-
-    Organisation = DS.Model.extend({
-      adminUsers: hasMany('user')
-    });
-
-    env = setupStore({
-      user: User,
-      organisation: Organisation
-    });
-
-    env.registry.optionsForType('serializer', { singleton: false });
-    env.registry.optionsForType('adapter', { singleton: false });
-
-    store = env.store;
-
-    User = store.modelFor('user');
-    Organisation = store.modelFor('organisation');
   },
 
   afterEach() {
@@ -45,6 +25,27 @@ module("integration/relationship/json-api-links Relationships loaded by links", 
 });
 
 test("Loading link with inverse:null on other model caches the two ends separately", function(assert) {
+  User = DS.Model.extend({
+    organisation: belongsTo('organisation', {inverse: null})
+  });
+
+  Organisation = DS.Model.extend({
+    adminUsers: hasMany('user')
+  });
+
+  env = setupStore({
+    user: User,
+    organisation: Organisation
+  });
+
+  env.registry.optionsForType('serializer', { singleton: false });
+  env.registry.optionsForType('adapter', { singleton: false });
+
+  const store = env.store;
+
+  User = store.modelFor('user');
+  Organisation = store.modelFor('organisation');
+  
   env.registry.register('adapter:user', DS.JSONAPISerializer.extend({
     findRecord (store, type, id) {
       return new Promise((resolve) => {
@@ -87,8 +88,6 @@ test("Loading link with inverse:null on other model caches the two ends separate
     }
   }));
 
-  const store = env.store;
-
   return run(async () => {
     const user1 = await store.findRecord('user', 1);
     assert.ok(user1, 'user should be populated');
@@ -102,5 +101,61 @@ test("Loading link with inverse:null on other model caches the two ends separate
     assert.equal(user1.belongsTo('organisation').belongsToRelationship.hasLoaded, true, 'user should have loaded its belongsTo relationship');
     
     assert.ok(orgFromUser, 'user\'s organisation should be populated');
+  });
+});
+
+test("Pushing child record should not mark parent:children as loaded", function(assert) {
+  let Child = DS.Model.extend({
+    parent: belongsTo('parent', {inverse: 'children'})
+  });
+
+  let Parent = DS.Model.extend({
+    children: hasMany('child')
+  });
+
+  env = setupStore({
+    parent: Parent,
+    child: Child
+  });
+
+  env.registry.optionsForType('serializer', { singleton: false });
+  env.registry.optionsForType('adapter', { singleton: false });
+
+  const store = env.store;
+
+  Parent = store.modelFor('parent');
+  Child = store.modelFor('child');
+
+  return run(async () => {
+    const parent = store.push({
+      data: {
+        id: 'p1',
+        type: 'parent',
+        relationships: {
+          children: {
+            links: {
+              related: '/parent/1/children'
+            }
+          }
+        }
+      }
+    });
+  
+    const child = store.push({
+      data: {
+        id: 'c1',
+        type: 'child',
+        relationships: {
+          parent: {
+            data: {
+              id: 'p1',
+              type: 'parent'
+            }
+          }
+        }
+      }
+    });
+
+    assert.equal(parent.hasMany('children').hasManyRelationship.hasLoaded, false, 'parent should think that children still needs to be loaded');
   });
 });

@@ -290,6 +290,10 @@ export default class RelationshipPayloads {
       } else {
         inverseIdToPayloads[inverseId] = inversePayload;
       }
+    } else if (existingPayload && existingPayload.links) {
+      // the inverse relationship hasn't been populated yet
+      // so we can't overwrite it
+      return;
     } else {
       // first time we're populating the inverse side
       //

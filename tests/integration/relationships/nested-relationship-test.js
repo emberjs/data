@@ -5,7 +5,9 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import Ember from 'ember';
 
+const { RSVP: { Promise } } = Ember;
 const { attr, hasMany, belongsTo } = DS;
 
 let env, store, serializer, Elder, MiddleAger, Kid;
@@ -34,6 +36,25 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
       kid: Kid,
       adapter: DS.JSONAPIAdapter
     });
+
+    env.registry.register('adapter:middle-ager', DS.JSONAPIAdapter.extend({
+      findHasMany (store, snapshot, url, relationship) {
+        return new Promise((resolve) => {
+          run.later(() => {
+            if (url === '/middle-agers/1/kids') {
+              resolve({
+                data: [{
+                  id: 1,
+                  type: 'kid'
+                }]         
+              });
+            } else {
+              resolve({ data: [] });
+            }
+          }, 10);
+        });
+      }
+    }));
 
     store = env.store;
     serializer = env.serializer;
