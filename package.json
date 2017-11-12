@@ -93,7 +93,6 @@
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.5",
     "ember-load-initializers": "^0.6.0",
-    "ember-maybe-import-regenerator": "^0.1.6",
     "ember-publisher": "0.0.7",
     "ember-resolver": "^4.1.0",
     "ember-source": "~2.11.0",

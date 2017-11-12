@@ -23,9 +23,9 @@ module("integration/relationship/json-api-links Relationships loaded by links", 
   }
 });
 
-test("Loading link with inverse:null on other model caches the two ends separately", async function(assert) {
+test("Loading link with inverse:null on other model caches the two ends separately", function (assert) {
   User = DS.Model.extend({
-    organisation: belongsTo('organisation', {inverse: null})
+    organisation: belongsTo('organisation', { inverse: null })
   });
 
   Organisation = DS.Model.extend({
@@ -46,7 +46,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
   Organisation = store.modelFor('organisation');
 
   env.registry.register('adapter:user', DS.JSONAPISerializer.extend({
-    findRecord (store, type, id) {
+    findRecord(store, type, id) {
       return new Promise((resolve) => {
         run.later(() => {
           resolve({
@@ -55,7 +55,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
               type: 'user',
               relationships: {
                 organisation: {
-                  data: {id: 1, type: 'organisation'}
+                  data: { id: 1, type: 'organisation' }
                 }
               }
             }
@@ -66,7 +66,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
   }));
 
   env.registry.register('adapter:organisation', DS.JSONAPISerializer.extend({
-    findRecord (store, type, id) {
+    findRecord(store, type, id) {
       return new Promise((resolve) => {
         run.later(() => {
           resolve({
@@ -87,26 +87,31 @@ test("Loading link with inverse:null on other model caches the two ends separate
     }
   }));
 
-  await run(async () => {
-    const user1 = await store.findRecord('user', 1);
-    assert.ok(user1, 'user should be populated');
+  return run(() => {
+    return store.findRecord('user', 1)
+      .then(user1 => {
+        assert.ok(user1, 'user should be populated');
 
-    const org2FromFind = await store.findRecord('organisation', 2);
+        return store.findRecord('organisation', 2)
+          .then(org2FromFind => {
+            assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
+            assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
 
-    assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
-    assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
+            return user1.get('organisation')
+              .then(orgFromUser => {
+                assert.equal(user1.belongsTo('organisation').belongsToRelationship.hasLoaded, true, 'user should have loaded its belongsTo relationship');
 
-    const orgFromUser = await user1.get('organisation');
-    assert.equal(user1.belongsTo('organisation').belongsToRelationship.hasLoaded, true, 'user should have loaded its belongsTo relationship');
-
-    assert.ok(org2FromFind, 'organisation we found should be populated');
-    assert.ok(orgFromUser, 'user\'s organisation should be populated');
+                assert.ok(org2FromFind, 'organisation we found should be populated');
+                assert.ok(orgFromUser, 'user\'s organisation should be populated');
+              })
+          })
+      })
   });
 });
 
-test("Pushing child record should not mark parent:children as loaded", async function(assert) {
+test("Pushing child record should not mark parent:children as loaded", function (assert) {
   let Child = DS.Model.extend({
-    parent: belongsTo('parent', {inverse: 'children'})
+    parent: belongsTo('parent', { inverse: 'children' })
   });
 
   let Parent = DS.Model.extend({
@@ -126,7 +131,7 @@ test("Pushing child record should not mark parent:children as loaded", async fun
   Parent = store.modelFor('parent');
   Child = store.modelFor('child');
 
-  await run(() => {
+  return run(() => {
     const parent = store.push({
       data: {
         id: 'p1',
