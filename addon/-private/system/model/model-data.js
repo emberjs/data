@@ -123,20 +123,6 @@ export default class ModelData {
     return dirtyKeys;
   }
 
-  // TODO Consider figuring out how to do using existing apis
-  preloadData(preload) {
-    //TODO(Igor) consider the polymorphic case
-    Object.keys(preload).forEach((key) => {
-      let preloadValue = get(preload, key);
-      let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
-      if (relationshipMeta.isRelationship) {
-        this._preloadRelationship(key, preloadValue);
-      } else {
-        this._data[key] = preloadValue;
-      }
-    });
-  }
-
   adapterDidCommit(data) {
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
@@ -368,48 +354,6 @@ export default class ModelData {
 
       rel.destroy();
     });
-  }
-
-  _preloadRelationship(key, preloadValue) {
-    let relationshipMeta = this.internalModel.modelClass.metaForProperty(key);
-    let modelClass = relationshipMeta.type;
-    if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, modelClass);
-    } else {
-      this._preloadBelongsTo(key, preloadValue, modelClass);
-    }
-  }
-
-  _preloadHasMany(key, preloadValue, modelClass) {
-    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
-    let recordsToSet = new Array(preloadValue.length);
-
-    for (let i = 0; i < preloadValue.length; i++) {
-      let recordToPush = preloadValue[i];
-      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
-    }
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).updateInternalModelsFromAdapter(recordsToSet);
-  }
-
-  _preloadBelongsTo(key, preloadValue, modelClass) {
-    let internalModelToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).setInternalModel(internalModelToSet);
-  }
-
-  _convertStringOrNumberIntoInternalModel(value, modelClass) {
-    if (typeof value === 'string' || typeof value === 'number') {
-      return this.store._internalModelForId(modelClass, value);
-    }
-    if (value._internalModel) {
-      return value._internalModel;
-    }
-    return value;
   }
 
 

@@ -788,9 +788,52 @@ export default class InternalModel {
     @param {Object} preload
   */
   preloadData(preload) {
-    this._modelData.preloadData(preload);
+    let jsonPayload = {};
+    //TODO(Igor) consider the polymorphic case
+    Object.keys(preload).forEach((key) => {
+      let preloadValue = get(preload, key);
+      let relationshipMeta = this.modelClass.metaForProperty(key);
+      if (relationshipMeta.isRelationship) {
+        if (!jsonPayload.relationships) {
+          jsonPayload.relationships = {};
+        }
+        jsonPayload.relationships[key] = this._preloadRelationship(key, preloadValue);
+      } else {
+        if (!jsonPayload.attributes) {
+          jsonPayload.attributes = {};
+        }
+        jsonPayload[key] = preloadValue;
+      }
+    });
+    this._modelData.setupData(jsonPayload);
   }
 
+  _preloadRelationship(key, preloadValue) {
+    let relationshipMeta = this.modelClass.metaForProperty(key);
+    let modelClass = relationshipMeta.type;
+    let data;
+    if (relationshipMeta.kind === 'hasMany') {
+      assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
+      data =  preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, modelClass ));
+    } else {
+      data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
+    }
+    return { data };
+  }
+
+  _convertPreloadRelationshipToJSON(value, modelClass) {
+    if (typeof value === 'string' || typeof value === 'number') {
+      return { type: modelClass, id: value };
+    }
+    let internalModel;
+    if (value._internalModel) {
+      internalModel = value._internalModel;
+    } else {
+      internalModel = value;
+    }
+    // TODO IGOR DAVID assert if no id is present
+    return { type: internalModel.modelName, id: internalModel.id };
+  }
 
   /*
     Used to notify the store to update FilteredRecordArray membership.

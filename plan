@@ -2,3 +2,10 @@ ModelState
 
 Holds id, relationship, and attribute data.
 Maybe unloading?
+
+Questions
+
+Does ModelData notify properties or just returns changed keys
+Embedded records set to null
+What to do about _implicitRelationships
+Should default value be in the snapshot?

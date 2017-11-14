@@ -2405,7 +2405,8 @@ Store = Service.extend({
       return;
     }
 
-    this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
+  //  this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
+    this._setupRelationships();
   },
 
   _setupRelationships() {
@@ -2799,15 +2800,19 @@ function _commit(adapter, store, operation, snapshot) {
       call to `store._push`;
      */
     store._backburner.join(() => {
-      let payload, data;
+      let payload, data, sideloaded;
       if (adapterPayload) {
         payload = normalizeResponseHelper(serializer, store, modelClass, adapterPayload, snapshot.id, operation);
         if (payload.included) {
-          store._push({ data: null, included: payload.included });
+          sideloaded = payload.included;
         }
         data = payload.data;
       }
       store.didSaveRecord(internalModel, { data });
+      // seems risky, but if the tests pass might be fine?
+      if (sideloaded) {
+        store._push({ data: null, included: sideloaded });
+      }
     });
 
     return internalModel;
