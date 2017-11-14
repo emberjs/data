@@ -95,7 +95,6 @@ const {
   _load,
   _modelForMixin,
   _pushInternalModel,
-  _setupRelationships,
   adapterFor,
   _buildInternalModel,
   _didUpdateAll,
@@ -112,7 +111,6 @@ const {
   '_load',
   '_modelForMixin',
   '_pushInternalModel',
-  '_setupRelationships',
   'adapterFor',
   '_buildInternalModel',
   '_didUpdateAll',
@@ -1894,7 +1892,7 @@ Store = Service.extend({
     if (data) {
       // normalize relationship IDs into records
       this.updateId(internalModel, data);
-      this._setupRelationshipsForModel(internalModel, data);
+      //this._setupRelationshipsForModel(internalModel, data);
     } else {
       assert(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
@@ -2391,47 +2389,9 @@ Store = Service.extend({
     // Actually load the record into the store.
     let internalModel = this._load(data);
 
-    this._setupRelationshipsForModel(internalModel, data);
+//    this._setupRelationshipsForModel(internalModel, data);
 
     return internalModel;
-  },
-
-  _setupRelationshipsForModel(internalModel, data) {
-    if (data.relationships === undefined) {
-      return;
-    }
-
-    if (this._pushedInternalModels.push(internalModel, data) !== 2) {
-      return;
-    }
-
-  //  this._backburner.schedule('normalizeRelationships', this, this._setupRelationships);
-    this._setupRelationships();
-  },
-
-  _setupRelationships() {
-    heimdall.increment(_setupRelationships);
-    let setupToken = heimdall.start('store._setupRelationships');
-    let pushed = this._pushedInternalModels;
-
-    // Cache the inverse maps for each modelClass that we visit during this
-    // payload push.  In the common case where we are pushing many more
-    // instances than types we want to minimize the cost of looking up the
-    // inverse map and the overhead of Ember.get adds up.
-    let modelNameToInverseMap;
-
-    for (let i = 0, l = pushed.length; i < l; i += 2) {
-      modelNameToInverseMap = modelNameToInverseMap || Object.create(null);
-      // This will convert relationships specified as IDs into DS.Model instances
-      // (possibly unloaded) and also create the data structures used to track
-      // relationships.
-      let internalModel = pushed[i];
-      let data = pushed[i + 1];
-      setupRelationships(this, internalModel, data);
-    }
-
-    pushed.length = 0;
-    heimdall.stop(setupToken);
   },
 
   /**
@@ -2829,37 +2789,6 @@ function _commit(adapter, store, operation, snapshot) {
   }, label);
 }
 
-function setupRelationships(store, internalModel, data) {
-
-  internalModel.type.eachRelationship((relationshipName, descriptor) => {
-    if (!data.relationships[relationshipName]) {
-      return;
-    }
-    // in debug, assert payload validity eagerly
-    let relationshipData = data.relationships[relationshipName];
-    if (DEBUG) {
-      let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
-      if (!relationshipData || !relationshipMeta) {
-        return;
-      }
-
-      if (relationshipData.links) {
-        let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
-          id: 'ds.store.push-link-for-sync-relationship'
-        });
-      } else if (relationshipData.data) {
-        if (relationshipMeta.kind === 'belongsTo') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
-        } else if (relationshipMeta.kind === 'hasMany') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
-        }
-      }
-    }
-
-    internalModel.pushRelationshipData(relationshipName, relationshipData);
-  });
-}
 
 export { Store };
 export default Store;

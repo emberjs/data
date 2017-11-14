@@ -1,8 +1,9 @@
 import isEnabled from '../../features';
+import { DEBUG } from '@glimmer/env';
 import Relationships from "../relationships/state/create";
 import { assign, merge } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
-import { assert } from '@ember/debug';
+import { assert, warn, inspect } from '@ember/debug';
 import { copy } from '@ember/object/internals';
 import { get } from '@ember/object';
 
@@ -30,7 +31,43 @@ export default class ModelData {
 
     emberAssign(this._data, data.attributes);
 
+    if (data.relationships) {
+      this.setupRelationships(data);
+    }
+
     return changedKeys;
+  }
+
+  setupRelationships(data) {
+    let internalModel = this.internalModel;
+    internalModel.type.eachRelationship((relationshipName, descriptor) => {
+      if (!data.relationships[relationshipName]) {
+        return;
+      }
+      // in debug, assert payload validity eagerly
+      let relationshipData = data.relationships[relationshipName];
+      if (DEBUG) {
+        let relationshipMeta = get(this.internalModel.type, 'relationshipsByName').get(relationshipName);
+        if (!relationshipData || !relationshipMeta) {
+          return;
+        }
+
+        if (relationshipData.links) {
+          let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
+          warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
+            id: 'ds.store.push-link-for-sync-relationship'
+          });
+        } else if (relationshipData.data) {
+          if (relationshipMeta.kind === 'belongsTo') {
+            assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
+          } else if (relationshipMeta.kind === 'hasMany') {
+            assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
+          }
+        }
+      }
+
+      this.internalModel.pushRelationshipData(relationshipName, relationshipData);
+    });
   }
 
   adapterWillCommit() {
@@ -126,6 +163,9 @@ export default class ModelData {
   adapterDidCommit(data) {
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+      if (data.relationships) {
+        this.setupRelationships(data);
+      }
       data = data.attributes;
     }
     let changedKeys = this._changedKeys(data);

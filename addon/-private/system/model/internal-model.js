@@ -802,7 +802,7 @@ export default class InternalModel {
         if (!jsonPayload.attributes) {
           jsonPayload.attributes = {};
         }
-        jsonPayload[key] = preloadValue;
+        jsonPayload.attributes[key] = preloadValue;
       }
     });
     this._modelData.setupData(jsonPayload);
