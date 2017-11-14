@@ -70,8 +70,7 @@ const {
   new_InternalModel,
   send,
   setupData,
-  transitionTo,
-  updateChangedAttributes
+  transitionTo
 } = heimdall.registerMonitor('InternalModel',
   '_triggerDeferredTriggers',
   'changedAttributes',
@@ -81,8 +80,7 @@ const {
   'new_InternalModel',
   'send',
   'setupData',
-  'transitionTo',
-  'updateChangedAttributes'
+  'transitionTo'
 );
 
 let InternalModelReferenceId = 1;
@@ -466,10 +464,6 @@ export default class InternalModel {
     return this.modelClass.eachRelationship(callback, binding);
   }
 
-  pushRelationshipData(key, data) {
-    this._modelData.pushRelationshipData(key, data);
-  }
-
   getBelongsTo(key) {
     return this._modelData.getBelongsTo(key);
   }
@@ -566,21 +560,6 @@ export default class InternalModel {
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
     return this._modelData.hasChangedAttributes();
-  }
-
-  /*
-    Checks if the attributes which are considered as changed are still
-    different to the state which is acknowledged by the server.
-
-    This method is needed when data for the internal model is pushed and the
-    pushed data might acknowledge dirty attributes as confirmed.
-
-    @method updateChangedAttributes
-    @private
-   */
-  updateChangedAttributes() {
-    heimdall.increment(updateChangedAttributes);
-    this._modelData.updateChangedAttributes();
   }
 
   /*

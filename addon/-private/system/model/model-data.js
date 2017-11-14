@@ -30,15 +30,24 @@ export default class ModelData {
     }
 
     emberAssign(this._data, data.attributes);
+    if (this.internalModel.hasRecord && this.__attributes) {
+      // only do this if we are materialized and we have attribute changes
+      this._updateChangedAttributes();
+    }
 
     if (data.relationships) {
-      this.setupRelationships(data);
+      this._setupRelationships(data);
     }
 
     return changedKeys;
   }
 
-  setupRelationships(data) {
+  adapterWillCommit() {
+    this._inFlightAttributes = this._attributes;
+    this._attributes = null;
+  }
+
+  _setupRelationships(data) {
     let internalModel = this.internalModel;
     internalModel.type.eachRelationship((relationshipName, descriptor) => {
       if (!data.relationships[relationshipName]) {
@@ -65,14 +74,9 @@ export default class ModelData {
           }
         }
       }
-
-      this.internalModel.pushRelationshipData(relationshipName, relationshipData);
+      let relationship = this._relationships.get(relationshipName);
+      relationship.push(relationshipData);
     });
-  }
-
-  adapterWillCommit() {
-    this._inFlightAttributes = this._attributes;
-    this._attributes = null;
   }
 
   hasChangedAttributes() {
@@ -96,7 +100,7 @@ export default class ModelData {
     @method updateChangedAttributes
     @private
    */
-  updateChangedAttributes() {
+  _updateChangedAttributes() {
     let changedAttributes = this.changedAttributes();
     let changedAttributeNames = Object.keys(changedAttributes);
     let attrs = this._attributes;
@@ -164,12 +168,11 @@ export default class ModelData {
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
       if (data.relationships) {
-        this.setupRelationships(data);
+        this._setupRelationships(data);
       }
       data = data.attributes;
     }
     let changedKeys = this._changedKeys(data);
-
 
     emberAssign(this._data, this._inFlightAttributes);
     if (data) {
@@ -178,12 +181,8 @@ export default class ModelData {
 
     this._inFlightAttributes = null;
 
+    this._updateChangedAttributes();
     return changedKeys;
-  }
-
-  pushRelationshipData(key, data) {
-    let relationship = this._relationships.get(key);
-    relationship.push(data);
   }
 
   getHasMany(key) {

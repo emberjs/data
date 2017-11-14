@@ -246,7 +246,7 @@ const DirtyState = {
 
     pushedData(internalModel) {
       let token = heimdall.start('stats.uncommitted.pushedData');
-      internalModel.updateChangedAttributes();
+      //internalModel.updateChangedAttributes();
 
       if (!internalModel.hasChangedAttributes()) {
         internalModel.transitionTo('loaded.saved');
