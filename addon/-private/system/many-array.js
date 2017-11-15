@@ -1,13 +1,15 @@
 /**
   @module ember-data
 */
-import Ember from 'ember';
+import { all } from 'rsvp';
+
+import Evented from '@ember/object/evented';
+import MutableArray from '@ember/array/mutable';
+import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
 import { PromiseArray } from "./promise-proxies";
 import { _objectIsAlive } from "./store/common";
 import diffArray from './diff-array';
-
-const { get } = Ember;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -52,7 +54,7 @@ const { get } = Ember;
   @extends Ember.Object
   @uses Ember.MutableArray, Ember.Evented
 */
-export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
+export default EmberObject.extend(MutableArray, Evented, {
   init() {
     this._super(...arguments);
 
@@ -260,7 +262,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   save() {
     let manyArray = this;
     let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
-    let promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).
+    let promise = all(this.invoke("save"), promiseLabel).
       then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
 
     return PromiseArray.create({ promise });

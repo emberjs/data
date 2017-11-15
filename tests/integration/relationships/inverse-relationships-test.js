@@ -1,14 +1,13 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var Post, Comment, Message, User;
-var run = Ember.run;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
 
@@ -160,14 +159,14 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(post2.get('bestComment'), null);
+  assert.strictEqual(post2.get('bestComment'), null);
 
   run(function() {
     comment.set('post', post2);
   });
 
   assert.equal(comment.get('post'), post2);
-  assert.equal(post.get('bestComment'), null);
+  assert.strictEqual(post.get('bestComment'), null);
   assert.equal(post2.get('bestComment'), comment);
 });
 
@@ -198,14 +197,14 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(post2.get('bestComment'), null);
+  assert.strictEqual(post2.get('bestComment'), null);
 
   run(function() {
     post2.set('bestComment', comment);
   });
 
   assert.equal(comment.get('post'), post2);
-  assert.equal(post.get('bestComment'), null);
+  assert.strictEqual(post.get('bestComment'), null);
   assert.equal(post2.get('bestComment'), comment);
 });
 
@@ -234,13 +233,13 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
 
   assert.equal(comment.get('post'), post);
   assert.equal(post.get('bestComment'), comment);
-  assert.equal(comment2.get('post'), null);
+  assert.strictEqual(comment2.get('post'), null);
 
   run(function() {
     post.set('bestComment', comment2);
   });
 
-  assert.equal(comment.get('post'), null);
+  assert.strictEqual(comment.get('post'), null);
   assert.equal(post.get('bestComment'), comment2);
   assert.equal(comment2.get('post'), post);
 });
@@ -600,16 +599,17 @@ test("inverseFor short-circuits when inverse is null", function(assert) {
   });
 });
 
-testInDebug("Inverse null relationships with models that don't exist throw a nice error", function(assert) {
+testInDebug("Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship", function(assert) {
   User = DS.Model.extend({
     post: DS.belongsTo('post', { inverse: null })
   });
 
-  var env = setupStore({ user: User });
+  let env = setupStore({ user: User });
 
-  assert.throws(function() {
-    run(function() {
-      env.store.createRecord('user');
-    });
+  assert.throws(() => {
+    run(() => env.store.createRecord('user', { post: {}}));
   }, /No model was found for 'post'/);
+
+  // but don't error if the relationship is not used
+  run(() => env.store.createRecord('user', {}));
 });

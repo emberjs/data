@@ -2,12 +2,12 @@
   @module ember-data
 */
 
-import Ember from 'ember';
-import { assert } from '@ember/debug';
+import { A } from '@ember/array';
+
+import { get, computed } from '@ember/object';
+import { assert, inspect } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
 import isArrayLike from "../is-array-like";
-
-const { get } = Ember;
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -121,7 +121,7 @@ export default function hasMany(type, options) {
     type = undefined;
   }
 
-  assert(`The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${Ember.inspect(type)}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`, typeof type === 'string' || typeof type === 'undefined');
+  assert(`The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${inspect(type)}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`, typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
 
@@ -142,14 +142,14 @@ export default function hasMany(type, options) {
     key: null
   };
 
-  return Ember.computed({
+  return computed({
     get(key) {
       return this._internalModel._relationships.get(key).getRecords();
     },
     set(key, records) {
       assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-      assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${Ember.inspect(records)}`, (function() {
-        return Ember.A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
+      assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
+        return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
       })());
 
       let relationship = this._internalModel._relationships.get(key);

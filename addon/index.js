@@ -1,3 +1,4 @@
+import EmberError from '@ember/error';
 import Ember from "ember";
 import { deprecate } from '@ember/debug';
 
@@ -8,7 +9,7 @@ import { deprecate } from '@ember/debug';
 */
 
 if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
-  throw new Ember.Error("Ember Data requires at least Ember 1.13.0, but you have " +
+  throw new EmberError("Ember Data requires at least Ember 1.13.0, but you have " +
                         Ember.VERSION +
                         ". Please upgrade your version of Ember, then upgrade Ember Data.");
 }
@@ -22,7 +23,6 @@ import {
   belongsTo,
   hasMany,
   global,
-  isEnabled,
   Errors,
   RootState,
   Model,
@@ -52,7 +52,7 @@ import {
 
 import "ember-inflector";
 import setupContainer from "./setup-container";
-import initializeStoreService from './instance-initializers/initialize-store-service';
+import initializeStoreService from './initialize-store-service';
 
 import Transform from './transforms/transform';
 import NumberTransform from './transforms/number';
@@ -93,13 +93,11 @@ DS.InvalidError = InvalidError;
 DS.TimeoutError = TimeoutError;
 DS.AbortError   = AbortError;
 
-if (isEnabled('ds-extended-errors')) {
-  DS.UnauthorizedError = UnauthorizedError;
-  DS.ForbiddenError    = ForbiddenError;
-  DS.NotFoundError     = NotFoundError;
-  DS.ConflictError     = ConflictError;
-  DS.ServerError       = ServerError;
-}
+DS.UnauthorizedError = UnauthorizedError;
+DS.ForbiddenError    = ForbiddenError;
+DS.NotFoundError     = NotFoundError;
+DS.ConflictError     = ConflictError;
+DS.ServerError       = ServerError;
 
 DS.errorsHashToArray = errorsHashToArray;
 DS.errorsArrayToHash = errorsArrayToHash;

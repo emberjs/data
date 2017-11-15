@@ -1,10 +1,10 @@
+import { defer, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import DS from 'ember-data';
-import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
-var get = Ember.get;
-var run = Ember.run;
 var env, Person;
 
 module("integration/references/record", {
@@ -66,7 +66,7 @@ test("push(promise)", function(assert) {
   var done = assert.async();
 
   var push;
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   var recordReference = env.store.getReference('person', 1);
 
   run(function() {
@@ -99,7 +99,7 @@ test("push(promise)", function(assert) {
 
 test("value() returns null when not yet loaded", function(assert) {
   var recordReference = env.store.getReference('person', 1);
-  assert.equal(recordReference.value(), null);
+  assert.strictEqual(recordReference.value(), null);
 });
 
 test("value() returns the record when loaded", function(assert) {
@@ -121,8 +121,14 @@ test("load() fetches the record", function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito'
+        }
+      }
     });
   };
 
@@ -139,7 +145,7 @@ test("load() fetches the record", function(assert) {
 test("load() only a single find is triggered", function(assert) {
   var done = assert.async();
 
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   var count = 0;
 
   env.adapter.shouldReloadRecord = function() { return false; };
@@ -162,7 +168,13 @@ test("load() only a single find is triggered", function(assert) {
 
   run(function() {
     deferred.resolve({
-      id: 1, name: "Vito"
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito'
+        }
+      }
     });
   });
 
@@ -183,8 +195,14 @@ test("reload() loads the record if not yet loaded", function(assert) {
     count++;
     assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito Coreleone'
+        }
+      }
     });
   };
 
@@ -203,8 +221,14 @@ test("reload() fetches the record", function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Vito Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: 'Vito Coreleone'
+        }
+      }
     });
   };
 

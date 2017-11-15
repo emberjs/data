@@ -1,8 +1,12 @@
+import { inspect } from '@ember/debug';
+import EmberObject from '@ember/object';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -10,7 +14,6 @@ import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
-const { run } = Ember;
 
 module('unit/store/push - DS.Store#push', {
   beforeEach() {
@@ -64,7 +67,7 @@ test('Changed attributes are reset when matching data is pushed', function(asser
   run(() => person.set('firstName', 'updated first name'));
 
   assert.equal(person.get('firstName'), 'updated first name');
-  assert.equal(person.get('lastName'), undefined);
+  assert.strictEqual(person.get('lastName'), undefined);
   assert.equal(person.get('currentState.stateName'), 'root.loaded.updated.uncommitted');
   assert.deepEqual(person.changedAttributes().firstName, ['original first name', 'updated first name']);
 
@@ -144,7 +147,7 @@ test('Supplying a model class for `push` is the same as supplying a string', fun
 test(`Calling push triggers 'didLoad' even if the record hasn't been requested from the adapter`, function(assert) {
   assert.expect(1);
 
-  let didLoad = new Ember.RSVP.Promise((resolve, reject) => {
+  let didLoad = new EmberPromise((resolve, reject) => {
     Person.reopen({
       didLoad() {
         try {
@@ -250,18 +253,32 @@ test('Calling push with a normalized hash containing IDs of related records retu
 
   env.adapter.findRecord = function(store, type, id) {
     if (id === '1') {
-      return Ember.RSVP.resolve({
-        id: 1,
-        number: '5551212',
-        person: 'wat'
+      return resolve({
+        data: {
+          id: 1,
+          type: 'phone-number',
+          attributes: { number: '5551212' },
+          relationships: {
+            person: {
+              data: { id: 'wat', type: 'person' }
+            }
+          }
+        }
       });
     }
 
     if (id === "2") {
-      return Ember.RSVP.resolve({
-        id: 2,
-        number: '5552121',
-        person: 'wat'
+      return resolve({
+        data: {
+          id: 2,
+          type: 'phone-number',
+          attributes: { number: '5552121' },
+          relationships: {
+            person: {
+              data: { id: 'wat', type: 'person' }
+            }
+          }
+        }
       });
     }
   };
@@ -269,9 +286,16 @@ test('Calling push with a normalized hash containing IDs of related records retu
   return run(() => {
     let person = store.push(store.normalize('person', {
       id: 'wat',
-      firstName: 'John',
-      lastName: 'Smith',
-      phoneNumbers: ["1", "2"]
+      type: 'person',
+      attributes: {
+        'first-name': 'John',
+        'last-name': 'Smith'
+      },
+      relationships: {
+        'phone-numbers': {
+          data: [{ id: 1, type: 'phone-number' }, { id: 2, type: 'phone-number' }]
+        }
+      }
     }));
 
     return person.get('phoneNumbers').then(phoneNumbers => {
@@ -484,8 +508,8 @@ test('calling push without data argument as an object raises an error', function
     null,
     1,
     'string',
-    Ember.Object.create(),
-    Ember.Object.extend(),
+    EmberObject.create(),
+    EmberObject.extend(),
     true
   ];
 
@@ -573,10 +597,13 @@ test('Calling push with a link containing an object', function(assert) {
   run(() => {
     store.push(store.normalize('person', {
       id: '1',
-      firstName: 'Tan',
-      links: {
-        phoneNumbers: {
-          href: '/api/people/1/phone-numbers'
+      type: 'person',
+      attributes: {
+        'first-name': 'Tan'
+      },
+      relationships: {
+        'phone-numbers': {
+          links: { related: '/api/people/1/phone-numbers' }
         }
       }
     }));
@@ -591,9 +618,16 @@ test('Calling push with a link containing the value null', function(assert) {
   run(() => {
     store.push(store.normalize('person', {
       id: '1',
-      firstName: 'Tan',
-      links: {
-        phoneNumbers: null
+      type: 'person',
+      attributes: {
+        'first-name': 'Tan'
+      },
+      relationships: {
+        'phone-numbers': {
+          links: {
+            related: null
+          }
+        }
       }
     }));
   });
@@ -607,8 +641,8 @@ testInDebug('calling push with hasMany relationship the value must be an array',
   let invalidValues = [
     1,
     'string',
-    Ember.Object.create(),
-    Ember.Object.extend(),
+    EmberObject.create(),
+    EmberObject.extend(),
     true
   ];
 
@@ -634,7 +668,7 @@ testInDebug('calling push with hasMany relationship the value must be an array',
         store._pushedInternalModels.length = 0;
         throw e;
       }
-    }, /must be an array/, `Expect that '${Ember.inspect(invalidValue)}' is not an array`);
+    }, /must be an array/, `Expect that '${inspect(invalidValue)}' is not an array`);
   });
 });
 

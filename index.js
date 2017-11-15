@@ -1,33 +1,36 @@
 /* eslint-env node */
 'use strict';
 
-var path = require('path');
-var SilentError = require('silent-error');
-var Funnel = require('broccoli-funnel');
-var Rollup = require('broccoli-rollup');
-var Babel = require('broccoli-babel-transpiler');
-var merge   = require('broccoli-merge-trees');
-var version = require('./lib/version');
+const path = require('path');
+const SilentError = require('silent-error');
+const Funnel = require('broccoli-funnel');
+const Rollup = require('broccoli-rollup');
+const Babel = require('broccoli-babel-transpiler');
+const merge = require('broccoli-merge-trees');
+const semver = require('semver');
+const version = require('./lib/version');
+const BroccoliDebug = require('broccoli-debug');
+const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 
 // allow toggling of heimdall instrumentation
-var INSTRUMENT_HEIMDALL = false;
-var args = process.argv;
+let INSTRUMENT_HEIMDALL = false;
+let args = process.argv;
 
-for (var i = 0; i < args.length; i++) {
+for (let i = 1; i < args.length; i++) {
   if (args[i] === '--instrument') {
     INSTRUMENT_HEIMDALL = true;
     break;
   }
 }
-var NOOP_TREE = function(dir ) {
-  return { inputTree: dir, rebuild: function() { return []; } };
+const NOOP_TREE = function(dir) {
+  return { inputTree: dir, rebuild() { return []; } };
 };
 
 process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
 function isProductionEnv() {
-  var isProd = /production/.test(process.env.EMBER_ENV);
-  var isTest = process.env.EMBER_CLI_TEST_COMMAND;
+  let isProd = /production/.test(process.env.EMBER_ENV);
+  let isTest = process.env.EMBER_CLI_TEST_COMMAND;
 
   return isProd && !isTest;
 }
@@ -35,9 +38,16 @@ function isProductionEnv() {
 module.exports = {
   name: 'ember-data',
 
-  _warn: function(message) {
-    var chalk = require('chalk');
-    var warning = chalk.yellow('WARNING: ' + message);
+  _prodLikeWarning() {
+    let emberEnv = process.env.EMBER_ENV
+    if(emberEnv !== 'production' && /production/.test(emberEnv)) {
+      this._warn(`Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`);
+    }
+  },
+
+  _warn(message) {
+    let chalk = require('chalk');
+    let warning = chalk.yellow('WARNING: ' + message);
 
     if (this.ui && this.ui.writeWarnLine) {
       this.ui.writeWarnLine(message);
@@ -48,20 +58,21 @@ module.exports = {
     }
   },
 
-  init: function() {
+  init() {
     this._super.init && this._super.init.apply(this, arguments);
+    this._prodLikeWarning();
+    this.debugTree = BroccoliDebug.buildDebugCallback('ember-data');
 
-    var bowerDeps = this.project.bowerDependencies();
+    let bowerDeps = this.project.bowerDependencies();
 
-    var VersionChecker = require('ember-cli-version-checker');
-    var options = this.options = this.options || {};
+    let VersionChecker = require('ember-cli-version-checker');
+    let options = this.options = this.options || {};
 
-    var checker = new VersionChecker(this);
+    let checker = new VersionChecker(this);
     // prevent errors when ember-cli-shims is no longer required
-    var shims = bowerDeps['ember-cli-shims'] && checker.for('ember-cli-shims', 'bower');
+    let shims = bowerDeps['ember-cli-shims'] && checker.for('ember-cli-shims', 'bower');
 
-    var semver = require('semver');
-    var version = require('./package').version;
+    let version = require('./package').version;
 
     if (process.env.EMBER_DATA_SKIP_VERSION_CHECKING_DO_NOT_USE_THIS_ENV_VARIABLE) {
       // Skip for node tests as we can't currently override the version of ember-cli-shims
@@ -69,9 +80,9 @@ module.exports = {
       return;
     }
 
-    var hasShims = !!shims;
-    var shimsHasEmberDataShims = hasShims && shims.satisfies('< 0.1.0');
-    var emberDataNPMWithShimsIncluded = semver.satisfies(version, '^2.3.0-beta.3');
+    let hasShims = !!shims;
+    let shimsHasEmberDataShims = hasShims && shims.satisfies('< 0.1.0');
+    let emberDataNPMWithShimsIncluded = semver.satisfies(version, '^2.3.0-beta.3');
 
     if (bowerDeps['ember-data']) {
       this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed. If you need an ' +
@@ -79,8 +90,8 @@ module.exports = {
                 'as soon as possible.');
       this._forceBowerUsage = true;
 
-      var emberDataBower = checker.for('ember-data', 'bower');
-      var emberDataBowerWithShimsIncluded = emberDataBower.satisfies('>= 2.3.0-beta.3');
+      let emberDataBower = checker.for('ember-data', 'bower');
+      let emberDataBowerWithShimsIncluded = emberDataBower.satisfies('>= 2.3.0-beta.3');
 
       if (hasShims && !shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
         throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
@@ -98,11 +109,11 @@ module.exports = {
     }
   },
 
-  blueprintsPath: function() {
+  blueprintsPath() {
     return path.join(__dirname, 'blueprints');
   },
 
-  treeForApp: function(dir) {
+  treeForApp(dir) {
     if (this._forceBowerUsage) { return NOOP_TREE(dir); }
 
     // this._super.treeForApp is undefined in ember-cli (1.13) for some reason.
@@ -110,8 +121,10 @@ module.exports = {
     return dir;
   },
 
-  treeForAddon: function(tree) {
+  treeForAddon(tree) {
     if (this._forceBowerUsage) { return NOOP_TREE(tree); }
+
+    tree = this.debugTree(tree, 'input');
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
@@ -130,21 +143,25 @@ module.exports = {
       destDir: 'ember-data'
     });
 
-    var privateTree = babel.transpileTree(withPrivate, {
+    let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
       babel: this.buildBabelOptions(),
       'ember-cli-babel': {
         compileModules: false
       }
     });
 
+    privateTree = this.debugTree(privateTree, 'babel-private:output');
+
     // use the default options
-    var publicTree = babel.transpileTree(withoutPrivate);
+    let publicTree = babel.transpileTree(this.debugTree(withoutPrivate, 'babel-public:input'));
+
+    publicTree = this.debugTree(publicTree, 'babel-public:output');
 
     privateTree = new Rollup(privateTree, {
       rollup: {
         entry: '-private/index.js',
         targets: [
-          { dest: '-private.js', format: 'amd', moduleId: 'ember-data/-private' }
+          { dest: 'ember-data/-private.js', format: babel.shouldCompileModules() ? 'amd' : 'es', moduleId: 'ember-data/-private' }
         ],
         external: [
           'ember',
@@ -157,14 +174,16 @@ module.exports = {
       }
     });
 
+    privateTree = this.debugTree(privateTree, 'rollup-output');
+
     // the output of treeForAddon is required to be modules/<your files>
     publicTree  = new Funnel(publicTree,  { destDir: 'modules' });
     privateTree = new Funnel(privateTree, { destDir: 'modules' });
 
-    return merge([
+    return this.debugTree(merge([
       publicTree,
       privateTree
-    ]);
+    ]), 'final');
   },
 
   buildBabelOptions() {
@@ -181,7 +200,7 @@ module.exports = {
     };
   },
 
-  _setupBabelOptions: function() {
+  _setupBabelOptions() {
     if (this._hasSetupBabelOptions) {
       return;
     }
@@ -191,7 +210,7 @@ module.exports = {
     this._hasSetupBabelOptions = true;
   },
 
-  included: function(app) {
+  included(app) {
     this._super.included.apply(this, arguments);
 
     this._setupBabelOptions();
@@ -202,5 +221,9 @@ module.exports = {
         production: app.bowerDirectory + '/ember-data/ember-data.prod.js'
       });
     }
+  },
+
+  cacheKeyForTree(treeType) {
+    return calculateCacheKeyForTree(treeType, this);
   }
 };

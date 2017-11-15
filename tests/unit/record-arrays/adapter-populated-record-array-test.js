@@ -1,9 +1,9 @@
+import { A } from '@ember/array';
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
 import DS from 'ember-data';
 
-import {module, test} from 'qunit';
-import Ember from 'ember';
-
-const { RSVP, run } = Ember;
+import { module, test } from 'qunit';
 const { AdapterPopulatedRecordArray } = DS;
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray');
@@ -28,13 +28,13 @@ test('default initial state', function(assert) {
   assert.equal(recordArray.get('isLoaded'), false, 'expected isLoaded to be false');
   assert.equal(recordArray.get('modelName'), 'recordType');
   assert.deepEqual(recordArray.get('content'), []);
-  assert.equal(recordArray.get('query'), null);
-  assert.equal(recordArray.get('store'), null);
-  assert.equal(recordArray.get('links'), null);
+  assert.strictEqual(recordArray.get('query'), null);
+  assert.strictEqual(recordArray.get('store'), null);
+  assert.strictEqual(recordArray.get('links'), null);
 });
 
 test('custom initial state', function(assert) {
-  let content = Ember.A([]);
+  let content = A([]);
   let store = {};
   let recordArray = AdapterPopulatedRecordArray.create({
     modelName: 'apple',
@@ -51,7 +51,7 @@ test('custom initial state', function(assert) {
   assert.equal(recordArray.get('content'), content);
   assert.equal(recordArray.get('store'), store);
   assert.equal(recordArray.get('query'), 'some-query');
-  assert.equal(recordArray.get('links'), null);
+  assert.strictEqual(recordArray.get('links'), null);
 });
 
 test('#replace() throws error', function(assert) {

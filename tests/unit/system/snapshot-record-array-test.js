@@ -1,11 +1,11 @@
+import { A } from '@ember/array';
 import { SnapshotRecordArray } from 'ember-data/-private';
-import Ember from 'ember';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 module('Unit - snapshot-record-array');
 
 test('constructor', function(assert) {
-  let array = Ember.A([1, 2]);
+  let array = A([1, 2]);
   array.type = 'some type';
   let meta = { };
   let options = {
@@ -23,7 +23,7 @@ test('constructor', function(assert) {
 });
 
 test('#snapshot', function(assert) {
-  let array = Ember.A([1, 2]);
+  let array = A([1, 2]);
   let didTakeSnapshot = 0;
   let snapshotTaken = {};
 
@@ -49,7 +49,7 @@ test('#snapshot', function(assert) {
 });
 
 test('SnapshotRecordArray.type loads the class lazily', function(assert) {
-  let array = Ember.A([1, 2]);
+  let array = A([1, 2]);
   let typeLoaded = false;
 
   Object.defineProperty(array, 'type', {

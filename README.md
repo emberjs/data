@@ -39,12 +39,12 @@ bower install ember-data --save
 ```
 
 The latest passing build from the "master" branch is available on
-[http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
+[https://emberjs.com/builds/#/canary](https://emberjs.com/builds/#/canary).
 
 Similarly, the latest passing build from the "beta" branch can be found
-on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
+on [https://emberjs.com/builds/#/beta](https://emberjs.com/builds/#/beta)
 
-Or build ember-data.js yourself. Clone the repository and run `npm run build:production`
+Or build ember-data.js yourself. Clone the repository and run `npm run production`
 after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
@@ -142,7 +142,7 @@ By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON
 
 To learn more about adapters, including what conventions the
 various adapters follow and how to build your own, see the Ember.js
-Guides: [Customizing Adapters](http://emberjs.com/guides/models/customizing-adapters).
+Guides: [Customizing Adapters](https://emberjs.com/guides/models/customizing-adapters).
 
 ### Fetching a Collection of Models
 
@@ -167,13 +167,13 @@ promise will be rejected.
 ### Even More Documentation
 
 For much more detail on how to use Ember Data, see the [Ember.js Guides
-on models](http://emberjs.com/guides/models/).
+on models](https://emberjs.com/guides/models/).
 
 # Building Ember Data
 
 1. Ensure that [Node.js](http://nodejs.org/) is installed.
 2. Run `npm install` to ensure the required dependencies are installed.
-3. Run `npm run build:production` to build Ember Data. The builds will be placed in the `dist/` directory.
+3. Run `npm run production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
 
@@ -185,11 +185,9 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 1. Install Node.js from http://nodejs.org or your favorite package manager.
 
-2. Install Ember CLI and bower. `npm install -g ember-cli bower`
+2. Install Ember CLI. `npm install -g ember-cli`
 
 3. Run `npm install` inside the project root to install the JS dependencies.
-
-4. Run `bower install` inside the project root to install Ember dependencies.
 
 ### In Your Browser
 

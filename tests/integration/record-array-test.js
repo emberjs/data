@@ -1,14 +1,14 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { Promise, hash } from 'rsvp';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run, RSVP: { Promise }} = Ember;
-
-let array;
+let results;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
@@ -25,11 +25,13 @@ const Tool = DS.Model.extend({
 
 module('unit/record_array - DS.RecordArray', {
   beforeEach() {
-    array = Ember.A([
-      { id: '1', name: 'Scumbag Dale' },
-      { id: '2', name: 'Scumbag Katz' },
-      { id: '3', name: 'Scumbag Bryn' }
-    ]);
+    results = {
+      data: [
+        { id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } },
+        { id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } },
+        { id: '3', type: 'person', attributes: { name: 'Scumbag Bryn' } }
+      ]
+    };
   }
 });
 
@@ -74,8 +76,9 @@ test('a record array is backed by records', function(assert) {
 
   return run(() => {
     return store.findByIds('person', [1,2,3]).then(records => {
-      for (let i=0, l = get(array, 'length'); i<l; i++) {
-        assert.deepEqual(records[i].getProperties('id', 'name'), array[i], 'a record array materializes objects on demand');
+      for (let i=0, l = get(results, 'data.length'); i<l; i++) {
+        let { id, attributes: { name }} = results.data[i];
+        assert.deepEqual(records[i].getProperties('id', 'name'), { id, name }, 'a record array materializes objects on demand');
       }
     });
   });
@@ -114,6 +117,42 @@ test('acts as a live query', function(assert) {
     });
   });
   assert.equal(get(recordArray, 'lastObject.name'), 'brohuda');
+});
+
+test('acts as a live query (normalized names)', function (assert) {
+  let store = createStore({
+    person: Person,
+    Person: Person
+  });
+
+  let recordArray = store.peekAll('Person');
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'Person',
+        id: '1',
+        attributes: {
+          name: 'John Churchill'
+        }
+      }
+    });
+  });
+
+  assert.deepEqual(recordArray.mapBy('name'), ['John Churchill']);
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'Person',
+        id: '2',
+        attributes: {
+          name: 'Winston Churchill'
+        }
+      }
+    });
+  });
+  assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
 });
 
 test('stops updating when destroyed', function(assert) {
@@ -201,7 +240,7 @@ test('a loaded record is removed from a record array when it is deleted', functi
   });
 
   return run(() => {
-    return Ember.RSVP.hash({
+    return hash({
       scumbag: store.findRecord('person', 1),
       tag: store.findRecord('tag', 1)
     }).then(records => {
@@ -221,7 +260,7 @@ test('a loaded record is removed from a record array when it is deleted', functi
 
       assert.equal(get(recordArray, 'length'), 1, 'record is still in the record array until it is saved');
 
-      Ember.run(scumbag, 'save');
+      run(scumbag, 'save');
 
       assert.equal(get(recordArray, 'length'), 0, 'record is removed from the array when it is saved');
     });
@@ -268,14 +307,13 @@ test('a loaded record is not removed from a record array when it is deleted even
     scumbag.deleteRecord();
   });
 
-  run(function() {
+  run(() => {
     assert.equal(tag.get('people.length'), 1, 'record is not removed from the record array');
     assert.equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
   });
 });
 
 test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", function(assert) {
-
   let env = setupStore({
     tag: Tag,
     person: Person,
@@ -323,7 +361,7 @@ test("a loaded record is not removed from both the record array and from the bel
     tool = store.peekRecord('tool', 1);
   });
 
-  run(function() {
+  run(() => {
     assert.equal(tag.get('people.length'), 1, 'record is in the record array');
     assert.equal(tool.get('person'), scumbag, 'the tool belongs to the record');
   });
@@ -350,7 +388,7 @@ test('a newly created record is removed from a record array when it is deleted',
   assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
   // guarantee coalescence
-  Ember.run(() => {
+  run(() => {
     store.createRecord('person', { name: 'p1' });
     store.createRecord('person', { name: 'p2' });
     store.createRecord('person', { name: 'p3' });
@@ -442,7 +480,7 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function(asse
   let store = env.store;
 
   env.adapter.query = function(store, type, query, recordArray) {
-    return Promise.resolve(array);
+    return Promise.resolve(results);
   };
 
   return run(() => {

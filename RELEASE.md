@@ -20,7 +20,7 @@ STEPS:
 * Git tag version
   * `git tag vX.Y.Z-beta.n`
 * Do a production build. 
-  * `rm -rf node_modules bower_components; npm install; bower install; npm run production`
+  * `rm -rf node_modules bower_components; yarn install; bower install; npm run production`
 * Publish to Bower
   * Commit built globals code to the https://github.com/components/ember-data repo
   * `cp dist/globals/* ../components-ember-data/`
@@ -33,11 +33,6 @@ STEPS:
   * `cd ../website`
   * Edit [lastRelease, futureVersion and date](https://github.com/emberjs/website/blob/master/source/javascripts/app/builds/app.js#L238-L241) values for the release channel we are releasing.
   * Commit updated `javascripts/app/builds/app.js` file
-  * `rake deploy`
-* Website API docs (This step does not happen for beta releases)
-  * `cd ../website`
-  * `rake generate_ember_data_docs`
-  * Commit updated `data/data_api.yml` file
   * `rake deploy`
 * Write a Release Blog Post (Does not happen for beta releases)
   * Commits since last release: `git log --oneline release..beta | wc -l`.

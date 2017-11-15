@@ -226,7 +226,7 @@ Documentation commits are tagged as `[DOC channel]` where channel is `canary`,
 
 ### Security
 
-Security commits will be tagged as `[SECURITY cve]`. Please do not submit security related PRs without coordinating with the security team. See the [Security Policy](http://emberjs.com/security/) for more information.
+Security commits will be tagged as `[SECURITY cve]`. Please do not submit security related PRs without coordinating with the security team. See the [Security Policy](https://emberjs.com/security/) for more information.
 
 ### Other
 

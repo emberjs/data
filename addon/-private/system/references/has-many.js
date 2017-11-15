@@ -1,15 +1,12 @@
-import Ember from 'ember';
+import { A } from '@ember/array';
+import { resolve } from 'rsvp';
+import { get } from '@ember/object';
 import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
 import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 import isEnabled from '../../features';
-
-const {
-  RSVP: { resolve },
-  get
-} = Ember;
 
 /**
    A HasManyReference is a low level API that allows users and addon
@@ -284,7 +281,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
       });
     } else {
       let records = this.store.push(payload);
-      internalModels = Ember.A(records).mapBy('_internalModel');
+      internalModels = A(records).mapBy('_internalModel');
 
       if (DEBUG) {
         internalModels.forEach((internalModel) => {
@@ -314,7 +311,7 @@ HasManyReference.prototype._isLoaded = function() {
 };
 
 /**
-   `value()` sycronously returns the current value of the has-many
+   `value()` synchronously returns the current value of the has-many
     relationship. Unlike `record.get('relationshipName')`, calling
     `value()` on a reference does not trigger a fetch if the async
     relationship is not yet loaded. If the relationship is not loaded

@@ -23,7 +23,7 @@ export default class ManyRelationship extends Relationship {
       }
       this.__loadingPromise.set('promise', promise)
     } else {
-      this.__loadingPromise = new PromiseManyArray({
+      this.__loadingPromise = PromiseManyArray.create({
         promise,
         content
       });
@@ -111,6 +111,26 @@ export default class ManyRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
   }
 
+  removeCompletelyFromOwn(internalModel) {
+    super.removeCompletelyFromOwn(internalModel);
+
+    const canonicalIndex = this.canonicalState.indexOf(internalModel);
+
+    if (canonicalIndex !== -1) {
+      this.canonicalState.splice(canonicalIndex, 1);
+    }
+
+    const manyArray = this._manyArray;
+
+    if (manyArray) {
+      const idx = manyArray.currentState.indexOf(internalModel);
+
+      if (idx !== -1) {
+        manyArray.internalReplace(idx, 1);
+      }
+    }
+  }
+
   flushCanonical() {
     if (this._manyArray) {
       this._manyArray.flushCanonical();
@@ -181,17 +201,22 @@ export default class ManyRelationship extends Relationship {
   }
 
   setInitialInternalModels(internalModels) {
-    if (!internalModels) {
+    if (Array.isArray(internalModels) === false || internalModels.length === 0) {
       return;
     }
 
-    let args = [0, this.canonicalState.length].concat(internalModels);
-    this.canonicalState.splice.apply(this.canonicalState, args);
-    internalModels.forEach(internalModel => {
+    for (let i = 0; i< internalModels.length; i++) {
+      let internalModel = internalModels[i];
+      if (this.canonicalMembers.has(internalModel)) {
+        continue;
+      }
+
       this.canonicalMembers.add(internalModel);
       this.members.add(internalModel);
       this.setupInverseRelationship(internalModel);
-    });
+    }
+
+    this.canonicalState = this.canonicalMembers.toArray();
   }
 
   fetchLink() {
@@ -202,6 +227,7 @@ export default class ManyRelationship extends Relationship {
       this.store._backburner.join(() => {
         this.updateInternalModelsFromAdapter(records);
         this.manyArray.set('isLoaded', true);
+        this.setHasData(true);
       });
       return this.manyArray;
     });
@@ -258,6 +284,20 @@ export default class ManyRelationship extends Relationship {
       this.setInitialInternalModels(internalModels);
     } else {
       this.updateInternalModelsFromAdapter(internalModels);
+    }
+  }
+
+  destroy() {
+    super.destroy();
+    let manyArray = this._manyArray;
+    if (manyArray) {
+      manyArray.destroy();
+    }
+
+    let proxy = this.__loadingPromise;
+
+    if (proxy) {
+      proxy.destroy();
     }
   }
 }

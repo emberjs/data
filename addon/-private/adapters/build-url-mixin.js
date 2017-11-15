@@ -1,6 +1,7 @@
-import Ember from 'ember';
-
-const get = Ember.get;
+import { camelize } from '@ember/string';
+import Mixin from '@ember/object/mixin';
+import { get } from '@ember/object';
+import { pluralize } from 'ember-inflector';
 
 /**
 
@@ -29,7 +30,7 @@ const get = Ember.get;
   @class BuildURLMixin
   @namespace DS
 */
-export default Ember.Mixin.create({
+export default Mixin.create({
   /**
     Builds a URL for a given type and optional ID.
 
@@ -117,7 +118,7 @@ export default Ember.Mixin.create({
 
    export default DS.JSONAPIAdapter.extend({
      urlForFindRecord(id, modelName, snapshot) {
-       let baseUrl = this.buildURL();
+       let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
      }
    });
@@ -420,11 +421,13 @@ export default Ember.Mixin.create({
 
     ```app/adapters/application.js
     import DS from 'ember-data';
+    import { decamelize } from '@ember/string';
+    import { pluralize } from 'ember-inflector';
 
     export default DS.RESTAdapter.extend({
       pathForType: function(modelName) {
-        var decamelized = Ember.String.decamelize(modelName);
-        return Ember.String.pluralize(decamelized);
+        var decamelized = decamelize(modelName);
+        return pluralize(decamelized);
       }
     });
     ```
@@ -434,7 +437,7 @@ export default Ember.Mixin.create({
     @return {String} path
   **/
   pathForType(modelName) {
-    let camelized = Ember.String.camelize(modelName);
-    return Ember.String.pluralize(camelized);
+    let camelized = camelize(modelName);
+    return pluralize(camelized);
   }
 });

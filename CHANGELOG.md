@@ -2,6 +2,227 @@
 
 ### Master
 
+### Release 2.17.0-beta.2 (November 6, 2017)
+
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX] setting a property to its previous value clears validation state
+- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX] `store.query` returns a promise proxy that now proxies `meta`
+- [#5242](https://github.com/emberjs/data/pull/5242) [BUGFIX] `store.push` normalizes model names of payloads to match the rest of the store api (eg `store.createRecord`)
+- [#5248](https://github.com/emberjs/data/pull/5248) [BUGFIX] `model.setProperties` will now clear `model` errors correctly
+
+### Release 2.17.0-beta.1 (October 3, 2017)
+- No Changes from 2.16.0
+
+### Release 2.16.1 (October 4, 2017)
+- [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
+- [#5197](https://github.com/emberjs/data/pull/5197) Fix ember-data Node 4.x builds
+- [#5206](https://github.com/emberjs/data/pull/5206) [BUGFIX beta] Fix broccoli-babel-transpiler cache warnings
+
+### Release 2.16.0 (October 3, 2017)
+- [#5192](https://github.com/emberjs/data/pull/5192) Remove feature flagging for ds-extended-errors.
+- [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
+- [#5089](https://github.com/emberjs/data/pull/5089) Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5030](https://github.com/emberjs/data/pull/5030) fix build
+- [#5029](https://github.com/emberjs/data/pull/5029) loosen header parsing slightly
+- [#5094](https://github.com/emberjs/data/pull/5094) {master} Unload fun
+- [#5038](https://github.com/emberjs/data/pull/5038) remove deprecated `idToRecord` and cleanup
+- [#5035](https://github.com/emberjs/data/pull/5035) [BUGFIX release] Fix global build (#5035)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5101](https://github.com/emberjs/data/pull/5101) [DOC beta] fix instructions for build command
+- [#5047](https://github.com/emberjs/data/pull/5047) cleanup
+- [#5039](https://github.com/emberjs/data/pull/5039) use prop destructor for Ember dependencies
+- [#5040](https://github.com/emberjs/data/pull/5040) tests for unload + resurrect + remote relationship state
+- [#5044](https://github.com/emberjs/data/pull/5044) update `ember-resolver` `loader.js` `rsvp`
+- [#5115](https://github.com/emberjs/data/pull/5115) [DOC release] Fixes code blocks for api viewer
+- [#5060](https://github.com/emberjs/data/pull/5060) Set hasData for preloaded empty hasMany
+- [#5058](https://github.com/emberjs/data/pull/5058) [BUGFIX] keep local state after a deletion
+- [#5049](https://github.com/emberjs/data/pull/5049) more cleanup
+- [#5051](https://github.com/emberjs/data/pull/5051) add test for hasMany + addObject + destroyRecord
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+- [#5053](https://github.com/emberjs/data/pull/5053) [BUGFIX] has-many relationship: set hasData when fetching link
+- [#5128](https://github.com/emberjs/data/pull/5128) Avoid MODEL_FACTORY_INJECTION deprecations in tests on Ember >= 2.14.
+- [#5075](https://github.com/emberjs/data/pull/5075) unpin testem version
+- [#5074](https://github.com/emberjs/data/pull/5074) disable node-tests in windows for now
+- [#5072](https://github.com/emberjs/data/pull/5072) remove `pretender` and update some deps
+- [#5066](https://github.com/emberjs/data/pull/5066) Revert "[BUGFIX] keep local state after a deletion"
+- [#5067](https://github.com/emberjs/data/pull/5067) [BUGFIX] Preserve local relationship changes after persisting a delet…
+- [#5070](https://github.com/emberjs/data/pull/5070) [DOC release] Update doc for deprecated function.
+- [#5130](https://github.com/emberjs/data/pull/5130) Replace Ember.String.{pluralize,singularize} with ember-inflector imports
+- [#5099](https://github.com/emberjs/data/pull/5099) {master} forward port
+- [#5088](https://github.com/emberjs/data/pull/5088) {MASTER} [BUGFIX release] handle dupe relationship entries
+- [#5077](https://github.com/emberjs/data/pull/5077) [BUGFIX release] fix destroyRecord followed by unloadRecord and impli…
+- [#5141](https://github.com/emberjs/data/pull/5141) Import Inflector instead of relying on Ember namespace
+- [#5110](https://github.com/emberjs/data/pull/5110) [BUGFIX beta] Implement `cacheKeyForTree` hook.
+- [#5106](https://github.com/emberjs/data/pull/5106) {forwardport master}
+- [#5147](https://github.com/emberjs/data/pull/5147) [BUGFIX release] fix relationship merging
+- [#5126](https://github.com/emberjs/data/pull/5126) Failing test for #5125 and attempted fix
+- [#5119](https://github.com/emberjs/data/pull/5119) Don't notify relationships with links during initialization
+- [#5123](https://github.com/emberjs/data/pull/5123) Ensure we are properly testing multiple Ember versions.
+- [#5122](https://github.com/emberjs/data/pull/5122) Remove Bower dependency and related files.
+- [#5139](https://github.com/emberjs/data/pull/5139) [DOC release] Improve save method documentation
+- [#5144](https://github.com/emberjs/data/pull/5144) [BUGFIX release] Load many2many relationships correctly
+- [#5150](https://github.com/emberjs/data/pull/5150) [BUGFIX release] Enumerate relationships provided, not all on a given…
+- [#5151](https://github.com/emberjs/data/pull/5151) [CLEANUP] PERF prevent duplicate recordArrayManager signals on push o…
+- [#5153](https://github.com/emberjs/data/pull/5153) [BUGFIX release] ensure inverse async HasMany is correctly maintained
+- [#5162](https://github.com/emberjs/data/pull/5162) Update RELEASE.md
+- [#5192](https://github.com/emberjs/data/pull/5192) Remove feature flagging for ds-extended-errors.
+
+### Release 2.15.3 (September 30, 2017)
+- [#5195](https://github.com/emberjs/data/pull/5195) Ensure `ember-data/-private` module is emitted properly for ember-cli…
+
+### Release 2.15.2 (September 28, 2017)
+- [#5193](https://github.com/emberjs/data/pull/5193) Remove feature flagging for ds-extended-errors.
+
+### Release 2.15.1 (September 27, 2017)
+- [#5188](https://github.com/emberjs/data/pull/5188) Backport to release
+
+### Release 2.15.0 (September 1, 2017)
+
+- [#5132](https://github.com/emberjs/data/pull/5132) [BUGFIX] Fixes saving a record immediately after unloading a record with the same id
+- [#5145](https://github.com/emberjs/data/pull/5145) [BUGFIX] Load many2many relationships correctly
+- [#5148](https://github.com/emberjs/data/pull/5148) [BUGFIX] Relationships now update properly with new information
+- [#5155](https://github.com/emberjs/data/pull/5155) [BUGFIX] Ensure symmetry between async and sync relationships
+- [#5098](https://github.com/emberjs/data/pull/5098) {beta} Beta unload and create
+- [#5105](https://github.com/emberjs/data/pull/5105) {Beta} forward port
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [84041a5f](https://github.com/emberjs/data/commit/84041a5f73b5b2a8f6d6d6475f7aa71d5b83b939) Update RELEASE.md
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#5071](https://github.com/emberjs/data/pull/5071) [BACKPORT] Update doc for deprecated function.
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#4992](https://github.com/emberjs/data/pull/4992) Use https in references to emberjs website (#4992)
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5068](https://github.com/emberjs/data/pull/5068) [BUGFIX release] Preserve local relationship changes after persisting a delet…
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+- [#5032](https://github.com/emberjs/data/pull/5032) loosen header parsing slightly
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+- [#4981](https://github.com/emberjs/data/pull/4981) [DOC release] Document DS.HasManyReference.ids
+- [#4964](https://github.com/emberjs/data/pull/4964) Fix typo: expect multiple s/methods/records back
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4960](https://github.com/emberjs/data/pull/4960) ensure we don't compile typeof checks poorly
+- [#4962](https://github.com/emberjs/data/pull/4962) Update to use built-in debug code stripping functionality.
+- [#4947](https://github.com/emberjs/data/pull/4947) remove needless change events when creating a recordArrays
+- [#4984](https://github.com/emberjs/data/pull/4984) [DOC release] Fix doc for `diffArray`
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4978](https://github.com/emberjs/data/pull/4978) Lock ember-cli-htmlbars to 1.3.0 to get the build passing again
+- [#4980](https://github.com/emberjs/data/pull/4980) [DOC release] Docs for has-many, belongs-to ref meta
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export
+- [#5003](https://github.com/emberjs/data/pull/5003) Change setupStore helper default serializer to JSONAPISerializer #4754 (#5003)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+- [#5009](https://github.com/emberjs/data/pull/5009) cleanup `index.js` and drop `0.12` node
+- [#5011](https://github.com/emberjs/data/pull/5011) Fix and tests for unloadRecord => findRecord issue
+
+### Release 2.14.10 (August 10, 2017)
+- [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
+
+### Release 2.14.9 (July 29, 2017)
+- [#5097](https://github.com/emberjs/data/pull/5102) [BUGFIX release] unloadRecord + findRecord + orphaned relationships
+
+### Release 2.14.8 (July 28, 2017)
+- [#5097](https://github.com/emberjs/data/pull/5097) [BUGFIX release] restore unloadRecord + createRecord
+
+### Release 2.14.7 (July 25, 2017)
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+
+### Release 2.14.6 (July 25, 2017)
+- [#5086](https://github.com/emberjs/data/pull/5086) {release} [BUGFIX release] handle dupe relationship entries
+- [#5091](https://github.com/emberjs/data/pull/5091) {release} Bump `amd-name-resolver` version to enable parallel babel transpile
+- [#5092](https://github.com/emberjs/data/pull/5092) [BUGFIX release] relationship [x, y] should not break on x.unloadRecord()
+
+### Release 2.14.5 (July 20, 2017)
+- [#5031](https://github.com/emberjs/data/pull/5031) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5031)
+- [#5079](https://github.com/emberjs/data/pull/5079) [BACKPORT 2 release] Release fix unload after destroy
+
+### Release 2.14.4 (July 11, 2017)
+- [#5048](https://github.com/emberjs/data/pull/5048) [BUGFIX release] createRecord should only setup relationships it has … (#5048)
+
+### Release 2.14.3 (June 22, 2017)
+- [#5033](https://github.com/emberjs/data/pull/5033) loosen header parsing slightly
+
+### Release 2.14.2 (June 19, 2017)
+- [#5022](https://github.com/emberjs/data/pull/5022) Ensure `ember-data/-private` module is emitted properly for ember-cli < 2.12. (#5022)
+
+### Release 2.14.1 (June 19, 2017)
+- [#4994](https://github.com/emberjs/data/pull/4994) [BUGFIX beta] Fix flushing of pending saves, that include a deleted record (#4994)
+- [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
+
+### Release 2.14.0 (June 18, 2017)
+- [#5013](https://github.com/emberjs/data/pull/5013) [BUGFIX beta] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
+- [#5002](https://github.com/emberjs/data/pull/5002) [BUGFIX BETA] Added `system/store/container-instance-cache` to the -private export file
+- [#4959](https://github.com/emberjs/data/pull/4959) [BUGFIX] remove forgotten broccoli-stew import
+- [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
+- [#4969](https://github.com/emberjs/data/pull/4969) [BUGFIX beta] Ensure Engines can boot without error.
+- [#4971](https://github.com/emberjs/data/pull/4971) Fix typo in function call
+- [#4885](https://github.com/emberjs/data/pull/4885) Lazy snapshot.type
+- [#4855](https://github.com/emberjs/data/pull/4855) Update the changelog for the Ember Data 2.12.0 release
+- [#4821](https://github.com/emberjs/data/pull/4821) Pay go setup relationships
+- [#4884](https://github.com/emberjs/data/pull/4884) Defer serializer loading
+- [#4863](https://github.com/emberjs/data/pull/4863) Tidy up parse-reponse-headers (#4863)
+- [#4861](https://github.com/emberjs/data/pull/4861) Update yarn.lock
+- [#4862](https://github.com/emberjs/data/pull/4862) Babel 6
+- [#4860](https://github.com/emberjs/data/pull/4860) Refactor the detection / warnings around ember-cli-shims. (#4860)
+- [#4913](https://github.com/emberjs/data/pull/4913) [BUGFIX canary] don't prematurely nullify props
+- [#4869](https://github.com/emberjs/data/pull/4869) Speed up triggering events
+- [#4864](https://github.com/emberjs/data/pull/4864) make ES6.Classes loose (#4864)
+- [#4868](https://github.com/emberjs/data/pull/4868) [PERF] make filtered/liveRecord array storage a simple Object.create(…
+- [#4909](https://github.com/emberjs/data/pull/4909) Deprecate didUpdateAll, add _didUpdateAll.
+- [#4870](https://github.com/emberjs/data/pull/4870) More record -> internalModel fixes
+- [#4908](https://github.com/emberjs/data/pull/4908) Add a better error message when malformatted JSON API is pushed into …
+- [#4871](https://github.com/emberjs/data/pull/4871) Remove dead code
+- [#4891](https://github.com/emberjs/data/pull/4891) Add a test to ensure a HasManyReference returns a value when the arra…
+- [#4905](https://github.com/emberjs/data/pull/4905) [DOCUMENTATION] Refer the RFC process for requesting new features
+- [#4896](https://github.com/emberjs/data/pull/4896) Ember.warn when ManyArray.objectAt() is undefined
+- [#4892](https://github.com/emberjs/data/pull/4892) [DOC] Documents the caching behavior of queryRecord
+- [#4900](https://github.com/emberjs/data/pull/4900) [doc] updating peekRecord documentation with reference to its counterpart f…
+- [#4893](https://github.com/emberjs/data/pull/4893) Remove unnecessary relationship guard
+- [#4897](https://github.com/emberjs/data/pull/4897) Deprecate buildInternalModel, add _buildInternalModel.
+- [#4898](https://github.com/emberjs/data/pull/4898) [BUGFIX beta] Rename `relationship.destroy` to `removeInverseRelationships`
+- [#4901](https://github.com/emberjs/data/pull/4901) [BUGFIX beta] Removes `get record` from InternalModel. (#4901)
+- [#4899](https://github.com/emberjs/data/pull/4899) Fix internalModel typo
+- [#4903](https://github.com/emberjs/data/pull/4903) Use node 6 for travis tests
+- [#4880](https://github.com/emberjs/data/pull/4880) [BUGFIX canary] ensure context is applied in the iife
+- [#4878](https://github.com/emberjs/data/pull/4878) Fix tests in release branch RE: factoryFor. (#4878)
+- [#4874](https://github.com/emberjs/data/pull/4874) Rename record[s] -> internalModel[s]
+- [#4883](https://github.com/emberjs/data/pull/4883) Fix readme typo - "First things first"
+- [#4876](https://github.com/emberjs/data/pull/4876) [BUGFIX canary] ensure the globals build has the correct context in the iife.
+- [#4895](https://github.com/emberjs/data/pull/4895) [PERF] single-pass over the initializers array
+- [#4931](https://github.com/emberjs/data/pull/4931) [BUGFIX beta] [fixes #4509] createRecord initializes correctly
+- [#4914](https://github.com/emberjs/data/pull/4914) Revert "Ember.warn when ManyArray.objectAt() is underfined"
+- [#4910](https://github.com/emberjs/data/pull/4910) [BUGFIX] initial-relationship-setup must handle null
+- [#4911](https://github.com/emberjs/data/pull/4911) [BUGFIX] partially fix pushing of null onto already materialized array
+- [#4935](https://github.com/emberjs/data/pull/4935) bump github module slightly to work around node-resolve issue (remove…
+- [#4922](https://github.com/emberjs/data/pull/4922) [BUGFIX release] restore internalModels GUID_KEY’s
+- [#4920](https://github.com/emberjs/data/pull/4920) Svelted some our builds a bit (3KB savings)
+- [#4919](https://github.com/emberjs/data/pull/4919) [DOC] Fix findHasMany parameter order
+- [#4925](https://github.com/emberjs/data/pull/4925) [SVELTE] rollup -private for winnings
+- [#4924](https://github.com/emberjs/data/pull/4924) [PERF] Model.prototype.didDefineProperty only in dev
+- [#4943](https://github.com/emberjs/data/pull/4943) hash-for-dep only the plugin (not all of ember-data) as this plugin h…
+- [#4928](https://github.com/emberjs/data/pull/4928) Don't use `let` or `const`
+- [#4926](https://github.com/emberjs/data/pull/4926) [DOC release] Add missing ` in urlsForFindMany description
+- [#4930](https://github.com/emberjs/data/pull/4930) Remove no-longer-working private API usage.
+- [#4932](https://github.com/emberjs/data/pull/4932) update yarn.lock
+- [#4936](https://github.com/emberjs/data/pull/4936) [SVELTE] Transforms & remove Date.parse polyfill (#4936)
+- [#4937](https://github.com/emberjs/data/pull/4937) [BUGFIX beta] Update dependencies to use Babel 6.
+- [#4941](https://github.com/emberjs/data/pull/4941) only coerce non-string id's
+- [#4946](https://github.com/emberjs/data/pull/4946) dummy app routes should work with and without heimdall
+- [#4948](https://github.com/emberjs/data/pull/4948) Only will merge mixin in dev
+- [#4950](https://github.com/emberjs/data/pull/4950) [PERF] Guard against poorly optimized babel output
+
+### Release 2.13.2 (June 18, 2017)
+- [#5012](https://github.com/emberjs/data/pull/5012) [BUGFIX release] fixes an issue with sync dematerialization followed by a findRecord, adds test coverage
+
 ### Release 2.13.1 (May 5, 2017)
 - [#4965](https://github.com/emberjs/data/pull/4965) [BUGFIX beta]  Skip test which doesn't play nicely with the latest em…
 - [#4970](https://github.com/emberjs/data/pull/4970) [BUGFIX release] Ensure Engines can boot without error.
@@ -569,7 +790,7 @@
 ### Release 2.3.0 (January 12, 2016)
 
 Ember Data 2.3 is now published as and Ember CLI addon in addition to a bower package. 
-See the [release notes](http://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
+See the [release notes](https://emberjs.com/blog/2016/01/12/ember-data-2-3-released.html#toc_changes-in-ember-data-2-3)
 for instruction on how to upgrade your Ember CLI project to take advantage of the Ember Data addon.
 
 - [#4039](https://github.com/emberjs/data/pull/4039) Replace calls to store.find with store.findRecord
@@ -1177,7 +1398,7 @@ post.constructor.typeKey => postSnapshot.typeKey
 If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
-The full API reference of `DS.Snapshot` can be found [here](http://emberjs.com/api/data/classes/DS.Snapshot.html).
+The full API reference of `DS.Snapshot` can be found [here](https://emberjs.com/api/data/classes/DS.Snapshot.html).
 
 #### Changes
   * Do not re-add deleted records to a hasMany relationship
@@ -1410,7 +1631,7 @@ to set metadata.
 
 
 ##### `ManyArray`s are no longer `RecordArray`s
-[ManyArray](http://emberjs.com/api/data/classes/DS.ManyArray.html),
+[ManyArray](https://emberjs.com/api/data/classes/DS.ManyArray.html),
 the object Ember Data uses to represent `DS.hasMany` relationships has
 been changed so it no longer extends from `RecordArray`. This means if
 you were relying on the RecordArray's `content` property to access the

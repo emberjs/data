@@ -1,14 +1,20 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { A } from '@ember/array';
+import {
+  resolve,
+  all,
+  Promise as EmberPromise
+} from 'rsvp';
+import { set, get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, set , run } = Ember;
-const resolve = Ember.RSVP.resolve;
 let TestAdapter, store, oldFilterEnabled;
 
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
@@ -59,8 +65,11 @@ test('Calling Store#find invokes its adapter#find', function(assert) {
       assert.equal(id, 1, "Adapter#find was called with the id passed into Store#find");
       assert.equal(snapshot.id, '1', "Adapter#find was called with the record created from Store#find");
 
-      return Ember.RSVP.resolve({
-        id: 1
+      return resolve({
+        data: {
+          id: 1,
+          type: 'test'
+        }
       });
     }
   });
@@ -85,7 +94,7 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
     findMany(store, type, ids, snapshots) {
       assert.ok(true, 'Adapter#findMany was called');
       assert.deepEqual(ids, ['1','2'], 'Correct ids were passed in to findMany');
-      return Ember.RSVP.resolve([{ id: 1 }, { id: 2 }]);
+      return resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
     },
     coalesceFindRequests: true
   });
@@ -97,7 +106,7 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
   });
 
   return run(() => {
-    return Ember.RSVP.all([
+    return all([
       store.findRecord('test', 1),
       store.findRecord('test', 2)
     ]);
@@ -109,7 +118,7 @@ test('Returning a promise from `findRecord` asynchronously loads data', function
 
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
-      return resolve({ id: 1, name: "Scumbag Dale" });
+      return resolve({ data: { id: 1, type: 'test', attributes: { name: "Scumbag Dale" } } });
     }
   });
 
@@ -135,7 +144,7 @@ test('IDs provided as numbers are coerced to strings', function(assert) {
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(typeof id, 'string', 'id has been normalized to a string');
-      return resolve({ id, name: 'Scumbag Sylvain' });
+      return resolve({ data: { id, type: 'test', attributes: { name: 'Scumbag Sylvain' } } });
     }
   });
 
@@ -229,7 +238,7 @@ test('loadMany takes an optional Object and passes it on to the Adapter', functi
     query(store, type, query) {
       assert.equal(type, store.modelFor('person'), 'The type was Person');
       assert.equal(query, passedQuery, 'The query was passed in');
-      return Ember.RSVP.resolve([]);
+      return resolve({ data: [] });
     }
   });
 
@@ -250,7 +259,7 @@ test('Find with query calls the correct normalizeResponse', function(assert) {
 
   const Adapter = TestAdapter.extend({
     query(store, type, query) {
-      return Ember.RSVP.resolve([]);
+      return resolve([]);
     }
   });
 
@@ -410,7 +419,7 @@ test("initial values of attributes can be passed in as the third argument to fin
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
-      return { id: '1', name: 'Test' };
+      return { data: { id: '1', type: 'test', attributes: { name: 'Test' } } };
     }
   });
 
@@ -432,7 +441,7 @@ test('initial values of belongsTo can be passed in as the third argument to find
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
-      return { id };
+      return { data: { id, type: 'person' } };
     }
   });
 
@@ -470,7 +479,7 @@ test('initial values of belongsTo can be passed in as the third argument to find
 
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { id };
+      return { data: { id, type: 'person' } };
     }
   });
 
@@ -502,7 +511,7 @@ test('initial values of hasMany can be passed in as the third argument to find a
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
-      return { id, type };
+      return { data: { id, type: 'person' } };
     }
   });
 
@@ -541,7 +550,7 @@ test('initial values of hasMany can be passed in as the third argument to find a
   const Adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
       assert.equal(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
-      return { id };
+      return { data: { id, type: 'person' } };
     }
   });
 
@@ -560,6 +569,59 @@ test('initial values of hasMany can be passed in as the third argument to find a
   return run(() => store.findRecord('person', 1, { preload: { friends: [2] } }));
 });
 
+test('initial empty values of hasMany can be passed in as the third argument to find as records', function(assert) {
+  assert.expect(1);
+
+  const Adapter = TestAdapter.extend({
+    findRecord(store, type, id, snapshot) {
+      assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+      return { data: { id, type: 'person' } };
+    }
+  });
+
+  let env = setupStore({
+    adapter: Adapter
+  });
+
+  let { store } = env;
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    friends: DS.hasMany('person', { inverse: null, async: true })
+  });
+
+  env.registry.register('model:person', Person);
+
+  return run(() => {
+    return store.findRecord('person', 1, { preload: { friends: [] } });
+  });
+});
+
+test('initial values of hasMany can be passed in as the third argument to find as ids', function(assert) {
+  assert.expect(1);
+
+  const Adapter = TestAdapter.extend({
+    findRecord(store, type, id, snapshot) {
+      assert.equal(snapshot.hasMany('friends').length, 0, 'Preloaded hasMany set');
+      return { data: { id, type: 'person' } };
+    }
+  });
+
+  let env = setupStore({
+    adapter: Adapter
+  });
+  let { store } = env;
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    friends: DS.hasMany('person', { async: true, inverse: null })
+  });
+
+  env.registry.register('model:person', Person);
+
+  return run(() => store.findRecord('person', 1, { preload: { friends: [] } }));
+});
+
 test('records should have their ids updated when the adapter returns the id data', function(assert) {
   assert.expect(2);
 
@@ -571,8 +633,13 @@ test('records should have their ids updated when the adapter returns the id data
   const Adapter = TestAdapter.extend({
     createRecord(store, type, snapshot) {
       return {
-        name: snapshot.attr('name'),
-        id: idCounter++
+        data: {
+          id: idCounter++,
+          type: 'person',
+          attributes: {
+            name: snapshot.attr('name')
+          }
+        }
       };
     }
   });
@@ -591,7 +658,7 @@ test('records should have their ids updated when the adapter returns the id data
   });
 
   return run(() => {
-    return Ember.RSVP.all([
+    return all([
       tom.save(),
       yehuda.save()
     ]).then(() => {
@@ -632,19 +699,19 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
 
   const adapter = TestAdapter.extend({
     findRecord(store, type, id, snapshot) {
-      let record = { id: id };
+      let record = { id, type: type.modelName };
 
-      return new Ember.RSVP.Promise(resolve => {
-        run.later(() => resolve(record), 5);
+      return new EmberPromise(resolve => {
+        run.later(() => resolve({ data: record }), 5);
       });
     },
 
     findMany(store, type, ids, snapshots) {
-      let records = ids.map(id => ( { id }) );
+      let records = ids.map(id => ( { id, type: type.modelName }) );
 
-      return new Ember.RSVP.Promise(resolve => {
+      return new EmberPromise(resolve => {
         run.later(() => {
-          resolve(records);
+          resolve({data: records });
         }, 15);
       });
     }
@@ -666,7 +733,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
 
   return run(() => {
     return store._scheduleFetchMany(internalModels).then(() => {
-      let unloadedRecords = Ember.A(internalModels.map(r => r.getRecord())).filterBy('isEmpty');
+      let unloadedRecords = A(internalModels.map(r => r.getRecord())).filterBy('isEmpty');
 
       assert.equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
     });
@@ -688,15 +755,15 @@ test('the store calls adapter.findMany according to groupings returned by adapte
 
     findRecord(store, type, id, snapshot) {
       assert.equal(id, '10', 'The first group is passed to find');
-      return { id };
+      return { data: { id, type: 'test' } };
     },
 
     findMany(store, type, ids, snapshots) {
-      let records = ids.map(id => ({ id }));
+      let records = ids.map(id => ({ id, type: 'test' }));
 
       assert.deepEqual(ids, ['20', '21'], 'The second group is passed to findMany');
 
-      return records;
+      return { data: records };
     }
   });
 
@@ -734,15 +801,15 @@ test('the promise returned by `_scheduleFetch`, when it resolves, does not depen
     },
 
     findRecord(store, type, id, snapshot) {
-      let record = { id };
+      let record = { id, type: 'test' };
 
-      return new Ember.RSVP.Promise(function(resolve, reject) {
+      return new EmberPromise(function(resolve, reject) {
         if (id === 'igor') {
-          resolve(record);
+          resolve({ data: record });
         } else {
           run.later(function () {
             davidResolved = true;
-            resolve(record);
+            resolve({ data: record });
           }, 5);
         }
       });
@@ -767,7 +834,7 @@ test('the promise returned by `_scheduleFetch`, when it resolves, does not depen
       assert.equal(davidResolved, true, 'David resolved');
     }));
 
-    return Ember.RSVP.all(wait);
+    return all(wait);
   });
 });
 
@@ -786,15 +853,15 @@ test('the promise returned by `_scheduleFetch`, when it rejects, does not depend
     },
 
     findRecord(store, type, id, snapshot) {
-      let record = { id };
+      let record = { id, type: 'test' };
 
-      return new Ember.RSVP.Promise((resolve, reject) => {
+      return new EmberPromise((resolve, reject) => {
         if (id === 'igor') {
-          reject(record);
+          reject({ data: record });
         } else {
           run.later(() => {
             davidResolved = true;
-            resolve(record);
+            resolve({ data: record });
           }, 5);
         }
       });
@@ -819,7 +886,7 @@ test('the promise returned by `_scheduleFetch`, when it rejects, does not depend
       assert.equal(davidResolved, true, 'David resolved');
     }));
 
-    return Ember.RSVP.Promise.all(wait);
+    return EmberPromise.all(wait);
   });
 });
 
@@ -830,8 +897,8 @@ testInDebug('store._fetchRecord reject records that were not found, even when th
 
   const Adapter = TestAdapter.extend({
     findMany(store, type, ids, snapshots) {
-      let records = ids.map((id) => ({ id }));
-      return [records[0]];
+      let records = ids.map((id) => ({ id, type: 'test' }));
+      return { data: [records[0]] };
     }
   });
 
@@ -851,7 +918,7 @@ testInDebug('store._fetchRecord reject records that were not found, even when th
     });
   }, /expected to find records with the following ids/);
 
-  return Ember.RSVP.Promise.all(wait);
+  return EmberPromise.all(wait);
 });
 
 testInDebug('store._fetchRecord warns when records are missing', function(assert) {
@@ -859,9 +926,9 @@ testInDebug('store._fetchRecord warns when records are missing', function(assert
 
   const Adapter = TestAdapter.extend({
     findMany(store, type, ids, snapshots) {
-      let records = ids.map(id => ({ id })).filter(({ id }) => id === 'david');
+      let records = ids.map(id => ({ id, type: 'test' })).filter(({ id }) => id === 'david');
 
-      return [records[0]];
+      return {data: [records[0]] };
     }
   });
 
@@ -883,7 +950,7 @@ testInDebug('store._fetchRecord warns when records are missing', function(assert
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
 
-  return Ember.RSVP.Promise.all(wait).then(() => {
+  return EmberPromise.all(wait).then(() => {
     assert.ok(igorDidReject, 'expected rejection that <test:igor> could not be found in the payload, but no such rejection occured');
   });
 });
@@ -902,7 +969,7 @@ test('store should not call shouldReloadRecord when the record is not in the sto
     },
     findRecord() {
       assert.ok(true, 'find is always called when the record is not in the store');
-      return { id: 1 };
+      return { data: { id: 1, type: 'person' } };
     }
   });
 
@@ -965,7 +1032,7 @@ test('store should reload record when shouldReloadRecord returns true', function
     },
     findRecord() {
       assert.ok(true, 'find should not be called when shouldReloadRecord returns false');
-      return { id: 1, name: 'Tom' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
     }
   });
 
@@ -1004,7 +1071,7 @@ test('store should not call shouldBackgroundReloadRecord when the store is alrea
     },
     findRecord() {
       assert.ok(true, 'find should be called');
-      return { id: 1, name: 'Tom' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
     }
   });
 
@@ -1041,7 +1108,7 @@ test('store should not reload a record when `shouldBackgroundReloadRecord` is fa
     },
     findRecord() {
       assert.ok(false, 'find should not be called');
-      return { id: 1, name: 'Tom' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
     }
   });
 
@@ -1059,7 +1126,7 @@ test('store should not reload a record when `shouldBackgroundReloadRecord` is fa
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.get('name'), undefined);
+      assert.strictEqual(record.get('name'), undefined);
     });
   });
 });
@@ -1079,7 +1146,7 @@ test('store should reload the record in the background when `shouldBackgroundRel
     },
     findRecord() {
       assert.ok(true, 'find should not be called');
-      return { id: 1, name: 'Tom' };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Tom' } } };
     }
   });
 
@@ -1097,7 +1164,7 @@ test('store should reload the record in the background when `shouldBackgroundRel
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.get('name'), undefined);
+      assert.strictEqual(record.get('name'), undefined);
     });
   });
 
@@ -1148,7 +1215,7 @@ test('store should reload all records when shouldReloadAll returns true', functi
     },
     findAll() {
       assert.ok(true, 'findAll should be called when shouldReloadAll returns true');
-      return [{ id: 1, name: 'Tom' }];
+      return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }]};
     }
   });
 
@@ -1180,7 +1247,7 @@ test('store should not call shouldBackgroundReloadAll when the store is already 
     },
     findAll() {
       assert.ok(true, 'find should be called');
-      return [{ id: 1, name: 'Tom' }];
+      return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }]};
     }
   });
 
@@ -1214,7 +1281,7 @@ test('store should not reload all records when `shouldBackgroundReloadAll` is fa
     },
     findAll() {
       assert.ok(false, 'findAll should not be called');
-      return [{ id: 1, name: 'Tom' }];
+      return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
     }
   });
 
@@ -1225,7 +1292,7 @@ test('store should not reload all records when `shouldBackgroundReloadAll` is fa
 
   return run(() => {
     return store.findAll('person').then(records => {
-      assert.equal(records.get('firstObject'), undefined);
+      assert.strictEqual(records.get('firstObject'), undefined);
     });
   });
 });
@@ -1249,7 +1316,7 @@ test('store should reload all records in the background when `shouldBackgroundRe
     },
     findAll() {
       assert.ok(true, 'find should not be called');
-      return [{ id: 1, name: 'Tom' }];
+      return { data: [{ id: 1, type: 'person', attributes: { name: 'Tom' } }] };
     }
   });
 
@@ -1260,7 +1327,7 @@ test('store should reload all records in the background when `shouldBackgroundRe
 
   let done = run(() => {
     return store.findAll('person').then(records => {
-      assert.equal(records.get('firstObject.name'), undefined);
+      assert.strictEqual(records.get('firstObject.name'), undefined);
     });
   });
 

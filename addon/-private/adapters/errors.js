@@ -1,9 +1,7 @@
-import Ember from 'ember';
+import { makeArray } from '@ember/array';
+import { isPresent } from '@ember/utils';
+import EmberError from '@ember/error';
 import { assert } from '@ember/debug';
-
-import isEnabled from '../features';
-
-const EmberError = Ember.Error;
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -56,10 +54,10 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   `under-maintenance` route:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import MaintenanceError from '../adapters/maintenance-error';
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof MaintenanceError) {
@@ -88,11 +86,6 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
   ];
 }
 
-let extendedErrorsEnabled = false;
-if (isEnabled('ds-extended-errors')) {
-  extendedErrorsEnabled = true;
-}
-
 function extendFn(ErrorClass) {
   return function({ message: defaultMessage } = {}) {
     return extend(ErrorClass, defaultMessage);
@@ -105,19 +98,14 @@ function extend(ParentErrorClass, defaultMessage) {
     ParentErrorClass.call(this, errors, message || defaultMessage);
   };
   ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
-
-  if (extendedErrorsEnabled) {
-    ErrorClass.extend = extendFn(ErrorClass);
-  }
+  ErrorClass.extend = extendFn(ErrorClass);
 
   return ErrorClass;
 }
 
 AdapterError.prototype = Object.create(EmberError.prototype);
 
-if (extendedErrorsEnabled) {
-  AdapterError.extend = extendFn(AdapterError);
-}
+AdapterError.extend = extendFn(AdapterError);
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -148,13 +136,13 @@ if (extendedErrorsEnabled) {
   rejects with a `DS.InvalidError` object that looks like this:
 
   ```app/adapters/post.js
-  import Ember from 'ember';
+  import RSVP from 'RSVP';
   import DS from 'ember-data';
 
   export default DS.RESTAdapter.extend({
     updateRecord() {
       // Fictional adapter that always rejects
-      return Ember.RSVP.reject(new DS.InvalidError([
+      return RSVP.reject(new DS.InvalidError([
         {
           detail: 'Must be unique',
           source: { pointer: '/data/attributes/title' }
@@ -189,12 +177,12 @@ export const InvalidError = extend(AdapterError,
   connection if an adapter operation has timed out:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { TimeoutError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof TimeoutError) {
@@ -237,12 +225,12 @@ export const AbortError = extend(AdapterError,
   request is unauthorized:
 
   ```app/routes/application.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { UnauthorizedError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     actions: {
       error(error, transition) {
         if (error instanceof UnauthorizedError) {
@@ -260,8 +248,7 @@ export const AbortError = extend(AdapterError,
   @class UnauthorizedError
   @namespace DS
 */
-export const UnauthorizedError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation is unauthorized') : null;
+export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
 
 /**
   A `DS.ForbiddenError` equates to a HTTP `403 Forbidden` response status.
@@ -273,8 +260,7 @@ export const UnauthorizedError = extendedErrorsEnabled ?
   @class ForbiddenError
   @namespace DS
 */
-export const ForbiddenError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation is forbidden') : null;
+export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
 
 /**
   A `DS.NotFoundError` equates to a HTTP `404 Not Found` response status.
@@ -285,12 +271,12 @@ export const ForbiddenError = extendedErrorsEnabled ?
   for a specific model that does not exist. For example:
 
   ```app/routes/post.js
-  import Ember from 'ember';
+  import Route from '@ember/routing/route';
   import DS from 'ember-data';
 
   const { NotFoundError } = DS;
 
-  export default Ember.Route.extend({
+  export default Route.extend({
     model(params) {
       return this.get('store').findRecord('post', params.post_id);
     },
@@ -312,8 +298,7 @@ export const ForbiddenError = extendedErrorsEnabled ?
   @class NotFoundError
   @namespace DS
 */
-export const NotFoundError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter could not find the resource') : null;
+export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
 
 /**
   A `DS.ConflictError` equates to a HTTP `409 Conflict` response status.
@@ -325,8 +310,7 @@ export const NotFoundError = extendedErrorsEnabled ?
   @class ConflictError
   @namespace DS
 */
-export const ConflictError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation failed due to a conflict') : null;
+export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
 
 /**
   A `DS.ServerError` equates to a HTTP `500 Internal Server Error` response
@@ -336,8 +320,7 @@ export const ConflictError = extendedErrorsEnabled ?
   @class ServerError
   @namespace DS
 */
-export const ServerError = extendedErrorsEnabled ?
-  extend(AdapterError, 'The adapter operation failed due to a server error') : null;
+export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
 
 /**
   Convert an hash of errors into an array with errors in JSON-API format.
@@ -388,9 +371,9 @@ export const ServerError = extendedErrorsEnabled ?
 export function errorsHashToArray(errors) {
   let out = [];
 
-  if (Ember.isPresent(errors)) {
+  if (isPresent(errors)) {
     Object.keys(errors).forEach((key) => {
-      let messages = Ember.makeArray(errors[key]);
+      let messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         let title = 'Invalid Attribute';
         let pointer = `/data/attributes/${key}`;
@@ -455,7 +438,7 @@ export function errorsHashToArray(errors) {
 export function errorsArrayToHash(errors) {
   let out = {};
 
-  if (Ember.isPresent(errors)) {
+  if (isPresent(errors)) {
     errors.forEach((error) => {
       if (error.source && error.source.pointer) {
         let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);

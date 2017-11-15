@@ -1,4 +1,6 @@
 /* global heimdall */
+import { guidFor } from '@ember/object/internals';
+
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
@@ -80,18 +82,26 @@ export default class Relationship {
     return this.internalModel.modelName;
   }
 
+  _inverseIsAsync() {
+    if (!this.inverseKey || !this.inverseInternalModel) {
+      return false;
+    }
+    return this.inverseInternalModel._relationships.get(this.inverseKey).isAsync;
+  }
+
   removeInverseRelationships() {
     if (!this.inverseKey) { return; }
 
     let allMembers =
       // we actually want a union of members and canonicalMembers
       // they should be disjoint but currently are not due to a bug
-      this.members.toArray().concat(this.canonicalMembers.toArray());
+      this.members.list.concat(this.canonicalMembers.list);
 
-    allMembers.forEach(inverseInternalModel => {
+    for (let i = 0; i < allMembers.length; i++) {
+      let inverseInternalModel = allMembers[i];
       let relationship = inverseInternalModel._relationships.get(this.inverseKey);
       relationship.inverseDidDematerialize();
-    });
+    }
   }
 
   inverseDidDematerialize() {}
@@ -171,7 +181,7 @@ export default class Relationship {
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] =
-          new Relationship(this.store, internalModel, this.key,  { options: {} });
+          new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
       }
       relationship.addCanonicalInternalModel(this.internalModel);
     }
@@ -212,7 +222,7 @@ export default class Relationship {
         internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
       } else {
         if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: {} });
+          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
         }
         internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
       }
@@ -247,7 +257,6 @@ export default class Relationship {
   removeInternalModelFromOwn(internalModel) {
     heimdall.increment(removeInternalModelFromOwn);
     this.members.delete(internalModel);
-    this.notifyRecordRelationshipRemoved(internalModel);
     this.internalModel.updateRecordArrays();
   }
 
@@ -264,6 +273,48 @@ export default class Relationship {
     heimdall.increment(removeCanonicalInternalModelFromOwn);
     this.canonicalMembers.delete(internalModel);
     this.flushCanonicalLater();
+  }
+
+  /*
+    Call this method once a record deletion has been persisted
+    to purge it from BOTH current and canonical state of all
+    relationships.
+
+    @method removeCompletelyFromInverse
+    @private
+   */
+  removeCompletelyFromInverse() {
+    if (!this.inverseKey) { return; }
+
+    // we actually want a union of members and canonicalMembers
+    // they should be disjoint but currently are not due to a bug
+    let seen = Object.create(null);
+    const internalModel = this.internalModel;
+
+    const unload = inverseInternalModel => {
+      const id = guidFor(inverseInternalModel);
+
+      if (seen[id] === undefined) {
+        const relationship = inverseInternalModel._relationships.get(this.inverseKey);
+        relationship.removeCompletelyFromOwn(internalModel);
+        seen[id] = true;
+      }
+    };
+
+    this.members.forEach(unload);
+    this.canonicalMembers.forEach(unload);
+  }
+
+  /*
+    Removes the given internalModel from BOTH canonical AND current state.
+
+    This method is useful when either a deletion or a rollback on a new record
+    needs to entirely purge itself from an inverse relationship.
+   */
+  removeCompletelyFromOwn(internalModel) {
+    this.canonicalMembers.delete(internalModel);
+    this.members.delete(internalModel);
+    this.internalModel.updateRecordArrays();
   }
 
   flushCanonical() {
@@ -295,7 +346,7 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link) {
+  updateLink(link, initial) {
     heimdall.increment(updateLink);
     warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
       id: 'ds.store.push-link-for-sync-relationship'
@@ -304,7 +355,10 @@ export default class Relationship {
 
     this.link = link;
     this.linkPromise = null;
-    this.internalModel.notifyPropertyChange(this.key);
+
+    if (!initial) {
+      this.internalModel.notifyPropertyChange(this.key);
+    }
   }
 
   findLink() {
@@ -320,13 +374,13 @@ export default class Relationship {
 
   updateInternalModelsFromAdapter(internalModels) {
     heimdall.increment(updateInternalModelsFromAdapter);
+    this.setHasData(true);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(internalModels);
   }
 
   notifyRecordRelationshipAdded() { }
-  notifyRecordRelationshipRemoved() { }
 
   /*
    `hasData` for a relationship is a flag to indicate if we consider the
@@ -410,4 +464,7 @@ export default class Relationship {
   }
 
   updateData() {}
+
+  destroy() {
+  }
 }

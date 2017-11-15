@@ -1,17 +1,15 @@
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import { isEnabled } from 'ember-data/-private';
 
 import DS from 'ember-data';
 
 var env, store, serializer;
-
-var get = Ember.get;
-var run = Ember.run;
 
 var User, Handle, GithubHandle, TwitterHandle, Company, Project;
 
@@ -59,7 +57,7 @@ module('integration/serializers/json-api-serializer - JSONAPISerializer', {
     });
 
     store = env.store;
-    serializer = store.serializerFor('-json-api');
+    serializer = env.serializer;
   },
 
   afterEach() {
@@ -136,6 +134,71 @@ testInDebug('Warns when normalizing an unknown type', function(assert) {
       env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
     });
   }, /Encountered a resource object with type "UnknownType", but no model was found for model name "unknown-type"/);
+});
+
+testInDebug('Warns when normalizing payload with unknown type included', function(assert) {
+  var documentHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first-name': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        company: {
+          data: { type: 'unknown-types', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'unknown-types',
+      id: '2',
+      attributes: {
+        name: 'WyKittens'
+      }
+    }]
+  };
+
+  assert.expectWarning(function() {
+    run(function() {
+      env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
+    });
+  }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
+});
+
+testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
+  var documentHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first-name': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        company: {
+          data: { type: 'unknown-types', id: '2' }
+        }
+      }
+    },
+    included: [{
+      type: 'unknown-types',
+      id: '2',
+      attributes: {
+        name: 'WyKittens'
+      }
+    }]
+  };
+
+  assert.expectWarning(function() {
+    run(function() {
+      env.store.pushPayload(documentHash);
+    });
+  }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
+
+  var user = store.peekRecord('user', 1);
+  assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
 });
 
 testInDebug('Warns when normalizing with type missing', function(assert) {

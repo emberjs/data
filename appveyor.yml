@@ -3,7 +3,7 @@
 # Test against these versions of Node.js.
 environment:
   matrix:
-    - nodejs_version: "7"
+    - nodejs_version: "4"
 
 cache:
   - '%LOCALAPPDATA%\Yarn'
@@ -19,12 +19,10 @@ install:
   # Typical npm stuff.
   - md C:\nc
   - appveyor-retry yarn install
-  # Workaround https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows
-  - yarn run bower
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
-  - cmd: yarn run test
+  - cmd: yarn run test-appveyor
   - cmd: yarn run test:optional-features
   - cmd: yarn run test:production
   - cmd: yarn run node-tests

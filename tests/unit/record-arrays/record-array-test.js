@@ -1,8 +1,10 @@
+import { A } from '@ember/array';
+import { get } from '@ember/object';
+import RSVP from 'rsvp';
+import { run } from '@ember/runloop';
 import DS from 'ember-data';
-import Ember from 'ember';
 import { module, test } from 'qunit';
 
-const { get, RSVP, run } = Ember;
 const { RecordArray } = DS;
 
 module('unit/record-arrays/record-array - DS.RecordArray');
@@ -13,12 +15,12 @@ test('default initial state', function(assert) {
   assert.equal(get(recordArray, 'isLoaded'), false);
   assert.equal(get(recordArray, 'isUpdating'), false);
   assert.equal(get(recordArray, 'modelName'), 'recordType');
-  assert.equal(get(recordArray, 'content'), null);
-  assert.equal(get(recordArray, 'store'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'store'), null);
 });
 
 test('custom initial state', function(assert) {
-  let content = Ember.A();
+  let content = A();
   let store = {};
   let recordArray = RecordArray.create({
     modelName: 'apple',
@@ -43,7 +45,7 @@ test('#replace() throws error', function(assert) {
 });
 
 test('#objectAtContent', function(assert) {
-  let content = Ember.A([
+  let content = A([
     { getRecord() { return 'foo'; }},
     { getRecord() { return 'bar'; }},
     { getRecord() { return 'baz'; }}
@@ -58,7 +60,7 @@ test('#objectAtContent', function(assert) {
   assert.equal(recordArray.objectAtContent(0), 'foo');
   assert.equal(recordArray.objectAtContent(1), 'bar');
   assert.equal(recordArray.objectAtContent(2), 'baz');
-  assert.equal(recordArray.objectAtContent(3), undefined);
+  assert.strictEqual(recordArray.objectAtContent(3), undefined);
 });
 
 test('#update', function(assert) {
@@ -137,7 +139,7 @@ test('#update while updating', function(assert) {
 });
 
 test('#_pushInternalModels', function(assert) {
-  let content = Ember.A();
+  let content = A();
   let recordArray = RecordArray.create({
     content
   });
@@ -161,7 +163,7 @@ test('#_pushInternalModels', function(assert) {
 });
 
 test('#_removeInternalModels', function(assert) {
-  let content = Ember.A();
+  let content = A();
   let recordArray = RecordArray.create({
     content
   });
@@ -215,7 +217,7 @@ function internalModelFor(record) {
 test('#save', function(assert) {
   let model1 = { save() { model1Saved++; return this;} };
   let model2 = { save() { model2Saved++; return this;} };
-  let content = Ember.A([
+  let content = A([
     internalModelFor(model1),
     internalModelFor(model2)
   ]);
@@ -256,7 +258,7 @@ test('#destroy', function(assert) {
   // end TODO:
 
   let recordArray = RecordArray.create({
-    content: Ember.A([internalModel1]),
+    content: A([internalModel1]),
     manager: {
       unregisterRecordArray(_recordArray) {
         didUnregisterRecordArray++;
@@ -279,7 +281,7 @@ test('#destroy', function(assert) {
   assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
   recordArray.destroy();
 
-  assert.equal(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });
@@ -293,7 +295,7 @@ test('#_createSnapshot', function(assert) {
     id: 2
   };
 
-  let content = Ember.A([
+  let content = A([
     internalModelFor(model1),
     internalModelFor(model2)
   ]);
@@ -327,7 +329,7 @@ test('#destroy', function(assert) {
   // end TODO:
 
   let recordArray = RecordArray.create({
-    content: Ember.A([internalModel1]),
+    content: A([internalModel1]),
     manager: {
       unregisterRecordArray(_recordArray) {
         didUnregisterRecordArray++;
@@ -350,7 +352,7 @@ test('#destroy', function(assert) {
   assert.equal(didDissociatieFromOwnRecords, 1, 'after destroy, we should have dissociated from own record array');
   recordArray.destroy();
 
-  assert.equal(get(recordArray, 'content'), null);
+  assert.strictEqual(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');
   assert.equal(get(recordArray, 'isDestroyed'), true, 'should be destroyed');
 });

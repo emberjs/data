@@ -1,11 +1,6 @@
-import Ember from 'ember';
+import { once } from '@ember/runloop';
+import { get, observer } from '@ember/object';
 import RecordArray from "./record-array";
-
-/**
-  @module ember-data
-*/
-
-const { get } = Ember;
 
 /**
   Represents a list of records whose membership is determined by the
@@ -66,7 +61,7 @@ export default RecordArray.extend({
     get(this, 'manager').updateFilter(this, this.modelName, get(this, 'filterFunction'));
   },
 
-  updateFilter: Ember.observer('filterFunction', function() {
-    Ember.run.once(this, this._updateFilter);
+  updateFilter: observer('filterFunction', function() {
+    once(this, this._updateFilter);
   })
 });

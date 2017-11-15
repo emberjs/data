@@ -1,12 +1,12 @@
+import { defer, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import DS from 'ember-data';
-import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import { isEnabled } from 'ember-data/-private';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-var get = Ember.get;
-var run = Ember.run;
 var env, Person;
 
 module("integration/references/has-many", {
@@ -431,7 +431,7 @@ test("push(promise)", function(assert) {
   var done = assert.async();
 
   var push;
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
 
   run(function() {
     var family = env.store.push({
@@ -588,7 +588,7 @@ test("load() fetches the referenced records", function(assert) {
   var done = assert.async();
 
   env.adapter.findMany = function(store, type, id) {
-    return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+    return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito" } }, { id: 2, type: 'person', attributes: { name: "Michael" } }] });
   };
 
   var family;
@@ -629,7 +629,7 @@ test("load() fetches link when remoteType is link", function(assert) {
   env.adapter.findHasMany = function(store, snapshot, link) {
     assert.equal(link, "/families/1/persons");
 
-    return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+    return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito" } }, { id: 2, type: 'person', attributes: { name: "Michael" } }] });
   };
 
   var family;
@@ -662,10 +662,44 @@ test("load() fetches link when remoteType is link", function(assert) {
   });
 });
 
+test("load() fetches link when remoteType is link but an empty set of records is returned", function(assert) {
+  env.adapter.findHasMany = function(store, snapshot, link) {
+    assert.equal(link, "/families/1/persons");
+
+    return resolve({ data: [] });
+  };
+
+  let family;
+  run(() => {
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            links: { related: '/families/1/persons' }
+          }
+        }
+      }
+    });
+  });
+
+  let personsReference = family.hasMany('persons');
+  assert.equal(personsReference.remoteType(), "link");
+
+  return run(() => {
+    return personsReference.load().then((records) => {
+      assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+      assert.equal(get(records, 'length'), 0);
+      assert.equal(get(personsReference.value(), 'length'), 0);
+    });
+  });
+});
+
 test("load() - only a single find is triggered", function(assert) {
   var done = assert.async();
 
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
   var count = 0;
 
   env.adapter.findMany = function(store, type, id) {
@@ -703,7 +737,7 @@ test("load() - only a single find is triggered", function(assert) {
   });
 
   run(function() {
-    deferred.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+    deferred.resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito" } }, { id: 2, type: 'person', attributes: { name: "Michael" } }] });
   });
 
   run(function() {
@@ -719,10 +753,7 @@ test("reload()", function(assert) {
   var done = assert.async();
 
   env.adapter.findMany = function(store, type, id) {
-    return Ember.RSVP.resolve([
-      { id: 1, name: "Vito Coreleone" },
-      { id: 2, name: "Michael Coreleone" }
-    ]);
+    return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito Coreleone" } }, { id: 2, type: 'person', attributes: { name: "Michael Coreleone" } }] });
   };
 
   var family;
@@ -768,12 +799,9 @@ test("reload() fetches link when remoteType is link", function(assert) {
     assert.equal(link, "/families/1/persons");
 
     if (count === 1) {
-      return Ember.RSVP.resolve([{ id: 1, name: "Vito" }, { id: 2, name: "Michael" }]);
+      return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito" } }, { id: 2, type: 'person', attributes: { name: "Michael" } }] });
     } else {
-      return Ember.RSVP.resolve([
-          { id: 1, name: "Vito Coreleone" },
-          { id: 2, name: "Michael Coreleone" }
-      ]);
+      return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Vito Coreleone" } }, { id: 2, type: 'person', attributes: { name: "Michael Coreleone" } }] });
     }
   };
 

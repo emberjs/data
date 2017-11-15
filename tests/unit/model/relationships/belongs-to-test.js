@@ -1,12 +1,11 @@
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { get, run } = Ember;
 
 module('unit/model/relationships - DS.belongsTo');
 
@@ -151,11 +150,11 @@ test('async belongsTo relationships work when the data hash has not been loaded'
     if (type === Person) {
       assert.equal(id, 1, 'id should be 1');
 
-      return { id: 1, name: 'Tom Dale', tag: 2 };
+      return { data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' }, relationships: { tag: { data: { id: 2, type: 'tag' } } } } };
     } else if (type === Tag) {
       assert.equal(id, 2, 'id should be 2');
 
-      return { id: 2, name: 'friendly' };
+      return { data: { id: 2, type: 'tag', attributes: { name: 'friendly' } } };
     }
   };
 
@@ -252,9 +251,18 @@ test('when response to saving a belongsTo is a success but includes changes that
 
   env.adapter.updateRecord = function() {
     return {
-      type: 'user',
-      id: '1',
-      tag: { type: 'tag', id: '1' }
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          tag: {
+            data: {
+              id: '1',
+              type: 'tag'
+            }
+          }
+        }
+      }
     };
   };
 
@@ -308,10 +316,10 @@ test('When finding a hasMany relationship the inverse belongsTo relationship is 
 
   env.adapter.findMany = function(store, type, ids, snapshots) {
     assert.equal(snapshots[0].belongsTo('person').id, '1');
-    return [
-      { id: 5, description: "fifth" },
-      { id: 2, description: "second" }
-    ];
+    return { data: [
+      { id: 5, type: 'occupation', attributes: { description: "fifth" } },
+      { id: 2, type: 'occupation', attributes: { description: "second" } }
+    ]};
   };
 
   env.adapter.coalesceFindRequests = true;
@@ -369,7 +377,7 @@ test('When finding a belongsTo relationship the inverse belongsTo relationship i
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     assert.equal(snapshot.belongsTo('person').id, '1');
-    return { id: 5, description: 'fifth' };
+    return { data: { id: 5, type: 'occupation', attributes: { description: 'fifth' } } };
   };
 
   run(() => {

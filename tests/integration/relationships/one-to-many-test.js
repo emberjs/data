@@ -1,13 +1,13 @@
+import { resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var env, store, User, Message, Account;
-var get = Ember.get;
-var run = Ember.run;
 
 var attr = DS.attr;
 var hasMany = DS.hasMany;
@@ -36,7 +36,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
       message: Message,
       account: Account,
       adapter: DS.Adapter.extend({
-        deleteRecord: () => Ember.RSVP.resolve()
+        deleteRecord: () => resolve()
       })
     });
 

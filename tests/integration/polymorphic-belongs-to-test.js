@@ -1,12 +1,11 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 const { attr, belongsTo } = DS;
-const { run } = Ember;
 
 let store;
 
@@ -85,7 +84,7 @@ test('using store.push with a null value for a payload in relationships sets the
   };
 
   run(() => store.push(payloadThatResetsBelongToRelationship));
-  assert.equal(book.get('author'), null);
+  assert.strictEqual(book.get('author'), null);
 });
 
 test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', (assert) => {
@@ -130,13 +129,11 @@ test('using store.push with a null value for a payload in relationships sets the
     }
   };
 
-  let done = assert.async();
-  book.get('author').then((author) => {
+  return book.get('author').then(author => {
     assert.equal(author.get('id'), 1);
     run(() => store.push(payloadThatResetsBelongToRelationship));
     return book.get('author');
-  }).then((author) => {
-    assert.equal(author, null);
-    done();
+  }).then(author => {
+    assert.strictEqual(author, null);
   });
 });

@@ -1,12 +1,15 @@
-import {createStore} from 'dummy/tests/helpers/store';
+import { guidFor } from '@ember/object/internals';
+import { Promise as EmberPromise, resolve } from 'rsvp';
+import { set, get, observer, computed } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
-
-const { get, set, run } = Ember;
+import { getOwner } from 'ember-data/-private';
 
 let Person, store, env;
 
@@ -95,7 +98,7 @@ test('resetting a property to the current in-flight value causes it to become cl
   assert.expect(4);
 
   env.adapter.updateRecord = function(store, type, snapshot) {
-    return Ember.RSVP.Promise.resolve()
+    return EmberPromise.resolve();
   };
 
   return run(() => {
@@ -158,6 +161,83 @@ test('a record becomes clean again only if all changed properties are reset', fu
   });
 });
 
+test('an invalid record becomes clean again if changed property is reset', function(assert) {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.updateRecord = () => {
+    var error = new DS.InvalidError([{ name: 'not valid' }]);
+
+    return EmberPromise.reject(error);
+  };
+
+  return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Peter',
+          isDrugAddict: true
+        }
+      }
+    });
+
+    let person = store.peekRecord('person', 1);
+
+    assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
+    person.set('name', 'Wolf');
+    assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting one property to a new value');
+
+    return person.save().catch(() => {
+      assert.equal(person.get('isValid'), false, 'record is not valid');
+      assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
+
+      person.set('name', 'Peter');
+
+      assert.equal(person.get('isValid'), true, 'record is valid after resetting attribute to old value');
+      assert.equal(person.get('hasDirtyAttributes'), false, "record becomes clean after resetting property to the old value");
+    });
+  });
+});
+
+test('an invalid record stays dirty if only invalid property is reset', function(assert) {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.updateRecord = () => {
+    var error = new DS.InvalidError([{ name: 'not valid' }]);
+
+    return EmberPromise.reject(error);
+  };
+
+  return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Peter',
+          isDrugAddict: true
+        }
+      }
+    });
+
+    let person = store.peekRecord('person', 1);
+
+    assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
+    person.set('name', 'Wolf');
+    person.set('isDrugAddict', false);
+    assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting one property to a new value');
+
+    return person.save().catch(() => {
+      assert.equal(person.get('isValid'), false, 'record is not valid');
+      assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
+
+      person.set('name', 'Peter');
+
+      assert.equal(person.get('isValid'), true, 'record is valid after resetting invalid attribute to old value');
+      assert.equal(person.get('hasDirtyAttributes'), true, "record still has dirty attributes");
+    });
+  });
+});
+
 test('a record reports its unique id via the `id` property', function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
@@ -189,7 +269,7 @@ test("a record's id is included in its toString representation", function(assert
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<(subclass of DS.Model):${Ember.guidFor(record)}:1>`, 'reports id in toString');
+      assert.equal(record.toString(), `<(subclass of DS.Model):${guidFor(record)}:1>`, 'reports id in toString');
     });
   });
 });
@@ -360,7 +440,7 @@ test('changedAttributes() works while the record is being saved', function(asser
         likes: [undefined, 'Cheese']
       });
 
-      return { id: 1 };
+      return { data: { id: 1, type: 'mascot' } };
     }
   });
 
@@ -396,7 +476,7 @@ test('changedAttributes() works while the record is being updated', function(ass
         likes: ['Cheese', 'Mussels']
       });
 
-      return { id: '1', type: 'mascot' };
+      return { data: { id: '1', type: 'mascot' } };
     }
   });
 
@@ -522,7 +602,7 @@ if (isEnabled('ds-rollback-attribute')) {
 
     // Make sure the save is async
     env.adapter.updateRecord = function(store, type, snapshot) {
-      return Ember.RSVP.resolve();
+      return resolve();
     };
 
     return run(() => {
@@ -557,7 +637,7 @@ if (isEnabled('ds-rollback-attribute')) {
     assert.expect(7);
 
     let person, finishSaving;
-    let updateRecordPromise = new Ember.RSVP.Promise(resolve => finishSaving = resolve);
+    let updateRecordPromise = new EmberPromise(resolve => finishSaving = resolve);
 
     // Make sure the save is async
     env.adapter.updateRecord = function(store, type, snapshot) {
@@ -608,7 +688,7 @@ if (isEnabled('ds-rollback-attribute')) {
       finishSaving();
     });
 
-    return Ember.RSVP.Promise.all(saving);
+    return EmberPromise.all(saving);
   });
 }
 
@@ -850,7 +930,7 @@ testInDebug('a null defaultValue is not deprecated', function(assert) {
   let tag = run(() => store.createRecord('tag'));
 
   assert.expectNoDeprecation();
-  assert.equal(get(tag, 'tagInfo'), null);
+  assert.strictEqual(get(tag, 'tagInfo'), null);
 });
 
 test('setting a property to undefined on a newly created record should not impact the current state', function(assert) {
@@ -1006,6 +1086,7 @@ function converts(assert, type, provided, expected, options = {}) {
   let testStore = createStore({
     model: Model
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   run(() => {
     testStore.push(testStore.normalize('model', { id: 1, name: provided }));
@@ -1041,6 +1122,7 @@ function convertsFromServer(assert, type, provided, expected) {
       shouldBackgroundReloadRecord() { return false; }
     })
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   return run(() => {
     testStore.push(testStore.normalize('model', {
@@ -1141,6 +1223,7 @@ function convertsWhenSet(assert, type, provided, expected) {
       }
     })
   });
+  getOwner(testStore).register('serializer:model', DS.JSONSerializer);
 
   return run(() => {
     testStore.push({
@@ -1179,9 +1262,12 @@ test('ensure model exits loading state, materializes data and fulfills promise o
   let store = createStore({
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return Ember.RSVP.resolve({
-          id: 1,
-          name: 'John'
+        return resolve({
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: { name: 'John' }
+          }
         });
       }
     }),
@@ -1204,7 +1290,7 @@ test('A DS.Model can be JSONified', function(assert) {
   let store = createStore({ person: Person });
   let record = run(() => store.createRecord('person', { name: 'TomHuda' }));
 
-  assert.deepEqual(record.toJSON(), { name: 'TomHuda' });
+  assert.deepEqual(record.toJSON(), { data: { type: 'people', attributes: { name: 'TomHuda' } } });
 });
 
 testInDebug('A subclass of DS.Model can not use the `data` property', function(assert) {
@@ -1325,7 +1411,7 @@ test('toJSON looks up the JSONSerializer using the store instead of using JSONSe
   }
 
   assert.ok(!errorThrown, 'error not thrown due to missing store');
-  assert.deepEqual(json, {});
+  assert.deepEqual(json, { data: { type: 'people' }});
 });
 
 test('internalModel is ready by `init`', function(assert) {
@@ -1340,7 +1426,7 @@ test('internalModel is ready by `init`', function(assert) {
       this.set('name', 'my-name-set-in-init');
     },
 
-    nameDidChange: Ember.observer('name', () => nameDidChange++)
+    nameDidChange: observer('name', () => nameDidChange++)
   });
 
   let { store } = setupStore({ person: Person });
@@ -1396,7 +1482,7 @@ test('updating the id with store.updateId should correctly when the id property 
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    idComputed: Ember.computed('id', function() {})
+    idComputed: computed('id', function() {})
   });
 
   let { store } = setupStore({
@@ -1420,7 +1506,7 @@ test('accessing the model id without the get function should work when id is wat
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    idComputed: Ember.computed('id', function() {})
+    idComputed: computed('id', function() {})
   });
 
   let { store } = setupStore({

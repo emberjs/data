@@ -1,5 +1,7 @@
+import { hash, all } from 'rsvp';
+import { set, get, computed } from '@ember/object';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import { module, test } from 'qunit';
 
@@ -7,18 +9,12 @@ import DS from 'ember-data';
 
 import customAdapter from 'dummy/tests/helpers/custom-adapter';
 
-const {
-  get,
-  set,
-  run
-} = Ember;
-
 let store, env, data, recordArray;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
   bestFriend: DS.belongsTo('person', { inverse: null, async: false }),
-  upperName: Ember.computed('name', function() {
+  upperName: computed('name', function() {
     return this.get('name').toUpperCase();
   }).readOnly()
 });
@@ -235,7 +231,7 @@ test('a Record Array can update its filter', function(assert) {
     }
   }).then(recordArray => {
 
-    return Ember.RSVP.hash(asyncData).then(records => {
+    return hash(asyncData).then(records => {
       assert.contains(recordArray, records.dale);
       assert.contains(recordArray, records.katz);
       assert.without(recordArray,  dickens);
@@ -334,7 +330,7 @@ test('a Record Array can update its filter and notify array observers', function
       });
     });
 
-    return Ember.RSVP.all(asyncData).then(() => {
+    return all(asyncData).then(() => {
       assert.equal(didChangeRemoved, 1, 'removed one item from array');
       didChangeRemoved = 0;
 
@@ -449,12 +445,17 @@ test('a filter created after a record is already loaded works', function(assert)
 test('filter with query persists query on the resulting filteredRecordArray', function(assert) {
   customAdapter(env, DS.Adapter.extend({
     query(store, type, id) {
-      return [
-        {
-          id: id,
-          name: 'Tom Dale'
-        }
-      ];
+      return {
+        data: [
+          {
+            id: id,
+            type: 'person',
+            attributes: {
+              name: 'Tom Dale'
+            }
+          }
+        ]
+      };
     }
   }));
 
@@ -473,8 +474,13 @@ test('it is possible to filter by state flags', function(assert) {
   customAdapter(env, DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
       return {
-        id,
-        name: 'Tom Dale'
+        data: {
+          id,
+          type: 'person',
+          attributes: {
+            name: 'Tom Dale'
+          }
+        }
       };
     }
   }));
@@ -504,7 +510,7 @@ test('it is possible to filter by state flags', function(assert) {
 test('it is possible to filter loaded records by dirtiness', function(assert) {
   customAdapter(env, DS.Adapter.extend({
     updateRecord(type, model, snapshot) {
-      return { id: snapshot.id };
+      return { data: { id: snapshot.id, type: model.modelName } };
     },
     shouldBackgroundReloadRecord() {
       return false;
@@ -544,7 +550,13 @@ test('it is possible to filter created records by dirtiness', function(assert) {
   run(() => {
     customAdapter(env, DS.Adapter.extend({
       createRecord(type, model, snapshot) {
-        return Ember.merge(Ember.merge({}, snapshot._attributes), { id: snapshot.id} )
+        return {
+          data: {
+            id: snapshot.id,
+            type: model.modelName,
+            attributes: snapshot._attributes
+          }
+        }
       },
       shouldBackgroundReloadRecord() { return false; }
     }));
@@ -574,8 +586,13 @@ test('it is possible to filter created records by isReloading', function(assert)
   customAdapter(env, DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
       return {
-        id: 1,
-        name: 'Tom Dalle'
+        data: {
+          id: 1,
+          type: 'person',
+          attributes: {
+            name: 'Tom Dalle'
+          }
+        }
       };
     }
   }));
@@ -644,8 +661,13 @@ test('a Record Array can update its filter after server-side updates one record'
   setup(assert, {
     updateRecord(store, type, snapshot) {
       return {
-        id: 1,
-        name: 'Scumbag Server-side Dale'
+        data: {
+          id: 1,
+          type: 'person',
+          attributes: {
+            name: 'Scumbag Server-side Dale'
+          }
+        }
       };
     },
     shouldBackgroundReloadRecord() { return false; }
@@ -664,13 +686,23 @@ test('a Record Array can update its filter after server-side updates multiple re
       switch (snapshot.id) {
         case '1':
           return {
-            id: 1,
-            name: 'Scumbag Server-side Dale'
+            data: {
+              id: 1,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side Dale'
+              }
+            }
           };
         case '2':
           return {
-            id: 2,
-            name: 'Scumbag Server-side Katz'
+            data: {
+              id: 2,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side Katz'
+              }
+            }
           };
       }
     },
@@ -688,8 +720,13 @@ test('a Record Array can update its filter after server-side creates one record'
   setup(assert, {
     createRecord(store, type, snapshot) {
       return {
-        id: 4,
-        name: 'Scumbag Server-side Tim'
+        data: {
+          id: 4,
+          type: 'person',
+          attributes: {
+            name: 'Scumbag Server-side Tim'
+          }
+        }
       };
     }
   });
@@ -707,13 +744,23 @@ test('a Record Array can update its filter after server-side creates multiple re
       switch (snapshot.attr('name')) {
         case 'Client-side Mike':
           return {
-            id: 4,
-            name: 'Scumbag Server-side Mike'
+            data: {
+              id: 4,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side Mike'
+              }
+            }
           };
         case 'Client-side David':
           return {
-            id: 5,
-            name: 'Scumbag Server-side David'
+            data: {
+              id: 5,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side David'
+              }
+            }
           };
       }
     }
@@ -732,13 +779,23 @@ test('a Record Array can update its filter after server-side creates multiple re
       switch (snapshot.attr('name')) {
         case 'Client-side Mike':
           return {
-            id: 4,
-            name: 'Scumbag Server-side Mike'
+            data: {
+              id: 4,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side Mike'
+              }
+            }
           };
         case 'Client-side David':
           return {
-            id: 5,
-            name: 'Scumbag Server-side David'
+            data: {
+              id: 5,
+              type: 'person',
+              attributes: {
+                name: 'Scumbag Server-side David'
+              }
+            }
           };
       }
     }

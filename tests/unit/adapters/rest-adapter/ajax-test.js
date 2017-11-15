@@ -1,13 +1,13 @@
+import { resolve, Promise as EmberPromise } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 
 var Person, Place, store, adapter, env;
-const { run } = Ember;
 
 module('unit/adapters/rest-adapter/ajax - building requests', {
   beforeEach() {
@@ -36,22 +36,22 @@ test('When an id is searched, the correct url should be generated', function(ass
       if (count === 0) { assert.equal(request.url, '/people/1', 'should create the correct url'); }
       if (count === 1) { assert.equal(request.url, '/places/1', 'should create the correct url'); }
       count++;
-      return Ember.RSVP.resolve();
+      return resolve();
     };
   } else {
     adapter.ajax = function(url, method) {
       if (count === 0) { assert.equal(url, '/people/1', 'should create the correct url'); }
       if (count === 1) { assert.equal(url, '/places/1', 'should create the correct url'); }
       count++;
-      return Ember.RSVP.resolve();
+      return resolve();
     };
   }
 
   return run(() => {
-    return Ember.RSVP.Promise.all([
+    return EmberPromise.all([
       adapter.findRecord(store, Person, 1, {}),
       adapter.findRecord(store, Place, 1, {})
-    ])
+    ]);
   });
 });
 
@@ -61,12 +61,12 @@ test(`id's should be sanatized`, function(assert) {
   if (isEnabled('ds-improved-ajax')) {
     adapter._makeRequest = function(request) {
       assert.equal(request.url, '/people/..%2Fplace%2F1', `should create the correct url`);
-      return Ember.RSVP.resolve();
+      return resolve();
     };
   } else {
     adapter.ajax = function(url, method) {
       assert.equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
-      return Ember.RSVP.resolve();
+      return resolve();
     };
   }
 

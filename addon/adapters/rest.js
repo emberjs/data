@@ -3,7 +3,12 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import $ from 'jquery';
+
+import { Promise as EmberPromise } from 'rsvp';
+import MapWithDefault from '@ember/map/with-default';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import Adapter from "../adapter";
 import {
   parseResponseHeaders,
@@ -23,13 +28,7 @@ import { instrument } from 'ember-data/-debug';
 import { warn, deprecate } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-
-const {
-  MapWithDefault,
-  get
-} = Ember;
-
-const Promise = Ember.RSVP.Promise;
+const Promise = EmberPromise;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -249,9 +248,10 @@ const Promise = Ember.RSVP.Promise;
 
   ```app/adapters/application.js
   import DS from 'ember-data';
+  import { computed } from '@ember/object';
 
   export default DS.RESTAdapter.extend({
-    headers: Ember.computed('session.authToken', function() {
+    headers: computed('session.authToken', function() {
       return {
         'API_KEY': this.get('session.authToken'),
         'ANOTHER_HEADER': 'Some header value'
@@ -269,11 +269,13 @@ const Promise = Ember.RSVP.Promise;
 
   ```app/adapters/application.js
   import DS from 'ember-data';
+  import { get } from '@ember/object';
+  import { computed } from '@ember/object';
 
   export default DS.RESTAdapter.extend({
-    headers: Ember.computed(function() {
+    headers: computed(function() {
       return {
-        'API_KEY': Ember.get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
+        'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
         'ANOTHER_HEADER': 'Some header value'
       };
     }).volatile()
@@ -728,6 +730,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {DS.Store} store
     @param {DS.Snapshot} snapshot
     @param {String} url
+    @param {Object} relationship meta object describing the relationship
     @return {Promise} promise
   */
   findBelongsTo(store, snapshot, url, relationship) {
@@ -972,21 +975,19 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let errors          = this.normalizeErrorResponse(status, headers, payload);
     let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
-    if (isEnabled('ds-extended-errors')) {
-      switch (status) {
-        case 401:
-          return new UnauthorizedError(errors, detailedMessage);
-        case 403:
-          return new ForbiddenError(errors, detailedMessage);
-        case 404:
-          return new NotFoundError(errors, detailedMessage);
-        case 409:
-          return new ConflictError(errors, detailedMessage);
-        default:
-          if (status >= 500) {
-            return new ServerError(errors, detailedMessage);
-          }
-      }
+    switch (status) {
+      case 401:
+        return new UnauthorizedError(errors, detailedMessage);
+      case 403:
+        return new ForbiddenError(errors, detailedMessage);
+      case 404:
+        return new NotFoundError(errors, detailedMessage);
+      case 409:
+        return new ConflictError(errors, detailedMessage);
+      default:
+        if (status >= 500) {
+          return new ServerError(errors, detailedMessage);
+        }
     }
 
     return new AdapterError(errors, detailedMessage);
@@ -1061,7 +1062,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       hash.success = function(payload, textStatus, jqXHR) {
         heimdall.stop(token);
         let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-        Ember.run.join(null, resolve, response);
+        run.join(null, resolve, response);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
@@ -1071,7 +1072,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           errorThrown
         };
         let error = ajaxError(adapter, jqXHR, requestData, responseData);
-        Ember.run.join(null, reject, error);
+        run.join(null, reject, error);
       };
 
       adapter._ajaxRequest(hash);
@@ -1084,7 +1085,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options) {
-    Ember.$.ajax(options);
+    $.ajax(options);
   },
 
   /**
@@ -1108,7 +1109,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = Ember.$.parseJSON(payload);
+            json = $.parseJSON(payload);
           } catch (e) {
             json = payload;
           }
@@ -1143,7 +1144,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let json = responseText;
 
     try {
-      json = Ember.$.parseJSON(responseText);
+      json = $.parseJSON(responseText);
     } catch (e) {
       // ignored
     }
@@ -1243,7 +1244,7 @@ if (isEnabled('ds-improved-ajax')) {
 
   RESTAdapter.reopen({
 
-    /**
+    /*
      * Get the data (body or query params) for a request.
      *
      * @public
@@ -1301,7 +1302,7 @@ if (isEnabled('ds-improved-ajax')) {
       return data;
     },
 
-    /**
+    /*
      * Get the HTTP method for a request.
      *
      * @public
@@ -1321,7 +1322,7 @@ if (isEnabled('ds-improved-ajax')) {
       return 'GET';
     },
 
-    /**
+    /*
      * Get the URL for a request.
      *
      * @public
@@ -1358,7 +1359,7 @@ if (isEnabled('ds-improved-ajax')) {
       return this.buildURL(type.modelName, id, snapshot, requestType, query);
     },
 
-    /**
+    /*
      * Get the headers for a request.
      *
      * By default the value of the `headers` property of the adapter is
@@ -1373,7 +1374,7 @@ if (isEnabled('ds-improved-ajax')) {
       return this.get('headers');
     },
 
-    /**
+    /*
      * Get an object which contains all properties for a request which should
      * be made.
      *
@@ -1391,7 +1392,7 @@ if (isEnabled('ds-improved-ajax')) {
       return { method, url, headers, data };
     },
 
-    /**
+    /*
      * Convert a request object into a hash which can be passed to `jQuery.ajax`.
      *
      * @private
@@ -1426,7 +1427,7 @@ if (isEnabled('ds-improved-ajax')) {
       return hash;
     },
 
-    /**
+    /*
      * Make a request using `jQuery.ajax`.
      *
      * @private
@@ -1442,12 +1443,12 @@ if (isEnabled('ds-improved-ajax')) {
       let { method, url } = request;
       let requestData = { method, url };
 
-      return new Ember.RSVP.Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
 
         hash.success = function(payload, textStatus, jqXHR) {
           heimdall.stop(token);
           let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
-          Ember.run.join(null, resolve, response);
+          run.join(null, resolve, response);
         };
 
         hash.error = function(jqXHR, textStatus, errorThrown) {
@@ -1457,7 +1458,7 @@ if (isEnabled('ds-improved-ajax')) {
             errorThrown
           };
           let error = ajaxError(adapter, jqXHR, requestData, responseData);
-          Ember.run.join(null, reject, error);
+          run.join(null, reject, error);
         };
 
         instrument(function() {
@@ -1466,7 +1467,7 @@ if (isEnabled('ds-improved-ajax')) {
               let token = heimdall.start('json.parse');
               let json;
               try {
-                json = Ember.$.parseJSON(payload);
+                json = $.parseJSON(payload);
               } catch (e) {
                 json = payload;
               }

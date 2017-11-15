@@ -4,6 +4,9 @@
   must be evaluated before the `qunit` module is evaluated (because we change
   `QUnit.module`).
  */
+import RSVP from 'rsvp';
+
+import Application from '@ember/application';
 import requiredWorkAroundBabelBug from 'dummy/tests/helpers/setup-ember-dev'; // eslint-disable-line
 import resolver from './helpers/resolver';
 import {
@@ -20,7 +23,7 @@ import Ember from 'ember';
 import loadInitializers from 'ember-load-initializers';
 
 setResolver(resolver);
-loadInitializers(Ember.Application, 'dummy');
+loadInitializers(Application, 'dummy');
 
 const { assert } = QUnit;
 const transforms = {
@@ -31,7 +34,7 @@ const transforms = {
 };
 
 QUnit.begin(() => {
-  Ember.RSVP.configure('onerror', reason => {
+  RSVP.configure('onerror', reason => {
     // only print error messages if they're exceptions;
     // otherwise, let a future turn of the event loop
     // handle the error.

@@ -1,11 +1,10 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { computed } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-const { run } = Ember;
 
 const TestAdapter = DS.Adapter.extend();
 
@@ -57,7 +56,7 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
     maritalStatus: DS.belongsTo('marital-status', { async: false }),
-    posts: Ember.computed(() => [1, 2, 3] )
+    posts: computed(() => [1, 2, 3] )
     .readOnly().meta({
       options: { inverse: null },
       isRelationship: true,

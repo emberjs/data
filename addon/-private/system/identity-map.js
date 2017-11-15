@@ -25,7 +25,7 @@ export default class IdentityMap {
   retrieve(modelName) {
     let map = this._map[modelName];
 
-    if (!map) {
+    if (map === undefined) {
       map = this._map[modelName] = new InternalModelMap(modelName);
     }
 

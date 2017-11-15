@@ -1,10 +1,11 @@
+import { alias } from '@ember/object/computed';
+import { run } from '@ember/runloop';
+import EmberObject, { set, get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
-const { run, get, set, computed } = Ember;
 const { attr, belongsTo, hasMany, Model } = DS;
 
 let env, store;
@@ -169,9 +170,9 @@ test('Calling push with relationship triggers observers once if the relationship
 test('Calling push with relationship recalculates computed alias property if the relationship was empty and is added to', function(assert) {
   assert.expect(1);
 
-  let Obj = Ember.Object.extend({
+  let Obj = EmberObject.extend({
     person: null,
-    siblings: computed.alias('person.siblings')
+    siblings: alias('person.siblings')
   });
 
   const obj = Obj.create();
@@ -224,9 +225,9 @@ test('Calling push with relationship recalculates computed alias property if the
 test('Calling push with relationship recalculates computed alias property to firstObject if the relationship was empty and is added to', function(assert) {
   assert.expect(1);
 
-  let Obj = Ember.Object.extend({
+  let Obj = EmberObject.extend({
     person: null,
-    firstSibling: computed.alias('person.siblings.firstObject')
+    firstSibling: alias('person.siblings.firstObject')
   });
 
   const obj = Obj.create();
@@ -513,9 +514,24 @@ test('Calling push with relationship does not trigger observers if the relations
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when appending', function(assert) {
-  let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
+
+  let observer = {
+    arrayWillChange(array, start, removing, adding) {
+      willChangeCount++;
+      assert.equal(start, 1, 'willChange.start');
+      assert.equal(removing, 0, 'willChange.removing');
+      assert.equal(adding, 1, 'willChange.adding');
+    },
+
+    arrayDidChange(array, start, removed, added) {
+      didChangeCount++;
+      assert.equal(start, 1, 'didChange.start');
+      assert.equal(removed, 0, 'didChange.removed');
+      assert.equal(added, 1, 'didChange.added');
+    }
+  };
 
   run(() => {
     store.push({
@@ -537,26 +553,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
       ]
 
     });
-    person = store.peekRecord('person', 'wat');
-
-    this.arrayWillChange = (array, start, removing, adding) => {
-      willChangeCount++;
-      assert.equal(start, 1);
-      assert.equal(removing, 0);
-      assert.equal(adding, 1);
-    };
-    this.arrayDidChange = (array, start, removed, added) => {
-      didChangeCount++;
-      assert.equal(start, 1);
-      assert.equal(removed, 0);
-      assert.equal(added, 1);
-    };
-
-    person.get('siblings')
-    .then(siblings => {
-      siblings.addArrayObserver(this);
-    });
   });
+
+
+  let person = store.peekRecord('person', 'wat');
+  let siblings = run(() => person.get('siblings'));
+
+  siblings.addArrayObserver(observer);
 
   run(() => {
     store.push({
@@ -577,14 +580,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(() => {
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-  });
+  assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+  assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+
+  siblings.removeArrayObserver(observer);
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when truncating', function(assert) {
-  let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
 
@@ -606,29 +608,29 @@ test('Calling push with relationship triggers willChange and didChange with deta
       included: [
         sibling1, sibling2
       ]
-
     });
-    person = store.peekRecord('person', 'wat');
+  });
 
-    this.arrayWillChange = (array, start, removing, adding) => {
+  let person = store.peekRecord('person', 'wat');
+  let siblings = run(() => person.get('siblings'));
+
+  let observer = {
+    arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 1);
       assert.equal(adding, 0);
-    };
-    this.arrayDidChange = (array, start, removed, added) => {
+    },
+
+    arrayDidChange(array, start, removed, added) {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 1);
       assert.equal(added, 0);
-    };
+    }
+  };
 
-    person.get('siblings')
-    .then(siblings => {
-      siblings.addArrayObserver(this);
-    });
-
-  });
+  siblings.addArrayObserver(observer);
 
   run(() => {
     store.push({
@@ -647,14 +649,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(() => {
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-  });
+  assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+  assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+
+  siblings.removeArrayObserver(observer);
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function(assert) {
-  let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
 
@@ -676,29 +677,28 @@ test('Calling push with relationship triggers willChange and didChange with deta
       included: [
         sibling2
       ]
-
     });
-    person = store.peekRecord('person', 'wat');
+  });
+  let person = store.peekRecord('person', 'wat');
 
-    this.arrayWillChange = (array, start, removing, adding) => {
+  let observer = {
+    arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
       assert.equal(start, 0);
       assert.equal(removing, 0);
       assert.equal(adding, 1);
-    };
-    this.arrayDidChange = (array, start, removed, added) => {
+    },
+
+    arrayDidChange(array, start, removed, added) {
       didChangeCount++;
       assert.equal(start, 0);
       assert.equal(removed, 0);
       assert.equal(added, 1);
-    };
+    }
+  };
 
-    person.get('siblings')
-    .then(siblings => {
-      siblings.addArrayObserver(this);
-    });
-
-  });
+  let siblings = run(() => person.get('siblings'));
+  siblings.addArrayObserver(observer);
 
   run(() => {
     store.push({
@@ -719,14 +719,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(() => {
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-  });
+  assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+  assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+
+  siblings.removeArrayObserver(observer);
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when inserting in middle', function(assert) {
-  let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
 
@@ -751,27 +750,25 @@ test('Calling push with relationship triggers willChange and didChange with deta
       ]
 
     });
-    person = store.peekRecord('person', 'wat');
-
-    this.arrayWillChange = (array, start, removing, adding) => {
+  });
+  let person = store.peekRecord('person', 'wat');
+  let observer = {
+    arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 0);
       assert.equal(adding, 1);
-    };
-    this.arrayDidChange = (array, start, removed, added) => {
+    },
+    arrayDidChange(array, start, removed, added) {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 0);
       assert.equal(added, 1);
-    };
+    }
+  };
 
-    person.get('siblings')
-    .then(siblings => {
-      siblings.addArrayObserver(this);
-    });
-
-  });
+  let siblings = run(() => person.get('siblings'));
+  siblings.addArrayObserver(observer);
 
   run(() => {
     store.push({
@@ -792,14 +789,13 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(() => {
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-  });
+  assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+  assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+
+  siblings.removeArrayObserver(observer);
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when replacing different length in middle', function(assert) {
-  let person = null;
   let willChangeCount = 0;
   let didChangeCount = 0;
 
@@ -823,30 +819,28 @@ test('Calling push with relationship triggers willChange and didChange with deta
         sibling2,
         sibling3
       ]
-
     });
-    person = store.peekRecord('person', 'wat');
+  });
 
-    this.arrayWillChange = (array, start, removing, adding) => {
+  let person = store.peekRecord('person', 'wat');
+  let observer = {
+    arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
       assert.equal(start, 1);
       assert.equal(removing, 1);
       assert.equal(adding, 2);
-    };
+    },
 
-    this.arrayDidChange = (array, start, removed, added) => {
+    arrayDidChange(array, start, removed, added) {
       didChangeCount++;
       assert.equal(start, 1);
       assert.equal(removed, 1);
       assert.equal(added, 2);
-    };
+    }
+  };
 
-    person.get('siblings')
-    .then(siblings => {
-      siblings.addArrayObserver(this);
-    });
-
-  });
+  let siblings =  run(() => person.get('siblings'));
+  siblings.addArrayObserver(observer);
 
   run(() => {
     store.push({
@@ -868,10 +862,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
     });
   });
 
-  run(() => {
-    assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
-    assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
-  });
+  assert.equal(willChangeCount, 1, 'willChange observer should be triggered once');
+  assert.equal(didChangeCount, 1, 'didChange observer should be triggered once');
+
+  siblings.removeArrayObserver(observer);
 });
 
 test('Calling push with updated belongsTo relationship trigger observer', function(assert) {

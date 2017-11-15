@@ -1,10 +1,8 @@
+import { defer } from 'rsvp';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
-import {module, test} from 'qunit';
-
-const { run } = Ember;
-const { defer } = Ember.RSVP;
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -53,7 +51,7 @@ test('findRecord does not load a serializer until the adapter promise resolves',
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve({ id: 1, name: 'John Churchill' });
+    deferedFind.resolve({ data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } } });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -85,7 +83,7 @@ test('findMany does not load a serializer until the adapter promise resolves', f
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve([{ id: 1, name: 'John Churchill' }, { id: 2, name: 'Louis Joseph' }]);
+    deferedFind.resolve({ data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }, { id: 2, type: 'person', attributes: { name: 'Louis Joseph' } }] });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -137,7 +135,7 @@ test('findHasMany does not load a serializer until the adapter promise resolves'
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve([{ id: 1, name: 'Scooby' }, { id: 2, name: 'Scrappy' }]);
+    deferedFind.resolve({ data: [{ id: 1, type: 'dog', attributes: { name: 'Scooby' } }, { id: 2, type: 'dog', attributes: { name: 'Scrappy' } }] });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -189,7 +187,7 @@ test('findBelongsTo does not load a serializer until the adapter promise resolve
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve({ id: 1, name: 'Scooby' });
+    deferedFind.resolve({ data: { id: 1, type: 'dog', attributes: { name: 'Scooby' } } });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -218,7 +216,7 @@ test('findAll does not load a serializer until the adapter promise resolves', fu
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve([{ id: 1, name: 'John Churchill' }]);
+    deferedFind.resolve({ data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }] });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -247,7 +245,7 @@ test('query does not load a serializer until the adapter promise resolves', func
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve([{ id: 1, name: 'John Churchill' }]);
+    deferedFind.resolve({ data: [{ id: 1, type: 'person', attributes: { name: 'John Churchill' } }] });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });
@@ -276,7 +274,7 @@ test('queryRecord does not load a serializer until the adapter promise resolves'
   assert.equal(false, serializerLoaded, 'serializer is not eagerly loaded');
 
   return run(() => {
-    deferedFind.resolve({ id: 1, name: 'John Churchill' });
+    deferedFind.resolve({ data: { id: 1, type: 'person', attributes: { name: 'John Churchill' } } });
     return storePromise.then(() => {
       assert.equal(true, serializerLoaded, 'serializer is loaded');
     });

@@ -1,12 +1,13 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { resolve } from 'rsvp';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const { get, run } = Ember;
 let store, tryToFind, Record;
 
 module('unit/store/unload - Store unloading records', {
@@ -27,7 +28,7 @@ module('unit/store/unload - Store unloading records', {
       adapter: DS.Adapter.extend({
         findRecord(store, type, id, snapshot) {
           tryToFind = true;
-          return Ember.RSVP.resolve({ id: id, wasFetched: true });
+          return resolve({ data: { id, type: snapshot.modelName, attributes: { 'was-fetched': true } } });
         }
       }),
 
@@ -36,7 +37,7 @@ module('unit/store/unload - Store unloading records', {
   },
 
   afterEach() {
-    Ember.run(store, 'destroy');
+    run(store, 'destroy');
   }
 });
 
@@ -100,6 +101,18 @@ test('unload a record', function(assert) {
   });
 });
 
+test('unload followed by create of the same type + id', function(assert) {
+  let record = run(() => store.createRecord('record', { id: 1 }));
+
+  assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
+
+  return run(() => {
+    record.unloadRecord();
+    let createdRecord = store.createRecord('record', { id: 1 });
+    assert.ok(record !== createdRecord, 'newly created record is fresh (and was created)');
+  });
+});
+
 module("DS.Store - unload record with relationships");
 
 test('can commit store after unload record with relationships', function(assert) {
@@ -143,15 +156,20 @@ test('can commit store after unload record with relationships', function(assert)
   let store = createStore({
     adapter: DS.Adapter.extend({
       findRecord(store, type, id, snapshot) {
-        return Ember.RSVP.resolve({
-          id: 1,
-          description: 'cuisinart',
-          brand: 1
+        return resolve({
+          data: {
+            id: 1,
+            type: snapshot.modelName,
+            attributes: {
+              description: 'cuisinart',
+              brand: 1
+            }
+          }
         });
       },
 
       createRecord(store, type, snapshot) {
-        return Ember.RSVP.resolve();
+        return resolve();
       }
     }),
     brand: Brand,
@@ -189,7 +207,7 @@ test('can commit store after unload record with relationships', function(assert)
     return like.save();
   }).then(() => {
     // TODO: this is strange, future travelers please address
-    Ember.run(() => store.unloadRecord(store.peekRecord('product', 1)));
+    run(() => store.unloadRecord(store.peekRecord('product', 1)));
   }).then(() => {
     return store.findRecord('product', 1);
   }).then(product => {

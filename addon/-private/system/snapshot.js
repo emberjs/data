@@ -2,11 +2,11 @@
   @module ember-data
 */
 
-import Ember from 'ember';
+import { copy } from '@ember/object/internals';
 
-const {
-  get
-} = Ember;
+import { inspect } from '@ember/debug';
+import EmberError from '@ember/error';
+import { get } from '@ember/object';
 
 /**
   @class Snapshot
@@ -110,7 +110,7 @@ export default class Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
+    throw new EmberError("Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
   }
 
   /**
@@ -127,7 +127,7 @@ export default class Snapshot {
    @return {Object} All attributes of the current snapshot
    */
   attributes() {
-    return Ember.copy(this._attributes);
+    return copy(this._attributes);
   }
 
   /**
@@ -150,7 +150,7 @@ export default class Snapshot {
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];
-      changedAttributes[key] = Ember.copy(this._changedAttributes[key]);
+      changedAttributes[key] = copy(this._changedAttributes[key]);
     }
 
     return changedAttributes;
@@ -206,7 +206,7 @@ export default class Snapshot {
 
     relationship = this._internalModel._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
-      throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
+      throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
     hasData = get(relationship, 'hasData');
@@ -277,7 +277,7 @@ export default class Snapshot {
 
     relationship = this._internalModel._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
-      throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
+      throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
     hasData = get(relationship, 'hasData');

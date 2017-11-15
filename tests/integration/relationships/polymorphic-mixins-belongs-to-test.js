@@ -1,13 +1,18 @@
+import {
+  setup as setupModelFactoryInjections,
+  reset as resetModelFactoryInjections
+} from 'dummy/tests/helpers/model-factory-injection';
+
+import Mixin from '@ember/object/mixin';
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 var env, store, User, Message, Video, NotMessage;
-var run = Ember.run;
 
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
@@ -19,7 +24,7 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
       bestMessage: belongsTo('message', { async: true, polymorphic: true })
     });
 
-    Message = Ember.Mixin.create({
+    Message = Mixin.create({
       title: attr('string'),
       user: belongsTo('user', { async: true })
     });
@@ -155,8 +160,7 @@ testInDebug("Setting the polymorphic belongsTo with an object that does not impl
 
 test("Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true", function(assert) {
   assert.expect(2);
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  setupModelFactoryInjections();
 
   try {
     var user, video;
@@ -190,13 +194,12 @@ test("Setting the polymorphic belongsTo gets propagated to the inverse side - mo
       });
     });
   } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjections();
   }
 });
 
 testInDebug("Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true", function(assert) {
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  setupModelFactoryInjections();
 
   try {
     var user, video;
@@ -226,6 +229,6 @@ testInDebug("Setting the polymorphic belongsTo with an object that does not impl
       }, /You cannot add a record of modelClass 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
     });
   } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+    resetModelFactoryInjections();
   }
 });

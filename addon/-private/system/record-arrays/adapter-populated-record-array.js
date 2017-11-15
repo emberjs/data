@@ -1,13 +1,9 @@
-import Ember from 'ember';
+import { once } from '@ember/runloop';
+import { A } from '@ember/array';
+import { get } from '@ember/object';
 import RecordArray from "./record-array";
 import cloneNull from "../clone-null";
 import { associateWithRecordArray } from '../record-array-manager';
-
-/**
-  @module ember-data
-*/
-
-const { get } = Ember;
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -49,7 +45,7 @@ const { get } = Ember;
 export default RecordArray.extend({
   init() {
     // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
-    this.set('content', this.get('content') || Ember.A());
+    this.set('content', this.get('content') || A());
 
     this._super(...arguments);
     this.query = this.query || null;
@@ -91,7 +87,7 @@ export default RecordArray.extend({
     associateWithRecordArray(internalModels, this);
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
-    Ember.run.once(this, 'trigger', 'didLoad');
+    once(this, 'trigger', 'didLoad');
     heimdall.stop(token);
   }
 });

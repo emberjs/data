@@ -1,16 +1,16 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { run } from '@ember/runloop';
 
-import {module, test} from 'qunit';
+import setupStore from 'dummy/tests/helpers/store';
+
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
 let attr = DS.attr;
 let belongsTo = DS.belongsTo;
 let hasMany = DS.hasMany;
-let run = Ember.run;
 let env;
 
 let Person = DS.Model.extend({
@@ -50,19 +50,17 @@ module("integration/unload - Rematerializing Unloaded Records", {
   },
 
   afterEach() {
-    Ember.run(function() {
+    run(function() {
       env.container.destroy();
     });
   }
 });
 
 test("a sync belongs to relationship to an unloaded record can restore that record", function(assert) {
-  let adam, bob;
-
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  run(function() {
+  let adam = run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -79,10 +77,11 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
         }
       }
     });
-    adam = env.store.peekRecord('person', 1);
+
+    return env.store.peekRecord('person', 1);
   });
 
-  run(function() {
+  let bob = run(() => {
     env.store.push({
       data: {
         type: 'car',
@@ -98,7 +97,8 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
         }
       }
     });
-    bob = env.store.peekRecord('car', 1);
+
+    return env.store.peekRecord('car', 1);
   });
 
   let person = env.store.peekRecord('person', 1);
@@ -107,9 +107,7 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
   assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
   assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is loaded');
 
-  run(function() {
-    person.unloadRecord();
-  });
+  run(() => person.unloadRecord());
 
   assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
   assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is retained');
@@ -141,30 +139,55 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
 });
 
 test("an async has many relationship to an unloaded record can restore that record", function(assert) {
-  assert.expect(14);
+  assert.expect(15);
 
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  env.adapter.findRecord = function() {
-    assert.ok('adapter called');
-    return Ember.RSVP.Promise.resolve({
-      data: {
-        type: 'boat',
-        id: '1',
-        attributes: {
-          name: "Boaty McBoatface"
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
+  const BOAT_ONE = {
+    type: 'boat',
+    id: '1',
+    attributes: {
+      name: "Boaty McBoatface"
+    },
+    relationships: {
+      person: {
+        data: { type: 'person', id: '1' }
       }
-    });
+    }
+  };
+
+  const BOAT_TWO = {
+    type: 'boat',
+    id: '2',
+    attributes: {
+      name: 'Some other boat'
+    },
+    relationships: {
+      person: {
+        data: { type: 'person', id: '1' }
+      }
+    }
+  };
+
+  env.adapter.findRecord = function(store, model, param) {
+    assert.ok('adapter called');
+
+    let data;
+    if (param === '1') {
+      data = BOAT_ONE;
+    } else if (param === '1') {
+      data = BOAT_TWO;
+    } else {
+      throw new Error(`404: no such boat with id=${param}`);
+    }
+
+    return {
+      data
+    };
   }
 
-  run(function() {
+  run(() => {
     env.store.push({
       data: {
         type: 'person',
@@ -184,31 +207,9 @@ test("an async has many relationship to an unloaded record can restore that reco
     });
   });
 
-  run(function() {
+  run(() => {
     env.store.push({
-      data: [{
-        type: 'boat',
-        id: '2',
-        attributes: {
-          name: 'Some other boat'
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }, {
-        type: 'boat',
-        id: '1',
-        attributes: {
-          name: 'Boaty McBoatface'
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }]
+      data: [BOAT_ONE, BOAT_TWO]
     });
   });
 
@@ -220,22 +221,17 @@ test("an async has many relationship to an unloaded record can restore that reco
   assert.equal(env.store.hasRecordForId('boat', 1), true, 'The boat is in the store');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is loaded');
 
-  let boats = run(() => {
-    return adam.get('boats');
-  });
+  let boats = run(() => adam.get('boats'));
 
   assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
-  run(function() {
-    boaty.unloadRecord();
-  });
+  run(() => boaty.unloadRecord());
+  assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
   assert.equal(env.store.hasRecordForId('boat', 1), false, 'The boat is unloaded');
   assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
 
-  let rematerializedBoaty = run(() => {
-    return rematerializedBoaty = adam.get('boats').objectAt(1);
-  });
+  let rematerializedBoaty = run(() => adam.get('boats')).objectAt(0);
 
   assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
   assert.equal(rematerializedBoaty.get('id'), '1');

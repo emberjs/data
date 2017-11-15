@@ -1,14 +1,12 @@
-import {createStore} from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import { get } from '@ember/object';
+import { run } from '@ember/runloop';
+import { createStore } from 'dummy/tests/helpers/store';
 
-import {module, test} from 'qunit';
+import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var get = Ember.get;
-var run = Ember.run;
-
-var Person, store, array, moreArray;
+let Person, store, array, moreArray;
 
 module("integration/peek-all - DS.Store#peekAll()", {
   beforeEach() {
@@ -49,14 +47,14 @@ module("integration/peek-all - DS.Store#peekAll()", {
 });
 
 test("store.peekAll('person') should return all records and should update with new ones", function(assert) {
-  run(function() {
+  run(() => {
     store.push(array);
   });
 
-  var all = store.peekAll('person');
+  let all = store.peekAll('person');
   assert.equal(get(all, 'length'), 2);
 
-  run(function() {
+  run(() => {
     store.push(moreArray);
   });
 
@@ -66,7 +64,7 @@ test("store.peekAll('person') should return all records and should update with n
 test("Calling store.peekAll() multiple times should update immediately inside the runloop", function(assert) {
   assert.expect(3);
 
-  Ember.run(function() {
+  run(() => {
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'should initially be empty');
     store.createRecord('person', { name: "Tomster" });
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
@@ -86,7 +84,7 @@ test("Calling store.peekAll() multiple times should update immediately inside th
 test("Calling store.peekAll() after creating a record should return correct data", function(assert) {
   assert.expect(1);
 
-  Ember.run(function() {
+  run(() => {
     store.createRecord('person', { name: "Tomster" });
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });

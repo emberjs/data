@@ -1,12 +1,12 @@
+import { defer, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
 import DS from 'ember-data';
-import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { isEnabled } from 'ember-data/-private';
 import { module, test } from 'qunit';
 
-var get = Ember.get;
-var run = Ember.run;
 var env, Family;
 
 module("integration/references/belongs-to", {
@@ -248,7 +248,7 @@ test("push(promise)", function(assert) {
   var done = assert.async();
 
   var push;
-  var deferred = Ember.RSVP.defer();
+  var deferred = defer();
 
   run(function() {
     var person = env.store.push({
@@ -409,8 +409,12 @@ test("load() fetches the record", function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -446,8 +450,12 @@ test("load() fetches link when remoteType is link", function(assert) {
   env.adapter.findBelongsTo = function(store, snapshot, link) {
     assert.equal(link, "/families/1");
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -486,8 +494,12 @@ test("reload() - loads the record when not yet loaded", function(assert) {
     count++;
     assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -525,8 +537,12 @@ test("reload() - reloads the record when already loaded", function(assert) {
     count++;
     assert.equal(count, 1);
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
@@ -568,8 +584,12 @@ test("reload() - uses link to reload record", function(assert) {
   env.adapter.findBelongsTo = function(store, snapshot, link) {
     assert.equal(link, "/families/1");
 
-    return Ember.RSVP.resolve({
-      id: 1, name: "Coreleone"
+    return resolve({
+      data: {
+        id: 1,
+        type: 'family',
+        attributes: { name: "Coreleone" }
+      }
     });
   };
 
