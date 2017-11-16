@@ -47,6 +47,25 @@ export default class ModelData {
     this._attributes = null;
   }
 
+  hasChangedAttributes() {
+    return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
+  }
+
+  // TODO, Maybe can model as destroying model data?
+  resetRecord() {
+    this.__attributes = null;
+    this.__inFlightAttributes = null;
+    this._data = null;
+  }
+
+  addToHasMany(key, modelDatas, idx) {
+    this._relationships.get(key).addInternalModels(modelDatas.map((model) => model.internalModel), idx);
+  }
+
+  removeFromHasMany(key, modelDatas) {
+    this._relationships.get(key).removeInternalModels(modelDatas.map((model) => model.internalModel));
+  }
+
   _setupRelationships(data) {
     let internalModel = this.internalModel;
     internalModel.type.eachRelationship((relationshipName, descriptor) => {
@@ -78,18 +97,6 @@ export default class ModelData {
       relationship.push(relationshipData);
     });
   }
-
-  hasChangedAttributes() {
-    return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
-  }
-
-  // TODO, Maybe can model as destroying model data?
-  resetRecord() {
-    this.__attributes = null;
-    this.__inFlightAttributes = null;
-    this._data = null;
-  }
-
   /*
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.

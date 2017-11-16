@@ -206,10 +206,11 @@ export default EmberObject.extend(MutableArray, Evented, {
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeInternalModels(internalModels);
+      this.get('modelData').removeFromHasMany(this.get('key'), internalModels.map((im) => im._modelData));
     }
     if (objects) {
-      this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
+      this.get('modelData').addToHasMany(this.get('key'), objects.map(obj => obj._internalModel._modelData), idx);
+      //this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
     }
   },
 

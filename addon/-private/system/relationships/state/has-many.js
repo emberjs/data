@@ -40,7 +40,9 @@ export default class ManyRelationship extends Relationship {
         relationship: this,
         type: this.store.modelFor(this.belongsToType),
         record: this.internalModel,
+        modelData: this.internalModel._modelData,
         meta: this.meta,
+        key: this.key,
         isPolymorphic: this.isPolymorphic
       });
     }
