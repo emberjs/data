@@ -2,6 +2,29 @@
 
 ### Master
 
+### Release 2.18.0-beta.1 (November 19, 2017)
+- [#5225](https://github.com/emberjs/data/pull/5225) Remove blueprints for Mocha < 0.12. (#5225)
+- [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
+- [#5223](https://github.com/emberjs/data/pull/5223) [BUGFIX release] Cleanup test only dependencies.
+- [#5200](https://github.com/emberjs/data/pull/5200) bump rsvp
+- [#5108](https://github.com/emberjs/data/pull/5108) Updates addon to adhere to RFC 176 (#5108)
+- [#5232](https://github.com/emberjs/data/pull/5232) Update documentation in model.js
+- [#5203](https://github.com/emberjs/data/pull/5203) Skip ember try on appveyor
+- [#5239](https://github.com/emberjs/data/pull/5239) Deprecate support for "production like" values in EMBER_ENV
+- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX beta] proxy `meta` on PromiseArray
+- [#5212](https://github.com/emberjs/data/pull/5212) Do not show feature flag improved-ajax methods in the api docs
+- [#5206](https://github.com/emberjs/data/pull/5206) [BUGFIX beta] Fix broccoli-babel-transpiler cache warnings
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
+- [#5217](https://github.com/emberjs/data/pull/5217) [BUGFIX beta] RecordReference returns null when not yet loaded
+- [#5218](https://github.com/emberjs/data/pull/5218) Update assert against nulls (#5218)
+- [#5220](https://github.com/emberjs/data/pull/5220) Remove (unnecessary) ember-inflector peer dependency
+- [#5221](https://github.com/emberjs/data/pull/5221) Fix docs link. (#5221)
+- [#5224](https://github.com/emberjs/data/pull/5224) Add missing dependency for travis build
+- [#5238](https://github.com/emberjs/data/pull/5238) Move initialize-store-service.js out of the instance-initializers dir…
+- [#5242](https://github.com/emberjs/data/pull/5242) [BUGFIX beta] Normalize model names during `push`
+- [#5250](https://github.com/emberjs/data/pull/5250) [doc] Update links to Ember Guide (#5250)
+- [#5260](https://github.com/emberjs/data/pull/5260) [doc] Update urlForFindRecord example
+
 ### Release 2.17.0 (November 19, 2017)
 - [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
