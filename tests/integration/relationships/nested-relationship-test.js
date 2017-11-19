@@ -39,20 +39,14 @@ module('integration/relationships/nested_relationships_test - Nested relationshi
 
     env.registry.register('adapter:middle-ager', DS.JSONAPIAdapter.extend({
       findHasMany (store, snapshot, url, relationship) {
-        return new Promise((resolve) => {
-          run.later(() => {
-            if (url === '/middle-agers/1/kids') {
-              resolve({
-                data: [{
-                  id: 1,
-                  type: 'kid'
-                }]
-              });
-            } else {
-              resolve({ data: [] });
-            }
-          }, 10);
-        });
+        let data = [];
+        if (url === '/middle-agers/1/kids') {
+          data.push({
+            id: 1,
+            type: 'kid'
+          });
+        }
+        return resolve({ data });
       }
     }));
 

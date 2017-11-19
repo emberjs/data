@@ -1,5 +1,5 @@
 import { run } from '@ember/runloop';
-import { Promise } from 'rsvp';
+import { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
 
 import {
@@ -47,42 +47,34 @@ test("Loading link with inverse:null on other model caches the two ends separate
 
   env.registry.register('adapter:user', DS.JSONAPISerializer.extend({
     findRecord(store, type, id) {
-      return new Promise((resolve) => {
-        run.later(() => {
-          resolve({
-            data: {
-              id,
-              type: 'user',
-              relationships: {
-                organisation: {
-                  data: { id: 1, type: 'organisation' }
-                }
-              }
+      return resolve({
+        data: {
+          id,
+          type: 'user',
+          relationships: {
+            organisation: {
+              data: { id: 1, type: 'organisation' }
             }
-          })
-        }, 10);
+          }
+        }
       });
     }
   }));
 
   env.registry.register('adapter:organisation', DS.JSONAPISerializer.extend({
     findRecord(store, type, id) {
-      return new Promise((resolve) => {
-        run.later(() => {
-          resolve({
-            data: {
-              type: 'organisation',
-              id,
-              relationships: {
-                'admin-users': {
-                  links: {
-                    related: '/org-admins'
-                  }
-                }
+      return resolve({
+        data: {
+          type: 'organisation',
+          id,
+          relationships: {
+            'admin-users': {
+              links: {
+                related: '/org-admins'
               }
             }
-          })
-        }, 10);
+          }
+        }
       });
     }
   }));
