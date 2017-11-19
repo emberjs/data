@@ -7,7 +7,7 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import Ember from 'ember';
 
-const { RSVP: { Promise } } = Ember;
+const { RSVP: { resolve } } = Ember;
 const { attr, hasMany, belongsTo } = DS;
 
 let env, store, serializer, Elder, MiddleAger, Kid;
