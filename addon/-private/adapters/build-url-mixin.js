@@ -118,7 +118,7 @@ export default Mixin.create({
 
    export default DS.JSONAPIAdapter.extend({
      urlForFindRecord(id, modelName, snapshot) {
-       let baseUrl = this.buildURL();
+       let baseUrl = this.buildURL(modelName, id, snapshot);
        return `${baseUrl}/users/${snapshot.adapterOptions.user_id}/playlists/${id}`;
      }
    });
