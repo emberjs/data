@@ -2,15 +2,29 @@
 
 ### Master
 
-### Release 2.17.0-beta.2 (November 6, 2017)
-
-- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX] setting a property to its previous value clears validation state
-- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX] `store.query` returns a promise proxy that now proxies `meta`
-- [#5242](https://github.com/emberjs/data/pull/5242) [BUGFIX] `store.push` normalizes model names of payloads to match the rest of the store api (eg `store.createRecord`)
-- [#5248](https://github.com/emberjs/data/pull/5248) [BUGFIX] `model.setProperties` will now clear `model` errors correctly
-
-### Release 2.17.0-beta.1 (October 3, 2017)
-- No Changes from 2.16.0
+### Release 2.17.0 (November 19, 2017)
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
+- [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
+- [#5217](https://github.com/emberjs/data/pull/5217) [BUGFIX beta] RecordReference returns null when not yet loaded
+- [#5166](https://github.com/emberjs/data/pull/5166) [DOC] Remove mention of `bower install` from README
+- [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
+- [#5165](https://github.com/emberjs/data/pull/5165) [DOC] Update README build step script name
+- [#5212](https://github.com/emberjs/data/pull/5212) Do not show feature flag improved-ajax methods in the api docs
+- [#5183](https://github.com/emberjs/data/pull/5183) [DOCS release] Add missing "relationship" field to RESTAdapter.findBelongsTo docs
+- [#5176](https://github.com/emberjs/data/pull/5176) fix node 4
+- [#5172](https://github.com/emberjs/data/pull/5172) [DOC] Remove parameter from BelongsToReference.value
+- [#5178](https://github.com/emberjs/data/pull/5178) Ignore included resources without that don't have a corresponding ember-data model
+- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX beta] proxy `meta` on PromiseArray
+- [#5197](https://github.com/emberjs/data/pull/5197) Fix ember-data Node 4.x builds
+- [#5191](https://github.com/emberjs/data/pull/5191) Remove feature flagging for ds-extended-errors.
+- [#5184](https://github.com/emberjs/data/pull/5184) Update LICENSE through 2017
+- [#5196](https://github.com/emberjs/data/pull/5196) [BUGFIX beta] Avoid cache related warnings during builds.
+- [#5206](https://github.com/emberjs/data/pull/5206) [BUGFIX beta] Fix broccoli-babel-transpiler cache warnings
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
+- [#5220](https://github.com/emberjs/data/pull/5220) Remove (unnecessary) ember-inflector peer dependency
+- [#5223](https://github.com/emberjs/data/pull/5223) [BUGFIX release] Cleanup test only dependencies.
+- [#5224](https://github.com/emberjs/data/pull/5224) Add missing dependency for travis build
+- [#5232](https://github.com/emberjs/data/pull/5232) Update documentation in model.js
 
 ### Release 2.16.1 (October 4, 2017)
 - [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
