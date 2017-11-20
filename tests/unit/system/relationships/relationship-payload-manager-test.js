@@ -487,14 +487,15 @@ test('push populates the same RelationshipPayloads for either side of a relation
 });
 
 test('push does not eagerly populate inverse payloads', function(assert) {
-  this.relationshipPayloadsManager.push('user', 1, {
+  const relData = {
     hobbies: {
       data: [{
         id: 2,
         type: 'hobby'
       }]
     }
-  });
+  };
+  this.relationshipPayloadsManager.push('user', 1, relData);
 
   let userModel = this.store.modelFor('user');
   let relationshipPayloads =
@@ -506,12 +507,12 @@ test('push does not eagerly populate inverse payloads', function(assert) {
     );
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads),
+    Object.keys(relationshipPayloads._lhsPayloads.types),
     [],
     'user.hobbies payloads not eagerly populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads),
+    Object.keys(relationshipPayloads._rhsPayloads.types),
     [],
     'hobby.user payloads not eagerly populated'
   );
@@ -519,13 +520,23 @@ test('push does not eagerly populate inverse payloads', function(assert) {
   relationshipPayloads.get('user', 1, 'hobbies');
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads),
-    ['user:1'],
+    Object.keys(relationshipPayloads._lhsPayloads.types),
+    ['user'],
     'user.hobbies payloads lazily populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads),
-    ['hobby:2'] ,
+    Object.keys(relationshipPayloads._lhsPayloads.types.user),
+    ['1'],
+    'user.hobbies payloads lazily populated'
+  );
+  assert.deepEqual(
+    Object.keys(relationshipPayloads._rhsPayloads.types),
+    ['hobby'] ,
+    'hobby.user payloads lazily populated'
+  );
+  assert.deepEqual(
+    Object.keys(relationshipPayloads._rhsPayloads.types.hobby),
+    ['2'] ,
     'hobby.user payloads lazily populated'
   );
 });

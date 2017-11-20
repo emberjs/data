@@ -1,5 +1,37 @@
 import { assert } from '@ember/debug';
 
+class PayloadStore {
+  constructor() {
+    this.types = Object.create(null);
+  }
+  get(modelName, id) {
+    let { types } = this;
+
+    if (types[modelName] !== undefined) {
+      return types[modelName][id];
+    }
+  }
+
+  set(modelName, id, payload) {
+    let { types } = this;
+    let typeMap = types[modelName];
+
+    if (typeMap === undefined) {
+      typeMap = types[modelName] = Object.create(null);
+    }
+
+    typeMap[id] = payload;
+  }
+
+  delete(modelName, id) {
+    let { types } = this;
+
+    if (types[modelName] !== undefined) {
+      delete types[modelName][id];
+    }
+  }
+}
+
 /**
   Manages the payloads for both sides of a single relationship, across all model
   instances.
@@ -71,7 +103,7 @@ export default class RelationshipPayloads {
     this._rhsRelationshipMeta = inverseRelationshipMeta;
 
     // a map of id -> payloads for the left hand side of the relationship.
-    this._lhsPayloads = Object.create(null);
+    this._lhsPayloads = new PayloadStore();
 
     const isSelfReferential = this._isSelfReferential = this._lhsModelName === inverseModelName;
     const isReflexive = isSelfReferential && relationshipName === inverseRelationshipName;
@@ -79,7 +111,7 @@ export default class RelationshipPayloads {
     if (!isReflexive) {
       // The common case of a non-reflexive relationship, or a reflexive
       // relationship whose inverse is not itself
-      this._rhsPayloads = Object.create(null);
+      this._rhsPayloads = new PayloadStore();
       this._isReflexive = false;
     } else {
       // Edge case when we have a reflexive relationship to itself
@@ -123,18 +155,12 @@ export default class RelationshipPayloads {
   get(modelName, id, relationshipName) {
     this._flushPending();
 
-    const payloadId = this.payloadId(modelName, id);
-
     if (this._isLHS(modelName, relationshipName)) {
-      return this._lhsPayloads[payloadId];
+      return this._lhsPayloads.get(modelName, id);
     } else {
       assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-      return this._rhsPayloads[payloadId];
+      return this._rhsPayloads.get(modelName, id);
     }
-  }
-
-  payloadId(modelName, id) {
-    return `${modelName}:${id}`;
   }
 
   /**
@@ -157,13 +183,12 @@ export default class RelationshipPayloads {
   */
   unload(modelName, id, relationshipName) {
     this._flushPending();
-    const keyedId = `${modelName}:${id}`;
 
     if (this._isLHS(modelName, relationshipName)) {
-      delete this._lhsPayloads[keyedId];
+      delete this._lhsPayloads.delete(modelName, id);
     } else {
       assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-      delete this._rhsPayloads[keyedId];
+      delete this._rhsPayloads.delete(modelName, id);
     }
   }
 
@@ -232,21 +257,19 @@ export default class RelationshipPayloads {
       // except the role of primary and inverse idToPayloads is reversed
       //
       let previousPayload;
-      let idToPayloads;
+      let payloadMap;
       let inverseIdToPayloads;
       let inverseIsMany;
 
-      const payloadId = this.payloadId(modelName, id);
-
       if (this._isLHS(modelName, relationshipName)) {
-        previousPayload = this._lhsPayloads[payloadId];
-        idToPayloads = this._lhsPayloads;
+        previousPayload = this._lhsPayloads.get(modelName, id);
+        payloadMap = this._lhsPayloads;
         inverseIdToPayloads = this._rhsPayloads;
         inverseIsMany = this._rhsRelationshipIsMany;
       } else {
         assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-        previousPayload = this._rhsPayloads[payloadId];
-        idToPayloads = this._rhsPayloads;
+        previousPayload = this._rhsPayloads.get(modelName, id);
+        payloadMap = this._rhsPayloads;
         inverseIdToPayloads = this._lhsPayloads;
         inverseIsMany = this._lhsRelationshipIsMany;
       }
@@ -293,7 +316,7 @@ export default class RelationshipPayloads {
       if (relationshipData.data !== undefined) {
         this._removeInverse(id, previousPayload, inverseIdToPayloads);
       }
-      idToPayloads[payloadId] = relationshipData;
+      payloadMap.set(modelName, id, relationshipData);
       this._populateInverse(relationshipData, inverseRelationshipData, inverseIdToPayloads, inverseIsMany);
     }
   }
@@ -317,14 +340,12 @@ export default class RelationshipPayloads {
 
     if (Array.isArray(relationshipData.data)) {
       for (let i=0; i<relationshipData.data.length; ++i) {
-        let inverseId = relationshipData.data[i].id;
-        let inversePayloadId = this.payloadId(relationshipData.data[i].type, inverseId);
-        this._addToInverse(inversePayload, inverseId, inversePayloadId, inverseIdToPayloads, inverseIsMany);
+        let inverseData = relationshipData.data[i];
+        this._addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany);
       }
     } else {
-      let inverseId = relationshipData.data.id;
-      let inversePayloadId = this.payloadId(relationshipData.data.type, inverseId);
-      this._addToInverse(inversePayload, inverseId, inversePayloadId, inverseIdToPayloads, inverseIsMany);
+      let inverseData = relationshipData.data;
+      this._addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany);
     }
   }
 
@@ -339,13 +360,13 @@ export default class RelationshipPayloads {
     @private
     @method
   */
-  _addToInverse(inversePayload, inverseId, inversePayloadId, inverseIdToPayloads, inverseIsMany) {
-    if (this._isReflexive && inversePayload.data.id === inverseId) {
+  _addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany) {
+    if (this._isReflexive && inversePayload.data.id === inverseData.id) {
       // eg <user:1>.friends = [{ id: 1, type: 'user' }]
       return;
     }
 
-    let existingPayload = inverseIdToPayloads[inversePayloadId];
+    let existingPayload = inverseIdToPayloads.get(inverseData.type, inverseData.id);
     let existingData = existingPayload && existingPayload.data;
 
     if (existingData) {
@@ -355,17 +376,17 @@ export default class RelationshipPayloads {
       if (Array.isArray(existingData)) {
         existingData.push(inversePayload.data);
       } else {
-        inverseIdToPayloads[inversePayloadId] = inversePayload;
+        inverseIdToPayloads.set(inverseData.type, inverseData.id, inversePayload);
       }
     } else {
       // first time we're populating the inverse side
       //
       if (inverseIsMany) {
-        inverseIdToPayloads[inversePayloadId] = {
+        inverseIdToPayloads.set(inverseData.type, inverseData.id, {
           data: [inversePayload.data]
-        }
+        });
       } else {
-        inverseIdToPayloads[inversePayloadId] = inversePayload;
+        inverseIdToPayloads.set(inverseData.type, inverseData.id, inversePayload);
       }
     }
   }
@@ -401,12 +422,11 @@ export default class RelationshipPayloads {
     if (Array.isArray(data)) {
       // TODO: diff rather than removeall addall?
       for (let i=0; i<data.length; ++i) {
-        const inversePayloadId = this.payloadId(data[i].type, data[i].id);
-        this._removeFromInverse(id, inversePayloadId, inverseIdToPayloads);
+        const inverseData = data[i];
+        this._removeFromInverse(id, inverseData, inverseIdToPayloads);
       }
     } else {
-      const inversePayloadId = this.payloadId(data.type, data.id);
-      this._removeFromInverse(id, inversePayloadId, inverseIdToPayloads);
+      this._removeFromInverse(id, data, inverseIdToPayloads);
     }
   }
 
@@ -417,8 +437,8 @@ export default class RelationshipPayloads {
 
     @method
   */
-  _removeFromInverse(id, inversePayloadId, inversePayloads) {
-    let inversePayload = inversePayloads[inversePayloadId];
+  _removeFromInverse(id, inverseData, inversePayloads) {
+    let inversePayload = inversePayloads.get(inverseData.type, inverseData.id);
     let data = inversePayload && inversePayload.data;
 
     if (!data) { return; }
@@ -426,9 +446,9 @@ export default class RelationshipPayloads {
     if (Array.isArray(data)) {
       inversePayload.data = data.filter((x) => x.id !== id);
     } else {
-      inversePayloads[inversePayloadId] = {
+      inversePayloads.set(inverseData.type, inverseData.id, {
         data: null
-      };
+      });
     }
   }
 }
