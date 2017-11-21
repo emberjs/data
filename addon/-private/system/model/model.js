@@ -35,7 +35,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let relationships = relationshipMap.get(type.modelName).filter(relationship => {
     let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
-    if (!optionsForRelationship.inverse) {
+    if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
       return true;
     }
 
