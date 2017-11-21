@@ -28,7 +28,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 
     Message = DS.Model.extend({
       user: belongsTo('user', { inverse: 'messages', async: false }),
-      created_at: attr('date'),
+      created_at: attr('date')
     });
 
     Post = Message.extend({

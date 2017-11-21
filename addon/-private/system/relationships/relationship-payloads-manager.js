@@ -1,5 +1,5 @@
 import { get } from '@ember/object';
-import { DEBUG } from '@glimmer/env';
+// import { DEBUG } from '@glimmer/env';
 import { assert } from '@ember/debug';
 import { default as RelationshipPayloads, TypeCache } from './relationship-payloads';
 
