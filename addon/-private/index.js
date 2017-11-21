@@ -33,6 +33,7 @@ export { default as isEnabled } from './features';
 // `ember-data-model-fragments` relies on `RootState`, `InternalModel` and `ContainerInstanceCache`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
+export { default as ModelData } from './system/model/model-data';
 export { default as ContainerInstanceCache } from './system/store/container-instance-cache';
 
 export {
