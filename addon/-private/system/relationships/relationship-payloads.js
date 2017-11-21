@@ -1,6 +1,6 @@
 import { assert } from '@ember/debug';
 
-class PayloadStore {
+export class TypeCache {
   constructor() {
     this.types = Object.create(null);
   }
@@ -33,22 +33,22 @@ class PayloadStore {
 }
 
 /**
-  Manages the payloads for both sides of a single relationship, across all model
-  instances.
+ Manages the payloads for both sides of a single relationship, across all model
+ instances.
 
-  For example, with
+ For example, with
 
-    const User = DS.Model.extend({
+ const User = DS.Model.extend({
       hobbies: DS.hasMany('hobby')
     });
 
-    const Hobby = DS.Model.extend({
+ const Hobby = DS.Model.extend({
       user: DS.belongsTo('user')
     });
 
-    let relationshipPayloads = new RelationshipPayloads('user', 'hobbies', 'hobby', 'user');
+ let relationshipPayloads = new RelationshipPayloads('user', 'hobbies', 'hobby', 'user');
 
-    let userPayload = {
+ let userPayload = {
       data: {
         id: 1,
         type: 'user',
@@ -63,66 +63,22 @@ class PayloadStore {
       }
     };
 
-    // here we expect the payload of the individual relationship
-    relationshipPayloads.push('user', 1, 'hobbies', userPayload.data.relationships.hobbies);
+ // here we expect the payload of the individual relationship
+ relationshipPayloads.push('user', 1, 'hobbies', userPayload.data.relationships.hobbies);
 
-    relationshipPayloads.get('user', 1, 'hobbies');
-    relationshipPayloads.get('hobby', 2, 'user');
+ relationshipPayloads.get('user', 1, 'hobbies');
+ relationshipPayloads.get('hobby', 2, 'user');
 
-  @class RelationshipPayloads
-  @private
-*/
+ @class RelationshipPayloads
+ @private
+ */
 export default class RelationshipPayloads {
-  constructor(store, modelName, relationshipName, relationshipMeta, inverseModelName, inverseRelationshipName, inverseRelationshipMeta) {
-    this._store = store;
-
-    this._lhsModelName = inverseRelationshipMeta !== null ? inverseRelationshipMeta.type : modelName;
-    this._lhsIsPolymorphic = relationshipMeta !== null &&
-      relationshipMeta.options !== undefined &&
-      relationshipMeta.options.polymorphic === true;
-    this._lhsRelationshipName = relationshipName;
-    this._lhsRelationshipMeta = relationshipMeta;
-    this._lhsModelNames = [this._lhsModelName];
-
-    if (this._lhsModelName !== modelName) {
-      this._lhsModelNames.push(modelName);
-    }
-
-    this._rhsModelName = relationshipMeta.type;
-    this._rhsIsPolymorphic = inverseRelationshipMeta !== null &&
-      inverseRelationshipMeta.options !== undefined &&
-      inverseRelationshipMeta.options.polymorphic === true;
-
-    this._rhsModelNames = [this._rhsModelName];
-
-    if (inverseModelName !== this._rhsModelName) {
-      this._rhsModelNames.push(inverseModelName);
-    }
-
-    this._rhsRelationshipName = inverseRelationshipName;
-    this._rhsRelationshipMeta = inverseRelationshipMeta;
+  constructor(relInfo) {
+    this._relInfo = relInfo;
 
     // a map of id -> payloads for the left hand side of the relationship.
-    this._lhsPayloads = new PayloadStore();
-
-    const isSelfReferential = this._isSelfReferential = this._lhsModelName === inverseModelName;
-    const isReflexive = isSelfReferential && relationshipName === inverseRelationshipName;
-
-    if (!isReflexive) {
-      // The common case of a non-reflexive relationship, or a reflexive
-      // relationship whose inverse is not itself
-      this._rhsPayloads = new PayloadStore();
-      this._isReflexive = false;
-    } else {
-      // Edge case when we have a reflexive relationship to itself
-      //  eg user hasMany friends inverse friends
-      //
-      //  In this case there aren't really two sides to the relationship, but
-      //  we set `_rhsPayloads = _lhsPayloads` to make things easier to reason
-      //  about
-      this._rhsPayloads = this._lhsPayloads;
-      this._isReflexive = true;
-    }
+    this.lhs_payloads = new TypeCache();
+    this.rhs_payloads = relInfo.isReflexive ? this.lhs_payloads : new TypeCache();
 
     // When we push relationship payloads, just stash them in a queue until
     // somebody actually asks for one of them.
@@ -132,106 +88,92 @@ export default class RelationshipPayloads {
     this._pendingPayloads = [];
   }
 
-  addPolymorphicType(baseModelName, modelName) {
-    let isLhs = this._lhsModelName === baseModelName;
-
-    assert(`Cannot add a relationship payload for an instance of '${modelName}' to the non-polymorphic relationship '${isLhs ? this._lhsRelationshipName : this._rhsRelationshipName}' on type '${isLhs ? this._lhsModelName : this._rhsModelName}'`, (isLhs && this._rhsIsPolymorphic) || (!isLhs && this._lhsIsPolymorphic));
-
-    let cache = isLhs ? this._lhsModelNames : this._rhsModelNames;
-
-    if (cache.indexOf(modelName) === -1) {
-      cache.push(modelName);
-    }
-  }
-
   /**
-    Get the payload for the relationship of an individual record.
+   Get the payload for the relationship of an individual record.
 
-    This might return the raw payload as pushed into the store, or one computed
-    from the payload of the inverse relationship.
+   This might return the raw payload as pushed into the store, or one computed
+   from the payload of the inverse relationship.
 
-    @method
-  */
+   @method
+   */
   get(modelName, id, relationshipName) {
     this._flushPending();
 
     if (this._isLHS(modelName, relationshipName)) {
-      return this._lhsPayloads.get(modelName, id);
+      return this.lhs_payloads.get(modelName, id);
     } else {
-      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-      return this._rhsPayloads.get(modelName, id);
+      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
+      return this.rhs_payloads.get(modelName, id);
     }
   }
 
   /**
-    Push a relationship payload for an individual record.
+   Push a relationship payload for an individual record.
 
-    This will make the payload available later for both this relationship and its inverse.
+   This will make the payload available later for both this relationship and its inverse.
 
-    @method
-  */
+   @method
+   */
   push(modelName, id, relationshipName, relationshipData) {
     this._pendingPayloads.push([modelName, id, relationshipName, relationshipData]);
   }
 
   /**
-    Unload the relationship payload for an individual record.
+   Unload the relationship payload for an individual record.
 
-    This does not unload the inverse relationship payload.
+   This does not unload the inverse relationship payload.
 
-    @method
-  */
+   @method
+   */
   unload(modelName, id, relationshipName) {
     this._flushPending();
 
     if (this._isLHS(modelName, relationshipName)) {
-      delete this._lhsPayloads.delete(modelName, id);
+      delete this.lhs_payloads.delete(modelName, id);
     } else {
-      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-      delete this._rhsPayloads.delete(modelName, id);
+      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_baseModelName}:${this._relInfo.lhs_relationshipName}<->${this._relInfo.rhs_baseModelName}:${this._relInfo.rhs_relationshipName}`, this._isRHS(modelName, relationshipName));
+      delete this.rhs_payloads.delete(modelName, id);
     }
   }
 
   /**
-    @return {boolean} true iff `modelName` and `relationshipName` refer to the
-    left hand side of this relationship, as opposed to the right hand side.
+   @return {boolean} true iff `modelName` and `relationshipName` refer to the
+   left hand side of this relationship, as opposed to the right hand side.
 
-    @method
-  */
+   @method
+   */
   _isLHS(modelName, relationshipName) {
-    let isSelfReferential = this._isSelfReferential;
-    let isPolymorphic = this._rhsIsPolymorphic;
-    let isModel;
-    let isRelationship = relationshipName === this._lhsRelationshipName;
+    let relInfo = this._relInfo;
+    let isSelfReferential = relInfo.isSelfReferential;
+    let isRelationship = relationshipName === relInfo.lhs_relationshipName;
 
-    if (!isPolymorphic) {
-      isModel = modelName === this._lhsModelName;
-    } else {
-      isModel = this._lhsModelNames.indexOf(modelName) !== -1;
+    if (isRelationship === true) {
+      return isSelfReferential === true ||
+        modelName === relInfo.lhs_baseModelName ||
+        relInfo.lhs_modelNames.indexOf(modelName) !== -1;
     }
 
-    return (isSelfReferential === true || isModel === true) && isRelationship === true;
+    return false;
   }
 
   /**
-    @return {boolean} true iff `modelName` and `relationshipName` refer to the
-    right hand side of this relationship, as opposed to the left hand side.
+   @return {boolean} true iff `modelName` and `relationshipName` refer to the
+   right hand side of this relationship, as opposed to the left hand side.
 
-    @method
-  */
+   @method
+   */
   _isRHS(modelName, relationshipName) {
-    let isSelfReferential = this._isSelfReferential;
-    let isPolymorphic = this._lhsIsPolymorphic;
-    let isModel;
-    let isRelationship = relationshipName === this._rhsRelationshipName;
+    let relInfo = this._relInfo;
+    let isSelfReferential = relInfo.isSelfReferential;
+    let isRelationship = relationshipName === relInfo.rhs_relationshipName;
 
-    if (!isPolymorphic) {
-      isModel = modelName === this._rhsModelName;
-    } else {
-      isModel = this._rhsModelNames.indexOf(modelName) !== -1;
+    if (isRelationship === true) {
+      return isSelfReferential === true ||
+        modelName === relInfo.rhs_baseModelName ||
+        relInfo.rhs_modelNames.indexOf(modelName) !== -1;
     }
 
-    return (isSelfReferential === true || isModel === true) && isRelationship === true;
+    return false;
   }
 
   _flushPending() {
@@ -262,15 +204,15 @@ export default class RelationshipPayloads {
       let inverseIsMany;
 
       if (this._isLHS(modelName, relationshipName)) {
-        previousPayload = this._lhsPayloads.get(modelName, id);
-        payloadMap = this._lhsPayloads;
-        inverseIdToPayloads = this._rhsPayloads;
+        previousPayload = this.lhs_payloads.get(modelName, id);
+        payloadMap = this.lhs_payloads;
+        inverseIdToPayloads = this.rhs_payloads;
         inverseIsMany = this._rhsRelationshipIsMany;
       } else {
-        assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._lhsModelName}:${this._lhsRelationshipName}<->${this._rhsModelName}:${this._rhsRelationshipName}`, this._isRHS(modelName, relationshipName));
-        previousPayload = this._rhsPayloads.get(modelName, id);
-        payloadMap = this._rhsPayloads;
-        inverseIdToPayloads = this._lhsPayloads;
+        assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
+        previousPayload = this.rhs_payloads.get(modelName, id);
+        payloadMap = this.rhs_payloads;
+        inverseIdToPayloads = this.lhs_payloads;
         inverseIsMany = this._lhsRelationshipIsMany;
       }
 
@@ -322,15 +264,15 @@ export default class RelationshipPayloads {
   }
 
   /**
-    Populate the inverse relationship for `relationshipData`.
+   Populate the inverse relationship for `relationshipData`.
 
-    If `relationshipData` is an array (eg because the relationship is hasMany)
-    this means populate each inverse, otherwise populate only the single
-    inverse.
+   If `relationshipData` is an array (eg because the relationship is hasMany)
+   this means populate each inverse, otherwise populate only the single
+   inverse.
 
-    @private
-    @method
-  */
+   @private
+   @method
+   */
   _populateInverse(relationshipData, inversePayload, inverseIdToPayloads, inverseIsMany) {
     if (!relationshipData.data) {
       // This id doesn't have an inverse, eg a belongsTo with a payload
@@ -350,18 +292,20 @@ export default class RelationshipPayloads {
   }
 
   /**
-    Actually add `inversePayload` to `inverseIdToPayloads`.  This is part of
-    `_populateInverse` after we've normalized the case of `relationshipData`
-    being either an array or a pojo.
+   Actually add `inversePayload` to `inverseIdToPayloads`.  This is part of
+   `_populateInverse` after we've normalized the case of `relationshipData`
+   being either an array or a pojo.
 
-    We still have to handle the case that the *inverse* relationship payload may
-    be an array or pojo.
+   We still have to handle the case that the *inverse* relationship payload may
+   be an array or pojo.
 
-    @private
-    @method
-  */
+   @private
+   @method
+   */
   _addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany) {
-    if (this._isReflexive && inversePayload.data.id === inverseData.id) {
+    let relInfo = this._relInfo;
+
+    if (relInfo.isReflexive && inversePayload.data.id === inverseData.id) {
       // eg <user:1>.friends = [{ id: 1, type: 'user' }]
       return;
     }
@@ -392,21 +336,23 @@ export default class RelationshipPayloads {
   }
 
   get _lhsRelationshipIsMany() {
-    return this._lhsRelationshipMeta && this._lhsRelationshipMeta.kind === 'hasMany';
+    let meta = this._relInfo.lhs_relationshipMeta;
+    return meta !== null && meta.kind === 'hasMany';
   }
 
   get _rhsRelationshipIsMany() {
-    return this._rhsRelationshipMeta && this._rhsRelationshipMeta.kind === 'hasMany';
+    let meta = this._relInfo.rhs_relationshipMeta;
+    return meta !== null && meta.kind === 'hasMany';
   }
 
   /**
-    Remove the relationship in `previousPayload` from its inverse(s), because
-    this relationship payload has just been updated (eg because the same
-    relationship had multiple payloads pushed before the relationship was
-    initialized).
+   Remove the relationship in `previousPayload` from its inverse(s), because
+   this relationship payload has just been updated (eg because the same
+   relationship had multiple payloads pushed before the relationship was
+   initialized).
 
-    @method
-  */
+   @method
+   */
   _removeInverse(id, previousPayload, inverseIdToPayloads) {
     let data = previousPayload && previousPayload.data;
     if (!data) {
@@ -431,12 +377,12 @@ export default class RelationshipPayloads {
   }
 
   /**
-    Remove `id` from its inverse record with id `inverseId`.  If the inverse
-    relationship is a belongsTo, this means just setting it to null, if the
-    inverse relationship is a hasMany, then remove that id from its array of ids.
+   Remove `id` from its inverse record with id `inverseId`.  If the inverse
+   relationship is a belongsTo, this means just setting it to null, if the
+   inverse relationship is a hasMany, then remove that id from its array of ids.
 
-    @method
-  */
+   @method
+   */
   _removeFromInverse(id, inverseData, inversePayloads) {
     let inversePayload = inversePayloads.get(inverseData.type, inverseData.id);
     let data = inversePayload && inversePayload.data;

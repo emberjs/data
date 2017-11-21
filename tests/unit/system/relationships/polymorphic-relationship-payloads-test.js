@@ -7,7 +7,7 @@ import { module, test } from 'qunit';
 
 const { Model, hasMany, belongsTo, attr } = DS;
 
-module('unit/system/relationships/relationship-payloads-manager', {
+module('unit/system/relationships/relationship-payloads-manager (polymorphic)', {
   beforeEach() {
     const User = DS.Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
@@ -774,4 +774,51 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
     [{ type: 'big-hat', id: '3'}, { type: 'small-hat', id: '3'}],
     'small-person hats is all good'
   );
+});
+
+test('Invalid inverses throw errors', function(assert) {
+  let PostModel = Model.extend({
+    comments: hasMany('comment', { async: false })
+  });
+  let CommentModel = Model.extend({
+    post: belongsTo('post', { async: false, inverse: null })
+  });
+  let store = createStore({
+    post: PostModel,
+    comment: CommentModel
+  });
+
+  function runInvalidPush() {
+    return run(() => {
+      return store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' }
+              ]
+            }
+          }
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '1',
+            relationships: {
+              post: {
+                data: {
+                  type: 'post',
+                  id: '1'
+                }
+              }
+            }
+          }
+        ]
+      });
+    });
+  }
+
+  assert.throws(runInvalidPush, /The comment:post relationship declares 'inverse: null', but it was resolved as the inverse for post:comments/, 'We detected the invalid inverse');
 });

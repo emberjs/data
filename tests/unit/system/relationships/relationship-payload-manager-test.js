@@ -507,12 +507,12 @@ test('push does not eagerly populate inverse payloads', function(assert) {
     );
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads.types),
+    Object.keys(relationshipPayloads.lhs_payloads.types),
     [],
     'user.hobbies payloads not eagerly populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads.types),
+    Object.keys(relationshipPayloads.rhs_payloads.types),
     [],
     'hobby.user payloads not eagerly populated'
   );
@@ -520,22 +520,22 @@ test('push does not eagerly populate inverse payloads', function(assert) {
   relationshipPayloads.get('user', 1, 'hobbies');
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads.types),
+    Object.keys(relationshipPayloads.lhs_payloads.types),
     ['user'],
     'user.hobbies payloads lazily populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads.types.user),
+    Object.keys(relationshipPayloads.lhs_payloads.types.user),
     ['1'],
     'user.hobbies payloads lazily populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads.types),
+    Object.keys(relationshipPayloads.rhs_payloads.types),
     ['hobby'] ,
     'hobby.user payloads lazily populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads.types.hobby),
+    Object.keys(relationshipPayloads.rhs_payloads.types.hobby),
     ['2'] ,
     'hobby.user payloads lazily populated'
   );

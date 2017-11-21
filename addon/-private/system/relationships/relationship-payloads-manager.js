@@ -1,5 +1,7 @@
 import { get } from '@ember/object';
-import RelationshipPayloads from './relationship-payloads';
+import { DEBUG } from '@glimmer/env';
+import { assert } from '@ember/debug';
+import { default as RelationshipPayloads, TypeCache } from './relationship-payloads';
 
 /**
   Manages relationship payloads for a given store, for uninitialized
@@ -59,6 +61,7 @@ export default class RelationshipPayloadsManager {
     this._store = store;
     // cache of `RelationshipPayload`s
     this._cache = Object.create(null);
+    this._inverseLookupCache = new TypeCache();
   }
 
   /**
@@ -81,9 +84,7 @@ export default class RelationshipPayloadsManager {
     @method
   */
   get(modelName, id, relationshipName) {
-    let modelClass = this._store._modelFor(modelName);
-    let relationshipsByName = get(modelClass, 'relationshipsByName');
-    let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, false);
+    let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, false);
     return relationshipPayloads && relationshipPayloads.get(modelName, id, relationshipName);
   }
 
@@ -113,10 +114,8 @@ export default class RelationshipPayloadsManager {
   push(modelName, id, relationshipsData) {
     if (!relationshipsData) { return; }
 
-    let modelClass = this._store._modelFor(modelName);
-    let relationshipsByName = get(modelClass, 'relationshipsByName');
     Object.keys(relationshipsData).forEach(key => {
-      let relationshipPayloads = this._getRelationshipPayloads(modelName, key, modelClass, relationshipsByName, true);
+      let relationshipPayloads = this._getRelationshipPayloads(modelName, key, true);
       if (relationshipPayloads) {
         relationshipPayloads.push(modelName, id, key, relationshipsData[key]);
       }
@@ -132,7 +131,7 @@ export default class RelationshipPayloadsManager {
     let modelClass = this._store._modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
     relationshipsByName.forEach((_, relationshipName) => {
-      let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, false);
+      let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, false);
       if (relationshipPayloads) {
         relationshipPayloads.unload(modelName, id, relationshipName);
       }
@@ -164,36 +163,131 @@ export default class RelationshipPayloadsManager {
     @private
     @method
   */
-  _getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, init) {
-    if (!relationshipsByName.has(relationshipName)) { return; }
+  _getRelationshipPayloads(modelName, relationshipName, init) {
+    let relInfo = this.getRelationshipInfo(modelName, relationshipName);
 
-    let key = `${modelName}:${relationshipName}`;
-    if (!this._cache[key] && init) {
-      return this._initializeRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName);
+    if (relInfo === null) {
+      return;
     }
 
-    let cache = this._cache[key];
+    let cache = this._cache[relInfo.lhs_key];
 
-    if (cache === undefined) {
-      let inverseMeta = modelClass.inverseFor(relationshipName, this._store);
-
-      if (inverseMeta) {
-        let inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseMeta.name);
-        let baseModelName = inverseRelationshipMeta.type;
-
-        if (baseModelName !== modelName) {
-          let baseKey = `${baseModelName}:${relationshipName}`;
-          cache = this._cache[baseKey];
-
-          if (cache !== undefined) {
-            cache.addPolymorphicType(baseModelName, modelName);
-            this._cache[key] = cache;
-          }
-        }
-      }
+    if (!cache && init) {
+      return this._initializeRelationshipPayloads(relInfo);
     }
 
     return cache;
+  }
+
+  getRelationshipInfo(modelName, relationshipName) {
+    let inverseCache = this._inverseLookupCache;
+    let store = this._store;
+    let cached = inverseCache.get(modelName, relationshipName);
+
+    // CASE: We have a cached resolution (null if no relationship exists)
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    let modelClass = store._modelFor(modelName);
+    let relationshipsByName = get(modelClass, 'relationshipsByName');
+
+    // CASE: We don't have a relationship at all
+    if (!relationshipsByName.has(relationshipName)) {
+      inverseCache.set(modelName, relationshipName, null);
+      return null;
+    }
+
+    let inverseMeta = modelClass.inverseFor(relationshipName, store);
+    let relationshipMeta = relationshipsByName.get(relationshipName);
+    let selfIsPolymorphic = relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
+    let inverseBaseModelName = relationshipMeta.type;
+
+    // CASE: We have no inverse
+    if (!inverseMeta) {
+      let info = {
+        lhs_key: `${modelName}:${relationshipName}`,
+        lhs_modelNames: [modelName],
+        lhs_baseModelName: modelName,
+        lhs_relationshipName: relationshipName,
+        lhs_relationshipMeta: relationshipMeta,
+        lhs_isPolymorphic: selfIsPolymorphic,
+        rhs_key: '',
+        rhs_modelNames: [],
+        rhs_baseModelName: inverseBaseModelName,
+        rhs_relationshipName: '',
+        rhs_relationshipMeta: null,
+        rhs_isPolymorphic: false,
+        hasInverse: false,
+        isSelfReferential: false, // modelName === inverseBaseModelName,
+        isReflexive: false
+      };
+
+      inverseCache.set(modelName, relationshipName, info);
+
+      return info;
+    }
+
+    // CASE: We do have an inverse
+
+    let inverseRelationshipName = inverseMeta.name;
+    let inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
+    let baseModelName = inverseRelationshipMeta.type;
+    let isSelfReferential = baseModelName === inverseBaseModelName;
+
+    // TODO we want to assert this but this breaks all of our shoddily written tests
+    /*
+    if (DEBUG) {
+      let inverseDoubleCheck = inverseMeta.type.inverseFor(inverseRelationshipName, store);
+
+      assert(`The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`, inverseDoubleCheck);
+    }
+    */
+
+    // CASE: We may have already discovered the inverse for the baseModelName
+    // CASE: We have already discovered the inverse
+    cached = inverseCache.get(baseModelName, relationshipName) ||
+      inverseCache.get(inverseBaseModelName, inverseRelationshipName);
+    if (cached) {
+      // TODO this assert can be removed if the above assert is enabled
+      assert(`The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`, cached.hasInverse !== false);
+
+      let isLHS = cached.lhs_baseModelName === baseModelName;
+      let modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
+      // make this lookup easier in the future by caching the key
+      modelNames.push(modelName);
+      inverseCache.set(modelName, relationshipName, cached);
+
+      return cached;
+    }
+
+    let info = {
+      lhs_key: `${baseModelName}:${relationshipName}`,
+      lhs_modelNames: [modelName],
+      lhs_baseModelName: baseModelName,
+      lhs_relationshipName: relationshipName,
+      lhs_relationshipMeta: relationshipMeta,
+      lhs_isPolymorphic: selfIsPolymorphic,
+      rhs_key: `${inverseBaseModelName}:${inverseRelationshipName}`,
+      rhs_modelNames: [],
+      rhs_baseModelName: inverseBaseModelName,
+      rhs_relationshipName: inverseRelationshipName,
+      rhs_relationshipMeta: inverseRelationshipMeta,
+      rhs_isPolymorphic: inverseRelationshipMeta.options !== undefined && inverseRelationshipMeta.options.polymorphic === true,
+      hasInverse: true,
+      isSelfReferential,
+      isReflexive: isSelfReferential && relationshipName === inverseRelationshipName
+    };
+
+    // Create entries for the baseModelName as well as modelName to speed up
+    //  inverse lookups
+    inverseCache.set(baseModelName, relationshipName, info);
+    inverseCache.set(modelName, relationshipName, info);
+
+    // Greedily populate the inverse
+    inverseCache.set(inverseBaseModelName, inverseRelationshipName, info);
+
+    return info;
   }
 
   /**
@@ -202,49 +296,18 @@ export default class RelationshipPayloadsManager {
     @private
     @method
   */
-  _initializeRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName) {
-    let relationshipMeta = relationshipsByName.get(relationshipName);
-    let inverseMeta = modelClass.inverseFor(relationshipName, this._store);
-    let selfIsPolymorphic = relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
-    let baseModelName = modelName;
-    let inverseModelName;
-    let inverseRelationshipName;
-    let inverseRelationshipMeta;
-    let inverseIsPolymorphic = false;
-    let existingPolymorphicCache;
+  _initializeRelationshipPayloads(relInfo) {
+    let lhsKey = relInfo.lhs_key;
+    let rhsKey = relInfo.rhs_key;
+    let existingPayloads = this._cache[lhsKey];
 
-    // figure out the inverse relationship; we need two things
-    //  a) the inverse model name
-    //  b) the name of the inverse relationship
-    if (inverseMeta) {
-      inverseRelationshipName = inverseMeta.name;
-      inverseModelName = relationshipMeta.type;
-      inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
-      inverseIsPolymorphic = inverseRelationshipMeta.options !== undefined && inverseRelationshipMeta.options.polymorphic === true;
+    if (relInfo.hasInverse === true && relInfo.rhs_isPolymorphic === true) {
+      existingPayloads = this._cache[rhsKey];
 
-      baseModelName = inverseRelationshipMeta.type;
-    } else {
-      // relationship has no inverse
-      inverseModelName = inverseRelationshipName = '';
-      inverseRelationshipMeta = null;
-    }
-
-    let lhsKey = `${modelName}:${relationshipName}`;
-    let rhsKey = `${inverseModelName}:${inverseRelationshipName}`;
-    let lhsBaseKey = `${baseModelName}:${relationshipName}`;
-
-    if (inverseIsPolymorphic === true) {
-      existingPolymorphicCache = this._cache[rhsKey];
-    } else if (selfIsPolymorphic) {
-      existingPolymorphicCache = this._cache[lhsBaseKey];
-    }
-
-    if (existingPolymorphicCache !== undefined) {
-      this._cache[lhsKey] = existingPolymorphicCache;
-
-      existingPolymorphicCache.addPolymorphicType(baseModelName, modelName);
-
-      return existingPolymorphicCache;
+      if (existingPayloads !== undefined) {
+        this._cache[lhsKey] = existingPayloads;
+        return existingPayloads;
+      }
     }
 
     // populate the cache for both sides of the relationship, as they both use
@@ -253,16 +316,12 @@ export default class RelationshipPayloadsManager {
     // This works out better than creating a single common key, because to
     // compute that key we would need to do work to look up the inverse
     //
-    return this._cache[lhsBaseKey] = this._cache[lhsKey] =
-      this._cache[rhsKey] =
-      new RelationshipPayloads(
-        this._store,
-        modelName,
-        relationshipName,
-        relationshipMeta,
-        inverseModelName,
-        inverseRelationshipName,
-        inverseRelationshipMeta
-      );
+    let cache = this._cache[lhsKey] = new RelationshipPayloads(relInfo);
+
+    if (relInfo.hasInverse === true) {
+      this._cache[rhsKey] = cache;
+    }
+
+    return cache;
   }
 }
