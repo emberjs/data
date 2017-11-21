@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 
+// TODO this is now VERY similar to the identity/internal-model map
+//  so we should probably generalize
 export class TypeCache {
   constructor() {
     this.types = Object.create(null);
@@ -148,9 +150,9 @@ export default class RelationshipPayloads {
     let isRelationship = relationshipName === relInfo.lhs_relationshipName;
 
     if (isRelationship === true) {
-      return isSelfReferential === true ||
-        modelName === relInfo.lhs_baseModelName ||
-        relInfo.lhs_modelNames.indexOf(modelName) !== -1;
+      return isSelfReferential === true || // itself
+        modelName === relInfo.lhs_baseModelName || // base or non-polymorphic
+        relInfo.lhs_modelNames.indexOf(modelName) !== -1; // polymorphic
     }
 
     return false;
@@ -168,9 +170,9 @@ export default class RelationshipPayloads {
     let isRelationship = relationshipName === relInfo.rhs_relationshipName;
 
     if (isRelationship === true) {
-      return isSelfReferential === true ||
-        modelName === relInfo.rhs_baseModelName ||
-        relInfo.rhs_modelNames.indexOf(modelName) !== -1;
+      return isSelfReferential === true || // itself
+        modelName === relInfo.rhs_baseModelName || // base or non-polymorphic
+        relInfo.rhs_modelNames.indexOf(modelName) !== -1; // polymorphic
     }
 
     return false;
@@ -200,19 +202,19 @@ export default class RelationshipPayloads {
       //
       let previousPayload;
       let payloadMap;
-      let inverseIdToPayloads;
+      let inversePayloadMap;
       let inverseIsMany;
 
       if (this._isLHS(modelName, relationshipName)) {
         previousPayload = this.lhs_payloads.get(modelName, id);
         payloadMap = this.lhs_payloads;
-        inverseIdToPayloads = this.rhs_payloads;
+        inversePayloadMap = this.rhs_payloads;
         inverseIsMany = this._rhsRelationshipIsMany;
       } else {
         assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
         previousPayload = this.rhs_payloads.get(modelName, id);
         payloadMap = this.rhs_payloads;
-        inverseIdToPayloads = this.lhs_payloads;
+        inversePayloadMap = this.lhs_payloads;
         inverseIsMany = this._lhsRelationshipIsMany;
       }
 
@@ -256,10 +258,10 @@ export default class RelationshipPayloads {
       // * undefined is NOT considered new information, we should keep original state
       // * anything else is considered new information, and it should win
       if (relationshipData.data !== undefined) {
-        this._removeInverse(id, previousPayload, inverseIdToPayloads);
+        this._removeInverse(id, previousPayload, inversePayloadMap);
       }
       payloadMap.set(modelName, id, relationshipData);
-      this._populateInverse(relationshipData, inverseRelationshipData, inverseIdToPayloads, inverseIsMany);
+      this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
     }
   }
 
@@ -273,7 +275,7 @@ export default class RelationshipPayloads {
    @private
    @method
    */
-  _populateInverse(relationshipData, inversePayload, inverseIdToPayloads, inverseIsMany) {
+  _populateInverse(relationshipData, inversePayload, inversePayloadMap, inverseIsMany) {
     if (!relationshipData.data) {
       // This id doesn't have an inverse, eg a belongsTo with a payload
       // { data: null }, so there's nothing to populate
@@ -282,12 +284,12 @@ export default class RelationshipPayloads {
 
     if (Array.isArray(relationshipData.data)) {
       for (let i=0; i<relationshipData.data.length; ++i) {
-        let inverseData = relationshipData.data[i];
-        this._addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany);
+        let resourceIdentifier = relationshipData.data[i];
+        this._addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany);
       }
     } else {
-      let inverseData = relationshipData.data;
-      this._addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany);
+      let resourceIdentifier = relationshipData.data;
+      this._addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany);
     }
   }
 
@@ -302,15 +304,15 @@ export default class RelationshipPayloads {
    @private
    @method
    */
-  _addToInverse(inversePayload, inverseData, inverseIdToPayloads, inverseIsMany) {
+  _addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany) {
     let relInfo = this._relInfo;
 
-    if (relInfo.isReflexive && inversePayload.data.id === inverseData.id) {
+    if (relInfo.isReflexive && inversePayload.data.id === resourceIdentifier.id) {
       // eg <user:1>.friends = [{ id: 1, type: 'user' }]
       return;
     }
 
-    let existingPayload = inverseIdToPayloads.get(inverseData.type, inverseData.id);
+    let existingPayload = inversePayloadMap.get(resourceIdentifier.type, resourceIdentifier.id);
     let existingData = existingPayload && existingPayload.data;
 
     if (existingData) {
@@ -320,17 +322,17 @@ export default class RelationshipPayloads {
       if (Array.isArray(existingData)) {
         existingData.push(inversePayload.data);
       } else {
-        inverseIdToPayloads.set(inverseData.type, inverseData.id, inversePayload);
+        inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
       }
     } else {
       // first time we're populating the inverse side
       //
       if (inverseIsMany) {
-        inverseIdToPayloads.set(inverseData.type, inverseData.id, {
+        inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, {
           data: [inversePayload.data]
         });
       } else {
-        inverseIdToPayloads.set(inverseData.type, inverseData.id, inversePayload);
+        inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
       }
     }
   }
@@ -353,7 +355,7 @@ export default class RelationshipPayloads {
 
    @method
    */
-  _removeInverse(id, previousPayload, inverseIdToPayloads) {
+  _removeInverse(id, previousPayload, inversePayloadMap) {
     let data = previousPayload && previousPayload.data;
     if (!data) {
       // either this is the first time we've seen a payload for this id, or its
@@ -368,11 +370,11 @@ export default class RelationshipPayloads {
     if (Array.isArray(data)) {
       // TODO: diff rather than removeall addall?
       for (let i=0; i<data.length; ++i) {
-        const inverseData = data[i];
-        this._removeFromInverse(id, inverseData, inverseIdToPayloads);
+        const resourceIdentifier = data[i];
+        this._removeFromInverse(id, resourceIdentifier, inversePayloadMap);
       }
     } else {
-      this._removeFromInverse(id, data, inverseIdToPayloads);
+      this._removeFromInverse(id, data, inversePayloadMap);
     }
   }
 
@@ -383,8 +385,8 @@ export default class RelationshipPayloads {
 
    @method
    */
-  _removeFromInverse(id, inverseData, inversePayloads) {
-    let inversePayload = inversePayloads.get(inverseData.type, inverseData.id);
+  _removeFromInverse(id, resourceIdentifier, inversePayloads) {
+    let inversePayload = inversePayloads.get(resourceIdentifier.type, resourceIdentifier.id);
     let data = inversePayload && inversePayload.data;
 
     if (!data) { return; }
@@ -392,7 +394,7 @@ export default class RelationshipPayloads {
     if (Array.isArray(data)) {
       inversePayload.data = data.filter((x) => x.id !== id);
     } else {
-      inversePayloads.set(inverseData.type, inverseData.id, {
+      inversePayloads.set(resourceIdentifier.type, resourceIdentifier.id, {
         data: null
       });
     }
