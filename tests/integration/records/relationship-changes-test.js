@@ -11,7 +11,8 @@ const { attr, belongsTo, hasMany, Model } = DS;
 let env, store;
 
 const Author = Model.extend({
-  name: attr('string')
+  name: attr('string'),
+  posts: hasMany()
 });
 
 const Post = Model.extend({
@@ -949,4 +950,113 @@ test('Calling push with same belongsTo relationship does not trigger observer', 
   });
 
   assert.equal(observerCount, 0, 'author observer should not be triggered');
+});
+
+test('Pushing object that modify already loaded hasMany via inverse relationship fires observer', function(assert) {
+  assert.expect(1);
+
+  let observerCount = 0;
+
+  run(function() {
+    let author = env.store.push({
+      data: {
+        id: '2',
+        type: 'author',
+        relationships: {
+          posts: {
+            data: [{ type: 'post', id: '2' }]
+          }
+        }
+      }
+    });
+
+    author.addObserver('posts.[]', function() {
+      observerCount++;
+    });
+
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          author: {
+            data: { type: 'author', id: '2' }
+          }
+        }
+      }
+    });
+  });
+
+  assert.equal(observerCount, 1, 'posts observer should be triggered');
+});
+
+test('Pushing object that not modify already loaded hasMany via inverse relationship do not fire observer', function(assert) {
+  assert.expect(1);
+
+  let observerCount = 0;
+
+  run(function() {
+    let author = env.store.push({
+      data: {
+        id: '2',
+        type: 'author',
+        relationships: {
+          posts: {
+            data: [{ type: 'post', id: '2' }]
+          }
+        }
+      }
+    });
+
+    author.addObserver('posts.[]', function() {
+      observerCount++;
+    });
+
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '2',
+        relationships: {
+          author: {
+            data: { type: 'author', id: '2' }
+          }
+        }
+      }
+    });
+  });
+
+  assert.equal(observerCount, 0, 'posts observer should not be triggered');
+});
+
+test('Pushing object that modify not loaded hasMany via inverse relationship fires observer', function(assert) {
+  assert.expect(1);
+
+  let observerCount = 0;
+
+  run(function() {
+    let author = env.store.push({
+      data: {
+        id: '2',
+        type: 'author'
+      }
+    });
+
+    author.addObserver('posts.[]', function() {
+      observerCount++;
+    });
+
+    env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          author: {
+            data: { type: 'author', id: '2' }
+          }
+        }
+      }
+    });
+  });
+
+  assert.equal(observerCount, 1, 'posts observer should be triggered');
 });

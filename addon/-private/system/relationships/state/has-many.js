@@ -134,6 +134,8 @@ export default class ManyRelationship extends Relationship {
   flushCanonical() {
     if (this._manyArray) {
       this._manyArray.flushCanonical();
+    } else {
+      this.notifyHasManyChanged();
     }
     super.flushCanonical();
   }
