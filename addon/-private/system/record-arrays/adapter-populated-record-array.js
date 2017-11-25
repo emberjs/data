@@ -49,7 +49,7 @@ export default RecordArray.extend({
 
     this._super(...arguments);
     this.query = this.query || null;
-    this.links = null;
+    this.links = this.links || null;
   },
 
   replace() {
