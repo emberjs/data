@@ -439,11 +439,7 @@ const RESTSerializer = JSONSerializer.extend({
       });
     }
 
-    if (isEnabled('ds-pushpayload-return')) {
-      return store.push(documentHash);
-    } else {
-      store.push(documentHash);
-    }
+    return store.push(documentHash);
   },
 
   /**
