@@ -173,10 +173,10 @@ import { assert } from '@ember/debug';
 */
 
 function didSetProperty(internalModel, context) {
-  if (context.value === context.originalValue) {
-    internalModel.send('propertyWasReset', context.name);
-  } else if (context.value !== context.oldValue) {
+  if (context.isDirty) {
     internalModel.send('becomeDirty');
+  } else {
+    internalModel.send('propertyWasReset');
   }
 
   internalModel.updateRecordArrays();
@@ -246,7 +246,6 @@ const DirtyState = {
 
     pushedData(internalModel) {
       let token = heimdall.start('stats.uncommitted.pushedData');
-      //internalModel.updateChangedAttributes();
 
       if (!internalModel.hasChangedAttributes()) {
         internalModel.transitionTo('loaded.saved');

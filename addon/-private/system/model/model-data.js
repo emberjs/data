@@ -97,6 +97,7 @@ export default class ModelData {
       relationship.push(relationshipData);
     });
   }
+
   /*
     Checks if the attributes which are considered as changed are still
     different to the state which is acknowledged by the server.
@@ -230,30 +231,18 @@ export default class ModelData {
   }
 
   setAttr(key, value) {
-    let oldValue = this.getAttr(key);
     let originalValue;
+    // Add the new value to the changed attributes hash
+    this._attributes[key] = value;
 
-    if (value !== oldValue) {
-      // Add the new value to the changed attributes hash; it will get deleted by
-      // the 'didSetProperty' handler if it is no different from the original value
-      this._attributes[key] = value;
-
-      if (key in this._inFlightAttributes) {
-        originalValue = this._inFlightAttributes[key];
-      } else {
-        originalValue = this._data[key];
-      }
-      // If we went back to our original value, we shouldn't keep the attribute around anymore
-      if (value === originalValue) {
-        delete this._attributes[key];
-      }
-      // TODO IGOR DAVID whats up with the send
-      this.internalModel.send('didSetProperty', {
-        name: key,
-        oldValue: oldValue,
-        originalValue: originalValue,
-        value: value
-      });
+    if (key in this._inFlightAttributes) {
+      originalValue = this._inFlightAttributes[key];
+    } else {
+      originalValue = this._data[key];
+    }
+    // If we went back to our original value, we shouldn't keep the attribute around anymore
+    if (value === originalValue) {
+      delete this._attributes[key];
     }
   }
 
@@ -273,6 +262,19 @@ export default class ModelData {
          key in this._data;
   }
 
+  isAttrDirty(key) {
+    if (this._attributes[key] === undefined) {
+      return false;
+    }
+    let originalValue;
+    if (this._inFlightAttributes[key] !== undefined) {
+      originalValue = this._inFlightAttributes[key];
+    } else {
+      originalValue = this._data[key];
+    }
+
+    return originalValue !== this._attributes[key];
+  }
 
   get _attributes() {
     if (this.__attributes === null) {

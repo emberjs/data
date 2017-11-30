@@ -136,7 +136,15 @@ export default function attr(type, options) {
       }
     },
     set(key, value) {
-      this._internalModel._modelData.setAttr(key, value);
+      let currentValue = this._internalModel._modelData.getAttr(key);
+      if (currentValue !== value) {
+        this._internalModel._modelData.setAttr(key, value);
+        let isDirty = this._internalModel._modelData.isAttrDirty(key);
+        this._internalModel.send('didSetProperty', {
+          name: key,
+          isDirty: isDirty
+        });
+      }
       return value;
     }
   }).meta(meta);

@@ -9,3 +9,8 @@ Does ModelData notify properties or just returns changed keys
 Embedded records set to null
 What to do about _implicitRelationships
 Should default value be in the snapshot?
+
+
+Need to add getModelDataFor and getRecordForModelData?
+Do we need a hook for record destroy?
+Snapshot interface?
