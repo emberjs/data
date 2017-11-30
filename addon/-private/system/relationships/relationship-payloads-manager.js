@@ -172,7 +172,7 @@ export default class RelationshipPayloadsManager {
     let parentType = relationshipsByName.get(relationshipName).parentType;
     let key = `${parentType.modelName}:${relationshipName}`;
     if (!this._cache[key] && init) {
-      return this._initializeRelationshipPayloads(parentType.modelName, relationshipName, parentType, relationshipsByName);
+      return this._initializeRelationshipPayloads(parentType.modelName || modelName, relationshipName, parentType, relationshipsByName);
     }
 
     return this._cache[key];
