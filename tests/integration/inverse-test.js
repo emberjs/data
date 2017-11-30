@@ -6,9 +6,9 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let env, store, User, Job, ReflexiveModel;
+let env, store, User, Manager, Job, Company, ReflexiveModel;
 
-const { attr, belongsTo } = DS;
+const { attr, belongsTo, hasMany } = DS;
 
 function stringify(string) {
   return function() { return string; };
@@ -19,10 +19,14 @@ module('integration/inverse_test - inverseFor', {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: null }),
-      job: belongsTo('job', { async: false })
+      job: belongsTo('job', { async: false }),
+      employer: belongsTo('company', {inverse:"employees"})
     });
 
     User.toString = stringify('user');
+
+    Manager = User.extend({});
+    Manager.toString = stringify('manager');
 
     Job = DS.Model.extend({
       isGood: attr(),
@@ -30,6 +34,11 @@ module('integration/inverse_test - inverseFor', {
     });
 
     Job.toString = stringify('job');
+
+    Company = DS.Model.extend({
+      employees: hasMany('user', {inverse: "employer", polymorphic: true})
+    });
+    Company.toString = stringify('company');
 
     ReflexiveModel = DS.Model.extend({
       reflexiveProp: belongsTo('reflexive-model', { async: false })
@@ -39,7 +48,9 @@ module('integration/inverse_test - inverseFor', {
 
     env = setupStore({
       user: User,
+      manager: Manager,
       job: Job,
+      company: Company,
       reflexiveModel: ReflexiveModel
     });
 
@@ -122,6 +133,74 @@ test("Caches findInverseFor return value", function(assert) {
   };
 
   assert.equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
+});
+
+test("polymorphic hasMany inverse is populated after push of base model", function(assert) {
+  const done = assert.async();
+
+  run(() => {
+    store.push({
+      data: {
+        id: 'c1',
+        type: 'company',
+        relationships: {
+          employees: {
+            data: [
+              {id: 'u1', type: 'user'}
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          id: 'u1',
+          type: 'user',
+          relationships: {}
+        }
+      ]
+    });
+  });
+
+  const user = store.peekRecord('user', 'u1');
+
+  user.get('employer').then(employer => {
+    assert.ok(employer);
+    done();
+  });
+});
+
+test("polymorphic hasMany inverse is populated after push of descendant model", function(assert) {
+  const done = assert.async();
+
+  run(() => {
+    store.push({
+      data: {
+        id: 'c1',
+        type: 'company',
+        relationships: {
+          employees: {
+            data: [
+              {id: 'u1', type: 'manager'}
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          id: 'u1',
+          type: 'manager',
+          relationships: {}
+        }
+      ]
+    });
+  });
+
+  const user = store.peekRecord('manager', 'u1');
+
+  user.get('employer').then(employer => {
+    assert.ok(employer);
+    done();
+  });
 });
 
 testInDebug("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
