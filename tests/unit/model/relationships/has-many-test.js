@@ -1196,6 +1196,107 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
 });
 
+test('new items added to a hasMany relationship are not cleared by a store.push', function(assert) {
+  assert.expect(4);
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany('pet', { async: false, inverse: null })
+  });
+
+  const Pet = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false, inverse: null })
+  });
+
+  let env = setupStore({
+    person: Person,
+    pet: Pet
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = () => {
+    return EmberPromise.resolve({ data: null });
+  };
+
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Chris Thoburn'
+        },
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shenanigans'
+          }
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: {
+            name: 'Rambunctious'
+          }
+        },
+        {
+          type: 'pet',
+          id: '3',
+          attributes: {
+            name: 'Rebel'
+          }
+        }
+      ]
+    });
+  });
+
+  const person = store.peekRecord('person', '1');
+  const pets = run(() => person.get('pets'));
+
+  const shen = pets.objectAt(0);
+  const rebel = store.peekRecord('pet', '3');
+
+  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1'], 'precond - relationship has the correct pets to start');
+
+  run(() => {
+    pets.pushObjects([rebel]);
+  });
+
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '3'], 'precond2 - relationship now has the correct two pets');
+
+  run(() => {
+    self.halt=true
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [
+              { type: 'pet', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+  });
+
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['2', '3'], 'relationship now has the correct two pets');
+});
+
 test('new items added to an async hasMany relationship are not cleared by a delete', function(assert) {
   assert.expect(7);
 
