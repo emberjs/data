@@ -772,7 +772,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.removeFromInverseRelationships(true);
+      this.removeFromInverseRelationships();
     }
 
     if (this.isValid()) {
@@ -891,19 +891,13 @@ export default class InternalModel {
 
    It will remove this record from any associated relationships.
 
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
     @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
     @private
    */
-  removeFromInverseRelationships(isNew = false) {
+  removeFromInverseRelationships() {
     this._relationships.forEach((name, rel) => {
       rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.clear();
     });
 
     let implicitRelationships = this._implicitRelationships;
@@ -913,9 +907,7 @@ export default class InternalModel {
       let rel = implicitRelationships[key];
 
       rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.clear();
     });
   }
 
