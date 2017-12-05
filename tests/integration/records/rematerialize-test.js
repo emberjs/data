@@ -110,7 +110,7 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
   run(() => person.unloadRecord());
 
   assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
-  assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is retained');
+  assert.equal(env.store._internalModelsFor('person').has(1), false, 'The person internalModel is freed');
 
   run(() => {
     env.store.push({

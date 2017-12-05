@@ -58,6 +58,7 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   inverseDidDematerialize() {
+    super.inverseDidDematerialize(this.inverseInternalModel);
     this.notifyBelongsToChanged();
   }
 
@@ -72,6 +73,13 @@ export default class BelongsToRelationship extends Relationship {
       this.inverseInternalModel = null;
       this.notifyBelongsToChanged();
     }
+  }
+
+
+  removeCompletelyFromInverse() {
+    super.removeCompletelyFromInverse();
+
+    this.inverseInternalModel = null;
   }
 
   flushCanonical() {
@@ -115,6 +123,12 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
+  removeAllInternalModelsFromOwn() {
+    super.removeAllInternalModelsFromOwn();
+    this.inverseInternalModel = null;
+    this.notifyBelongsToChanged();
+  }
+
   notifyBelongsToChanged() {
     this.internalModel.notifyBelongsToChanged(this.key);
   }
@@ -123,6 +137,11 @@ export default class BelongsToRelationship extends Relationship {
     if (!this.canonicalMembers.has(internalModel)) { return;}
     this.canonicalState = null;
     super.removeCanonicalInternalModelFromOwn(internalModel);
+  }
+
+  removeAllCanonicalInternalModelsFromOwn() {
+    super.removeAllCanonicalInternalModelsFromOwn();
+    this.canonicalState = null;
   }
 
   findRecord() {
