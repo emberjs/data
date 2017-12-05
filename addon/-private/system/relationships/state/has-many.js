@@ -11,7 +11,12 @@ export default class ManyRelationship extends Relationship {
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
+    // The ManyArray for this relationship
     this._manyArray = null;
+    // The previous ManyArray for this relationship.  It will be destroyed when
+    // we create a new many array, but in the interim it will be updated if
+    // inverse internal models are unloaded.
+    this._retainedManyArray = null;
     this.__loadingPromise = null;
   }
 
@@ -33,6 +38,8 @@ export default class ManyRelationship extends Relationship {
   }
 
   get manyArray() {
+    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, this._manyArray === null || this._retainedManyArray === null);
+
     if (!this._manyArray) {
       this._manyArray = ManyArray.create({
         canonicalState: this.canonicalState,
@@ -43,7 +50,13 @@ export default class ManyRelationship extends Relationship {
         meta: this.meta,
         isPolymorphic: this.isPolymorphic
       });
+
+      if (this._retainedManyArray !== null) {
+        this._retainedManyArray.destroy();
+        this._retainedManyArray = null;
+      }
     }
+
     return this._manyArray;
   }
 
@@ -78,10 +91,14 @@ export default class ManyRelationship extends Relationship {
     super.addCanonicalInternalModel(internalModel, idx);
   }
 
-  inverseDidDematerialize() {
-    if (this._manyArray) {
-      this._manyArray.destroy();
-      this._manyArray = null;
+  inverseDidDematerialize(inverseInternalModel) {
+    super.inverseDidDematerialize(inverseInternalModel);
+    if (this.isAsync) {
+      if (this._manyArray) {
+        this._retainedManyArray = this._manyArray;
+        this._manyArray = null;
+      }
+      this._removeInternalModelFromManyArray(this._retainedManyArray, inverseInternalModel);
     }
     this.notifyHasManyChanged();
   }
@@ -109,6 +126,12 @@ export default class ManyRelationship extends Relationship {
       this.canonicalState.splice(i, 1);
     }
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
+  }
+
+  removeAllCanonicalInternalModelsFromOwn() {
+    super.removeAllCanonicalInternalModelsFromOwn();
+    this.canonicalMembers.clear();
+    this.canonicalState.splice(0, this.canonicalState.length);
   }
 
   removeCompletelyFromOwn(internalModel) {
@@ -143,7 +166,33 @@ export default class ManyRelationship extends Relationship {
       return;
     }
     super.removeInternalModelFromOwn(internalModel, idx);
-    let manyArray = this.manyArray;
+    // note that ensuring the many array is created, via `this.manyArray`
+    // (instead of `this._manyArray`) is intentional.
+    //
+    // Because we're removing from local, and not canonical, state, it is
+    // important that the many array is initialized now with those changes,
+    // otherwise it will be initialized with canonical state and we'll have
+    // lost the fact that this internalModel was removed.
+    this._removeInternalModelFromManyArray(this.manyArray, internalModel, idx);
+    this._removeInternalModelFromManyArray(this._retainedManyArray, internalModel, idx);
+  }
+
+  removeAllInternalModelsFromOwn() {
+    super.removeAllInternalModelsFromOwn();
+    // as with removeInternalModelFromOwn, we make sure the many array is
+    // instantiated, or we'll lose local removals, as we're not updating
+    // canonical state here.
+    this.manyArray.clear();
+    if (this._retainedManyArray) {
+      this._retainedManyArray.clear();
+    }
+  }
+
+  _removeInternalModelFromManyArray(manyArray, internalModel, idx) {
+    if (manyArray === null) {
+      return;
+    }
+
     if (idx !== undefined) {
       //TODO(Igor) not used currently, fix
       manyArray.currentState.removeAt(idx);
@@ -292,12 +341,14 @@ export default class ManyRelationship extends Relationship {
     let manyArray = this._manyArray;
     if (manyArray) {
       manyArray.destroy();
+      this._manyArray = null;
     }
 
     let proxy = this.__loadingPromise;
 
     if (proxy) {
       proxy.destroy();
+      this.__loadingPromise = null;
     }
   }
 }
