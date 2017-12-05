@@ -7,6 +7,12 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
+let {
+  Model,
+  hasMany,
+  belongsTo
+} = DS;
+
 var Post, Comment, Message, User;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
@@ -54,6 +60,34 @@ test("Inverse relationships can be explicitly nullable", function(assert) {
     post: Post
   });
   var user, post;
+
+  run(function() {
+    user = store.createRecord('user');
+    post = store.createRecord('post');
+  });
+
+  assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
+  assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+  assert.equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
+});
+
+test("Null inverses are excluded from potential relationship resolutions", function(assert) {
+  User = Model.extend();
+
+  Post = Model.extend({
+    lastParticipant: belongsTo('user', { inverse: null, async: false }),
+    participants: hasMany('user', { async: false })
+  });
+
+  User.reopen({
+    posts: hasMany('post', { async: false })
+  });
+
+  let store = createStore({
+    user: User,
+    post: Post
+  });
+  let user, post;
 
   run(function() {
     user = store.createRecord('user');
