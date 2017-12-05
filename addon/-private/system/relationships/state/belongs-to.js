@@ -124,15 +124,6 @@ export default class BelongsToRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel);
   }
 
-  fetchLink() {
-    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((internalModel) => {
-      if (internalModel) {
-        this.addInternalModel(internalModel);
-      }
-      return internalModel;
-    });
-  }
-
   getData() {
     let data;
     let payload = {};
@@ -159,21 +150,6 @@ export default class BelongsToRelationship extends Relationship {
       delete payload.data;
     }
     return payload;
-  }
-
-  reload() {
-    // TODO handle case when reload() is triggered multiple times
-
-    if (this.link) {
-      return this.fetchLink();
-    }
-
-    // reload record, if it is already loaded
-    if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
-      return this.inverseInternalModel.getRecord().reload();
-    }
-
-    return this.findRecord();
   }
 
   updateData(data, initial) {
