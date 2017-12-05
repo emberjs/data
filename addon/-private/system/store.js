@@ -2488,6 +2488,23 @@ Store = Service.extend({
     return this._internalModelForId(resource.type, resource.id);
   },
 
+  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+    if (!resource || !resource.links || !resource.links.related) {
+      // should we warn here, not sure cause its an internal method
+      return RSVP.resolve(null);
+    }
+    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then((internalModel) => {
+      let response = internalModel && internalModel._modelData.getResourceIdentifier();
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+      if (internalModel === null) {
+        return null;
+      }
+      return internalModel.getRecord();
+    });
+  },
+
+  // TODO IGOR
+  // DO THE CHECK IF WE HAVE LOADED THE RECORD TO DECIDE WHETHER TO GO TO THE LINK
   _findBelongsToAsync(resource, parentInternalModel, relationshipMeta) {
     let promise, content;
     if (!resource) {
@@ -2504,15 +2521,7 @@ Store = Service.extend({
       }
     }
     if (resource.links && resource.links.related) {
-      // TODO IGOR add it back to the relationship
-      promise = this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then((internalModel) => {
-        let response = internalModel && internalModel._modelData.getResourceIdentifier();
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
-        if (internalModel === null) {
-          return null;
-        }
-        return internalModel.getRecord();
-      });
+      let promise = this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta);
       return { promise };
     }
   },

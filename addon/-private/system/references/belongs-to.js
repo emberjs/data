@@ -396,10 +396,27 @@ BelongsToReference.prototype.load = function() {
    @method reload
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
 */
+// TODO IGOR CHECK FOR OBJECT PROXIES
 BelongsToReference.prototype.reload = function() {
-  return this.belongsToRelationship.reload().then((internalModel) => {
-    return this.value();
-  });
+  let resource = this.belongsToRelationship.getData();
+  if (resource && resource.links && resource.links.related) {
+    return this.store._fetchBelongsToLinkFromResource(resource, this.parentInternalModel, this.belongsToRelationship.relationshipMeta);
+  }
+  if (resource && resource.data) {
+    if (resource.data && (resource.data.id || resource.data.clientId)) {
+      let internalModel = this.store._internalModelForResource(resource.data);
+      if (internalModel.isLoaded()) {
+        return internalModel.reload().then((internalModel) => {
+          if (internalModel) {
+            return internalModel.getRecord();
+          }
+          return null;
+        });
+      } else {
+        return this.store._findByInternalModel(internalModel);
+      }
+    }
+  }
 };
 
 export default BelongsToReference;

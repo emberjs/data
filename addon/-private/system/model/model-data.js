@@ -35,6 +35,7 @@ export default class ModelData {
   linkWasLoadedForRelationship(key, data) {
     // only belongsTo for now
     if (data) {
+      // TODO IGOR deal with null
       let newInternalModel = this.store._internalModelForResource(data);
       this._relationships.get(key).addInternalModel(newInternalModel);
     }

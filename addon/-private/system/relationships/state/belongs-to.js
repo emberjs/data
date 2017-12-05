@@ -1,4 +1,3 @@
-import { Promise as EmberPromise } from 'rsvp';
 import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from "./relationship";
@@ -123,14 +122,6 @@ export default class BelongsToRelationship extends Relationship {
     if (!this.canonicalMembers.has(internalModel)) { return;}
     this.canonicalState = null;
     super.removeCanonicalInternalModelFromOwn(internalModel);
-  }
-
-  findRecord() {
-    if (this.inverseInternalModel) {
-      return this.store._findByInternalModel(this.inverseInternalModel);
-    } else {
-      return EmberPromise.resolve(null);
-    }
   }
 
   fetchLink() {
