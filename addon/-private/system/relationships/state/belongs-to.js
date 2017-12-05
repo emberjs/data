@@ -1,9 +1,6 @@
 import { Promise as EmberPromise } from 'rsvp';
 import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-import {
-  PromiseObject
-} from "../../promise-proxies";
 import Relationship from "./relationship";
 
 export default class BelongsToRelationship extends Relationship {
@@ -90,6 +87,8 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   addInternalModel(internalModel) {
+    // TODO IGOR move to canonical?
+    this.updatedLink = false;
     if (this.members.has(internalModel)) { return; }
 
     assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
@@ -143,32 +142,32 @@ export default class BelongsToRelationship extends Relationship {
     });
   }
 
-  getRecord() {
-    //TODO(Igor) flushCanonical here once our syncing is not stupid
-    if (this.isAsync) {
-      let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecord();
-        } else {
-          promise = this.findLink().then(() => this.findRecord());
-        }
-      } else {
-        promise = this.findRecord();
-      }
-
-      return PromiseObject.create({
-        promise: promise,
-        content: this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
-      });
-    } else {
-      if (this.inverseInternalModel === null) {
-        return null;
-      }
-      let toReturn = this.inverseInternalModel.getRecord();
-      assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
-      return toReturn;
+  getData() {
+    let data;
+    let payload = {};
+    if (this.inverseInternalModel) {
+      data = this.inverseInternalModel._modelData.getResourceIdentifier();
     }
+    if (this.inverseInternalModel === null && this.hasData) {
+      data = null;
+    }
+    if (this.link) {
+      payload.links = {
+        related: this.link
+      }
+    }
+    if (data !== undefined) {
+      payload.data = data;
+    }
+    if (!payload.data && !payload.links) {
+      payload = null;
+    }
+    // if link has been updated, we can't trust the local data anymore
+    // TODO IGOR check for local changes
+    if (this.updatedLink && this.link) {
+      delete payload.data;
+    }
+    return payload;
   }
 
   reload() {

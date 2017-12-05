@@ -24,7 +24,8 @@ import IdentityMap from './identity-map';
 
 import {
   promiseArray,
-  promiseObject
+  promiseObject,
+  PromiseObject
 } from "./promise-proxies";
 
 import {
@@ -62,6 +63,7 @@ const {
 } = Ember;
 
 const { Promise } = RSVP;
+let globalClientIdCounter = 1;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -227,6 +229,9 @@ Store = Service.extend({
     this._pushedInternalModels = [];
     // used for coalescing internal model updates
     this._updatedInternalModels = [];
+
+    // To keep track of clientIds for newly created records
+    this._newlyCreated = Object.create(null);
 
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
@@ -2469,6 +2474,67 @@ Store = Service.extend({
     }
   },
 
+
+  _relationshipFor(modelName, id, key) {
+    let modelClass = this._modelFor(modelName);
+    let relationshipsByName = get(modelClass, 'relationshipsByName');
+    return relationshipsByName.get(key);
+  },
+
+  _internalModelForResource(resource) {
+    if (resource.clientId) {
+      return this._newlyCreated[resource.clientId];
+    }
+    return this._internalModelForId(resource.type, resource.id);
+  },
+
+  _findBelongsToAsync(resource, parentInternalModel, relationshipMeta) {
+    let promise, content;
+    if (!resource) {
+      return { promise: RSVP.resolve(null) };
+    }
+    if (resource.data !== undefined) {
+      if (resource.data && (resource.data.id || resource.data.clientId)) {
+        let internalModel = this._internalModelForResource(resource.data);
+        promise = this._findByInternalModel(internalModel);
+        content = internalModel.getRecord();
+        return { promise, content };
+      } else if (resource.data === null) {
+        return { promise: RSVP.resolve(null) }
+      }
+    }
+    if (resource.links && resource.links.related) {
+      // TODO IGOR add it back to the relationship
+      promise = this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then((internalModel) => {
+        let response = internalModel && internalModel._modelData.getResourceIdentifier();
+        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+        if (internalModel === null) {
+          return null;
+        }
+        return internalModel.getRecord();
+      });
+      return { promise };
+    }
+  },
+
+  _findByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+    let async = relationshipMeta.options.async;
+    let isAsync = typeof async === 'undefined' ? true : async;
+    let key = relationshipMeta.key;
+    if (isAsync) {
+      return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
+    } else {
+      if (!resource) {
+        return null;
+      } else {
+        let internalModel = this._internalModelForResource(resource.data);
+        let toReturn = internalModel.getRecord();
+        assert("You looked up the '" + key + "' relationship on a '" + parentInternalModel.modelName + "' with id " + parentInternalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+        return toReturn;
+      }
+    }
+  },
+
   modelDataClassFor(modelName, id) {
     return ModelData;
   },
@@ -2502,6 +2568,9 @@ Store = Service.extend({
     return serializer.normalize(model, payload);
   },
 
+  newClientId() {
+    return globalClientIdCounter++;
+  },
   /**
     Build a brand new record for a given type, ID, and
     initial data.
@@ -2514,6 +2583,7 @@ Store = Service.extend({
     @return {InternalModel} internal model
   */
   _buildInternalModel(modelName, id, data) {
+    let clientId;
     heimdall.increment(_buildInternalModel);
 
     assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
@@ -2522,9 +2592,15 @@ Store = Service.extend({
 
     assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !existingInternalModel);
 
+    if (id === null) {
+      clientId = this.newClientId();
+    }
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    let internalModel = new InternalModel(modelName, id, this, data);
+    let internalModel = new InternalModel(modelName, id, this, data, clientId);
+    if (clientId) {
+      this._newlyCreated[clientId] = internalModel;
+    }
 
     this._internalModelsFor(modelName).add(internalModel, id);
 

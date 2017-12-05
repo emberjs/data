@@ -9,7 +9,7 @@ import { get } from '@ember/object';
 
 const emberAssign = assign || merge;
 export default class ModelData {
-  constructor(modelName, id, store, data, internalModel) {
+  constructor(modelName, id, store, data, internalModel, clientId) {
     this.store = store;
     this.modelName = modelName;
     this.internalModel = internalModel;
@@ -18,9 +18,27 @@ export default class ModelData {
     }
     this.__relationships = null;
     this.__implicitRelationships = null;
+    this.clientId = clientId;
+    this.id = id;
   }
 
   // PUBLIC API
+
+  getResourceIdentifier() {
+    return {
+      id: this.id,
+      type: this.modelName,
+      clientId: this.clientId
+    }
+  }
+
+  linkWasLoadedForRelationship(key, data) {
+    // only belongsTo for now
+    if (data) {
+      let newInternalModel = this.store._internalModelForResource(data);
+      this._relationships.get(key).addInternalModel(newInternalModel);
+    }
+  }
 
   setupData(data, calculateChange) {
     let changedKeys;
@@ -37,6 +55,9 @@ export default class ModelData {
 
     if (data.relationships) {
       this._setupRelationships(data);
+    }
+    if (data.id) {
+      this.id = data.id;
     }
 
     return changedKeys;
@@ -217,7 +238,7 @@ export default class ModelData {
   }
 
   getBelongsTo(key) {
-    return this._relationships.get(key).getRecord();
+    return this._relationships.get(key).getData();
   }
 
   setBelongsTo(key, value) {
@@ -456,6 +477,11 @@ export default class ModelData {
 
     @method _changedKeys
     @private
+  */
+  /*
+      TODO IGOR DAVID
+      There seems to be a potential bug here, where we will return keys that are not
+      in the schema
   */
   _changedKeys(updates) {
     let changedKeys = [];

@@ -103,15 +103,16 @@ let nextBfsId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data) {
+  constructor(modelName, id, store, data, clientId) {
     heimdall.increment(new_InternalModel);
     this.id = id;
     this.store = store;
     this.modelName = modelName;
+    this.clientId = clientId;
 
     let ModelDataClass = this.store.modelDataClassFor(modelName, id);
 
-    this._modelData = new ModelDataClass(modelName, id, store, data, this);
+    this._modelData = new ModelDataClass(modelName, id, store, data, this, clientId);
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 
@@ -302,6 +303,10 @@ export default class InternalModel {
     }
   }
 
+  linkWasLoadedForRelationship(key, data) {
+    this._modelData.linkWasLoadedForRelationship(key, data);
+  }
+
   finishedReloading() {
     this.isReloading = false;
     if (this.hasRecord) {
@@ -465,7 +470,9 @@ export default class InternalModel {
   }
 
   getBelongsTo(key) {
-    return this._modelData.getBelongsTo(key);
+    let jsonApi = this._modelData.getBelongsTo(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    return this.store._findByJsonApiResource(jsonApi, this, relationshipMeta);
   }
 
   setBelongsTo(key, value) {

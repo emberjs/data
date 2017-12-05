@@ -5,12 +5,21 @@ Maybe unloading?
 
 Questions
 
-Does ModelData notify properties or just returns changed keys
 Embedded records set to null
 What to do about _implicitRelationships
 Should default value be in the snapshot?
 
 
-Need to add getModelDataFor and getRecordForModelData?
 Do we need a hook for record destroy?
 Snapshot interface?
+
+Talk to yehuda about value of schemas for attributes
+
+
+Maybe we transmit the priority of data in json api resource, or by not including data
+
+If we keep track of loaded links, when do we unload?
+
+Make sure ModelData can be upgraded over time
+
+Currently not caching link promises, make sure that happens

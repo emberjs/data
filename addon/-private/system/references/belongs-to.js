@@ -20,6 +20,7 @@ const BelongsToReference = function(store, parentInternalModel, belongsToRelatio
   this.belongsToRelationship = belongsToRelationship;
   this.type = belongsToRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
+  this.parentInternalModel = parentInternalModel;
 
   // TODO inverse
 };
@@ -357,15 +358,7 @@ BelongsToReference.prototype.value = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
 */
 BelongsToReference.prototype.load = function() {
-  if (this.remoteType() === "id") {
-    return this.belongsToRelationship.getRecord();
-  }
-
-  if (this.remoteType() === "link") {
-    return this.belongsToRelationship.findLink().then((internalModel) => {
-      return this.value();
-    });
-  }
+  return this.parentInternalModel.getBelongsTo(this.belongsToRelationship.key);
 };
 
 /**
