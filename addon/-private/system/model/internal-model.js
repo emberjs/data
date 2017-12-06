@@ -110,9 +110,8 @@ export default class InternalModel {
     this.modelName = modelName;
     this.clientId = clientId;
 
-    let ModelDataClass = this.store.modelDataClassFor(modelName, id);
+    this._modelData = store._createModelData(modelName, id, clientId, this);
 
-    this._modelData = new ModelDataClass(modelName, id, store, data, this, clientId);
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 

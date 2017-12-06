@@ -9,13 +9,10 @@ import { get } from '@ember/object';
 
 const emberAssign = assign || merge;
 export default class ModelData {
-  constructor(modelName, id, store, data, internalModel, clientId) {
+  constructor(modelName, id, clientId, storeWrapper, store, internalModel) {
     this.store = store;
     this.modelName = modelName;
     this.internalModel = internalModel;
-    if (data) {
-      this.__data = data;
-    }
     this.__relationships = null;
     this.__implicitRelationships = null;
     this.clientId = clientId;

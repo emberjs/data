@@ -21,6 +21,7 @@ import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
 import IdentityMap from './identity-map';
+import ModelDataWrapper from './identity-map';
 
 import {
   promiseArray,
@@ -237,6 +238,8 @@ Store = Service.extend({
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
 
     this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+
+    this.modelDataWrapper = new ModelDataWrapper(this);
   },
 
   /**
@@ -2544,10 +2547,13 @@ Store = Service.extend({
     }
   },
 
-  modelDataClassFor(modelName, id) {
-    return ModelData;
+  _createModelData(modelName, id, clientId, internalModel) {
+    return this.modelDataFor(modelName, id, clientId, this.modelDataWrapper, internalModel);
   },
 
+  modelDataFor(modelName, id, clientId, storeWrapper, internalModel) {
+    return new ModelData(modelName, id, clientId, storeWrapper, this, internalModel);
+  },
   /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
