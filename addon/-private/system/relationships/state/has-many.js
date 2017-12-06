@@ -10,6 +10,7 @@ export default class ManyRelationship extends Relationship {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
+    this.currentState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
     this._manyArray = null;
     this.__loadingPromise = null;
@@ -35,7 +36,6 @@ export default class ManyRelationship extends Relationship {
   get manyArray() {
     if (!this._manyArray) {
       this._manyArray = ManyArray.create({
-        canonicalState: this.canonicalState,
         store: this.store,
         relationship: this,
         type: this.store.modelFor(this.belongsToType),
@@ -43,7 +43,8 @@ export default class ManyRelationship extends Relationship {
         modelData: this.internalModel._modelData,
         meta: this.meta,
         key: this.key,
-        isPolymorphic: this.isPolymorphic
+        isPolymorphic: this.isPolymorphic,
+        initialState: this.canonicalState.slice()
       });
     }
     return this._manyArray;
@@ -96,7 +97,12 @@ export default class ManyRelationship extends Relationship {
     assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
     super.addInternalModel(internalModel, idx);
     // make lazy later
-    this.manyArray._addInternalModels([internalModel], idx);
+    if (idx === undefined) {
+      idx = this.currentState.length;
+    }
+    this.currentState.splice(idx, 0, internalModel);
+    // TODO Igor consider making direct to remove the indirection
+    this.manyArray.flushCanonical(this.currentState);
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
@@ -113,9 +119,11 @@ export default class ManyRelationship extends Relationship {
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
   }
 
+  //TODO(Igor) DO WE NEED THIS?
   removeCompletelyFromOwn(internalModel) {
     super.removeCompletelyFromOwn(internalModel);
 
+    // SCEPTICAL
     const canonicalIndex = this.canonicalState.indexOf(internalModel);
 
     if (canonicalIndex !== -1) {
@@ -125,33 +133,44 @@ export default class ManyRelationship extends Relationship {
     const manyArray = this._manyArray;
 
     if (manyArray) {
-      const idx = manyArray.currentState.indexOf(internalModel);
-
-      if (idx !== -1) {
-        manyArray.internalReplace(idx, 1);
-      }
+      this.removeInternalModelFromOwn(internalModel);
     }
   }
 
   flushCanonical() {
+    let toSet = this.canonicalState;
+
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    let newInternalModels = this.currentState.filter(
+      // only add new internalModels which are not yet in the canonical state of this
+      // relationship (a new internalModel can be in the canonical state if it has
+      // been 'acknowleged' to be in the relationship via a store.push)
+      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
+    );
+    toSet = toSet.concat(newInternalModels);
+
     if (this._manyArray) {
-      this._manyArray.flushCanonical();
+      this._manyArray.flushCanonical(toSet);
     }
+    this.currentState = toSet;
     super.flushCanonical();
   }
 
+  //TODO(Igor) idx not used currently, fix
   removeInternalModelFromOwn(internalModel, idx) {
+    /*
     if (!this.members.has(internalModel)) {
+      console.log('oh nooo');
       return;
     }
+    */
     super.removeInternalModelFromOwn(internalModel, idx);
-    let manyArray = this.manyArray;
-    if (idx !== undefined) {
-      //TODO(Igor) not used currently, fix
-      manyArray.currentState.removeAt(idx);
-    } else {
-      manyArray._removeInternalModels([internalModel]);
-    }
+    let index = idx || this.currentState.indexOf(internalModel);
+
+    this.currentState.splice(index, 1);
+    // TODO Igor consider making direct to remove the indirection
+    this.manyArray.flushCanonical(this.currentState);
   }
 
   notifyRecordRelationshipAdded(internalModel, idx) {
@@ -251,6 +270,10 @@ export default class ManyRelationship extends Relationship {
 
   notifyHasManyChanged() {
     this.internalModel.notifyHasManyAdded(this.key);
+  }
+
+  getData() {
+
   }
 
   getRecords() {

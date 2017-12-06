@@ -130,9 +130,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     @private
     */
     this.relationship = this.relationship || null;
-
     this.currentState = [];
-    this.flushCanonical(false);
+    this.flushCanonical(this.initialState, false);
   },
 
   objectAt(index) {
@@ -142,31 +141,18 @@ export default EmberObject.extend(MutableArray, Evented, {
     return internalModel.getRecord();
   },
 
-  flushCanonical(isInitialized = true) {
+  flushCanonical(toSet, isInitialized = true) {
     // It’s possible the parent side of the relationship may have been unloaded by this point
     if (!_objectIsAlive(this)) {
       return;
     }
-    let toSet = this.canonicalState;
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    let newInternalModels = this.currentState.filter(
-      // only add new internalModels which are not yet in the canonical state of this
-      // relationship (a new internalModel can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
-    );
-    toSet = toSet.concat(newInternalModels);
-
     // diff to find changes
     let diff = diffArray(this.currentState, toSet);
-
     if (diff.firstChangeIndex !== null) { // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.set('length', toSet.length);
-      this.currentState = toSet;
+      this.currentState = toSet.slice();
       this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       if (isInitialized && diff.addedCount > 0) {
         //notify only on additions
@@ -177,6 +163,7 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
 
   internalReplace(idx, amt, objects) {
+    /*
     if (!objects) {
       objects = [];
     }
@@ -184,23 +171,9 @@ export default EmberObject.extend(MutableArray, Evented, {
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     this.set('length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
+    */
   },
 
-  //TODO(Igor) optimize
-  _removeInternalModels(internalModels) {
-    for (let i=0; i < internalModels.length; i++) {
-      let index = this.currentState.indexOf(internalModels[i]);
-      this.internalReplace(index, 1);
-    }
-  },
-
-  //TODO(Igor) optimize
-  _addInternalModels(internalModels, idx) {
-    if (idx === undefined) {
-      idx = this.currentState.length;
-    }
-    this.internalReplace(idx, 0, internalModels);
-  },
 
   replace(idx, amt, objects) {
     let internalModels;
