@@ -35,17 +35,14 @@ export default class ManyRelationship extends Relationship {
 
   get manyArray() {
     if (!this._manyArray) {
-      this._manyArray = ManyArray.create({
-        store: this.store,
-        relationship: this,
-        type: this.store.modelFor(this.belongsToType),
-        record: this.internalModel,
-        modelData: this.internalModel._modelData,
-        meta: this.meta,
-        key: this.key,
-        isPolymorphic: this.isPolymorphic,
-        initialState: this.canonicalState.slice()
-      });
+      this._manyArray = this.store._manyArrayFor(
+        this.belongsToType, 
+        this.internalModel._modelData, 
+        this.meta, 
+        this.key, 
+        this.isPolymorphic,
+        this.canonicalState
+      ); 
     }
     return this._manyArray;
   }

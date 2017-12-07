@@ -22,6 +22,7 @@ import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
 import IdentityMap from './identity-map';
 import ModelDataWrapper from './identity-map';
+import ManyArray from './many-array';
 
 import {
   promiseArray,
@@ -2484,6 +2485,23 @@ Store = Service.extend({
     } else {
       serializer.pushPayload(this, payload);
     }
+  },
+
+  reloadHasMany(modelName, id, clientID, key) {
+    
+
+  },
+
+  _manyArrayFor(modelName, modelData, meta, key, isPolymorphic, initialState) {
+    return ManyArray.create({
+      store: this,
+      type: this.modelFor(modelName),
+      modelData: modelData,
+      meta: meta,
+      key: key,
+      isPolymorphic: isPolymorphic,
+      initialState: initialState.slice()
+    });
   },
 
 

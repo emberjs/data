@@ -129,7 +129,6 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {ManyRelationship} relationship
     @private
     */
-    this.relationship = this.relationship || null;
     this.currentState = [];
     this.flushCanonical(this.initialState, false);
   },
@@ -157,23 +156,10 @@ export default EmberObject.extend(MutableArray, Evented, {
       if (isInitialized && diff.addedCount > 0) {
         //notify only on additions
         //TODO only notify if unloaded
-        this.relationship.notifyHasManyChanged();
+        //this.relationship.notifyHasManyChanged();
       }
     }
   },
-
-  internalReplace(idx, amt, objects) {
-    /*
-    if (!objects) {
-      objects = [];
-    }
-    this.arrayContentWillChange(idx, amt, objects.length);
-    this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
-    this.set('length', this.currentState.length);
-    this.arrayContentDidChange(idx, amt, objects.length);
-    */
-  },
-
 
   replace(idx, amt, objects) {
     let internalModels;
@@ -211,7 +197,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     @public
   */
   reload() {
-    return this.relationship.reload();
+    // TODO IGOR lets do this
+    //return this.relationship.reload();
   },
 
   /**
