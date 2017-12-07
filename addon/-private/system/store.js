@@ -1116,20 +1116,29 @@ Store = Service.extend({
     return this._internalModelForId(modelName, id).getRecord();
   },
 
-  _internalModelForId(modelName, id) {
+  _internalModelForId(modelName, id, clientId) {
     heimdall.increment(_internalModelForId);
+    let internalModel;
+
+    if (clientId) {
+      internalModel = this._newlyCreated[clientId];
+    }
+
     let trueId = coerceId(id);
-    let internalModel = this._internalModelsFor(modelName).get(trueId);
+    if (!internalModel) {
+      internalModel = this._internalModelsFor(modelName).get(trueId);
+    }
 
     if (internalModel) {
       if (internalModel.hasScheduledDestroy()) {
         internalModel.destroySync();
-        return this._buildInternalModel(modelName, trueId);
+        // TODO IGOR THIS IS CRAPPY, figure out who is responsible for creating the clientId
+        return this._buildInternalModel(modelName, trueId, null, clientId);
       } else {
         return internalModel;
       }
     } else {
-      return this._buildInternalModel(modelName, trueId);
+      return this._buildInternalModel(modelName, trueId, null, clientId);
     }
   },
 
@@ -2548,11 +2557,16 @@ Store = Service.extend({
   },
 
   _createModelData(modelName, id, clientId, internalModel) {
-    return this.modelDataFor(modelName, id, clientId, this.modelDataWrapper, internalModel);
+    return this.createModelDataFor(modelName, id, clientId, this.modelDataWrapper, internalModel);
   },
 
-  modelDataFor(modelName, id, clientId, storeWrapper, internalModel) {
+  createModelDataFor(modelName, id, clientId, storeWrapper, internalModel) {
     return new ModelData(modelName, id, clientId, storeWrapper, this, internalModel);
+  },
+
+  modelDataFor(modelName, id, clientId) {
+    let internalModel = this._internalModelForId(modelName, id, clientId);
+    return internalModel._modelData;
   },
   /**
     `normalize` converts a json payload into the normalized form that
@@ -2597,8 +2611,7 @@ Store = Service.extend({
     @param {Object} data
     @return {InternalModel} internal model
   */
-  _buildInternalModel(modelName, id, data) {
-    let clientId;
+  _buildInternalModel(modelName, id, data, clientId) {
     heimdall.increment(_buildInternalModel);
 
     assert(`You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`, typeof modelName === 'string');
@@ -2607,7 +2620,7 @@ Store = Service.extend({
 
     assert(`The id ${id} has already been used with another record for modelClass '${modelName}'.`, !existingInternalModel);
 
-    if (id === null) {
+    if (id === null && !clientId) {
       clientId = this.newClientId();
     }
     // lookupFactory should really return an object that creates

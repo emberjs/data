@@ -23,3 +23,7 @@ If we keep track of loaded links, when do we unload?
 Make sure ModelData can be upgraded over time
 
 Currently not caching link promises, make sure that happens
+Add tests for store client ids
+add cleanup for clientIds
+
+creation allows people to pass store in easily
