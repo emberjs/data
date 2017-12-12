@@ -543,20 +543,54 @@ export default class InternalModel {
     }
   }
 
+  _updateLoadingPromiseForHasMany(key, promise, content) {
+    let loadingPromise = this._relationshipPromisesCache[key];
+    if (loadingPromise) {
+      if (content) {
+        loadingPromise.set('content', content)
+      }
+      loadingPromise.set('promise', promise)
+    } else {
+      this._relationshipPromisesCache[key] = PromiseManyArray.create({
+        promise,
+        content
+      });
+    }
+
+    return this._relationshipPromisesCache[key];
+  }
+
   reloadHasMany(key) {
+    let loadingPromise = this._relationshipPromisesCache[key];
+    if (loadingPromise) {
+      if (loadingPromise.get('isPending')) {
+        return loadingPromise;
+      }
+      /* TODO Igor check wtf this is about
+      if (loadingPromise.get('isRejected')) {
+        manyArray.set('isLoaded', manyArrayLoadedState);
+      }
+      */
+    }
+
     let jsonApi = this._modelData.getHasMany(key);
     let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let promise;
     // TODO Igor, be robust about caching
     if (jsonApi.links && jsonApi.links.related) {
       // TODO Igor doing this for now to make sure to go through link
       delete jsonApi.data;
-      let { promise } = this.fetchAsyncHasMany(relationshipMeta, jsonApi);
-      return promise;
+      // TODO Igor move this somewhere nicer
+      jsonApi.hasLoaded = false;
+      promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi).promise;
     } else {
       let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
       let manyArray = this.manyArray(relationshipMeta, jsonApi);
-      return this.store._scheduleFetchMany(internalModels).then(() => manyArray);
+      promise = this.store._scheduleFetchMany(internalModels).then(() => manyArray);
     }
+    // TODO igor Seems like this would mess with promiseArray wrapping, investigate
+    this._updateLoadingPromiseForHasMany(key, promise);
+    return promise;
   }
 
   setHasMany(key, value) {

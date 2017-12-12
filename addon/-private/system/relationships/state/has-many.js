@@ -274,6 +274,7 @@ export default class ManyRelationship extends Relationship {
       // TODO Igor consider whether we should namespace this
       payload.meta = this.meta;
     }
+    payload.hasLoaded = this.hasLoaded;
     return payload;
   }
 

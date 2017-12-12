@@ -38,6 +38,8 @@ export default class ModelData {
         // TODO IGOR this used to be in a runloop, consider putting back in
         // TODO IGOR There shouldn't be a need to have this separate method, should probably use push
         this._relationships.get(key).updateInternalModelsFromAdapter(internalModels);
+        // TODO Igor this should live somewhere else
+        this._relationships.get(key).setHasLoaded(true);
         if (jsonApi.meta !== undefined) {
           this._relationships.get(key).updateMeta(jsonApi.meta);
         }

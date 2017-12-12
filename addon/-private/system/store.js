@@ -2556,31 +2556,31 @@ Store = Service.extend({
     });
   },
 
+  _fetchHasManyByData(resource) {
+    let internalModels = resource.data.map((json) => this._internalModelForResource(json));
+    return { promise: this.findMany(internalModels) };
+  },
+
+  _fetchHasManyByLink(resource, parentInternalModel, relationshipMeta) {
+    let promise = this._fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta);
+    return { promise };
+  },
 
   _findHasManyAsync(resource, parentInternalModel, relationshipMeta) {
     let promise;
     if (!resource) {
       return { promise: RSVP.resolve([]) };
     }
+    if (resource.hasLoaded) {
+      return this._fetchHasManyByData(resource);
+    }
     if (resource.links && resource.links.related) {
-      let promise = this._fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta);
-      return { promise };
+      return this._fetchHasManyByLink(resource, parentInternalModel, relationshipMeta);
     }
     if (resource.data) {
       let internalModels = resource.data.map((json) => this._internalModelForResource(json));
-      return { promise: this.findMany(internalModels) };
+      return this._fetchHasManyByData(resource);
     }
-    /*
-    if (this.link) {
-      if (this.hasLoaded) {
-        promise = this.findRecords();
-      } else {
-        promise = this.findLink().then(() => this.findRecords());
-      }
-    } else {
-      promise = this.findRecords();
-    }
-    */
   },
 
   // TODO IGOR
