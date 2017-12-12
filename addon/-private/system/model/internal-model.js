@@ -533,7 +533,6 @@ export default class InternalModel {
   }
 
   getHasMany(key) {
-    debugger
     let jsonApi = this._modelData.getHasMany(key);
     let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
@@ -548,6 +547,7 @@ export default class InternalModel {
     } else {
       let manyArray = this.manyArray(relationshipMeta, jsonApi);
       manyArray.set('isLoaded', true);
+      assert(`You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, !manyArray.anyUnloaded());
       return manyArray;
     }
   }

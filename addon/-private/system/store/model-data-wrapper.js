@@ -1,9 +1,8 @@
-
 export default class ModelDataWrapper {
-    constructor(store) {
-        this.store = store;
-    }
-    /*
+  constructor(store) {
+    this.store = store;
+  }
+  /*
     modelDataFor()
-    */
+  */
 }
