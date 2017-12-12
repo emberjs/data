@@ -101,6 +101,7 @@ export default class ManyRelationship extends Relationship {
       this.canonicalState.splice(i, 1);
     }
     super.removeCanonicalInternalModelFromOwn(internalModel, idx);
+    //TODO(Igor) Figure out what to do here
   }
 
   //TODO(Igor) DO WE NEED THIS?
@@ -114,11 +115,7 @@ export default class ManyRelationship extends Relationship {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    const manyArray = this._manyArray;
-
-    if (manyArray) {
-      this.removeInternalModelFromOwn(internalModel);
-    }
+    this.removeInternalModelFromOwn(internalModel);
   }
 
   flushCanonical() {
@@ -155,6 +152,7 @@ export default class ManyRelationship extends Relationship {
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
+    this.notifyHasManyChanged();
    // this.manyArray.flushCanonical(this.currentState);
   }
 

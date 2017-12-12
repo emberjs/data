@@ -669,6 +669,10 @@ export default class InternalModel {
   notifyHasManyAdded(key, record, idx) {
     if (this.hasRecord) {
       this._record.notifyHasManyAdded(key, record, idx);
+      let manyArray = this._manyArrayCache[key];
+      if (manyArray) {
+        manyArray.retrieveLatest();
+      }
     }
   }
 
