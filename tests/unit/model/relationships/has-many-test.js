@@ -2010,6 +2010,78 @@ test('DS.ManyArray is lazy', function(assert) {
   });
 });
 
+test('fetch hasMany loads full relationship after a parent and child have been loaded', function(assert) {
+  assert.expect(4);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: true, inverse: 'tags' })
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag', { async: true, inverse: 'person' })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    assert.equal(relationship.key, 'tags', 'relationship should be tags');
+
+    return { data: [
+      { id: 1, type: 'tag', attributes: { name: 'first' } },
+      { id: 2, type: 'tag', attributes: { name: 'second' } },
+      { id: 3, type: 'tag', attributes: { name: 'third' } }
+    ]};
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    if (type === Person) {
+      return {
+        data: {
+          id: 1,
+          type: 'person',
+          attributes: { name: 'Watson' },
+          relationships: {
+            tags: { links: { related: 'person/1/tags'} }
+          }
+        }
+      };
+    } else if (type === Tag) {
+      return {
+        data: {
+          id: 2,
+          type: 'tag',
+          attributes: { name: 'second' },
+          relationships: {
+            person: {
+              data: { id: 1, type: 'person'}
+            }
+          }
+        }
+      };
+    } else {
+      assert.true(false, 'wrong type')
+    }
+  };
+
+  return run(() => {
+    return store.findRecord('person', 1).then(person => {
+      assert.equal(get(person, 'name'), 'Watson', 'The person is now loaded');
+
+      // when I remove this findRecord the test passes
+      return store.findRecord('tag', 2).then(tag => {
+        assert.equal(get(tag, 'name'), 'second', 'The tag is now loaded');
+
+        return run(() => person.get('tags').then(tags => {
+          assert.equal(get(tags, 'length'), 3, 'the tags are all loaded');
+        }));
+      });
+    });
+  });
+});
+
 testInDebug('throws assertion if of not set with an array', function(assert) {
   const Person = DS.Model.extend();
   const Tag = DS.Model.extend({
