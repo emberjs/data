@@ -174,7 +174,6 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
 
   replace(idx, amt, objects) {
-    debugger
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx+amt);
@@ -220,8 +219,7 @@ export default EmberObject.extend(MutableArray, Evented, {
     @public
   */
   reload() {
-    // TODO IGOR lets do this
-    //return this.relationship.reload();
+    return this.get('store').reloadManyArray(this, this.get('internalModel'), this.get('key'));
   },
 
   /**

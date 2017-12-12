@@ -293,7 +293,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
     this.hasManyRelationship.computeChanges(internalModels);
 
-    return this.parentInternalModel.getHasMany(this.hasManyRelationship.key);
+    return this.internalModel.getHasMany(this.hasManyRelationship.key);
     // TODO IGOR it seems wrong that we were returning the many array here
     //return this.hasManyRelationship.manyArray;
   });
@@ -396,7 +396,7 @@ HasManyReference.prototype.value = function() {
    this has-many relationship.
 */
 HasManyReference.prototype.load = function() {
-  return this.parentInternalModel.getHasMany(this.hasManyRelationship.key);
+  return this.internalModel.getHasMany(this.hasManyRelationship.key);
 };
 
 /**

@@ -493,7 +493,8 @@ export default class InternalModel {
         null,
         relationshipMeta.key, 
         relationshipMeta.options.polymorphic,
-        initialState
+        initialState,
+        this
       ); 
       this._manyArrayCache[key] = manyArray;
     }
@@ -505,14 +506,12 @@ export default class InternalModel {
     let manyArray = this.getManyArray(relationshipMeta, initialState);
     let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
     promise = promise.then((initialState) => {
-      // TODO Igor this will be broken on subsequent loads because initial state won't apply
       manyArray.retrieveLatest();
+      manyArray.set('isLoaded', true);
+      // TODO Igor probably don't need initialState
       return this.getManyArray(relationshipMeta, initialState);
     });
-    return PromiseManyArray.create({
-      promise,
-      content: manyArray
-    });
+    return { promise, content: manyArray };
   }
 
   getHasMany(key) {
@@ -523,7 +522,7 @@ export default class InternalModel {
     if (isAsync) {
       let promiseArray = this._relationshipPromisesCache[key];
       if (!promiseArray) {
-        promiseArray = this.fetchAsyncHasMany(relationshipMeta, jsonApi);
+        promiseArray = PromiseManyArray.create(this.fetchAsyncHasMany(relationshipMeta, jsonApi));
         this._relationshipPromisesCache[key] = promiseArray;
       }
       return promiseArray;
@@ -531,6 +530,20 @@ export default class InternalModel {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
       let manyArray = this.getManyArray(relationshipMeta, initialState);
       return manyArray;
+    }
+  }
+
+  reloadHasMany(key) {
+    let jsonApi = this._modelData.getHasMany(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    // TODO Igor, be robust about caching
+    if (jsonApi.links && jsonApi.links.related) {
+      // TODO Igor doing this for now to make sure to go through link
+      delete jsonApi.data;
+      let { promise } = this.fetchAsyncHasMany(relationshipMeta, jsonApi);
+      return promise;
+    } else {
+
     }
   }
 

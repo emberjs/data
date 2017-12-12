@@ -2487,12 +2487,11 @@ Store = Service.extend({
     }
   },
 
-  reloadHasMany(modelName, id, clientID, key) {
-    
-
+  reloadManyArray(manyArray, internalModel, key) {
+    return internalModel.reloadHasMany(key);
   },
 
-  _manyArrayFor(modelName, modelData, meta, key, isPolymorphic, initialState) {
+  _manyArrayFor(modelName, modelData, meta, key, isPolymorphic, initialState, internalModel) {
     return ManyArray.create({
       store: this,
       type: this.modelFor(modelName),
@@ -2500,7 +2499,8 @@ Store = Service.extend({
       meta: meta,
       key: key,
       isPolymorphic: isPolymorphic,
-      initialState: initialState.slice()
+      initialState: initialState.slice(),
+      internalModel: internalModel
     });
   },
 
