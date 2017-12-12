@@ -483,33 +483,42 @@ export default class InternalModel {
     return this._modelData.setBelongsTo(key, value);
   }
 
-  getManyArray(relationshipMeta, initialState) {
+  // TODO Igor move invocations of manyArray to getManyArray
+  // TODO Igor consider getting rid of initial state
+  manyArray(relationshipMeta, initialState) {
     let key = relationshipMeta.key;
     let manyArray = this._manyArrayCache[key];
     if (!manyArray) {
       manyArray = this.store._manyArrayFor(
-        relationshipMeta.type, 
-        this._modelData, 
+        relationshipMeta.type,
+        this._modelData,
         null,
-        relationshipMeta.key, 
+        relationshipMeta.key,
         relationshipMeta.options.polymorphic,
         initialState,
         this
-      ); 
+      );
       this._manyArrayCache[key] = manyArray;
     }
     return manyArray;
   }
 
+  getManyArray(key) {
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let jsonApi = this._modelData.getHasMany(key);
+    let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+    return this.manyArray(relationshipMeta, internalModels);
+  }
+
   fetchAsyncHasMany(relationshipMeta, jsonApi) {
     let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-    let manyArray = this.getManyArray(relationshipMeta, initialState);
+    let manyArray = this.manyArray(relationshipMeta, initialState);
     let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
     promise = promise.then((initialState) => {
       manyArray.retrieveLatest();
       manyArray.set('isLoaded', true);
       // TODO Igor probably don't need initialState
-      return this.getManyArray(relationshipMeta, initialState);
+      return this.manyArray(relationshipMeta, initialState);
     });
     return { promise, content: manyArray };
   }
@@ -526,9 +535,10 @@ export default class InternalModel {
         this._relationshipPromisesCache[key] = promiseArray;
       }
       return promiseArray;
-    } else { 
+    } else {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-      let manyArray = this.getManyArray(relationshipMeta, initialState);
+      let manyArray = this.manyArray(relationshipMeta, initialState);
+      manyArray.set('isLoaded', true);
       return manyArray;
     }
   }
@@ -543,7 +553,9 @@ export default class InternalModel {
       let { promise } = this.fetchAsyncHasMany(relationshipMeta, jsonApi);
       return promise;
     } else {
-
+      let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+      let manyArray = this.manyArray(relationshipMeta, internalModels);
+      return this.store._scheduleFetchMany(internalModels).then(() => manyArray);
     }
   }
 

@@ -1977,7 +1977,6 @@ test('DS.ManyArray is lazy', function(assert) {
     name: DS.attr('string'),
     people: DS.hasMany('person'),
     peopleDidChange: observer('people', function() {
-      debugger
       peopleDidChange++;
     })
   });

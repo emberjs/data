@@ -352,7 +352,7 @@ HasManyReference.prototype._isLoaded = function() {
 */
 HasManyReference.prototype.value = function() {
   if (this._isLoaded()) {
-    return this.hasManyRelationship.manyArray;
+    return this.internalModel.getManyArray(this.hasManyRelationship.key);
   }
 
   return null;
@@ -434,7 +434,7 @@ HasManyReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
 */
 HasManyReference.prototype.reload = function() {
-  return this.hasManyRelationship.reload();
+  return this.internalModel.reloadHasMany(this.hasManyRelationship.key);
 };
 
 export default HasManyReference;

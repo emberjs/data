@@ -191,7 +191,6 @@ export default EmberObject.extend(MutableArray, Evented, {
   retrieveLatest() {
     let jsonApi = this.get('modelData').getHasMany(this.get('key'));
     let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
-    debugger
     this.flushCanonical(internalModels, true);
   },
 

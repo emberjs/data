@@ -1735,7 +1735,6 @@ test("When a record is created on the client, its async hasMany arrays should be
 });
 
 test("we can set records SYNC HM relationship", function(assert) {
-  debugger
   assert.expect(1);
   let post = run(function() {
     return env.store.createRecord('post');
@@ -2630,7 +2629,6 @@ test("adding and removing records from hasMany relationship #2666", function(ass
       // Add comment #4
       let comment = env.store.createRecord('comment');
       comments.addObject(comment);
-      debugger
 
       return comment.save().then(() => {
         let comments = post.get('comments');

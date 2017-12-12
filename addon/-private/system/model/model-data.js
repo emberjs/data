@@ -30,7 +30,6 @@ export default class ModelData {
   }
 
   linkWasLoadedForRelationship(key, data) {
-    debugger
     // only belongsTo for now
     if (data) {
       if (Array.isArray(data)) {
