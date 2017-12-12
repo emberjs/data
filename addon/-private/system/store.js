@@ -2504,7 +2504,6 @@ Store = Service.extend({
     });
   },
 
-
   _relationshipFor(modelName, id, key) {
     let modelClass = this._modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
@@ -2571,6 +2570,21 @@ Store = Service.extend({
         assert("You looked up the '" + key + "' relationship on a '" + parentInternalModel.modelName + "' with id " + parentInternalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
         return toReturn;
       }
+    }
+  },
+
+  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+    let async = relationshipMeta.options.async;
+    let isAsync = typeof async === 'undefined' ? true : async;
+    let key = relationshipMeta.key;
+    if (isAsync) {
+      //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
+    } else {
+      let internalModels = [];
+      if (resource && resource.data) {
+        internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
+      }
+      return internalModels;
     }
   },
 

@@ -99,6 +99,7 @@ export default class ManyRelationship extends Relationship {
     }
     this.currentState.splice(idx, 0, internalModel);
     // TODO Igor consider making direct to remove the indirection
+    // We are not lazily accessing the manyArray here because the change is coming from app side
     this.manyArray.flushCanonical(this.currentState);
   }
 
@@ -167,6 +168,7 @@ export default class ManyRelationship extends Relationship {
 
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
+    // We are not lazily accessing the manyArray here because the change is coming from app side
     this.manyArray.flushCanonical(this.currentState);
   }
 
@@ -270,7 +272,11 @@ export default class ManyRelationship extends Relationship {
   }
 
   getData() {
-
+    let data;
+    if (this.currentState) {
+      data = this.currentState.map((im) => im._modelData.getResourceIdentifier());
+    }
+    return { data: data };
   }
 
   getRecords() {

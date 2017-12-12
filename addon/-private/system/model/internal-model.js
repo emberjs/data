@@ -479,7 +479,18 @@ export default class InternalModel {
   }
 
   getHasMany(key) {
-    return this._modelData.getHasMany(key);
+    let jsonApi = this._modelData.getHasMany(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let initialState = this.store._findHasManyByJsonApiResource(jsonApi,this, relationshipMeta);
+    let manyArray = this.store._manyArrayFor(
+      relationshipMeta.type, 
+      this._modelData, 
+      null,
+      relationshipMeta.key, 
+      relationshipMeta.options.polymorphic,
+      initialState
+    ); 
+    return manyArray;
   }
 
   setHasMany(key, value) {

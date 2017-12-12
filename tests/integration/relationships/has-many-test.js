@@ -1735,6 +1735,7 @@ test("When a record is created on the client, its async hasMany arrays should be
 });
 
 test("we can set records SYNC HM relationship", function(assert) {
+  debugger
   assert.expect(1);
   let post = run(function() {
     return env.store.createRecord('post');

@@ -113,7 +113,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {Object} meta
     @public
     */
-    this.meta = this.meta ||  null;
+    // TODO IGOR make sure to bring back
+    // this.meta = this.meta ||  null;
 
     /**
     `true` if the relationship is polymorphic, `false` otherwise.
@@ -132,6 +133,17 @@ export default EmberObject.extend(MutableArray, Evented, {
     this.currentState = [];
     this.flushCanonical(this.initialState, false);
   },
+
+  /*
+  pushData(jsonApi) {
+    let toSet = [];
+    if (jsonApi.data) {
+      toSet = jsonApi.data.map((resource) => )
+
+    }
+
+  },
+  */
 
   objectAt(index) {
     let internalModel = this.currentState[index];

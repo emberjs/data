@@ -213,7 +213,8 @@ export default class ModelData {
   }
 
   getHasMany(key) {
-    return this._relationships.get(key).getRecords();
+    return this._relationships.get(key).getData();
+    //return this._relationships.get(key).getRecords();
   }
 
   setHasMany(key, records) {
