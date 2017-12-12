@@ -2567,7 +2567,6 @@ Store = Service.extend({
   },
 
   _findHasManyAsync(resource, parentInternalModel, relationshipMeta) {
-    let promise;
     if (!resource) {
       return { promise: RSVP.resolve([]) };
     }
@@ -2578,7 +2577,6 @@ Store = Service.extend({
       return this._fetchHasManyByLink(resource, parentInternalModel, relationshipMeta);
     }
     if (resource.data) {
-      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
       return this._fetchHasManyByData(resource);
     }
   },
@@ -2625,12 +2623,8 @@ Store = Service.extend({
   },
 
   _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
-    let async = relationshipMeta.options.async;
-    let isAsync = typeof async === 'undefined' ? true : async;
-    let key = relationshipMeta.key;
     let { promise } = this._findHasManyAsync(resource, parentInternalModel, relationshipMeta);
     return promise;
-    //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
   },
 
   _getHasManyByJsonApiResource(resource) {

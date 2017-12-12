@@ -358,6 +358,7 @@ export default class Relationship {
 
     this.link = link;
     this.linkPromise = null;
+    this.hasLoaded = false;
     if (!initial) {
       this.internalModel.notifyPropertyChange(this.key);
     }
@@ -429,7 +430,6 @@ export default class Relationship {
     let hasLink = false;
 
     if (payload.meta) {
-      debugger
       this.updateMeta(payload.meta);
     }
 

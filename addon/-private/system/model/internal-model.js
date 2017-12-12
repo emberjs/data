@@ -280,6 +280,17 @@ export default class InternalModel {
 
   dematerializeRecord() {
     if (this._record) {
+      Object.keys(this._relationshipPromisesCache).forEach((key) => {
+        // TODO Igor cleanup the guard
+        if (this._relationshipPromisesCache[key].destroy) {
+          this._relationshipPromisesCache[key].destroy();
+        }
+        delete this._relationshipPromisesCache[key];
+      });
+      Object.keys(this._manyArrayCache).forEach((key) => {
+        this._manyArrayCache[key].destroy();
+        delete this._manyArrayCache[key];
+      });
       this._isDematerializing = true;
       this._record.destroy();
       this.destroyRelationships();
@@ -404,7 +415,6 @@ export default class InternalModel {
     if (this.isDestroyed) { return; }
     this.send('unloadRecord');
     this.dematerializeRecord();
-
     if (this._scheduledDestroy === null) {
       // TODO: use run.schedule once we drop 1.13
       if (!run.currentRunLoop) {
@@ -511,7 +521,6 @@ export default class InternalModel {
   }
 
   fetchAsyncHasMany(relationshipMeta, jsonApi) {
-    let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
     let manyArray = this.manyArray(relationshipMeta, jsonApi);
     let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
     promise = promise.then((initialState) => {
@@ -524,6 +533,7 @@ export default class InternalModel {
   }
 
   getHasMany(key) {
+    debugger
     let jsonApi = this._modelData.getHasMany(key);
     let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
@@ -536,7 +546,6 @@ export default class InternalModel {
       }
       return promiseArray;
     } else {
-      let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
       let manyArray = this.manyArray(relationshipMeta, jsonApi);
       manyArray.set('isLoaded', true);
       return manyArray;
@@ -732,10 +741,10 @@ export default class InternalModel {
       let manyArray = this._manyArrayCache[key];
       if (manyArray) {
         manyArray.retrieveLatest();
-      }
       // TODO Igor be rigorous about when to delete this
-      if (this._relationshipPromisesCache[key]) {
-        delete this._relationshipPromisesCache[key];
+        if (this._relationshipPromisesCache[key] && manyArray.anyUnloaded()) {
+          delete this._relationshipPromisesCache[key];
+        }
       }
     }
   }
@@ -749,6 +758,10 @@ export default class InternalModel {
   notifyPropertyChange(key) {
     if (this.hasRecord) {
       this._record.notifyPropertyChange(key);
+    }
+    // TODO igor cleanup here
+    if (this._relationshipPromisesCache[key]) {
+      delete this._relationshipPromisesCache[key];
     }
   }
 

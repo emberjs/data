@@ -145,6 +145,11 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
   */
 
+  anyUnloaded() {
+    let unloaded = this.currentState.find((im) => !im.isLoaded());
+    return !!unloaded;
+  },
+
   objectAt(index) {
     let internalModel = this.currentState[index];
     if (internalModel === undefined) { return; }
