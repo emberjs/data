@@ -12,6 +12,7 @@ import RootState from "./states";
 import Snapshot from "../snapshot";
 import OrderedSet from "../ordered-set";
 
+import { PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
 
 import {
@@ -483,9 +484,18 @@ export default class InternalModel {
     let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
+    let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+    let manyArray = this.store._manyArrayFor(
+      relationshipMeta.type, 
+      this._modelData, 
+      null,
+      relationshipMeta.key, 
+      relationshipMeta.options.polymorphic,
+      initialState
+    ); 
     if (isAsync) {
       let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-      return promise.then((initialState) => {
+      promise = promise.then((initialState) => {
         return this.store._manyArrayFor(
           relationshipMeta.type, 
           this._modelData, 
@@ -494,17 +504,12 @@ export default class InternalModel {
           relationshipMeta.options.polymorphic,
           initialState
           );
-        });
+      });
+      return PromiseManyArray.create({
+        promise,
+        content: manyArray
+      });
     } else { 
-      let initialState = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-      let manyArray = this.store._manyArrayFor(
-        relationshipMeta.type, 
-        this._modelData, 
-        null,
-        relationshipMeta.key, 
-        relationshipMeta.options.polymorphic,
-        initialState
-      ); 
       return manyArray;
     }
   }

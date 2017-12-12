@@ -2561,6 +2561,10 @@ Store = Service.extend({
       let promise = this._fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta);
       return { promise };
     }
+    if (resource.data) {
+      let internalModels = resource.data.map((json) => this._internalModelForResource(json));
+      return { promise: this.findMany(internalModels) };
+    }
     /*
     if (this.link) {
       if (this.hasLoaded) {
@@ -2619,18 +2623,17 @@ Store = Service.extend({
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
     let key = relationshipMeta.key;
-    if (isAsync) {
-      debugger
-      let { promise } = this._findHasManyAsync(resource, parentInternalModel, relationshipMeta);
-      return promise;
-      //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
-    } else {
-      let internalModels = [];
-      if (resource && resource.data) {
-        internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
-      }
-      return internalModels;
+    let { promise } = this._findHasManyAsync(resource, parentInternalModel, relationshipMeta);
+    return promise;
+    //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
+  },
+
+  _getHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+    let internalModels = [];
+    if (resource && resource.data) {
+      internalModels = resource.data.map((reference) => this._internalModelForResource(reference));
     }
+    return internalModels;
   },
 
   _createModelData(modelName, id, clientId, internalModel) {
