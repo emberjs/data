@@ -429,6 +429,7 @@ export default class Relationship {
     let hasLink = false;
 
     if (payload.meta) {
+      debugger
       this.updateMeta(payload.meta);
     }
 

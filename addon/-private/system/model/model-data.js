@@ -29,16 +29,22 @@ export default class ModelData {
     }
   }
 
-  linkWasLoadedForRelationship(key, data) {
+  linkWasLoadedForRelationship(key, jsonApi) {
+    let data = jsonApi.data;
     // only belongsTo for now
     if (data) {
       if (Array.isArray(data)) {
         let internalModels = data.map((json) => this.store._internalModelForResource(json));
         // TODO IGOR this used to be in a runloop, consider putting back in
+        // TODO IGOR There shouldn't be a need to have this separate method, should probably use push
         this._relationships.get(key).updateInternalModelsFromAdapter(internalModels);
+        if (jsonApi.meta !== undefined) {
+          this._relationships.get(key).updateMeta(jsonApi.meta);
+        }
       } else {
         // TODO IGOR deal with null
         let newInternalModel = this.store._internalModelForResource(data);
+        // TODO IGOR There shouldn't be a need to have this separate method, should probably use push
         this._relationships.get(key).addInternalModel(newInternalModel);
       }
     }

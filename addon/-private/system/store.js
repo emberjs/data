@@ -2524,7 +2524,7 @@ Store = Service.extend({
     }
     return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then((internalModel) => {
       let response = internalModel && internalModel._modelData.getResourceIdentifier();
-      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
       if (internalModel === null) {
         return null;
       }
@@ -2547,8 +2547,11 @@ Store = Service.extend({
       });
       return this.manyArray;
       */
-      let response = internalModels.map((im) => im._modelData.getResourceIdentifier());
-      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+      let payload = { data: internalModels.map((im) => im._modelData.getResourceIdentifier()) };
+      if (internalModels.meta !== undefined) {
+        payload.meta = internalModels.meta;
+      }
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
       return internalModels;
     });
   },
