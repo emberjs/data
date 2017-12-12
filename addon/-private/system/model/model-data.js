@@ -30,11 +30,18 @@ export default class ModelData {
   }
 
   linkWasLoadedForRelationship(key, data) {
+    debugger
     // only belongsTo for now
     if (data) {
-      // TODO IGOR deal with null
-      let newInternalModel = this.store._internalModelForResource(data);
-      this._relationships.get(key).addInternalModel(newInternalModel);
+      if (Array.isArray(data)) {
+        let internalModels = data.map((json) => this.store._internalModelForResource(json));
+        // TODO IGOR this used to be in a runloop, consider putting back in
+        this._relationships.get(key).updateInternalModelsFromAdapter(internalModels);
+      } else {
+        // TODO IGOR deal with null
+        let newInternalModel = this.store._internalModelForResource(data);
+        this._relationships.get(key).addInternalModel(newInternalModel);
+      }
     }
   }
 

@@ -2547,6 +2547,8 @@ Store = Service.extend({
       });
       return this.manyArray;
       */
+      let response = internalModels.map((im) => im._modelData.getResourceIdentifier());
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
       return internalModels;
     });
   },
