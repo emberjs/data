@@ -699,6 +699,10 @@ export default class InternalModel {
       if (manyArray) {
         manyArray.retrieveLatest();
       }
+      // TODO Igor be rigorous about when to delete this
+      if (this._relationshipPromisesCache[key]) {
+        delete this._relationshipPromisesCache[key];
+      }
     }
   }
 
