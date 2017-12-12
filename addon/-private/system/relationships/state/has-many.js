@@ -87,6 +87,8 @@ export default class ManyRelationship extends Relationship {
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
     // this.manyArray.flushCanonical(this.currentState);
+    this.notifyHasManyChanged();
+
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
@@ -136,6 +138,8 @@ export default class ManyRelationship extends Relationship {
     }
     this.currentState = toSet;
     super.flushCanonical();
+    // Once we clean up all the flushing, we will be left with at least the notifying part 
+    this.notifyHasManyChanged();
   }
 
   //TODO(Igor) idx not used currently, fix
@@ -297,6 +301,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   updateData(data, initial) {
+    debugger
     let internalModels = this.store._pushResourceIdentifiers(this, data);
     if (initial) {
       this.setInitialInternalModels(internalModels);
