@@ -142,6 +142,10 @@ export default class InternalModel {
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;
+
+    this._manyArrayCache = Object.create(null);
+    this._relationshipPromisesCache = Object.create(null);
+
   }
 
   get modelClass() {
@@ -479,37 +483,58 @@ export default class InternalModel {
     return this._modelData.setBelongsTo(key, value);
   }
 
+  getManyArray(relationshipMeta, initialState) {
+    let key = relationshipMeta.key;
+    let manyArray = this._manyArrayCache[key];
+    if (!manyArray) {
+      manyArray = this.store._manyArrayFor(
+        relationshipMeta.type, 
+        this._modelData, 
+        null,
+        relationshipMeta.key, 
+        relationshipMeta.options.polymorphic,
+        initialState
+      ); 
+      this._manyArrayCache[key] = manyArray;
+    }
+    return manyArray;
+  }
+
+  fetchAsyncHasMany(relationshipMeta, jsonApi) {
+    let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+    let manyArray = this.getManyArray(relationshipMeta, initialState);
+    let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+    promise = promise.then((initialState) => {
+      return this.store._manyArrayFor(
+        relationshipMeta.type, 
+        this._modelData, 
+        null,
+        relationshipMeta.key, 
+        relationshipMeta.options.polymorphic,
+        initialState
+        );
+    });
+    return PromiseManyArray.create({
+      promise,
+      content: manyArray
+    });
+  }
+
   getHasMany(key) {
     let jsonApi = this._modelData.getHasMany(key);
     let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-    let manyArray = this.store._manyArrayFor(
-      relationshipMeta.type, 
-      this._modelData, 
-      null,
-      relationshipMeta.key, 
-      relationshipMeta.options.polymorphic,
-      initialState
-    ); 
     if (isAsync) {
-      let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-      promise = promise.then((initialState) => {
-        return this.store._manyArrayFor(
-          relationshipMeta.type, 
-          this._modelData, 
-          null,
-          relationshipMeta.key, 
-          relationshipMeta.options.polymorphic,
-          initialState
-          );
-      });
-      return PromiseManyArray.create({
-        promise,
-        content: manyArray
-      });
+      let promiseArray = this._relationshipPromisesCache[key];
+      if (!promiseArray) {
+        promiseArray = this.fetchAsyncHasMany(relationshipMeta, jsonApi);
+        this._relationshipPromisesCache[key] = promiseArray;
+      }
+      return promiseArray;
     } else { 
+      let initialState = this.store._getHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+      let manyArray = this.getManyArray(relationshipMeta, initialState);
       return manyArray;
     }
   }
