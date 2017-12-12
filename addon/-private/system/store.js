@@ -2528,8 +2528,50 @@ Store = Service.extend({
       if (internalModel === null) {
         return null;
       }
+      // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
       return internalModel.getRecord();
     });
+  },
+
+  _fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+    return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta).then(internalModels => {
+      //parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
+      /*
+      if (records.hasOwnProperty('meta')) {
+        this.updateMeta(records.meta);
+      }
+      this.store._backburner.join(() => {
+        this.updateInternalModelsFromAdapter(records);
+        this.manyArray.set('isLoaded', true);
+        this.setHasData(true);
+      });
+      return this.manyArray;
+      */
+      return internalModels;
+    });
+  },
+
+
+  _findHasManyAsync(resource, parentInternalModel, relationshipMeta) {
+    let promise;
+    if (!resource) {
+      return { promise: RSVP.resolve([]) };
+    }
+    if (resource.links && resource.links.related) {
+      let promise = this._fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta);
+      return { promise };
+    }
+    /*
+    if (this.link) {
+      if (this.hasLoaded) {
+        promise = this.findRecords();
+      } else {
+        promise = this.findLink().then(() => this.findRecords());
+      }
+    } else {
+      promise = this.findRecords();
+    }
+    */
   },
 
   // TODO IGOR
@@ -2578,6 +2620,9 @@ Store = Service.extend({
     let isAsync = typeof async === 'undefined' ? true : async;
     let key = relationshipMeta.key;
     if (isAsync) {
+      debugger
+      let { promise } = this._findHasManyAsync(resource, parentInternalModel, relationshipMeta);
+      return promise;
       //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
     } else {
       let internalModels = [];

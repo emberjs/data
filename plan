@@ -30,3 +30,6 @@ creation allows people to pass store in easily
 check if data is ever passed to internalModel constructor
 consider notify properties change for has many
 I wonder if we currently leak many arrays
+do many array update test
+
+need to add hasLoaded to hasmany json api
