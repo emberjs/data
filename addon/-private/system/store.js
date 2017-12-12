@@ -2628,7 +2628,7 @@ Store = Service.extend({
     //return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
   },
 
-  _getHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+  _getHasManyByJsonApiResource(resource) {
     let internalModels = [];
     if (resource && resource.data) {
       internalModels = resource.data.map((reference) => this._internalModelForResource(reference));

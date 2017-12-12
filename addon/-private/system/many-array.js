@@ -174,6 +174,7 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
 
   replace(idx, amt, objects) {
+    debugger
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx+amt);
@@ -183,6 +184,16 @@ export default EmberObject.extend(MutableArray, Evented, {
       this.get('modelData').addToHasMany(this.get('key'), objects.map(obj => obj._internalModel._modelData), idx);
       //this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
     }
+    this.retrieveLatest();
+  },
+
+  // Ok this is kinda funky because if buggy we might lose positions, etc.
+  // but current code is this way so shouldn't be too big of a problem
+  retrieveLatest() {
+    let jsonApi = this.get('modelData').getHasMany(this.get('key'));
+    let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+    debugger
+    this.flushCanonical(internalModels, true);
   },
 
   /**

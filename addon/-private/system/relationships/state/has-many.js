@@ -33,20 +33,6 @@ export default class ManyRelationship extends Relationship {
     return this.__loadingPromise;
   }
 
-  get manyArray() {
-    if (!this._manyArray) {
-      this._manyArray = this.store._manyArrayFor(
-        this.belongsToType, 
-        this.internalModel._modelData, 
-        this.meta, 
-        this.key, 
-        this.isPolymorphic,
-        this.canonicalState
-      ); 
-    }
-    return this._manyArray;
-  }
-
   removeInverseRelationships() {
     super.removeInverseRelationships();
     if (this._manyArray) {
@@ -100,7 +86,7 @@ export default class ManyRelationship extends Relationship {
     this.currentState.splice(idx, 0, internalModel);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
-    this.manyArray.flushCanonical(this.currentState);
+    // this.manyArray.flushCanonical(this.currentState);
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {
@@ -169,7 +155,7 @@ export default class ManyRelationship extends Relationship {
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
-    this.manyArray.flushCanonical(this.currentState);
+   // this.manyArray.flushCanonical(this.currentState);
   }
 
   notifyRecordRelationshipAdded(internalModel, idx) {
@@ -177,6 +163,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   reload() {
+    return
     let manyArray = this.manyArray;
     let manyArrayLoadedState = manyArray.get('isLoaded');
 

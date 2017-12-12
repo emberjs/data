@@ -394,11 +394,7 @@ HasManyReference.prototype.value = function() {
    this has-many relationship.
 */
 HasManyReference.prototype.load = function() {
-  if (!this._isLoaded()) {
-    return this.hasManyRelationship.getRecords();
-  }
-
-  return resolve(this.hasManyRelationship.manyArray);
+  return this.parentInternalModel.getHasMany(this.hasManyRelationship.key);
 };
 
 /**

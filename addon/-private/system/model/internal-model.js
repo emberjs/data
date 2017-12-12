@@ -505,14 +505,8 @@ export default class InternalModel {
     let manyArray = this.getManyArray(relationshipMeta, initialState);
     let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
     promise = promise.then((initialState) => {
-      return this.store._manyArrayFor(
-        relationshipMeta.type, 
-        this._modelData, 
-        null,
-        relationshipMeta.key, 
-        relationshipMeta.options.polymorphic,
-        initialState
-        );
+      // TODO Igor this will be broken on subsequent loads because initial state won't apply
+      return this.getManyArray(relationshipMeta, initialState);
     });
     return PromiseManyArray.create({
       promise,

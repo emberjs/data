@@ -2630,6 +2630,7 @@ test("adding and removing records from hasMany relationship #2666", function(ass
       // Add comment #4
       let comment = env.store.createRecord('comment');
       comments.addObject(comment);
+      debugger
 
       return comment.save().then(() => {
         let comments = post.get('comments');
