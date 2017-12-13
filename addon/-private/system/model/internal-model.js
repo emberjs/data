@@ -338,10 +338,6 @@ export default class InternalModel {
         adapterError: this.error
       };
 
-      if (typeof properties === 'object' && properties !== null) {
-        emberAssign(createOptions, properties);
-      }
-
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
         setOwner(createOptions, getOwner(this.store));
@@ -350,6 +346,7 @@ export default class InternalModel {
       }
 
       this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+      this._record.setProperties(properties);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);

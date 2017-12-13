@@ -1,4 +1,4 @@
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { run } from '@ember/runloop';
 import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
@@ -1540,4 +1540,65 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   });
 
   assert.equal(count, 0);
+});
+
+function tap(obj, methodName, callback) {
+  var old = obj[methodName];
+
+  var summary = { called: [] };
+
+  obj[methodName] = function() {
+    var result = old.apply(obj, arguments);
+    if (callback) {
+      callback.apply(obj, arguments);
+    }
+    summary.called.push(arguments);
+    return result;
+  };
+
+  return summary;
+}
+
+test('passing belongsTo relationship during create (on Model with property using @each observer) does not create extra records', function(assert) {
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person', { inverse: 'tag' }),
+
+    // special property that uses @each
+    peopleNames: computed('people.@each.name', function() {
+      return get(this, 'people').mapBy('name');
+    })
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { inverse: 'people' })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store }  = env;
+  let personCreate = tap(Person, 'create');
+
+  run(() => {
+    store.push({
+      data: [{
+        type: 'tag',
+        id: 1,
+        attributes: {
+          name: 'whatever'
+        }
+      }]
+    });
+
+    const tag1 = store.recordForId('tag', 1);
+
+    // access the property with the @each observer
+    get(tag1, 'peopleNames');
+
+    // create the new person
+    store.createRecord('person', { name: 'newPerson', tag: tag1 });
+
+    assert.equal(personCreate.called.length, 1, 'personCreate should be called 1 time for new Person');
+  });
+
 });
