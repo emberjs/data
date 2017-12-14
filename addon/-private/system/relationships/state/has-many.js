@@ -1,9 +1,6 @@
-import { assert } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
-import ManyArray from '../../many-array';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
@@ -12,44 +9,16 @@ export default class ManyRelationship extends Relationship {
     this.canonicalState = [];
     this.currentState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
-    this._manyArray = null;
-    this.__loadingPromise = null;
-  }
-
-  get _loadingPromise() { return this.__loadingPromise; }
-  _updateLoadingPromise(promise, content) {
-    if (this.__loadingPromise) {
-      if (content) {
-        this.__loadingPromise.set('content', content)
-      }
-      this.__loadingPromise.set('promise', promise)
-    } else {
-      this.__loadingPromise = PromiseManyArray.create({
-        promise,
-        content
-      });
-    }
-
-    return this.__loadingPromise;
   }
 
   removeInverseRelationships() {
     super.removeInverseRelationships();
-    if (this._manyArray) {
-      this._manyArray.destroy();
-      this._manyArray = null;
-    }
 
+    /* TODO Igor make sure this is still working
     if (this._loadingPromise) {
       this._loadingPromise.destroy();
     }
-  }
-
-  updateMeta(meta) {
-    super.updateMeta(meta);
-    if (this._manyArray) {
-      this._manyArray.set('meta', meta);
-    }
+    */
   }
 
   addCanonicalInternalModel(internalModel, idx) {
@@ -65,10 +34,6 @@ export default class ManyRelationship extends Relationship {
   }
 
   inverseDidDematerialize() {
-    if (this._manyArray) {
-      this._manyArray.destroy();
-      this._manyArray = null;
-    }
     this.notifyHasManyChanged();
   }
 
@@ -133,12 +98,14 @@ export default class ManyRelationship extends Relationship {
     );
     toSet = toSet.concat(newInternalModels);
 
+    /*
     if (this._manyArray) {
       this._manyArray.flushCanonical(toSet);
     }
+    */
     this.currentState = toSet;
     super.flushCanonical();
-    // Once we clean up all the flushing, we will be left with at least the notifying part 
+    // Once we clean up all the flushing, we will be left with at least the notifying part
     this.notifyHasManyChanged();
   }
 
@@ -162,31 +129,6 @@ export default class ManyRelationship extends Relationship {
 
   notifyRecordRelationshipAdded(internalModel, idx) {
     this.internalModel.notifyHasManyAdded(this.key, internalModel, idx);
-  }
-
-  reload() {
-    return
-    let manyArray = this.manyArray;
-    let manyArrayLoadedState = manyArray.get('isLoaded');
-
-    if (this._loadingPromise) {
-      if (this._loadingPromise.get('isPending')) {
-        return this._loadingPromise;
-      }
-      if (this._loadingPromise.get('isRejected')) {
-        manyArray.set('isLoaded', manyArrayLoadedState);
-      }
-    }
-
-    let promise;
-    if (this.link) {
-      promise = this.fetchLink();
-    } else {
-      promise = this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray);
-    }
-
-    this._updateLoadingPromise(promise);
-    return this._loadingPromise;
   }
 
   computeChanges(internalModels = []) {
@@ -228,34 +170,6 @@ export default class ManyRelationship extends Relationship {
     this.canonicalState = this.canonicalMembers.toArray();
   }
 
-  fetchLink() {
-    return this.store.findHasMany(this.internalModel, this.link, this.relationshipMeta).then(records => {
-      if (records.hasOwnProperty('meta')) {
-        this.updateMeta(records.meta);
-      }
-      this.store._backburner.join(() => {
-        this.updateInternalModelsFromAdapter(records);
-        this.manyArray.set('isLoaded', true);
-        this.setHasData(true);
-      });
-      return this.manyArray;
-    });
-  }
-
-  findRecords() {
-    let manyArray = this.manyArray;
-    let internalModels = manyArray.currentState;
-
-    //TODO CLEANUP
-    return this.store.findMany(internalModels).then(() => {
-      if (!manyArray.get('isDestroyed')) {
-        //Goes away after the manyArray refactor
-        manyArray.set('isLoaded', true);
-      }
-      return manyArray;
-    });
-  }
-
   notifyHasManyChanged() {
     this.internalModel.notifyHasManyAdded(this.key);
   }
@@ -278,53 +192,12 @@ export default class ManyRelationship extends Relationship {
     return payload;
   }
 
-  getRecords() {
-    //TODO(Igor) sync server here, once our syncing is not stupid
-    let manyArray = this.manyArray;
-    if (this.isAsync) {
-      let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecords();
-        } else {
-          promise = this.findLink().then(() => this.findRecords());
-        }
-      } else {
-        promise = this.findRecords();
-      }
-      return this._updateLoadingPromise(promise, manyArray);
-    } else {
-      assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
-
-      //TODO(Igor) WTF DO I DO HERE?
-      // TODO @runspired equal WTFs to Igor
-      if (!manyArray.get('isDestroyed')) {
-        manyArray.set('isLoaded', true);
-      }
-      return manyArray;
-    }
-  }
-
   updateData(data, initial) {
     let internalModels = this.store._pushResourceIdentifiers(this, data);
     if (initial) {
       this.setInitialInternalModels(internalModels);
     } else {
       this.updateInternalModelsFromAdapter(internalModels);
-    }
-  }
-
-  destroy() {
-    super.destroy();
-    let manyArray = this._manyArray;
-    if (manyArray) {
-      manyArray.destroy();
-    }
-
-    let proxy = this.__loadingPromise;
-
-    if (proxy) {
-      proxy.destroy();
     }
   }
 }

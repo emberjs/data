@@ -42,3 +42,9 @@ cleanup manyArray caches
 
 currently we have many array optimization for lazyness when manyArray is not instantiated
 need to figure out what to do about them
+
+we need load and reload link caches, but seems like they are not tested right now
+
+need a long term solution of adding an id to manyArray while fetching and coming back
+to discover it's not there -> ideas, have same semantics if loaded the array and then unloade the record
+// don't add to the retained many array until a get happens

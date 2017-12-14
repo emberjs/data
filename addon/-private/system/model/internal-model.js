@@ -761,6 +761,7 @@ export default class InternalModel {
     }
     // TODO igor cleanup here
     if (this._relationshipPromisesCache[key]) {
+      this._relationshipPromisesCache[key].destroy();
       delete this._relationshipPromisesCache[key];
     }
   }
