@@ -301,6 +301,15 @@ const JSONAPISerializer = JSONSerializer.extend({
     return attributes;
   },
 
+  /**
+     Returns a relationship formatted as a JSON-API "relationship object".
+
+     http://jsonapi.org/format/#document-resource-object-relationships
+
+     @method extractRelationship
+     @param {Object} relationshipHash
+     @return {Object}
+  */
   extractRelationship(relationshipHash) {
 
     if (typeOf(relationshipHash.data) === 'object') {
@@ -321,6 +330,16 @@ const JSONAPISerializer = JSONSerializer.extend({
     return relationshipHash;
   },
 
+  /**
+     Returns the resource's relationships formatted as a JSON-API "relationships object".
+
+     http://jsonapi.org/format/#document-resource-object-relationships
+
+     @method extractRelationships
+     @param {Object} modelClass
+     @param {Object} resourceHash
+     @return {Object}
+  */
   extractRelationships(modelClass, resourceHash) {
     let relationships = {};
 
