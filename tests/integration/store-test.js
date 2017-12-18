@@ -164,7 +164,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
   let personWillDestroy = tap(person, 'willDestroy');
   let carWillDestroy = tap(car, 'willDestroy');
   let carsWillDestroy = run(() => tap(car.get('person.cars'), 'willDestroy'));
-  let setupRelationships = tap(store, '_setupRelationships');
 
   env.adapter.query = function() {
     return {
