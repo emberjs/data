@@ -246,7 +246,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
     if (isEnabled("ds-overhaul-references")) {
       deprecate("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
         id: 'ds.references.has-many.push-array',
-        until: '3.0'
+        until: '4.0.0'
       });
     }
 
@@ -258,7 +258,7 @@ HasManyReference.prototype.push = function(objectOrPromise) {
       if (isEnabled('ds-overhaul-references')) {
         deprecate("HasManyReference#push() expects a valid JSON-API document.", !useLegacyArrayPush, {
           id: 'ds.references.has-many.push-invalid-json-api',
-          until: '3.0'
+          until: '4.0.0'
         });
       }
     }

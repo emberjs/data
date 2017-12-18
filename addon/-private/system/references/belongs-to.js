@@ -247,7 +247,7 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
       if (isEnabled('ds-overhaul-references')) {
         deprecate("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
           id: 'ds.references.belongs-to.push-record',
-          until: '3.0'
+          until: '4.0.0'
         });
       }
       record = data;
