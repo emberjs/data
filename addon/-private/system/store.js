@@ -2415,6 +2415,11 @@ Store = Service.extend({
       return;
     }
 
+    if (this.isDestroyed) {
+      assert('Attempting to set up relationships after store has been destroyed');
+      return;
+    }
+
     if (this._pushedInternalModels.push(internalModel, data) !== 2) {
       return;
     }

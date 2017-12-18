@@ -164,6 +164,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
   let personWillDestroy = tap(person, 'willDestroy');
   let carWillDestroy = tap(car, 'willDestroy');
   let carsWillDestroy = run(() => tap(car.get('person.cars'), 'willDestroy'));
+  let setupRelationships = tap(store, '_setupRelationships');
 
   env.adapter.query = function() {
     return {
@@ -202,12 +203,14 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
   run(store, 'destroy');
-
   assert.equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
   assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
   assert.equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
+  assert.throws(() => {
+    store._setupRelationshipsForModel(null, { relationships: {} });
+  }, /Attempting to set up relationships after store has been destroyed/, '_setupRelationshipsForModel generates helpful error');
 });
 
 function ajaxResponse(value) {
