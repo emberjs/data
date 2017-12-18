@@ -846,29 +846,7 @@ const JSONSerializer = Serializer.extend({
     @param {String} relationshipType
     @return {boolean} true if the hasMany relationship should be serialized
   */
-
   shouldSerializeHasMany(snapshot, key, relationship) {
-    if ((this._shouldSerializeHasMany !== JSONSerializer.prototype._shouldSerializeHasMany)) {
-      deprecate('The private method _shouldSerializeHasMany has been promoted to the public API. Please remove the underscore to use the public shouldSerializeHasMany method.', false, {
-        id: 'ds.serializer.private-should-serialize-has-many',
-        until: '3.0.0'
-      });
-    }
-
-    return this._shouldSerializeHasMany(snapshot, key, relationship);
-  },
-
-  /**
-    Check if the given hasMany relationship should be serialized
-
-    @method _shouldSerializeHasMany
-    @private
-    @param {DS.Snapshot} snapshot
-    @param {String} key
-    @param {String} relationshipType
-    @return {boolean} true if the hasMany relationship should be serialized
-  */
-  _shouldSerializeHasMany(snapshot, key, relationship) {
     let relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
@@ -1219,12 +1197,8 @@ const JSONSerializer = Serializer.extend({
   */
   serializeHasMany(snapshot, json, relationship) {
     let key = relationship.key;
-    let shouldSerializeHasMany = '_shouldSerializeHasMany';
-    if (isEnabled("ds-check-should-serialize-relationships")) {
-      shouldSerializeHasMany = 'shouldSerializeHasMany';
-    }
 
-    if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
+    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
       let hasMany = snapshot.hasMany(key, { ids: true });
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
