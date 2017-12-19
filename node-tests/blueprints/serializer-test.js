@@ -11,6 +11,7 @@ var expect = chai.expect;
 var SilentError = require('silent-error');
 
 var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy serializer blueprints', function() {
   setupTestHooks(this);
@@ -25,7 +26,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default DS.JSONAPISerializer.extend(');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
@@ -40,7 +41,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default ApplicationSerializer.extend({');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
@@ -54,7 +55,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default BarSerializer.extend({');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
@@ -76,7 +77,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default DS.JSONAPISerializer.extend({');
 
         expect(_file('tests/unit/serializers/application-test.js'))
-          .to.contain('moduleForModel(\'application\'');
+        .to.equal(fixture('serializer-test/application-default.js'));
       }));
   });
 
@@ -86,7 +87,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+        .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
@@ -101,12 +102,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupModelTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Serializer | foo\', function() {')
-          .to.contain('setupModelTest(\'foo\', {')
-          .to.contain('needs: [\'serializer:foo\']')
-          .to.contain('expect(serializedRecord).to.be.ok;');
+          .to.equal(fixture('serializer-test/foo-mocha-0.12.js'));
       }));
   });
 });
