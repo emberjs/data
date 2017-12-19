@@ -573,27 +573,6 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
   assert.deepEqual(json, expected, 'returned JSON is correct');
 });
 
-testInDebug('serializeBelongsTo logs deprecation when old behavior for getting polymorphic type key is used', function(assert) {
-  var evilMinion, doomsdayDevice;
-  var json = {};
-  var expected = { evilMinion: '1', myCustomKeyType: 'evilMinion' };
-
-  env.restSerializer.keyForAttribute = function() {
-    return 'myCustomKey';
-  };
-
-  run(function() {
-    evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
-    doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
-  });
-
-  assert.expectDeprecation(function() {
-    env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
-  }, "The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.");
-
-  assert.deepEqual(json, expected, 'returned JSON is correct');
-});
-
 test('keyForPolymorphicType can be used to overwrite how the type of a polymorphic record is serialized', function(assert) {
   var evilMinion, doomsdayDevice;
   var json = {};
