@@ -26,7 +26,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-        .to.equal(fixture('adapter-test/foo-default.js'));
+          .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -41,7 +41,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default ApplicationAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-        .to.equal(fixture('adapter-test/foo-default.js'));
+          .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -55,7 +55,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default BarAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-        .to.equal(fixture('adapter-test/foo-default.js'));
+          .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 

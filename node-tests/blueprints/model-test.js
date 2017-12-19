@@ -89,7 +89,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('otherComments: DS.hasMany(\'comment\')');
 
         expect(_file('tests/unit/models/post-test.js'))
-        .to.equal(fixture('model-test/post-default.js'));
+          .to.equal(fixture('model-test/post-default.js'));
       }));
   });
 

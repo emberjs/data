@@ -77,7 +77,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default DS.JSONAPISerializer.extend({');
 
         expect(_file('tests/unit/serializers/application-test.js'))
-        .to.equal(fixture('serializer-test/application-default.js'));
+          .to.equal(fixture('serializer-test/application-default.js'));
       }));
   });
 
