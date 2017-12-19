@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { setupModelTest } from 'ember-mocha';
 
-describe('<%= friendlyDescription %>', function() {
-  setupModelTest('<%= dasherizedModuleName %>', {
+describe('Unit | Model | foo', function() {
+  setupModelTest('foo', {
     // Specify the other units that are required for this test.
-  <%= typeof needs !== 'undefined' ? needs : '' %>
+    needs: []
   });
 
   // Replace this with your real tests.

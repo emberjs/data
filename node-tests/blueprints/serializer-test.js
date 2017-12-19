@@ -1,22 +1,25 @@
-var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
-var setupTestHooks = blueprintHelpers.setupTestHooks;
-var emberNew = blueprintHelpers.emberNew;
-var emberGenerate = blueprintHelpers.emberGenerate;
-var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
-var modifyPackages = blueprintHelpers.modifyPackages;
+'use strict';
 
-var chai = require('ember-cli-blueprint-test-helpers/chai');
-var expect = chai.expect;
+const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const setupTestHooks = blueprintHelpers.setupTestHooks;
+const emberNew = blueprintHelpers.emberNew;
+const emberGenerate = blueprintHelpers.emberGenerate;
+const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+const modifyPackages = blueprintHelpers.modifyPackages;
 
-var SilentError = require('silent-error');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const expect = chai.expect;
 
-var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const SilentError = require('silent-error');
+
+const generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy serializer blueprints', function() {
   setupTestHooks(this);
 
   it('serializer', function() {
-    var args = ['serializer', 'foo'];
+    let args = ['serializer', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -25,12 +28,12 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default DS.JSONAPISerializer.extend(');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
   it('serializer extends application serializer if it exists', function() {
-    var args = ['serializer', 'foo'];
+    let args = ['serializer', 'foo'];
 
     return emberNew()
       .then(() => emberGenerate(['serializer', 'application']))
@@ -40,12 +43,12 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default ApplicationSerializer.extend({');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
   it('serializer with --base-class', function() {
-    var args = ['serializer', 'foo', '--base-class=bar'];
+    let args = ['serializer', 'foo', '--base-class=bar'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -54,12 +57,12 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default BarSerializer.extend({');
 
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
   xit('serializer throws when --base-class is same as name', function() {
-    var args = ['serializer', 'foo', '--base-class=foo'];
+    let args = ['serializer', 'foo', '--base-class=foo'];
 
     return emberNew()
       .then(() => expect(emberGenerate(args))
@@ -67,7 +70,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
   });
 
   it('serializer when is named "application"', function() {
-    var args = ['serializer', 'application'];
+    let args = ['serializer', 'application'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -76,22 +79,22 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           .to.contain('export default DS.JSONAPISerializer.extend({');
 
         expect(_file('tests/unit/serializers/application-test.js'))
-          .to.contain('moduleForModel(\'application\'');
+          .to.equal(fixture('serializer-test/application-default.js'));
       }));
   });
 
   it('serializer-test', function() {
-    var args = ['serializer-test', 'foo'];
+    let args = ['serializer-test', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 
  it('serializer-test for mocha v0.12+', function() {
-    var args = ['serializer-test', 'foo'];
+    let args = ['serializer-test', 'foo'];
 
     return emberNew()
       .then(() => modifyPackages([
@@ -101,12 +104,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/serializers/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupModelTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Serializer | foo\', function() {')
-          .to.contain('setupModelTest(\'foo\', {')
-          .to.contain('needs: [\'serializer:foo\']')
-          .to.contain('expect(serializedRecord).to.be.ok;');
+          .to.equal(fixture('serializer-test/foo-mocha-0.12.js'));
       }));
   });
 });

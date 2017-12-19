@@ -1,19 +1,22 @@
-var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
-var setupTestHooks = blueprintHelpers.setupTestHooks;
-var emberNew = blueprintHelpers.emberNew;
-var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
-var modifyPackages = blueprintHelpers.modifyPackages;
+'use strict';
 
-var chai = require('ember-cli-blueprint-test-helpers/chai');
-var expect = chai.expect;
+const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const setupTestHooks = blueprintHelpers.setupTestHooks;
+const emberNew = blueprintHelpers.emberNew;
+const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+const modifyPackages = blueprintHelpers.modifyPackages;
 
-var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const expect = chai.expect;
+
+const generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy transform blueprints', function() {
   setupTestHooks(this);
 
   it('transform', function() {
-    var args = ['transform', 'foo'];
+    let args = ['transform', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -24,22 +27,22 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
           .to.contain('serialize(deserialized) {');
 
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('moduleFor(\'transform:foo\'');
+          .to.equal(fixture('transform-test/default.js'));
       }));
   });
 
   it('transforms-test', function() {
-    var args = ['transform-test', 'foo'];
+    let args = ['transform-test', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('moduleFor(\'transform:foo\'');
+          .to.equal(fixture('transform-test/default.js'));
       }));
   });
 
   it('transform-test for mocha v0.12+', function() {
-    var args = ['transform-test', 'foo'];
+    let args = ['transform-test', 'foo'];
 
     return emberNew()
       .then(() => modifyPackages([
@@ -49,11 +52,7 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Transform | foo\', function() {')
-          .to.contain('setupTest(\'transform:foo\',')
-          .to.contain('expect(transform).to.be.ok;');
+          .to.equal(fixture('transform-test/mocha-0.12.js'));
       }));
   });
 });
