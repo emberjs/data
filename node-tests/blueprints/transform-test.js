@@ -15,11 +15,16 @@ const fixture = require('../helpers/fixture');
 describe('Acceptance: generate and destroy transform blueprints', function() {
   setupTestHooks(this);
 
-  it('transform', function() {
-    let args = ['transform', 'foo'];
+  describe('in app', function() {
+    beforeEach(function() {
+      return emberNew();
+    });
 
-    return emberNew()
-      .then(() => emberGenerateDestroy(args, _file => {
+
+    it('transform', function() {
+      let args = ['transform', 'foo'];
+
+      return emberGenerateDestroy(args, _file => {
         expect(_file('app/transforms/foo.js'))
           .to.contain('import DS from \'ember-data\';')
           .to.contain('export default DS.Transform.extend(')
@@ -28,31 +33,49 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
         expect(_file('tests/unit/transforms/foo-test.js'))
           .to.equal(fixture('transform-test/default.js'));
-      }));
-  });
+      });
+    });
 
-  it('transforms-test', function() {
-    let args = ['transform-test', 'foo'];
+    it('transform-test', function() {
+      let args = ['transform-test', 'foo'];
 
-    return emberNew()
-      .then(() => emberGenerateDestroy(args, _file => {
+      return emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/transforms/foo-test.js'))
           .to.equal(fixture('transform-test/default.js'));
-      }));
-  });
+      });
+    });
 
-  it('transform-test for mocha v0.12+', function() {
-    let args = ['transform-test', 'foo'];
+    describe('transform-test with ember-cli-qunit@4.2.0', function() {
+      beforeEach(function() {
+        generateFakePackageManifest('ember-cli-qunit', '4.2.0');
+      });
 
-    return emberNew()
-      .then(() => modifyPackages([
-        {name: 'ember-cli-qunit', delete: true},
-        {name: 'ember-cli-mocha', dev: true}
-      ]))
-      .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
-      .then(() => emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.equal(fixture('transform-test/mocha-0.12.js'));
-      }));
+      it('transform-test-test foo', function() {
+        return emberGenerateDestroy(['transform-test', 'foo'], _file => {
+          expect(_file('tests/unit/transforms/foo-test.js'))
+            .to.equal(fixture('transform-test/rfc232.js'));
+        });
+      });
+    });
+
+
+    describe('with ember-cli-mocha v0.12+', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-cli-mocha', dev: true }
+        ]);
+        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
+      });
+
+      it('transform-test for mocha v0.12+', function() {
+        let args = ['transform-test', 'foo'];
+
+        return emberGenerateDestroy(args, _file => {
+          expect(_file('tests/unit/transforms/foo-test.js'))
+            .to.equal(fixture('transform-test/mocha-0.12.js'));
+        });
+      });
+    });
   });
 });
