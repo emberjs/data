@@ -1,23 +1,25 @@
-var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
-var setupTestHooks = blueprintHelpers.setupTestHooks;
-var emberNew = blueprintHelpers.emberNew;
-var emberGenerate = blueprintHelpers.emberGenerate;
-var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
-var modifyPackages = blueprintHelpers.modifyPackages;
+'use strict';
 
-var chai = require('ember-cli-blueprint-test-helpers/chai');
-var expect = chai.expect;
+const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const setupTestHooks = blueprintHelpers.setupTestHooks;
+const emberNew = blueprintHelpers.emberNew;
+const emberGenerate = blueprintHelpers.emberGenerate;
+const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+const modifyPackages = blueprintHelpers.modifyPackages;
 
-var SilentError = require('silent-error');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const expect = chai.expect;
 
-var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const SilentError = require('silent-error');
+
+const generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
 const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy adapter blueprints', function() {
   setupTestHooks(this);
 
   it('adapter', function() {
-    var args = ['adapter', 'foo'];
+    let args = ['adapter', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -31,7 +33,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   it('adapter extends application adapter if it exists', function() {
-    var args = ['adapter', 'foo'];
+    let args = ['adapter', 'foo'];
 
     return emberNew()
       .then(() => emberGenerate(['adapter', 'application']))
@@ -46,7 +48,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   it('adapter with --base-class', function() {
-    var args = ['adapter', 'foo', '--base-class=bar'];
+    let args = ['adapter', 'foo', '--base-class=bar'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -60,7 +62,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   xit('adapter throws when --base-class is same as name', function() {
-    var args = ['adapter', 'foo', '--base-class=foo'];
+    let args = ['adapter', 'foo', '--base-class=foo'];
 
     return emberNew()
       .then(() => expect(emberGenerate(args))
@@ -68,7 +70,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   it('adapter when is named "application"', function() {
-    var args = ['adapter', 'application'];
+    let args = ['adapter', 'application'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -82,7 +84,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   it('adapter-test', function() {
-    var args = ['adapter-test', 'foo'];
+    let args = ['adapter-test', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -92,7 +94,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
   });
 
   it('adapter-test for mocha v0.12+', function() {
-    var args = ['adapter-test', 'foo'];
+    let args = ['adapter-test', 'foo'];
 
     return emberNew()
       .then(() => modifyPackages([

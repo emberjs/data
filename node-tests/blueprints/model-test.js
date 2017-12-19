@@ -1,13 +1,15 @@
-var blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
-var setupTestHooks = blueprintHelpers.setupTestHooks;
-var emberNew = blueprintHelpers.emberNew;
-var emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
-var modifyPackages = blueprintHelpers.modifyPackages;
+'use strict';
 
-var chai = require('ember-cli-blueprint-test-helpers/chai');
-var expect = chai.expect;
+const blueprintHelpers = require('ember-cli-blueprint-test-helpers/helpers');
+const setupTestHooks = blueprintHelpers.setupTestHooks;
+const emberNew = blueprintHelpers.emberNew;
+const emberGenerateDestroy = blueprintHelpers.emberGenerateDestroy;
+const modifyPackages = blueprintHelpers.modifyPackages;
 
-var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const chai = require('ember-cli-blueprint-test-helpers/chai');
+const expect = chai.expect;
+
+const generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
 const fixture = require('../helpers/fixture');
 
 
@@ -15,7 +17,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   setupTestHooks(this);
 
   it('model', function() {
-    var args = ['model', 'foo'];
+    let args = ['model', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -29,7 +31,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   });
 
   it('model with attrs', function() {
-    var args = [
+    let args = [
       'model',
       'foo',
       'misc',
@@ -62,7 +64,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   });
 
   it('model with belongsTo', function() {
-    var args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
+    let args = ['model', 'comment', 'post:belongs-to', 'author:belongs-to:user'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -78,7 +80,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   });
 
   it('model with hasMany', function() {
-    var args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
+    let args = ['model', 'post', 'comments:has-many', 'otherComments:has-many:comment'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -94,7 +96,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   });
 
   it('model-test', function() {
-    var args = ['model-test', 'foo'];
+    let args = ['model-test', 'foo'];
 
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
@@ -104,7 +106,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
   });
 
   it('model-test for mocha v0.12+', function() {
-    var args = ['model-test', 'foo'];
+    let args = ['model-test', 'foo'];
 
     return emberNew()
       .then(() => modifyPackages([
