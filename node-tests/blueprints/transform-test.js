@@ -8,6 +8,7 @@ var chai = require('ember-cli-blueprint-test-helpers/chai');
 var expect = chai.expect;
 
 var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy transform blueprints', function() {
   setupTestHooks(this);
@@ -24,7 +25,7 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
           .to.contain('serialize(deserialized) {');
 
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('moduleFor(\'transform:foo\'');
+          .to.equal(fixture('transform-test/default.js'));
       }));
   });
 
@@ -34,7 +35,7 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('moduleFor(\'transform:foo\'');
+          .to.equal(fixture('transform-test/default.js'));
       }));
   });
 
@@ -49,11 +50,7 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Transform | foo\', function() {')
-          .to.contain('setupTest(\'transform:foo\',')
-          .to.contain('expect(transform).to.be.ok;');
+          .to.equal(fixture('transform-test/mocha-0.12.js'));
       }));
   });
 });
