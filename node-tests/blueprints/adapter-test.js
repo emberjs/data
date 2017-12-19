@@ -11,6 +11,7 @@ var expect = chai.expect;
 var SilentError = require('silent-error');
 
 var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
 
 describe('Acceptance: generate and destroy adapter blueprints', function() {
   setupTestHooks(this);
@@ -25,7 +26,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-          .to.contain('moduleFor(\'adapter:foo\'');
+        .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -40,7 +41,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default ApplicationAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-          .to.contain('moduleFor(\'adapter:foo\'');
+        .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -54,7 +55,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default BarAdapter.extend({');
 
         expect(_file('tests/unit/adapters/foo-test.js'))
-          .to.contain('moduleFor(\'adapter:foo\'');
+        .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -76,7 +77,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/application-test.js'))
-          .to.contain('moduleFor(\'adapter:application\'');
+        .to.equal(fixture('adapter-test/application-default.js'));
       }));
   });
 
@@ -86,7 +87,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/adapters/foo-test.js'))
-          .to.contain('moduleFor(\'adapter:foo\'');
+        .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -101,11 +102,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/adapters/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Adapter | foo\', function() {')
-          .to.contain('setupTest(\'adapter:foo\',')
-          .to.contain('expect(adapter).to.be.ok;');
+        .to.equal(fixture('adapter-test/foo-mocha-0.12.js'));
       }));
   });
 });
