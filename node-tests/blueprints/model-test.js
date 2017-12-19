@@ -57,7 +57,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('customAttr: DS.attr(\'custom-transform\')');
 
         expect(_file('tests/unit/models/foo-test.js'))
-        .to.equal(fixture('model-test/foo-default.js'));
+          .to.equal(fixture('model-test/foo-default.js'));
       }));
   });
 
@@ -73,7 +73,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('author: DS.belongsTo(\'user\')');
 
         expect(_file('tests/unit/models/comment-test.js'))
-        .to.equal(fixture('model-test/comment-default.js'));
+          .to.equal(fixture('model-test/comment-default.js'));
       }));
   });
 
@@ -99,7 +99,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/models/foo-test.js'))
-        .to.equal(fixture('model-test/foo-default.js'));
+          .to.equal(fixture('model-test/foo-default.js'));
       }));
   });
 
@@ -114,7 +114,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/models/foo-test.js'))
-        .to.equal(fixture('model-test/foo-mocha-0.12.js'));
+          .to.equal(fixture('model-test/foo-mocha-0.12.js'));
       }));
   });
 });

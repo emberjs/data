@@ -87,7 +87,7 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/serializers/foo-test.js'))
-        .to.equal(fixture('serializer-test/foo-default.js'));
+          .to.equal(fixture('serializer-test/foo-default.js'));
       }));
   });
 

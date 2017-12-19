@@ -77,7 +77,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
           .to.contain('export default DS.JSONAPIAdapter.extend({');
 
         expect(_file('tests/unit/adapters/application-test.js'))
-        .to.equal(fixture('adapter-test/application-default.js'));
+          .to.equal(fixture('adapter-test/application-default.js'));
       }));
   });
 
@@ -87,7 +87,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/adapters/foo-test.js'))
-        .to.equal(fixture('adapter-test/foo-default.js'));
+          .to.equal(fixture('adapter-test/foo-default.js'));
       }));
   });
 
@@ -102,7 +102,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/adapters/foo-test.js'))
-        .to.equal(fixture('adapter-test/foo-mocha-0.12.js'));
+          .to.equal(fixture('adapter-test/foo-mocha-0.12.js'));
       }));
   });
 });
