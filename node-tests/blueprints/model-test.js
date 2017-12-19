@@ -8,6 +8,8 @@ var chai = require('ember-cli-blueprint-test-helpers/chai');
 var expect = chai.expect;
 
 var generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
+const fixture = require('../helpers/fixture');
+
 
 describe('Acceptance: generate and destroy model blueprints', function() {
   setupTestHooks(this);
@@ -19,10 +21,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('app/models/foo.js'))
           .to.contain('import DS from \'ember-data\';')
-          .to.contain('export default DS.Model.extend(')
+          .to.contain('export default DS.Model.extend(');
 
         expect(_file('tests/unit/models/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+          .to.equal(fixture('model-test/foo-default.js'));
       }));
   });
 
@@ -52,10 +54,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('someObject: DS.attr(\'object\')')
           .to.contain('age: DS.attr(\'number\')')
           .to.contain('name: DS.attr(\'string\')')
-          .to.contain('customAttr: DS.attr(\'custom-transform\')')
+          .to.contain('customAttr: DS.attr(\'custom-transform\')');
 
         expect(_file('tests/unit/models/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+        .to.equal(fixture('model-test/foo-default.js'));
       }));
   });
 
@@ -68,11 +70,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('import DS from \'ember-data\';')
           .to.contain('export default DS.Model.extend(')
           .to.contain('post: DS.belongsTo(\'post\')')
-          .to.contain('author: DS.belongsTo(\'user\')')
+          .to.contain('author: DS.belongsTo(\'user\')');
 
         expect(_file('tests/unit/models/comment-test.js'))
-          .to.contain('moduleForModel(\'comment\'')
-          .to.contain('needs: [\'model:post\', \'model:user\']');
+        .to.equal(fixture('model-test/comment-default.js'));
       }));
   });
 
@@ -85,11 +86,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain('import DS from \'ember-data\';')
           .to.contain('export default DS.Model.extend(')
           .to.contain('comments: DS.hasMany(\'comment\')')
-          .to.contain('otherComments: DS.hasMany(\'comment\')')
+          .to.contain('otherComments: DS.hasMany(\'comment\')');
 
         expect(_file('tests/unit/models/post-test.js'))
-          .to.contain('moduleForModel(\'post\'')
-          .to.contain('needs: [\'model:comment\']');
+        .to.equal(fixture('model-test/post-default.js'));
       }));
   });
 
@@ -99,7 +99,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
     return emberNew()
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/models/foo-test.js'))
-          .to.contain('moduleForModel(\'foo\'');
+        .to.equal(fixture('model-test/foo-default.js'));
       }));
   });
 
@@ -114,11 +114,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       .then(() => generateFakePackageManifest('ember-cli-mocha', '0.12.0'))
       .then(() => emberGenerateDestroy(args, _file => {
         expect(_file('tests/unit/models/foo-test.js'))
-          .to.contain('import { describe, it } from \'mocha\';')
-          .to.contain('import { setupModelTest } from \'ember-mocha\';')
-          .to.contain('describe(\'Unit | Model | foo\', function() {')
-          .to.contain('setupModelTest(\'foo\',')
-          .to.contain('expect(model).to.be.ok;');
+        .to.equal(fixture('model-test/foo-mocha-0.12.js'));
       }));
   });
 });
