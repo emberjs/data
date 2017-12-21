@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import { run } from '@ember/runloop';
 
-module('serializer:foo', 'Unit | Serializer | foo', function(hooks) {
+module('Unit | Serializer | foo', function(hooks) {
   setupTest(hooks);
 
   // Replace this with your real tests.
