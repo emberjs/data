@@ -11,6 +11,7 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
+import config from '../../config/environment';
 
 let store, env;
 
@@ -207,9 +208,11 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
   assert.equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
-  assert.throws(() => {
-    store._setupRelationshipsForModel(null, { relationships: {} });
-  }, /Attempting to set up relationships after store has been destroyed/, '_setupRelationshipsForModel generates helpful error');
+  if (config.environment !== 'production') {
+    assert.throws(() => {
+      store._setupRelationshipsForModel(null, { relationships: {} });
+    }, /Attempting to set up relationships after store has been destroyed/, '_setupRelationshipsForModel generates helpful error in non-prod');
+  }
 });
 
 function ajaxResponse(value) {
