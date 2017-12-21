@@ -1,0 +1,24 @@
+import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
+import { run } from '@ember/runloop';
+
+module('serializer:<%= dasherizedModuleName %>', '<%= friendlyTestDescription %>', function(hooks) {
+  setupTest(hooks);
+
+  // Replace this with your real tests.
+  test('it exists', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let serializer = this.owner.factoryFor('serializer:<%= dasherizedModuleName %>').create({ store });
+
+    assert.ok(serializer);
+  });
+
+  test('it serializes records', function(assert) {
+    let store = this.owner.lookup('service:store');
+    let record = run(() => store.createRecord('<%= dasherizedModuleName %>', {}));
+
+    let serializedRecord = record.serialize();
+
+    assert.ok(serializedRecord);
+  });
+});
