@@ -30,10 +30,9 @@ export { default as parseResponseHeaders } from './utils/parse-response-headers'
 // should be private ?
 export { default as global } from './global';
 export { default as isEnabled } from './features';
-// `ember-data-model-fragments` relies on `RootState`, `InternalModel` and `ContainerInstanceCache`
+// `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
-export { default as ContainerInstanceCache } from './system/store/container-instance-cache';
 
 export {
   PromiseArray,

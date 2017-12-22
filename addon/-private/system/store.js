@@ -50,7 +50,6 @@ import {
 import { getOwner } from '../utils';
 import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
-import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
 import isEnabled from '../features';
 
@@ -211,7 +210,6 @@ Store = Service.extend({
     this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._modelFactoryCache = Object.create(null);
     this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
@@ -234,7 +232,6 @@ Store = Service.extend({
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
 
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
   },
