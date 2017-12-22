@@ -72,6 +72,8 @@ function initializeStoreInjections(registry) {
   // registry.injection for Ember < 2.1.0
   // application.inject for Ember 2.1.0+
   let inject = registry.inject || registry.injection;
+  inject.call(registry, 'adapter', 'store', 'service:store');
+  inject.call(registry, 'serializer', 'store', 'service:store');
   inject.call(registry, 'controller', 'store', 'service:store');
   inject.call(registry, 'route', 'store', 'service:store');
   inject.call(registry, 'data-adapter', 'store', 'service:store');
