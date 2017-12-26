@@ -5,10 +5,11 @@ module.exports = {
   "disable_watching": true,
   "reporter": "dot",
   "launch_in_ci": [
-    "PhantomJS"
+    "Firefox",
+    "Chrome"
   ],
   "launch_in_dev": [
-    "PhantomJS",
+    "Firefox",
     "Chrome"
-  ]
+  ],
 };
