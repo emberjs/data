@@ -8,7 +8,7 @@ module('Unit | Serializer | foo', function(hooks) {
   // Replace this with your real tests.
   test('it exists', function(assert) {
     let store = this.owner.lookup('service:store');
-    let serializer = this.owner.factoryFor('serializer:foo').create({ store });
+    let serializer = store.serializerFor('foo');
 
     assert.ok(serializer);
   });
