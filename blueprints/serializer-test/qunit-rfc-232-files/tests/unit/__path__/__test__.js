@@ -8,7 +8,7 @@ module('<%= friendlyTestDescription %>', function(hooks) {
   // Replace this with your real tests.
   test('it exists', function(assert) {
     let store = this.owner.lookup('service:store');
-    let serializer = store.serializerFor('serializer:<%= dasherizedModuleName %>');
+    let serializer = store.serializerFor('<%= dasherizedModuleName %>');
 
     assert.ok(serializer);
   });
