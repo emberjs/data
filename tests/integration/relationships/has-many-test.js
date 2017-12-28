@@ -481,8 +481,8 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
     promise1,
     promise2
   ]).then(() => {
-    assert.equal(promise1.promise, promise2.promise, "Same promise is returned both times");
-  });
+    assert.equal(promise1.get('promise'), promise2.get('promise'), "Same promise is returned both times");
+  })
 });
 
 test("A hasMany backed by a link remains a promise after a record has been added to it", function(assert) {
