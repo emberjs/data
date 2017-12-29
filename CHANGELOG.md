@@ -2,7 +2,7 @@
 
 ### Master
 
-### Release 2.18.0-beta.1 (November 19, 2017)
+### Release 2.18.0 (December 28, 2017)
 - [#5225](https://github.com/emberjs/data/pull/5225) Remove blueprints for Mocha < 0.12. (#5225)
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
 - [#5223](https://github.com/emberjs/data/pull/5223) [BUGFIX release] Cleanup test only dependencies.
