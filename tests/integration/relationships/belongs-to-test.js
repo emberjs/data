@@ -542,12 +542,27 @@ test("relationshipsByName does not cache a factory", function(assert) {
         "model factory based on relationship type matches the model based on store.modelFor");
 });
 
+function getDescriptor(object, key) {
+  var meta = Ember.meta(object);
+  var mixins = (meta && meta._mixins) || {};
+  for (let klass of Object.values(mixins)) {
+    if (!klass.properties) {
+      continue;
+    }
+    let descriptor = klass.properties[key];
+    if (descriptor) {
+      return descriptor;
+    }
+  }
+  return object[key];
+}
+
 test("relationshipsByName is cached in production", function(assert) {
   let model = store.modelFor('user');
   let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  let relationshipsByName = model.relationshipsByName;
+  let relationshipsByName = getDescriptor(model, 'relationshipsByName');
   let oldCacheable = relationshipsByName._cacheable;
   relationshipsByName._cacheable = true;
   Ember.testing = false;
@@ -565,7 +580,7 @@ test("relatedTypes is cached in production", function(assert) {
   let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  let relatedTypes = model.relatedTypes;
+  let relatedTypes = getDescriptor(model, 'relatedTypes');
   let oldCacheable = relatedTypes._cacheable;
   relatedTypes._cacheable = true;
   Ember.testing = false;
@@ -583,7 +598,7 @@ test("relationships is cached in production", function(assert) {
   let oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  let relationships = model.relationships;
+  let relationships = getDescriptor(model, 'relationships');
   let oldCacheable = relationships._cacheable;
   relationships._cacheable = true;
   Ember.testing = false;
