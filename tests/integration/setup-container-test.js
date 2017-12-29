@@ -51,3 +51,17 @@ test("If a store is instantiated, it should be made available to each controller
   let fooController = container.lookup('controller:foo');
   assert.ok(fooController.get('store') instanceof Store, "the store was injected");
 });
+
+test("serializers are not returned as singletons - each lookup should return a different instance", function(assert) {
+  let serializer1, serializer2;
+  serializer1 = container.lookup('serializer:-rest');
+  serializer2 = container.lookup('serializer:-rest');
+  assert.notEqual(serializer1, serializer2);
+});
+
+test("adapters are not returned as singletons - each lookup should return a different instance", function(assert) {
+  let adapter1, adapter2;
+  adapter1 = container.lookup('adapter:-rest');
+  adapter2 = container.lookup('adapter:-rest');
+  assert.notEqual(adapter1, adapter2);
+});
