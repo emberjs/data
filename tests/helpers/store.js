@@ -46,6 +46,8 @@ export default function setupStore(options) {
     adapter: adapter
   }));
 
+  registry.optionsForType('serializer', { singleton: false });
+  registry.optionsForType('adapter', { singleton: false });
   registry.register('adapter:-default', DS.Adapter);
 
   registry.register('serializer:-default', DS.JSONAPISerializer);
@@ -62,7 +64,19 @@ export default function setupStore(options) {
   env.restSerializer.store = env.store;
   env.serializer = env.store.serializerFor('-default');
   env.serializer.store = env.store;
-  env.adapter = env.store.get('defaultAdapter');
+  Object.defineProperty(env, 'adapter', {
+    get() {
+      if (!this._adapter) {
+        this._adapter = this.store.adapterFor('application');
+      }
+      return this._adapter;
+    },
+    set(adapter) {
+      this._adapter = adapter;
+    },
+    enumerable: true,
+    configurable: true
+  });
 
   return env;
 }

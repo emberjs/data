@@ -2655,31 +2655,37 @@ Store = Service.extend({
 
     adapter = owner.lookup(`adapter:${normalizedModelName}`);
     if (adapter !== undefined) {
+      set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
       return adapter;
     }
 
     // no adapter found for the specific model, fallback and check for application adapter
-    adapter = owner.lookup('adapter:application');
+    adapter = _adapterCache.application || owner.lookup('adapter:application');
     if (adapter !== undefined) {
+      set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
+      _adapterCache.application = adapter;
       return adapter;
     }
 
     // no model specific adapter or application adapter, check for an `adapter`
     // property defined on the store
     let adapterName = this.get('adapter');
-    adapter = owner.lookup(`adapter:${adapterName}`);
+    adapter = _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`);
     if (adapter !== undefined) {
+      set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
+      _adapterCache[adapterName] = adapter;
       return adapter;
     }
 
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
-    adapter = owner.lookup('adapter:-json-api');
+    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    set(adapter, 'store', this);
     _adapterCache[normalizedModelName] = adapter;
-
+    _adapterCache['-json-api'] = adapter;
     return adapter;
   },
 
@@ -2722,14 +2728,17 @@ Store = Service.extend({
 
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
     if (serializer !== undefined) {
+      set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
       return serializer;
     }
 
     // no serializer found for the specific model, fallback and check for application serializer
-    serializer = owner.lookup('serializer:application');
+    serializer = _serializerCache.application || owner.lookup('serializer:application');
     if (serializer !== undefined) {
+      set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
+      _serializerCache.application = serializer;
       return serializer;
     }
 
@@ -2737,16 +2746,20 @@ Store = Service.extend({
     // property defined on the adapter
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
-    serializer = owner.lookup(`serializer:${serializerName}`);
+    serializer = _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`);
     if (serializer !== undefined) {
+      set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
+      _serializerCache[serializerName] = serializer;
       return serializer;
     }
 
     // final fallback, no model specific serializer, no application serializer, no
     // `serializer` property on store: use json-api serializer
-    serializer = owner.lookup('serializer:-default');
+    serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+    set(serializer, 'store', this);
     _serializerCache[normalizedModelName] = serializer;
+    _serializerCache['-default'] = serializer;
 
     return serializer;
   },

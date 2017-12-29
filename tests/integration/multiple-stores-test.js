@@ -145,9 +145,9 @@ test("each store should have a unique instance of the serializers", function(ass
   let serializer_a = env.store_a.serializerFor('home-planet');
   let serializer_b = env.store_b.serializerFor('home-planet');
 
-  assert.equal(get(serializer_a, 'store'), env.store_a);
-  assert.equal(get(serializer_b, 'store'), env.store_b);
-  assert.notEqual(serializer_a, serializer_b);
+  assert.equal(get(serializer_a, 'store'), env.store_a, 'serializer_a\'s store prop should be sotre_a');
+  assert.equal(get(serializer_b, 'store'), env.store_b, 'serializer_b\'s store prop should be sotre_b');
+  assert.notEqual(serializer_a, serializer_b, 'serialier_a and serialier_b should be unique instances');
 });
 
 
