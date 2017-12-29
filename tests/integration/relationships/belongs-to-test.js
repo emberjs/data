@@ -545,7 +545,8 @@ test("relationshipsByName does not cache a factory", function(assert) {
 function getDescriptor(object, key) {
   var meta = Ember.meta(object);
   var mixins = (meta && meta._mixins) || {};
-  for (let klass of Object.values(mixins)) {
+  for (let key in mixins) {
+    let klass = mixins[key]
     if (!klass.properties) {
       continue;
     }
@@ -554,6 +555,8 @@ function getDescriptor(object, key) {
       return descriptor;
     }
   }
+  // Fallback to grabbing the descriptor off of the object for old
+  // versions of Ember
   return object[key];
 }
 
