@@ -46,6 +46,8 @@ export default function setupStore(options) {
     adapter: adapter
   }));
 
+  registry.optionsForType('serializer', { singleton: false });
+  registry.optionsForType('adapter', { singleton: false });
   registry.register('adapter:-default', DS.Adapter);
 
   registry.register('serializer:-default', DS.JSONAPISerializer);
