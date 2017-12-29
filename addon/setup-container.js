@@ -31,6 +31,9 @@ function has(applicationOrRegistry, fullName) {
  @param {Ember.Registry} registry
  */
 function initializeStore(registry) {
+  let registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
+  registerOptionsForType.call(registry, 'serializer', { singleton: false });
+  registerOptionsForType.call(registry, 'adapter', { singleton: false });
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
   registry.register('adapter:-rest', RESTAdapter);
@@ -66,8 +69,6 @@ function initializeStoreInjections(registry) {
   // registry.injection for Ember < 2.1.0
   // application.inject for Ember 2.1.0+
   let inject = registry.inject || registry.injection;
-  inject.call(registry, 'adapter', 'store', 'service:store');
-  inject.call(registry, 'serializer', 'store', 'service:store');
   inject.call(registry, 'controller', 'store', 'service:store');
   inject.call(registry, 'route', 'store', 'service:store');
   inject.call(registry, 'data-adapter', 'store', 'service:store');
