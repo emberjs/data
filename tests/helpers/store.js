@@ -64,6 +64,9 @@ export default function setupStore(options) {
   env.restSerializer.store = env.store;
   env.serializer = env.store.serializerFor('-default');
   env.serializer.store = env.store;
+  // lazily create the adapter method because some tets depend on
+  // modifiying the adapter in the container after setupStore is
+  // called
   Object.defineProperty(env, 'adapter', {
     get() {
       if (!this._adapter) {
