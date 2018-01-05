@@ -555,7 +555,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (this._canSerialize(key)) {
       let belongsTo = snapshot.belongsTo(key);
-      if (belongsTo !== undefined) {
+      if (belongsTo !== undefined && !belongsTo.record.get("isNew")) {
 
         json.relationships = json.relationships || {};
 
