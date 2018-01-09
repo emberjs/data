@@ -765,3 +765,58 @@ test('after unloading a record, the record can be saved again immediately', func
     store.createRecord('person').save();
   });
 });
+
+test("peekAll with unloadAll multiple times maintains consistent record counts", function(assert) {
+  let person;
+
+  run(() => {
+    person = env.store.createRecord('person');
+  });
+
+  function loadCar() {
+    run(() => {
+      env.store.push({
+        data: {
+          type: 'car',
+          id: '1'
+        }
+      });
+    });
+
+    run(() => {
+      env.store.peekAll('car').forEach(car => car.set('person', person));
+    });
+  }
+
+  loadCar();
+  assert.equal(env.store.peekAll('car').get('length'), 1, '1st load - peekAll returns 1 car');
+  assert.equal(env.store._internalModelsFor('car').length, 1, '1st load - 1 internal model for car');
+  assert.equal(person.get('cars.length'), 1, '1st load - person has 1 car');
+
+  run(() => {
+    env.store.unloadAll('car');
+  });
+
+  assert.equal(env.store.peekAll('car').get('length'), 0, 'first unload - peekAll returns 0 cars');
+  assert.equal(env.store._internalModelsFor('car').length, 0, 'first unload - 0 internal models for car');
+  assert.equal(person.get('cars.length'), 0, 'first unload - person has 0 cars');
+
+  loadCar();
+  assert.equal(env.store.peekAll('car').get('length'), 1, '2nd load - peekAll returns 1 car');
+
+  // This will fail (gets 0, expects 1):
+  assert.equal(env.store._internalModelsFor('car').length, 1, '2nd load - 1 internal model for car');
+
+  // This will fail (gets 0, expects 1):
+  assert.equal(person.get('cars.length'), 1, '2nd load - person has 1 car');
+
+  run(() => {
+    env.store.unloadAll('car');
+  });
+
+  // This will fail (gets 1, expects 0):
+  assert.equal(env.store.peekAll('car').get('length'), 0, '2nd unload - peekAll returns 0 cars');
+
+  assert.equal(env.store._internalModelsFor('car').length, 0, '2nd unload - 0 internal models for car');
+  assert.equal(person.get('cars.length'), 0, '2nd unload - person has 0 cars');
+});
