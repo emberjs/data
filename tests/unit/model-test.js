@@ -1,3 +1,4 @@
+import { assign, merge } from '@ember/polyfills';
 import { guidFor } from '@ember/object/internals';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { set, get, observer, computed } from '@ember/object';
@@ -10,6 +11,8 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { isEnabled } from 'ember-data/-private';
 import { getOwner } from 'ember-data/-private';
+
+const emberAssign = assign || merge;
 
 let Person, store, env;
 
@@ -1507,5 +1510,203 @@ test('accessing the model id without the get function should work when id is wat
     store.updateId(person._internalModel, { id: 'john' });
 
     assert.equal(person.id, 'john', 'new id should be correctly set.');
+  });
+});
+
+test('Model classes can provide their own key change semantics', function(assert) {
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    extra: DS.attr(),
+
+    _changedKeys(data, attributes, inFlightAttributes, updates) {
+      return Object.keys(updates).map(key => {
+        if (key === 'extra') {
+          // users may want to have a way of asserting that POJO attributes have
+          // not changed
+          return this.get('extra').id !== updates.extra.id && 'extra';
+        } else {
+          return this.get(key) !== updates[key] && key;
+        }
+      }).filter(Boolean);
+    }
+  });
+
+  let { store, adapter } = setupStore({
+    person: Person
+  });
+
+  adapter.updateRecord = function(store, type, snapshot) {
+    return Ember.RSVP.Promise.resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: snapshot.attr('name'),
+          extra: emberAssign({}, snapshot.attr('extra'))
+        }
+      }
+    })
+  };
+
+  let changes = [];
+
+  function addToChanges(model, property) {
+    changes.push(property);
+  }
+
+  return run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Edward Gibbon',
+          extra: {
+            id: 1,
+            prop: 'value'
+          }
+        }
+      }
+    });
+
+    let person = store.peekRecord('person', 1);
+
+    person.addObserver('name', addToChanges);
+    person.addObserver('extra', addToChanges);
+
+    assert.deepEqual(changes, [], 'no changes yet');
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Mr. Edward Gibbon',
+          extra: {
+            id: 1,
+            prop: 'next value same id'
+          }
+        }
+      }
+    });
+
+    assert.deepEqual(changes, ['name'], 'both props change but custom _changedKeys ignores one');
+    changes.splice(0, changes.length);
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Mr. Edward Gibbon',
+          extra: {
+            id: 2,
+            prop: 'next value same id'
+          }
+        }
+      }
+    });
+
+    assert.deepEqual(changes, ['extra'], 'custom _changedKeys acknowledges property change');
+    changes.splice(0, changes.length);
+
+    return person.save().then(() => {
+      assert.deepEqual(changes, [], 'custom _changedKeys ignores POJOs that are the same');
+    });
+  });
+});
+
+test('Model classes can provide their own attribute assignment semantics', function(assert) {
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    birthYear: DS.attr(),
+
+    _changedKeys(data, attributes, inFlightAttributes, updates) {
+      let keys = Object.keys(updates);
+      let changed = [];
+      // report all missing keys as changed
+      this.eachAttribute((key, meta) => {
+        if (keys.indexOf(key) === -1) {
+          changed.push(key);
+        }
+      });
+
+      // also all new keys
+      keys.forEach(key => {
+        if (!(key in this._internalModel._data)) {
+          changed.push(key);
+        }
+      });
+      return changed;
+    },
+
+    _assignAttributes(attributes, updates) {
+      // remove missing attributes, instsead of treating them as unchanged
+      return updates;
+    }
+  });
+
+  let { store, adapter } = setupStore({
+    person: Person
+  });
+
+  adapter.updateRecord = function(store, type, snapshot) {
+    return Ember.RSVP.Promise.resolve({
+      data: {
+        id: 1,
+        type: 'person',
+        attributes: {
+          name: snapshot.attr('name')
+        }
+      }
+    })
+  };
+
+  return run(() => {
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Edward Gibbon',
+          birthYear: 1737
+        }
+      }
+    });
+
+    assert.equal(person.get('name'), 'Edward Gibbon', 'get name');
+    assert.equal(person.get('birthYear'), 1737, 'get birthYear');
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Edward Gibbon'
+        }
+      }
+    });
+
+    assert.equal(person.get('name'), 'Edward Gibbon', 'get name');
+    assert.equal(person.get('birthYear'), undefined, 'get birthYear (removed)');
+
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Edward Gibbon',
+          birthYear: 1737
+        }
+      }
+    });
+
+    assert.equal(person.get('name'), 'Edward Gibbon', 'get name');
+    assert.equal(person.get('birthYear'), 1737, 'get birthYear');
+
+    return person.save().then(() => {
+      assert.equal(person.get('name'), 'Edward Gibbon', 'get name');
+      assert.equal(person.get('birthYear'), undefined, 'get birthYear (removed adapter response)');
+    });
   });
 });

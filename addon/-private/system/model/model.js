@@ -1,3 +1,4 @@
+import { assign, merge } from '@ember/polyfills';
 import ComputedProperty from '@ember/object/computed';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
@@ -20,6 +21,9 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
+import changedKeys from '../../utils/changed-keys'
+
+const emberAssign = assign || merge;
 
 /**
   @module ember-data
@@ -1120,6 +1124,14 @@ const Model = EmberObject.extend(Evented, {
 
   eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
+  },
+
+  _assignAttributes(attributes, updates) {
+    return emberAssign(attributes, updates);
+  },
+
+  _changedKeys(data, attributes, inFlightAttributes, updates) {
+    return changedKeys(data, attributes, inFlightAttributes, updates);
   }
 });
 
