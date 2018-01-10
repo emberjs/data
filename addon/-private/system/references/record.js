@@ -86,7 +86,7 @@ RecordReference.prototype.remoteType = function() {
    ```
 
   @method push
-  @param {Promise|Object}
+  @param objectOrPromise {Promise|Object}
   @return Promise<record> a promise for the value (record or relationship)
 */
 RecordReference.prototype.push = function(objectOrPromise) {
