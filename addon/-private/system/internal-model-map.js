@@ -20,9 +20,9 @@ export default class InternalModelMap {
   }
 
   /**
-   *
-   * @param id
-   * @returns {InternalModel}
+   * @method get
+   * @param id {String}
+   * @return {InternalModel}
    */
   get(id) {
     return this._idToModel[id];
@@ -71,6 +71,8 @@ export default class InternalModelMap {
 
   /**
    An array of all models of this modelName
+   @property models
+   @type Array
    */
   get models() {
     return this._models;
@@ -78,6 +80,8 @@ export default class InternalModelMap {
 
   /**
    * meta information about internalModels
+   * @property metadata
+   * @type Object
    */
   get metadata() {
     return this._metadata || (this._metadata = Object.create(null));
@@ -86,6 +90,7 @@ export default class InternalModelMap {
   /**
    deprecated (and unsupported) way of accessing modelClass
 
+   @property type
    @deprecated
    */
   get type() {

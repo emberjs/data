@@ -423,7 +423,7 @@ export default class InternalModel {
     });
   }
 
-  /**
+  /*
     Computes the set of internal models reachable from `this` across exactly one
     relationship.
 
@@ -439,7 +439,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Computes the set of internal models reachable from this internal model.
 
     Reachability is determined over the relationship graph (ie a graph where
@@ -472,7 +472,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Unload the record for this internal model. This will cause the record to be
     destroyed and freed up for garbage collection. It will also do a check
     for cleaning up internal models.
