@@ -27,8 +27,6 @@ export { getOwner, modelHasAttributeOrRelationshipNamedType } from './utils';
 export { default as coerceId } from './system/coerce-id';
 export { default as parseResponseHeaders } from './utils/parse-response-headers';
 
-// should be private ?
-export { default as global } from './global';
 export { default as isEnabled } from './features';
 // `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 export { default as RootState } from './system/model/states';
