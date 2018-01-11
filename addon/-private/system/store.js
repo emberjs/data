@@ -457,9 +457,7 @@ Store = Service.extend({
     assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeof id !== 'object');
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return this.findRecord(normalizedModelName, id);
+    return this.findRecord(modelName, id);
   },
 
   /**
