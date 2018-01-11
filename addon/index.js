@@ -1,6 +1,5 @@
 import EmberError from '@ember/error';
 import Ember from "ember";
-import { deprecate } from '@ember/debug';
 
 /**
   Ember Data
@@ -22,7 +21,6 @@ import {
   BuildURLMixin,
   belongsTo,
   hasMany,
-  global,
   Errors,
   RootState,
   Model,
@@ -143,20 +141,6 @@ Object.defineProperty(DS, 'normalizeModelName', {
   writable: false,
   configurable: false,
   value: normalizeModelName
-});
-
-Object.defineProperty(global, 'DS', {
-  configurable: true,
-  get() {
-    deprecate(
-      'Using the global version of DS is deprecated. Please either import ' +
-        'the specific modules needed or `import DS from \'ember-data\';`.',
-      false,
-      { id: 'ember-data.global-ds', until: '3.0.0' }
-    );
-
-    return DS;
-  }
 });
 
 export default DS;
