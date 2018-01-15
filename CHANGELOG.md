@@ -376,7 +376,7 @@
 - [#4734](https://github.com/emberjs/data/pull/4734) [DOC] fix a couple of typos in model class docs
 - [#4739](https://github.com/emberjs/data/pull/4739) Removed id in urlForFindAll signature
 
-### Release 2.11.0 (January 9, 2016)
+### Release 2.11.0 (January 9, 2017)
 - [#4518](https://github.com/emberjs/data/pull/4518) Update the relationship docs to remove some references to a globals s…
 - [#4581](https://github.com/emberjs/data/pull/4581) [DOC] Update descriptions of findRecord() and findAll()
 - [#4438](https://github.com/emberjs/data/pull/4438) add `relationship` property to findHasMany RESTAdapter docs
