@@ -95,6 +95,7 @@
     "ember-publisher": "0.0.7",
     "ember-resolver": "^4.1.0",
     "ember-source": "~2.11.0",
+    "ember-source-channel-url": "^1.0.1",
     "ember-watson": "^0.7.0",
     "express": "^4.14.0",
     "faker": "^3.1.0",
