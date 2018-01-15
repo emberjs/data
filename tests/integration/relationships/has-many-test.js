@@ -2340,13 +2340,13 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
     page2 = env.store.peekRecord('page', 2);
     chapter = env.store.peekRecord('chapter', 1);
 
-    chapter.get('pages').addEnumerableObserver(this, {
-      willChange(pages, removing, addCount) {
+    chapter.get('pages').addArrayObserver(this, {
+      willChange(pages, index, removeCount, addCount) {
         if (observe) {
-          assert.equal(removing[0], page2, 'page2 is passed to willChange');
+          assert.equal(pages.objectAt(index), page2, 'page2 is passed to willChange');
         }
       },
-      didChange(pages, removeCount, adding) {
+      didChange(pages, index, removeCount, addCount) {
         if (observe) {
           assert.equal(removeCount, 1, 'removeCount is correct');
         }
@@ -2399,15 +2399,15 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
     page2 = env.store.peekRecord('page', 2);
     chapter = env.store.peekRecord('chapter', 1);
 
-    chapter.get('pages').addEnumerableObserver(this, {
-      willChange(pages, removing, addCount) {
+    chapter.get('pages').addArrayObserver(this, {
+      willChange(pages, index, removeCount, addCount) {
         if (observe) {
           assert.equal(addCount, 1, 'addCount is correct');
         }
       },
-      didChange(pages, removeCount, adding) {
+      didChange(pages, index, removeCount, addCount) {
         if (observe) {
-          assert.equal(adding[0], page2, 'page2 is passed to didChange');
+          assert.equal(pages.objectAt(index), page2, 'page2 is passed to didChange');
         }
       }
     });
