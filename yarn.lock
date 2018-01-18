@@ -3690,9 +3690,9 @@ hawk@1.1.1:
     hoek "0.9.x"
     sntp "0.2.x"
 
-heimdall-query@^0.0.8:
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/heimdall-query/-/heimdall-query-0.0.8.tgz#74f01be023690be7d09f92aef747b642fd8bde8e"
+heimdall-query@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmjs.org/heimdall-query/-/heimdall-query-0.1.0.tgz#4b1bb8de46dc292f2f10620bee4f81b2f5443937"
   dependencies:
     chalk "^1.1.1"
     chrome-debugging-client "^0.2.4"
