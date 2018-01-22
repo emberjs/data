@@ -35,6 +35,10 @@ function isProductionEnv() {
   return isProd && !isTest;
 }
 
+function isInstrumentedBuild() {
+  return INSTRUMENT_HEIMDALL;
+}
+
 module.exports = {
   name: 'ember-data',
 
@@ -137,7 +141,7 @@ module.exports = {
     let withoutPrivate = new Funnel(treeWithVersion, {
       exclude: [
         '-private',
-        isProductionEnv() ? '-debug' : false
+        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false
       ].filter(Boolean),
 
       destDir: 'ember-data'
