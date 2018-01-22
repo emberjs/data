@@ -233,11 +233,14 @@ const Promise = EmberPromise;
 
   ```app/adapters/application.js
   import DS from 'ember-data';
+  import { computed } from '@ember/object';
 
   export default DS.RESTAdapter.extend({
-    headers: {
-      'API_KEY': 'secret key',
-      'ANOTHER_HEADER': 'Some header value'
+    headers: computed(function() {
+      return {
+        'API_KEY': 'secret key',
+        'ANOTHER_HEADER': 'Some header value'
+      };
     }
   });
   ```
@@ -441,12 +444,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     ```app/adapters/application.js
     import DS from 'ember-data';
+    import { computed } from '@ember/object';
 
     export default DS.RESTAdapter.extend({
-      headers: {
-        'API_KEY': 'secret key',
-        'ANOTHER_HEADER': 'Some header value'
-      }
+      headers: computed(function() {
+        return {
+          'API_KEY': 'secret key',
+          'ANOTHER_HEADER': 'Some header value'
+        };
+      })
     });
     ```
 
