@@ -2,7 +2,6 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {
@@ -540,78 +539,6 @@ test("relationshipsByName does not cache a factory", function(assert) {
 
   assert.equal(messageModelFromRelationType, messageModelFromStore,
         "model factory based on relationship type matches the model based on store.modelFor");
-});
-
-function getDescriptor(object, key) {
-  var meta = Ember.meta(object);
-  var mixins = (meta && meta._mixins) || {};
-  for (let key in mixins) {
-    let klass = mixins[key]
-    if (!klass.properties) {
-      continue;
-    }
-    let descriptor = klass.properties[key];
-    if (descriptor) {
-      return descriptor;
-    }
-  }
-  // Fallback to grabbing the descriptor off of the object for old
-  // versions of Ember
-  return object[key];
-}
-
-test("relationshipsByName is cached in production", function(assert) {
-  let model = store.modelFor('user');
-  let oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
-  //did not get dynamically changed when accessed
-  let relationshipsByName = getDescriptor(model, 'relationshipsByName');
-  let oldCacheable = relationshipsByName._cacheable;
-  relationshipsByName._cacheable = true;
-  Ember.testing = false;
-  try {
-    assert.equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
-    assert.equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
-  } finally {
-    Ember.testing = oldTesting;
-    relationshipsByName._cacheable = oldCacheable;
-  }
-});
-
-test("relatedTypes is cached in production", function(assert) {
-  let model = store.modelFor('user');
-  let oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
-  //did not get dynamically changed when accessed
-  let relatedTypes = getDescriptor(model, 'relatedTypes');
-  let oldCacheable = relatedTypes._cacheable;
-  relatedTypes._cacheable = true;
-  Ember.testing = false;
-  try {
-    assert.equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
-    assert.equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
-  } finally {
-    Ember.testing = oldTesting;
-    relatedTypes._cacheable = oldCacheable;
-  }
-});
-
-test("relationships is cached in production", function(assert) {
-  let model = store.modelFor('user');
-  let oldTesting = Ember.testing;
-  //We set the cacheable to true because that is the default state for any CP and then assert that it
-  //did not get dynamically changed when accessed
-  let relationships = getDescriptor(model, 'relationships');
-  let oldCacheable = relationships._cacheable;
-  relationships._cacheable = true;
-  Ember.testing = false;
-  try {
-    assert.equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
-    assert.equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
-  } finally {
-    Ember.testing = oldTesting;
-    relationships._cacheable = oldCacheable;
-  }
 });
 
 test("relationship changes shouldn’t cause async fetches", function(assert) {
