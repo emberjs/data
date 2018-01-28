@@ -10,11 +10,11 @@
   "scripts": {
     "build": "ember build",
     "start": "ember server",
-    "test": "ember try:testall",
-    "test-appveyor": "ember test",
+    "test": "ember test",
+    "test:all": "ember try:each",
+    "test:production": "ember test --environment=production",
     "node-tests": "node node-tests/nodetest-runner.js",
     "test:optional-features": "ember test --environment=test-optional-features",
-    "test:production": "ember test --environment=production",
     "production": "ember build --environment=production"
   },
   "author": "",
