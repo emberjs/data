@@ -4,18 +4,9 @@ sudo: false
 dist: trusty
 node_js:
   - "4"
-  - "6"
 
 addons:
   chrome: stable
-
-# hack to get after_success skipped in node 4
-matrix:
-  exclude:
-    - node_js: "4"
-  include:
-    - node_js: "4"
-      after_success: skip
 
 cache:
   yarn: true
