@@ -5,10 +5,21 @@ module.exports = {
   "disable_watching": true,
   "reporter": "dot",
   "launch_in_ci": [
-    "PhantomJS"
+    "Chrome"
   ],
   "launch_in_dev": [
-    "PhantomJS",
     "Chrome"
-  ]
+  ],
+  browser_args: {
+    Chrome: {
+      mode: 'ci',
+      args: [
+        '--disable-gpu',
+        '--headless',
+        '--remote-debugging-port=0',
+        '--window-size=1440,900',
+        '--no-sandbox'
+      ]
+    }
+  }
 };
