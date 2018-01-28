@@ -22,7 +22,7 @@ test_script:
   - cmd: yarn test
   - cmd: yarn test:optional-features
   - cmd: yarn test:production
-  - cmd: yarn node-tests
+  - cmd: yarn test:node
 
 # Don't actually build.
 build: off
