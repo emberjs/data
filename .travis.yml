@@ -27,14 +27,15 @@ jobs:
       script:
         - ./bin/lint-features
         - yarn test
-    - env: NAME=floating dependencies # used only to make Travis UI show description
-      install: yarn install --no-lockfile --non-interactive
-      script: yarn test
 
     - stage: additional tests
       env: NAME=optional-features     # used only to make Travis UI show description
       install: yarn install
       script: yarn test:optional-features
+
+    - env: NAME=floating dependencies # used only to make Travis UI show description
+      install: yarn install --no-lockfile --non-interactive
+      script: yarn test
 
     - env: NAME=production            # used only to make Travis UI show description
       install: yarn install
