@@ -186,7 +186,7 @@ export default ArrayProxy.extend(Evented, {
   */
   unknownProperty(attribute) {
     let errors = this.errorsFor(attribute);
-    if (isEmpty(errors)) { return null; }
+    if (isEmpty(errors)) { return undefined; }
     return errors;
   },
 
