@@ -9,13 +9,13 @@
   },
   "scripts": {
     "build": "ember build",
+    "build:production": "ember build --environment=production",
     "start": "ember server",
     "test": "ember test",
     "test:all": "ember try:each",
+    "test:node": "node node-tests/nodetest-runner.js",
     "test:production": "ember test --environment=production",
-    "node-tests": "node node-tests/nodetest-runner.js",
-    "test:optional-features": "ember test --environment=test-optional-features",
-    "production": "ember build --environment=production"
+    "test:optional-features": "ember test --environment=test-optional-features"
   },
   "author": "",
   "license": "MIT",

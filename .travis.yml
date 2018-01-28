@@ -11,24 +11,66 @@ addons:
 cache:
   yarn: true
 
+stages:
+  - test
+  - additional tests
+  - older version tests
+  - deploy
+
+jobs:
+  fail_fast: true
+
+  include:
+    # runs tests with current locked deps and linting
+    - stage: test
+      env: NAME=test                  # used only to make Travis UI show description
+      script:
+        - ./bin/lint-features
+        - yarn test
+    - env: NAME=floating dependencies # used only to make Travis UI show description
+      install: yarn install --no-lockfile --non-interactive
+      script: yarn test
+
+    - stage: additional tests
+      env: NAME=optional-features     # used only to make Travis UI show description
+      install: yarn install
+      script: yarn test:optional-features
+
+    - env: NAME=production            # used only to make Travis UI show description
+      install: yarn install
+      script: yarn test:production
+
+    - env: NAME=node-tests            # used only to make Travis UI show description
+      install: yarn install
+      script: yarn test:node
+
+    # runs tests against each supported Ember version
+    - stage: older version tests
+      env: EMBER_TRY_SCENARIO=ember-lts-2.12
+    - env: EMBER_TRY_SCENARIO=ember-lts-2.16
+    - env: EMBER_TRY_SCENARIO=ember-release
+    - env: EMBER_TRY_SCENARIO=ember-beta
+    - env: EMBER_TRY_SCENARIO=ember-canary
+
+    - stage: deploy
+      if: branch IN (master, beta, release) OR tag IS present
+      env: NAME=publish                # used only to make Travis UI show description
+      install: yarn install
+      script:
+        - yarn build:production
+        - "./bin/publish-builds"
+
+
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
-  - yarn global add phantomjs-prebuilt
-  - phantomjs --version
 
 install:
-  - yarn install --no-lockfile --no-interactive
+  - yarn install
 
 script:
-  - ./bin/lint-features
-  - yarn run test
-  - yarn run test:optional-features
-  - yarn run test:production
-  - yarn run node-tests
-after_success:
-  - yarn run production
-  - "./bin/publish-builds"
+  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
+
 env:
   global:
   - BROCCOLI_ENV="production"
