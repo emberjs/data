@@ -1,4 +1,4 @@
-import { isEmpty, isPresent } from '@ember/utils';
+import { isPresent } from '@ember/utils';
 import { addObserver } from '@ember/object/observers';
 import { Promise as EmberPromise, reject } from 'rsvp';
 import { run, later } from '@ember/runloop';
@@ -402,7 +402,7 @@ test("invalid record's attributes can be rollbacked", function(assert) {
 
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(dog.get('name'), 'Pluto');
-      assert.ok(isEmpty(dog.get('errors.name')));
+      assert.notOk(dog.get('errors.name'));
       assert.ok(dog.get('isValid'));
     });
   });
@@ -477,7 +477,7 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
       assert.equal(dog.get('name'), 'Pluto');
       assert.equal(dog.get('breed'), 'Disney');
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-      assert.ok(isEmpty(dog.get('errors.name')));
+      assert.notOk(dog.get('errors.name'));
       assert.ok(dog.get('isValid'));
     });
   });
