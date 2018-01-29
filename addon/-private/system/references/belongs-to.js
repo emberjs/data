@@ -313,9 +313,9 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  // TODO Igor cleanup
+  let store = this.parentInternalModel.store;
   let inverseModelData = this.belongsToRelationship.inverseModelData;
-  let inverseInternalModel = inverseModelData && inverseModelData.internalModel;
+  let inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
 
   if (inverseInternalModel && inverseInternalModel.isLoaded()) {
     return inverseInternalModel.getRecord();

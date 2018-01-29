@@ -50,4 +50,19 @@ export default class ModelDataWrapper {
     return this.store.modelDataFor(modelName, id, clientId);
   }
 
+  isRecordInUse(modelName, id, clientId) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    if (!internalModel) {
+      return false
+    }
+    return internalModel.isRecordInUse();
+  }
+
+  disconnectRecord(modelName, id, clientId) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    if (internalModel) {
+      internalModel.destroy();
+    }
+  }
+
 }

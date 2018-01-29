@@ -1117,18 +1117,25 @@ Store = Service.extend({
     return this._internalModelForId(modelName, id).getRecord();
   },
 
-  _internalModelForId(modelName, id, clientId) {
-    heimdall.increment(_internalModelForId);
-    let internalModel;
 
+  // directly get an internal model from ID map if it is there, without doing any
+  // processing
+  _getInternalModelForId(modelName, id, clientId) {
+    let internalModel;
     if (clientId) {
       internalModel = this._newlyCreated[clientId];
     }
 
-    let trueId = coerceId(id);
     if (!internalModel) {
-      internalModel = this._internalModelsFor(modelName).get(trueId);
+      internalModel = this._internalModelsFor(modelName).get(id);
     }
+    return internalModel;
+  },
+
+  _internalModelForId(modelName, id, clientId) {
+    heimdall.increment(_internalModelForId);
+    let trueId = coerceId(id);
+    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
 
     if (internalModel) {
       if (internalModel.hasScheduledDestroy()) {
@@ -2648,7 +2655,7 @@ Store = Service.extend({
     return internalModel._modelData;
   },
 
-  _modelDataToInternalModel(modelData) {
+  _internalModelForModelData(modelData) {
     let resource = modelData.getResourceIdentifier();
     return this._internalModelForId(resource.type, resource.id, resource.clientId);
   },
@@ -2758,6 +2765,7 @@ Store = Service.extend({
     let id = internalModel.id;
 
     recordMap.remove(internalModel, id);
+    //TODO IGOR DAVID remove from client id map
   },
 
   // ......................

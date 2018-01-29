@@ -20,6 +20,7 @@ const HasManyReference = function(store, parentInternalModel, hasManyRelationshi
   this.hasManyRelationship = hasManyRelationship;
   this.type = hasManyRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
+  this.parentInternalModel = parentInternalModel;
 
   // TODO inverse
 };
@@ -307,8 +308,10 @@ HasManyReference.prototype._isLoaded = function() {
   let members = this.hasManyRelationship.members.toArray();
 
   //TODO Igor cleanup
-  return members.every(function(modelData) {
-    return modelData.internalModel.isLoaded() === true;
+  return members.every((modelData) => {
+    let store = this.parentInternalModel.store;
+    let internalModel = store._internalModelForModelData(modelData);
+    return internalModel.isLoaded() === true;
   });
 };
 

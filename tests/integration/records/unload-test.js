@@ -368,16 +368,16 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
 
   function countOrphanCalls(record) {
     let origCheck = record._internalModel._checkForOrphanedInternalModels;
-    let origCleanup = record._internalModel._cleanupOrphanedInternalModels;
+    let origCleanup = record._internalModel._modelData._cleanupOrphanedModelDatas;
 
     record._internalModel._checkForOrphanedInternalModels = function () {
       ++checkOrphanCalls;
       return origCheck.apply(record._internalModel, arguments);
     };
 
-    record._internalModel._cleanupOrphanedInternalModels = function () {
+    record._internalModel._modelData._cleanupOrphanedModelDatas = function () {
       ++cleanupOrphanCalls;
-      return origCleanup.apply(record._internalModel, arguments);
+      return origCleanup.apply(record._internalModel._modelData, arguments);
     };
   }
   countOrphanCalls(env.store.peekRecord('person', 1));

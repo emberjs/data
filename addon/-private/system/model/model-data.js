@@ -7,6 +7,7 @@ import { assert, warn, inspect } from '@ember/debug';
 import { copy } from '@ember/object/internals';
 
 const emberAssign = assign || merge;
+let nextBfsId = 1;
 export default class ModelData {
   constructor(modelName, id, clientId, storeWrapper, store, internalModel) {
     this.store = store;
@@ -16,6 +17,11 @@ export default class ModelData {
     this.clientId = clientId;
     this.id = id;
     this.storeWrapper = storeWrapper;
+    this.isDestroyed = false;
+    // Used during the mark phase of unloading to avoid checking the same internal
+    // model twice in the same scan
+    this._bfsId = 0;
+
   }
 
   // PUBLIC API
@@ -295,8 +301,89 @@ export default class ModelData {
   }
 
   unloadRecord() {
-
+    if (this.isDestroyed) {
+      return;
+    }
+    //add data cleanup here?
+    this._cleanupOrphanedModelDatas();
   }
+
+  _cleanupOrphanedModelDatas() {
+    let relatedModelDatas = this._allRelatedModelDatas();
+    if (areAllModelsUnloaded(relatedModelDatas)) {
+      for (let i=0; i<relatedModelDatas.length; ++i) {
+        let modelData = relatedModelDatas[i];
+        if (!modelData.isDestroyed) {
+          modelData.destroy();
+        }
+      }
+      this.destroy();
+    }
+  }
+
+  destroy() {
+    this._relationships.forEach((name, rel) => rel.destroy());
+    this.isDestroyed = true;
+    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+  }
+
+  isRecordInUse() {
+    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
+  }
+
+  /**
+    Computes the set of internal models reachable from `this` across exactly one
+    relationship.
+
+    @return {Array} An array containing the internal models that `this` belongs
+    to or has many.
+
+  */
+  _directlyRelatedModelDatas() {
+    let array = [];
+
+    this._relationships.forEach((name, rel) => {
+      let members = rel.members.list;
+      let canonicalMembers = rel.canonicalMembers.list;
+      array = array.concat(members, canonicalMembers);
+    });
+    return array;
+  }
+
+  /**
+    Computes the set of internal models reachable from this internal model.
+
+    Reachability is determined over the relationship graph (ie a graph where
+    nodes are internal models and edges are belongs to or has many
+    relationships).
+
+    @return {Array} An array including `this` and all internal models reachable
+    from `this`.
+  */
+  _allRelatedModelDatas() {
+    let array = [];
+    let queue = [];
+    let bfsId = nextBfsId++;
+    queue.push(this);
+    this._bfsId = bfsId;
+    while (queue.length > 0) {
+      let node = queue.shift();
+      array.push(node);
+      let related = node._directlyRelatedModelDatas();
+      for (let i=0; i<related.length; ++i) {
+        let modelData = related[i];
+        assert('Internal Error: seen a future bfs iteration', modelData._bfsId <= bfsId);
+        if (modelData._bfsId < bfsId) {
+          queue.push(modelData);
+          modelData._bfsId = bfsId;
+        }
+      }
+    }
+    return array;
+  }
+
+
+
   isAttrDirty(key) {
     if (this._attributes[key] === undefined) {
       return false;
@@ -566,4 +653,13 @@ function destroyRelationship(rel) {
   } else {
     rel.removeCompletelyFromInverse();
   }
+}
+
+function areAllModelsUnloaded(modelDatas) {
+  for (let i=0; i<modelDatas.length; ++i) {
+    if (modelDatas[i].isRecordInUse()) {
+      return false;
+    }
+  }
+  return true;
 }

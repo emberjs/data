@@ -213,7 +213,7 @@ export default class Snapshot {
     hasData = get(relationship, 'hasData');
     let inverseModelData = get(relationship, 'inverseModelData');
     let store = this._internalModel.store;
-    inverseInternalModel = inverseModelData && store._modelDataToInternalModel(inverseModelData);
+    inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
 
     if (hasData) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -291,7 +291,7 @@ export default class Snapshot {
       results = [];
       members.forEach((member) => {
         let store = this._internalModel.store;
-        let internalModel = store._modelDataToInternalModel(member);
+        let internalModel = store._internalModelForModelData(member);
         if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);

@@ -50,16 +50,6 @@ function extractPivotName(name) {
   );
 }
 
-function areAllModelsUnloaded(internalModels) {
-  for (let i=0; i<internalModels.length; ++i) {
-    let record = internalModels[i]._record;
-    if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
-      return false;
-    }
-  }
-  return true;
-}
-
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
@@ -85,7 +75,6 @@ const {
 );
 
 let InternalModelReferenceId = 1;
-let nextBfsId = 1;
 
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
@@ -138,10 +127,6 @@ export default class InternalModel {
     this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
-
-    // Used during the mark phase of unloading to avoid checking the same internal
-    // model twice in the same scan
-    this._bfsId = 0;
 
     this._manyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
@@ -196,6 +181,11 @@ export default class InternalModel {
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
       this.isEmpty();
+  }
+
+  isRecordInUse() {
+    let record = this._record;
+    return record && !(record.get('isDestroyed') || record.get('isDestroying'));
   }
 
   isEmpty() {
@@ -348,62 +338,6 @@ export default class InternalModel {
     });
   }
 
-  /**
-    Computes the set of internal models reachable from `this` across exactly one
-    relationship.
-
-    @return {Array} An array containing the internal models that `this` belongs
-    to or has many.
-
-    // IGOR AND DAVID REFACTOR
-  */
-  _directlyRelatedInternalModels() {
-    let array = [];
-
-    this._modelData._relationships.forEach((name, rel) => {
-      // TODO Igor deal with this
-      let members = rel.members.list;
-      let canonicalMembers = rel.canonicalMembers.list;
-      members = members.map((member) => member.internalModel ? member.internalModel : member);
-      canonicalMembers = canonicalMembers.map((member) => member.internalModel ? member.internalModel : member);
-      array = array.concat(members, canonicalMembers);
-    });
-    return array;
-  }
-
-
-  /**
-    Computes the set of internal models reachable from this internal model.
-
-    Reachability is determined over the relationship graph (ie a graph where
-    nodes are internal models and edges are belongs to or has many
-    relationships).
-
-    @return {Array} An array including `this` and all internal models reachable
-    from `this`.
-  */
-  _allRelatedInternalModels() {
-    let array = [];
-    let queue = [];
-    let bfsId = nextBfsId++;
-    queue.push(this);
-    this._bfsId = bfsId;
-    while (queue.length > 0) {
-      let node = queue.shift();
-      array.push(node);
-      let related = node._directlyRelatedInternalModels();
-      for (let i=0; i<related.length; ++i) {
-        let internalModel = related[i];
-        assert('Internal Error: seen a future bfs iteration', internalModel._bfsId <= bfsId);
-        if (internalModel._bfsId < bfsId) {
-          queue.push(internalModel);
-          internalModel._bfsId = bfsId;
-        }
-      }
-    }
-    return array;
-  }
-
 
   /**
     Unload the record for this internal model. This will cause the record to be
@@ -470,19 +404,7 @@ export default class InternalModel {
     this._scheduledDestroy = null;
     if (this.isDestroyed) { return; }
 
-    this._cleanupOrphanedInternalModels();
-  }
-
-  _cleanupOrphanedInternalModels() {
-    let relatedInternalModels = this._allRelatedInternalModels();
-    if (areAllModelsUnloaded(relatedInternalModels)) {
-      for (let i=0; i<relatedInternalModels.length; ++i) {
-        let internalModel = relatedInternalModels[i];
-        if (!internalModel.isDestroyed) {
-          internalModel.destroy();
-        }
-      }
-    }
+    this._modelData.unloadRecord();
   }
 
   eachRelationship(callback, binding) {
@@ -614,9 +536,6 @@ export default class InternalModel {
 
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
-
-    // IGOR AND DAVID REFACTOR
-    this._modelData._relationships.forEach((name, rel) => rel.destroy());
 
     this.store._removeFromIdMap(this);
     this._isDestroyed = true;
