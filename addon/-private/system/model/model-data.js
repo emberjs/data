@@ -523,9 +523,7 @@ export default class ModelData {
     });
   }
 
-
-  // TODO IGOR AND DAVID REFACTOR THIS
-  didCreateLocally(properties) {
+  clientDidCreate(properties) {
     this._isNew = true;
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     let relationships = this.storeWrapper.relationshipsDefinitionFor(this.modelName);

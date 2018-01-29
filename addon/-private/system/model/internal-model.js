@@ -699,19 +699,18 @@ export default class InternalModel {
   }
 
   didCreateRecord(properties) {
-    this._modelData.didCreateLocally(properties);
+    this._modelData.clientDidCreate(properties);
   }
 
   rollbackAttributes() {
     let dirtyKeys = this._modelData.rollbackAttributes();
     if (get(this, 'isError')) {
-      // TODO IGOR DAVID seems bad to have to go back, maybe move to internalModel?
       this.didCleanError();
     }
 
     this.send('rolledBack');
 
-    if (dirtyKeys && dirtyKeys.length > 0) {
+    if (this._record && dirtyKeys && dirtyKeys.length > 0) {
       this._record._notifyProperties(dirtyKeys);
     }
   }
