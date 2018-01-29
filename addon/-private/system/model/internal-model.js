@@ -551,7 +551,7 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    let changedKeys = this._modelData.setupData(data, this.hasRecord);
+    let changedKeys = this._modelData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
@@ -860,7 +860,7 @@ export default class InternalModel {
         jsonPayload.attributes[key] = preloadValue;
       }
     });
-    this._modelData.setupData(jsonPayload);
+    this._modelData.pushData(jsonPayload);
   }
 
   _preloadRelationship(key, preloadValue) {

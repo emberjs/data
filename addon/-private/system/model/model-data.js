@@ -21,7 +21,6 @@ export default class ModelData {
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;
-
   }
 
   // PUBLIC API
@@ -55,7 +54,7 @@ export default class ModelData {
     }
   }
 
-  setupData(data, calculateChange) {
+  pushData(data, calculateChange) {
     let changedKeys;
 
     if (calculateChange) {
