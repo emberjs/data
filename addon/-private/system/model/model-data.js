@@ -9,7 +9,7 @@ import { copy } from '@ember/object/internals';
 const emberAssign = assign || merge;
 let nextBfsId = 1;
 export default class ModelData {
-  constructor(modelName, id, clientId, storeWrapper, store, internalModel) {
+  constructor(modelName, id, clientId, storeWrapper, store) {
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
