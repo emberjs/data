@@ -9,13 +9,13 @@
   },
   "scripts": {
     "build": "ember build",
+    "build:production": "ember build --environment=production",
     "start": "ember server",
-    "test": "ember try:testall",
-    "test-appveyor": "ember test",
-    "node-tests": "node node-tests/nodetest-runner.js",
-    "test:optional-features": "ember test --environment=test-optional-features",
+    "test": "ember test",
+    "test:all": "ember try:each",
+    "test:node": "node node-tests/nodetest-runner.js",
     "test:production": "ember test --environment=production",
-    "production": "ember build --environment=production"
+    "test:optional-features": "ember test --environment=test-optional-features"
   },
   "author": "",
   "license": "MIT",
@@ -97,6 +97,7 @@
     "ember-resolver": "^4.1.0",
     "ember-source": "~2.11.0",
     "ember-source-channel-url": "^1.0.1",
+    "ember-try": "^0.2.23",
     "ember-watson": "^0.7.0",
     "express": "^4.14.0",
     "faker": "^3.1.0",
