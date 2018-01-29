@@ -630,7 +630,7 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
-    this._modelData.adapterWillCommit();
+    this._modelData.willCommit();
     this.send('willCommit');
   }
 
@@ -942,7 +942,7 @@ export default class InternalModel {
   adapterDidCommit(data) {
     this.didCleanError();
 
-    let changedKeys = this._modelData.adapterDidCommit(data);
+    let changedKeys = this._modelData.didCommit(data);
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -987,7 +987,7 @@ export default class InternalModel {
 
     this.send('becameInvalid');
 
-    this._modelData.saveWasRejected();
+    this._modelData.commitWasRejected();
   }
 
   /*
@@ -997,7 +997,7 @@ export default class InternalModel {
   adapterDidError(error) {
     this.send('becameError');
     this.didError(error);
-    this._modelData.saveWasRejected();
+    this._modelData.commitWasRejected();
   }
 
   toString() {

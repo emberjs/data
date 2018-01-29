@@ -78,7 +78,7 @@ export default class ModelData {
     return changedKeys;
   }
 
-  adapterWillCommit() {
+  willCommit() {
     this._inFlightAttributes = this._attributes;
     this._attributes = null;
   }
@@ -208,7 +208,7 @@ export default class ModelData {
     return dirtyKeys;
   }
 
-  adapterDidCommit(data) {
+  didCommit(data) {
     this._isNew = false;
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
@@ -240,7 +240,7 @@ export default class ModelData {
     relationship.addModelDatas(resources.map(resource => this.storeWrapper.modelDataFor(resource.type, resource.id, resource.clientId)));
   }
 
-  saveWasRejected() {
+  commitWasRejected() {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
