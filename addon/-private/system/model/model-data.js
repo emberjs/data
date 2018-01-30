@@ -653,7 +653,7 @@ if (isEnabled('ds-rollback-attribute')) {
 // orphaned models.
 function destroyRelationship(rel) {
   rel.modelDataDidDematerialize();
-  
+
   debugger
   if (rel._inverseIsSync()) {
     rel.removeAllModelDatasFromOwn();

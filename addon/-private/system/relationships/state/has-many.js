@@ -34,7 +34,8 @@ export default class ManyRelationship extends Relationship {
     super.addCanonicalModelData(modelData, idx);
   }
 
-  inverseDidDematerialize() {
+  inverseDidDematerialize(inverseModelData) {
+    super.inverseDidDematerialize(inverseModelData);
     this.notifyHasManyChanged();
   }
 

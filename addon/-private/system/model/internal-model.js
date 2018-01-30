@@ -129,6 +129,7 @@ export default class InternalModel {
     this._recordReference = null;
 
     this._manyArrayCache = Object.create(null);
+    this._retainedManyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
 
   }
@@ -278,15 +279,24 @@ export default class InternalModel {
         delete this._relationshipPromisesCache[key];
       });
       Object.keys(this._manyArrayCache).forEach((key) => {
-        this._manyArrayCache[key].destroy();
+        this._retainedManyArrayCache[key] = this._manyArrayCache[key];
         delete this._manyArrayCache[key];
       });
       this._isDematerializing = true;
       this._record.destroy();
+      // TODO TODO IGOR DAVID this should probably not happen inside if this._record, because you could
+      // be unloading if the record is not materialized
       this.destroyRelationships();
       this.updateRecordArrays();
       this.resetRecord();
     }
+  }
+
+  removeFromManyArray(manyArray) {
+    if (manyArray === null) {
+      return;
+    }
+    manyArray._removeUnloadedInternalModel(this);
   }
 
   deleteRecord() {
@@ -426,7 +436,9 @@ export default class InternalModel {
   manyArray(relationshipMeta, jsonApi) {
     let key = relationshipMeta.key;
     let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
+
     let manyArray = this._manyArrayCache[key];
+    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, manyArray === null || !this._retainedManyArrayCache[key]);
     if (!manyArray) {
       manyArray = this.store._manyArrayFor(
         relationshipMeta.type,
@@ -438,6 +450,10 @@ export default class InternalModel {
         this
       );
       this._manyArrayCache[key] = manyArray;
+    }
+    if (this._retainedManyArrayCache[key]) {
+      this._retainedManyArrayCache[key].destroy();
+      delete this._retainedManyArrayCache[key];
     }
     return manyArray;
   }
@@ -536,6 +552,10 @@ export default class InternalModel {
 
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
+    Object.keys(this._retainedManyArrayCache).forEach((key) => {
+      this._retainedManyArrayCache[key].destroy();
+      delete this._retainedManyArrayCache[key];
+    });
 
     this.store._removeFromIdMap(this);
     this._isDestroyed = true;

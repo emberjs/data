@@ -62,7 +62,7 @@ test("Finds the inverse when there is only one possible available", function(ass
     kind: 'belongsTo',
     options: {
       async: false
-    } 
+    }
   }, 'Gets correct type, name and kind');
 });
 
@@ -80,7 +80,7 @@ test("Finds the inverse when only one side has defined it manually", function(as
     name: 'previousJob', //the models relationship key
     kind: 'belongsTo',
     options: {
-      async: false,
+      async: false
     }
   }, 'Gets correct type, name and kind');
 
