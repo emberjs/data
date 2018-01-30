@@ -113,7 +113,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {Object} meta
     @public
     */
-    this.meta = this.meta ||  null;
+    // TODO IGOR make sure to bring back
+    // this.meta = this.meta ||  null;
 
     /**
     `true` if the relationship is polymorphic, `false` otherwise.
@@ -129,10 +130,39 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {ManyRelationship} relationship
     @private
     */
-    this.relationship = this.relationship || null;
-
     this.currentState = [];
-    this.flushCanonical(false);
+    this.flushCanonical(this.initialState, false);
+  },
+
+  /*
+  pushData(jsonApi) {
+    let toSet = [];
+    if (jsonApi.data) {
+      toSet = jsonApi.data.map((resource) => )
+
+    }
+
+  },
+  */
+
+  // TODO: if(DEBUG)
+  anyUnloaded() {
+    let unloaded = this.currentState.find((im) => im._isDematerializing || !im.isLoaded());
+    return !!unloaded;
+  },
+
+  removeUnloadedInternalModel() {
+    for (let i = 0; i < this.currentState.length; ++i) {
+      let internalModel = this.currentState[i];
+      if (internalModel._isDematerializing || !internalModel.isLoaded()) {
+        this.arrayContentWillChange(i, 1, 0);
+        this.currentState.splice(i, 1);
+        this.set('length', this.currentState.length);
+        this.arrayContentDidChange(i, 1, 0);
+        return true;
+      }
+    }
+    return false;
   },
 
   objectAt(index) {
@@ -142,75 +172,49 @@ export default EmberObject.extend(MutableArray, Evented, {
     return internalModel.getRecord();
   },
 
-  flushCanonical(isInitialized = true) {
+  flushCanonical(toSet, isInitialized = true) {
     // It’s possible the parent side of the relationship may have been unloaded by this point
     if (!_objectIsAlive(this)) {
       return;
     }
-    let toSet = this.canonicalState;
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    let newInternalModels = this.currentState.filter(
-      // only add new internalModels which are not yet in the canonical state of this
-      // relationship (a new internalModel can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
-    );
-    toSet = toSet.concat(newInternalModels);
-
     // diff to find changes
     let diff = diffArray(this.currentState, toSet);
-
     if (diff.firstChangeIndex !== null) { // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.set('length', toSet.length);
-      this.currentState = toSet;
+      this.currentState = toSet.slice();
       this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       if (isInitialized && diff.addedCount > 0) {
         //notify only on additions
         //TODO only notify if unloaded
-        this.relationship.notifyHasManyChanged();
+        this.internalModel.manyArrayRecordAdded(this.get('key'));
       }
     }
-  },
-
-  internalReplace(idx, amt, objects) {
-    if (!objects) {
-      objects = [];
-    }
-    this.arrayContentWillChange(idx, amt, objects.length);
-    this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
-    this.set('length', this.currentState.length);
-    this.arrayContentDidChange(idx, amt, objects.length);
-  },
-
-  //TODO(Igor) optimize
-  _removeInternalModels(internalModels) {
-    for (let i=0; i < internalModels.length; i++) {
-      let index = this.currentState.indexOf(internalModels[i]);
-      this.internalReplace(index, 1);
-    }
-  },
-
-  //TODO(Igor) optimize
-  _addInternalModels(internalModels, idx) {
-    if (idx === undefined) {
-      idx = this.currentState.length;
-    }
-    this.internalReplace(idx, 0, internalModels);
   },
 
   replace(idx, amt, objects) {
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx+amt);
-      this.get('relationship').removeInternalModels(internalModels);
+      this.get('modelData').removeFromHasMany(this.get('key'), internalModels.map((im) => im._modelData));
     }
     if (objects) {
-      this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
+      this.get('modelData').addToHasMany(this.get('key'), objects.map(obj => obj._internalModel._modelData), idx);
+      //this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
     }
+    this.retrieveLatest();
+  },
+
+  // Ok this is kinda funky because if buggy we might lose positions, etc.
+  // but current code is this way so shouldn't be too big of a problem
+  retrieveLatest() {
+    let jsonApi = this.get('modelData').getHasMany(this.get('key'));
+    let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+    if (jsonApi.meta) {
+      this.set('meta', jsonApi.meta);
+    }
+    this.flushCanonical(internalModels, true);
   },
 
   /**
@@ -237,7 +241,7 @@ export default EmberObject.extend(MutableArray, Evented, {
     @public
   */
   reload() {
-    return this.relationship.reload();
+    return this.get('store').reloadManyArray(this, this.get('internalModel'), this.get('key'));
   },
 
   /**

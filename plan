@@ -1,0 +1,54 @@
+ModelState
+
+Holds id, relationship, and attribute data.
+Maybe unloading?
+
+Questions
+
+Embedded records set to null
+What to do about _implicitRelationships
+Should default value be in the snapshot?
+
+
+Do we need a hook for record destroy?
+Snapshot interface?
+
+Talk to yehuda about value of schemas for attributes
+
+
+Maybe we transmit the priority of data in json api resource, or by not including data
+
+If we keep track of loaded links, when do we unload?
+
+Make sure ModelData can be upgraded over time
+
+Currently not caching link promises, make sure that happens
+Add tests for store client ids
+add cleanup for clientIds
+
+creation allows people to pass store in easily
+check if data is ever passed to internalModel constructor
+consider notify properties change for has many
+I wonder if we currently leak many arrays
+do many array update test
+
+need to add hasLoaded to hasmany json api
+
+how should fetching a link behave in terms of the cycle between MD, store and many array
+does the promise resolve with new data or we cycle through MD
+what if you always wanted to fetch from the link
+cleanup manyArray caches
+
+
+currently we have many array optimization for lazyness when manyArray is not instantiated
+need to figure out what to do about them
+
+we need load and reload link caches, but seems like they are not tested right now
+
+need a long term solution of adding an id to manyArray while fetching and coming back
+to discover it's not there -> ideas, have same semantics if loaded the array and then unloade the record
+// don't add to the retained many array until a get happens
+
+
+What happens if locally created record and then a push comes with same id?
+double check what would have happened if we did not clean the promises cache on belongsTo change
