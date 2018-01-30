@@ -1,8 +1,7 @@
 import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
-import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEmpty } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -10,11 +9,10 @@ import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
 import RootState from "./states";
-import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
-import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
+import { PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
 
 import {
@@ -52,66 +50,31 @@ function extractPivotName(name) {
   );
 }
 
-function areAllModelsUnloaded(internalModels) {
-  for (let i=0; i<internalModels.length; ++i) {
-    let record = internalModels[i]._record;
-    if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-// Handle dematerialization for relationship `rel`.  In all cases, notify the
-// relatinoship of the dematerialization: this is done so the relationship can
-// notify its inverse which needs to update state
-//
-// If the inverse is sync, unloading this record is treated as a client-side
-// delete, so we remove the inverse records from this relationship to
-// disconnect the graph.  Because it's not async, we don't need to keep around
-// the internalModel as an id-wrapper for references and because the graph is
-// disconnected we can actually destroy the internalModel when checking for
-// orphaned models.
-function destroyRelationship(rel) {
-  rel.internalModelDidDematerialize();
-
-  if (rel._inverseIsSync()) {
-    // disconnect the graph so that the sync inverse relationship does not
-    // prevent us from cleaning up during `_cleanupOrphanedInternalModels`
-    rel.removeAllInternalModelsFromOwn();
-    rel.removeAllCanonicalInternalModelsFromOwn();
-  }
-}
 // this (and all heimdall instrumentation) will be stripped by a babel transform
 //  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
 const {
   _triggerDeferredTriggers,
   changedAttributes,
   createSnapshot,
-  flushChangedAttributes,
   hasChangedAttributes,
   materializeRecord,
   new_InternalModel,
   send,
   setupData,
-  transitionTo,
-  updateChangedAttributes
+  transitionTo
 } = heimdall.registerMonitor('InternalModel',
   '_triggerDeferredTriggers',
   'changedAttributes',
   'createSnapshot',
-  'flushChangedAttributes',
   'hasChangedAttributes',
   'materializeRecord',
   'new_InternalModel',
   'send',
   'setupData',
-  'transitionTo',
-  'updateChangedAttributes'
+  'transitionTo'
 );
 
 let InternalModelReferenceId = 1;
-let nextBfsId = 1;
 
 /*
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
@@ -130,15 +93,18 @@ let nextBfsId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data) {
+  constructor(modelName, id, store, data, clientId) {
     heimdall.increment(new_InternalModel);
     this.id = id;
+    this.store = store;
+    this.modelName = modelName;
+    this.clientId = clientId;
+
+    this._modelData = store._createModelData(modelName, id, clientId, this);
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 
-    this.store = store;
-    this.modelName = modelName;
     this._loadingPromise = null;
     this._record = null;
     this._isDestroyed = false;
@@ -155,22 +121,16 @@ export default class InternalModel {
 
     this.resetRecord();
 
-    if (data) {
-      this.__data = data;
-    }
-
     // caches for lazy getters
     this._modelClass = null;
     this.__deferredTriggers = null;
     this.__recordArrays = null;
     this._references = null;
     this._recordReference = null;
-    this.__relationships = null;
-    this.__implicitRelationships = null;
 
-    // Used during the mark phase of unloading to avoid checking the same internal
-    // model twice in the same scan
-    this._bfsId = 0;
+    this._manyArrayCache = Object.create(null);
+    this._relationshipPromisesCache = Object.create(null);
+
   }
 
   get modelClass() {
@@ -209,81 +169,6 @@ export default class InternalModel {
     return this.__deferredTriggers;
   }
 
-  get _attributes() {
-    if (this.__attributes === null) {
-      this.__attributes = Object.create(null);
-    }
-    return this.__attributes;
-  }
-
-  set _attributes(v) {
-    this.__attributes = v;
-  }
-
-  get _relationships() {
-    if (this.__relationships === null) {
-      this.__relationships = new Relationships(this);
-    }
-
-    return this.__relationships;
-  }
-
-  get _inFlightAttributes() {
-    if (this.__inFlightAttributes === null) {
-      this.__inFlightAttributes = Object.create(null);
-    }
-    return this.__inFlightAttributes;
-  }
-
-  set _inFlightAttributes(v) {
-    this.__inFlightAttributes = v;
-  }
-
-  get _data() {
-    if (this.__data === null) {
-      this.__data = Object.create(null);
-    }
-    return this.__data;
-  }
-
-  set _data(v) {
-    this.__data = v;
-  }
-
-  /*
-   implicit relationships are relationship which have not been declared but the inverse side exists on
-   another record somewhere
-   For example if there was
-
-   ```app/models/comment.js
-   import DS from 'ember-data';
-
-   export default DS.Model.extend({
-   name: DS.attr()
-   })
-   ```
-
-   but there is also
-
-   ```app/models/post.js
-   import DS from 'ember-data';
-
-   export default DS.Model.extend({
-   name: DS.attr(),
-   comments: DS.hasMany('comment')
-   })
-   ```
-
-   would have a implicit post relationship in order to be do things like remove ourselves from the post
-   when we are deleted
-  */
-  get _implicitRelationships() {
-    if (this.__implicitRelationships === null) {
-      this.__implicitRelationships = Object.create(null);
-    }
-    return this.__implicitRelationships;
-  }
-
   isHiddenFromRecordArrays() {
     // During dematerialization we don't want to rematerialize the record.
     // recordWasDeleted can cause other records to rematerialize because it
@@ -296,6 +181,11 @@ export default class InternalModel {
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
       this.isEmpty();
+  }
+
+  isRecordInUse() {
+    let record = this._record;
+    return record && !(record.get('isDestroyed') || record.get('isDestroying'));
   }
 
   isEmpty() {
@@ -375,13 +265,22 @@ export default class InternalModel {
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
-    this.__attributes = null;
-    this.__inFlightAttributes = null;
-    this._data = null;
+    this._modelData.resetRecord();
   }
 
   dematerializeRecord() {
     if (this._record) {
+      Object.keys(this._relationshipPromisesCache).forEach((key) => {
+        // TODO Igor cleanup the guard
+        if (this._relationshipPromisesCache[key].destroy) {
+          this._relationshipPromisesCache[key].destroy();
+        }
+        delete this._relationshipPromisesCache[key];
+      });
+      Object.keys(this._manyArrayCache).forEach((key) => {
+        this._manyArrayCache[key].destroy();
+        delete this._manyArrayCache[key];
+      });
       this._isDematerializing = true;
       this._record.destroy();
       this.destroyRelationships();
@@ -407,6 +306,10 @@ export default class InternalModel {
     if (this.hasRecord) {
       set(this._record, 'isReloading', true);
     }
+  }
+
+  linkWasLoadedForRelationship(key, data) {
+    this._modelData.linkWasLoadedForRelationship(key, data);
   }
 
   finishedReloading() {
@@ -435,55 +338,6 @@ export default class InternalModel {
     });
   }
 
-  /*
-    Computes the set of internal models reachable from `this` across exactly one
-    relationship.
-
-    @return {Array} An array containing the internal models that `this` belongs
-    to or has many.
-  */
-  _directlyRelatedInternalModels() {
-    let array = [];
-
-    this._relationships.forEach((name, rel) => {
-      array = array.concat(rel.members.list, rel.canonicalMembers.list);
-    });
-    return array;
-  }
-
-
-  /*
-    Computes the set of internal models reachable from this internal model.
-
-    Reachability is determined over the relationship graph (ie a graph where
-    nodes are internal models and edges are belongs to or has many
-    relationships).
-
-    @return {Array} An array including `this` and all internal models reachable
-    from `this`.
-  */
-  _allRelatedInternalModels() {
-    let array = [];
-    let queue = [];
-    let bfsId = nextBfsId++;
-    queue.push(this);
-    this._bfsId = bfsId;
-    while (queue.length > 0) {
-      let node = queue.shift();
-      array.push(node);
-      let related = node._directlyRelatedInternalModels();
-      for (let i=0; i<related.length; ++i) {
-        let internalModel = related[i];
-        assert('Internal Error: seen a future bfs iteration', internalModel._bfsId <= bfsId);
-        if (internalModel._bfsId < bfsId) {
-          queue.push(internalModel);
-          internalModel._bfsId = bfsId;
-        }
-      }
-    }
-    return array;
-  }
-
 
   /*
     Unload the record for this internal model. This will cause the record to be
@@ -501,7 +355,6 @@ export default class InternalModel {
     if (this.isDestroyed) { return; }
     this.send('unloadRecord');
     this.dematerializeRecord();
-
     if (this._scheduledDestroy === null) {
       // TODO: use run.schedule once we drop 1.13
       if (!run.currentRunLoop) {
@@ -551,32 +404,140 @@ export default class InternalModel {
     this._scheduledDestroy = null;
     if (this.isDestroyed) { return; }
 
-    this._cleanupOrphanedInternalModels();
-  }
-
-  _cleanupOrphanedInternalModels() {
-    let relatedInternalModels = this._allRelatedInternalModels();
-    if (areAllModelsUnloaded(relatedInternalModels)) {
-      for (let i=0; i<relatedInternalModels.length; ++i) {
-        let internalModel = relatedInternalModels[i];
-        if (!internalModel.isDestroyed) {
-          internalModel.destroy();
-        }
-      }
-    }
+    this._modelData.unloadRecord();
   }
 
   eachRelationship(callback, binding) {
     return this.modelClass.eachRelationship(callback, binding);
   }
 
+  getBelongsTo(key) {
+    let jsonApi = this._modelData.getBelongsTo(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    return this.store._findByJsonApiResource(jsonApi, this, relationshipMeta);
+  }
+
+  setBelongsTo(key, value) {
+    return this._modelData.setBelongsTo(key, value);
+  }
+
+  // TODO Igor move invocations of manyArray to getManyArray
+  // TODO Igor consider getting rid of initial state
+  manyArray(relationshipMeta, jsonApi) {
+    let key = relationshipMeta.key;
+    let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
+    let manyArray = this._manyArrayCache[key];
+    if (!manyArray) {
+      manyArray = this.store._manyArrayFor(
+        relationshipMeta.type,
+        this._modelData,
+        jsonApi.meta,
+        relationshipMeta.key,
+        relationshipMeta.options.polymorphic,
+        initialState,
+        this
+      );
+      this._manyArrayCache[key] = manyArray;
+    }
+    return manyArray;
+  }
+
+  getManyArray(key) {
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let jsonApi = this._modelData.getHasMany(key);
+    return this.manyArray(relationshipMeta, jsonApi);
+  }
+
+  fetchAsyncHasMany(relationshipMeta, jsonApi) {
+    let manyArray = this.manyArray(relationshipMeta, jsonApi);
+    let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+    promise = promise.then((initialState) => {
+      manyArray.retrieveLatest();
+      manyArray.set('isLoaded', true);
+      // TODO Igor probably don't need initialState
+      return this.manyArray(relationshipMeta, jsonApi);
+    });
+    return { promise, content: manyArray };
+  }
+
+  getHasMany(key) {
+    let jsonApi = this._modelData.getHasMany(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let async = relationshipMeta.options.async;
+    let isAsync = typeof async === 'undefined' ? true : async;
+    if (isAsync) {
+      let promiseArray = this._relationshipPromisesCache[key];
+      if (!promiseArray) {
+        promiseArray = PromiseManyArray.create(this.fetchAsyncHasMany(relationshipMeta, jsonApi));
+        this._relationshipPromisesCache[key] = promiseArray;
+      }
+      return promiseArray;
+    } else {
+      let manyArray = this.manyArray(relationshipMeta, jsonApi);
+      manyArray.set('isLoaded', true);
+      assert(`You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, !manyArray.anyUnloaded());
+      return manyArray;
+    }
+  }
+
+  _updateLoadingPromiseForHasMany(key, promise, content) {
+    let loadingPromise = this._relationshipPromisesCache[key];
+    if (loadingPromise) {
+      if (content) {
+        loadingPromise.set('content', content)
+      }
+      loadingPromise.set('promise', promise)
+    } else {
+      this._relationshipPromisesCache[key] = PromiseManyArray.create({
+        promise,
+        content
+      });
+    }
+
+    return this._relationshipPromisesCache[key];
+  }
+
+  reloadHasMany(key) {
+    let loadingPromise = this._relationshipPromisesCache[key];
+    if (loadingPromise) {
+      if (loadingPromise.get('isPending')) {
+        return loadingPromise;
+      }
+      /* TODO Igor check wtf this is about
+      if (loadingPromise.get('isRejected')) {
+        manyArray.set('isLoaded', manyArrayLoadedState);
+      }
+      */
+    }
+
+    let jsonApi = this._modelData.getHasMany(key);
+    let relationshipMeta = this.store._relationshipFor(this.modelName, null, key);
+    let promise;
+    // TODO Igor, be robust about caching
+    if (jsonApi.links && jsonApi.links.related) {
+      // TODO Igor doing this for now to make sure to go through link
+      delete jsonApi.data;
+      // TODO Igor move this somewhere nicer
+      jsonApi.hasLoaded = false;
+      promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi).promise;
+    } else {
+      let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
+      let manyArray = this.manyArray(relationshipMeta, jsonApi);
+      promise = this.store._scheduleFetchMany(internalModels).then(() => manyArray);
+    }
+    // TODO igor Seems like this would mess with promiseArray wrapping, investigate
+    this._updateLoadingPromiseForHasMany(key, promise);
+    return promise;
+  }
+
+  setHasMany(key, value) {
+    this._modelData.setHasMany(key, value.map((record) => record.get('_internalModel._modelData').getResourceIdentifier()));
+  }
+
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
 
-    this.store._internalModelDestroyed(this);
-
-    this._relationships.forEach((name, rel) => rel.destroy());
-
+    this.store._removeFromIdMap(this);
     this._isDestroyed = true;
   }
 
@@ -590,20 +551,11 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
-
-    let changedKeys;
-
-    if (this.hasRecord) {
-      changedKeys = this._changedKeys(data.attributes);
-    }
-
-    emberAssign(this._data, data.attributes);
-    this.pushedData();
-
+    let changedKeys = this._modelData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
+    this.pushedData();
   }
 
   get isDestroyed() {
@@ -656,43 +608,9 @@ export default class InternalModel {
     this.send('pushedData');
   }
 
-  flushChangedAttributes() {
-    heimdall.increment(flushChangedAttributes);
-    this._inFlightAttributes = this._attributes;
-    this._attributes = null;
-  }
-
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
-    return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
-  }
-
-  /*
-    Checks if the attributes which are considered as changed are still
-    different to the state which is acknowledged by the server.
-
-    This method is needed when data for the internal model is pushed and the
-    pushed data might acknowledge dirty attributes as confirmed.
-
-    @method updateChangedAttributes
-    @private
-   */
-  updateChangedAttributes() {
-    heimdall.increment(updateChangedAttributes);
-    let changedAttributes = this.changedAttributes();
-    let changedAttributeNames = Object.keys(changedAttributes);
-    let attrs = this._attributes;
-
-    for (let i = 0, length = changedAttributeNames.length; i < length; i++) {
-      let attribute = changedAttributeNames[i];
-      let data = changedAttributes[attribute];
-      let oldData = data[0];
-      let newData = data[1];
-
-      if (oldData === newData) {
-        delete attrs[attribute];
-      }
-    }
+    return this._modelData.hasChangedAttributes();
   }
 
   /*
@@ -704,19 +622,7 @@ export default class InternalModel {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
-    let oldData = this._data;
-    let currentData = this._attributes;
-    let inFlightData = this._inFlightAttributes;
-    let newData = emberAssign(copy(inFlightData), currentData);
-    let diffData = Object.create(null);
-    let newDataKeys = Object.keys(newData);
-
-    for (let i = 0, length = newDataKeys.length; i < length; i++) {
-      let key = newDataKeys[i];
-      diffData[key] = [oldData[key], newData[key]];
-    }
-
-    return diffData;
+    return this._modelData.changedAttributes();
   }
 
   /*
@@ -724,6 +630,7 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
+    this._modelData.willCommit();
     this.send('willCommit');
   }
 
@@ -753,48 +660,57 @@ export default class InternalModel {
     return currentState[name](this, context);
   }
 
-  notifyHasManyAdded(key, record, idx) {
+  manyArrayRecordAdded(key) {
     if (this.hasRecord) {
-      this._record.notifyHasManyAdded(key, record, idx);
+      this._record.notifyHasManyAdded(key);
     }
   }
 
-  notifyBelongsToChanged(key, record) {
+  notifyHasManyChange(key, record, idx) {
+    if (this.hasRecord) {
+      let manyArray = this._manyArrayCache[key];
+      if (manyArray) {
+        manyArray.retrieveLatest();
+        // TODO Igor be rigorous about when to delete this
+        if (this._relationshipPromisesCache[key] && manyArray.anyUnloaded()) {
+          delete this._relationshipPromisesCache[key];
+        }
+      }
+      this.updateRecordArrays();
+    }
+  }
+
+  notifyBelongsToChange(key, record) {
     if (this.hasRecord) {
       this._record.notifyBelongsToChanged(key, record);
+      this.updateRecordArrays();
     }
   }
 
   notifyPropertyChange(key) {
     if (this.hasRecord) {
       this._record.notifyPropertyChange(key);
+      this.updateRecordArrays();
+    }
+    if (this._relationshipPromisesCache[key]) {
+      this._relationshipPromisesCache[key].destroy();
+      delete this._relationshipPromisesCache[key];
     }
   }
 
+  didCreateRecord(properties) {
+    this._modelData.clientDidCreate(properties);
+  }
+
   rollbackAttributes() {
-    let dirtyKeys;
-    if (this.hasChangedAttributes()) {
-      dirtyKeys = Object.keys(this._attributes);
-      this._attributes = null;
-    }
-
-
+    let dirtyKeys = this._modelData.rollbackAttributes();
     if (get(this, 'isError')) {
-      this._inFlightAttributes = null;
       this.didCleanError();
-    }
-
-    if (this.isNew()) {
-      this.removeFromInverseRelationships();
-    }
-
-    if (this.isValid()) {
-      this._inFlightAttributes = null;
     }
 
     this.send('rolledBack');
 
-    if (dirtyKeys && dirtyKeys.length > 0) {
+    if (this._record && dirtyKeys && dirtyKeys.length > 0) {
       this._record._notifyProperties(dirtyKeys);
     }
   }
@@ -898,30 +814,8 @@ export default class InternalModel {
     triggers.length = 0;
   }
 
-  /*
-   This method should only be called by records in the `isNew()` state OR once the record
-   has been deleted and that deletion has been persisted.
-
-   It will remove this record from any associated relationships.
-
-    @method removeFromInverseRelationships
-    @private
-   */
-  removeFromInverseRelationships() {
-    this._relationships.forEach((name, rel) => {
-      rel.removeCompletelyFromInverse();
-      rel.clear();
-    });
-
-    let implicitRelationships = this._implicitRelationships;
-    this.__implicitRelationships = null;
-
-    Object.keys(implicitRelationships).forEach((key) => {
-      let rel = implicitRelationships[key];
-
-      rel.removeCompletelyFromInverse();
-      rel.clear();
-    });
+  removeFromInverseRelationships(isNew = false) {
+    this._modelData.removeFromInverseRelationships(isNew);
   }
 
   /*
@@ -929,15 +823,7 @@ export default class InternalModel {
     and destroys any ManyArrays.
    */
   destroyRelationships() {
-    let relationships = this._relationships;
-    relationships.forEach((name, rel) => destroyRelationship(rel));
-
-    let implicitRelationships = this._implicitRelationships;
-    this.__implicitRelationships = null;
-    Object.keys(implicitRelationships).forEach((key) => {
-      let rel = implicitRelationships[key];
-      destroyRelationship(rel);
-    });
+    this._modelData.destroyRelationships();
   }
 
   /*
@@ -956,58 +842,51 @@ export default class InternalModel {
     @param {Object} preload
   */
   preloadData(preload) {
+    let jsonPayload = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach((key) => {
       let preloadValue = get(preload, key);
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
-        this._preloadRelationship(key, preloadValue);
+        if (!jsonPayload.relationships) {
+          jsonPayload.relationships = {};
+        }
+        jsonPayload.relationships[key] = this._preloadRelationship(key, preloadValue);
       } else {
-        this._data[key] = preloadValue;
+        if (!jsonPayload.attributes) {
+          jsonPayload.attributes = {};
+        }
+        jsonPayload.attributes[key] = preloadValue;
       }
     });
+    this._modelData.pushData(jsonPayload);
   }
 
   _preloadRelationship(key, preloadValue) {
     let relationshipMeta = this.modelClass.metaForProperty(key);
     let modelClass = relationshipMeta.type;
+    let data;
     if (relationshipMeta.kind === 'hasMany') {
-      this._preloadHasMany(key, preloadValue, modelClass);
+      assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
+      data =  preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, modelClass ));
     } else {
-      this._preloadBelongsTo(key, preloadValue, modelClass);
+      data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
     }
+    return { data };
   }
 
-  _preloadHasMany(key, preloadValue, modelClass) {
-    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
-    let recordsToSet = new Array(preloadValue.length);
-
-    for (let i = 0; i < preloadValue.length; i++) {
-      let recordToPush = preloadValue[i];
-      recordsToSet[i] = this._convertStringOrNumberIntoInternalModel(recordToPush, modelClass);
-    }
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).updateInternalModelsFromAdapter(recordsToSet);
-  }
-
-  _preloadBelongsTo(key, preloadValue, modelClass) {
-    let internalModelToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, modelClass);
-
-    //We use the pathway of setting the hasMany as if it came from the adapter
-    //because the user told us that they know this relationships exists already
-    this._relationships.get(key).setInternalModel(internalModelToSet);
-  }
-
-  _convertStringOrNumberIntoInternalModel(value, modelClass) {
+  _convertPreloadRelationshipToJSON(value, modelClass) {
     if (typeof value === 'string' || typeof value === 'number') {
-      return this.store._internalModelForId(modelClass, value);
+      return { type: modelClass, id: value };
     }
+    let internalModel;
     if (value._internalModel) {
-      return value._internalModel;
+      internalModel = value._internalModel;
+    } else {
+      internalModel = value;
     }
-    return value;
+    // TODO IGOR DAVID assert if no id is present
+    return { type: internalModel.modelName, id: internalModel.id };
   }
 
   /*
@@ -1060,21 +939,9 @@ export default class InternalModel {
     @method adapterDidCommit
   */
   adapterDidCommit(data) {
-    if (data) {
-      this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
-
-      data = data.attributes;
-    }
-
     this.didCleanError();
-    let changedKeys = this._changedKeys(data);
 
-    emberAssign(this._data, this._inFlightAttributes);
-    if (data) {
-      emberAssign(this._data, data);
-    }
-
-    this._inFlightAttributes = null;
+    let changedKeys = this._modelData.didCommit(data);
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -1119,7 +986,7 @@ export default class InternalModel {
 
     this.send('becameInvalid');
 
-    this._saveWasRejected();
+    this._modelData.commitWasRejected();
   }
 
   /*
@@ -1129,98 +996,7 @@ export default class InternalModel {
   adapterDidError(error) {
     this.send('becameError');
     this.didError(error);
-    this._saveWasRejected();
-  }
-
-  _saveWasRejected() {
-    let keys = Object.keys(this._inFlightAttributes);
-    if (keys.length > 0) {
-      let attrs = this._attributes;
-      for (let i=0; i < keys.length; i++) {
-        if (attrs[keys[i]] === undefined) {
-          attrs[keys[i]] = this._inFlightAttributes[keys[i]];
-        }
-      }
-    }
-    this._inFlightAttributes = null;
-  }
-
-  /*
-    Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
-
-    `_data` holds all of the attributes that have been acknowledged by
-    a backend via the adapter. When rollbackAttributes is called on a model all
-    attributes will revert to the record's state in `_data`.
-
-    `_attributes` holds any change the user has made to an attribute
-    that has not been acknowledged by the adapter. Any values in
-    `_attributes` are have priority over values in `_data`.
-
-    `_inFlightAttributes`. When a record is being synced with the
-    backend the values in `_attributes` are copied to
-    `_inFlightAttributes`. This way if the backend acknowledges the
-    save but does not return the new state Ember Data can copy the
-    values from `_inFlightAttributes` to `_data`. Without having to
-    worry about changes made to `_attributes` while the save was
-    happenign.
-
-
-    Changed keys builds a list of all of the values that may have been
-    changed by the backend after a successful save.
-
-    It does this by iterating over each key, value pair in the payload
-    returned from the server after a save. If the `key` is found in
-    `_attributes` then the user has a local changed to the attribute
-    that has not been synced with the server and the key is not
-    included in the list of changed keys.
-
-
-
-    If the value, for a key differs from the value in what Ember Data
-    believes to be the truth about the backend state (A merger of the
-    `_data` and `_inFlightAttributes` objects where
-    `_inFlightAttributes` has priority) then that means the backend
-    has updated the value and the key is added to the list of changed
-    keys.
-
-    @method _changedKeys
-    @private
-  */
-  _changedKeys(updates) {
-    let changedKeys = [];
-
-    if (updates) {
-      let original, i, value, key;
-      let keys = Object.keys(updates);
-      let length = keys.length;
-      let hasAttrs = this.hasChangedAttributes();
-      let attrs;
-      if (hasAttrs) {
-        attrs= this._attributes;
-      }
-
-      original = emberAssign(Object.create(null), this._data);
-      original = emberAssign(original, this._inFlightAttributes);
-
-      for (i = 0; i < length; i++) {
-        key = keys[i];
-        value = updates[key];
-
-        // A value in _attributes means the user has a local change to
-        // this attributes. We never override this value when merging
-        // updates from the backend so we should not sent a change
-        // notification if the server value differs from the original.
-        if (hasAttrs === true && attrs[key] !== undefined) {
-          continue;
-        }
-
-        if (!isEqual(original[key], value)) {
-          changedKeys.push(key);
-        }
-      }
-    }
-
-    return changedKeys;
+    this._modelData.commitWasRejected();
   }
 
   toString() {
@@ -1231,7 +1007,8 @@ export default class InternalModel {
     let reference = this.references[name];
 
     if (!reference) {
-      let relationship = this._relationships.get(name);
+      // TODO IGOR AND DAVID REFACTOR
+      let relationship = this._modelData._relationships.get(name);
 
       if (DEBUG) {
         let modelName = this.modelName;
@@ -1252,21 +1029,4 @@ export default class InternalModel {
 
     return reference;
   }
-}
-
-if (isEnabled('ds-rollback-attribute')) {
-  /*
-     Returns the latest truth for an attribute - the canonical value, or the
-     in-flight value.
-
-     @method lastAcknowledgedValue
-     @private
-  */
-  InternalModel.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
-    if (key in this._inFlightAttributes) {
-      return this._inFlightAttributes[key];
-    } else {
-      return this._data[key];
-    }
-  };
 }

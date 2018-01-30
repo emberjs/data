@@ -890,7 +890,6 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
       }]
     });
 
-    // as with all cps, observers don't fire if the cp isn't lazy.
     post.get('author');
 
     post.addObserver('author', function() {

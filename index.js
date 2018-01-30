@@ -229,5 +229,8 @@ module.exports = {
 
   cacheKeyForTree(treeType) {
     return calculateCacheKeyForTree(treeType, this);
+  },
+  isDevelopingAddon(){
+    return true
   }
 };

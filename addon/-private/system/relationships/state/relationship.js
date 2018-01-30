@@ -7,97 +7,83 @@ import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
 
 const {
-  addCanonicalInternalModel,
-  addCanonicalInternalModels,
-  addInternalModel,
-  addInternalModels,
+  addCanonicalModelData,
+  addCanonicalModelDatas,
+  addModelData,
+  addModelDatas,
   clear,
-  findLink,
   flushCanonical,
   flushCanonicalLater,
   newRelationship,
   push,
-  removeCanonicalInternalModel,
-  removeCanonicalInternalModelFromInverse,
-  removeCanonicalInternalModelFromOwn,
-  removeCanonicalInternalModels,
-  removeInternalModel,
-  removeInternalModelFromInverse,
-  removeInternalModelFromOwn,
-  removeInternalModels,
+  removeCanonicalModelData,
+  removeCanonicalModelDataFromInverse,
+  removeCanonicalModelDataFromOwn,
+  removeCanonicalModelDatas,
+  removeModelData,
+  removeModelDataFromInverse,
+  removeModelDataFromOwn,
+  removeModelDatas,
   setHasData,
   setHasLoaded,
   updateLink,
   updateMeta,
-  updateInternalModelsFromAdapter
+  updateModelDatasFromAdapter
 } = heimdall.registerMonitor('system.relationships.state.relationship',
-  'addCanonicalInternalModel',
-  'addCanonicalInternalModels',
-  'addInternalModel',
-  'addInternalModels',
+  'addCanonicalModelData',
+  'addCanonicalModelDatas',
+  'addModelData',
+  'addModelDatas',
   'clear',
-  'findLink',
   'flushCanonical',
   'flushCanonicalLater',
   'newRelationship',
   'push',
-  'removeCanonicalInternalModel',
-  'removeCanonicalInternalModelFromInverse',
-  'removeCanonicalInternalModelFromOwn',
-  'removeCanonicalInternalModels',
-  'removeInternalModel',
-  'removeInternalModelFromInverse',
-  'removeInternalModelFromOwn',
-  'removeInternalModels',
+  'removeCanonicalModelData',
+  'removeCanonicalModelDataFromInverse',
+  'removeCanonicalModelDataFromOwn',
+  'removeCanonicalModelDatas',
+  'removeModelData',
+  'removeModelDataFromInverse',
+  'removeModelDataFromOwn',
+  'removeModelDatas',
   'setHasData',
   'setHasLoaded',
   'updateLink',
   'updateMeta',
-  'updateInternalModelsFromAdapter'
+  'updateModelDatasFromAdapter'
 );
 
 export default class Relationship {
-  constructor(store, internalModel, inverseKey, relationshipMeta) {
+  constructor(store, inverseKey, relationshipMeta, modelData, inverseIsAsync) {
     heimdall.increment(newRelationship);
+    this.inverseIsAsync = inverseIsAsync;
     let async = relationshipMeta.options.async;
-    let polymorphic = relationshipMeta.options.polymorphic;
+    this.modelData = modelData;
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
     this.key = relationshipMeta.key;
     this.inverseKey = inverseKey;
-    this.internalModel = internalModel;
     this.isAsync = typeof async === 'undefined' ? true : async;
-    this.isPolymorphic = typeof polymorphic === 'undefined' ? true : polymorphic;
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames
-    this.inverseKeyForImplicit = this.internalModel.modelName + this.key;
+    this.inverseKeyForImplicit = this._tempModelName + this.key;
     this.linkPromise = null;
     this.meta = null;
     this.hasData = false;
     this.hasLoaded = false;
     this.__inverseMeta = undefined;
+    this.updatedLink = false;
   }
 
   _inverseIsAsync() {
-    let inverseMeta = this._inverseMeta;
-    if (!inverseMeta) {
-      return false;
-    }
-
-    let inverseAsync = inverseMeta.options.async;
-    return typeof inverseAsync === 'undefined' ? true : inverseAsync;
+    return this.inverseIsAsync;
   }
 
   _inverseIsSync() {
-    let inverseMeta = this._inverseMeta;
-    if (!inverseMeta) {
-      return false;
-    }
-
-    let inverseAsync = inverseMeta.options.async;
-    return typeof inverseAsync === 'undefined' ? false : !inverseAsync;
+    return this.inverseKey && !this.inverseIsAsync;
   }
 
   get _inverseMeta() {
@@ -112,7 +98,6 @@ export default class Relationship {
 
       this.__inverseMeta = inverseMeta;
     }
-
     return this.__inverseMeta;
   }
 
@@ -122,11 +107,16 @@ export default class Relationship {
 
   internalModelDidDematerialize() {
     if (!this.inverseKey) { return; }
+    let allMembers =
+    // we actually want a union of members and canonicalMembers
+    // they should be disjoint but currently are not due to a bug
+    this.members.list.concat(this.canonicalMembers.list);
 
-    this.forAllMembers((inverseInternalModel) => {
-      let relationship = inverseInternalModel._relationships.get(this.inverseKey);
-      relationship.inverseDidDematerialize(this.internalModel);
-    });
+    for (let i = 0; i < allMembers.length; i++) {
+      let inverseModelData = allMembers[i];
+      let relationship = inverseModelData._relationships.get(this.inverseKey);
+      relationship.inverseDidDematerialize();
+    }
   }
 
   inverseDidDematerialize(inverseInternalModel) {
@@ -134,8 +124,8 @@ export default class Relationship {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
-      this.removeInternalModelFromOwn(inverseInternalModel);
-      this.removeCanonicalInternalModelFromOwn(inverseInternalModel);
+      this.removeModelDataFromOwn(inverseInternalModel);
+      this.removeCanonicalModelDataFromOwn(inverseInternalModel);
     }
   }
 
@@ -150,176 +140,168 @@ export default class Relationship {
     let members = this.members.list;
     while (members.length > 0) {
       let member = members[0];
-      this.removeInternalModel(member);
+      this.removeModelData(member);
     }
 
     let canonicalMembers = this.canonicalMembers.list;
     while (canonicalMembers.length > 0) {
       let member = canonicalMembers[0];
-      this.removeCanonicalInternalModel(member);
+      this.removeCanonicalModelData(member);
     }
   }
 
-  removeAllInternalModelsFromOwn() {
+  removeAllModelDatasFromOwn() {
     this.members.clear();
-    this.internalModel.updateRecordArrays();
+    // TODO IGOR DAVID hope for the best
+    //this.internalModel.updateRecordArrays();
   }
 
-  removeAllCanonicalInternalModelsFromOwn() {
+  removeAllCanonicalModelDatasFromOwn() {
     this.canonicalMembers.clear();
     this.flushCanonicalLater();
   }
 
-  removeInternalModels(internalModels) {
-    heimdall.increment(removeInternalModels);
-    internalModels.forEach((internalModel) => this.removeInternalModel(internalModel));
+  removeModelDatas(modelDatas) {
+    heimdall.increment(removeModelDatas);
+    modelDatas.forEach((modelData) => this.removeModelData(modelData));
   }
 
-  addInternalModels(internalModels, idx) {
-    heimdall.increment(addInternalModels);
-    internalModels.forEach(internalModel => {
-      this.addInternalModel(internalModel, idx);
+  addModelDatas(modelDatas, idx) {
+    heimdall.increment(addModelDatas);
+    modelDatas.forEach(modelData => {
+      this.addModelData(modelData, idx);
       if (idx !== undefined) {
         idx++;
       }
     });
   }
 
-  addCanonicalInternalModels(internalModels, idx) {
-    heimdall.increment(addCanonicalInternalModels);
-    for (let i=0; i<internalModels.length; i++) {
+  addCanonicalModelDatas(modelDatas, idx) {
+    heimdall.increment(addCanonicalModelDatas);
+    for (let i=0; i<modelDatas.length; i++) {
       if (idx !== undefined) {
-        this.addCanonicalInternalModel(internalModels[i], i+idx);
+        this.addCanonicalModelData(modelDatas[i], i+idx);
       } else {
-        this.addCanonicalInternalModel(internalModels[i]);
+        this.addCanonicalModelData(modelDatas[i]);
       }
     }
   }
 
-  addCanonicalInternalModel(internalModel, idx) {
-    heimdall.increment(addCanonicalInternalModel);
-    if (!this.canonicalMembers.has(internalModel)) {
-      this.canonicalMembers.add(internalModel);
-      this.setupInverseRelationship(internalModel);
+  addCanonicalModelData(modelData, idx) {
+    heimdall.increment(addCanonicalModelData);
+    if (!this.canonicalMembers.has(modelData)) {
+      this.canonicalMembers.add(modelData);
+      this.setupInverseRelationship(modelData);
     }
     this.flushCanonicalLater();
     this.setHasData(true);
   }
 
-  setupInverseRelationship(internalModel) {
+  setupInverseRelationship(modelData) {
     if (this.inverseKey) {
-      let relationships = internalModel._relationships;
-      let relationshipExisted = relationships.has(this.inverseKey);
+      let relationships = modelData._relationships;
       let relationship = relationships.get(this.inverseKey);
-      if (relationshipExisted || this.isPolymorphic) {
         // if we have only just initialized the inverse relationship, then it
-        // already has this.internalModel in its canonicalMembers, so skip the
+        // already has this.modelData in its canonicalMembers, so skip the
         // unnecessary work.  The exception to this is polymorphic
         // relationships whose members are determined by their inverse, as those
         // relationships cannot efficiently find their inverse payloads.
-        relationship.addCanonicalInternalModel(this.internalModel);
-      }
+      relationship.addCanonicalModelData(this.modelData);
     } else {
-      let relationships = internalModel._implicitRelationships;
+      let relationships = modelData._implicitRelationships;
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] =
-        new Relationship(this.store, internalModel, this.key, { options: { async: this.isAsync }, type: this.parentType });
+          new Relationship(this.store, this.key,  { options: { async: this.isAsync } }, modelData);
       }
-      relationship.addCanonicalInternalModel(this.internalModel);
+      relationship.addCanonicalModelData(this.modelData);
     }
   }
 
-  removeCanonicalInternalModels(internalModels, idx) {
-    heimdall.increment(removeCanonicalInternalModels);
-    for (let i=0; i<internalModels.length; i++) {
+  removeCanonicalModelDatas(modelDatas, idx) {
+    heimdall.increment(removeCanonicalModelDatas);
+    for (let i=0; i<modelDatas.length; i++) {
       if (idx !== undefined) {
-        this.removeCanonicalInternalModel(internalModels[i], i+idx);
+        this.removeCanonicalModelData(modelDatas[i], i+idx);
       } else {
-        this.removeCanonicalInternalModel(internalModels[i]);
+        this.removeCanonicalModelData(modelDatas[i]);
       }
     }
   }
 
-  removeCanonicalInternalModel(internalModel, idx) {
-    heimdall.increment(removeCanonicalInternalModel);
-    if (this.canonicalMembers.has(internalModel)) {
-      this.removeCanonicalInternalModelFromOwn(internalModel);
+  removeCanonicalModelData(modelData, idx) {
+    heimdall.increment(removeCanonicalModelData);
+    if (this.canonicalMembers.has(modelData)) {
+      this.removeCanonicalModelDataFromOwn(modelData);
       if (this.inverseKey) {
-        this.removeCanonicalInternalModelFromInverse(internalModel);
+        this.removeCanonicalModelDataFromInverse(modelData);
       } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalInternalModel(this.internalModel);
+        if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          modelData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalModelData(this.modelData);
         }
       }
     }
     this.flushCanonicalLater();
   }
 
-  addInternalModel(internalModel, idx) {
-    heimdall.increment(addInternalModel);
-    if (!this.members.has(internalModel)) {
-      this.members.addWithIndex(internalModel, idx);
-      this.notifyRecordRelationshipAdded(internalModel, idx);
+  addModelData(modelData, idx) {
+    heimdall.increment(addModelData);
+    if (!this.members.has(modelData)) {
+      this.members.addWithIndex(modelData, idx);
+      this.notifyRecordRelationshipAdded(modelData, idx);
       if (this.inverseKey) {
-        internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
+        modelData._relationships.get(this.inverseKey).addModelData(this.modelData);
       } else {
-        if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
-            this.store,
-            internalModel,
-            this.key,
-            { options: { async: this.isAsync }, type: this.parentType }
-          );
+        if (!modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, this.key,  { options: { async: this.isAsync } }, modelData, this.isAsync);
         }
-        internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
+        modelData._implicitRelationships[this.inverseKeyForImplicit].addModelData(this.modelData);
       }
-      this.internalModel.updateRecordArrays();
     }
     this.setHasData(true);
   }
 
-  removeInternalModel(internalModel) {
-    heimdall.increment(removeInternalModel);
-    if (this.members.has(internalModel)) {
-      this.removeInternalModelFromOwn(internalModel);
+  removeModelData(modelData) {
+    heimdall.increment(removeModelData);
+    if (this.members.has(modelData)) {
+      this.removeModelDataFromOwn(modelData);
       if (this.inverseKey) {
-        this.removeInternalModelFromInverse(internalModel);
+        this.removeModelDataFromInverse(modelData);
       } else {
-        if (internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit].removeInternalModel(this.internalModel);
+        if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+          modelData._implicitRelationships[this.inverseKeyForImplicit].removeModelData(this.modelData);
         }
       }
     }
   }
 
-  removeInternalModelFromInverse(internalModel) {
-    heimdall.increment(removeInternalModelFromInverse);
-    let inverseRelationship = internalModel._relationships.get(this.inverseKey);
+  removeModelDataFromInverse(modelData) {
+    debugger
+    heimdall.increment(removeModelDataFromInverse);
+    let inverseRelationship = modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
-      inverseRelationship.removeInternalModelFromOwn(this.internalModel);
+      inverseRelationship.removeModelDataFromOwn(this.modelData);
     }
   }
 
-  removeInternalModelFromOwn(internalModel) {
-    heimdall.increment(removeInternalModelFromOwn);
-    this.members.delete(internalModel);
-    this.internalModel.updateRecordArrays();
+  removeModelDataFromOwn(modelData) {
+    heimdall.increment(removeModelDataFromOwn);
+    this.members.delete(modelData);
   }
 
-  removeCanonicalInternalModelFromInverse(internalModel) {
-    heimdall.increment(removeCanonicalInternalModelFromInverse);
-    let inverseRelationship = internalModel._relationships.get(this.inverseKey);
+  removeCanonicalModelDataFromInverse(modelData) {
+    heimdall.increment(removeCanonicalModelDataFromInverse);
+    let inverseRelationship = modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
-      inverseRelationship.removeCanonicalInternalModelFromOwn(this.internalModel);
+      inverseRelationship.removeCanonicalModelDataFromOwn(this.modelData);
     }
   }
 
-  removeCanonicalInternalModelFromOwn(internalModel) {
-    heimdall.increment(removeCanonicalInternalModelFromOwn);
-    this.canonicalMembers.delete(internalModel);
+  removeCanonicalModelDataFromOwn(modelData) {
+    heimdall.increment(removeCanonicalModelDataFromOwn);
+    this.canonicalMembers.delete(modelData);
     this.flushCanonicalLater();
   }
 
@@ -337,14 +319,14 @@ export default class Relationship {
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     let seen = Object.create(null);
-    const internalModel = this.internalModel;
+    const modelData = this.modelData;
 
-    const unload = inverseInternalModel => {
-      const id = guidFor(inverseInternalModel);
+    const unload = inverseModelData => {
+      const id = guidFor(inverseModelData);
 
       if (seen[id] === undefined) {
-        const relationship = inverseInternalModel._relationships.get(this.inverseKey);
-        relationship.removeCompletelyFromOwn(internalModel);
+        const relationship = inverseModelData._relationships.get(this.inverseKey);
+        relationship.removeCompletelyFromOwn(modelData);
         seen[id] = true;
       }
     };
@@ -380,34 +362,34 @@ export default class Relationship {
   }
 
   /*
-    Removes the given internalModel from BOTH canonical AND current state.
+    Removes the given ModelData from BOTH canonical AND current state.
 
     This method is useful when either a deletion or a rollback on a new record
     needs to entirely purge itself from an inverse relationship.
    */
-  removeCompletelyFromOwn(internalModel) {
-    this.canonicalMembers.delete(internalModel);
-    this.members.delete(internalModel);
-    this.internalModel.updateRecordArrays();
+  removeCompletelyFromOwn(modelData) {
+    this.canonicalMembers.delete(modelData);
+    this.members.delete(modelData);
   }
 
   flushCanonical() {
     heimdall.increment(flushCanonical);
     let list = this.members.list;
     this.willSync = false;
-    //a hack for not removing new internalModels
+    //a hack for not removing new ModelDatas
     //TODO remove once we have proper diffing
-    let newInternalModels = [];
+    let newModelDatas = [];
     for (let i = 0; i < list.length; i++) {
+      // TODO Igor deal with this
       if (list[i].isNew()) {
-        newInternalModels.push(list[i]);
+        newModelDatas.push(list[i]);
       }
     }
 
     //TODO(Igor) make this less abysmally slow
     this.members = this.canonicalMembers.copy();
-    for (let i = 0; i < newInternalModels.length; i++) {
-      this.members.add(newInternalModels[i]);
+    for (let i = 0; i < newModelDatas.length; i++) {
+      this.members.add(newModelDatas[i]);
     }
   }
 
@@ -417,41 +399,39 @@ export default class Relationship {
       return;
     }
     this.willSync = true;
+    // TODO deal with this IGOR DAVID
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link, initial) {
+  updateLink(link, initial, alsoUpdatedData) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
+    warn(`You pushed a record of type '${this.modelData.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
       id: 'ds.store.push-link-for-sync-relationship'
     });
-    assert(`You have pushed a record of type '${this.internalModel.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
+    assert(`You have pushed a record of type '${this.modelData.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
+
+    if (!alsoUpdatedData) {
+      this.updatedLink = true;
+    } else {
+      this.updatedLink = false;
+    }
 
     this.link = link;
     this.linkPromise = null;
-
+    this.hasLoaded = false;
     if (!initial) {
-      this.internalModel.notifyPropertyChange(this.key);
+      let modelData = this.modelData;
+      let storeWrapper = this.modelData.storeWrapper;
+      storeWrapper.notifyPropertyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
     }
   }
 
-  findLink() {
-    heimdall.increment(findLink);
-    if (this.linkPromise) {
-      return this.linkPromise;
-    } else {
-      let promise = this.fetchLink();
-      this.linkPromise = promise;
-      return promise.then((result) => result);
-    }
-  }
-
-  updateInternalModelsFromAdapter(internalModels) {
-    heimdall.increment(updateInternalModelsFromAdapter);
+  updateModelDatasFromAdapter(modelDatas) {
+    heimdall.increment(updateModelDatasFromAdapter);
     this.setHasData(true);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
-    this.computeChanges(internalModels);
+    this.computeChanges(modelDatas);
   }
 
   notifyRecordRelationshipAdded() { }
@@ -513,7 +493,7 @@ export default class Relationship {
       let relatedLink = _normalizeLink(payload.links.related);
       if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
         hasLink = true;
-        this.updateLink(relatedLink.href, initial);
+        this.updateLink(relatedLink.href, initial, hasData);
       }
     }
 

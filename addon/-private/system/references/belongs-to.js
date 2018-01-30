@@ -20,6 +20,7 @@ const BelongsToReference = function(store, parentInternalModel, belongsToRelatio
   this.belongsToRelationship = belongsToRelationship;
   this.type = belongsToRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
+  this.parentInternalModel = parentInternalModel;
 
   // TODO inverse
 };
@@ -109,8 +110,8 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
-  return inverseInternalModel && inverseInternalModel.id;
+  let inverseModelData = this.belongsToRelationship.inverseModelData;
+  return inverseModelData && inverseModelData.id;
 };
 
 /**
@@ -255,9 +256,10 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
       record = this.store.push(data);
     }
 
-    assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel);
+    assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel, this.store);
 
-    this.belongsToRelationship.setCanonicalInternalModel(record._internalModel);
+    //TODO Igor cleanup, maybe move to relationship push
+    this.belongsToRelationship.setCanonicalModelData(record._internalModel._modelData);
 
     return record;
   });
@@ -311,7 +313,9 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
    @return {DS.Model} the record in this relationship
 */
 BelongsToReference.prototype.value = function() {
-  let inverseInternalModel = this.belongsToRelationship.inverseInternalModel;
+  let store = this.parentInternalModel.store;
+  let inverseModelData = this.belongsToRelationship.inverseModelData;
+  let inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
 
   if (inverseInternalModel && inverseInternalModel.isLoaded()) {
     return inverseInternalModel.getRecord();
@@ -357,15 +361,7 @@ BelongsToReference.prototype.value = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
 */
 BelongsToReference.prototype.load = function() {
-  if (this.remoteType() === "id") {
-    return this.belongsToRelationship.getRecord();
-  }
-
-  if (this.remoteType() === "link") {
-    return this.belongsToRelationship.findLink().then((internalModel) => {
-      return this.value();
-    });
-  }
+  return this.parentInternalModel.getBelongsTo(this.belongsToRelationship.key);
 };
 
 /**
@@ -403,10 +399,27 @@ BelongsToReference.prototype.load = function() {
    @method reload
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
 */
+// TODO IGOR CHECK FOR OBJECT PROXIES
 BelongsToReference.prototype.reload = function() {
-  return this.belongsToRelationship.reload().then((internalModel) => {
-    return this.value();
-  });
+  let resource = this.belongsToRelationship.getData();
+  if (resource && resource.links && resource.links.related) {
+    return this.store._fetchBelongsToLinkFromResource(resource, this.parentInternalModel, this.belongsToRelationship.relationshipMeta);
+  }
+  if (resource && resource.data) {
+    if (resource.data && (resource.data.id || resource.data.clientId)) {
+      let internalModel = this.store._internalModelForResource(resource.data);
+      if (internalModel.isLoaded()) {
+        return internalModel.reload().then((internalModel) => {
+          if (internalModel) {
+            return internalModel.getRecord();
+          }
+          return null;
+        });
+      } else {
+        return this.store._findByInternalModel(internalModel);
+      }
+    }
+  }
 };
 
 export default BelongsToReference;

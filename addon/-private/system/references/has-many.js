@@ -20,6 +20,7 @@ const HasManyReference = function(store, parentInternalModel, hasManyRelationshi
   this.hasManyRelationship = hasManyRelationship;
   this.type = hasManyRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
+  this.parentInternalModel = parentInternalModel;
 
   // TODO inverse
 };
@@ -274,26 +275,27 @@ HasManyReference.prototype.push = function(objectOrPromise) {
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
+          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
         }
-
-        return record._internalModel;
+        return record._internalModel._modelData;
       });
     } else {
       let records = this.store.push(payload);
-      internalModels = A(records).mapBy('_internalModel');
+      internalModels = A(records).mapBy('_internalModel').map((im) => im._modelData);
 
       if (DEBUG) {
         internalModels.forEach((internalModel) => {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
+          assertPolymorphicType(this.internalModel, relationshipMeta, internalModel, this.store);
         });
       }
     }
 
     this.hasManyRelationship.computeChanges(internalModels);
 
-    return this.hasManyRelationship.manyArray;
+    return this.internalModel.getHasMany(this.hasManyRelationship.key);
+    // TODO IGOR it seems wrong that we were returning the many array here
+    //return this.hasManyRelationship.manyArray;
   });
 };
 
@@ -305,7 +307,10 @@ HasManyReference.prototype._isLoaded = function() {
 
   let members = this.hasManyRelationship.members.toArray();
 
-  return members.every(function(internalModel) {
+  //TODO Igor cleanup
+  return members.every((modelData) => {
+    let store = this.parentInternalModel.store;
+    let internalModel = store._internalModelForModelData(modelData);
     return internalModel.isLoaded() === true;
   });
 };
@@ -350,7 +355,7 @@ HasManyReference.prototype._isLoaded = function() {
 */
 HasManyReference.prototype.value = function() {
   if (this._isLoaded()) {
-    return this.hasManyRelationship.manyArray;
+    return this.internalModel.getManyArray(this.hasManyRelationship.key);
   }
 
   return null;
@@ -394,11 +399,7 @@ HasManyReference.prototype.value = function() {
    this has-many relationship.
 */
 HasManyReference.prototype.load = function() {
-  if (!this._isLoaded()) {
-    return this.hasManyRelationship.getRecords();
-  }
-
-  return resolve(this.hasManyRelationship.manyArray);
+  return this.internalModel.getHasMany(this.hasManyRelationship.key);
 };
 
 /**
@@ -436,7 +437,7 @@ HasManyReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
 */
 HasManyReference.prototype.reload = function() {
-  return this.hasManyRelationship.reload();
+  return this.internalModel.reloadHasMany(this.hasManyRelationship.key);
 };
 
 export default HasManyReference;

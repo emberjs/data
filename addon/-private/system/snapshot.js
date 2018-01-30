@@ -204,13 +204,16 @@ export default class Snapshot {
       return this._belongsToRelationships[keyName];
     }
 
-    relationship = this._internalModel._relationships.get(keyName);
+    // TODO IGOR AND DAVID refactor
+    relationship = this._internalModel._modelData._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
       throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
     hasData = get(relationship, 'hasData');
-    inverseInternalModel = get(relationship, 'inverseInternalModel');
+    let inverseModelData = get(relationship, 'inverseModelData');
+    let store = this._internalModel.store;
+    inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
 
     if (hasData) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -275,7 +278,8 @@ export default class Snapshot {
       return this._hasManyRelationships[keyName];
     }
 
-    relationship = this._internalModel._relationships.get(keyName);
+    //TODO IGOR AND DAVID REFACTOR
+    relationship = this._internalModel._modelData._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
       throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
@@ -286,11 +290,13 @@ export default class Snapshot {
     if (hasData) {
       results = [];
       members.forEach((member) => {
-        if (!member.isDeleted()) {
+        let store = this._internalModel.store;
+        let internalModel = store._internalModelForModelData(member);
+        if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);
           } else {
-            results.push(member.createSnapshot());
+            results.push(internalModel.createSnapshot());
           }
         }
       });
