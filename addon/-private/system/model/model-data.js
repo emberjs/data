@@ -22,6 +22,7 @@ export default class ModelData {
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;
+    this.reset();
   }
 
   // PUBLIC API
@@ -67,8 +68,7 @@ export default class ModelData {
     return this.__attributes !== null && Object.keys(this.__attributes).length > 0;
   }
 
-  // TODO, Maybe can model as destroying model data?
-  resetRecord() {
+  reset() {
     this.__attributes = null;
     this.__inFlightAttributes = null;
     this._data = null;
@@ -283,7 +283,7 @@ export default class ModelData {
     if (this.isDestroyed) {
       return;
     }
-    //add data cleanup here?
+    this.reset();
     this._cleanupOrphanedModelDatas();
   }
 

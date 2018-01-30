@@ -266,7 +266,6 @@ export default class InternalModel {
     this.isReloading = false;
     this.error = null;
     this.currentState = RootState.empty;
-    this._modelData.resetRecord();
   }
 
   dematerializeRecord() {
