@@ -5,6 +5,7 @@ import { assign, merge } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
 import { copy } from '@ember/object/internals';
+import coerceId from "../coerce-id";
 
 const emberAssign = assign || merge;
 let nextBfsId = 1;
@@ -72,7 +73,7 @@ export default class ModelData {
     }
 
     if (data.id) {
-      this.id = data.id;
+      this.id = coerceId(data.id);
     }
 
     return changedKeys;
@@ -652,7 +653,6 @@ if (isEnabled('ds-rollback-attribute')) {
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
 function destroyRelationship(rel) {
-debugger
   rel.modelDataDidDematerialize();
 
   if (rel._inverseIsSync()) {

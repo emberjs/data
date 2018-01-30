@@ -150,8 +150,8 @@ HasManyReference.prototype.link = function() {
 HasManyReference.prototype.ids = function() {
   let members = this.hasManyRelationship.members.toArray();
 
-  return members.map(function(internalModel) {
-    return internalModel.id;
+  return members.map(function(modelData) {
+    return modelData.id;
   });
 };
 

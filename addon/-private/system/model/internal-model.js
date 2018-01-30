@@ -431,7 +431,7 @@ export default class InternalModel {
     let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
 
     let manyArray = this._manyArrayCache[key];
-    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, manyArray === null || !this._retainedManyArrayCache[key]);
+    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, !manyArray || !this._retainedManyArrayCache[key]);
     if (!manyArray) {
       manyArray = this.store._manyArrayFor(
         relationshipMeta.type,
@@ -680,7 +680,6 @@ export default class InternalModel {
   }
 
   notifyHasManyChange(key, record, idx) {
-if(self._stop){debugger}
     if (this.hasRecord) {
       let manyArray = this._manyArrayCache[key];
       if (manyArray) {
@@ -694,8 +693,7 @@ if(self._stop){debugger}
         manyArray.retrieveLatest();
         // TODO Igor be rigorous about when to delete this
         // TODO: igor check for case where we later unload again
-        let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
-        if (this._relationshipPromisesCache[key] && didRemoveUnloadedModel) {
+        if (this._relationshipPromisesCache[key] && manyArray.anyUnloaded()) {
           delete this._relationshipPromisesCache[key];
         }
       }
@@ -714,6 +712,14 @@ if(self._stop){debugger}
     if (this.hasRecord) {
       this._record.notifyPropertyChange(key);
       this.updateRecordArrays();
+    }
+    let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
+    if (manyArray) {
+      manyArray.removeUnloadedInternalModel();
+      if (this._manyArrayCache[key]) {
+        this._retainedManyArrayCache[key] = this._manyArrayCache[key];
+        delete this._manyArrayCache[key];
+      }
     }
     if (this._relationshipPromisesCache[key]) {
       this._relationshipPromisesCache[key].destroy();

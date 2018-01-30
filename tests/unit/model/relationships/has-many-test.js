@@ -1599,7 +1599,6 @@ test('hasMany.firstObject.unloadRecord should not break that hasMany', function(
     assert.equal(person.get('cars.length'), 1); // unload now..
   });
 
-  debugger
   assert.equal(cars.get('length'), 1); // unload now..
   assert.equal(person.get('cars.length'), 1); // unload now..
 });

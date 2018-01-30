@@ -109,10 +109,10 @@ export default class Relationship {
     if (!this.inverseKey) { return; }
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
-     this.forAllMembers((inverseModelData) => {
-       let relationship = inverseModelData._relationships.get(this.inverseKey);
-       relationship.inverseDidDematerialize(this.modelData);
-     });
+    this.forAllMembers((inverseModelData) => {
+      let relationship = inverseModelData._relationships.get(this.inverseKey);
+      relationship.inverseDidDematerialize(this.modelData);
+    });
   }
 
   forAllMembers(callback) {
@@ -354,28 +354,6 @@ export default class Relationship {
 
     if (!this.isAsync) {
       this.clear();
-    }
-  }
-
-  forAllMembers(callback) {
-    let seen = Object.create(null);
-
-    for (let i = 0; i < this.members.list.length; i++) {
-      const inverseInternalModel = this.members.list[i];
-      const id = guidFor(inverseInternalModel);
-      if (!seen[id]) {
-        seen[id] = true;
-        callback(inverseInternalModel);
-      }
-    }
-
-    for (let i = 0; i < this.canonicalMembers.list.length; i++) {
-      const inverseInternalModel = this.canonicalMembers.list[i];
-      const id = guidFor(inverseInternalModel);
-      if (!seen[id]) {
-        seen[id] = true;
-        callback(inverseInternalModel);
-      }
     }
   }
 
