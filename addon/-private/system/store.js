@@ -2539,18 +2539,6 @@ Store = Service.extend({
 
   _fetchHasManyLinkFromResource(resource, parentInternalModel, relationshipMeta) {
     return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta).then(internalModels => {
-      //parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, response);
-      /*
-      if (records.hasOwnProperty('meta')) {
-        this.updateMeta(records.meta);
-      }
-      this.store._backburner.join(() => {
-        this.updateInternalModelsFromAdapter(records);
-        this.manyArray.set('isLoaded', true);
-        this.setHasData(true);
-      });
-      return this.manyArray;
-      */
       let payload = { data: internalModels.map((im) => im._modelData.getResourceIdentifier()) };
       if (internalModels.meta !== undefined) {
         payload.meta = internalModels.meta;

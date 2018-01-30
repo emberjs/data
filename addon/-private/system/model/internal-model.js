@@ -312,7 +312,9 @@ export default class InternalModel {
   }
 
   linkWasLoadedForRelationship(key, data) {
-    this._modelData.linkWasLoadedForRelationship(key, data);
+    let relationships = {};
+    relationships[key] = data;
+    this._modelData.pushData({ id: this.id, type: this.modelName, relationships });
   }
 
   finishedReloading() {

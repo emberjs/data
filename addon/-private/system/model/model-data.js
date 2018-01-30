@@ -34,27 +34,6 @@ export default class ModelData {
     }
   }
 
-  linkWasLoadedForRelationship(key, jsonApi) {
-    let data = jsonApi.data;
-    if (data) {
-      if (Array.isArray(data)) {
-        let modelDatas = data.map((json) => this.storeWrapper.modelDataFor(json.type, json.id));
-        // TODO IGOR this used to be in a runloop, consider putting back in
-        // TODO IGOR There shouldn't be a need to have this separate method, should probably use push
-        this._relationships.get(key).updateModelDatasFromAdapter(modelDatas);
-        // TODO Igor this should live somewhere else
-        this._relationships.get(key).setHasLoaded(true);
-        if (jsonApi.meta !== undefined) {
-          this._relationships.get(key).updateMeta(jsonApi.meta);
-        }
-      } else {
-        let modelData = this.store.modelDataFor(data.type, data.id);
-        // TODO IGOR There shouldn't be a need to have this separate method, should probably use push
-        this._relationships.get(key).addModelData(modelData);
-      }
-    }
-  }
-
   pushData(data, calculateChange) {
     let changedKeys;
 
