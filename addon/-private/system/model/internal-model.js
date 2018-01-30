@@ -715,8 +715,8 @@ export default class InternalModel {
     }
     let manyArray = this._manyArrayCache[key] || this._retainedManyArrayCache[key];
     if (manyArray) {
-      manyArray.removeUnloadedInternalModel();
-      if (this._manyArrayCache[key]) {
+      let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
+      if (this._manyArrayCache[key] && didRemoveUnloadedModel) {
         this._retainedManyArrayCache[key] = this._manyArrayCache[key];
         delete this._manyArrayCache[key];
       }
