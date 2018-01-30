@@ -28,7 +28,6 @@ export default class ModelDataWrapper {
 
   inverseForRelationship(modelName, key) {
     let modelClass = this.store._modelFor(modelName);
-    debugger
     return this.relationshipsDefinitionFor(modelName)[key]._inverseKey(this.store, modelClass);
   }
 

@@ -58,6 +58,7 @@ class RelationshipDefinition {
   }
 
   _inverseIsAsync(store, modelClass) {
+    debugger
     if (this.__inverseIsAsync === null) {
       this._calculateInverse(store, modelClass);
     }
@@ -65,6 +66,7 @@ class RelationshipDefinition {
   }
 
   _calculateInverse(store, modelClass) {
+    debugger
     let inverseKey, inverseIsAsync;
     let inverse = null;
 

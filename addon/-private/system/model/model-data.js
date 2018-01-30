@@ -519,7 +519,6 @@ export default class ModelData {
     Object.keys(implicitRelationships).forEach((key) => {
       let rel = implicitRelationships[key];
       destroyRelationship(rel);
-      rel.destroy();
     });
   }
 
@@ -642,9 +641,20 @@ if (isEnabled('ds-rollback-attribute')) {
   };
 }
 
+// Handle dematerialization for relationship `rel`.  In all cases, notify the
+// relatinoship of the dematerialization: this is done so the relationship can
+// notify its inverse which needs to update state
+//
+// If the inverse is sync, unloading this record is treated as a client-side
+// delete, so we remove the inverse records from this relationship to
+// disconnect the graph.  Because it's not async, we don't need to keep around
+// the internalModel as an id-wrapper for references and because the graph is
+// disconnected we can actually destroy the internalModel when checking for
+// orphaned models.
 function destroyRelationship(rel) {
-  rel.internalModelDidDematerialize();
+  rel.modelDataDidDematerialize();
   
+  debugger
   if (rel._inverseIsSync()) {
     rel.removeAllModelDatasFromOwn();
     rel.removeAllCanonicalModelDatasFromOwn();

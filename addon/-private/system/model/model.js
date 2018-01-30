@@ -1340,7 +1340,8 @@ Model.reopenClass({
     return {
       type: inverseType,
       name: inverseName,
-      kind: inverseKind
+      kind: inverseKind,
+      options
     };
   },
 

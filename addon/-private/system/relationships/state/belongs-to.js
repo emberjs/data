@@ -56,7 +56,7 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   inverseDidDematerialize() {
-    super.inverseDidDematerialize(this.inverseInternalModel);
+    super.inverseDidDematerialize(this.inverseModelData);
     this.notifyBelongsToChanged();
   }
 
@@ -77,7 +77,7 @@ export default class BelongsToRelationship extends Relationship {
   removeCompletelyFromInverse() {
     super.removeCompletelyFromInverse();
 
-    this.inverseInternalModel = null;
+    this.inverseModelData = null;
   }
 
   flushCanonical() {
@@ -126,7 +126,7 @@ export default class BelongsToRelationship extends Relationship {
 
   removeAllModelDatasFromOwn() {
     super.removeAllModelDatasFromOwn();
-    this.inverseInternalModel = null;
+    this.inverseModelData = null;
     this.notifyBelongsToChanged();
   }
 
@@ -140,6 +140,11 @@ export default class BelongsToRelationship extends Relationship {
     if (!this.canonicalMembers.has(modelData)) { return;}
     this.canonicalState = null;
     super.removeCanonicalModelDataFromOwn(modelData);
+  }
+
+  removeAllCanonicalModelDatasFromOwn() {
+    super.removeAllCanonicalModelDatasFromOwn();
+    this.canonicalState = null;
   }
 
   getData() {

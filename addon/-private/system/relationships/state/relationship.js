@@ -105,7 +105,7 @@ export default class Relationship {
     return this.internalModel.modelName;
   }
 
-  internalModelDidDematerialize() {
+  modelDataDidDematerialize() {
     if (!this.inverseKey) { return; }
     let allMembers =
     // we actually want a union of members and canonicalMembers
@@ -119,13 +119,13 @@ export default class Relationship {
     }
   }
 
-  inverseDidDematerialize(inverseInternalModel) {
+  inverseDidDematerialize(inverseModelData) {
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
-      this.removeModelDataFromOwn(inverseInternalModel);
-      this.removeCanonicalModelDataFromOwn(inverseInternalModel);
+      this.removeModelDataFromOwn(inverseModelData);
+      this.removeCanonicalModelDataFromOwn(inverseModelData);
     }
   }
 
