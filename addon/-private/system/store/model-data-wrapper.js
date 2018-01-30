@@ -38,17 +38,17 @@ export default class ModelDataWrapper {
   }
 
   notifyPropertyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._internalModelForId(modelName, id, clientId);
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     internalModel.notifyPropertyChange(key);
   }
 
   notifyHasManyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._internalModelForId(modelName, id, clientId);
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     internalModel.notifyHasManyChange(key);
   }
 
   notifyBelongsToChange(modelName, id, clientId, key) {
-    let internalModel = this.store._internalModelForId(modelName, id, clientId);
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     internalModel.notifyBelongsToChange(key);
   }
 
