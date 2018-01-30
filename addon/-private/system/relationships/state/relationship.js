@@ -393,7 +393,7 @@ export default class Relationship {
       return;
     }
     this.willSync = true;
-    // TODO deal with this IGOR DAVID
+    // Reaching back into the store to use ED's runloop
     this.store._updateRelationshipState(this);
   }
 

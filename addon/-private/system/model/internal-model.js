@@ -269,6 +269,8 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
+    // TODO IGOR add a test that fails when this is missing, something that involves canceliing a destroy
+    // and the destroy not happening, and then later on trying to destroy
     this._doNotDestroy = false;
     if (this._record) {
       Object.keys(this._relationshipPromisesCache).forEach((key) => {
@@ -284,12 +286,10 @@ export default class InternalModel {
       });
       this._isDematerializing = true;
       this._record.destroy();
-      // TODO TODO IGOR DAVID this should probably not happen inside if this._record, because you could
-      // be unloading if the record is not materialized
-      this._modelData.unloadRecord();
       this.updateRecordArrays();
       this.resetRecord();
     }
+    this._modelData.unloadRecord();
   }
 
   deleteRecord() {

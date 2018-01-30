@@ -193,8 +193,9 @@ export default class Snapshot {
    */
   belongsTo(keyName, options) {
     let id = options && options.id;
-    let relationship, inverseInternalModel, hasData;
+    let inverseInternalModel;
     let result;
+    let store = this._internalModel.store;
 
     if (id && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -204,18 +205,17 @@ export default class Snapshot {
       return this._belongsToRelationships[keyName];
     }
 
-    // TODO IGOR AND DAVID refactor
-    relationship = this._internalModel._modelData._relationships.get(keyName);
-    if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
+    let relationshipMeta = store._relationshipFor(this.modelName, null, keyName);
+    if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
       throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
-    let inverseModelData = get(relationship, 'inverseModelData');
-    let store = this._internalModel.store;
-    inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
+    let value = this._internalModel._modelData.getBelongsTo(keyName);
+    let data = value && value.data;
 
-    if (hasData) {
+    inverseInternalModel = data && store._internalModelForResource(data);
+
+    if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
           result = get(inverseInternalModel, 'id');

@@ -2603,7 +2603,7 @@ Store = Service.extend({
     if (isAsync) {
       return PromiseObject.create(this._findBelongsToAsync(resource, parentInternalModel, relationshipMeta));
     } else {
-      if (!resource) {
+      if (!resource || !resource.data) {
         return null;
       } else {
         let internalModel = this._internalModelForResource(resource.data);
