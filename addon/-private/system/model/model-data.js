@@ -6,6 +6,7 @@ import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
 import { copy } from '@ember/object/internals';
 import coerceId from "../coerce-id";
+import { run } from '@ember/runloop';
 
 const emberAssign = assign || merge;
 let nextBfsId = 1;
@@ -283,8 +284,11 @@ export default class ModelData {
     if (this.isDestroyed) {
       return;
     }
+    this._destroyRelationships();
     this.reset();
-    this._cleanupOrphanedModelDatas();
+    if (!this._scheduledDestroy) {
+      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_cleanupOrphanedModelDatas')
+    }
   }
 
   _cleanupOrphanedModelDatas() {
@@ -296,8 +300,8 @@ export default class ModelData {
           modelData.destroy();
         }
       }
-      this.destroy();
     }
+    this._scheduledDestroy = null;
   }
 
   destroy() {
@@ -489,8 +493,7 @@ export default class ModelData {
     });
   }
 
-  // TODO IGOR AND DAVID this shouldn't be public
-  destroyRelationships() {
+  _destroyRelationships() {
     let relationships = this._relationships;
     relationships.forEach((name, rel) => destroyRelationship(rel));
 

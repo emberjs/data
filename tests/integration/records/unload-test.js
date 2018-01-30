@@ -445,7 +445,7 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
     assert.equal(env.store._internalModelsFor('boat').models.length, 0);
 
     assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
-    assert.equal(cleanupOrphanCalls, 1, 'cleanup only happens once');
+    assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
   });
 });
 

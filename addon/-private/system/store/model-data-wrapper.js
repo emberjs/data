@@ -67,7 +67,7 @@ export default class ModelDataWrapper {
   disconnectRecord(modelName, id, clientId) {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     if (internalModel) {
-      internalModel.destroy();
+      internalModel.destroyFromModelData();
     }
   }
 

@@ -269,6 +269,7 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
+    this._doNotDestroy = false;
     if (this._record) {
       Object.keys(this._relationshipPromisesCache).forEach((key) => {
         // TODO Igor cleanup the guard
@@ -285,7 +286,7 @@ export default class InternalModel {
       this._record.destroy();
       // TODO TODO IGOR DAVID this should probably not happen inside if this._record, because you could
       // be unloading if the record is not materialized
-      this.destroyRelationships();
+      this._modelData.unloadRecord();
       this.updateRecordArrays();
       this.resetRecord();
     }
@@ -375,6 +376,7 @@ export default class InternalModel {
   cancelDestroy() {
     assert(`You cannot cancel the destruction of an InternalModel once it has already been destroyed`, !this.isDestroyed);
 
+    this._doNotDestroy = true;
     this._isDematerializing = false;
     run.cancel(this._scheduledDestroy);
     this._scheduledDestroy = null;
@@ -407,8 +409,6 @@ export default class InternalModel {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
     if (this.isDestroyed) { return; }
-
-    this._modelData.unloadRecord();
   }
 
   eachRelationship(callback, binding) {
@@ -542,6 +542,14 @@ export default class InternalModel {
 
   setHasMany(key, value) {
     this._modelData.setHasMany(key, value.map((record) => record.get('_internalModel._modelData').getResourceIdentifier()));
+  }
+
+  destroyFromModelData() {
+    if (this._doNotDestroy) {
+      this._doNotDestroy = false;
+      return;
+    }
+    this.destroy();
   }
 
   destroy() {
@@ -846,14 +854,6 @@ export default class InternalModel {
 
   removeFromInverseRelationships(isNew = false) {
     this._modelData.removeFromInverseRelationships(isNew);
-  }
-
-  /*
-    Notify all inverses that this internalModel has been dematerialized
-    and destroys any ManyArrays.
-   */
-  destroyRelationships() {
-    this._modelData.destroyRelationships();
   }
 
   /*
