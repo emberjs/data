@@ -2571,6 +2571,7 @@ Store = Service.extend({
     if (resource.data) {
       return this._fetchHasManyByData(resource);
     }
+    return { promise: RSVP.resolve([]) };
   },
 
   // TODO IGOR

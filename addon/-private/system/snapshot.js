@@ -267,7 +267,6 @@ export default class Snapshot {
    */
   hasMany(keyName, options) {
     let ids = options && options.ids;
-    let relationship, members, hasData;
     let results;
 
     if (ids && keyName in this._hasManyIds) {
@@ -278,20 +277,18 @@ export default class Snapshot {
       return this._hasManyRelationships[keyName];
     }
 
-    //TODO IGOR AND DAVID REFACTOR
-    relationship = this._internalModel._modelData._relationships.get(keyName);
-    if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
+    let store = this._internalModel.store;
+    let relationshipMeta = store._relationshipFor(this.modelName, null, keyName);
+    if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
       throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
-    members = get(relationship, 'members');
+    let value = this._internalModel._modelData.getHasMany(keyName);
 
-    if (hasData) {
+    if (value.data) {
       results = [];
-      members.forEach((member) => {
-        let store = this._internalModel.store;
-        let internalModel = store._internalModelForModelData(member);
+      value.data.forEach((member) => {
+        let internalModel = store._internalModelForResource(member);
         if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);

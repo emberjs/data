@@ -193,7 +193,7 @@ export default class ManyRelationship extends Relationship {
 
   getData() {
     let payload = {};
-    if (this.currentState) {
+    if (this.hasData) {
       payload.data = this.currentState.map((modelData) => modelData.getResourceIdentifier());
     }
     if (this.link) {
