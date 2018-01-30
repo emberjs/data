@@ -1,354 +1,228 @@
-import { assert } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
-import ManyArray from '../../many-array';
+import { isNone } from '@ember/utils';
 
 export default class ManyRelationship extends Relationship {
-  constructor(store, internalModel, inverseKey, relationshipMeta) {
-    super(store, internalModel, inverseKey, relationshipMeta);
+  constructor(store, inverseKey, relationshipMeta, modelData, inverseIsAsync) {
+    super(store, inverseKey, relationshipMeta, modelData, inverseIsAsync);
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
+    this.currentState = [];
     this.isPolymorphic = relationshipMeta.options.polymorphic;
-    // The ManyArray for this relationship
-    this._manyArray = null;
-    // The previous ManyArray for this relationship.  It will be destroyed when
-    // we create a new many array, but in the interim it will be updated if
-    // inverse internal models are unloaded.
-    this._retainedManyArray = null;
-    this.__loadingPromise = null;
-  }
-
-  get _loadingPromise() { return this.__loadingPromise; }
-  _updateLoadingPromise(promise, content) {
-    if (this.__loadingPromise) {
-      if (content) {
-        this.__loadingPromise.set('content', content)
-      }
-      this.__loadingPromise.set('promise', promise)
-    } else {
-      this.__loadingPromise = PromiseManyArray.create({
-        promise,
-        content
-      });
-    }
-
-    return this.__loadingPromise;
-  }
-
-  get manyArray() {
-    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, this._manyArray === null || this._retainedManyArray === null);
-
-    if (!this._manyArray) {
-      this._manyArray = ManyArray.create({
-        canonicalState: this.canonicalState,
-        store: this.store,
-        relationship: this,
-        type: this.store.modelFor(this.belongsToType),
-        record: this.internalModel,
-        meta: this.meta,
-        isPolymorphic: this.isPolymorphic
-      });
-
-      if (this._retainedManyArray !== null) {
-        this._retainedManyArray.destroy();
-        this._retainedManyArray = null;
-      }
-    }
-
-    return this._manyArray;
   }
 
   removeInverseRelationships() {
     super.removeInverseRelationships();
-    if (this._manyArray) {
-      this._manyArray.destroy();
-      this._manyArray = null;
-    }
 
+    /* TODO Igor make sure this is still working
     if (this._loadingPromise) {
       this._loadingPromise.destroy();
     }
+    */
   }
 
-  updateMeta(meta) {
-    super.updateMeta(meta);
-    if (this._manyArray) {
-      this._manyArray.set('meta', meta);
-    }
-  }
-
-  addCanonicalInternalModel(internalModel, idx) {
-    if (this.canonicalMembers.has(internalModel)) {
+  addCanonicalModelData(modelData, idx) {
+    if (this.canonicalMembers.has(modelData)) {
       return;
     }
     if (idx !== undefined) {
-      this.canonicalState.splice(idx, 0, internalModel);
+      this.canonicalState.splice(idx, 0, modelData);
     } else {
-      this.canonicalState.push(internalModel);
+      this.canonicalState.push(modelData);
     }
-    super.addCanonicalInternalModel(internalModel, idx);
+    super.addCanonicalModelData(modelData, idx);
   }
 
-  inverseDidDematerialize(inverseInternalModel) {
-    super.inverseDidDematerialize(inverseInternalModel);
+  inverseDidDematerialize(inverseModelData) {
+    super.inverseDidDematerialize(inverseModelData);
     if (this.isAsync) {
-      if (this._manyArray) {
-        this._retainedManyArray = this._manyArray;
-        this._manyArray = null;
-      }
-      this._removeInternalModelFromManyArray(this._retainedManyArray, inverseInternalModel);
+      this.notifyManyArrayIsStale();
     }
+  }
+
+  notifyManyArrayIsStale() {
+    let storeWrapper = this.modelData.storeWrapper;
+    let modelData = this.modelData;
+    storeWrapper.notifyPropertyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
+  }
+
+  addModelData(modelData, idx) {
+    if (this.members.has(modelData)) {
+      return;
+    }
+
+    assertPolymorphicType(this.modelData, this.relationshipMeta, modelData, this.store);
+    super.addModelData(modelData, idx);
+    // make lazy later
+    if (idx === undefined) {
+      idx = this.currentState.length;
+    }
+    this.currentState.splice(idx, 0, modelData);
+    // TODO Igor consider making direct to remove the indirection
+    // We are not lazily accessing the manyArray here because the change is coming from app side
+    // this.manyArray.flushCanonical(this.currentState);
     this.notifyHasManyChanged();
   }
 
-  addInternalModel(internalModel, idx) {
-    if (this.members.has(internalModel)) {
-      return;
-    }
-
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
-    super.addInternalModel(internalModel, idx);
-    // make lazy later
-    this.manyArray._addInternalModels([internalModel], idx);
-  }
-
-  removeCanonicalInternalModelFromOwn(internalModel, idx) {
+  removeCanonicalModelDataFromOwn(modelData, idx) {
     let i = idx;
-    if (!this.canonicalMembers.has(internalModel)) {
+    if (!this.canonicalMembers.has(modelData)) {
       return;
     }
     if (i === undefined) {
-      i = this.canonicalState.indexOf(internalModel);
+      i = this.canonicalState.indexOf(modelData);
     }
     if (i > -1) {
       this.canonicalState.splice(i, 1);
     }
-    super.removeCanonicalInternalModelFromOwn(internalModel, idx);
+    super.removeCanonicalModelDataFromOwn(modelData, idx);
+    //TODO(Igor) Figure out what to do here
   }
 
-  removeAllCanonicalInternalModelsFromOwn() {
-    super.removeAllCanonicalInternalModelsFromOwn();
+  removeAllCanonicalModelDatasFromOwn() {
+    super.removeAllCanonicalModelDatasFromOwn();
     this.canonicalMembers.clear();
     this.canonicalState.splice(0, this.canonicalState.length);
   }
 
-  removeCompletelyFromOwn(internalModel) {
-    super.removeCompletelyFromOwn(internalModel);
+  //TODO(Igor) DO WE NEED THIS?
+  removeCompletelyFromOwn(modelData) {
+    super.removeCompletelyFromOwn(modelData);
 
-    const canonicalIndex = this.canonicalState.indexOf(internalModel);
+    // SCEPTICAL
+    const canonicalIndex = this.canonicalState.indexOf(modelData);
 
     if (canonicalIndex !== -1) {
       this.canonicalState.splice(canonicalIndex, 1);
     }
 
-    const manyArray = this._manyArray;
-
-    if (manyArray) {
-      const idx = manyArray.currentState.indexOf(internalModel);
-
-      if (idx !== -1) {
-        manyArray.internalReplace(idx, 1);
-      }
-    }
+    this.removeModelDataFromOwn(modelData);
   }
 
   flushCanonical() {
+    let toSet = this.canonicalState;
+
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    let newModelDatas = this.currentState.filter(
+      // only add new internalModels which are not yet in the canonical state of this
+      // relationship (a new internalModel can be in the canonical state if it has
+      // been 'acknowleged' to be in the relationship via a store.push)
+
+      //TODO Igor deal with this
+      (modelData) => modelData.isNew() && toSet.indexOf(modelData) === -1
+    );
+    toSet = toSet.concat(newModelDatas);
+
+    /*
     if (this._manyArray) {
-      this._manyArray.flushCanonical();
+      this._manyArray.flushCanonical(toSet);
     }
+    */
+    this.currentState = toSet;
     super.flushCanonical();
+    // Once we clean up all the flushing, we will be left with at least the notifying part
+    this.notifyHasManyChanged();
   }
 
-  removeInternalModelFromOwn(internalModel, idx) {
-    if (!this.members.has(internalModel)) {
+  //TODO(Igor) idx not used currently, fix
+  removeModelDataFromOwn(modelData, idx) {
+    super.removeModelDataFromOwn(modelData, idx);
+    let index = idx || this.currentState.indexOf(modelData);
+
+    //TODO IGOR DAVID INVESTIGATE
+    if (index === -1) {
       return;
     }
-    super.removeInternalModelFromOwn(internalModel, idx);
-    // note that ensuring the many array is created, via `this.manyArray`
-    // (instead of `this._manyArray`) is intentional.
-    //
-    // Because we're removing from local, and not canonical, state, it is
-    // important that the many array is initialized now with those changes,
-    // otherwise it will be initialized with canonical state and we'll have
-    // lost the fact that this internalModel was removed.
-    this._removeInternalModelFromManyArray(this.manyArray, internalModel, idx);
-    this._removeInternalModelFromManyArray(this._retainedManyArray, internalModel, idx);
+    this.currentState.splice(index, 1);
+    // TODO Igor consider making direct to remove the indirection
+    // We are not lazily accessing the manyArray here because the change is coming from app side
+    this.notifyHasManyChanged();
+   // this.manyArray.flushCanonical(this.currentState);
   }
 
-  removeAllInternalModelsFromOwn() {
-    super.removeAllInternalModelsFromOwn();
-    // as with removeInternalModelFromOwn, we make sure the many array is
-    // instantiated, or we'll lose local removals, as we're not updating
-    // canonical state here.
-    this.manyArray.clear();
-    if (this._retainedManyArray) {
-      this._retainedManyArray.clear();
-    }
+  notifyRecordRelationshipAdded() {
+    this.notifyHasManyChanged();
   }
 
-  _removeInternalModelFromManyArray(manyArray, internalModel, idx) {
-    if (manyArray === null) {
-      return;
-    }
-
-    if (idx !== undefined) {
-      //TODO(Igor) not used currently, fix
-      manyArray.currentState.removeAt(idx);
-    } else {
-      manyArray._removeInternalModels([internalModel]);
-    }
-  }
-
-  notifyRecordRelationshipAdded(internalModel, idx) {
-    this.internalModel.notifyHasManyAdded(this.key, internalModel, idx);
-  }
-
-  reload() {
-    let manyArray = this.manyArray;
-    let manyArrayLoadedState = manyArray.get('isLoaded');
-
-    if (this._loadingPromise) {
-      if (this._loadingPromise.get('isPending')) {
-        return this._loadingPromise;
-      }
-      if (this._loadingPromise.get('isRejected')) {
-        manyArray.set('isLoaded', manyArrayLoadedState);
-      }
-    }
-
-    let promise;
-    if (this.link) {
-      promise = this.fetchLink();
-    } else {
-      promise = this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray);
-    }
-
-    this._updateLoadingPromise(promise);
-    return this._loadingPromise;
-  }
-
-  computeChanges(internalModels = []) {
+  computeChanges(modelDatas = []) {
     let members = this.canonicalMembers;
-    let internalModelsToRemove = [];
-    let internalModelSet = setForArray(internalModels);
+    let modelDatasToRemove = [];
+    let modelDatasSet = setForArray(modelDatas);
 
     members.forEach(member => {
-      if (internalModelSet.has(member)) { return; }
+      if (modelDatasSet.has(member)) { return; }
 
-      internalModelsToRemove.push(member);
+      modelDatasToRemove.push(member);
     });
 
-    this.removeCanonicalInternalModels(internalModelsToRemove);
+    this.removeCanonicalModelDatas(modelDatasToRemove);
 
-    for (let i = 0, l = internalModels.length; i < l; i++) {
-      let internalModel = internalModels[i];
-      this.removeCanonicalInternalModel(internalModel);
-      this.addCanonicalInternalModel(internalModel, i);
+    for (let i = 0, l = modelDatas.length; i < l; i++) {
+      let modelData = modelDatas[i];
+      this.removeCanonicalModelData(modelData);
+      this.addCanonicalModelData(modelData, i);
     }
   }
 
-  setInitialInternalModels(internalModels) {
-    if (Array.isArray(internalModels) === false || internalModels.length === 0) {
+  setInitialModelDatas(modelDatas) {
+    if (Array.isArray(modelDatas) === false || modelDatas.length === 0) {
       return;
     }
 
-    for (let i = 0; i< internalModels.length; i++) {
-      let internalModel = internalModels[i];
-      if (this.canonicalMembers.has(internalModel)) {
+    for (let i = 0; i< modelDatas.length; i++) {
+      let modelData = modelDatas[i];
+      if (this.canonicalMembers.has(modelData)) {
         continue;
       }
 
-      this.canonicalMembers.add(internalModel);
-      this.members.add(internalModel);
-      this.setupInverseRelationship(internalModel);
+      this.canonicalMembers.add(modelData);
+      this.members.add(modelData);
+      this.setupInverseRelationship(modelData);
     }
 
     this.canonicalState = this.canonicalMembers.toArray();
   }
 
-  fetchLink() {
-    return this.store.findHasMany(this.internalModel, this.link, this.relationshipMeta).then(records => {
-      if (records.hasOwnProperty('meta')) {
-        this.updateMeta(records.meta);
-      }
-      this.store._backburner.join(() => {
-        this.updateInternalModelsFromAdapter(records);
-        this.manyArray.set('isLoaded', true);
-        this.setHasData(true);
-      });
-      return this.manyArray;
-    });
-  }
-
-  findRecords() {
-    let manyArray = this.manyArray;
-    let internalModels = manyArray.currentState;
-
-    //TODO CLEANUP
-    return this.store.findMany(internalModels).then(() => {
-      if (!manyArray.get('isDestroyed')) {
-        //Goes away after the manyArray refactor
-        manyArray.set('isLoaded', true);
-      }
-      return manyArray;
-    });
-  }
-
   notifyHasManyChanged() {
-    this.internalModel.notifyHasManyAdded(this.key);
+    let modelData = this.modelData;
+    let storeWrapper = this.modelData.storeWrapper;
+    storeWrapper.notifyHasManyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
   }
 
-  getRecords() {
-    //TODO(Igor) sync server here, once our syncing is not stupid
-    let manyArray = this.manyArray;
-    if (this.isAsync) {
-      let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecords();
-        } else {
-          promise = this.findLink().then(() => this.findRecords());
-        }
-      } else {
-        promise = this.findRecords();
-      }
-      return this._updateLoadingPromise(promise, manyArray);
-    } else {
-      assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
-
-      //TODO(Igor) WTF DO I DO HERE?
-      // TODO @runspired equal WTFs to Igor
-      if (!manyArray.get('isDestroyed')) {
-        manyArray.set('isLoaded', true);
-      }
-      return manyArray;
+  getData() {
+    let payload = {};
+    if (this.hasData) {
+      payload.data = this.currentState.map((modelData) => modelData.getResourceIdentifier());
     }
+    if (this.link) {
+      payload.links = {
+        related: this.link
+      }
+    }
+    if (this.meta) {
+      // TODO Igor consider whether we should namespace this
+      payload.meta = this.meta;
+    }
+    payload.hasLoaded = this.hasLoaded;
+    return payload;
   }
 
   updateData(data, initial) {
-    let internalModels = this.store._pushResourceIdentifiers(this, data);
-    if (initial) {
-      this.setInitialInternalModels(internalModels);
+    let modelDatas;
+    if (isNone(data)) {
+      modelDatas = undefined;
     } else {
-      this.updateInternalModelsFromAdapter(internalModels);
+      modelDatas = new Array(data.length);
+      for (let i = 0; i < data.length; i++) {
+        modelDatas[i] = this.modelData.storeWrapper.modelDataFor(data[i].type, data[i].id);
+      }
     }
-  }
-
-  destroy() {
-    super.destroy();
-    let manyArray = this._manyArray;
-    if (manyArray) {
-      manyArray.destroy();
-      this._manyArray = null;
-    }
-
-    let proxy = this.__loadingPromise;
-
-    if (proxy) {
-      proxy.destroy();
-      this.__loadingPromise = null;
+    if (initial) {
+      this.setInitialModelDatas(modelDatas);
+    } else {
+      this.updateModelDatasFromAdapter(modelDatas);
     }
   }
 }

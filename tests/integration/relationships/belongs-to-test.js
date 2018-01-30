@@ -827,7 +827,7 @@ test("belongsTo hasData async loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = book._internalModel._modelData._relationships.get('author');
       assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -851,7 +851,7 @@ test("belongsTo hasData sync loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = book._internalModel._modelData._relationships.get('author');
       assert.equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -879,7 +879,7 @@ test("belongsTo hasData async not loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = book._internalModel._modelData._relationships.get('author');
       assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -900,7 +900,7 @@ test("belongsTo hasData sync not loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = book._internalModel._modelData._relationships.get('author');
       assert.equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -916,7 +916,7 @@ test("belongsTo hasData NOT created", function(assert) {
   run(() => {
     let author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = book._internalModel._modelData._relationships.get('author');
 
     assert.equal(relationship.hasData, false, 'relationship does not have data');
 
@@ -925,7 +925,7 @@ test("belongsTo hasData NOT created", function(assert) {
       author
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = book._internalModel._modelData._relationships.get('author');
 
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
@@ -940,7 +940,7 @@ test("belongsTo hasData sync created", function(assert) {
       name: 'The Greatest Book'
     });
 
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = book._internalModel._modelData._relationships.get('author');
     assert.equal(relationship.hasData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
@@ -948,7 +948,7 @@ test("belongsTo hasData sync created", function(assert) {
       author
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = book._internalModel._modelData._relationships.get('author');
     assert.equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -964,7 +964,7 @@ test("Model's belongsTo relationship should not be created during model creation
       }
     });
 
-    assert.ok(!user._internalModel._relationships.has('favouriteMessage'), 'Newly created record should not have relationships');
+    assert.ok(!user._internalModel._modelData._relationships.has('favouriteMessage'), 'Newly created record should not have relationships');
   });
 });
 
@@ -977,7 +977,7 @@ test("Model's belongsTo relationship should be created during model creation if 
       name: 'John Doe',
       favouriteMessage: message
     });
-    assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    assert.ok(user._internalModel._modelData._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
 
@@ -988,7 +988,7 @@ test("Model's belongsTo relationship should be created during 'set' method", fun
     message = env.store.createRecord('message');
     user = env.store.createRecord('user');
     user.set('favouriteMessage', message);
-    assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    assert.ok(user._internalModel._modelData._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
 
@@ -998,7 +998,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
   run(() => {
     user = env.store.createRecord('user');
     user.get('favouriteMessage');
-    assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    assert.ok(user._internalModel._modelData._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
 

@@ -81,7 +81,7 @@ function expandRelationships(records, seen) {
 
   records.objectAt(0).eachRelationship(rel => {
     records.forEach(record => {
-      record._internalModel._relationships.get(rel);
+      record._internalModel._modelData._relationships.get(rel);
     });
   });
 }
