@@ -59,7 +59,10 @@ test("Finds the inverse when there is only one possible available", function(ass
   assert.deepEqual(Job.inverseFor('user', store), {
     type: User,
     name: 'job',
-    kind: 'belongsTo'
+    kind: 'belongsTo',
+    options: {
+      async: false
+    } 
   }, 'Gets correct type, name and kind');
 });
 
@@ -75,13 +78,20 @@ test("Finds the inverse when only one side has defined it manually", function(as
   assert.deepEqual(Job.inverseFor('owner', store), {
     type: User, //the model's type
     name: 'previousJob', //the models relationship key
-    kind: 'belongsTo'
+    kind: 'belongsTo',
+    options: {
+      async: false,
+    }
   }, 'Gets correct type, name and kind');
 
   assert.deepEqual(User.inverseFor('previousJob', store), {
     type: Job, //the model's type
     name: 'owner', //the models relationship key
-    kind: 'belongsTo'
+    kind: 'belongsTo',
+    options: {
+      inverse: 'previousJob',
+      async: false
+    }
   }, 'Gets correct type, name and kind');
 });
 

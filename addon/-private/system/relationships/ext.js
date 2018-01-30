@@ -23,7 +23,9 @@ export const relationshipsDescriptor = computed(function() {
 
       relationshipsForType.push({
         name: name,
-        kind: meta.kind
+        kind: meta.kind,
+        // TODO Clean this up, and remove this whole method
+        options: meta.options
       });
     }
   });
