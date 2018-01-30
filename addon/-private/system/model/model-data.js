@@ -324,6 +324,7 @@ export default class ModelData {
     this._relationships.forEach((name, rel) => rel.destroy());
     this.isDestroyed = true;
     this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    debugger
   }
 
   isRecordInUse() {

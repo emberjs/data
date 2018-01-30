@@ -107,17 +107,37 @@ export default class Relationship {
 
   modelDataDidDematerialize() {
     if (!this.inverseKey) { return; }
-    let allMembers =
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
-    this.members.list.concat(this.canonicalMembers.list);
+    debugger
+     this.forAllMembers((inverseModelData) => {
+       let relationship = inverseModelData._relationships.get(this.inverseKey);
+       relationship.inverseDidDematerialize(this.modelData);
+     });
+  }
 
-    for (let i = 0; i < allMembers.length; i++) {
-      let inverseModelData = allMembers[i];
-      let relationship = inverseModelData._relationships.get(this.inverseKey);
-      relationship.inverseDidDematerialize();
+  forAllMembers(callback) {
+    let seen = Object.create(null);
+
+    for (let i = 0; i < this.members.list.length; i++) {
+      const inverseInternalModel = this.members.list[i];
+      const id = guidFor(inverseInternalModel);
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
+    }
+
+    for (let i = 0; i < this.canonicalMembers.list.length; i++) {
+      const inverseInternalModel = this.canonicalMembers.list[i];
+      const id = guidFor(inverseInternalModel);
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
     }
   }
+
 
   inverseDidDematerialize(inverseModelData) {
     if (!this.isAsync) {
@@ -276,7 +296,6 @@ export default class Relationship {
   }
 
   removeModelDataFromInverse(modelData) {
-    debugger
     heimdall.increment(removeModelDataFromInverse);
     let inverseRelationship = modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
