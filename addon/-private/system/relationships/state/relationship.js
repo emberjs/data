@@ -109,7 +109,6 @@ export default class Relationship {
     if (!this.inverseKey) { return; }
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
-    debugger
      this.forAllMembers((inverseModelData) => {
        let relationship = inverseModelData._relationships.get(this.inverseKey);
        relationship.inverseDidDematerialize(this.modelData);

@@ -324,7 +324,6 @@ export default class ModelData {
     this._relationships.forEach((name, rel) => rel.destroy());
     this.isDestroyed = true;
     this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
-    debugger
   }
 
   isRecordInUse() {
@@ -653,9 +652,9 @@ if (isEnabled('ds-rollback-attribute')) {
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
 function destroyRelationship(rel) {
+debugger
   rel.modelDataDidDematerialize();
 
-  debugger
   if (rel._inverseIsSync()) {
     rel.removeAllModelDatasFromOwn();
     rel.removeAllCanonicalModelDatasFromOwn();

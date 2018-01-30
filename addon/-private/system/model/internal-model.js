@@ -292,13 +292,6 @@ export default class InternalModel {
     }
   }
 
-  removeFromManyArray(manyArray) {
-    if (manyArray === null) {
-      return;
-    }
-    manyArray._removeUnloadedInternalModel(this);
-  }
-
   deleteRecord() {
     this.send('deleteRecord');
   }
@@ -687,12 +680,22 @@ export default class InternalModel {
   }
 
   notifyHasManyChange(key, record, idx) {
+if(self._stop){debugger}
     if (this.hasRecord) {
       let manyArray = this._manyArrayCache[key];
       if (manyArray) {
+        // TODO: this will "resurrect" previously unloaded records
+        // see test '1:many async unload many side'
+        //  in `tests/integration/records/unload-test.js`
+        //  probably we don't want to retrieve latest eagerly when notifyhasmany changed
+        //  but rather lazily when someone actually asks for a manyarray
+        //
+        //  that said, also not clear why we haven't moved this to retainedmanyarray so maybe that's the bit that's just not workign
         manyArray.retrieveLatest();
         // TODO Igor be rigorous about when to delete this
-        if (this._relationshipPromisesCache[key] && manyArray.anyUnloaded()) {
+        // TODO: igor check for case where we later unload again
+        let didRemoveUnloadedModel = manyArray.removeUnloadedInternalModel();
+        if (this._relationshipPromisesCache[key] && didRemoveUnloadedModel) {
           delete this._relationshipPromisesCache[key];
         }
       }

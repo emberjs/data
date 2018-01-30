@@ -1372,6 +1372,8 @@ test('1:many async unload many side', function (assert) {
       assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
       assert.deepEqual(boats.mapBy('id'), ['2', '3'], 'many array is initially set up correctly');
+// TODO: igor this is debugging
+self._stop =true;
       run(() => boat2.unloadRecord());
       assert.deepEqual(boats.mapBy('id'), ['3'], 'unload async removes from previous many array');
       assert.equal(boats.isDestroyed, false, 'previous ManyArray not destroyed');

@@ -1304,7 +1304,6 @@ Model.reopenClass({
         "' model. This is most likely due to a missing attribute on your model definition.", !isNone(inverse));
 
       // TODO probably just return the whole inverse here
-      debugger
       inverseKind = inverse.kind;
       inverseOptions = inverse.options;
     } else {
@@ -1336,7 +1335,6 @@ Model.reopenClass({
         this + " were found on " + inverseType + ". Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses",
         possibleRelationships.length === 1);
 
-      debugger
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
       inverseOptions = possibleRelationships[0].options;

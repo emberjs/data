@@ -145,21 +145,24 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
   */
 
-  _removeUnloadedInternalModel(internalModel) {
-    let idx = this.currentState.indexOf(internalModel);
-    if (idx === -1 )  {
-      return;
-    }
-    this.arrayContentWillChange(idx, 1, 0);
-    console.log('splicing', idx);
-    this.currentState.splice(idx, 1);
-    this.set('length', this.currentState.length);
-    this.arrayContentDidChange(idx, 1, 0);
+  // TODO: if(DEBUG)
+  anyUnloaded() {
+    let unloaded = this.currentState.find((im) => im._isDematerializing || !im.isLoaded());
+    return !!unloaded;
   },
 
-  anyUnloaded() {
-    let unloaded = this.currentState.find((im) => !im.isLoaded());
-    return !!unloaded;
+  removeUnloadedInternalModel() {
+    for (let i = 0; i < this.currentState.length; ++i) {
+      let internalModel = this.currentState[i];
+      if (internalModel._isDematerializing || !internalModel.isLoaded()) {
+        this.arrayContentWillChange(i, 1, 0);
+        this.currentState.splice(i, 1);
+        this.set('length', this.currentState.length);
+        this.arrayContentDidChange(i, 1, 0);
+        return true;
+      }
+    }
+    return false;
   },
 
   objectAt(index) {
