@@ -27,6 +27,7 @@ export default class ManyRelationship extends Relationship {
       return;
     }
     if (idx !== undefined) {
+      console.log('splicing2', idx);
       this.canonicalState.splice(idx, 0, modelData);
     } else {
       this.canonicalState.push(modelData);
@@ -50,6 +51,7 @@ export default class ManyRelationship extends Relationship {
     if (idx === undefined) {
       idx = this.currentState.length;
     }
+    console.log('splicing3', idx);
     this.currentState.splice(idx, 0, modelData);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
@@ -123,6 +125,11 @@ export default class ManyRelationship extends Relationship {
     super.removeModelDataFromOwn(modelData, idx);
     let index = idx || this.currentState.indexOf(modelData);
 
+    //TODO IGOR DAVID INVESTIGATE
+    if (index === -1) {
+      return;
+    }
+    console.log('splicing4', index);
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side

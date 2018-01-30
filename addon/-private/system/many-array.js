@@ -151,6 +151,7 @@ export default EmberObject.extend(MutableArray, Evented, {
       return;
     }
     this.arrayContentWillChange(idx, 1, 0);
+    console.log('splicing', idx);
     this.currentState.splice(idx, 1);
     this.set('length', this.currentState.length);
     this.arrayContentDidChange(idx, 1, 0);
