@@ -15,8 +15,9 @@ import { assertPolymorphicType } from 'ember-data/-debug';
    @namespace DS
    @extends DS.Reference
 */
-const BelongsToReference = function(store, parentInternalModel, belongsToRelationship) {
+const BelongsToReference = function(store, parentInternalModel, belongsToRelationship, key) {
   this._super$constructor(store, parentInternalModel);
+  this.key = key;
   this.belongsToRelationship = belongsToRelationship;
   this.type = belongsToRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
@@ -29,48 +30,6 @@ BelongsToReference.prototype = Object.create(Reference.prototype);
 BelongsToReference.prototype.constructor = BelongsToReference;
 BelongsToReference.prototype._super$constructor = Reference;
 
-/**
-   This returns a string that represents how the reference will be
-   looked up when it is loaded. If the relationship has a link it will
-   use the "link" otherwise it defaults to "id".
-
-   Example
-
-   ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
-    });
-
-    let blog = store.push({
-      type: 'blog',
-      id: 1,
-      relationships: {
-        user: {
-          data: { type: 'user', id: 1 }
-        }
-      }
-    });
-    let userRef = blog.belongsTo('user');
-
-    // get the identifier of the reference
-    if (userRef.remoteType() === "id") {
-      let id = userRef.id();
-    } else if (userRef.remoteType() === "link") {
-      let link = userRef.link();
-    }
-    ```
-
-   @method remoteType
-   @return {String} The name of the remote type. This should either be "link" or "id"
-*/
-BelongsToReference.prototype.remoteType = function() {
-  if (this.belongsToRelationship.link) {
-    return "link";
-  }
-
-  return "id";
-};
 
 /**
    The `id` of the record that this reference refers to. Together, the
@@ -110,90 +69,16 @@ BelongsToReference.prototype.remoteType = function() {
    @return {String} The id of the record in this belongsTo relationship.
 */
 BelongsToReference.prototype.id = function() {
-  let inverseModelData = this.belongsToRelationship.inverseModelData;
-  return inverseModelData && inverseModelData.id;
+  let id = null;
+  let resource = this._resource();
+  if (resource && resource.data && resource.data.id) {
+    id = resource.data.id;
+  }
+  return id;
 };
 
-/**
-   The link Ember Data will use to fetch or reload this belongs-to
-   relationship.
-
-   Example
-
-   ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
-    });
-
-    let blog = store.push({
-      data: {
-        type: 'blog',
-        id: 1,
-        relationships: {
-          user: {
-            links: {
-              related: '/articles/1/author'
-            }
-          }
-        }
-      }
-    });
-    let userRef = blog.belongsTo('user');
-
-    // get the identifier of the reference
-    if (userRef.remoteType() === "link") {
-      let link = userRef.link();
-    }
-    ```
-
-   @method link
-   @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
-*/
-BelongsToReference.prototype.link = function() {
-  return this.belongsToRelationship.link;
-};
-
-/**
-   The meta data for the belongs-to relationship.
-
-   Example
-
-   ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
-    });
-
-    let blog = store.push({
-      data: {
-        type: 'blog',
-        id: 1,
-        relationships: {
-          user: {
-            links: {
-              related: {
-                href: '/articles/1/author',
-                meta: {
-                  lastUpdated: 1458014400000
-                }
-              }
-            }
-          }
-        }
-      }
-    });
-
-    let userRef = blog.belongsTo('user');
-
-    userRef.meta() // { lastUpdated: 1458014400000 }
-    ```
-
-   @method meta
-   @return {Object} The meta information for the belongs-to relationship.
-*/
-BelongsToReference.prototype.meta = function() {
-  return this.belongsToRelationship.meta;
+BelongsToReference.prototype._resource = function() {
+  return this.modelData.getBelongsTo(this.key);
 };
 
 /**
@@ -314,11 +199,12 @@ BelongsToReference.prototype.push = function(objectOrPromise) {
 */
 BelongsToReference.prototype.value = function() {
   let store = this.parentInternalModel.store;
-  let inverseModelData = this.belongsToRelationship.inverseModelData;
-  let inverseInternalModel = inverseModelData && store._internalModelForModelData(inverseModelData);
-
-  if (inverseInternalModel && inverseInternalModel.isLoaded()) {
-    return inverseInternalModel.getRecord();
+  let resource = this._resource();
+  if (resource && resource.data) {
+    let inverseInternalModel = store._internalModelForResource(resource.data);
+    if (inverseInternalModel && inverseInternalModel.isLoaded()) {
+      return inverseInternalModel.getRecord();
+    }
   }
 
   return null;
@@ -361,7 +247,7 @@ BelongsToReference.prototype.value = function() {
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
 */
 BelongsToReference.prototype.load = function() {
-  return this.parentInternalModel.getBelongsTo(this.belongsToRelationship.key);
+  return this.parentInternalModel.getBelongsTo(this.key);
 };
 
 /**
@@ -401,7 +287,7 @@ BelongsToReference.prototype.load = function() {
 */
 // TODO IGOR CHECK FOR OBJECT PROXIES
 BelongsToReference.prototype.reload = function() {
-  let resource = this.belongsToRelationship.getData();
+  let resource = this._resource();
   if (resource && resource.links && resource.links.related) {
     return this.store._fetchBelongsToLinkFromResource(resource, this.parentInternalModel, this.belongsToRelationship.relationshipMeta);
   }

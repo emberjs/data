@@ -171,8 +171,6 @@ export default class Relationship {
 
   removeAllModelDatasFromOwn() {
     this.members.clear();
-    // TODO IGOR DAVID hope for the best
-    //this.internalModel.updateRecordArrays();
   }
 
   removeAllCanonicalModelDatasFromOwn() {

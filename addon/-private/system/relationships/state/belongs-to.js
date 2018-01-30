@@ -50,7 +50,6 @@ export default class BelongsToRelationship extends Relationship {
       this.removeCanonicalModelData(this.canonicalState);
     }
 
-    // TALK TO DAVID, I've had to do weird things here
     this.canonicalState = modelData;
     super.addCanonicalModelData(modelData);
   }
@@ -164,12 +163,15 @@ export default class BelongsToRelationship extends Relationship {
     if (data !== undefined) {
       payload.data = data;
     }
+    if (this.meta) {
+      payload.meta = this.meta;
+    }
     if (!payload.data && !payload.links) {
       payload = null;
     }
     // if link has been updated, we can't trust the local data anymore
     // TODO IGOR check for local changes
-    if (this.updatedLink && this.link) {
+    if (this.updatedLink && this.link && payload.data) {
       delete payload.data;
     }
     return payload;

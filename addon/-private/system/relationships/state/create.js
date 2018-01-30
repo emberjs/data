@@ -14,7 +14,6 @@ function createRelationshipFor(relationshipMeta, store, modelData, key) {
 
 export default class Relationships {
   constructor(modelData) {
-    // TODO IGOR DAVID REFACTOR
     this.modelData = modelData;
     this.initializedRelationships = Object.create(null);
   }

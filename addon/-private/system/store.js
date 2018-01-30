@@ -366,7 +366,6 @@ Store = Service.extend({
     internalModel.loadedData();
     let record = internalModel.getRecord(properties);
 
-    // TODO IGOR AND DAVID consider refactoring/renaming?
     internalModel.didCreateRecord(properties);
 
     return record;

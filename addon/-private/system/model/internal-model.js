@@ -1048,9 +1048,9 @@ export default class InternalModel {
       }
 
       if (kind === "belongsTo") {
-        reference = new BelongsToReference(this.store, this, relationship);
+        reference = new BelongsToReference(this.store, this, relationship, name);
       } else if (kind === "hasMany") {
-        reference = new HasManyReference(this.store, this, relationship);
+        reference = new HasManyReference(this.store, this, relationship, name);
       }
 
       this.references[name] = reference;

@@ -15,8 +15,9 @@ import isEnabled from '../../features';
    @class HasManyReference
    @namespace DS
 */
-const HasManyReference = function(store, parentInternalModel, hasManyRelationship) {
+const HasManyReference = function(store, parentInternalModel, hasManyRelationship, key) {
   this._super$constructor(store, parentInternalModel);
+  this.key = key;
   this.hasManyRelationship = hasManyRelationship;
   this.type = hasManyRelationship.relationshipMeta.type;
   this.parent = parentInternalModel.recordReference;
@@ -28,6 +29,11 @@ const HasManyReference = function(store, parentInternalModel, hasManyRelationshi
 HasManyReference.prototype = Object.create(Reference.prototype);
 HasManyReference.prototype.constructor = HasManyReference;
 HasManyReference.prototype._super$constructor = Reference;
+
+
+HasManyReference.prototype._resource = function() {
+  return this.modelData.getHasMany(this.key);
+}
 
 /**
    This returns a string that represents how the reference will be
@@ -69,51 +75,17 @@ HasManyReference.prototype._super$constructor = Reference;
    @return {String} The name of the remote type. This should either be "link" or "ids"
 */
 HasManyReference.prototype.remoteType = function() {
-  if (this.hasManyRelationship.link) {
+  let value = this._resource();
+  if (value && value.links && value.links.related) {
     return "link";
   }
 
   return "ids";
 };
 
-/**
-   The link Ember Data will use to fetch or reload this has-many
-   relationship.
-
-   Example
-
-   ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
-   });
-   ```
-
-   ```javascript
-   let post = store.push({
-     data: {
-       type: 'post',
-       id: 1,
-       relationships: {
-         comments: {
-           links: {
-             related: '/posts/1/comments'
-           }
-         }
-       }
-     }
-   });
-
-   let commentsRef = post.hasMany('comments');
-
-   commentsRef.link(); // '/posts/1/comments'
-   ```
-
-   @method link
-   @return {String} The link Ember Data will use to fetch or reload this has-many relationship.
-*/
-HasManyReference.prototype.link = function() {
-  return this.hasManyRelationship.link;
-};
+HasManyReference.prototype._resource = function() {
+  return this.modelData.getHasMany(this.key);
+}
 
 /**
    `ids()` returns an array of the record ids in this relationship.
@@ -148,54 +120,14 @@ HasManyReference.prototype.link = function() {
    @return {Array} The ids in this has-many relationship
 */
 HasManyReference.prototype.ids = function() {
-  let members = this.hasManyRelationship.members.toArray();
+  let resource = this._resource();
 
-  return members.map(function(modelData) {
-    return modelData.id;
-  });
-};
+  let ids = [];
+  if (resource.data) {
+    ids = resource.data.map((data) => data.id);
+  }
 
-/**
-   The meta data for the has-many relationship.
-
-   Example
-
-   ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
-   });
-   ```
-
-   ```javascript
-   let post = store.push({
-     data: {
-       type: 'post',
-       id: 1,
-       relationships: {
-         comments: {
-           links: {
-             related: {
-               href: '/posts/1/comments',
-               meta: {
-                 count: 10
-               }
-             }
-           }
-         }
-       }
-     }
-   });
-
-   let commentsRef = post.hasMany('comments');
-
-   commentsRef.meta(); // { count: 10 }
-   ```
-
-   @method meta
-   @return {Object} The meta information for the has-many relationship.
-*/
-HasManyReference.prototype.meta = function() {
-  return this.hasManyRelationship.meta;
+  return ids;
 };
 
 /**
@@ -355,7 +287,7 @@ HasManyReference.prototype._isLoaded = function() {
 */
 HasManyReference.prototype.value = function() {
   if (this._isLoaded()) {
-    return this.internalModel.getManyArray(this.hasManyRelationship.key);
+    return this.internalModel.getManyArray(this.key);
   }
 
   return null;
@@ -399,7 +331,7 @@ HasManyReference.prototype.value = function() {
    this has-many relationship.
 */
 HasManyReference.prototype.load = function() {
-  return this.internalModel.getHasMany(this.hasManyRelationship.key);
+  return this.internalModel.getHasMany(this.key);
 };
 
 /**
@@ -437,7 +369,7 @@ HasManyReference.prototype.load = function() {
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
 */
 HasManyReference.prototype.reload = function() {
-  return this.internalModel.reloadHasMany(this.hasManyRelationship.key);
+  return this.internalModel.reloadHasMany(this.key);
 };
 
 export default HasManyReference;
