@@ -1849,8 +1849,10 @@ if (isEnabled('ds-rollback-attribute')) {
       @method rollbackAttribute
     */
     rollbackAttribute(attributeName) {
-      if (attributeName in this._internalModel._attributes) {
-        this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
+      let modelData = this._internalModel._modelData;
+
+      if (attributeName in modelData.__attributes) {
+        this.set(attributeName, modelData.lastAcknowledgedValue(attributeName));
       }
     }
   });

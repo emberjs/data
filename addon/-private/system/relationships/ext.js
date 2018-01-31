@@ -67,15 +67,18 @@ export const relationshipsObjectDescriptor = computed(function() {
     }
   });
   return relationships;
-})
+});
 
 export const relationshipsByNameDescriptor = computed(function() {
   let map = Map.create();
-
-  let relationships = Object.values(get(this, 'relationshipsObject'));
+  let rels = get(this, 'relationshipsObject');
+  let relationships = Object.keys(rels);
 
   for (let i=0; i < relationships.length; i++) {
-    map.set(relationships[i].key, relationships[i]);
+    let key = relationships[i];
+    let value = rels[key];
+
+    map.set(value.key, value);
   }
 
   return map;
