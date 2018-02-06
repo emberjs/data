@@ -501,6 +501,7 @@ export default class InternalModel {
     if (this.isDestroyed) { return; }
     this.send('unloadRecord');
     this.dematerializeRecord();
+    this.store.recordArrayManager.recordWasUnloaded(this);
 
     if (this._scheduledDestroy === null) {
       // TODO: use run.schedule once we drop 1.13
