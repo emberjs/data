@@ -2,6 +2,25 @@
 
 ### Master
 
+### Release 3.1.0-beta.1 (Feburary 12, 2018)
+- [#5327](https://github.com/emberjs/data/pull/5327) [DOC] Fix Changelog release date for v2.11.0
+- [#5310](https://github.com/emberjs/data/pull/5310) Remove `s3-put` and `cached-npm` scripts.
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+- [#5330](https://github.com/emberjs/data/pull/5330) [CHORE] updates to benchmark harness
+- [#5322](https://github.com/emberjs/data/pull/5322) Clean up a bunch of invalid yuidoc blocks that were causing warnings …
+- [#5318](https://github.com/emberjs/data/pull/5318) Use Ember.computed in the headers examples to avoid ember eslint warning
+- [#5311](https://github.com/emberjs/data/pull/5311) Avoid bower usage in config/ember-try.js
+- [#5321](https://github.com/emberjs/data/pull/5321) Update some dependencies to clean up some noise when running yarn ins…
+- [#5317](https://github.com/emberjs/data/pull/5317) Dont serialize new belongsTo records (#5317)
+- [#5323](https://github.com/emberjs/data/pull/5323) Stop using deprecated vendor-prefix hook to inject enableoptionalfeat…
+- [#5326](https://github.com/emberjs/data/pull/5326) Remove usages of enumerable observers
+- [#5329](https://github.com/emberjs/data/pull/5329) bump rsvp
+- [#5332](https://github.com/emberjs/data/pull/5332) [BUGFIX beta] Fix development build relationship caching.
+- [#5333](https://github.com/emberjs/data/pull/5333) [DEV-BUGFIX] Fix instrumentation when running in production (#5333)
+- [#5339](https://github.com/emberjs/data/pull/5339) Prevent build issues when linking ember-source.
+- [#5340](https://github.com/emberjs/data/pull/5340) [BUGFIX beta] Update DS.Errors#unknownProperty to return `undefined`.
+- [#5342](https://github.com/emberjs/data/pull/5342) Refactor Travis setup to leverage stages... (#5342)
+
 ### Release 3.0.0 (Feburary 12, 2018)
 - [#5296](https://github.com/emberjs/data/pull/5296) blueprints/adapter-test: Add RFC232 variants
 - [#5249](https://github.com/emberjs/data/pull/5249) Fix client-side delete + resurrection
