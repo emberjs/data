@@ -1129,7 +1129,8 @@ const Model = EmberObject.extend(Evented, {
  */
 Object.defineProperty(Model.prototype, 'data', {
   get() {
-    return this._internalModel._data;
+    // TODO deprecate this!!!!!!!!!!! it's private but intimate
+    return this._internalModel._modelData._data;
   }
 });
 
