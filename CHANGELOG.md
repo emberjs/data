@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.0.1 (Feburary 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+
 ### Release 3.0.0 (Feburary 12, 2018)
 - [#5296](https://github.com/emberjs/data/pull/5296) blueprints/adapter-test: Add RFC232 variants
 - [#5249](https://github.com/emberjs/data/pull/5249) Fix client-side delete + resurrection
@@ -9,10 +12,6 @@
 - [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5286](https://github.com/emberjs/data/pull/5286) Remove deprecation/support for complex object as defaultValues of DS.attr
 - [#5288](https://github.com/emberjs/data/pull/5288) Remove date transforms deprecations and support for Ember.Date.parse
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5261](https://github.com/emberjs/data/pull/5261) [BUGFIX] inverseFor should respect inverse: null
 - [#5285](https://github.com/emberjs/data/pull/5285) Remove deprecation messages for old instance initializers
