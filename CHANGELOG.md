@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.18.1 (February 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+
 ### Release 2.18.0 (December 28, 2017)
 - [#5225](https://github.com/emberjs/data/pull/5225) Remove blueprints for Mocha < 0.12. (#5225)
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
