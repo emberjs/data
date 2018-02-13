@@ -2,17 +2,16 @@
 
 ### Master
 
-### Release 3.0.0 (Feburary 12, 2018)
+### Release 3.0.1 (February 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+
+### Release 3.0.0 (February 12, 2018)
 - [#5296](https://github.com/emberjs/data/pull/5296) blueprints/adapter-test: Add RFC232 variants
 - [#5249](https://github.com/emberjs/data/pull/5249) Fix client-side delete + resurrection
 - [#5301](https://github.com/emberjs/data/pull/5301) Add a test to ensure multiple stores get unique instances of serializ…
 - [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5286](https://github.com/emberjs/data/pull/5286) Remove deprecation/support for complex object as defaultValues of DS.attr
 - [#5288](https://github.com/emberjs/data/pull/5288) Remove date transforms deprecations and support for Ember.Date.parse
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
-- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
 - [#5261](https://github.com/emberjs/data/pull/5261) [BUGFIX] inverseFor should respect inverse: null
 - [#5285](https://github.com/emberjs/data/pull/5285) Remove deprecation messages for old instance initializers
@@ -26,6 +25,9 @@
 - [#5300](https://github.com/emberjs/data/pull/5300) Simplify `store.adapterFor` and `store.serializerFor`.
 - [#5305](https://github.com/emberjs/data/pull/5305) Serializers and adapters should be unique per store
 - [#5308](https://github.com/emberjs/data/pull/5308) Simplify the getDescriptor test helper
+
+### Release 2.18.1 (February 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
 
 ### Release 2.18.0 (December 28, 2017)
 - [#5225](https://github.com/emberjs/data/pull/5225) Remove blueprints for Mocha < 0.12. (#5225)
