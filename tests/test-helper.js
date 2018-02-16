@@ -19,7 +19,6 @@ import {
   asyncEqual,
   invokeAsync
 } from 'dummy/tests/helpers/async';
-import Ember from 'ember';
 import loadInitializers from 'ember-load-initializers';
 
 setResolver(resolver);
@@ -39,7 +38,7 @@ QUnit.begin(() => {
     // otherwise, let a future turn of the event loop
     // handle the error.
     if (reason && reason instanceof Error) {
-      Ember.Logger.log(reason, reason.stack);
+      console.log(reason, reason.stack);
       throw reason;
     }
   });
