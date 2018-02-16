@@ -1452,3 +1452,34 @@ test("Rollbacking attributes of a created record works correctly when the belong
   assert.equal(user.get('accounts.length'), 0, "User does not have the account anymore");
   assert.equal(account.get('user'), null, 'Account does not have the user anymore');
 });
+
+test("createRecord updates inverse record array which has observers", function(assert) {
+
+  env.adapter.findAll = () => {
+    return {
+      data: [{
+        id: '2',
+        type: 'user',
+        attributes: {
+          name: 'Stanley'
+        }
+      }]
+    }
+  };
+
+  return store.findAll('user').then(users => {
+    assert.equal(users.get('length'), 1, 'Exactly 1 user');
+
+    let user = users.get('firstObject');
+    assert.equal(user.get('messages.length'), 0, 'Record array is initially empty');
+
+    // set up an observer
+    user.addObserver('messages.@each.title', () => {});
+
+    let message = run(() => store.createRecord('message', { user, title: 'EmberFest was great' }));
+    assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
+
+    let messageFromArray = user.get('messages.firstObject');
+    assert.equal(message, messageFromArray, 'Only one message should be created');
+  });
+});
