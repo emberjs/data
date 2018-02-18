@@ -1375,7 +1375,7 @@ test("Rollbacking attributes of a created record works correctly when the hasMan
       assert.equal(fetchedUser, null, 'Message does not have the user anymore');
     });
     user.get('messages').then(function(fetchedMessages) {
-      assert.equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
+      assert.equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
       assert.equal(fetchedMessages.get('firstObject'), null, "User message can't be accessed");
     });
   });
