@@ -91,6 +91,12 @@ const Model = EmberObject.extend(Evented, {
   __defineNonEnumerable(property) {
     this[property.name] = property.descriptor.value;
   },
+  __setupInternalModel: computed({
+    set(key, internalModel) {
+      internalModel._record = this;
+      this._internalModel = internalModel;
+    }
+  }),
 
   /**
     If this property is `true` the record is in the `empty`
