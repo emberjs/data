@@ -343,7 +343,7 @@ export default class InternalModel {
       // instances with the injections applied
       let createOptions = {
         store: this.store,
-        _internalModel: this,
+        __setupInternalModel: this,
         id: this.id,
         currentState: this.currentState,
         isError: this.isError,
@@ -361,7 +361,7 @@ export default class InternalModel {
         createOptions.container = this.store.container;
       }
 
-      this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+      this.store.modelFactoryFor(this.modelName).create(createOptions);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
