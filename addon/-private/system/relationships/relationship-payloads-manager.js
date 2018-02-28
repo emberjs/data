@@ -132,9 +132,11 @@ export default class RelationshipPayloadsManager {
     let modelClass = this._store._modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
     relationshipsByName.forEach((_, relationshipName) => {
+      let relationship = relationshipsByName.get(relationshipName);
+      let modelThatOwnsRelationship = relationship.parentType;
       let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, false);
       if (relationshipPayloads) {
-        relationshipPayloads.unload(modelName, id, relationshipName);
+        relationshipPayloads.unload(modelThatOwnsRelationship.modelName || modelName, id, relationshipName);
       }
     });
   }
@@ -156,7 +158,7 @@ export default class RelationshipPayloadsManager {
       relationshipPayloads.get('user', 'hobbies') === relationshipPayloads.get('hobby', 'user');
 
     The signature has a somewhat large arity to avoid extra work, such as
-      a)  string maipulation & allocation with `modelName` and
+      a)  string manipulation & allocation with `modelName` and
          `relationshipName`
       b)  repeatedly getting `relationshipsByName` via `Ember.get`
 
@@ -167,9 +169,10 @@ export default class RelationshipPayloadsManager {
   _getRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName, init) {
     if (!relationshipsByName.has(relationshipName)) { return; }
 
-    let key = `${modelName}:${relationshipName}`;
+    let parentType = relationshipsByName.get(relationshipName).parentType;
+    let key = `${parentType.modelName}:${relationshipName}`;
     if (!this._cache[key] && init) {
-      return this._initializeRelationshipPayloads(modelName, relationshipName, modelClass, relationshipsByName);
+      return this._initializeRelationshipPayloads(parentType.modelName || modelName, relationshipName, parentType, relationshipsByName);
     }
 
     return this._cache[key];

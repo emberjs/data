@@ -62,7 +62,8 @@ export default class Relationships {
 
       if (!rel) { return undefined; }
 
-      let relationshipPayload = internalModel.store._relationshipsPayloads.get(internalModel.modelName, internalModel.id, key);
+      let modelThatOwnsRelationship = rel.parentType;
+      let relationshipPayload = internalModel.store._relationshipsPayloads.get(modelThatOwnsRelationship.modelName || internalModel.modelName, internalModel.id, key);
 
       relationship = relationships[key] = createRelationshipFor(internalModel, rel, internalModel.store);
 
