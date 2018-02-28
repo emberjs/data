@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.14.11 (February 28, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 2.14.10 (August 10, 2017)
 - [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
 
