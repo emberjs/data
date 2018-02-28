@@ -31,12 +31,12 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 
     Post = Message.extend({
       title: attr('string'),
-      comments: hasMany('comment', { async: false })
+      comments: hasMany('comment', { async: false, inverse: null })
     });
 
     Comment = Message.extend({
       body: DS.attr('string'),
-      message: DS.belongsTo('message', { polymorphic: true, async: false })
+      message: DS.belongsTo('message', { polymorphic: true, async: false, inverse: null })
     });
 
     Book = DS.Model.extend({

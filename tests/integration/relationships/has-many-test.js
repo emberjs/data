@@ -3150,7 +3150,10 @@ test("PromiseArray proxies createRecord to its ManyArray before the hasMany is l
 
 test("deleteRecord + unloadRecord fun", function(assert) {
   User.reopen({
-    posts: DS.hasMany('posts', { inverse: null })
+    posts: DS.hasMany('post', { inverse: null })
+  });
+  Post.reopen({
+    user: DS.belongsTo('user', { inverse: null, async: false })
   });
 
   run(() => {
