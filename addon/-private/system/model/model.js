@@ -8,7 +8,6 @@ import EmberObject, {
   observer
 } from '@ember/object';
 import Map from '@ember/map';
-import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
@@ -20,6 +19,9 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
+
+import Ember from 'ember';
+const { changeProperties } = Ember;
 
 /**
   @module ember-data
@@ -635,13 +637,16 @@ const Model = EmberObject.extend(Evented, {
     @private
   */
   _notifyProperties(keys) {
-    Ember.beginPropertyChanges();
-    let key;
-    for (let i = 0, length = keys.length; i < length; i++) {
-      key = keys[i];
-      this.notifyPropertyChange(key);
-    }
-    Ember.endPropertyChanges();
+    // changeProperties defers notifications until after the delegate
+    // and protects with a try...finally block
+    // previously used begin...endPropertyChanges but this is private API
+    changeProperties(() => {
+      let key;
+      for (let i = 0, length = keys.length; i < length; i++) {
+        key = keys[i];
+        this.notifyPropertyChange(key);
+      }
+    });
   },
 
   /**
