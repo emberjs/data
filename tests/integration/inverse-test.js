@@ -203,6 +203,54 @@ test("polymorphic hasMany inverse is populated after push of descendant model", 
   });
 });
 
+test("polymorphic hasMany contains both models after pushing two different types of model", function(assert) {
+  const done = assert.async();
+
+  run(() => {
+    store.push({
+      data: {
+        id: 'c1',
+        type: 'company',
+        relationships: {
+          employees: {
+            data: [
+            ]
+          }
+        }
+      }
+    });
+    store.push({
+      data: {
+        id: 'u1',
+        type: 'user',
+        relationships: {
+          employer: {
+            data: { id: 'c1', type: 'company'}
+          }
+        }
+      }
+    });
+    store.push({
+      data: {
+        id: 'm1',
+        type: 'manager',
+        relationships: {
+          employer: {
+            data: { id: 'c1', type: 'company'}
+          }
+        }
+      }
+    });
+  });
+
+  const company = store.peekRecord('company', 'c1');
+
+  company.get('employees').then(employees => {
+    assert.equal(employees.length, 2);
+    done();
+  });
+});
+
 testInDebug("Errors out if you do not define an inverse for a reflexive relationship", function(assert) {
 
   //Maybe store is evaluated lazily, so we need this :(
