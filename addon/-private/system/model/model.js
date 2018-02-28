@@ -1907,6 +1907,10 @@ if (DEBUG) {
         // the computed property.
         let meta = value.meta();
 
+        /*
+          This is buggy because if the parent has never been looked up
+          via `modelFor` it will not have `modelName` set.
+         */
         meta.parentType = proto.constructor;
       }
     }

@@ -4,28 +4,30 @@ import DS from 'ember-data';
 import { createStore } from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
+const { Model, hasMany, belongsTo } = DS;
+
 module('unit/system/relationships/relationship-payloads-manager', {
   beforeEach() {
-    const User = DS.Model.extend({
-      purpose: DS.belongsTo('purpose', { inverse: 'user' }),
-      hobbies: DS.hasMany('hobby', { inverse: 'user'}),
-      friends: DS.hasMany('user', { inverse: 'friends' })
+    const User = Model.extend({
+      purpose: belongsTo('purpose', { inverse: 'user' }),
+      hobbies: hasMany('hobby', { inverse: 'user'}),
+      friends: hasMany('user', { inverse: 'friends' })
     });
     User.toString = () => 'User';
 
-    const Hobby = DS.Model.extend({
+    const Hobby = Model.extend({
       user: DS.belongsTo('user', { inverse: 'hobbies' })
     });
     Hobby.toString = () => 'Hobby';
 
-    const Purpose = DS.Model.extend({
+    const Purpose = Model.extend({
       user: DS.belongsTo('user', { inverse: 'purpose' })
     });
     Purpose.toString = () => 'Purpose';
 
     let store = this.store = createStore({
       user: User,
-      Hobby: Hobby,
+      hobby: Hobby,
       purpose: Purpose
     });
 
@@ -33,13 +35,12 @@ module('unit/system/relationships/relationship-payloads-manager', {
   }
 });
 
-
 test('get throws for invalid models', function(assert) {
   this.relationshipPayloadsManager._store._modelFor = (name) => {
     if (name === 'fish') {
       throw new Error('What is fish?');
     }
-  }
+  };
 
   assert.throws(() => {
     this.relationshipPayloadsManager.get('fish', 9, 'hobbies');
@@ -471,7 +472,7 @@ test('push populates the same RelationshipPayloads for either side of a relation
       'hobbies',
       userModel,
       get(userModel, 'relationshipsByName')
-  );
+    );
 
   let hobbyModel = this.store.modelFor('hobby');
   let hobbyPayloads =
@@ -486,14 +487,15 @@ test('push populates the same RelationshipPayloads for either side of a relation
 });
 
 test('push does not eagerly populate inverse payloads', function(assert) {
-  this.relationshipPayloadsManager.push('user', 1, {
+  const relData = {
     hobbies: {
       data: [{
         id: 2,
         type: 'hobby'
       }]
     }
-  });
+  };
+  this.relationshipPayloadsManager.push('user', 1, relData);
 
   let userModel = this.store.modelFor('user');
   let relationshipPayloads =
@@ -502,31 +504,41 @@ test('push does not eagerly populate inverse payloads', function(assert) {
       'hobbies',
       userModel,
       get(userModel, 'relationshipsByName')
-  );
+    );
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads),
-    [] ,
+    Object.keys(relationshipPayloads.lhs_payloads.types),
+    [],
     'user.hobbies payloads not eagerly populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads),
-    [] ,
+    Object.keys(relationshipPayloads.rhs_payloads.types),
+    [],
     'hobby.user payloads not eagerly populated'
-    );
+  );
 
   relationshipPayloads.get('user', 1, 'hobbies');
 
   assert.deepEqual(
-    Object.keys(relationshipPayloads._lhsPayloads),
-    ['1'] ,
+    Object.keys(relationshipPayloads.lhs_payloads.types),
+    ['user'],
     'user.hobbies payloads lazily populated'
   );
   assert.deepEqual(
-    Object.keys(relationshipPayloads._rhsPayloads),
+    Object.keys(relationshipPayloads.lhs_payloads.types.user),
+    ['1'],
+    'user.hobbies payloads lazily populated'
+  );
+  assert.deepEqual(
+    Object.keys(relationshipPayloads.rhs_payloads.types),
+    ['hobby'] ,
+    'hobby.user payloads lazily populated'
+  );
+  assert.deepEqual(
+    Object.keys(relationshipPayloads.rhs_payloads.types.hobby),
     ['2'] ,
     'hobby.user payloads lazily populated'
-    );
+  );
 });
 
 test('push populates each individual relationship in a payload', function(assert) {
