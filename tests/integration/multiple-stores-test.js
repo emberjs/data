@@ -1,6 +1,7 @@
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
+import { get } from '@ember/object';
 
 import DS from 'ember-data';
 
@@ -135,4 +136,28 @@ test("embedded records should be created in multiple stores", function(assert) {
     env.store_b.push(json_b);
     assert.equal(env.store_b.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-b");
   });
+});
+
+
+test("each store should have a unique instance of the serializers", function(assert) {
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({}));
+
+  let serializer_a = env.store_a.serializerFor('home-planet');
+  let serializer_b = env.store_b.serializerFor('home-planet');
+
+  assert.equal(get(serializer_a, 'store'), env.store_a, 'serializer_a\'s store prop should be sotre_a');
+  assert.equal(get(serializer_b, 'store'), env.store_b, 'serializer_b\'s store prop should be sotre_b');
+  assert.notEqual(serializer_a, serializer_b, 'serialier_a and serialier_b should be unique instances');
+});
+
+
+test("each store should have a unique instance of the adapters", function(assert) {
+  env.registry.register('adapter:home-planet', DS.Adapter.extend({}));
+
+  let adapter_a = env.store_a.adapterFor('home-planet');
+  let adapter_b = env.store_b.adapterFor('home-planet');
+
+  assert.equal(get(adapter_a, 'store'), env.store_a);
+  assert.equal(get(adapter_b, 'store'), env.store_b);
+  assert.notEqual(adapter_a, adapter_b);
 });

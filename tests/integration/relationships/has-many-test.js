@@ -481,8 +481,8 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
     promise1,
     promise2
   ]).then(() => {
-    assert.equal(promise1.promise, promise2.promise, "Same promise is returned both times");
-  });
+    assert.equal(promise1.get('promise'), promise2.get('promise'), "Same promise is returned both times");
+  })
 });
 
 test("A hasMany backed by a link remains a promise after a record has been added to it", function(assert) {
@@ -2340,13 +2340,13 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
     page2 = env.store.peekRecord('page', 2);
     chapter = env.store.peekRecord('chapter', 1);
 
-    chapter.get('pages').addEnumerableObserver(this, {
-      willChange(pages, removing, addCount) {
+    chapter.get('pages').addArrayObserver(this, {
+      willChange(pages, index, removeCount, addCount) {
         if (observe) {
-          assert.equal(removing[0], page2, 'page2 is passed to willChange');
+          assert.equal(pages.objectAt(index), page2, 'page2 is passed to willChange');
         }
       },
-      didChange(pages, removeCount, adding) {
+      didChange(pages, index, removeCount, addCount) {
         if (observe) {
           assert.equal(removeCount, 1, 'removeCount is correct');
         }
@@ -2399,15 +2399,15 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
     page2 = env.store.peekRecord('page', 2);
     chapter = env.store.peekRecord('chapter', 1);
 
-    chapter.get('pages').addEnumerableObserver(this, {
-      willChange(pages, removing, addCount) {
+    chapter.get('pages').addArrayObserver(this, {
+      willChange(pages, index, removeCount, addCount) {
         if (observe) {
           assert.equal(addCount, 1, 'addCount is correct');
         }
       },
-      didChange(pages, removeCount, adding) {
+      didChange(pages, index, removeCount, addCount) {
         if (observe) {
-          assert.equal(adding[0], page2, 'page2 is passed to didChange');
+          assert.equal(pages.objectAt(index), page2, 'page2 is passed to didChange');
         }
       }
     });

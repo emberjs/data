@@ -2,6 +2,56 @@
 
 ### Master
 
+### Release 3.0.1 (February 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+
+### Release 3.0.0 (February 12, 2018)
+- [#5296](https://github.com/emberjs/data/pull/5296) blueprints/adapter-test: Add RFC232 variants
+- [#5249](https://github.com/emberjs/data/pull/5249) Fix client-side delete + resurrection
+- [#5301](https://github.com/emberjs/data/pull/5301) Add a test to ensure multiple stores get unique instances of serializ…
+- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
+- [#5286](https://github.com/emberjs/data/pull/5286) Remove deprecation/support for complex object as defaultValues of DS.attr
+- [#5288](https://github.com/emberjs/data/pull/5288) Remove date transforms deprecations and support for Ember.Date.parse
+- [#5289](https://github.com/emberjs/data/pull/5289) [CLEANUP beta] Remove support/deprecation for normalizeHash in 3.0.0 (#5289)
+- [#5261](https://github.com/emberjs/data/pull/5261) [BUGFIX] inverseFor should respect inverse: null
+- [#5285](https://github.com/emberjs/data/pull/5285) Remove deprecation messages for old instance initializers
+- [#5290](https://github.com/emberjs/data/pull/5290) Remove deprecation around shouldSerializeHasMany
+- [#5291](https://github.com/emberjs/data/pull/5291) Remove deprecation and fallback for keyForAttribute when keyForPolymo…
+- [#5293](https://github.com/emberjs/data/pull/5293) cleanup: node-tests cleanup  (#5293)
+- [#5294](https://github.com/emberjs/data/pull/5294) blueprints/transform-test: Add RFC232 variants
+- [#5297](https://github.com/emberjs/data/pull/5297) bluepints/model-test: Add RFC232 variants
+- [#5298](https://github.com/emberjs/data/pull/5298) blueprints/serializer-test: Add RFC232 variants
+- [#5299](https://github.com/emberjs/data/pull/5299) Fixup the RFC232 model-test files.
+- [#5300](https://github.com/emberjs/data/pull/5300) Simplify `store.adapterFor` and `store.serializerFor`.
+- [#5305](https://github.com/emberjs/data/pull/5305) Serializers and adapters should be unique per store
+- [#5308](https://github.com/emberjs/data/pull/5308) Simplify the getDescriptor test helper
+
+### Release 2.18.1 (February 13, 2018)
+- [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
+
+### Release 2.18.0 (December 28, 2017)
+- [#5225](https://github.com/emberjs/data/pull/5225) Remove blueprints for Mocha < 0.12. (#5225)
+- [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
+- [#5223](https://github.com/emberjs/data/pull/5223) [BUGFIX release] Cleanup test only dependencies.
+- [#5200](https://github.com/emberjs/data/pull/5200) bump rsvp
+- [#5108](https://github.com/emberjs/data/pull/5108) Updates addon to adhere to RFC 176 (#5108)
+- [#5232](https://github.com/emberjs/data/pull/5232) Update documentation in model.js
+- [#5203](https://github.com/emberjs/data/pull/5203) Skip ember try on appveyor
+- [#5239](https://github.com/emberjs/data/pull/5239) Deprecate support for "production like" values in EMBER_ENV
+- [#5213](https://github.com/emberjs/data/pull/5213) [BUGFIX beta] proxy `meta` on PromiseArray
+- [#5212](https://github.com/emberjs/data/pull/5212) Do not show feature flag improved-ajax methods in the api docs
+- [#5206](https://github.com/emberjs/data/pull/5206) [BUGFIX beta] Fix broccoli-babel-transpiler cache warnings
+- [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
+- [#5217](https://github.com/emberjs/data/pull/5217) [BUGFIX beta] RecordReference returns null when not yet loaded
+- [#5218](https://github.com/emberjs/data/pull/5218) Update assert against nulls (#5218)
+- [#5220](https://github.com/emberjs/data/pull/5220) Remove (unnecessary) ember-inflector peer dependency
+- [#5221](https://github.com/emberjs/data/pull/5221) Fix docs link. (#5221)
+- [#5224](https://github.com/emberjs/data/pull/5224) Add missing dependency for travis build
+- [#5238](https://github.com/emberjs/data/pull/5238) Move initialize-store-service.js out of the instance-initializers dir…
+- [#5242](https://github.com/emberjs/data/pull/5242) [BUGFIX beta] Normalize model names during `push`
+- [#5250](https://github.com/emberjs/data/pull/5250) [doc] Update links to Ember Guide (#5250)
+- [#5260](https://github.com/emberjs/data/pull/5260) [doc] Update urlForFindRecord example
+
 ### Release 2.17.0 (November 19, 2017)
 - [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
@@ -353,7 +403,7 @@
 - [#4734](https://github.com/emberjs/data/pull/4734) [DOC] fix a couple of typos in model class docs
 - [#4739](https://github.com/emberjs/data/pull/4739) Removed id in urlForFindAll signature
 
-### Release 2.11.0 (January 9, 2016)
+### Release 2.11.0 (January 9, 2017)
 - [#4518](https://github.com/emberjs/data/pull/4518) Update the relationship docs to remove some references to a globals s…
 - [#4581](https://github.com/emberjs/data/pull/4581) [DOC] Update descriptions of findRecord() and findAll()
 - [#4438](https://github.com/emberjs/data/pull/4438) add `relationship` property to findHasMany RESTAdapter docs

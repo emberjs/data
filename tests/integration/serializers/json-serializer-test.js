@@ -18,10 +18,10 @@ module("integration/serializer/json - JSONSerializer", {
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
-      post: DS.belongsTo('post', { async: false })
+      post: DS.belongsTo('post', { inverse: null, async: false })
     });
     Favorite = DS.Model.extend({
-      post: DS.belongsTo('post', { async: true, polymorphic: true })
+      post: DS.belongsTo('post', { inverse: null, async: true, polymorphic: true })
     });
     env = setupStore({
       post:     Post,
@@ -237,7 +237,12 @@ test("serializeHasMany respects keyForRelationship", function(assert) {
 
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post, id: "1" });
+    comment = env.store.createRecord('comment', {
+      body: "Omakase is delicious",
+      post: post,
+      id: "1"
+    });
+    post.get('comments').pushObject(comment);
   });
 
   var json = {};
@@ -285,16 +290,6 @@ test("shouldSerializeHasMany", function(assert) {
 
   assert.ok(shouldSerialize, 'shouldSerializeHasMany correctly identifies with hasMany relationship');
 });
-
-if (isEnabled("ds-check-should-serialize-relationships")) {
-  testInDebug("_shouldSerializeHasMany deprecation", function(assert) {
-    env.store.serializerFor("post")._shouldSerializeHasMany = function() {};
-
-    assert.expectDeprecation(function() {
-      env.store.serializerFor("post").shouldSerializeHasMany();
-    }, /_shouldSerializeHasMany has been promoted to the public API/);
-  });
-}
 
 test("serializeIntoHash", function(assert) {
   run(() => {
@@ -635,6 +630,7 @@ test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` pr
   run(function() {
     post = env.store.createRecord('post', { title: "Rails is omakase" });
     comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+    post.get('comments').pushObject(comment);
   });
 
   var serializer = env.store.serializerFor("post");

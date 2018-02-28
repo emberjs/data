@@ -405,6 +405,39 @@ test("value() returns the referenced record when loaded", function(assert) {
   assert.equal(familyReference.value(), family);
 });
 
+test("value() returns the referenced record when loaded even if links are present", function(assert) {
+  var person, family;
+  run(function() {
+    person = env.store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            data: { type: 'family', id: 1 }
+          }
+        }
+      }
+    });
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            links: {
+              related: '/this/should/not/matter'
+            }
+          }
+        }
+      }
+    });
+  });
+
+  var familyReference = person.belongsTo('family');
+  assert.equal(familyReference.value(), family);
+});
+
 test("load() fetches the record", function(assert) {
   var done = assert.async();
 

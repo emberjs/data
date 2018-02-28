@@ -20,7 +20,7 @@ export default class IdentityMap {
 
    @method retrieve
    @param modelName a previously normalized modelName
-   @returns {InternalModelMap} the InternalModelMap for the given modelName
+   @return {InternalModelMap} the InternalModelMap for the given modelName
    */
   retrieve(modelName) {
     let map = this._map[modelName];

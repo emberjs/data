@@ -181,7 +181,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
         deprecate("You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
           id: 'ds.json-api-serializer.deprecated-model-name-for-relationship',
-          until: '3.0.0'
+          until: '4.0.0'
         });
 
         modelName = deprecatedModelNameLookup;
@@ -217,7 +217,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
         deprecate("You are using modelNameFromPayloadKey to normalize the type for a resource. This has been deprecated in favor of modelNameFromPayloadType", false, {
           id: 'ds.json-api-serializer.deprecated-model-name-for-resource',
-          until: '3.0.0'
+          until: '4.0.0'
         });
 
         modelName = deprecatedModelNameLookup;
@@ -301,6 +301,15 @@ const JSONAPISerializer = JSONSerializer.extend({
     return attributes;
   },
 
+  /**
+     Returns a relationship formatted as a JSON-API "relationship object".
+
+     http://jsonapi.org/format/#document-resource-object-relationships
+
+     @method extractRelationship
+     @param {Object} relationshipHash
+     @return {Object}
+  */
   extractRelationship(relationshipHash) {
 
     if (typeOf(relationshipHash.data) === 'object') {
@@ -321,6 +330,16 @@ const JSONAPISerializer = JSONSerializer.extend({
     return relationshipHash;
   },
 
+  /**
+     Returns the resource's relationships formatted as a JSON-API "relationships object".
+
+     http://jsonapi.org/format/#document-resource-object-relationships
+
+     @method extractRelationships
+     @param {Object} modelClass
+     @param {Object} resourceHash
+     @return {Object}
+  */
   extractRelationships(modelClass, resourceHash) {
     let relationships = {};
 
@@ -496,7 +515,7 @@ const JSONAPISerializer = JSONSerializer.extend({
       if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
         deprecate("You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.", false, {
           id: 'ds.json-api-serializer.deprecated-payload-type-for-model',
-          until: '3.0.0'
+          until: '4.0.0'
         });
 
         payloadType = deprecatedPayloadTypeLookup;
@@ -536,8 +555,9 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (this._canSerialize(key)) {
       let belongsTo = snapshot.belongsTo(key);
-      if (belongsTo !== undefined) {
+      let belongsToIsNotNew = belongsTo && belongsTo.record && !belongsTo.record.get('isNew');
 
+      if (belongsTo === null || belongsToIsNotNew) {
         json.relationships = json.relationships || {};
 
         let payloadKey = this._getMappedKey(key, snapshot.type);
@@ -556,7 +576,7 @@ const JSONAPISerializer = JSONSerializer.extend({
             if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
               deprecate("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
                 id: 'ds.json-api-serializer.deprecated-payload-type-for-belongs-to',
-                until: '3.0.0'
+                until: '4.0.0'
               });
 
               payloadType = deprecatedPayloadTypeLookup;
@@ -578,12 +598,8 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   serializeHasMany(snapshot, json, relationship) {
     let key = relationship.key;
-    let shouldSerializeHasMany = '_shouldSerializeHasMany';
-    if (isEnabled("ds-check-should-serialize-relationships")) {
-      shouldSerializeHasMany = 'shouldSerializeHasMany';
-    }
 
-    if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
+    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
       let hasMany = snapshot.hasMany(key);
       if (hasMany !== undefined) {
 
@@ -608,7 +624,7 @@ const JSONAPISerializer = JSONSerializer.extend({
             if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
               deprecate("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
                 id: 'ds.json-api-serializer.deprecated-payload-type-for-has-many',
-                until: '3.0.0'
+                until: '4.0.0'
               });
 
               payloadType = deprecatedPayloadTypeLookup;

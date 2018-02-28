@@ -358,6 +358,78 @@ testInDebug('Warns when defining extractMeta()', function(assert) {
   }, /You've defined 'extractMeta' in/);
 });
 
+test('a belongsTo relationship that is not set will not be in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1'
+      }
+    });
+  });
+});
+
+test('a belongsTo relationship that is set to null will show as null in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+    handle.set('user', null);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+        relationships: {
+          user: {
+            data: null
+          }
+        }
+      }
+    });
+  });
+});
+
+test('a belongsTo relationship set to a new record will not show in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+
+    let user = store.createRecord('user');
+    handle.set('user', user);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1'
+      }
+    });
+  });
+});
+
 testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
   assert.expectWarning(function() {
     DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();

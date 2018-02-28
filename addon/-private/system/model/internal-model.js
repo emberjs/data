@@ -62,12 +62,24 @@ function areAllModelsUnloaded(internalModels) {
   return true;
 }
 
+// Handle dematerialization for relationship `rel`.  In all cases, notify the
+// relatinoship of the dematerialization: this is done so the relationship can
+// notify its inverse which needs to update state
+//
+// If the inverse is sync, unloading this record is treated as a client-side
+// delete, so we remove the inverse records from this relationship to
+// disconnect the graph.  Because it's not async, we don't need to keep around
+// the internalModel as an id-wrapper for references and because the graph is
+// disconnected we can actually destroy the internalModel when checking for
+// orphaned models.
 function destroyRelationship(rel) {
-  if (rel._inverseIsAsync()) {
-    rel.removeInternalModelFromInverse(rel.inverseInternalModel);
-    rel.removeInverseRelationships();
-  } else {
-    rel.removeCompletelyFromInverse();
+  rel.internalModelDidDematerialize();
+
+  if (rel._inverseIsSync()) {
+    // disconnect the graph so that the sync inverse relationship does not
+    // prevent us from cleaning up during `_cleanupOrphanedInternalModels`
+    rel.removeAllInternalModelsFromOwn();
+    rel.removeAllCanonicalInternalModelsFromOwn();
   }
 }
 // this (and all heimdall instrumentation) will be stripped by a babel transform
@@ -423,7 +435,7 @@ export default class InternalModel {
     });
   }
 
-  /**
+  /*
     Computes the set of internal models reachable from `this` across exactly one
     relationship.
 
@@ -432,6 +444,7 @@ export default class InternalModel {
   */
   _directlyRelatedInternalModels() {
     let array = [];
+
     this._relationships.forEach((name, rel) => {
       array = array.concat(rel.members.list, rel.canonicalMembers.list);
     });
@@ -439,7 +452,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Computes the set of internal models reachable from this internal model.
 
     Reachability is determined over the relationship graph (ie a graph where
@@ -472,7 +485,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Unload the record for this internal model. This will cause the record to be
     destroyed and freed up for garbage collection. It will also do a check
     for cleaning up internal models.
@@ -772,7 +785,7 @@ export default class InternalModel {
     }
 
     if (this.isNew()) {
-      this.removeFromInverseRelationships(true);
+      this.removeFromInverseRelationships();
     }
 
     if (this.isValid()) {
@@ -891,19 +904,13 @@ export default class InternalModel {
 
    It will remove this record from any associated relationships.
 
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
     @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
     @private
    */
-  removeFromInverseRelationships(isNew = false) {
+  removeFromInverseRelationships() {
     this._relationships.forEach((name, rel) => {
       rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.clear();
     });
 
     let implicitRelationships = this._implicitRelationships;
@@ -913,9 +920,7 @@ export default class InternalModel {
       let rel = implicitRelationships[key];
 
       rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.clear();
     });
   }
 
@@ -931,10 +936,7 @@ export default class InternalModel {
     this.__implicitRelationships = null;
     Object.keys(implicitRelationships).forEach((key) => {
       let rel = implicitRelationships[key];
-
       destroyRelationship(rel);
-
-      rel.destroy();
     });
   }
 

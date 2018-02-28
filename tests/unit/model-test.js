@@ -913,24 +913,9 @@ testInDebug('a complex object defaultValue is deprecated', function(assert) {
 
   let tag = run(() => store.createRecord('tag'));
 
-  assert.expectDeprecation(() => {
+  assert.expectAssertion(() => {
     get(tag, 'tagInfo');
-  }, /Non primitive defaultValues are deprecated/);
-});
-
-testInDebug('a null defaultValue is not deprecated', function(assert) {
-  const Tag = DS.Model.extend({
-    tagInfo: DS.attr({ defaultValue: null })
-  });
-
-  let store = createStore({
-    tag: Tag
-  });
-
-  let tag = run(() => store.createRecord('tag'));
-
-  assert.expectNoDeprecation();
-  assert.strictEqual(get(tag, 'tagInfo'), null);
+  }, /Non primitive defaultValues are not supported/);
 });
 
 test('setting a property to undefined on a newly created record should not impact the current state', function(assert) {

@@ -521,7 +521,7 @@ test("Rollbacking attributes for a created record that has a ManyToMany relation
   });
 });
 
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function(assert) {
+test("Deleting an unpersisted record via rollbackAttributes that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function(assert) {
   let account, user;
   run(() => {
     account = store.push({

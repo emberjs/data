@@ -50,7 +50,6 @@ import {
 import { getOwner } from '../utils';
 import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
-import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
 import isEnabled from '../features';
 
@@ -211,7 +210,6 @@ Store = Service.extend({
     this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._modelFactoryCache = Object.create(null);
     this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
@@ -234,7 +232,8 @@ Store = Service.extend({
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
 
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+    this._adapterCache = Object.create(null);
+    this._serializerCache = Object.create(null);
   },
 
   /**
@@ -458,9 +457,7 @@ Store = Service.extend({
     assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeof id !== 'object');
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return this.findRecord(normalizedModelName, id);
+    return this.findRecord(modelName, id);
   },
 
   /**
@@ -2648,7 +2645,46 @@ Store = Service.extend({
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('adapter', normalizedModelName);
+    let { _adapterCache } = this;
+    let adapter = _adapterCache[normalizedModelName];
+    if (adapter) { return adapter; }
+
+    let owner = getOwner(this);
+
+    adapter = owner.lookup(`adapter:${normalizedModelName}`);
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      return adapter;
+    }
+
+    // no adapter found for the specific model, fallback and check for application adapter
+    adapter = _adapterCache.application || owner.lookup('adapter:application');
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache.application = adapter;
+      return adapter;
+    }
+
+    // no model specific adapter or application adapter, check for an `adapter`
+    // property defined on the store
+    let adapterName = this.get('adapter');
+    adapter = _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`);
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache[adapterName] = adapter;
+      return adapter;
+    }
+
+    // final fallback, no model specific adapter, no application adapter, no
+    // `adapter` property on store: use json-api adapter
+    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    set(adapter, 'store', this);
+    _adapterCache[normalizedModelName] = adapter;
+    _adapterCache['-json-api'] = adapter;
+    return adapter;
   },
 
   // ..............................
@@ -2682,7 +2718,48 @@ Store = Service.extend({
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('serializer', normalizedModelName);
+    let { _serializerCache } = this;
+    let serializer = _serializerCache[normalizedModelName];
+    if (serializer) { return serializer; }
+
+    let owner = getOwner(this);
+
+    serializer = owner.lookup(`serializer:${normalizedModelName}`);
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      return serializer;
+    }
+
+    // no serializer found for the specific model, fallback and check for application serializer
+    serializer = _serializerCache.application || owner.lookup('serializer:application');
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      _serializerCache.application = serializer;
+      return serializer;
+    }
+
+    // no model specific serializer or application serializer, check for the `defaultSerializer`
+    // property defined on the adapter
+    let adapter = this.adapterFor(modelName);
+    let serializerName = get(adapter, 'defaultSerializer');
+    serializer = _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`);
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      _serializerCache[serializerName] = serializer;
+      return serializer;
+    }
+
+    // final fallback, no model specific serializer, no application serializer, no
+    // `serializer` property on store: use json-api serializer
+    serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+    set(serializer, 'store', this);
+    _serializerCache[normalizedModelName] = serializer;
+    _serializerCache['-default'] = serializer;
+
+    return serializer;
   },
 
   lookupAdapter(name) {
@@ -2705,7 +2782,9 @@ Store = Service.extend({
     this._super(...arguments);
     this._pushedInternalModels = null;
     this.recordArrayManager.destroy();
-    this._instanceCache.destroy();
+
+    this._adapterCache = null;
+    this._serializerCache = null;
 
     this.unloadAll();
   },

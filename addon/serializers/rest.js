@@ -160,16 +160,6 @@ const RESTSerializer = JSONSerializer.extend({
     @param {String} prop
     @return {Object}
   */
-  normalize(modelClass, resourceHash, prop) {
-    if (this.normalizeHash && this.normalizeHash[prop]) {
-      deprecate('`RESTSerializer.normalizeHash` has been deprecated. Please use `serializer.normalize` to modify the payload of single resources.', false, {
-        id: 'ds.serializer.normalize-hash-deprecated',
-        until: '3.0.0'
-      });
-      this.normalizeHash[prop](resourceHash);
-    }
-    return this._super(modelClass, resourceHash);
-  },
 
   /**
     Normalizes an array of resource payloads and returns a JSON-API Document
@@ -761,24 +751,6 @@ const RESTSerializer = JSONSerializer.extend({
     let key = relationship.key;
     let typeKey = this.keyForPolymorphicType(key, relationship.type, 'serialize');
     let belongsTo = snapshot.belongsTo(key);
-
-    // old way of getting the key for the polymorphic type
-    key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
-    key = `${key}Type`;
-
-    // The old way of serializing the type of a polymorphic record used
-    // `keyForAttribute`, which is not correct. The next code checks if the old
-    // way is used and if it differs from the new way of using
-    // `keyForPolymorphicType`. If this is the case, a deprecation warning is
-    // logged and the old way is restored (so nothing breaks).
-    if (key !== typeKey && this.keyForPolymorphicType === RESTSerializer.prototype.keyForPolymorphicType) {
-      deprecate("The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.", false, {
-        id: 'ds.rest-serializer.deprecated-key-for-polymorphic-type',
-        until: '3.0.0'
-      });
-
-      typeKey = key;
-    }
 
     if (isNone(belongsTo)) {
       json[typeKey] = null;

@@ -1,5 +1,4 @@
 import ComputedProperty from '@ember/object/computed';
-import { setOwner } from '@ember/application';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
@@ -11,7 +10,7 @@ import EmberObject, {
 import Map from '@ember/map';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
 import isEnabled from '../../features';
@@ -35,7 +34,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let relationships = relationshipMap.get(type.modelName).filter(relationship => {
     let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
-    if (!optionsForRelationship.inverse) {
+    if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
       return true;
     }
 
@@ -1837,25 +1836,6 @@ Model.reopenClass({
     });
   }
 });
-
-// if `Ember.setOwner` is defined, accessing `this.container` is
-// deprecated (but functional). In "standard" Ember usage, this
-// deprecation is actually created via an `.extend` of the factory
-// inside the container itself, but that only happens on models
-// with MODEL_FACTORY_INJECTIONS enabled :(
-if (setOwner) {
-  Object.defineProperty(Model.prototype, 'container', {
-    configurable: true,
-    enumerable: false,
-    get() {
-      deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.',
-                      false,
-                      { id: 'ember-application.injected-container', until: '3.0.0' });
-
-      return this.store.container;
-    }
-  });
-}
 
 if (isEnabled('ds-rollback-attribute')) {
   Model.reopen({
