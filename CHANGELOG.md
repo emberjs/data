@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.16.4 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 2.16.3 (October 12, 2017)
 
 - [#5223](https://github.com/emberjs/data/pull/5223) Move test only dependencies to `devDependencies`.
