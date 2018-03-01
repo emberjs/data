@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.15.4 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 2.15.3 (September 30, 2017)
 - [#5195](https://github.com/emberjs/data/pull/5195) Ensure `ember-data/-private` module is emitted properly for ember-cli…
 
