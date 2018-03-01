@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.0.2 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 3.0.1 (Feburary 13, 2018)
 - [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
 
