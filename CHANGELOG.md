@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.17.1 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 2.17.0 (November 19, 2017)
 - [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
