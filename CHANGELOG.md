@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.0.2 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 3.0.1 (February 13, 2018)
 - [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
 
@@ -25,6 +28,9 @@
 - [#5300](https://github.com/emberjs/data/pull/5300) Simplify `store.adapterFor` and `store.serializerFor`.
 - [#5305](https://github.com/emberjs/data/pull/5305) Serializers and adapters should be unique per store
 - [#5308](https://github.com/emberjs/data/pull/5308) Simplify the getDescriptor test helper
+
+### Release 2.18.2 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
 ### Release 2.18.1 (February 13, 2018)
 - [#5273](https://github.com/emberjs/data/pull/5273) client-side-delete semantics `unloadRecord`
@@ -52,6 +58,9 @@
 - [#5250](https://github.com/emberjs/data/pull/5250) [doc] Update links to Ember Guide (#5250)
 - [#5260](https://github.com/emberjs/data/pull/5260) [doc] Update urlForFindRecord example
 
+### Release 2.17.1 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
+
 ### Release 2.17.0 (November 19, 2017)
 - [#5216](https://github.com/emberjs/data/pull/5216) [BUGFIX beta] invalid record becomes loaded when property is reset
 - [#4998](https://github.com/emberjs/data/pull/4998) [DOC beta] Assert that both modelName and id are passed to `peekRecord` (#4998)
@@ -75,6 +84,9 @@
 - [#5223](https://github.com/emberjs/data/pull/5223) [BUGFIX release] Cleanup test only dependencies.
 - [#5224](https://github.com/emberjs/data/pull/5224) Add missing dependency for travis build
 - [#5232](https://github.com/emberjs/data/pull/5232) Update documentation in model.js
+
+### Release 2.16.4 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
 ### Release 2.16.1 (October 4, 2017)
 - [#5114](https://github.com/emberjs/data/pull/5114) Make import stripping smarter to resolve #5019
@@ -129,6 +141,9 @@
 - [#5153](https://github.com/emberjs/data/pull/5153) [BUGFIX release] ensure inverse async HasMany is correctly maintained
 - [#5162](https://github.com/emberjs/data/pull/5162) Update RELEASE.md
 - [#5192](https://github.com/emberjs/data/pull/5192) Remove feature flagging for ds-extended-errors.
+
+### Release 2.15.4 (March 1, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
 ### Release 2.15.3 (September 30, 2017)
 - [#5195](https://github.com/emberjs/data/pull/5195) Ensure `ember-data/-private` module is emitted properly for ember-cli…
@@ -185,6 +200,9 @@
 - [#5008](https://github.com/emberjs/data/pull/5008) [BUGFIX BETA]: Fixed export regression. `ember-data/transform` to be default.
 - [#5009](https://github.com/emberjs/data/pull/5009) cleanup `index.js` and drop `0.12` node
 - [#5011](https://github.com/emberjs/data/pull/5011) Fix and tests for unloadRecord => findRecord issue
+
+### Release 2.14.11 (February 28, 2018)
+- [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
 ### Release 2.14.10 (August 10, 2017)
 - [#5119](https://github.com/emberjs/data/pull/5119) [BUGFIX release] Don't notify relationships with links during initialization
