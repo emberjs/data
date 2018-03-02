@@ -779,7 +779,7 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
 
 testInDebug('Invalid inverses throw errors', function(assert) {
   let PostModel = Model.extend({
-    comments: hasMany('comment', { async: false })
+    comments: hasMany('comment', { async: false, inverse: 'post' })
   });
   let CommentModel = Model.extend({
     post: belongsTo('post', { async: false, inverse: null })
