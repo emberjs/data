@@ -1,4 +1,3 @@
-import { computed } from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
@@ -55,9 +54,7 @@ test('ajaxOptions() adds Accept header to existing headers', function(assert) {
 });
 
 test('ajaxOptions() adds Accept header to existing computed properties headers', function(assert) {
-  adapter.headers = computed(function() {
-    return { 'Other-key': 'Other Value' };
-  });
+  adapter.headers = { 'Other-key': 'Other Value' };
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
