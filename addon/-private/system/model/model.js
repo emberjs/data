@@ -7,7 +7,7 @@ import EmberObject, {
   get,
   observer
 } from '@ember/object';
-import Map from '@ember/map';
+import Map from '../map';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
@@ -1394,7 +1394,7 @@ Model.reopenClass({
 
    @property relationships
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
 
@@ -1517,7 +1517,7 @@ Model.reopenClass({
 
    @property relationshipsByName
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
   relationshipsByName: relationshipsByNameDescriptor,
@@ -1560,11 +1560,11 @@ Model.reopenClass({
 
    @property fields
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
   fields: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isRelationship) {
@@ -1669,11 +1669,11 @@ Model.reopenClass({
 
    @property attributes
    @static
-   @type {Ember.Map}
+   @type {Map}
    @readOnly
    */
   attributes: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
@@ -1722,11 +1722,11 @@ Model.reopenClass({
 
    @property transformedAttributes
    @static
-   @type {Ember.Map}
+   @type {Map}
    @readOnly
    */
   transformedAttributes: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachAttribute((key, meta) => {
       if (meta.type) {
