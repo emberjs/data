@@ -2,7 +2,7 @@ import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEqual } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -1099,7 +1099,7 @@ export default class InternalModel {
   hasErrors() {
     let errors = get(this.getRecord(), 'errors');
 
-    return !isEmpty(errors);
+    return errors.get('length') > 0;
   }
 
   // FOR USE DURING COMMIT PROCESS

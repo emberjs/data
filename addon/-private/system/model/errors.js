@@ -2,7 +2,6 @@ import { mapBy, not } from '@ember/object/computed';
 import Evented from '@ember/object/evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
-import { isEmpty } from '@ember/utils';
 import { makeArray, A } from '@ember/array';
 import MapWithDefault from '@ember/map/with-default';
 import { deprecate, warn } from '@ember/debug';
@@ -186,7 +185,7 @@ export default ArrayProxy.extend(Evented, {
   */
   unknownProperty(attribute) {
     let errors = this.errorsFor(attribute);
-    if (isEmpty(errors)) { return undefined; }
+    if (errors.length === 0) { return undefined; }
     return errors;
   },
 
@@ -425,6 +424,6 @@ export default ArrayProxy.extend(Evented, {
     @return {Boolean} true if there some errors on given attribute
   */
   has(attribute) {
-    return !isEmpty(this.errorsFor(attribute));
+    return this.errorsFor(attribute).length > 0;
   }
 });
