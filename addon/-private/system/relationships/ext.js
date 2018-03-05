@@ -1,7 +1,7 @@
 import { A } from '@ember/array';
 import { computed } from '@ember/object';
-import MapWithDefault from '@ember/map/with-default';
-import Map from '@ember/map';
+import MapWithDefault from '../map-with-default';
+import Map from '../map';
 import { assert } from '@ember/debug';
 import {
   typeForRelationshipMeta,
@@ -56,7 +56,7 @@ export const relatedTypesDescriptor = computed(function() {
 }).readOnly();
 
 export const relationshipsByNameDescriptor = computed(function() {
-  let map = Map.create();
+  let map = new Map();
 
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {

@@ -6,7 +6,6 @@
 import $ from 'jquery';
 
 import { Promise as EmberPromise } from 'rsvp';
-import MapWithDefault from '@ember/map/with-default';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import Adapter from "../adapter";
@@ -22,7 +21,8 @@ import {
   ConflictError,
   ServerError,
   TimeoutError,
-  AbortError
+  AbortError,
+  MapWithDefault
 } from '../-private';
 import { instrument } from 'ember-data/-debug';
 import { warn, deprecate } from '@ember/debug';
@@ -901,7 +901,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany(store, snapshots) {
-    let groups = MapWithDefault.create({ defaultValue() { return []; } });
+    let groups = new MapWithDefault({ defaultValue() { return []; } });
     let adapter = this;
     let maxURLLength = this.maxURLLength;
 
