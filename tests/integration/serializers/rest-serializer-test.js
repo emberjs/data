@@ -158,7 +158,7 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
 });
 
 testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
-  assert.expect(isEnabled("ds-payload-type-hooks") ? 3 : 2);
+  assert.expect(2);
 
   var homePlanetNormalizeCount = 0;
 
@@ -179,9 +179,6 @@ testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", fu
   var array;
 
 
-  if (isEnabled("ds-payload-type-hooks")) {
-    assert.expectDeprecation('You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType');
-  }
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
   });
@@ -975,26 +972,26 @@ if (isEnabled("ds-payload-type-hooks")) {
       }
     };
 
-    assert.expectDeprecation("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType");
+    assert.expectDeprecation(() => {
+      let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
 
-    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'doomsday-device',
-        attributes: {},
-        relationships: {
-          evilMinion: {
-            data: {
-              id: '1',
-              type: 'evil-minion'
+      assert.deepEqual(normalized, {
+        data: {
+          id: '1',
+          type: 'doomsday-device',
+          attributes: {},
+          relationships: {
+            evilMinion: {
+              data: {
+                id: '1',
+                type: 'evil-minion'
+              }
             }
           }
-        }
-      },
-      included: []
-    });
+        },
+        included: []
+      });
+    }, "You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType");
   });
 
   test("mapping of model name can be customized via payloadTypeFromModelName", function(assert) {

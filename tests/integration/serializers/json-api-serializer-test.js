@@ -552,32 +552,33 @@ if (isEnabled("ds-payload-type-hooks")) {
       }
     };
 
-    assert.expectDeprecation("You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType");
+    assert.expectDeprecation(() => {
+      let user = env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
 
-    let user = env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(user, {
-      data: {
-        id: "1",
-        type: "user",
-        attributes: {},
-        relationships: {
-          company: {
-            data: {
-              id: "1",
-              type: "company"
+      assert.deepEqual(user, {
+        data: {
+          id: "1",
+          type: "user",
+          attributes: {},
+          relationships: {
+            company: {
+              data: {
+                id: "1",
+                type: "company"
+              }
+            },
+            handles: {
+              data: [{
+                id: "1",
+                type: "handle"
+              }]
             }
-          },
-          handles: {
-            data: [{
-              id: "1",
-              type: "handle"
-            }]
           }
         }
-      }
-    });
+      });
+    }, "You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType");
   });
+
 
   test('mapping of model name can be customized via payloadTypeFromModelName', function(assert) {
     env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
@@ -678,28 +679,28 @@ if (isEnabled("ds-payload-type-hooks")) {
       });
     });
 
-    assert.expectDeprecation("You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.");
+    assert.expectDeprecation(() => {
+      var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
 
-    var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
-
-    assert.deepEqual(payload, {
-      data: {
-        type: 'api::v1::user',
-        relationships: {
-          company: {
-            data: {
-              id: '1',
-              type: 'api::v1::company'
+      assert.deepEqual(payload, {
+        data: {
+          type: 'api::v1::user',
+          relationships: {
+            company: {
+              data: {
+                id: '1',
+                type: 'api::v1::company'
+              }
+            },
+            handles: {
+              data: [{
+                id: '1',
+                type: 'api::v1::handle'
+              }]
             }
-          },
-          handles: {
-            data: [{
-              id: '1',
-              type: 'api::v1::handle'
-            }]
           }
         }
-      }
-    });
+      });
+    }, "You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.");
   });
 }
