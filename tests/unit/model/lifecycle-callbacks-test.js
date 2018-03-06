@@ -276,13 +276,14 @@ test('a record receives a becameInvalid callback when it became invalid', functi
     return asyncPerson.then(person => {
       return run(() => {
         person.set('bar', 'Bar');
-        return person.save();
+        return person.save().catch(reason => {
+          assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
+
+          assert.equal(reason.errors.length, 1, 'reason should have one error');
+          assert.equal(reason.errors[0].title, 'Invalid Attribute');
+          assert.equal(callCount, 1, 'becameInvalid called after invalidating');
+        });
       });
-    }).catch(reason => {
-      assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
-      assert.equal(reason.errors.length, 1, 'reason should have one error');
-      assert.equal(reason.errors[0].title, 'Invalid Attribute');
-      assert.equal(callCount, 1, 'becameInvalid called after invalidating');
     });
   });
 });

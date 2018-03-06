@@ -9,7 +9,7 @@ let env;
 let SuperVillain, HomePlanet, EvilMinion;
 
 module("integration/multiple_stores - Multiple Stores Tests", {
-  setup() {
+  beforeEach() {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
@@ -41,7 +41,7 @@ module("integration/multiple_stores - Multiple Stores Tests", {
     env.store_b = env.container.lookup('store:store-b');
   },
 
-  teardown() {
+  afterEach() {
     run(env.store, 'destroy');
   }
 });

@@ -211,7 +211,7 @@ testInDebug('Warns when normalizing with type missing', function(assert) {
     }
   };
 
-  assert.throws(function() {
+  assert.expectAssertion(function() {
     run(function() {
       env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
     });

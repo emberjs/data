@@ -179,7 +179,7 @@ testInDebug("warns when returned record has different id", function(assert) {
     }
   }));
 
-  assert.expectWarning(/You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
-
-  return run(() => env.store.findRecord('person', 'me'));
+  assert.expectWarning(
+    () => run(() => env.store.findRecord('person', 'me')),
+      /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
 });

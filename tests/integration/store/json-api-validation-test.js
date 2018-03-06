@@ -7,7 +7,7 @@ import DS from 'ember-data';
 
 var Person, store, env;
 
-function payloadError(payload, expectedError) {
+function payloadError(payload, expectedError, assert) {
   env.registry.register('serializer:person', DS.Serializer.extend({
     normalizeResponse(store, type, pld) {
       return pld;
@@ -18,7 +18,7 @@ function payloadError(payload, expectedError) {
       return resolve(payload);
     }
   }));
-  this.throws(function () {
+  this.expectAssertion(function () {
     run(function() {
       store.findRecord('person', 1);
     });
@@ -29,7 +29,7 @@ function payloadError(payload, expectedError) {
 
 module("integration/store/json-validation", {
   beforeEach() {
-    QUnit.assert.payloadError = payloadError;
+    QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
 
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
@@ -62,7 +62,7 @@ testInDebug("when normalizeResponse returns undefined (or doesn't return), throw
     }
   }));
 
-  assert.throws(function () {
+  assert.expectAssertion(function () {
     run(function() {
       store.findRecord('person', 1);
     });
@@ -81,7 +81,7 @@ testInDebug("when normalizeResponse returns null, throws an error", function(ass
     }
   }));
 
-  assert.throws(function () {
+  assert.expectAssertion(function () {
     run(function() {
       store.findRecord('person', 1);
     });
@@ -101,7 +101,7 @@ testInDebug("when normalizeResponse returns an empty object, throws an error", f
     }
   }));
 
-  assert.throws(function () {
+  assert.expectAssertion(function () {
     run(function() {
       store.findRecord('person', 1);
     });
@@ -125,7 +125,7 @@ testInDebug("when normalizeResponse returns a document with both data and errors
     }
   }));
 
-  assert.throws(function () {
+  assert.expectAssertion(function () {
     run(function() {
       store.findRecord('person', 1);
     });
@@ -138,7 +138,6 @@ testInDebug("normalizeResponse 'data' cannot be undefined, a number, a string or
   assert.payloadError({ data: 1 }, /data must be/);
   assert.payloadError({ data: 'lollerskates' }, /data must be/);
   assert.payloadError({ data: true }, /data must be/);
-
 });
 
 testInDebug("normalizeResponse 'meta' cannot be an array, undefined, a number, a string or a boolean", function(assert) {
