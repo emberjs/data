@@ -82,7 +82,7 @@
     "ember-cli-inject-live-reload": "^1.4.1",
     "ember-cli-internal-test-helpers": "^0.8.1",
     "ember-cli-pretender": "^1.0.1",
-    "ember-cli-qunit": "^2.1.0",
+    "ember-cli-qunit": "^3.1.1",
     "ember-cli-release": "^0.2.9",
     "ember-cli-shims": "^1.0.2",
     "ember-cli-sri": "^2.1.0",
