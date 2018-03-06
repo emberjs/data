@@ -640,11 +640,9 @@ testInDebug("Inverse null relationships with models that don't exist throw a nic
 
   let env = setupStore({ user: User });
 
-  run(() => {
-    assert.expectAssertion(() => {
-      env.store.createRecord('user', { post: {}});
-    }, /No model was found for/)
-  });
+  assert.expectAssertion(() => {
+    run(() => env.store.createRecord('user', { post: {}}));
+  }, /No model was found for/)
 
   // but don't error if the relationship is not used
   run(() => env.store.createRecord('user', {}));
