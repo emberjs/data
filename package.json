@@ -20,6 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@ember/ordered-set": "^1.0.0",
     "amd-name-resolver": "0.0.7",
     "babel-plugin-ember-modules-api-polyfill": "^1.4.2",
     "babel-plugin-feature-flags": "^0.3.1",
