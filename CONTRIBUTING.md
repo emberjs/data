@@ -29,8 +29,8 @@ demonstrate. The more pared down, the better. A preconfigured [EmberTwiddle (RES
 [EmberTwiddle][2] with mocked requests is available.
 
 
-[rest]: https://ember-twiddle.com/aa257da01fe4fde3c1a502538e2e4902/copy
-[json-api]: https://ember-twiddle.com/c0beed7d3c0bed65ac8ed018dcc57894/copy
+[rest]: https://ember-twiddle.com/abbc9e9e9165e5ae05804f165fa5388c/copy
+[json-api]: https://ember-twiddle.com/aa59b876f393e4d1573f7cad911ec5ad/copy
 [2]: https://ember-twiddle.com/0e1a24aabb8fa7c1fdd8/copy?fileTreeShown=false&numColumns=2&openFiles=routes.application.js%2Ctemplates.application.hbs
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
