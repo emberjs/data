@@ -821,5 +821,5 @@ testInDebug('Invalid inverses throw errors', function(assert) {
     });
   }
 
-  assert.throws(runInvalidPush, /The comment:post relationship declares 'inverse: null', but it was resolved as the inverse for post:comments/, 'We detected the invalid inverse');
+  assert.expectAssertion(runInvalidPush, /The comment:post relationship declares 'inverse: null', but it was resolved as the inverse for post:comments/, 'We detected the invalid inverse');
 });

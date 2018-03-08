@@ -11,7 +11,7 @@ const { attr } = DS;
 
 let Person, store, allRecords, env;
 
-module("integration/adapter/find_all - Finding All Records of a Type", {
+module("integration/adapter/find-all - Finding All Records of a Type", {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),

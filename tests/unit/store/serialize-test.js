@@ -25,8 +25,9 @@ if (isEnabled('ds-deprecate-store-serialize')) {
         }
       });
 
-      assert.expectDeprecation('Use of store.serialize is deprecated, use record.serialize instead.');
-      store.serialize(person);
+      assert.expectDeprecation(() => {
+        store.serialize(person);
+      }, 'Use of store.serialize is deprecated, use record.serialize instead.');
     });
 
   });

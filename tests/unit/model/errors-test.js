@@ -12,8 +12,8 @@ module('unit/model/errors', {
   }
 });
 
-function updateErrors(func) {
-  window.expectWarning(func, 'Interacting with a record errors object will no longer change the record state.');
+function updateErrors(func, assert) {
+  assert.expectWarning(func, 'Interacting with a record errors object will no longer change the record state.');
 }
 
 AssertPrototype.becameInvalid = function becameInvalid(eventName) {
@@ -40,15 +40,15 @@ testInDebug('add error', function(assert) {
   assert.expect(10);
 
   errors.trigger = assert.becameInvalid;
-  updateErrors(() => errors.add('firstName', 'error'));
+  updateErrors(() => errors.add('firstName', 'error'), assert);
   errors.trigger = assert.unexpectedSend;
   assert.ok(errors.has('firstName'), 'it has firstName errors');
   assert.equal(errors.get('length'), 1, 'it has 1 error');
-  updateErrors(() => errors.add('firstName', ['error1', 'error2']));
+  updateErrors(() => errors.add('firstName', ['error1', 'error2']), assert);
   assert.equal(errors.get('length'), 3, 'it has 3 errors');
   assert.ok(!errors.get('isEmpty'), 'it is not empty');
-  updateErrors(() => errors.add('lastName', 'error'));
-  updateErrors(() => errors.add('lastName', 'error'));
+  updateErrors(() => errors.add('lastName', 'error'), assert);
+  updateErrors(() => errors.add('lastName', 'error'), assert);
   assert.equal(errors.get('length'), 4, 'it has 4 errors');
 });
 
@@ -57,13 +57,13 @@ testInDebug('get error', function(assert) {
 
   assert.ok(errors.get('firstObject') === undefined, 'returns undefined');
   errors.trigger = assert.becameInvalid;
-  updateErrors(() => errors.add('firstName', 'error'));
+  updateErrors(() => errors.add('firstName', 'error'), assert);
   errors.trigger = assert.unexpectedSend;
   assert.ok(errors.get('firstName').length === 1, 'returns errors');
   assert.deepEqual(errors.get('firstObject'), { attribute: 'firstName', message: 'error' });
-  updateErrors(() => errors.add('firstName', 'error2'));
+  updateErrors(() => errors.add('firstName', 'error2'), assert);
   assert.ok(errors.get('firstName').length === 2, 'returns errors');
-  updateErrors(() => errors.add('lastName', 'error3'));
+  updateErrors(() => errors.add('lastName', 'error3'), assert);
   assert.deepEqual(errors.toArray(), [
     { attribute: 'firstName', message: 'error' },
     { attribute: 'firstName', message: 'error2' },
@@ -80,28 +80,28 @@ testInDebug('remove error', function(assert) {
   assert.expect(8);
 
   errors.trigger = assert.becameInvalid;
-  updateErrors(() => errors.add('firstName', 'error'));
+  updateErrors(() => errors.add('firstName', 'error'), assert);
   errors.trigger = assert.becameValid;
-  updateErrors(() => errors.remove('firstName'));
+  updateErrors(() => errors.remove('firstName'), assert);
   errors.trigger = assert.unexpectedSend;
   assert.ok(!errors.has('firstName'), 'it has no firstName errors');
   assert.equal(errors.get('length'), 0, 'it has 0 error');
   assert.ok(errors.get('isEmpty'), 'it is empty');
-  updateErrors(() => errors.remove('firstName'));
+  updateErrors(() => errors.remove('firstName'), assert);
 });
 
-testInDebug('remove same errors from different attributes', function(assert) {
+testInDebug('remove same errors fromm different attributes', function(assert) {
   assert.expect(9);
 
   errors.trigger = assert.becameInvalid;
-  updateErrors(() => errors.add('firstName', 'error'));
-  updateErrors(() => errors.add('lastName', 'error'));
+  updateErrors(() => errors.add('firstName', 'error'), assert);
+  updateErrors(() => errors.add('lastName', 'error'), assert);
   errors.trigger = assert.unexpectedSend;
   assert.equal(errors.get('length'), 2, 'it has 2 error');
-  updateErrors(() => errors.remove('firstName'));
+  updateErrors(() => errors.remove('firstName'), assert);
   assert.equal(errors.get('length'), 1, 'it has 1 error');
   errors.trigger = assert.becameValid;
-  updateErrors(() => errors.remove('lastName'));
+  updateErrors(() => errors.remove('lastName'), assert);
   assert.ok(errors.get('isEmpty'), 'it is empty');
 });
 
@@ -109,12 +109,12 @@ testInDebug('clear errors', function(assert) {
   assert.expect(8);
 
   errors.trigger = assert.becameInvalid;
-  updateErrors(() => errors.add('firstName', ['error', 'error1']));
+  updateErrors(() => errors.add('firstName', ['error', 'error1']), assert);
   assert.equal(errors.get('length'), 2, 'it has 2 errors');
   errors.trigger = assert.becameValid;
-  updateErrors(() => errors.clear());
+  updateErrors(() => errors.clear(), assert);
   errors.trigger = assert.unexpectedSend;
   assert.ok(!errors.has('firstName'), 'it has no firstName errors');
   assert.equal(errors.get('length'), 0, 'it has 0 error');
-  updateErrors(() => errors.clear());
+  updateErrors(() => errors.clear(), assert);
 });

@@ -1,17 +1,12 @@
-/*
-  babel@6 currently (6.24.0) puts `import 'foo'` (for side effects) at the
-  end of the module dep list.  Unfortunately, for this to work `setup-ember-dev`
-  must be evaluated before the `qunit` module is evaluated (because we change
-  `QUnit.module`).
- */
 import RSVP from 'rsvp';
 
 import Application from '@ember/application';
-import requiredWorkAroundBabelBug from 'dummy/tests/helpers/setup-ember-dev'; // eslint-disable-line
 import resolver from './helpers/resolver';
 import {
   setResolver
-} from 'ember-qunit';
+} from '@ember/test-helpers';
+import { start } from 'ember-qunit';
+
 import QUnit from 'qunit';
 import DS from 'ember-data';
 import {
@@ -38,7 +33,6 @@ QUnit.begin(() => {
     // otherwise, let a future turn of the event loop
     // handle the error.
     if (reason && reason instanceof Error) {
-      console.log(reason, reason.stack);
       throw reason;
     }
   });
@@ -75,3 +69,4 @@ QUnit.config.urlConfig.push({
   id: 'enableoptionalfeatures',
   label: 'Enable Opt Features'
 });
+start();

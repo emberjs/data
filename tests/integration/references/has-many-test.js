@@ -186,10 +186,6 @@ testInDebug("push(array)", function(assert) {
 
   var personsReference = family.hasMany('persons');
 
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-  }
-
   run(function() {
     var data = [
       { data: { type: 'person', id: 1, attributes: { name: "Vito" } } },
@@ -206,6 +202,50 @@ testInDebug("push(array)", function(assert) {
     });
   });
 });
+
+if (isEnabled('ds-overhaul-references')) {
+  testInDebug("push(array) logs a deprecation warning", function(assert) {
+    var done = assert.async();
+
+    var family;
+    run(function() {
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1,
+          relationships: {
+            persons: {
+              data: [
+                { type: 'person', id: 1 },
+                { type: 'person', id: 2 }
+              ]
+            }
+          }
+        }
+      });
+    });
+
+    var personsReference = family.hasMany('persons');
+
+    assert.expectDeprecation(() => {
+      run(function() {
+        var data = [
+          { data: { type: 'person', id: 1, attributes: { name: "Vito" } } },
+          { data: { type: 'person', id: 2, attributes: { name: "Michael" } } }
+        ];
+
+        personsReference.push(data).then(function(records) {
+          assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
+          assert.equal(get(records, 'length'), 2);
+          assert.equal(records.objectAt(0).get('name'), "Vito");
+          assert.equal(records.objectAt(1).get('name'), "Michael");
+
+          done();
+        });
+      });
+    }, "HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
+  });
+}
 
 testInDebug("push(array) works with polymorphic type", function(assert) {
   var done = assert.async();
@@ -229,12 +269,6 @@ testInDebug("push(array) works with polymorphic type", function(assert) {
       { data: { type: 'mafia-boss', id: 1, attributes: { name: "Vito" } } }
     ];
 
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-    } else {
-      assert.expectNoDeprecation();
-    }
-
     personsReference.push(data).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
       assert.equal(get(records, 'length'), 1);
@@ -257,12 +291,6 @@ testInDebug("push(array) asserts polymorphic type", function(assert) {
   });
 
   var personsReference = family.hasMany('persons');
-
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-  } else {
-    assert.expectNoDeprecation();
-  }
 
   assert.expectAssertion(() => {
     run(() => {
@@ -305,12 +333,6 @@ testInDebug("push(object) supports legacy, non-JSON-API-conform payload", functi
         { data: { type: 'person', id: 2, attributes: { name: "Michael" } } }
       ]
     };
-
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("HasManyReference#push() expects a valid JSON-API document.");
-    } else {
-      assert.expectNoDeprecation();
-    }
 
     personsReference.push(payload).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");

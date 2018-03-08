@@ -1,4 +1,3 @@
-import { inspect } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
@@ -516,7 +515,7 @@ testInDebug('calling push without data argument as an object raises an error', f
   assert.expect(invalidValues.length);
 
   invalidValues.forEach((invalidValue) => {
-    assert.throws(() => {
+    assert.expectAssertion(() => {
       run(() => {
         store.push('person', invalidValue);
       });
@@ -638,37 +637,20 @@ test('Calling push with a link containing the value null', function(assert) {
 });
 
 testInDebug('calling push with hasMany relationship the value must be an array', function(assert) {
-  let invalidValues = [
-    1,
-    'string',
-    EmberObject.create(),
-    EmberObject.extend(),
-    true
-  ];
-
-  assert.expect(invalidValues.length);
-
-  invalidValues.forEach(invalidValue => {
-    assert.throws(() => {
-      try {
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {
-                  data: invalidValue
-                }
-              }
+  assert.expectAssertion(() => {
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              data: 1
             }
-          });
-        });
-      } catch (e) {
-        store._pushedInternalModels.length = 0;
-        throw e;
-      }
-    }, /must be an array/, `Expect that '${inspect(invalidValue)}' is not an array`);
+          }
+        }
+      });
+    });
   });
 });
 
@@ -682,7 +664,7 @@ testInDebug('calling push with missing or invalid `id` throws assertion error', 
   assert.expect(invalidValues.length);
 
   invalidValues.forEach(invalidValue => {
-    assert.throws(() => {
+    assert.expectAssertion(() => {
       run(() => {
         store.push({
           data: invalidValue
@@ -693,7 +675,7 @@ testInDebug('calling push with missing or invalid `id` throws assertion error', 
 });
 
 testInDebug('calling push with belongsTo relationship the value must not be an array', function(assert) {
-  assert.throws(() => {
+  assert.expectAssertion(() => {
     run(() => {
       store.push({
         data: {
