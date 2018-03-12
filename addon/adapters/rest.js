@@ -1115,7 +1115,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = $.parseJSON(payload);
+            json = JSON.parse(payload);
           } catch (e) {
             json = payload;
           }
@@ -1150,7 +1150,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let json = responseText;
 
     try {
-      json = $.parseJSON(responseText);
+      json = JSON.parse(responseText);
     } catch (e) {
       // ignored
     }
@@ -1473,7 +1473,7 @@ if (isEnabled('ds-improved-ajax')) {
               let token = heimdall.start('json.parse');
               let json;
               try {
-                json = $.parseJSON(payload);
+                json = JSON.parse(payload);
               } catch (e) {
                 json = payload;
               }
