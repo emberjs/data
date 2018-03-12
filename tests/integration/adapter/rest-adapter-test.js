@@ -1,7 +1,6 @@
 import { underscore } from '@ember/string';
 import { copy } from '@ember/object/internals';
 import RSVP, { resolve, reject } from 'rsvp';
-import $ from 'jquery';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
@@ -17,7 +16,6 @@ import { isEnabled } from 'ember-data/-private';
 
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
-let originalAjax = $.ajax;
 let server;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
@@ -39,14 +37,13 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       adapter: DS.RESTAdapter
     });
 
+    server = new Pretender();
     store = env.store;
     adapter = env.adapter;
 
     passedUrl = passedVerb = passedHash = null;
   },
   afterEach() {
-    $.ajax = originalAjax;
-
     if (server) {
       server.shutdown();
       server = null;
@@ -72,6 +69,17 @@ function ajaxResponse(value) {
       return run(RSVP, 'resolve', copy(value, true));
     };
   }
+}
+
+function ajaxError(responseText, status = 400, headers = '') {
+  adapter._ajaxRequest = function(hash) {
+    let jqXHR = {
+      status,
+      responseText,
+      getAllResponseHeaders() { return headers; }
+    };
+    hash.error(jqXHR, responseText);
+  };
 }
 
 test("findRecord - basic payload", function(assert) {
@@ -2231,10 +2239,7 @@ test('groupRecordsForFindMany groups calls for small ids', function(assert) {
 
 test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
   assert.expect(2);
-  let jqXHR = {
-    status: 200,
-    getAllResponseHeaders() { return ''; }
-  };
+
   let data = {
     post: {
       id: "1",
@@ -2242,9 +2247,9 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
     }
   };
 
-  $.ajax = function(hash) {
-    hash.success(data, 'ok', jqXHR);
-  };
+  server.get('/posts/1', function() {
+    return [200, { "Content-Type": "application/json" }, JSON.stringify(data)];
+  });
 
   adapter.handleResponse = function(status, headers, json) {
     assert.deepEqual(status, 200);
@@ -2252,29 +2257,26 @@ test("calls adapter.handleResponse with the jqXHR and json", function(assert) {
     return json;
   };
 
-  run(() => store.findRecord('post', '1'));
+  return run(() => store.findRecord('post', '1'));
 });
 
 test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', function(assert) {
   assert.expect(4);
-  let jqXHR = {
-    status: 400,
-    responseText: 'Nope lol',
-    getAllResponseHeaders() { return ''; }
-  };
+
+  let responseText = 'Nope lol';
 
   let expectedRequestData = {
     method: "GET",
     url:    "/posts/1"
   };
 
-  $.ajax = function(hash) {
-    hash.error(jqXHR, jqXHR.responseText, 'Bad Request');
-  };
+  server.get('/posts/1', function() {
+    return [400, {}, responseText];
+  });
 
   adapter.handleResponse = function(status, headers, json, requestData) {
     assert.deepEqual(status, 400);
-    assert.deepEqual(json, jqXHR.responseText);
+    assert.deepEqual(json, responseText);
     assert.deepEqual(requestData, expectedRequestData);
     return new DS.AdapterError('nope!');
   };
@@ -2286,16 +2288,14 @@ test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', fun
 
 test("rejects promise if DS.AdapterError is returned from adapter.handleResponse", function(assert) {
   assert.expect(3);
-  let jqXHR = {
-    getAllResponseHeaders() { return ''; }
-  };
+
   let data = {
     something: 'is invalid'
   };
 
-  $.ajax = function(hash) {
-    hash.success(data, 'ok', jqXHR);
-  };
+  server.get('/posts/1', function() {
+    return [200, { "Content-Type": "application/json" }, JSON.stringify(data)];
+  });
 
   adapter.handleResponse = function(status, headers, json) {
     assert.ok(true, 'handleResponse should be called');
@@ -2312,14 +2312,10 @@ test("rejects promise if DS.AdapterError is returned from adapter.handleResponse
 
 test("gracefully handles exceptions in handleResponse", function(assert) {
   assert.expect(1);
-  let jqXHR = {
-    status: 200,
-    getAllResponseHeaders() { return ''; }
-  };
 
-  $.ajax = function(hash) {
-    setTimeout(function() { hash.success({}, 'ok', jqXHR); }, 1)
-  };
+  server.post('/posts/1', function() {
+    return [200, { "Content-Type": "application/json" }, "ok"];
+  });
 
   adapter.handleResponse = function(status, headers, json) {
     throw new Error('Unexpected error');
@@ -2334,14 +2330,10 @@ test("gracefully handles exceptions in handleResponse", function(assert) {
 
 test("gracefully handles exceptions in handleResponse where the ajax request errors", function(assert) {
   assert.expect(1);
-  let jqXHR = {
-    status: 500,
-    getAllResponseHeaders() { return ''; }
-  };
 
-  $.ajax = function(hash) {
-    setTimeout(() => hash.error({}, 'Internal Server Error', jqXHR) , 1);
-  };
+  server.get('/posts/1', function() {
+    return [500, { "Content-Type": "application/json" }, "Internal Server Error"];
+  });
 
   adapter.handleResponse = function(status, headers, json) {
     throw new Error('Unexpected error');
@@ -2357,15 +2349,9 @@ test("gracefully handles exceptions in handleResponse where the ajax request err
 test('treats status code 0 as an abort', function(assert) {
   assert.expect(1);
 
-  let jqXHR = {
-    status: 0,
-    getAllResponseHeaders() { return ''; }
+  adapter._ajaxRequest = function(hash) {
+    hash.error({ status: 0, getAllResponseHeaders() { return ''; } });
   };
-
-  $.ajax = function(hash) {
-    hash.error(jqXHR, 'error');
-  };
-
   adapter.handleResponse = function(status, headers, payload) {
     assert.ok(false);
   };
@@ -2387,7 +2373,7 @@ test('on error appends errorThrown for sanity', function(assert) {
 
   let errorThrown = new Error('nope!');
 
-  $.ajax = function(hash) {
+  adapter._ajaxRequest = function(hash) {
     hash.error(jqXHR, jqXHR.responseText, errorThrown);
   };
 
@@ -2406,15 +2392,7 @@ test('on error appends errorThrown for sanity', function(assert) {
 test("rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes", function(assert) {
   assert.expect(10);
 
-  let jqXHR = {
-    getAllResponseHeaders() { return ''; }
-  };
-  let originalAjax = $.ajax;
-
-  $.ajax = function(hash) {
-    jqXHR.status = 401;
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('error', 401);
 
   run(() => {
     store.find('post', '1').catch(reason => {
@@ -2423,10 +2401,7 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
     });
   });
 
-  $.ajax = function(hash) {
-    jqXHR.status = 403;
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('error', 403);
 
   run(() => {
     store.find('post', '1').catch(reason => {
@@ -2435,10 +2410,7 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
     });
   });
 
-  $.ajax = function(hash) {
-    jqXHR.status = 404;
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('error', 404);
 
   run(() => {
     store.find('post', '1').catch(reason => {
@@ -2447,10 +2419,7 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
     });
   });
 
-  $.ajax = function(hash) {
-    jqXHR.status = 409;
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('error', 409);
 
   run(() => {
     store.find('post', '1').catch(reason => {
@@ -2459,10 +2428,7 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
     });
   });
 
-  $.ajax = function(hash) {
-    jqXHR.status = 500;
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('error', 500);
 
   run(() => {
     store.find('post', '1').catch(reason => {
@@ -2471,8 +2437,6 @@ test("rejects promise with a specialized subclass of DS.AdapterError if ajax res
     });
 
   });
-
-  $.ajax = originalAjax;
 });
 
 test('on error wraps the error string in an DS.AdapterError object', function(assert) {
@@ -2485,7 +2449,7 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
 
   let errorThrown = 'nope!';
 
-  $.ajax = function(hash) {
+  adapter._ajaxRequest = function(hash) {
     hash.error(jqXHR, 'error', errorThrown);
   };
 
@@ -2499,15 +2463,8 @@ test('on error wraps the error string in an DS.AdapterError object', function(as
 
 test('error handling includes a detailed message from the server', (assert) => {
   assert.expect(2);
-  let jqXHR = {
-    status: 500,
-    responseText: 'An error message, perhaps generated from a backend server!',
-    getAllResponseHeaders() { return 'Content-Type: text/plain'; }
-  };
 
-  $.ajax = function(hash) {
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError('An error message, perhaps generated from a backend server!', 500, 'Content-Type: text/plain');
 
   run(() => {
     store.findRecord('post', '1').catch(err => {
@@ -2515,21 +2472,12 @@ test('error handling includes a detailed message from the server', (assert) => {
       assert.ok(err, 'promise rejected');
     });
   });
-
 });
 
 test('error handling with a very long HTML-formatted payload truncates the friendly message', (assert) => {
   assert.expect(2);
 
-  let jqXHR = {
-    status: 500,
-    responseText: new Array(100).join("<blink />"),
-    getAllResponseHeaders() { return 'Content-Type: text/html'; }
-  };
-
-  $.ajax = function(hash) {
-    hash.error(jqXHR, 'error');
-  };
+  ajaxError(new Array(100).join("<blink />"), 500, 'Content-Type: text/html');
 
   run(() => {
     store.findRecord('post', '1').catch(err => {
@@ -2602,8 +2550,6 @@ test("createRecord - sideloaded records are pushed to the store", function(asser
 });
 
 testInDebug("warns when an empty response is returned, though a valid stringified JSON is expected", function(assert) {
-  let server = new Pretender();
-
   server.post('/posts', function() {
     return [201, { "Content-Type": "application/json" }, ""];
   });
@@ -2635,13 +2581,7 @@ if (isEnabled('ds-improved-ajax')) {
   testInDebug("The RESTAdapter should use `ajaxOptions` with a deprecation message when it is overridden by the user.", function(assert) {
     assert.expect(2)
 
-    adapter._ajaxRequest = function(hash) {
-      let jqXHR = {
-        status: 200,
-        getAllResponseHeaders() { return ''; }
-      };
-      hash.success({ posts: { id: 1, name: "Rails is omakase" } }, 'OK', jqXHR);
-    }
+    ajaxResponse({ posts: { id: 1, name: "Rails is omakase" } });
 
     let oldAjaxOptions = adapter.ajaxOptions;
     adapter.ajaxOptions = function() {
@@ -2655,8 +2595,6 @@ if (isEnabled('ds-improved-ajax')) {
   });
 
   test("_requestToJQueryAjaxHash works correctly for GET requests - GH-4445", function(assert) {
-    server = new Pretender();
-
     server.get('/posts/1', function(request) {
       assert.equal(request.url, "/posts/1", "no query param is added to the GET request");
 
