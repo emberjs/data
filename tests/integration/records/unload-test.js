@@ -2009,33 +2009,12 @@ test('1 sync : many async unload sync side', function(assert) {
   );
 });
 
-test('unload should work with observers on hasMany', function(assert) {
+test('unload invalidates link promises', function(assert) {
   let isUnloaded = false;
   env.adapter.coalesceFindRequests = false;
 
-  env.adapter.findRecord = (store, type, id) => {
-    assert.equal(type, Boat, 'findRecord(_, type) is correct');
-
-    if (id === '2' && isUnloaded) {
-      throw "not found";
-    }
-
-    let relationships = {
-      person: {
-        data: {
-          type: 'person',
-          id: '1'
-        }
-      }
-    };
-
-    return {
-      data: {
-        type: 'boat',
-        id: id,
-        relationships
-      }
-    }
+  env.adapter.findRecord = (/* store, type, id */) => {
+    assert.notOk('Records only expected to be loaded via link');
   };
 
   env.adapter.findHasMany = (store, snapshot, link) => {
@@ -2080,26 +2059,12 @@ test('unload should work with observers on hasMany', function(assert) {
         relationships: {
           boats: {
             links: { related: 'boats' }
-//            data: [{
-//              id: 2,
-//              type: 'boat'
-//            },{
-//              id: 3,
-//              type: 'boat'
-//            },
-//            ]
           }
         }
       }
     })
   );
   let boats, boat2, boat3;
-
-  person.addObserver('boats.[]', function() {
-    person.get('boats');
-    //NOTE: using a runloop seems to fix it
-//    run(() => person.get('boats'));
-  });
 
   return run(() =>
     person.get('boats').then((asyncRecords) => {
@@ -2111,11 +2076,12 @@ test('unload should work with observers on hasMany', function(assert) {
       assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
 
       isUnloaded = true;
-      run(() => boat2.unloadRecord());
+      run(() => {
+        boat2.unloadRecord();
+        person.get('boats');
+      });
 
       assert.deepEqual(boats.mapBy('id'), ['3'], 'unloaded boat is removed from ManyArray');
-      //TODO: remove reload if ED fixes invalidate bug
-      return person.hasMany('boats').reload();
     }).then(() => {
       return run(() => person.get('boats'));
     }).then(newBoats => {
