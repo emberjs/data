@@ -3,7 +3,6 @@
   @module ember-data
 */
 import { dasherize } from '@ember/string';
-import $ from 'jquery';
 import RESTAdapter from "./rest";
 import { isEnabled } from '../-private';
 import { deprecate } from '@ember/debug';
@@ -170,7 +169,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = $.parseJSON(payload);
+            json = JSON.parse(payload);
           } catch (e) {
             json = payload;
           }
