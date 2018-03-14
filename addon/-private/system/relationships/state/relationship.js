@@ -130,6 +130,7 @@ export default class Relationship {
   }
 
   inverseDidDematerialize(inverseInternalModel) {
+    this.linkPromise = null;
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
