@@ -2089,3 +2089,31 @@ test('unload invalidates link promises', function(assert) {
     })
   );
 });
+
+test('fetching records cancels unloading', function(assert) {
+  env.adapter.findRecord = (store, type, id) => {
+    assert.equal(type, Person, 'findRecord(_, type) is correct');
+    assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
+
+    return  {
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    }
+  };
+
+  run(() =>
+    env.store.push({
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    })
+  );
+
+  return run(() =>
+    env.store.findRecord('person', 1, { backgroundReload: true })
+      .then(person => person.unloadRecord())
+  );
+});
