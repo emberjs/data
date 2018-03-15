@@ -2,6 +2,15 @@
 
 ### Master
 
+### Release 3.1.0-beta.2 (March 15, 2018)
+- [#5255](https://github.com/emberjs/data/pull/5255) [BUGFIX beta] Use native Map if present. (#5255)
+- [#5367](https://github.com/emberjs/data/pull/5367) Update ember twiddle links to working versions (#5367)
+- [#5370](https://github.com/emberjs/data/pull/5370) Fix failing test on master by adding an invalid inverse to trigger th…
+- [#5370](https://github.com/emberjs/data/pull/5370) Fix failing test on master by adding an invalid inverse to trigger th…
+- [#5370](https://github.com/emberjs/data/pull/5370) Fix failing test on master by adding an invalid inverse to trigger th…
+- [#5372](https://github.com/emberjs/data/pull/5372) [BUGFIX beta] Use @ember/ordered-set to avoid deprecations.
+- [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
+
 ### Release 3.1.0-beta.1 (Feburary 12, 2018)
 - [#5327](https://github.com/emberjs/data/pull/5327) [DOC] Fix Changelog release date for v2.11.0
 - [#5310](https://github.com/emberjs/data/pull/5310) Remove `s3-put` and `cached-npm` scripts.
