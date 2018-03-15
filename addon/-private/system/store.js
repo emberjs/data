@@ -858,7 +858,7 @@ Store = Service.extend({
     for (let i = 0; i < totalItems; i++) {
       let internalModel = internalModels[i];
       // We may have unloaded the record after scheduling this fetch, in which
-      // case we must cancel the destory.  This is because we require a record
+      // case we must cancel the destroy.  This is because we require a record
       // to build a snapshot.  This is not fundamental: this cancelation code
       // can be removed when snapshots can be created for internal models that
       // have no records.
