@@ -62,6 +62,7 @@ export default class RecordArrayManager {
     this._liveRecordArrays = Object.create(null);
     this._pending = Object.create(null);
     this._adapterPopulatedRecordArrays = [];
+    this._nextManagerFlush = null;
   }
 
   recordDidChange(internalModel) {
@@ -93,7 +94,42 @@ export default class RecordArrayManager {
       return;
     }
 
-    emberRun.schedule('actions', this, this._flush);
+    this._nextManagerFlush = emberRun.schedule('actions', this, this._flush);
+  }
+
+  _flushPendingInternalModelsForModelName(modelName, internalModels) {
+    let modelsToRemove = [];
+
+    for (let j = 0; j < internalModels.length; j++) {
+      let internalModel = internalModels[j];
+      // mark internalModels, so they can once again be processed by the
+      // recordArrayManager
+      internalModel._pendingRecordArrayManagerFlush = false;
+      // build up a set of models to ensure we have purged correctly;
+      if (internalModel.isHiddenFromRecordArrays()) {
+        modelsToRemove.push(internalModel);
+      }
+    }
+
+    // process filteredRecordArrays
+    if (this._filteredRecordArrays[modelName]) {
+      let recordArrays = this.filteredRecordArraysFor(modelName);
+      for (let i = 0; i < recordArrays.length; i++) {
+        this.updateFilterRecordArray(recordArrays[i], modelName, internalModels);
+      }
+    }
+
+    let array = this._liveRecordArrays[modelName];
+    if (array) {
+      // TODO: skip if it only changed
+      // process liveRecordArrays
+      this.updateLiveRecordArray(array, internalModels);
+    }
+
+    // process adapterPopulatedRecordArrays
+    if (modelsToRemove.length > 0) {
+      removeFromAdapterPopulatedRecordArrays(modelsToRemove);
+    }
   }
 
   _flush() {
@@ -101,40 +137,9 @@ export default class RecordArrayManager {
 
     let pending = this._pending;
     this._pending = Object.create(null);
-    let modelsToRemove = [];
 
     for (let modelName in pending) {
-      let internalModels = pending[modelName];
-      for (let j = 0; j < internalModels.length; j++) {
-        let internalModel = internalModels[j];
-        // mark internalModels, so they can once again be processed by the
-        // recordArrayManager
-        internalModel._pendingRecordArrayManagerFlush = false;
-        // build up a set of models to ensure we have purged correctly;
-        if (internalModel.isHiddenFromRecordArrays()) {
-          modelsToRemove.push(internalModel);
-        }
-      }
-
-      // process filteredRecordArrays
-      if (this._filteredRecordArrays[modelName]) {
-        let recordArrays = this.filteredRecordArraysFor(modelName);
-        for (let i = 0; i < recordArrays.length; i++) {
-          this.updateFilterRecordArray(recordArrays[i], modelName, internalModels);
-        }
-      }
-
-      let array = this._liveRecordArrays[modelName];
-      if (array) {
-        // TODO: skip if it only changed
-        // process liveRecordArrays
-        this.updateLiveRecordArray(array, internalModels);
-      }
-
-      // process adapterPopulatedRecordArrays
-      if (modelsToRemove.length > 0) {
-        removeFromAdapterPopulatedRecordArrays(modelsToRemove);
-      }
+      this._flushPendingInternalModelsForModelName(modelName, pending[modelName]);
     }
   }
 
@@ -177,10 +182,11 @@ export default class RecordArrayManager {
     if (shouldBeRemoved.length > 0) { array._removeInternalModels(shouldBeRemoved); }
   }
 
-  // TODO: remove, utilize existing flush code but make it flush sync based on 1 modelName
   _syncLiveRecordArray(array, modelName) {
     assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
-    let hasNoPotentialDeletions = Object.keys(this._pending).length === 0;
+    let pending = this._pending[modelName];
+    let hasPendingChanges = Array.isArray(pending);
+    let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
     let map = this.store._internalModelsFor(modelName);
     let hasNoInsertionsOrRemovals = get(map, 'length') === get(array, 'length');
 
@@ -194,6 +200,11 @@ export default class RecordArrayManager {
       return;
     }
 
+    if (hasPendingChanges) {
+      this._flushPendingInternalModelsForModelName(modelName, pending);
+      delete pending[modelName];
+    }
+
     let internalModels = this._visibleInternalModelsByType(modelName);
     let modelsToAdd = [];
     for (let i = 0; i < internalModels.length; i++) {
@@ -205,7 +216,9 @@ export default class RecordArrayManager {
       }
     }
 
-    array._pushInternalModels(modelsToAdd);
+    if (modelsToAdd.length) {
+      array._pushInternalModels(modelsToAdd);
+    }
   }
 
   /**
