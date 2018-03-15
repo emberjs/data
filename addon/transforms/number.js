@@ -1,4 +1,3 @@
-import { isEmpty as empty } from '@ember/utils';
 import Transform from './transform';
 
 function isNumber(value) {
@@ -31,7 +30,7 @@ export default Transform.extend({
   deserialize(serialized) {
     let transformed;
 
-    if (empty(serialized)) {
+    if (serialized === '' || serialized === null || serialized === undefined) {
       return null;
     } else {
       transformed = Number(serialized);
@@ -43,7 +42,7 @@ export default Transform.extend({
   serialize(deserialized) {
     let transformed;
 
-    if (empty(deserialized)) {
+    if (deserialized === '' || deserialized === null || deserialized === undefined) {
       return null;
     } else {
       transformed = Number(deserialized);

@@ -1115,26 +1115,26 @@ if (isEnabled("ds-payload-type-hooks")) {
       }
     };
 
-    assert.expectDeprecation("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead");
+    assert.expectDeprecation(() => {
+      let normalized = serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
 
-    let normalized = serializer.normalizeSingleResponse(env.store, Favorite, jsonHash);
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'favorite',
-        attributes: {},
-        relationships: {
-          post: {
-            data: {
-              id: '1',
-              type: 'post'
+      assert.deepEqual(normalized, {
+        data: {
+          id: '1',
+          type: 'favorite',
+          attributes: {},
+          relationships: {
+            post: {
+              data: {
+                id: '1',
+                type: 'post'
+              }
             }
           }
-        }
-      },
-      included: []
-    });
+        },
+        included: []
+      });
+    }, "You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead");
   });
 
 }

@@ -1234,11 +1234,11 @@ testInDebug(`don't allow setting`, function(assert) {
 
   let record = run(() => store.createRecord('person'));
 
-  assert.throws(() => {
+  assert.expectAssertion(() => {
     run(() => {
       record.set('isLoaded', true);
     });
-  }, 'raised error when trying to set an unsettable record');
+  }, /Cannot set read-only property "isLoaded"/);
 });
 
 test('ensure model exits loading state, materializes data and fulfills promise only after data is available', function(assert) {

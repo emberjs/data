@@ -2,7 +2,7 @@ import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEqual } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -334,7 +334,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord(properties) {
+  getRecord() {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -349,10 +349,6 @@ export default class InternalModel {
         isError: this.isError,
         adapterError: this.error
       };
-
-      if (typeof properties === 'object' && properties !== null) {
-        emberAssign(createOptions, properties);
-      }
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
@@ -1100,7 +1096,7 @@ export default class InternalModel {
   hasErrors() {
     let errors = get(this.getRecord(), 'errors');
 
-    return !isEmpty(errors);
+    return errors.get('length') > 0;
   }
 
   // FOR USE DURING COMMIT PROCESS

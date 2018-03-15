@@ -1,7 +1,7 @@
 import { A } from '@ember/array';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
+import OrderedSet from '@ember/ordered-set';
 
 import { module, test } from 'qunit';
 
@@ -304,7 +304,7 @@ test('createRecordArray', function(assert) {
 test('createRecordArray \w optional content', function(assert) {
   let record = {};
   let internalModel = {
-    _recordArrays: new Ember.OrderedSet(),
+    _recordArrays: new OrderedSet(),
     getRecord() {
       return record;
     }

@@ -2009,6 +2009,115 @@ test('1 sync : many async unload sync side', function(assert) {
   );
 });
 
+test('unload invalidates link promises', function(assert) {
+  let isUnloaded = false;
+  env.adapter.coalesceFindRequests = false;
+
+  env.adapter.findRecord = (/* store, type, id */) => {
+    assert.notOk('Records only expected to be loaded via link');
+  };
+
+  env.adapter.findHasMany = (store, snapshot, link) => {
+    assert.equal(snapshot.modelName, 'person', 'findHasMany(_, snapshot) is correct');
+    assert.equal(link, 'boats', 'findHasMany(_, _, link) is correct');
+
+    let relationships = {
+      person: {
+        data: {
+          type: 'person',
+          id: 1
+        }
+      }
+    };
+
+    let data = [
+      {
+        id: 3,
+        type: 'boat',
+        relationships
+      }
+    ];
+
+    if (!isUnloaded) {
+      data.unshift({
+        id: 2,
+        type: 'boat',
+        relationships
+      });
+    }
+
+    return {
+      data
+    };
+  };
+
+  let person = run(() =>
+    env.store.push({
+      data: {
+        id: 1,
+        type: 'person',
+        relationships: {
+          boats: {
+            links: { related: 'boats' }
+          }
+        }
+      }
+    })
+  );
+  let boats, boat2, boat3;
+
+  return run(() =>
+    person.get('boats').then((asyncRecords) => {
+      boats = asyncRecords;
+      [boat2, boat3] = boats.toArray();
+    }).then(() => {
+      assert.deepEqual(person.hasMany('boats').ids(), ['2', '3'], 'initially relationship established rhs');
+      assert.equal(boat2.belongsTo('person').id(), '1', 'initially relationship established rhs');
+      assert.equal(boat3.belongsTo('person').id(), '1', 'initially relationship established rhs');
+
+      isUnloaded = true;
+      run(() => {
+        boat2.unloadRecord();
+        person.get('boats');
+      });
+
+      assert.deepEqual(boats.mapBy('id'), ['3'], 'unloaded boat is removed from ManyArray');
+    }).then(() => {
+      return run(() => person.get('boats'));
+    }).then(newBoats => {
+      assert.equal(newBoats.length, 1, 'new ManyArray has only 1 boat after unload');
+    })
+  );
+});
+
+test('fetching records cancels unloading', function(assert) {
+  env.adapter.findRecord = (store, type, id) => {
+    assert.equal(type, Person, 'findRecord(_, type) is correct');
+    assert.deepEqual(id, '1', 'findRecord(_, _, id) is correct');
+
+    return  {
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    }
+  };
+
+  run(() =>
+    env.store.push({
+      data: {
+        id: 1,
+        type: 'person'
+      }
+    })
+  );
+
+  return run(() =>
+    env.store.findRecord('person', 1, { backgroundReload: true })
+      .then(person => person.unloadRecord())
+  );
+});
+
 test("unload live records", function(assert) {
   env.adapter.findAll = () => {
     return {

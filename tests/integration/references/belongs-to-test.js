@@ -230,10 +230,6 @@ testInDebug("push(record)", function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
-    }
-
     familyReference.push(family).then(function(record) {
       assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
       assert.equal(get(record, 'name'), "Coreleone", "name is set");
@@ -243,6 +239,50 @@ testInDebug("push(record)", function(assert) {
     });
   });
 });
+
+if (isEnabled('ds-overhaul-references')) {
+  testInDebug("push(record) logs a deprecation warning", function(assert) {
+    var done = assert.async();
+
+    var person, family;
+    run(function() {
+      person = env.store.push({
+        data: {
+          type: 'person',
+          id: 1,
+          relationships: {
+            family: {
+              data: { type: 'family', id: 1 }
+            }
+          }
+        }
+      });
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1,
+          attributes: {
+            name: "Coreleone"
+          }
+        }
+      });
+    });
+
+    var familyReference = person.belongsTo('family');
+
+    assert.expectDeprecation(() => {
+      run(function() {
+        familyReference.push(family).then(function(record) {
+          assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
+          assert.equal(get(record, 'name'), "Coreleone", "name is set");
+          assert.equal(record, family);
+
+          done();
+        });
+      });
+    }, "BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
+  });
+}
 
 test("push(promise)", function(assert) {
   var done = assert.async();
@@ -292,9 +332,6 @@ test("push(promise)", function(assert) {
 
 testInDebug("push(record) asserts for invalid modelClass", function(assert) {
   var person, anotherPerson;
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation('BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set(\'relationshipName\', value)` instead.')
-  }
   run(function() {
     person = env.store.push({
       data: {
@@ -329,9 +366,6 @@ testInDebug("push(record) works with polymorphic modelClass", function(assert) {
 
   var person, mafiaFamily;
 
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation('BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set(\'relationshipName\', value)` instead.')
-  }
   env.registry.register('model:mafia-family', Family.extend());
 
   run(function() {

@@ -109,7 +109,7 @@ testInDebug("Errors out if you define 2 inverses to the same model", function(as
 
   assert.expectAssertion(() => {
     User.inverseFor('job', store);
-  }, /^You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times/i);
+  }, /You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times/i);
 });
 
 

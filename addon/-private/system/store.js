@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import MapWithDefault from '@ember/map/with-default';
+import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import RSVP from 'rsvp';
@@ -230,7 +230,7 @@ Store = Service.extend({
     this._updatedInternalModels = [];
 
     // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
+    this._pendingFetch = new MapWithDefault({ defaultValue() { return []; } });
 
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -358,7 +358,8 @@ Store = Service.extend({
 
     let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
     internalModel.loadedData();
-    let record = internalModel.getRecord(properties);
+    let record = internalModel.getRecord();
+    record.setProperties(properties);
 
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {
@@ -852,6 +853,18 @@ Store = Service.extend({
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
       seeking[internalModel.id] = pendingItem;
+    }
+
+    for (let i = 0; i < totalItems; i++) {
+      let internalModel = internalModels[i];
+      // We may have unloaded the record after scheduling this fetch, in which
+      // case we must cancel the destroy.  This is because we require a record
+      // to build a snapshot.  This is not fundamental: this cancelation code
+      // can be removed when snapshots can be created for internal models that
+      // have no records.
+      if (internalModel.hasScheduledDestroy()) {
+        internalModels[i].cancelDestroy();
+      }
     }
 
     function _fetchRecord(recordResolverPair) {

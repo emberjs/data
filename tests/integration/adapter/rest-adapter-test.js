@@ -1361,16 +1361,18 @@ testInDebug("queryRecord - returning an array picks the first one but saves all 
     post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
   });
 
-  assert.expectDeprecation('The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
+  assert.expectDeprecation(
+    () =>
+      run(() => {
+        return store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(post => {
+          let post2 = store.peekRecord('post', 2);
 
-  return run(() => {
-    return store.queryRecord('post', { slug: 'rails-is-omakaze' }).then(post => {
-      let post2 = store.peekRecord('post', 2);
+          assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
+          assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
+        });
+      }),
 
-      assert.deepEqual(post.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" });
-      assert.deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "Ember is js" });
-    });
-  });
+      /The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record./);
 });
 
 testInDebug("queryRecord - returning an array is deprecated", function(assert) {
@@ -1378,9 +1380,10 @@ testInDebug("queryRecord - returning an array is deprecated", function(assert) {
     post: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "Ember is js" }]
   });
 
-  assert.expectDeprecation('The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
-
-  return run(() => store.queryRecord('post', { slug: 'rails-is-omakaze' }));
+  assert.expectDeprecation(
+    () =>
+      run(() => store.queryRecord('post', { slug: 'rails-is-omakaze' })),
+    'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.');
 });
 
 testInDebug("queryRecord - returning an single object doesn't throw a deprecation", function(assert) {
