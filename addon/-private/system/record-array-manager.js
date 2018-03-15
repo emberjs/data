@@ -62,7 +62,6 @@ export default class RecordArrayManager {
     this._liveRecordArrays = Object.create(null);
     this._pending = Object.create(null);
     this._adapterPopulatedRecordArrays = [];
-    this._nextManagerFlush = null;
   }
 
   recordDidChange(internalModel) {
@@ -94,7 +93,7 @@ export default class RecordArrayManager {
       return;
     }
 
-    this._nextManagerFlush = emberRun.schedule('actions', this, this._flush);
+    emberRun.schedule('actions', this, this._flush);
   }
 
   _flushPendingInternalModelsForModelName(modelName, internalModels) {
