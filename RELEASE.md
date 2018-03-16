@@ -21,12 +21,6 @@ STEPS:
   * `git tag vX.Y.Z-beta.n`
 * Do a production build. 
   * `rm -rf node_modules; yarn install; npm run build:production`
-* Publish to Bower
-  * Commit built globals code to the https://github.com/components/ember-data repo
-  * `cp dist/globals/* ../components-ember-data/`
-* Publish Rubygems
-  * `gem build ember-data-source.gemspec`
-  * `gem push ember-data-source-2.4.0.beta.1.gem`
 * Publish to NPM
   * `npm publish` or `npm publish --tag beta` or `npm publish --tag release-1-13`
 * Update the `/builds/` page on the website
@@ -37,8 +31,6 @@ STEPS:
 * Write a Release Blog Post (Does not happen for beta releases)
   * Commits since last release: `git log --oneline release..beta | wc -l`.
   * Contributors since last release: `git shortlog -s -n release...beta | wc -l`
-* Submit a Pull request to the https://github.com/ember-cli/ember-cli to update the version of Ember Data
-  * (per request by @rwjblue and is also a great idea to make upgrading/new apps easier)
 * Bump version in package.json back to a canary version
 * For beta.1 releases, branch beta from master and update https://github.com/emberjs/data/blob/master/config/features.json to have `false` values instead of `null` and update the version in package.json
 
