@@ -172,7 +172,8 @@ module.exports = {
           'ember-inflector',
           'ember-data/version',
           'ember-data/-debug',
-          'ember-data/adapters/errors'
+          'ember-data/adapters/errors',
+          '@ember/ordered-set'
         ]
         // cache: true|false Defaults to true
       }
