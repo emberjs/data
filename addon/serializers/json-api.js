@@ -6,11 +6,11 @@ import { typeOf, isNone } from '@ember/utils';
 
 import { dasherize } from '@ember/string';
 import { pluralize, singularize } from 'ember-inflector';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import JSONSerializer from './json';
-import { normalizeModelName, isEnabled } from '../-private';
+import { normalizeModelName } from '../-private';
 
 /**
   Ember Data 2.0 Serializer:

@@ -14,8 +14,7 @@ import JSONSerializer from "../serializers/json";
 import {
   coerceId,
   modelHasAttributeOrRelationshipNamedType,
-  normalizeModelName,
-  isEnabled
+  normalizeModelName
 } from '../-private';
 
 /**

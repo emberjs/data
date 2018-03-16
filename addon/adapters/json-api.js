@@ -4,7 +4,6 @@
 */
 import { dasherize } from '@ember/string';
 import RESTAdapter from "./rest";
-import { isEnabled } from '../-private';
 import { deprecate } from '@ember/debug';
 import { instrument } from 'ember-data/-debug';
 import { pluralize } from 'ember-inflector';

@@ -12,7 +12,6 @@ import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
-import isEnabled from '../../features';
 import RootState from '../model/states';
 import {
   relationshipsByNameDescriptor,

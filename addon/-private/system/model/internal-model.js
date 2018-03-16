@@ -12,7 +12,6 @@ import { assert, inspect } from '@ember/debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
-import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
 import { getOwner } from '../../utils';

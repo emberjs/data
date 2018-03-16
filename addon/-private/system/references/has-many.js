@@ -1,12 +1,8 @@
-import { A } from '@ember/array';
 import { resolve } from 'rsvp';
 import { get } from '@ember/object';
 import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
-import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-
-import isEnabled from '../../features';
 
 /**
    A HasManyReference is a low level API that allows users and addon

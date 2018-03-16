@@ -1,15 +1,14 @@
 import { assign, merge } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 import { get } from '@ember/object';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import Serializer from "../serializer";
 import {
   getOwner,
   coerceId,
   modelHasAttributeOrRelationshipNamedType,
   normalizeModelName,
-  errorsArrayToHash,
-  isEnabled
+  errorsArrayToHash
 } from '../-private';
 
 const emberAssign = assign || merge;

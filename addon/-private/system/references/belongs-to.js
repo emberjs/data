@@ -2,8 +2,6 @@ import { resolve } from 'rsvp';
 import Model from '../model/model';
 import Reference from './reference';
 
-import isEnabled from '../../features';
-import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**

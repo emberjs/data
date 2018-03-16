@@ -51,7 +51,6 @@ import { getOwner } from '../utils';
 import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
 import InternalModel from "./model/internal-model";
-import isEnabled from '../features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 

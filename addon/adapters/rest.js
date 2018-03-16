@@ -12,7 +12,6 @@ import Adapter from "../adapter";
 import {
   parseResponseHeaders,
   BuildURLMixin,
-  isEnabled,
   AdapterError,
   InvalidError,
   UnauthorizedError,
