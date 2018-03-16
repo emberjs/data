@@ -62,6 +62,16 @@ module.exports = {
     }
   },
 
+  getOutputDirForVersion() {
+    let VersionChecker = require('ember-cli-version-checker');
+    let checker = new VersionChecker(this);
+    let emberCli = checker.for('ember-cli', 'npm');
+
+    let requiresModulesDir = emberCli.satisfies('< 3.0.0');
+
+    return requiresModulesDir ? 'modules' : '';
+  },
+
   init() {
     this._super.init && this._super.init.apply(this, arguments);
     this._prodLikeWarning();
@@ -180,9 +190,10 @@ module.exports = {
 
     privateTree = this.debugTree(privateTree, 'rollup-output');
 
-    // the output of treeForAddon is required to be modules/<your files>
-    publicTree  = new Funnel(publicTree,  { destDir: 'modules' });
-    privateTree = new Funnel(privateTree, { destDir: 'modules' });
+    let destDir = this.getOutputDirForVersion();
+
+    publicTree  = new Funnel(publicTree,  { destDir });
+    privateTree = new Funnel(privateTree, { destDir });
 
     return this.debugTree(merge([
       publicTree,
