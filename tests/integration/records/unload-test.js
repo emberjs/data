@@ -2117,3 +2117,43 @@ test('fetching records cancels unloading', function(assert) {
       .then(person => person.unloadRecord())
   );
 });
+
+test("unload live records", function(assert) {
+  env.adapter.findAll = () => {
+    return {
+      data: [{
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Adam Sunderland'
+        }
+      }, {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Bobson'
+        }
+      }]
+    }
+  };
+
+  return env.store.findAll('person').then(records => {
+    assert.equal(records.get('length'), 2, 'two records returned from findAll');
+
+    const peeked = env.store.peekAll('person');
+    assert.equal(peeked.get('length'), 2, 'two records returned from peekAll');
+
+    run(function() {
+      env.store.unloadAll('person');
+    });
+
+    assert.equal(records.get('length'), 0, 'findAll array was cleared');
+    assert.equal(peeked.get('length'), 0, 'peekAll array was cleared');
+
+    return env.store.findAll('person').then(recordsAgain => {
+      assert.equal(recordsAgain.get('length'), 2, 'two records returned from new findAll');
+      assert.equal(records.get('length'), 2, 'old findAll array has two records');
+      assert.equal(peeked.get('length'), 2, 'old peekAll array has two records');
+    });
+  });
+});

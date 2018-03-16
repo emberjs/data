@@ -76,6 +76,13 @@ export default class RecordArrayManager {
     this.internalModelDidChange(internalModel);
   }
 
+  recordWasUnloaded(internalModel) {
+    let array = this._liveRecordArrays[internalModel.modelName];
+    if (array) {
+      array._removeInternalModels([internalModel]);
+    }
+  }
+
   internalModelDidChange(internalModel) {
     heimdall.increment(recordDidChange);
 
