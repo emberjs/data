@@ -1249,20 +1249,3 @@ export default class InternalModel {
     return reference;
   }
 }
-
-if (isEnabled('ds-rollback-attribute')) {
-  /*
-     Returns the latest truth for an attribute - the canonical value, or the
-     in-flight value.
-
-     @method lastAcknowledgedValue
-     @private
-  */
-  InternalModel.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
-    if (key in this._inFlightAttributes) {
-      return this._inFlightAttributes[key];
-    } else {
-      return this._data[key];
-    }
-  };
-}

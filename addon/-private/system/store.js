@@ -273,12 +273,11 @@ Store = Service.extend({
     @param {Object} options an options hash
   */
   serialize(record, options) {
-    if (isEnabled('ds-deprecate-store-serialize')) {
-      deprecate('Use of store.serialize is deprecated, use record.serialize instead.', false, {
-        id: 'ds.store.serialize',
-        until: '3.0'
-      });
-    }
+    deprecate('Use of store.serialize is deprecated, use record.serialize instead.', false, {
+      id: 'ds.store.serialize',
+      until: '3.0'
+    });
+
     let snapshot = record._internalModel.createSnapshot();
     return snapshot.serialize(options);
   },
@@ -2525,11 +2524,7 @@ Store = Service.extend({
       let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
-    if (isEnabled('ds-pushpayload-return')) {
-      return serializer.pushPayload(this, payload);
-    } else {
-      serializer.pushPayload(this, payload);
-    }
+    serializer.pushPayload(this, payload);
   },
 
   /**

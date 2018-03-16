@@ -1842,31 +1842,6 @@ Model.reopenClass({
   }
 });
 
-if (isEnabled('ds-rollback-attribute')) {
-  Model.reopen({
-    /**
-      Discards any unsaved changes to the given attribute. This feature is not enabled by default. You must enable `ds-rollback-attribute` and be running a canary build.
-
-      Example
-
-      ```javascript
-      record.get('name'); // 'Untitled Document'
-      record.set('name', 'Doc 1');
-      record.get('name'); // 'Doc 1'
-      record.rollbackAttribute('name');
-      record.get('name'); // 'Untitled Document'
-      ```
-
-      @method rollbackAttribute
-    */
-    rollbackAttribute(attributeName) {
-      if (attributeName in this._internalModel._attributes) {
-        this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
-      }
-    }
-  });
-}
-
 if (DEBUG) {
   Model.reopen({
     // This is a temporary solution until we refactor DS.Model to not
