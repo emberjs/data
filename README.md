@@ -103,29 +103,6 @@ export default DS.Model.extend({
 });
 ```
 
-If you're using globals (that is, not something like ember-cli), your
-models would look like this:
-
-```js
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-
-App.BlogPost = DS.Model.extend({
-  title: attr('string'),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-App.Comment = DS.Model.extend({
-  body: attr('string'),
-  username: attr('string'),
-
-  post: belongsTo('blog-post')
-});
-```
-
 ### A Brief Note on Adapters
 
 Without immediately diving in to the depths of the architecture, one
