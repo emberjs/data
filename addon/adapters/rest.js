@@ -974,23 +974,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       url:    url,
       method: type
     };
+    let hash = adapter.ajaxOptions(url, type, options);
 
     return new Promise(function(resolve, reject) {
-      let hash = adapter.ajaxOptions(url, type, options);
-
       hash.success = function(payload, textStatus, jqXHR) {
         heimdall.stop(token);
-        let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+        let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
         run.join(null, resolve, response);
       };
-
       hash.error = function(jqXHR, textStatus, errorThrown) {
         heimdall.stop(token);
-        let responseData = {
-          textStatus,
-          errorThrown
-        };
-        let error = ajaxError(adapter, jqXHR, requestData, responseData);
+        let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
         run.join(null, reject, error);
       };
 
@@ -1182,12 +1176,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   }
 });
 
-function ajaxSuccess(adapter, jqXHR, payload, requestData) {
+function ajaxSuccess(adapter, payload, requestData, responseData) {
   let response;
   try {
     response = adapter.handleResponse(
-      jqXHR.status,
-      parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+      responseData.status,
+      responseData.headers,
       payload,
       requestData
     );
@@ -1202,10 +1196,10 @@ function ajaxSuccess(adapter, jqXHR, payload, requestData) {
   }
 }
 
-function ajaxError(adapter, jqXHR, requestData, responseData) {
+function ajaxError(adapter, payload, requestData, responseData) {
   if (DEBUG) {
     let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
-    let validJSONString = !(responseData.textStatus === "parsererror" && jqXHR.responseText === "");
+    let validJSONString = !(responseData.textStatus === "parsererror" && payload === "");
     warn(message, validJSONString, {
       id: 'ds.adapter.returned-empty-string-as-JSON'
     });
@@ -1217,14 +1211,14 @@ function ajaxError(adapter, jqXHR, requestData, responseData) {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
-  } else if (responseData.textStatus === 'abort' || jqXHR.status === 0) {
+  } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
     error = new AbortError();
   } else {
     try {
       error = adapter.handleResponse(
-        jqXHR.status,
-        parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-        adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown,
+        responseData.status,
+        responseData.headers,
+        payload || responseData.errorThrown,
         requestData
       );
     } catch (e) {
@@ -1242,6 +1236,26 @@ function endsWith(string, suffix) {
   } else {
     return string.endsWith(suffix);
   }
+}
+
+function ajaxSuccessHandler(adapter, payload, jqXHR, requestData) {
+  let responseData = ajaxResponseData(jqXHR);
+  return ajaxSuccess(adapter, payload, requestData, responseData);
+}
+
+function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
+  let responseData = ajaxResponseData(jqXHR);
+  responseData.errorThrown = errorThrown;
+  let payload = adapter.parseErrorResponse(jqXHR.responseText);
+  return ajaxError(adapter, payload, requestData, responseData);
+}
+
+function ajaxResponseData(jqXHR) {
+  return {
+    status: jqXHR.status,
+    textStatus: jqXHR.textStatus,
+    headers: parseResponseHeaders(jqXHR.getAllResponseHeaders())
+  };
 }
 
 export default RESTAdapter;
