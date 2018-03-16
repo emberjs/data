@@ -1,4 +1,5 @@
 /* global heimdall */
+/* globals najax */
 /**
   @module ember-data
 */
@@ -6,7 +7,8 @@
 import $ from 'jquery';
 
 import { Promise as EmberPromise } from 'rsvp';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
+import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import Adapter from "../adapter";
 import {
@@ -292,6 +294,10 @@ const Promise = EmberPromise;
 */
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
+
+  fastboot: computed(function() {
+    return getOwner(this).lookup('service:fastboot');
+  }),
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -988,7 +994,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         run.join(null, reject, error);
       };
 
-      adapter._ajaxRequest(hash);
+      adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
   },
 
@@ -1002,6 +1008,27 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   /**
+    @method _najaxRequest
+    @private
+    @param {Object} options jQuery ajax options to be used for the najax request
+  */
+  _najaxRequest(options) {
+    if (typeof najax !== 'undefined') {
+      najax(options);
+    } else {
+      throw new Error('najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?');
+    }
+  },
+
+  _ajax(options) {
+    if (get(this, 'fastboot.isFastBoot')) {
+      this._najaxRequest(options);
+    } else {
+      this._ajaxRequest(options);
+    }
+  },
+
+  /**
     @method ajaxOptions
     @private
     @param {String} url
@@ -1011,7 +1038,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   ajaxOptions(url, type, options) {
     let hash = options || {};
-    hash.url = url;
     hash.type = type;
     hash.dataType = 'json';
     hash.context = this;
@@ -1044,7 +1070,30 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       };
     }
 
+    hash.url = this._ajaxURL(url);
+
     return hash;
+  },
+
+  _ajaxURL(url) {
+    if (get(this, 'fastboot.isFastBoot')) {
+      let httpRegex = /^https?:\/\//;
+      let protocolRelativeRegex = /^\/\//;
+      let protocol = get(this, 'fastboot.request.protocol');
+      let host = get(this, 'fastboot.request.host');
+
+      if (protocolRelativeRegex.test(url)) {
+        return `${protocol}${url}`;
+      } else if (!httpRegex.test(url)) {
+        try {
+          return `${protocol}//${host}${url}`;
+        } catch (fbError) {
+          throw new Error('You are using Ember Data with no host defined in your adapter. This will attempt to use the host of the FastBoot request, which is not configured for the current host of this request. Please set the hostWhitelist property for in your environment.js. FastBoot Error: ' + fbError.message);
+        }
+      }
+    }
+
+    return url;
   },
 
   /**
