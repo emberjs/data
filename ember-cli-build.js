@@ -2,7 +2,6 @@
 var EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 var merge    = require('broccoli-merge-trees');
 var Funnel   = require('broccoli-funnel');
-var globals  = require('./lib/globals');
 var yuidoc   = require('./lib/yuidoc');
 var StripClassCallCheck = require('babel6-plugin-strip-class-callcheck');
 var path = require('path');
@@ -51,8 +50,7 @@ module.exports = function(defaults) {
   var appTree = app.toTree();
 
   if (process.env.EMBER_ENV === 'production') {
-    var globalsBuild = globals('addon', 'config/package-manager-files');
-    return merge([appTree, globalsBuild, yuidoc()]);
+    return merge([appTree, yuidoc()]);
   } else {
     return appTree;
   }
