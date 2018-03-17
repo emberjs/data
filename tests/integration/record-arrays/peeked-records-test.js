@@ -14,7 +14,7 @@ const Person = DS.Model.extend({
   }
 });
 
-module('integration/unload-peeked-records', {
+module('integration/peeked-records', {
   beforeEach() {
     store = createStore({
       person: Person
@@ -260,5 +260,119 @@ test('unloadAll followed by peekAll in the same run-loop works as expected', fun
     watcher,
     { length: 2, '[]': 2 },
     'RecordArray state has not changed any further'
+  );
+});
+
+test('push+materialize => unloadAll => push+materialize works as expected', function(assert) {
+  function push() {
+    run(() => {
+      store.push({
+        data: [
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'John'
+            }
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Joe'
+            }
+          }
+        ]
+      });
+    });
+  }
+  function unload() {
+    run(() => store.unloadAll('person'));
+  }
+  function peek() {
+    return run(() => store.peekAll('person'));
+  }
+
+  let peekedRecordArray = peek();
+  let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
+
+  push();
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 1, '[]': 1 },
+    'RecordArray state after a single push with multiple records to add'
+  );
+
+  unload();
+  assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 2, '[]': 2 },
+    'RecordArray state has signaled the unload'
+  );
+
+  push();
+  assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 3, '[]': 3 },
+    'RecordArray state now has records again'
+  );
+});
+
+test('push-without-materialize => unloadAll => push-without-materialize works as expected', function(assert) {
+  function _push() {
+    run(() => {
+      store._push({
+        data: [
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'John'
+            }
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Joe'
+            }
+          }
+        ]
+      });
+    });
+  }
+  function unload() {
+    run(() => store.unloadAll('person'));
+  }
+  function peek() {
+    return run(() => store.peekAll('person'));
+  }
+
+  let peekedRecordArray = peek();
+  let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
+
+  _push();
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 1, '[]': 1 },
+    'RecordArray state after a single push with multiple records to add'
+  );
+
+  unload();
+  assert.equal(get(peekedRecordArray, 'length'), 0, 'We no longer have any array content');
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 2, '[]': 2 },
+    'RecordArray state has signaled the unload'
+  );
+
+  _push();
+  assert.equal(get(peekedRecordArray, 'length'), 2, 'We have array content');
+  assert.watchedPropertyCounts(
+    watcher,
+    { length: 3, '[]': 3 },
+    'RecordArray state now has records again'
   );
 });
