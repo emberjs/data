@@ -4,7 +4,6 @@
 */
 import { dasherize } from '@ember/string';
 import RESTAdapter from './rest';
-import { instrument } from 'ember-data/-debug';
 import { pluralize } from 'ember-inflector';
 
 /**
@@ -155,36 +154,9 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Object}
   */
   ajaxOptions(url, type, options) {
-    let hash = this._super(...arguments);
-
-    if (hash.contentType) {
-      hash.contentType = 'application/vnd.api+json';
-    }
-
-    instrument(function() {
-      hash.converters = {
-        'text json': function(payload) {
-          let token = heimdall.start('json.parse');
-          let json;
-          try {
-            json = JSON.parse(payload);
-          } catch (e) {
-            json = payload;
-          }
-          heimdall.stop(token);
-          return json;
-        },
-      };
-    });
-
-    let beforeSend = hash.beforeSend;
-    hash.beforeSend = function(xhr) {
-      xhr.setRequestHeader('Accept', 'application/vnd.api+json');
-      if (beforeSend) {
-        beforeSend(xhr);
-      }
-    };
-
+    options.contentType = 'application/vnd.api+json';
+    let hash = this._super(url, type, options);
+    hash.headers['accept'] = 'application/vnd.api+json';
     return hash;
   },
 
