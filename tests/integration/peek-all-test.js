@@ -89,3 +89,25 @@ test("Calling store.peekAll() after creating a record should return correct data
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });
 });
+
+test("Unloading record that is in a peekAll array", function(assert) {
+  let allPeople = store.peekAll('person');
+
+  run(() => {
+    store.createRecord('person', { name: "Tomster" });
+    store.createRecord('person', { name: "Zoey" });
+  });
+
+  assert.equal(get(store.peekAll('person'), 'length'), 2, 'should contain two persons');
+
+  run(() => {
+    allPeople.objectAt(0).unloadRecord();
+
+    assert.equal(get(allPeople, 'length'), 2, 'Unload does not complete until the end of the loop');
+    assert.ok(get(allPeople.objectAt(0), 'name'), 'Tomster', 'Tomster is still the first object until the end of the loop');
+    assert.ok(get(allPeople.objectAt(1), 'name'), 'Zoey', 'Zoey is still the sencond object until the end of the loop');
+  });
+
+  assert.equal(get(allPeople, 'length'), 1, 'Unloaded record removed from the array');
+  assert.ok(get(allPeople.objectAt(0), 'name'), 'Zoey', 'Zoey is now the first object');
+});
