@@ -3,6 +3,7 @@ import { createStore } from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { get } from '@ember/object';
+import hasEmberVersion from 'ember-test-helpers/has-ember-version';
 import { watchProperties } from '../../helpers/watch-property';
 
 let store;
@@ -418,10 +419,15 @@ test('unloading filtered records', function(assert) {
   run(() => {
     people.objectAt(0).unloadRecord();
 
-    assert.equal(get(people, 'length'), 2, 'Unload does not complete until the end of the loop');
-    assert.ok(get(people.objectAt(0), 'name'), 'Scumbag John', 'John is still the first object until the end of the loop');
+    if (hasEmberVersion(3, 0)) {
+      assert.equal(get(people, 'length'), 2, 'Unload does not complete until the end of the loop');
+      assert.equal(get(people.objectAt(0), 'name'), 'Scumbag John', 'John is still the first object until the end of the loop');
+    } else {
+      assert.equal(get(people, 'length'), 2, 'Unload does not complete until the end of the loop');
+      assert.equal(people.objectAt(0), undefined, 'John is still the first object until the end of the loop');
+    }
   });
 
   assert.equal(get(people, 'length'), 1, 'Unloaded record removed from the array');
-  assert.ok(get(people.objectAt(0), 'name'), 'Scumbag Joe', 'Joe shifted down after the unload');
+  assert.equal(get(people.objectAt(0), 'name'), 'Scumbag Joe', 'Joe shifted down after the unload');
 });
