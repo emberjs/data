@@ -2880,7 +2880,7 @@ function _commit(adapter, store, operation, snapshot) {
   let modelClass = store._modelFor(modelName);
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(`You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
-  let promise = adapter[operation](store, modelClass, snapshot);
+  let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = serializerForAdapter(store, adapter, modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
