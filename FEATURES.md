@@ -17,11 +17,6 @@ entry in `config/features.json`.
   `methodForRequest`, `urlForRequest`, `headersForRequest` and `bodyForRequest`
   in the `DS.RESTAdapter`.
 
-- `ds-pushpayload-return` [#4110](https://github.com/emberjs/data/pull/4110)
-
-  Enables `pushPayload` to return the model(s) that are created or
-  updated via the internal `store.push`.
-
 - `ds-payload-type-hooks` [#4318](https://github.com/emberjs/data/pull/4318)
 
   Adds two new hooks `modelNameFromPayloadType` and `payloadTypeFromModelName`

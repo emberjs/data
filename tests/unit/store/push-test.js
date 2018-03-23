@@ -9,8 +9,6 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-import { isEnabled } from 'ember-data/-private';
-
 let env, store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
 
@@ -758,32 +756,30 @@ testInDebug('Calling push with unknown keys should not warn by default', functio
   }, /The payload for 'person' contains these unknown .*: .* Make sure they've been defined in your model./);
 });
 
-if (isEnabled('ds-pushpayload-return')) {
-  test("Calling pushPayload returns records", function(assert) {
-    env.registry.register('serializer:person', DS.RESTSerializer);
+test("Calling pushPayload returns records", function(assert) {
+  env.registry.register('serializer:person', DS.RESTSerializer);
 
-    let people = run(() => {
-      return store.pushPayload('person', {
-        people: [{
-          id: '1',
-          firstName: 'Robert',
-          lastName: 'Jackson'
-        }, {
-          id: '2',
-          firstName: 'Matthew',
-          lastName: 'Beale'
-        }]
-      });
+  let people = run(() => {
+    return store.pushPayload('person', {
+      people: [{
+        id: '1',
+        firstName: 'Robert',
+        lastName: 'Jackson'
+      }, {
+        id: '2',
+        firstName: 'Matthew',
+        lastName: 'Beale'
+      }]
     });
-
-    assert.equal(people.length, 2, 'both records were returned by `store.pushPayload`');
-
-    assert.equal(people[0].get('firstName'), 'Robert', 'pushPayload returns pushed records');
-    assert.equal(people[0].get('lastName'), 'Jackson', 'pushPayload returns pushed records');
-    assert.equal(people[1].get('firstName'), 'Matthew', 'pushPayload returns pushed records');
-    assert.equal(people[1].get('lastName'), 'Beale', 'pushPayload returns pushed records');
   });
-}
+
+  assert.equal(people.length, 2, 'both records were returned by `store.pushPayload`');
+
+  assert.equal(people[0].get('firstName'), 'Robert', 'pushPayload returns pushed records');
+  assert.equal(people[0].get('lastName'), 'Jackson', 'pushPayload returns pushed records');
+  assert.equal(people[1].get('firstName'), 'Matthew', 'pushPayload returns pushed records');
+  assert.equal(people[1].get('lastName'), 'Beale', 'pushPayload returns pushed records');
+});
 
 test('_push returns an instance of InternalModel if an object is pushed', function(assert) {
   let pushResult;
