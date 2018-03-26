@@ -293,6 +293,7 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     return this._isDematerializing ||
+      this.hasScheduledDestroy() ||
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
       this.isEmpty();
@@ -381,9 +382,10 @@ export default class InternalModel {
       this._isDematerializing = true;
       this._record.destroy();
       this.destroyRelationships();
-      this.updateRecordArrays();
       this.resetRecord();
     }
+
+    this.updateRecordArrays();
   }
 
   deleteRecord() {
