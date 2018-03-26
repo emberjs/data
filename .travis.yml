@@ -15,7 +15,8 @@ stages:
   - test
   - additional tests
   - older version tests
-  - deploy
+  - name: deploy
+    if: type = push AND (branch IN (master, beta, release) OR tag IS present)
 
 jobs:
   fail_fast: true
@@ -54,7 +55,6 @@ jobs:
     - env: EMBER_TRY_SCENARIO=ember-canary
 
     - stage: deploy
-      if: branch IN (master, beta, release) OR tag IS present
       env: NAME=publish                # used only to make Travis UI show description
       install: yarn install
       script:
