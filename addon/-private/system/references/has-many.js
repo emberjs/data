@@ -1,12 +1,8 @@
-import { A } from '@ember/array';
 import { resolve } from 'rsvp';
 import { get } from '@ember/object';
 import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
-import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-
-import isEnabled from '../../features';
 
 /**
    A HasManyReference is a low level API that allows users and addon
@@ -239,53 +235,21 @@ export default class HasManyReference extends Reference {
     return resolve(objectOrPromise).then((payload) => {
       let array = payload;
 
-      if (isEnabled("ds-overhaul-references")) {
-        deprecate("HasManyReference#push(array) is deprecated. Push a JSON-API document instead.", !Array.isArray(payload), {
-          id: 'ds.references.has-many.push-array',
-          until: '4.0.0'
-        });
-      }
-
-      let useLegacyArrayPush = true;
       if (typeof payload === "object" && payload.data) {
         array = payload.data;
-        useLegacyArrayPush = array.length && array[0].data;
-
-        if (isEnabled('ds-overhaul-references')) {
-          deprecate("HasManyReference#push() expects a valid JSON-API document.", !useLegacyArrayPush, {
-            id: 'ds.references.has-many.push-invalid-json-api',
-            until: '4.0.0'
-          });
-        }
-      }
-
-      if (!isEnabled('ds-overhaul-references')) {
-        useLegacyArrayPush = true;
       }
 
       let internalModels;
-      if (useLegacyArrayPush) {
-        internalModels = array.map((obj) => {
-          let record = this.store.push(obj);
-
-          if (DEBUG) {
-            let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-            assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
-          }
-
-          return record._internalModel;
-        });
-      } else {
-        let records = this.store.push(payload);
-        internalModels = A(records).mapBy('_internalModel');
+      internalModels = array.map((obj) => {
+        let record = this.store.push(obj);
 
         if (DEBUG) {
-          internalModels.forEach((internalModel) => {
-            let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-            assertPolymorphicType(this.internalModel, relationshipMeta, internalModel);
-          });
+          let relationshipMeta = this.hasManyRelationship.relationshipMeta;
+          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
         }
-      }
+
+        return record._internalModel;
+      });
 
       this.hasManyRelationship.computeChanges(internalModels);
 

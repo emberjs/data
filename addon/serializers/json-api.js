@@ -6,11 +6,11 @@ import { typeOf, isNone } from '@ember/utils';
 
 import { dasherize } from '@ember/string';
 import { pluralize, singularize } from 'ember-inflector';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 import JSONSerializer from './json';
-import { normalizeModelName, isEnabled } from '../-private';
+import { normalizeModelName } from '../-private';
 
 /**
   Ember Data 2.0 Serializer:
@@ -174,23 +174,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeRelationshipDataHelper(relationshipDataHash) {
-    if (isEnabled("ds-payload-type-hooks")) {
-      let modelName = this.modelNameFromPayloadType(relationshipDataHash.type);
-      let deprecatedModelNameLookup = this.modelNameFromPayloadKey(relationshipDataHash.type);
-
-      if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-        deprecate("You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
-          id: 'ds.json-api-serializer.deprecated-model-name-for-relationship',
-          until: '4.0.0'
-        });
-
-        modelName = deprecatedModelNameLookup;
-      }
-
-      relationshipDataHash.type = modelName;
-    } else {
-      relationshipDataHash.type = this.modelNameFromPayloadKey(relationshipDataHash.type);
-    }
+    relationshipDataHash.type = this.modelNameFromPayloadKey(relationshipDataHash.type);
 
     return relationshipDataHash;
   },
@@ -208,25 +192,8 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     let modelName, usedLookup;
 
-    if (isEnabled("ds-payload-type-hooks")) {
-      modelName = this.modelNameFromPayloadType(resourceHash.type);
-      let deprecatedModelNameLookup = this.modelNameFromPayloadKey(resourceHash.type);
-
-      usedLookup = 'modelNameFromPayloadType';
-
-      if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-        deprecate("You are using modelNameFromPayloadKey to normalize the type for a resource. This has been deprecated in favor of modelNameFromPayloadType", false, {
-          id: 'ds.json-api-serializer.deprecated-model-name-for-resource',
-          until: '4.0.0'
-        });
-
-        modelName = deprecatedModelNameLookup;
-        usedLookup = 'modelNameFromPayloadKey';
-      }
-    } else {
-      modelName = this.modelNameFromPayloadKey(resourceHash.type);
-      usedLookup = 'modelNameFromPayloadKey';
-    }
+    modelName = this.modelNameFromPayloadKey(resourceHash.type);
+    usedLookup = 'modelNameFromPayloadKey';
 
     if (!this.store._hasModelFor(modelName)) {
       warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
@@ -248,11 +215,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   pushPayload(store, payload) {
     let normalizedPayload = this._normalizeDocumentHelper(payload);
-    if (isEnabled('ds-pushpayload-return')) {
-      return store.push(normalizedPayload);
-    } else {
-      store.push(normalizedPayload);
-    }
+    store.push(normalizedPayload);
   },
 
   /**
@@ -371,23 +334,7 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _extractType(modelClass, resourceHash) {
-    if (isEnabled("ds-payload-type-hooks")) {
-      let modelName = this.modelNameFromPayloadType(resourceHash.type);
-      let deprecatedModelNameLookup = this.modelNameFromPayloadKey(resourceHash.type);
-
-      if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-        deprecate("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType", false, {
-          id: 'ds.json-api-serializer.deprecated-model-name-for-polymorphic-type',
-          until: '3.0.0'
-        });
-
-        modelName = deprecatedModelNameLookup;
-      }
-
-      return modelName;
-    } else {
-      return this.modelNameFromPayloadKey(resourceHash.type);
-    }
+    return this.modelNameFromPayloadKey(resourceHash.type);
   },
 
   /**
@@ -506,25 +453,8 @@ const JSONAPISerializer = JSONSerializer.extend({
 
   serialize(snapshot, options) {
     let data = this._super(...arguments);
+    data.type = this.payloadKeyFromModelName(snapshot.modelName);
 
-    let payloadType;
-    if (isEnabled("ds-payload-type-hooks")) {
-      payloadType = this.payloadTypeFromModelName(snapshot.modelName);
-      let deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(snapshot.modelName);
-
-      if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-        deprecate("You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.", false, {
-          id: 'ds.json-api-serializer.deprecated-payload-type-for-model',
-          until: '4.0.0'
-        });
-
-        payloadType = deprecatedPayloadTypeLookup;
-      }
-    } else {
-      payloadType = this.payloadKeyFromModelName(snapshot.modelName);
-    }
-
-    data.type = payloadType;
     return { data };
   },
 
@@ -567,23 +497,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
         let data = null;
         if (belongsTo) {
-          let payloadType;
-
-          if (isEnabled("ds-payload-type-hooks")) {
-            payloadType = this.payloadTypeFromModelName(belongsTo.modelName);
-            let deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(belongsTo.modelName);
-
-            if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-              deprecate("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
-                id: 'ds.json-api-serializer.deprecated-payload-type-for-belongs-to',
-                until: '4.0.0'
-              });
-
-              payloadType = deprecatedPayloadTypeLookup;
-            }
-          } else {
-            payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
-          }
+          let payloadType = this.payloadKeyFromModelName(belongsTo.modelName);
 
           data = {
             type: payloadType,
@@ -614,24 +528,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
         for (let i = 0; i < hasMany.length; i++) {
           let item = hasMany[i];
-
-          let payloadType;
-
-          if (isEnabled("ds-payload-type-hooks")) {
-            payloadType = this.payloadTypeFromModelName(item.modelName);
-            let deprecatedPayloadTypeLookup = this.payloadKeyFromModelName(item.modelName);
-
-            if (payloadType !== deprecatedPayloadTypeLookup && this._hasCustomPayloadKeyFromModelName()) {
-              deprecate("You used payloadKeyFromModelName to serialize type for belongs-to relationship. Use payloadTypeFromModelName instead.", false, {
-                id: 'ds.json-api-serializer.deprecated-payload-type-for-has-many',
-                until: '4.0.0'
-              });
-
-              payloadType = deprecatedPayloadTypeLookup;
-            }
-          } else {
-            payloadType = this.payloadKeyFromModelName(item.modelName);
-          }
+          let payloadType = this.payloadKeyFromModelName(item.modelName);
 
           data[i] = {
             type: payloadType,
@@ -644,117 +541,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
   }
 });
-
-if (isEnabled("ds-payload-type-hooks")) {
-
-  JSONAPISerializer.reopen({
-
-    /**
-      `modelNameFromPayloadType` can be used to change the mapping for a DS model
-      name, taken from the value in the payload.
-
-      Say your API namespaces the type of a model and returns the following
-      payload for the `post` model:
-
-      ```javascript
-      // GET /api/posts/1
-      {
-        "data": {
-          "id": 1,
-          "type: "api::v1::post"
-        }
-      }
-      ```
-
-      By overwriting `modelNameFromPayloadType` you can specify that the
-      `post` model should be used:
-
-      ```app/serializers/application.js
-      import DS from 'ember-data';
-
-      export default DS.JSONAPISerializer.extend({
-        modelNameFromPayloadType(payloadType) {
-          return payloadType.replace('api::v1::', '');
-        }
-      });
-      ```
-
-      By default the modelName for a model is its singularized name in dasherized
-      form.  Usually, Ember Data can use the correct inflection to do this for
-      you. Most of the time, you won't need to override
-      `modelNameFromPayloadType` for this purpose.
-
-      Also take a look at
-      [payloadTypeFromModelName](#method_payloadTypeFromModelName) to customize
-      how the type of a record should be serialized.
-
-      @method modelNameFromPayloadType
-      @public
-      @param {String} payloadType type from payload
-      @return {String} modelName
-    */
-    modelNameFromPayloadType(type) {
-      return singularize(normalizeModelName(type));
-    },
-
-    /**
-      `payloadTypeFromModelName` can be used to change the mapping for the type in
-      the payload, taken from the model name.
-
-      Say your API namespaces the type of a model and expects the following
-      payload when you update the `post` model:
-
-      ```javascript
-      // POST /api/posts/1
-      {
-        "data": {
-          "id": 1,
-          "type": "api::v1::post"
-        }
-      }
-      ```
-
-      By overwriting `payloadTypeFromModelName` you can specify that the
-      namespaces model name for the `post` should be used:
-
-      ```app/serializers/application.js
-      import DS from 'ember-data';
-
-      export default JSONAPISerializer.extend({
-        payloadTypeFromModelName(modelName) {
-          return 'api::v1::' + modelName;
-        }
-      });
-      ```
-
-      By default the payload type is the pluralized model name. Usually, Ember
-      Data can use the correct inflection to do this for you. Most of the time,
-      you won't need to override `payloadTypeFromModelName` for this purpose.
-
-      Also take a look at
-      [modelNameFromPayloadType](#method_modelNameFromPayloadType) to customize
-      how the model name from should be mapped from the payload.
-
-      @method payloadTypeFromModelName
-      @public
-      @param {String} modelname modelName from the record
-      @return {String} payloadType
-    */
-    payloadTypeFromModelName(modelName) {
-      return pluralize(modelName);
-    },
-
-    _hasCustomModelNameFromPayloadKey() {
-      return this.modelNameFromPayloadKey !== JSONAPISerializer.prototype.modelNameFromPayloadKey;
-    },
-
-    _hasCustomPayloadKeyFromModelName() {
-      return this.payloadKeyFromModelName !== JSONAPISerializer.prototype.payloadKeyFromModelName;
-    }
-
-  });
-
-}
 
 if (DEBUG) {
   JSONAPISerializer.reopen({

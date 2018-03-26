@@ -2,8 +2,6 @@ import { resolve } from 'rsvp';
 import Model from '../model/model';
 import Reference from './reference';
 
-import isEnabled from '../../features';
-import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
@@ -241,12 +239,6 @@ export default class BelongsToReference extends Reference {
       let record;
 
       if (data instanceof Model) {
-        if (isEnabled('ds-overhaul-references')) {
-          deprecate("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
-            id: 'ds.references.belongs-to.push-record',
-            until: '4.0.0'
-          });
-        }
         record = data;
       } else {
         record = this.store.push(data);
