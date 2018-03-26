@@ -31,6 +31,8 @@ STEPS:
 * Write a Release Blog Post (Does not happen for beta releases)
   * Commits since last release: `git log --oneline release..beta | wc -l`.
   * Contributors since last release: `git shortlog -s -n release...beta | wc -l`
+* Submit a Pull request to the https://github.com/ember-cli/ember-cli to update the version of Ember Data
+  * (per request by @rwjblue and is also a great idea to make upgrading/new apps easier)
 * Bump version in package.json back to a canary version
 * For beta.1 releases, branch beta from master and update https://github.com/emberjs/data/blob/master/config/features.json to have `false` values instead of `null` and update the version in package.json
 
