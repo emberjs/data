@@ -2,6 +2,18 @@
 
 ### Master
 
+### Release 3.2.0-beta.1 (March 26, 2018)
+- [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods and reject the (#4977)
+- [#5379](https://github.com/emberjs/data/pull/5379) minor typo
+- [#5382](https://github.com/emberjs/data/pull/5382) [FIX] update ember-cli-dependency-checker to avoid deprecation warning
+- [#5371](https://github.com/emberjs/data/pull/5371) Upgrade to ember-cli-qunit 4.0 and replace ember-dev with ember-qunit… (#5371)
+- [#5369](https://github.com/emberjs/data/pull/5369) [BUGFIX beta] Fix createRecord creating two records
+- [#5375](https://github.com/emberjs/data/pull/5375) Remove jQuery usage from tests (#5375)
+- [#5378](https://github.com/emberjs/data/pull/5378) [BUGFIX] resolve issues with RecordArray sync for peekAll (#5378)
+- [#5381](https://github.com/emberjs/data/pull/5381) [FEAT BREAKING] remove globals build for 3.x (#5381)
+- [#5383](https://github.com/emberjs/data/pull/5383) fix external ordered set dependency
+- [#5384](https://github.com/emberjs/data/pull/5384) [FEAT] remove all stale feature flags (#5384)
+
 ### Release 3.1.0 (March 26, 2018)
 - [#5255](https://github.com/emberjs/data/pull/5255) [BUGFIX beta] Use native Map if present. (#5255)
 - [#5367](https://github.com/emberjs/data/pull/5367) Update ember twiddle links to working versions (#5367)
