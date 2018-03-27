@@ -431,3 +431,72 @@ test('unloading filtered records', function(assert) {
   assert.equal(get(people, 'length'), 1, 'Unloaded record removed from the array');
   assert.equal(get(people.objectAt(0), 'name'), 'Scumbag Joe', 'Joe shifted down after the unload');
 });
+
+test('array observers on peekAll multiple unload changes sees all changes as they occur', function(assert) {
+  function push() {
+    run(() => {
+      store.push({
+        data: [
+          {
+            type: 'person',
+            id: '1',
+            attributes: {
+              name: 'Scumbag John'
+            }
+          },
+          {
+            type: 'person',
+            id: '2',
+            attributes: {
+              name: 'Scumbag Joe'
+            }
+          },
+          {
+            type: 'person',
+            id: '3',
+            attributes: {
+              name: 'Scumbag Mark'
+            }
+          },
+          {
+            type: 'person',
+            id: '4',
+            attributes: {
+              name: 'Scumbag Dave'
+            }
+          }
+        ]
+      });
+    });
+  }
+
+  let people = run(() => {
+    return store.filter('person', hash => {
+      if (hash.get('name').match(/Scumbag/)) {
+        return true;
+      }
+    });
+  });
+
+  people.addArrayObserver(this, {
+    willChange: function(array, start, removeCount, addCount) {
+      if (removeCount > 0) {
+        let removed = array.slice(start, start + removeCount);
+        assert.equal(removed.any(x => !x), false, 'Records to be removed can be captured before removal');
+      }
+    },
+    didChange: function(array, start, removeCount, addCount) {}
+  });
+
+  assert.equal(get(people, 'length'), 0, 'precond - no items in the RecordArray');
+
+  push();
+
+  assert.equal(get(people, 'length'), 4, 'precond - four items in the RecordArray');
+
+  run(() => {
+    ['2','3','4'].forEach(x => {
+      store.peekRecord('person', x).unloadRecord();
+    });
+  });
+});
