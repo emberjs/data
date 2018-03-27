@@ -12,7 +12,6 @@ import { module, test } from 'qunit';
 import Pretender from "pretender";
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
@@ -52,23 +51,13 @@ module("integration/adapter/rest_adapter - REST Adapter", {
 });
 
 function ajaxResponse(value) {
-  if (isEnabled('ds-improved-ajax')) {
-    adapter._makeRequest = function(request) {
-      passedUrl = request.url;
-      passedVerb = request.method;
-      passedHash = request.data ? { data: request.data } : undefined;
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
 
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  } else {
-    adapter.ajax = function(url, verb, hash) {
-      passedUrl = url;
-      passedVerb = verb;
-      passedHash = hash;
-
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  }
+    return run(RSVP, 'resolve', copy(value, true));
+  };
 }
 
 function ajaxError(responseText, status = 400, headers = '') {
@@ -2562,46 +2551,3 @@ testInDebug("warns when an empty response is returned, though a valid stringifie
     assert.ok(/JSON/.test(reason.message));
   });
 });
-
-if (isEnabled('ds-improved-ajax')) {
-  testInDebug("The RESTAdapter should use `ajax` with a deprecation message when it is overridden by the user.", function(assert) {
-    assert.expect(2)
-
-    adapter.ajax = function(url, verb, hash) {
-      assert.ok(true, 'The ajax method should be called when it is overridden');
-      return { posts: { id: 1, name: "Rails is omakase" } };
-    };
-
-    assert.expectDeprecation(() => {
-      run(() => store.findRecord('post', 1));
-    }, /RESTAdapter#ajax has been deprecated/)
-  });
-
-
-  testInDebug("The RESTAdapter should use `ajaxOptions` with a deprecation message when it is overridden by the user.", function(assert) {
-    assert.expect(2)
-
-    ajaxResponse({ posts: { id: 1, name: "Rails is omakase" } });
-
-    let oldAjaxOptions = adapter.ajaxOptions;
-    adapter.ajaxOptions = function() {
-      assert.ok(true, 'The ajaxOptions method should be called when it is overridden');
-      return oldAjaxOptions.apply(this, arguments);
-    };
-
-    assert.expectDeprecation(() => {
-      run(() => store.findRecord('post', 1));
-    }, /RESTAdapter#ajaxOptions has been deprecated/)
-  });
-
-  test("_requestToJQueryAjaxHash works correctly for GET requests - GH-4445", function(assert) {
-    server.get('/posts/1', function(request) {
-      assert.equal(request.url, "/posts/1", "no query param is added to the GET request");
-
-      return [201, { "Content-Type": "application/json" }, JSON.stringify({ post: { id: 1 } })];
-    });
-
-    return run(() => store.findRecord('post', 1));
-  });
-
-}

@@ -10,7 +10,6 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let store, env;
 
@@ -211,15 +210,9 @@ test("destroying the store correctly cleans everything up", function(assert) {
 });
 
 function ajaxResponse(value) {
-  if (isEnabled('ds-improved-ajax')) {
-    env.adapter._makeRequest = function() {
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  } else {
-    env.adapter.ajax = function(url, verb, hash) {
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  }
+  env.adapter.ajax = function(url, verb, hash) {
+    return run(RSVP, 'resolve', copy(value, true));
+  };
 }
 
 module("integration/store - findRecord");

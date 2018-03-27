@@ -7,7 +7,6 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person;
 
@@ -241,20 +240,11 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ person: Person, adapter: adapter });
 
@@ -366,21 +356,11 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
-
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog;
@@ -440,20 +420,11 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog;
@@ -513,20 +484,11 @@ test(`when destroying a record setup the record state to invalid, the record's a
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog = run(() => {
