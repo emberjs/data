@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.1.1 (March 27, 2018)
+- [#5383](https://github.com/emberjs/data/pull/5383) Remove '@ember/ordered-set' warning when building Ember Data
+
 ### Release 3.1.0 (March 26, 2018)
 - [#5255](https://github.com/emberjs/data/pull/5255) [BUGFIX beta] Use native Map if present. (#5255)
 - [#5367](https://github.com/emberjs/data/pull/5367) Update ember twiddle links to working versions (#5367)
