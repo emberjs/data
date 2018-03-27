@@ -196,6 +196,11 @@ export default class ModelData {
       if (data.relationships) {
         this._setupRelationships(data);
       }
+      if (data.id) {
+        // didCommit provided an ID, notify the store of it
+        this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
+        this.id = coerceId(data.id);
+      }
       data = data.attributes;
     }
     let changedKeys = this._changedKeys(data);

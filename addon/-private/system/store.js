@@ -1,7 +1,6 @@
 /**
   @module ember-data
 */
-
 import { A } from '@ember/array';
 
 import { copy } from '@ember/object/internals';
@@ -211,6 +210,8 @@ Store = Service.extend({
     // internal bookkeeping; not observable
     this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
+    // To keep track of clientIds for newly created records
+    this._newlyCreated = new IdentityMap();
     this._pendingSave = [];
     this._modelFactoryCache = Object.create(null);
 
@@ -230,8 +231,6 @@ Store = Service.extend({
     // used for coalescing internal model updates
     this._updatedInternalModels = [];
 
-    // To keep track of clientIds for newly created records
-    this._newlyCreated = Object.create(null);
 
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
@@ -1120,7 +1119,7 @@ Store = Service.extend({
   _getInternalModelForId(modelName, id, clientId) {
     let internalModel;
     if (clientId) {
-      internalModel = this._newlyCreated[clientId];
+      internalModel = this._newlyCreatedModelsFor(modelName).get(clientId);
     }
 
     if (!internalModel) {
@@ -1911,11 +1910,7 @@ Store = Service.extend({
     if (dataArg) {
       data = dataArg.data;
     }
-    if (data) {
-      // normalize relationship IDs into records
-      this.updateId(internalModel, data);
-      //this._setupRelationshipsForModel(internalModel, data);
-    } else {
+    if (!data) {
       assert(`Your ${internalModel.modelName} record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`, internalModel.id);
     }
 
@@ -1953,19 +1948,29 @@ Store = Service.extend({
   },
 
   /**
-    When an adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    resolves with data, this method extracts the ID from the supplied
-    data.
+    Sets newly received ID from the adapter's `createRecord`, `updateRecord`
+    or `deleteRecord`.
 
-    @method updateId
+    @method setRecordId
     @private
-    @param {InternalModel} internalModel
-    @param {Object} data
-  */
+    @param {String} modelName
+    @param {string} newId
+    @param {number} clientId
+   */
+  setRecordId(modelName, newId, clientId) {
+    let trueId = coerceId(newId);
+    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
+    this._setRecordId(internalModel, newId, clientId);
+  },
+
   updateId(internalModel, data) {
+    // TODO Deprecate this? Completely remove it?
+    this._setRecordId(internalModel, coerceId(data.id));
+  },
+
+  _setRecordId(internalModel, id, clientId) {
     let oldId = internalModel.id;
     let modelName = internalModel.modelName;
-    let id = coerceId(data.id);
 
     // ID absolutely can't be missing if the oldID is empty (missing Id in response for a new record)
     assert(`'${modelName}' was saved to the server, but the response does not have an id and your record does not either.`, !(id === null && oldId === null));
@@ -1986,6 +1991,7 @@ Store = Service.extend({
       isNone(existingInternalModel) || existingInternalModel === internalModel);
 
     this._internalModelsFor(internalModel.modelName).set(id, internalModel);
+    this._newlyCreatedModelsFor(internalModel.modelName).remove(internalModel, clientId);
 
     internalModel.setId(id);
   },
@@ -2001,6 +2007,10 @@ Store = Service.extend({
   _internalModelsFor(modelName) {
     heimdall.increment(_internalModelsFor);
     return this._identityMap.retrieve(modelName);
+  },
+
+  _newlyCreatedModelsFor(modelName) {
+    return this._newlyCreated.retrieve(modelName);
   },
 
   // ................
@@ -2515,10 +2525,14 @@ Store = Service.extend({
   },
 
   _internalModelForResource(resource) {
+    let internalModel;
     if (resource.clientId) {
-      return this._newlyCreated[resource.clientId];
+      internalModel = this._newlyCreatedModelsFor(resource.type).get(resource.clientId);
     }
-    return this._internalModelForId(resource.type, resource.id);
+    if (!internalModel) {
+      internalModel = this._internalModelForId(resource.type, resource.id);
+    }
+    return internalModel;
   },
 
   _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta) {
@@ -2704,7 +2718,7 @@ Store = Service.extend({
     // instances with the injections applied
     let internalModel = new InternalModel(modelName, id, this, data, clientId);
     if (clientId) {
-      this._newlyCreated[clientId] = internalModel;
+      this._newlyCreatedModelsFor(modelName).add(internalModel, clientId);
     }
 
     this._internalModelsFor(modelName).add(internalModel, id);
