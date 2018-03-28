@@ -283,6 +283,24 @@ const Promise = EmberPromise;
     }).volatile()
   });
   ```
+  ### Method Customization
+
+  Say your API handles creation of resources via `PUT`, this can be
+  customized as follows:
+
+  ```adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
+    methodForRequest: function(params) {
+      if (params.requestType === 'createRecord') {
+        return "PUT";
+      }
+
+      return this._super(...arguments);
+    }
+  });
+  ```
 
   @class RESTAdapter
   @constructor
