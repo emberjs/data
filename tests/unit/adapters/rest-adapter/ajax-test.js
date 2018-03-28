@@ -5,7 +5,6 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 var Person, Place, store, adapter, env;
 
@@ -31,21 +30,12 @@ test('When an id is searched, the correct url should be generated', function(ass
 
   let count = 0;
 
-  if (isEnabled('ds-improved-ajax')) {
-    adapter._makeRequest = function(request) {
-      if (count === 0) { assert.equal(request.url, '/people/1', 'should create the correct url'); }
-      if (count === 1) { assert.equal(request.url, '/places/1', 'should create the correct url'); }
-      count++;
-      return resolve();
-    };
-  } else {
-    adapter.ajax = function(url, method) {
-      if (count === 0) { assert.equal(url, '/people/1', 'should create the correct url'); }
-      if (count === 1) { assert.equal(url, '/places/1', 'should create the correct url'); }
-      count++;
-      return resolve();
-    };
-  }
+  adapter.ajax = function(url, method) {
+    if (count === 0) { assert.equal(url, '/people/1', 'should create the correct url'); }
+    if (count === 1) { assert.equal(url, '/places/1', 'should create the correct url'); }
+    count++;
+    return resolve();
+  };
 
   return run(() => {
     return EmberPromise.all([
@@ -58,17 +48,10 @@ test('When an id is searched, the correct url should be generated', function(ass
 test(`id's should be sanatized`, function(assert) {
   assert.expect(1);
 
-  if (isEnabled('ds-improved-ajax')) {
-    adapter._makeRequest = function(request) {
-      assert.equal(request.url, '/people/..%2Fplace%2F1', `should create the correct url`);
-      return resolve();
-    };
-  } else {
-    adapter.ajax = function(url, method) {
-      assert.equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
-      return resolve();
-    };
-  }
+  adapter.ajax = function(url, method) {
+    assert.equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
+    return resolve();
+  };
 
   return run(() => adapter.findRecord(store, Person, '../place/1', {}));
 });

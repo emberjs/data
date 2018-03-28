@@ -5,7 +5,6 @@ import { createStore } from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let GroupsAdapter, store, requests;
 let maxLength;
@@ -26,47 +25,25 @@ module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
       }
     });
 
-    if (isEnabled('ds-improved-ajax')) {
-      GroupsAdapter.reopen({
-        _makeRequest(request) {
-          requests.push({
-            url: request.url,
-            ids: request.data.ids
-          });
+    GroupsAdapter.reopen({
+      ajax(url, type, options) {
+        requests.push({
+          url,
+          ids: options.data.ids
+        });
 
-          let queryString = request.data.ids.map(i => {
-            return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
-          }).join('&');
-          let fullUrl = request.url + '?' + queryString;
+        let queryString = options.data.ids.map(i => {
+          return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
+        }).join('&');
+        let fullUrl = url + '?' + queryString;
 
-          maxLength = this.get('maxURLLength');
-          lengths.push(fullUrl.length);
+        maxLength = this.get('maxURLLength');
+        lengths.push(fullUrl.length);
 
-          let testRecords = request.data.ids.map(id => ({ id }));
-          return EmberPromise.resolve({ 'testRecords' :  testRecords });
-        }
-      });
-    } else {
-      GroupsAdapter.reopen({
-        ajax(url, type, options) {
-          requests.push({
-            url,
-            ids: options.data.ids
-          });
-
-          let queryString = options.data.ids.map(i => {
-            return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
-          }).join('&');
-          let fullUrl = url + '?' + queryString;
-
-          maxLength = this.get('maxURLLength');
-          lengths.push(fullUrl.length);
-
-          let testRecords = options.data.ids.map(id => ({ id }));
-          return EmberPromise.resolve({ 'testRecords' :  testRecords });
-        }
-      });
-    }
+        let testRecords = options.data.ids.map(id => ({ id }));
+        return EmberPromise.resolve({ 'testRecords' :  testRecords });
+      }
+    });
 
     store = createStore({
       adapter: GroupsAdapter,

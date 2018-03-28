@@ -4,7 +4,6 @@ import { get } from '@ember/object';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { isEnabled } from 'ember-data/-private';
 import { module, test } from 'qunit';
 
 var env, Family;
@@ -239,50 +238,6 @@ testInDebug("push(record)", function(assert) {
     });
   });
 });
-
-if (isEnabled('ds-overhaul-references')) {
-  testInDebug("push(record) logs a deprecation warning", function(assert) {
-    var done = assert.async();
-
-    var person, family;
-    run(function() {
-      person = env.store.push({
-        data: {
-          type: 'person',
-          id: 1,
-          relationships: {
-            family: {
-              data: { type: 'family', id: 1 }
-            }
-          }
-        }
-      });
-      family = env.store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          attributes: {
-            name: "Coreleone"
-          }
-        }
-      });
-    });
-
-    var familyReference = person.belongsTo('family');
-
-    assert.expectDeprecation(() => {
-      run(function() {
-        familyReference.push(family).then(function(record) {
-          assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
-          assert.equal(get(record, 'name'), "Coreleone", "name is set");
-          assert.equal(record, family);
-
-          done();
-        });
-      });
-    }, "BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
-  });
-}
 
 test("push(promise)", function(assert) {
   var done = assert.async();

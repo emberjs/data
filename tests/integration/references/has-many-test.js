@@ -3,7 +3,6 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
-import { isEnabled } from 'ember-data/-private';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
@@ -203,50 +202,6 @@ testInDebug("push(array)", function(assert) {
   });
 });
 
-if (isEnabled('ds-overhaul-references')) {
-  testInDebug("push(array) logs a deprecation warning", function(assert) {
-    var done = assert.async();
-
-    var family;
-    run(function() {
-      family = env.store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 }
-              ]
-            }
-          }
-        }
-      });
-    });
-
-    var personsReference = family.hasMany('persons');
-
-    assert.expectDeprecation(() => {
-      run(function() {
-        var data = [
-          { data: { type: 'person', id: 1, attributes: { name: "Vito" } } },
-          { data: { type: 'person', id: 2, attributes: { name: "Michael" } } }
-        ];
-
-        personsReference.push(data).then(function(records) {
-          assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
-          assert.equal(get(records, 'length'), 2);
-          assert.equal(records.objectAt(0).get('name'), "Vito");
-          assert.equal(records.objectAt(1).get('name'), "Michael");
-
-          done();
-        });
-      });
-    }, "HasManyReference#push(array) is deprecated. Push a JSON-API document instead.");
-  });
-}
-
 testInDebug("push(array) works with polymorphic type", function(assert) {
   var done = assert.async();
 
@@ -345,110 +300,6 @@ testInDebug("push(object) supports legacy, non-JSON-API-conform payload", functi
   });
 });
 
-if (isEnabled('ds-overhaul-references')) {
-  test("push(object) supports JSON-API payload", function(assert) {
-    var done = assert.async();
-
-    var family;
-    run(function() {
-      family = env.store.push({
-        data: {
-          type: 'family',
-          id: 1,
-          relationships: {
-            persons: {
-              data: [
-                { type: 'person', id: 1 },
-                { type: 'person', id: 2 }
-              ]
-            }
-          }
-        }
-      });
-    });
-
-    var personsReference = family.hasMany('persons');
-
-    run(function() {
-      var payload = {
-        data: [
-          { type: 'person', id: 1, attributes: { name: "Vito" } },
-          { type: 'person', id: 2, attributes: { name: "Michael" } }
-        ]
-      };
-
-      personsReference.push(payload).then(function(records) {
-        assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
-        assert.equal(get(records, 'length'), 2);
-        assert.equal(records.objectAt(0).get('name'), "Vito");
-        assert.equal(records.objectAt(1).get('name'), "Michael");
-
-        done();
-      });
-    });
-  });
-
-  test("push(object) works with polymorphic type", function(assert) {
-    var done = assert.async();
-
-    env.registry.register('model:mafia-boss', Person.extend());
-
-    var family;
-    run(function() {
-      family = env.store.push({
-        data: {
-          type: 'family',
-          id: 1
-        }
-      });
-    });
-
-    var personsReference = family.hasMany('persons');
-
-    run(() => {
-      var payload = {
-        data: [
-          { type: 'mafia-boss', id: 1, attributes: { name: "Vito" } }
-        ]
-      };
-
-      personsReference.push(payload).then(function(records) {
-        assert.ok(records instanceof DS.ManyArray, "push resolves with the referenced records");
-        assert.equal(get(records, 'length'), 1);
-        assert.equal(records.objectAt(0).get('name'), "Vito");
-
-        done();
-      });
-    });
-  });
-
-  test("push(object) asserts polymorphic type", function(assert) {
-    var family;
-    run(function() {
-      family = env.store.push({
-        data: {
-          type: 'family',
-          id: 1
-        }
-      });
-    });
-
-    var personsReference = family.hasMany('persons');
-
-    assert.expectAssertion(() => {
-      run(() => {
-        var payload = {
-          data: [
-            { type: 'family', id: 1 }
-          ]
-        };
-
-        personsReference.push(payload);
-      });
-    }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
-  });
-}
-
 test("push(promise)", function(assert) {
   var done = assert.async();
 
@@ -483,15 +334,6 @@ test("push(promise)", function(assert) {
         { data: { type: 'person', id: 2, attributes: { name: "Michael" } } }
       ]
     };
-
-    if (isEnabled('ds-overhaul-references')) {
-      payload = {
-        data: [
-          { type: 'person', id: 1, attributes: { name: "Vito" } },
-          { type: 'person', id: 2, attributes: { name: "Michael" } }
-        ]
-      };
-    }
 
     deferred.resolve(payload);
   });
