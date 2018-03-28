@@ -284,10 +284,10 @@ const Promise = EmberPromise;
   });
   ```
   ### Method Customization
-  
+
   Say your API handles creation of resources via `PUT`, this can be
   customized as follows:
-  
+
   ```adapters/application.js
   import DS from 'ember-data';
 
