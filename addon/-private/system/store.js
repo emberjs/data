@@ -1988,7 +1988,10 @@ Store = Service.extend({
   },
 
   updateId(internalModel, data) {
-    // TODO Deprecate this? Completely remove it?
+    deprecate('store.updateId was documented as private and will be removed.', false, {
+      id: 'ds.store.updateId',
+      until: '3.5'
+    });
     this._setRecordId(internalModel, coerceId(data.id));
   },
 
