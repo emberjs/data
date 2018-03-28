@@ -138,7 +138,10 @@ export function _query(adapter, store, modelName, query, recordArray) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
   let promise;
-  if (adapter.query.length > 3) {
+  let createRecordArray = adapter.query.length > 3 ||
+    (adapter.query.wrappedFunction && adapter.query.wrappedFunction.length > 3);
+
+  if (createRecordArray) {
     recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
     promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray));
   } else {
