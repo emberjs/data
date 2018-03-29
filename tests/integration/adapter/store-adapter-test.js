@@ -37,7 +37,12 @@ module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       name: DS.attr('string')
     });
 
-    env = setupStore({ person: Person, dog: Dog });
+    env = setupStore({
+      serializer: DS.JSONAPISerializer,
+      adapter: DS.JSONAPIAdapter,
+      person: Person,
+      dog: Dog
+    });
     store = env.store;
     adapter = env.adapter;
   },
@@ -1360,6 +1365,48 @@ test("store.findRecord should pass adapterOptions to adapter.findRecord", functi
 
   return run(() => {
     return store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+test("store.query should pass adapterOptions to adapter.query ", function(assert) {
+  assert.expect(2);
+
+  env.adapter.query = function(store, type, query, array, options) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
+    return { data: [] };
+  };
+
+  return run(() => {
+    return store.query('person', {}, { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+test("store.filter should pass adapterOptions to adapter.query", function(assert) {
+  assert.expect(2);
+
+  env.adapter.query = function(store, type, query, array, options) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
+    return { data: [] };
+  };
+
+  return run(() => {
+    return store.filter('person', {}, () => {}, { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+test("store.queryRecord should pass adapterOptions to adapter.queryRecord", function(assert) {
+  assert.expect(2);
+
+  env.adapter.queryRecord = function(store, type, query, snapshot) {
+    assert.ok(!('adapterOptions' in query));
+    assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
+    return { data: { type: 'person', id: 1, attributes: {} } };
+  };
+
+  return run(() => {
+    return store.queryRecord('person', {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 
