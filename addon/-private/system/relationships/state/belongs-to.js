@@ -84,6 +84,7 @@ export default class BelongsToRelationship extends Relationship {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
     if (this.inverseModelData && this.inverseModelData.isNew() && !this.canonicalState) {
+      this.willSync = false;
       return;
     }
     if (this.inverseModelData !== this.canonicalState) {
