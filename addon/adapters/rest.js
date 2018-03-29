@@ -24,7 +24,7 @@ import {
   MapWithDefault
 } from '../-private';
 import { instrument } from 'ember-data/-debug';
-import { warn, deprecate } from '@ember/debug';
+import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 const Promise = EmberPromise;
