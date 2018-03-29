@@ -1130,26 +1130,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return query;
-  },
-
-  _hasCustomizedAjax() {
-    if (this.ajax !== RESTAdapter.prototype.ajax) {
-      deprecate('RESTAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.rest-adapter.ajax',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    if (this.ajaxOptions !== RESTAdapter.prototype.ajaxOptions) {
-      deprecate('RESTAdapter#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.rest-adapter.ajax-options',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    return false;
   }
 });
 
