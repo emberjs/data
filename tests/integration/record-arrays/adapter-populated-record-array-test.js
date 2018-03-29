@@ -179,7 +179,7 @@ test('pass record array to adapter.query based on arity', function(assert) {
 
   return store.query('person', { }).then(recordArray => {
     env.adapter.query = function(store, type, query, _recordArray) {
-      assert.equal(arguments.length, 4);
+      assert.equal(arguments.length, 5);
       return payload;
     };
     return store.query('person', { });
@@ -218,7 +218,7 @@ test('pass record array to adapter.query based on arity', function(assert) {
 
   return store.query('person', actualQuery).then(recordArray => {
     env.adapter.query = function(store, type, query, _recordArray) {
-      assert.equal(arguments.length, 4);
+      assert.equal(arguments.length, 5);
       return payload;
     };
 

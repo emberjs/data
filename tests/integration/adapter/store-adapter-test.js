@@ -37,7 +37,12 @@ module("integration/adapter/store-adapter - DS.Store and DS.Adapter integration 
       name: DS.attr('string')
     });
 
-    env = setupStore({ person: Person, dog: Dog });
+    env = setupStore({
+      serializer: DS.JSONAPISerializer,
+      adapter: DS.JSONAPIAdapter,
+      person: Person,
+      dog: Dog
+    });
     store = env.store;
     adapter = env.adapter;
   },
@@ -1369,7 +1374,7 @@ test("store.query should pass adapterOptions to adapter.query ", function(assert
   env.adapter.query = function(store, type, query, array, options) {
     assert.ok(!('adapterOptions' in query));
     assert.deepEqual(options.adapterOptions, { query: { embed: true } });
-    return [];
+    return { data: [] };
   };
 
   return run(() => {
@@ -1383,7 +1388,7 @@ test("store.filter should pass adapterOptions to adapter.query", function(assert
   env.adapter.query = function(store, type, query, array, options) {
     assert.ok(!('adapterOptions' in query));
     assert.deepEqual(options.adapterOptions, { query: { embed: true } });
-    return [];
+    return { data: [] };
   };
 
   return run(() => {
@@ -1397,7 +1402,7 @@ test("store.queryRecord should pass adapterOptions to adapter.queryRecord", func
   env.adapter.queryRecord = function(store, type, query, snapshot) {
     assert.ok(!('adapterOptions' in query));
     assert.deepEqual(snapshot.adapterOptions, { query: { embed: true } });
-    return { id: 1 };
+    return { data: { type: 'person', id: 1, attributes: {} } };
   };
 
   return run(() => {
