@@ -1378,7 +1378,7 @@ test("store.query should pass adapterOptions to adapter.query ", function(assert
   };
 
   return run(() => {
-    return store.query('person', { adapterOptions: { query: { embed: true } } });
+    return store.query('person', {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 
@@ -1392,7 +1392,7 @@ test("store.filter should pass adapterOptions to adapter.query", function(assert
   };
 
   return run(() => {
-    return store.filter('person', { adapterOptions: { query: { embed: true } } }, () => {});
+    return store.filter('person', {}, () => {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 
@@ -1406,7 +1406,7 @@ test("store.queryRecord should pass adapterOptions to adapter.queryRecord", func
   };
 
   return run(() => {
-    return store.queryRecord('person', { adapterOptions: { query: { embed: true } } });
+    return store.queryRecord('person', {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 

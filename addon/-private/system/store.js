@@ -1261,20 +1261,22 @@ Store = Service.extend({
     @method query
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName, query) {
+  query(modelName, query, options) {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let options = {};
+    let adapterOptionsWrapper = {};
 
-    options.adapterOptions = query.adapterOptions;
-    delete query.adapterOptions;
+    if (options && options.adapterOptions) {
+      adapterOptionsWrapper.adapterOptions = options.adapterOptions
+    }
 
     let normalizedModelName = normalizeModelName(modelName);
-    return this._query(normalizedModelName, query, null, options);
+    return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
   },
 
   _query(modelName, query, array, options) {
@@ -1394,26 +1396,26 @@ Store = Service.extend({
     @method queryRecord
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName, query) {
+  queryRecord(modelName, query, options) {
     assert(`You need to pass a model name to the store's queryRecord method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     let normalizedModelName = normalizeModelName(modelName);
-
     let adapter = this.adapterFor(normalizedModelName);
+    let adapterOptionsWrapper = {};
 
-    let options = {};
-
-    options.adapterOptions = query.adapterOptions;
-    delete query.adapterOptions;
+    if (options && options.adapterOptions) {
+      adapterOptionsWrapper.adapterOptions = options.adapterOptions
+    }
 
     assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
     assert(`You tried to make a query but your adapter does not implement 'queryRecord'`, typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, modelName, query, options).then(internalModel => {
+    return promiseObject(_queryRecord(adapter, this, modelName, query, adapterOptionsWrapper).then(internalModel => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {
@@ -1788,10 +1790,11 @@ Store = Service.extend({
     @param {String} modelName
     @param {Object} query optional query
     @param {Function} filter
+    @param {Object} options optional, options to be passed to store.query
     @return {DS.PromiseArray}
     @deprecated
   */
-  filter(modelName, query, filter) {
+  filter(modelName, query, filter, options) {
     assert(`You need to pass a model name to the store's filter method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
@@ -1802,13 +1805,13 @@ Store = Service.extend({
     let promise;
     let length = arguments.length;
     let array;
-    let hasQuery = length === 3;
+    let hasQuery = length >= 3;
 
     let normalizedModelName = normalizeModelName(modelName);
 
     // allow an optional server query
     if (hasQuery) {
-      promise = this.query(normalizedModelName, query);
+      promise = this.query(normalizedModelName, query, options);
     } else if (arguments.length === 2) {
       filter = query;
     }
