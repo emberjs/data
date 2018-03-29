@@ -4,7 +4,6 @@
 */
 import { dasherize } from '@ember/string';
 import RESTAdapter from "./rest";
-import { deprecate } from '@ember/debug';
 import { instrument } from 'ember-data/-debug';
 import { pluralize } from 'ember-inflector';
 
@@ -266,26 +265,6 @@ const JSONAPIAdapter = RESTAdapter.extend({
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
-  },
-
-  _hasCustomizedAjax() {
-    if (this.ajax !== JSONAPIAdapter.prototype.ajax) {
-      deprecate('JSONAPIAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.json-api-adapter.ajax',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    if (this.ajaxOptions !== JSONAPIAdapter.prototype.ajaxOptions) {
-      deprecate('JSONAPIAdapterr#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.json-api-adapter.ajax-options',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    return false;
   }
 });
 
