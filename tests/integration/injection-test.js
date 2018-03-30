@@ -20,7 +20,7 @@ const factory = {
 };
 
 module('integration/injection factoryFor enabled', {
-  setup() {
+  beforeEach() {
     env = setupStore();
 
     if (getOwner) {
@@ -49,7 +49,7 @@ module('integration/injection factoryFor enabled', {
     }
   },
 
-  teardown() {
+  afterEach() {
     if (getOwner) {
       let owner = getOwner(env.store);
 
@@ -82,7 +82,7 @@ test('modelFor', function(assert) {
 });
 
 module('integration/injection eager injections', {
-  setup() {
+  beforeEach() {
     setupModelFactoryInjections();
     env = setupStore();
 
@@ -92,7 +92,7 @@ module('integration/injection eager injections', {
     // container injection
   },
 
-  teardown() {
+  afterEach() {
     // can be removed once we no longer support ember versions without lookupFactory
     resetModelFactoryInjections();
 

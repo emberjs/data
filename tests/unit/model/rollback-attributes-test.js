@@ -1,4 +1,4 @@
-import { isEmpty, isPresent } from '@ember/utils';
+import { isPresent } from '@ember/utils';
 import { addObserver } from '@ember/object/observers';
 import { Promise as EmberPromise, reject } from 'rsvp';
 import { run, later } from '@ember/runloop';
@@ -7,7 +7,6 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person;
 
@@ -15,7 +14,11 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', {
   beforeEach() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
-      lastName: DS.attr()
+      lastName: DS.attr(),
+      rolledBackCount: 0,
+      rolledBack() {
+        this.incrementProperty('rolledBackCount');
+      }
     });
     Person.reopenClass({ toString() { return 'Person'; } });
 
@@ -42,11 +45,13 @@ test('changes to attributes can be rolled back', function(assert) {
   });
 
   assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('rolledBackCount'), 0);
 
   run(() => person.rollbackAttributes());
 
   assert.equal(person.get('firstName'), "Tom");
   assert.equal(person.get('hasDirtyAttributes'), false);
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test('changes to unassigned attributes can be rolled back', function(assert) {
@@ -67,11 +72,13 @@ test('changes to unassigned attributes can be rolled back', function(assert) {
   });
 
   assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('rolledBackCount'), 0);
 
   run(() => person.rollbackAttributes());
 
   assert.strictEqual(person.get('firstName'), undefined);
   assert.equal(person.get('hasDirtyAttributes'), false);
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test('changes to attributes made after a record is in-flight only rolls back the local changes', function(assert) {
@@ -106,6 +113,7 @@ test('changes to attributes made after a record is in-flight only rolls back the
     person.set('lastName', "Dolly");
 
     assert.equal(person.get('lastName'), "Dolly");
+    assert.equal(person.get('rolledBackCount'), 0);
 
     person.rollbackAttributes();
 
@@ -114,6 +122,7 @@ test('changes to attributes made after a record is in-flight only rolls back the
     assert.equal(person.get('isSaving'), true);
 
     return saving.then(() => {
+      assert.equal(person.get('rolledBackCount'), 1);
       assert.equal(person.get('hasDirtyAttributes'), false, 'The person is now clean');
     });
   });
@@ -148,18 +157,22 @@ test("a record's changes can be made if it fails to save", function(assert) {
     person.save().then(null, function() {
       assert.equal(person.get('isError'), true);
       assert.deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
+      assert.equal(person.get('rolledBackCount'), 0);
 
-      person.rollbackAttributes();
+      run(function() {
+        person.rollbackAttributes();
+      });
 
       assert.equal(person.get('firstName'), "Tom");
       assert.equal(person.get('isError'), false);
       assert.equal(Object.keys(person.changedAttributes()).length, 0);
+      assert.equal(person.get('rolledBackCount'), 1);
     });
   });
 });
 
 test(`a deleted record's attributes can be rollbacked if it fails to save, record arrays are updated accordingly`, function(assert) {
-  assert.expect(8);
+  assert.expect(10);
   env.adapter.deleteRecord = function(store, type, snapshot) {
     return reject();
   };
@@ -190,10 +203,14 @@ test(`a deleted record's attributes can be rollbacked if it fails to save, recor
     return person.save().catch(() => {
       assert.equal(person.get('isError'), true);
       assert.equal(person.get('isDeleted'), true);
+      assert.equal(person.get('rolledBackCount'), 0);
+
       run(() => person.rollbackAttributes());
+
       assert.equal(person.get('isDeleted'), false);
       assert.equal(person.get('isError'), false);
       assert.equal(person.get('hasDirtyAttributes'), false, 'must be not dirty');
+      assert.equal(person.get('rolledBackCount'), 1);
     }).then(() => {
       assert.equal(people.get('length'), 1, 'the underlying record array is updated accordingly in an asynchronous way');
     });
@@ -205,12 +222,14 @@ test(`new record's attributes can be rollbacked`, function(assert) {
 
   assert.equal(person.get('isNew'), true, 'must be new');
   assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
+  assert.equal(person.get('rolledBackCount'), 0);
 
   run(person, 'rollbackAttributes');
 
   assert.equal(person.get('isNew'), false, 'must not be new');
   assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
   assert.equal(person.get('isDeleted'), true, 'must be deleted');
+  assert.equal(person.get('rolledBackCount'), 1);
 });
 
 test(`invalid new record's attributes can be rollbacked`, function(assert) {
@@ -221,20 +240,11 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ person: Person, adapter: adapter });
 
@@ -247,33 +257,25 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
     return person.save().catch(reason => {
       assert.equal(error, reason);
       assert.equal(person.get('isValid'), false);
-      person.rollbackAttributes();
+
+      run(() => person.rollbackAttributes());
 
       assert.equal(person.get('isNew'), false, 'must not be new');
       assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(person.get('isDeleted'), true, 'must be deleted');
+      assert.equal(person.get('rolledBackCount'), 1);
     });
   });
 });
 
 test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function(assert) {
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        let error = new DS.InvalidError();
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        let error = new DS.InvalidError();
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      let error = new DS.InvalidError();
+      return reject(error);
+    }
+  });
 
   env = setupStore({ person: Person, adapter: adapter });
 
@@ -301,10 +303,11 @@ test(`invalid record's attributes can be rollbacked after multiple failed calls 
 
       return person.save();
     }).catch(() => {
-      person.rollbackAttributes();
+      run(() => person.rollbackAttributes());
 
       assert.equal(person.get('hasDirtyAttributes'), false, 'has no dirty attributes');
       assert.equal(person.get('firstName'), 'original name', 'after rollbackAttributes() firstName has the original value');
+      assert.equal(person.get('rolledBackCount'), 1);
     });
   });
 });
@@ -337,9 +340,13 @@ test(`deleted record's attributes can be rollbacked`, function(assert) {
 });
 
 test("invalid record's attributes can be rollbacked", function(assert) {
-  assert.expect(11);
+  assert.expect(12);
   const Dog = DS.Model.extend({
-    name: DS.attr()
+    name: DS.attr(),
+    rolledBackCount: 0,
+    rolledBack() {
+      this.incrementProperty('rolledBackCount');
+    }
   });
 
   let error = new DS.InvalidError([
@@ -349,21 +356,11 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
-
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog;
@@ -398,12 +395,13 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     return dog.save().catch(reason => {
       assert.equal(reason, error);
 
-      dog.rollbackAttributes();
+      run(() => { dog.rollbackAttributes() });
 
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(dog.get('name'), 'Pluto');
-      assert.ok(isEmpty(dog.get('errors.name')));
+      assert.notOk(dog.get('errors.name'));
       assert.ok(dog.get('isValid'));
+      assert.equal(dog.get('rolledBackCount'), 1);
     });
   });
 });
@@ -422,20 +420,11 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog;
@@ -477,7 +466,7 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
       assert.equal(dog.get('name'), 'Pluto');
       assert.equal(dog.get('breed'), 'Disney');
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
-      assert.ok(isEmpty(dog.get('errors.name')));
+      assert.notOk(dog.get('errors.name'));
       assert.ok(dog.get('isValid'));
     });
   });
@@ -495,20 +484,11 @@ test(`when destroying a record setup the record state to invalid, the record's a
     }
   ]);
 
-  let adapter;
-  if (isEnabled('ds-improved-ajax')) {
-    adapter = DS.RESTAdapter.extend({
-      _makeRequest() {
-        return reject(error);
-      }
-    });
-  } else {
-    adapter = DS.RESTAdapter.extend({
-      ajax(url, type, hash) {
-        return reject(error);
-      }
-    });
-  }
+  let adapter = DS.RESTAdapter.extend({
+    ajax(url, type, hash) {
+      return reject(error);
+    }
+  });
 
   env = setupStore({ dog: Dog, adapter: adapter });
   let dog = run(() => {

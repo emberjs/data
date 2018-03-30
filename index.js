@@ -35,6 +35,10 @@ function isProductionEnv() {
   return isProd && !isTest;
 }
 
+function isInstrumentedBuild() {
+  return INSTRUMENT_HEIMDALL;
+}
+
 module.exports = {
   name: 'ember-data',
 
@@ -56,6 +60,16 @@ module.exports = {
     } else {
       console.log(warning);
     }
+  },
+
+  getOutputDirForVersion() {
+    let VersionChecker = require('ember-cli-version-checker');
+    let checker = new VersionChecker(this);
+    let emberCli = checker.for('ember-cli', 'npm');
+
+    let requiresModulesDir = emberCli.satisfies('< 3.0.0');
+
+    return requiresModulesDir ? 'modules' : '';
   },
 
   init() {
@@ -137,7 +151,7 @@ module.exports = {
     let withoutPrivate = new Funnel(treeWithVersion, {
       exclude: [
         '-private',
-        isProductionEnv() ? '-debug' : false
+        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false
       ].filter(Boolean),
 
       destDir: 'ember-data'
@@ -168,7 +182,8 @@ module.exports = {
           'ember-inflector',
           'ember-data/version',
           'ember-data/-debug',
-          'ember-data/adapters/errors'
+          'ember-data/adapters/errors',
+          '@ember/ordered-set'
         ]
         // cache: true|false Defaults to true
       }
@@ -176,9 +191,10 @@ module.exports = {
 
     privateTree = this.debugTree(privateTree, 'rollup-output');
 
-    // the output of treeForAddon is required to be modules/<your files>
-    publicTree  = new Funnel(publicTree,  { destDir: 'modules' });
-    privateTree = new Funnel(privateTree, { destDir: 'modules' });
+    let destDir = this.getOutputDirForVersion();
+
+    publicTree  = new Funnel(publicTree,  { destDir });
+    privateTree = new Funnel(privateTree, { destDir });
 
     return this.debugTree(merge([
       publicTree,

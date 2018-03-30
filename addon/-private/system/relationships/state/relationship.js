@@ -1,5 +1,6 @@
 /* global heimdall */
 import { guidFor } from '@ember/object/internals';
+import { get } from '@ember/object';
 
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
@@ -76,35 +77,68 @@ export default class Relationship {
     this.meta = null;
     this.hasData = false;
     this.hasLoaded = false;
+    this.__inverseMeta = undefined;
+  }
+
+  _inverseIsAsync() {
+    let inverseMeta = this._inverseMeta;
+    if (!inverseMeta) {
+      return false;
+    }
+
+    let inverseAsync = inverseMeta.options.async;
+    return typeof inverseAsync === 'undefined' ? true : inverseAsync;
+  }
+
+  _inverseIsSync() {
+    let inverseMeta = this._inverseMeta;
+    if (!inverseMeta) {
+      return false;
+    }
+
+    let inverseAsync = inverseMeta.options.async;
+    return typeof inverseAsync === 'undefined' ? false : !inverseAsync;
+  }
+
+  get _inverseMeta() {
+    if (this.__inverseMeta === undefined) {
+      let inverseMeta = null;
+
+      if (this.inverseKey) {
+        let inverseModelClass = this.store.modelFor(this.relationshipMeta.type);
+        let inverseRelationships = get(inverseModelClass, 'relationshipsByName');
+        inverseMeta = inverseRelationships.get(this.inverseKey);
+      }
+
+      this.__inverseMeta = inverseMeta;
+    }
+
+    return this.__inverseMeta;
   }
 
   get parentType() {
     return this.internalModel.modelName;
   }
 
-  _inverseIsAsync() {
-    if (!this.inverseKey || !this.inverseInternalModel) {
-      return false;
-    }
-    return this.inverseInternalModel._relationships.get(this.inverseKey).isAsync;
-  }
-
-  removeInverseRelationships() {
+  internalModelDidDematerialize() {
     if (!this.inverseKey) { return; }
 
-    let allMembers =
-      // we actually want a union of members and canonicalMembers
-      // they should be disjoint but currently are not due to a bug
-      this.members.list.concat(this.canonicalMembers.list);
-
-    for (let i = 0; i < allMembers.length; i++) {
-      let inverseInternalModel = allMembers[i];
+    this.forAllMembers((inverseInternalModel) => {
       let relationship = inverseInternalModel._relationships.get(this.inverseKey);
-      relationship.inverseDidDematerialize();
-    }
+      relationship.inverseDidDematerialize(this.internalModel);
+    });
   }
 
-  inverseDidDematerialize() {}
+  inverseDidDematerialize(inverseInternalModel) {
+    this.linkPromise = null;
+    if (!this.isAsync) {
+      // unloading inverse of a sync relationship is treated as a client-side
+      // delete, so actually remove the models don't merely invalidate the cp
+      // cache.
+      this.removeInternalModelFromOwn(inverseInternalModel);
+      this.removeCanonicalInternalModelFromOwn(inverseInternalModel);
+    }
+  }
 
   updateMeta(meta) {
     heimdall.increment(updateMeta);
@@ -125,6 +159,16 @@ export default class Relationship {
       let member = canonicalMembers[0];
       this.removeCanonicalInternalModel(member);
     }
+  }
+
+  removeAllInternalModelsFromOwn() {
+    this.members.clear();
+    this.internalModel.updateRecordArrays();
+  }
+
+  removeAllCanonicalInternalModelsFromOwn() {
+    this.canonicalMembers.clear();
+    this.flushCanonicalLater();
   }
 
   removeInternalModels(internalModels) {
@@ -181,7 +225,7 @@ export default class Relationship {
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] =
-          new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
+        new Relationship(this.store, internalModel, this.key, { options: { async: this.isAsync }, type: this.parentType });
       }
       relationship.addCanonicalInternalModel(this.internalModel);
     }
@@ -222,7 +266,12 @@ export default class Relationship {
         internalModel._relationships.get(this.inverseKey).addInternalModel(this.internalModel);
       } else {
         if (!internalModel._implicitRelationships[this.inverseKeyForImplicit]) {
-          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, internalModel, this.key,  { options: { async: this.isAsync } });
+          internalModel._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
+            this.store,
+            internalModel,
+            this.key,
+            { options: { async: this.isAsync }, type: this.parentType }
+          );
         }
         internalModel._implicitRelationships[this.inverseKeyForImplicit].addInternalModel(this.internalModel);
       }
@@ -303,6 +352,32 @@ export default class Relationship {
 
     this.members.forEach(unload);
     this.canonicalMembers.forEach(unload);
+
+    if (!this.isAsync) {
+      this.clear();
+    }
+  }
+
+  forAllMembers(callback) {
+    let seen = Object.create(null);
+
+    for (let i = 0; i < this.members.list.length; i++) {
+      const inverseInternalModel = this.members.list[i];
+      const id = guidFor(inverseInternalModel);
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
+    }
+
+    for (let i = 0; i < this.canonicalMembers.list.length; i++) {
+      const inverseInternalModel = this.canonicalMembers.list[i];
+      const id = guidFor(inverseInternalModel);
+      if (!seen[id]) {
+        seen[id] = true;
+        callback(inverseInternalModel);
+      }
+    }
   }
 
   /*

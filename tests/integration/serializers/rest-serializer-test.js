@@ -4,7 +4,6 @@ import { run, bind } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-import { isEnabled } from 'ember-data/-private';
 
 import DS from 'ember-data';
 
@@ -158,7 +157,7 @@ test("normalizeResponse with custom modelNameFromPayloadKey", function(assert) {
 });
 
 testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", function(assert) {
-  assert.expect(isEnabled("ds-payload-type-hooks") ? 3 : 2);
+  assert.expect(2);
 
   var homePlanetNormalizeCount = 0;
 
@@ -179,9 +178,6 @@ testInDebug("normalizeResponse with type and custom modelNameFromPayloadKey", fu
   var array;
 
 
-  if (isEnabled("ds-payload-type-hooks")) {
-    assert.expectDeprecation('You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This is has been deprecated in favor of modelNameFromPayloadType');
-  }
   run(function() {
     array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, '1', 'findAll');
   });
@@ -374,116 +370,6 @@ test("normalizeResponse loads secondary records with correct serializer", functi
   assert.equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-testInDebug('normalizeHash normalizes specific parts of the payload (DEPRECATED)', function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizeHash: {
-      homePlanets(hash) {
-        hash.id = hash._id;
-        delete hash._id;
-        return hash;
-      }
-    }
-  }));
-
-  var jsonHash = {
-    homePlanets: [{ _id: "1", name: "Umber", superVillains: [1] }]
-  };
-  var array;
-
-  run(function() {
-    assert.expectDeprecation(function() {
-      array = env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
-    }, /`RESTSerializer.normalizeHash` has been deprecated/);
-  });
-
-  assert.deepEqual(array, {
-    "data": [{
-      "id": "1",
-      "type": "home-planet",
-      "attributes": {
-        "name": "Umber"
-      },
-      "relationships": {
-        "superVillains": {
-          "data": [
-            { "id": "1", "type": "super-villain" }
-          ]
-        }
-      }
-    }],
-    "included": []
-  });
-
-});
-
-testInDebug('normalizeHash has been deprecated', function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-
-    normalizeHash: {
-      homePlanets(hash) {
-        hash.id = hash._id;
-        delete hash._id;
-        return hash;
-      }
-    }
-  }));
-
-  var jsonHash = {
-    homePlanets: [{ _id: "1", name: "Umber", superVillains: [1] }]
-  };
-
-  run(function() {
-    assert.expectDeprecation(function() {
-      env.restSerializer.normalizeResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
-    }, /`RESTSerializer.normalizeHash` has been deprecated/);
-  });
-});
-
-
-testInDebug('normalizeHash works with transforms (DEPRECATED)', function(assert) {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizeHash: {
-      evilMinions(hash) {
-        hash.condition = hash._condition;
-        delete hash._condition;
-        return hash;
-      }
-    }
-  }));
-
-  env.registry.register('transform:condition', DS.Transform.extend({
-    deserialize(serialized) {
-      if (serialized === 1) {
-        return "healing";
-      } else {
-        return "unknown";
-      }
-    },
-    serialize(deserialized) {
-      if (deserialized === "healing") {
-        return 1;
-      } else {
-        return 2;
-      }
-    }
-  }));
-
-  EvilMinion.reopen({ condition: DS.attr('condition') });
-
-  var jsonHash = {
-    evilMinions: [{ id: "1", name: "Tom Dale", superVillain: 1, _condition: 1 }]
-  };
-  var array;
-
-  run(function() {
-    assert.expectDeprecation(function() {
-      array = env.restSerializer.normalizeResponse(env.store, EvilMinion, jsonHash, null, 'findAll');
-    }, /`RESTSerializer.normalizeHash` has been deprecated/);
-  });
-
-  assert.equal(array.data[0].attributes.condition, "healing");
-});
-
 test('normalize should allow for different levels of normalization', function(assert) {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     attrs: {
@@ -569,27 +455,6 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
   });
 
   env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
-
-  assert.deepEqual(json, expected, 'returned JSON is correct');
-});
-
-testInDebug('serializeBelongsTo logs deprecation when old behavior for getting polymorphic type key is used', function(assert) {
-  var evilMinion, doomsdayDevice;
-  var json = {};
-  var expected = { evilMinion: '1', myCustomKeyType: 'evilMinion' };
-
-  env.restSerializer.keyForAttribute = function() {
-    return 'myCustomKey';
-  };
-
-  run(function() {
-    evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
-    doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
-  });
-
-  assert.expectDeprecation(function() {
-    env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
-  }, "The key to serialize the type of a polymorphic record is created via keyForAttribute which has been deprecated. Use the keyForPolymorphicType hook instead.");
 
   assert.deepEqual(json, expected, 'returned JSON is correct');
 });
@@ -981,173 +846,3 @@ test('normalizes sideloaded single record so that it sideloads correctly - hasMa
     }
   });
 });
-
-if (isEnabled("ds-payload-type-hooks")) {
-
-  test("mapping of payload type can be customized via modelNameFromPayloadType", function(assert) {
-    env.restSerializer.modelNameFromPayloadType = function(payloadType) {
-      return payloadType.replace("api::v1::", "");
-    };
-
-    var jsonHash = {
-      doomsdayDevice: {
-        id: '1',
-        evilMinion: '1',
-        evilMinionType: "api::v1::evil-minion"
-      }
-    };
-
-    assert.expectNoDeprecation();
-
-    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'doomsday-device',
-        attributes: {},
-        relationships: {
-          evilMinion: {
-            data: {
-              id: '1',
-              type: 'evil-minion'
-            }
-          }
-        }
-      },
-      included: []
-    });
-  });
-
-  test("payload key and payload type can be mapped", function(assert) {
-    env.restSerializer.modelNameFromPayloadKey = function(payloadKey) {
-      return 'doomsday-device';
-    };
-
-    env.restSerializer.modelNameFromPayloadType = function(payloadType) {
-      return payloadType.replace("api::v1::", "");
-    };
-
-    var jsonHash = {
-      "api/models/doomsday-device": {
-        id: '1',
-        evilMinion: '1',
-        evilMinionType: "api::v1::evil-minion"
-      }
-    };
-
-    assert.expectNoDeprecation();
-
-    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'doomsday-device',
-        attributes: {},
-        relationships: {
-          evilMinion: {
-            data: {
-              id: '1',
-              type: 'evil-minion'
-            }
-          }
-        }
-      },
-      included: []
-    });
-  });
-
-  test("only overwriting modelNameFromPayloadKey works", function(assert) {
-    env.restSerializer.modelNameFromPayloadKey = function(payloadKey) {
-      return payloadKey.replace("api/models/", "");
-    };
-
-    var jsonHash = {
-      "api/models/doomsday-device": {
-        id: '1',
-        evilMinion: '1',
-        evilMinionType: "evil-minion"
-      }
-    };
-
-    assert.expectNoDeprecation();
-
-    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'doomsday-device',
-        attributes: {},
-        relationships: {
-          evilMinion: {
-            data: {
-              id: '1',
-              type: 'evil-minion'
-            }
-          }
-        }
-      },
-      included: []
-    });
-  });
-
-  testInDebug("DEPRECATED - mapping of payload type can be customized via modelNameFromPayloadKey", function(assert) {
-    env.restSerializer.modelNameFromPayloadKey = function(payloadType) {
-      return payloadType.replace("api::v1::", "");
-    };
-
-    var jsonHash = {
-      doomsdayDevice: {
-        id: '1',
-        evilMinion: '1',
-        evilMinionType: "api::v1::evil-minion"
-      }
-    };
-
-    assert.expectDeprecation("You are using modelNameFromPayloadKey to normalize the type for a polymorphic relationship. This has been deprecated in favor of modelNameFromPayloadType");
-
-    let normalized = env.restSerializer.normalizeResponse(env.store, DoomsdayDevice, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(normalized, {
-      data: {
-        id: '1',
-        type: 'doomsday-device',
-        attributes: {},
-        relationships: {
-          evilMinion: {
-            data: {
-              id: '1',
-              type: 'evil-minion'
-            }
-          }
-        }
-      },
-      included: []
-    });
-  });
-
-  test("mapping of model name can be customized via payloadTypeFromModelName", function(assert) {
-    env.restSerializer.payloadTypeFromModelName = function(modelName) {
-      return `api::v1::${modelName}`;
-    };
-
-    let tom, ray;
-    run(function() {
-      tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
-      ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
-    });
-
-    assert.expectNoDeprecation();
-
-    let json = env.restSerializer.serialize(ray._createSnapshot());
-
-    assert.deepEqual(json, {
-      name: "DeathRay",
-      evilMinion: "124",
-      evilMinionType: "api::v1::yellow-minion"
-    });
-  });
-
-}

@@ -31,12 +31,9 @@ function has(applicationOrRegistry, fullName) {
  @param {Ember.Registry} registry
  */
 function initializeStore(registry) {
-  // registry.optionsForType for Ember < 2.1.0
-  // application.registerOptionsForType for Ember 2.1.0+
   let registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
   registerOptionsForType.call(registry, 'serializer', { singleton: false });
   registerOptionsForType.call(registry, 'adapter', { singleton: false });
-
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
   registry.register('adapter:-rest', RESTAdapter);

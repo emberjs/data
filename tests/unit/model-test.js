@@ -8,7 +8,6 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 import { getOwner } from 'ember-data/-private';
 
 let Person, store, env;
@@ -19,6 +18,7 @@ module('unit/model - DS.Model', {
       name: DS.attr('string'),
       isDrugAddict: DS.attr('boolean')
     });
+    Person.toString =  () => 'person';
 
     env = setupStore({
       person: Person
@@ -269,7 +269,7 @@ test("a record's id is included in its toString representation", function(assert
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<(subclass of DS.Model):${guidFor(record)}:1>`, 'reports id in toString');
+      assert.equal(record.toString(), `<person:${guidFor(record)}:1>`, 'reports id in toString');
     });
   });
 });
@@ -512,186 +512,6 @@ test('changedAttributes() works while the record is being updated', function(ass
   });
 });
 
-if (isEnabled('ds-rollback-attribute')) {
-  test('rollbackAttribute() reverts a single attribute to its canonical value', function(assert) {
-    assert.expect(5);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Peter',
-            isDrugAddict: true
-          }
-        }
-      });
-
-      let person = store.peekRecord('person', 1);
-
-      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
-      person.setProperties({
-        name: 'Piper',
-        isDrugAddict: false
-      });
-      assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting property to a new value');
-      person.rollbackAttribute('isDrugAddict');
-      assert.equal(person.get('isDrugAddict'), true, 'The specified attribute is rolled back');
-      assert.equal(person.get('name'), 'Piper', 'Unspecified attributes are not rolled back');
-      assert.equal(person.get('hasDirtyAttributes'), true, 'record with changed attributes is still dirty');
-    });
-  });
-
-  test('calling rollbackAttribute() on an unmodified property has no effect', function(assert) {
-    assert.expect(5);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Peter',
-            isDrugAddict: true
-          }
-        }
-      });
-
-      let person = store.peekRecord('person', 1);
-
-      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
-      person.set('name', 'Piper');
-      assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting property to a new value');
-      person.rollbackAttribute('isDrugAddict');
-      assert.equal(person.get('isDrugAddict'), true, 'The specified attribute does not change value');
-      assert.equal(person.get('name'), 'Piper', 'Unspecified attributes are not rolled back');
-      assert.equal(person.get('hasDirtyAttributes'), true, 'record with changed attributes is still dirty');
-    });
-  });
-
-  test('Rolling back the final value with rollbackAttribute() causes the record to become clean again', function(assert) {
-    assert.expect(3);
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Peter',
-            isDrugAddict: true
-          }
-        }
-      });
-
-      let person = store.peekRecord('person', 1);
-
-      assert.equal(person.get('hasDirtyAttributes'), false, 'precond - person record should not be dirty');
-      person.set('isDrugAddict', false);
-      assert.equal(person.get('hasDirtyAttributes'), true, 'record becomes dirty after setting property to a new value');
-      person.rollbackAttribute('isDrugAddict');
-      assert.equal(person.get('hasDirtyAttributes'), false, 'record becomes clean after resetting property to the old value');
-    });
-  });
-
-  test('Using rollbackAttribute on an in-flight record reverts to the latest in-flight value', function(assert) {
-    assert.expect(4);
-
-    let person;
-
-    // Make sure the save is async
-    env.adapter.updateRecord = function(store, type, snapshot) {
-      return resolve();
-    };
-
-    return run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: "Tom"
-          }
-        }
-      });
-      person = store.peekRecord('person', 1);
-      person.set('name', 'Thomas');
-
-      let saving = person.save();
-
-      assert.equal(person.get('isSaving'), true);
-      assert.equal(person.get('name'), 'Thomas');
-
-      person.set('name', 'Tomathy');
-      assert.equal(person.get('name'), 'Tomathy');
-
-      person.rollbackAttribute('name');
-      assert.equal(person.get('name'), 'Thomas');
-
-      return saving;
-    });
-  });
-
-  test('Saving an in-flight record updates the in-flight value rollbackAttribute will use', function(assert) {
-    assert.expect(7);
-
-    let person, finishSaving;
-    let updateRecordPromise = new EmberPromise(resolve => finishSaving = resolve);
-
-    // Make sure the save is async
-    env.adapter.updateRecord = function(store, type, snapshot) {
-      return updateRecordPromise;
-    };
-
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: "Tom"
-          }
-        }
-      });
-
-      person = store.peekRecord('person', 1);
-    });
-
-    let saving = [];
-
-    run(() => {
-      person.set('name', 'Thomas');
-      saving.push(person.save());
-    });
-
-    run(() => {
-      assert.equal(person.get('isSaving'), true);
-      assert.equal(person.get('name'), 'Thomas');
-
-      person.set('name', 'Tomathy');
-      assert.equal(person.get('name'), 'Tomathy');
-
-      saving.push(person.save());
-    });
-
-    run(() => {
-      assert.equal(person.get('isSaving'), true);
-      assert.equal(person.get('name'), "Tomathy");
-
-      person.set('name', "Tomny");
-      assert.equal(person.get('name'), 'Tomny');
-
-      person.rollbackAttribute('name');
-      assert.equal(person.get('name'), 'Tomathy');
-
-      finishSaving();
-    });
-
-    return EmberPromise.all(saving);
-  });
-}
-
 test("a DS.Model does not require an attribute type", function(assert) {
   const Tag = DS.Model.extend({
     name: DS.attr()
@@ -913,24 +733,9 @@ testInDebug('a complex object defaultValue is deprecated', function(assert) {
 
   let tag = run(() => store.createRecord('tag'));
 
-  assert.expectDeprecation(() => {
+  assert.expectAssertion(() => {
     get(tag, 'tagInfo');
-  }, /Non primitive defaultValues are deprecated/);
-});
-
-testInDebug('a null defaultValue is not deprecated', function(assert) {
-  const Tag = DS.Model.extend({
-    tagInfo: DS.attr({ defaultValue: null })
-  });
-
-  let store = createStore({
-    tag: Tag
-  });
-
-  let tag = run(() => store.createRecord('tag'));
-
-  assert.expectNoDeprecation();
-  assert.strictEqual(get(tag, 'tagInfo'), null);
+  }, /Non primitive defaultValues are not supported/);
 });
 
 test('setting a property to undefined on a newly created record should not impact the current state', function(assert) {
@@ -1249,11 +1054,11 @@ testInDebug(`don't allow setting`, function(assert) {
 
   let record = run(() => store.createRecord('person'));
 
-  assert.throws(() => {
+  assert.expectAssertion(() => {
     run(() => {
       record.set('isLoaded', true);
     });
-  }, 'raised error when trying to set an unsettable record');
+  }, /Cannot set read-only property "isLoaded"/);
 });
 
 test('ensure model exits loading state, materializes data and fulfills promise only after data is available', function(assert) {

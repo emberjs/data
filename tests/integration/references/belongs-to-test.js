@@ -4,7 +4,6 @@ import { get } from '@ember/object';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { isEnabled } from 'ember-data/-private';
 import { module, test } from 'qunit';
 
 var env, Family;
@@ -230,10 +229,6 @@ testInDebug("push(record)", function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    if (isEnabled('ds-overhaul-references')) {
-      assert.expectDeprecation("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.");
-    }
-
     familyReference.push(family).then(function(record) {
       assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
       assert.equal(get(record, 'name'), "Coreleone", "name is set");
@@ -292,9 +287,6 @@ test("push(promise)", function(assert) {
 
 testInDebug("push(record) asserts for invalid modelClass", function(assert) {
   var person, anotherPerson;
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation('BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set(\'relationshipName\', value)` instead.')
-  }
   run(function() {
     person = env.store.push({
       data: {
@@ -329,9 +321,6 @@ testInDebug("push(record) works with polymorphic modelClass", function(assert) {
 
   var person, mafiaFamily;
 
-  if (isEnabled('ds-overhaul-references')) {
-    assert.expectDeprecation('BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set(\'relationshipName\', value)` instead.')
-  }
   env.registry.register('model:mafia-family', Family.extend());
 
   run(function() {
@@ -397,6 +386,39 @@ test("value() returns the referenced record when loaded", function(assert) {
       data: {
         type: 'family',
         id: 1
+      }
+    });
+  });
+
+  var familyReference = person.belongsTo('family');
+  assert.equal(familyReference.value(), family);
+});
+
+test("value() returns the referenced record when loaded even if links are present", function(assert) {
+  var person, family;
+  run(function() {
+    person = env.store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        relationships: {
+          family: {
+            data: { type: 'family', id: 1 }
+          }
+        }
+      }
+    });
+    family = env.store.push({
+      data: {
+        type: 'family',
+        id: 1,
+        relationships: {
+          persons: {
+            links: {
+              related: '/this/should/not/matter'
+            }
+          }
+        }
       }
     });
   });

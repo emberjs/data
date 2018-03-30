@@ -13,19 +13,16 @@ cache:
 install:
   # Get the latest stable version of Node 0.STABLE.latest
   - ps: Install-Product node $env:nodejs_version
-  # Install PhantomJS
-  - choco install phantomjs --version 2.0.0 -y
-  - set path=%path%;C:\ProgramData\chocolatey\lib\PhantomJS\tools\
   # Typical npm stuff.
   - md C:\nc
   - appveyor-retry yarn install
 # Post-install test scripts.
 test_script:
   # Output useful info for debugging.
-  - cmd: yarn run test-appveyor
-  - cmd: yarn run test:optional-features
-  - cmd: yarn run test:production
-  - cmd: yarn run node-tests
+  - cmd: yarn test
+  - cmd: yarn test:optional-features
+  - cmd: yarn test:production
+  - cmd: yarn test:node
 
 # Don't actually build.
 build: off

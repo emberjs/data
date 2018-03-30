@@ -103,29 +103,6 @@ export default DS.Model.extend({
 });
 ```
 
-If you're using globals (that is, not something like ember-cli), your
-models would look like this:
-
-```js
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-
-App.BlogPost = DS.Model.extend({
-  title: attr('string'),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-App.Comment = DS.Model.extend({
-  body: attr('string'),
-  username: attr('string'),
-
-  post: belongsTo('blog-post')
-});
-```
-
 ### A Brief Note on Adapters
 
 Without immediately diving in to the depths of the architecture, one
@@ -171,8 +148,8 @@ on models](https://emberjs.com/guides/models/).
 
 # Building Ember Data
 
-1. Ensure that [Node.js](http://nodejs.org/) is installed.
-2. Run `npm install` to ensure the required dependencies are installed.
+1. Ensure that [Node.js](http://nodejs.org/) and [yarn](https://yarnpkg.com/en/docs/install) are installed.
+2. Run `yarn install` to ensure the required dependencies are installed.
 3. Run `npm run production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
@@ -187,7 +164,7 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 2. Install Ember CLI. `npm install -g ember-cli`
 
-3. Run `npm install` inside the project root to install the JS dependencies.
+3. Run `yarn install` inside the project root to install the JS dependencies.
 
 ### In Your Browser
 

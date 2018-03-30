@@ -2,7 +2,7 @@ import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import { isEqual, isEmpty } from '@ember/utils';
+import { isEqual } from '@ember/utils';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import RSVP, { Promise } from 'rsvp';
@@ -12,7 +12,6 @@ import { assert, inspect } from '@ember/debug';
 import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
-import isEnabled from '../../features';
 import OrderedSet from "../ordered-set";
 
 import { getOwner } from '../../utils';
@@ -62,12 +61,24 @@ function areAllModelsUnloaded(internalModels) {
   return true;
 }
 
+// Handle dematerialization for relationship `rel`.  In all cases, notify the
+// relatinoship of the dematerialization: this is done so the relationship can
+// notify its inverse which needs to update state
+//
+// If the inverse is sync, unloading this record is treated as a client-side
+// delete, so we remove the inverse records from this relationship to
+// disconnect the graph.  Because it's not async, we don't need to keep around
+// the internalModel as an id-wrapper for references and because the graph is
+// disconnected we can actually destroy the internalModel when checking for
+// orphaned models.
 function destroyRelationship(rel) {
-  if (rel._inverseIsAsync()) {
-    rel.removeInternalModelFromInverse(rel.inverseInternalModel);
-    rel.removeInverseRelationships();
-  } else {
-    rel.removeCompletelyFromInverse();
+  rel.internalModelDidDematerialize();
+
+  if (rel._inverseIsSync()) {
+    // disconnect the graph so that the sync inverse relationship does not
+    // prevent us from cleaning up during `_cleanupOrphanedInternalModels`
+    rel.removeAllInternalModelsFromOwn();
+    rel.removeAllCanonicalInternalModelsFromOwn();
   }
 }
 // this (and all heimdall instrumentation) will be stripped by a babel transform
@@ -281,6 +292,7 @@ export default class InternalModel {
     // models to rematerialize their records.
 
     return this._isDematerializing ||
+      this.hasScheduledDestroy() ||
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
       this.isEmpty();
@@ -322,7 +334,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord(properties) {
+  getRecord() {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -337,10 +349,6 @@ export default class InternalModel {
         isError: this.isError,
         adapterError: this.error
       };
-
-      if (typeof properties === 'object' && properties !== null) {
-        emberAssign(createOptions, properties);
-      }
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
@@ -373,9 +381,10 @@ export default class InternalModel {
       this._isDematerializing = true;
       this._record.destroy();
       this.destroyRelationships();
-      this.updateRecordArrays();
       this.resetRecord();
     }
+
+    this.updateRecordArrays();
   }
 
   deleteRecord() {
@@ -423,7 +432,7 @@ export default class InternalModel {
     });
   }
 
-  /**
+  /*
     Computes the set of internal models reachable from `this` across exactly one
     relationship.
 
@@ -432,6 +441,7 @@ export default class InternalModel {
   */
   _directlyRelatedInternalModels() {
     let array = [];
+
     this._relationships.forEach((name, rel) => {
       array = array.concat(rel.members.list, rel.canonicalMembers.list);
     });
@@ -439,7 +449,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Computes the set of internal models reachable from this internal model.
 
     Reachability is determined over the relationship graph (ie a graph where
@@ -472,7 +482,7 @@ export default class InternalModel {
   }
 
 
-  /**
+  /*
     Unload the record for this internal model. This will cause the record to be
     destroyed and freed up for garbage collection. It will also do a check
     for cleaning up internal models.
@@ -923,10 +933,7 @@ export default class InternalModel {
     this.__implicitRelationships = null;
     Object.keys(implicitRelationships).forEach((key) => {
       let rel = implicitRelationships[key];
-
       destroyRelationship(rel);
-
-      rel.destroy();
     });
   }
 
@@ -1089,7 +1096,7 @@ export default class InternalModel {
   hasErrors() {
     let errors = get(this.getRecord(), 'errors');
 
-    return !isEmpty(errors);
+    return errors.get('length') > 0;
   }
 
   // FOR USE DURING COMMIT PROCESS
@@ -1242,21 +1249,4 @@ export default class InternalModel {
 
     return reference;
   }
-}
-
-if (isEnabled('ds-rollback-attribute')) {
-  /*
-     Returns the latest truth for an attribute - the canonical value, or the
-     in-flight value.
-
-     @method lastAcknowledgedValue
-     @private
-  */
-  InternalModel.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
-    if (key in this._inFlightAttributes) {
-      return this._inFlightAttributes[key];
-    } else {
-      return this._data[key];
-    }
-  };
 }

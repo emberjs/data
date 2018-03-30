@@ -5,8 +5,6 @@ import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
-import { isEnabled } from 'ember-data/-private';
-
 import DS from 'ember-data';
 
 var env, store, serializer;
@@ -211,7 +209,7 @@ testInDebug('Warns when normalizing with type missing', function(assert) {
     }
   };
 
-  assert.throws(function() {
+  assert.expectAssertion(function() {
     run(function() {
       env.store.serializerFor('user').normalizeResponse(env.store, User, documentHash, '1', 'findRecord');
     });
@@ -358,6 +356,78 @@ testInDebug('Warns when defining extractMeta()', function(assert) {
   }, /You've defined 'extractMeta' in/);
 });
 
+test('a belongsTo relationship that is not set will not be in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1'
+      }
+    });
+  });
+});
+
+test('a belongsTo relationship that is set to null will show as null in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+    handle.set('user', null);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1',
+        relationships: {
+          user: {
+            data: null
+          }
+        }
+      }
+    });
+  });
+});
+
+test('a belongsTo relationship set to a new record will not show in the relationships key', function(assert) {
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'handles',
+        id: 1
+      }
+    });
+
+    let handle = store.peekRecord('handle', 1);
+
+    let user = store.createRecord('user');
+    handle.set('user', user);
+
+    let serialized = handle.serialize({ includeId: true });
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'handles',
+        id: '1'
+      }
+    });
+  });
+});
+
 testInDebug('JSON warns when combined with EmbeddedRecordsMixin', function(assert) {
   assert.expectWarning(function() {
     DS.JSONAPISerializer.extend(DS.EmbeddedRecordsMixin).create();
@@ -395,239 +465,3 @@ testInDebug('Asserts when normalized relationship key is not found in payload bu
     env.store.serializerFor("user").normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
   }, /Your payload for 'user' contains 'reportsTo', but your serializer is setup to look for 'reports-to'/);
 });
-
-if (isEnabled("ds-payload-type-hooks")) {
-  test('mapping of payload type can be customized via modelNameFromPayloadType', function(assert) {
-    env.registry.register('serializer:user', DS.JSONAPISerializer.extend({
-      modelNameFromPayloadType: function(payloadType) {
-        return payloadType.replace("api::v1::", "");
-      }
-    }));
-
-    let jsonHash = {
-      data: {
-        id: "1",
-        type: "api::v1::user",
-        relationships: {
-          company: {
-            data: {
-              id: "1",
-              type: "api::v1::company"
-            }
-          },
-          handles: {
-            data: [{
-              id: "1",
-              type: "api::v1::handle"
-            }]
-          }
-        }
-      }
-    };
-
-    assert.expectNoDeprecation();
-
-    let user = env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(user, {
-      data: {
-        id: "1",
-        type: "user",
-        attributes: {},
-        relationships: {
-          company: {
-            data: {
-              id: "1",
-              type: "company"
-            }
-          },
-          handles: {
-            data: [{
-              id: "1",
-              type: "handle"
-            }]
-          }
-        }
-      }
-    });
-  });
-
-  testInDebug('DEPRECATED - mapping of payload type can be customized via modelNameFromPayloadKey', function(assert) {
-    env.registry.register('serializer:user', DS.JSONAPISerializer.extend({
-      modelNameFromPayloadKey: function(payloadType) {
-        return payloadType.replace("api::v1::", "");
-      }
-    }));
-
-    let jsonHash = {
-      data: {
-        id: "1",
-        type: "api::v1::user",
-        relationships: {
-          company: {
-            data: {
-              id: "1",
-              type: "api::v1::company"
-            }
-          },
-          handles: {
-            data: [{
-              id: "1",
-              type: "api::v1::handle"
-            }]
-          }
-        }
-      }
-    };
-
-    assert.expectDeprecation("You are using modelNameFromPayloadKey to normalize the type for a relationship. This has been deprecated in favor of modelNameFromPayloadType");
-
-    let user = env.store.serializerFor('user').normalizeResponse(env.store, User, jsonHash, '1', 'findRecord');
-
-    assert.deepEqual(user, {
-      data: {
-        id: "1",
-        type: "user",
-        attributes: {},
-        relationships: {
-          company: {
-            data: {
-              id: "1",
-              type: "company"
-            }
-          },
-          handles: {
-            data: [{
-              id: "1",
-              type: "handle"
-            }]
-          }
-        }
-      }
-    });
-  });
-
-  test('mapping of model name can be customized via payloadTypeFromModelName', function(assert) {
-    env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
-      attrs: {
-        handles: { serialize: true },
-        firstName: { serialize: false },
-        lastName: { serialize: false },
-        title: { serialize: false },
-        reportsTo: { serialize: false }
-      },
-      payloadTypeFromModelName: function(modelName) {
-        return `api::v1::${modelName}`;
-      }
-    }));
-
-    let user;
-
-    run(function() {
-      let company = env.store.push({
-        data: {
-          type: 'company',
-          id: '1'
-        }
-      });
-
-      let handle = env.store.push({
-        data: {
-          type: 'handle',
-          id: '1'
-        }
-      });
-
-      user = env.store.createRecord('user', {
-        company,
-        handles: [handle]
-      });
-    });
-
-    assert.expectNoDeprecation();
-
-    var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
-
-    assert.deepEqual(payload, {
-      data: {
-        type: 'api::v1::user',
-        relationships: {
-          company: {
-            data: {
-              id: '1',
-              type: 'api::v1::company'
-            }
-          },
-          handles: {
-            data: [{
-              id: '1',
-              type: 'api::v1::handle'
-            }]
-          }
-        }
-      }
-    });
-  });
-
-  testInDebug('DEPRECATED - mapping of model name can be customized via payloadKeyFromModelName', function(assert) {
-    env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
-      attrs: {
-        handles: { serialize: true },
-        firstName: { serialize: false },
-        lastName: { serialize: false },
-        title: { serialize: false },
-        reportsTo: { serialize: false }
-      },
-      payloadKeyFromModelName: function(modelName) {
-        return `api::v1::${modelName}`;
-      }
-    }));
-
-    let user;
-
-    run(function() {
-      let company = env.store.push({
-        data: {
-          type: 'company',
-          id: '1'
-        }
-      });
-
-      let handle = env.store.push({
-        data: {
-          type: 'handle',
-          id: '1'
-        }
-      });
-
-      user = env.store.createRecord('user', {
-        company,
-        handles: [handle]
-      });
-    });
-
-    assert.expectDeprecation("You used payloadKeyFromModelName to customize how a type is serialized. Use payloadTypeFromModelName instead.");
-
-    var payload = env.store.serializerFor("user").serialize(user._createSnapshot());
-
-    assert.deepEqual(payload, {
-      data: {
-        type: 'api::v1::user',
-        relationships: {
-          company: {
-            data: {
-              id: '1',
-              type: 'api::v1::company'
-            }
-          },
-          handles: {
-            data: [{
-              id: '1',
-              type: 'api::v1::handle'
-            }]
-          }
-        }
-      }
-    });
-  });
-}

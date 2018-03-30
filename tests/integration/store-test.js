@@ -10,7 +10,6 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 import config from '../../config/environment';
 
 let store, env;
@@ -216,15 +215,9 @@ test("destroying the store correctly cleans everything up", function(assert) {
 });
 
 function ajaxResponse(value) {
-  if (isEnabled('ds-improved-ajax')) {
-    env.adapter._makeRequest = function() {
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  } else {
-    env.adapter.ajax = function(url, verb, hash) {
-      return run(RSVP, 'resolve', copy(value, true));
-    };
-  }
+  env.adapter.ajax = function(url, verb, hash) {
+    return run(RSVP, 'resolve', copy(value, true));
+  };
 }
 
 module("integration/store - findRecord");
@@ -919,4 +912,70 @@ testInDebug('store#queryRecord should assert when normalized payload of adapter 
   }, /Expected the primary data returned by the serializer for a 'queryRecord' response to be a single object or null but instead it was an array./);
 });
 
+test('The store should trap exceptions that are thrown from adapter#findRecord', function(assert) {
+  assert.expect(1)
+  env.adapter.findRecord = function() {
+    throw new Error('Refusing to find record');
+  };
 
+  run(() => {
+    store.findRecord('car', 1).catch(error => {
+      assert.equal(error.message, 'Refusing to find record')
+    })
+  });
+});
+
+test('The store should trap exceptions that are thrown from adapter#findAll', function(assert) {
+  assert.expect(1)
+  env.adapter.findAll = function() {
+    throw new Error('Refusing to find all records');
+  };
+
+  run(() => {
+    store.findAll('car').catch(error => {
+      assert.equal(error.message, 'Refusing to find all records')
+    })
+  });
+});
+
+test('The store should trap exceptions that are thrown from adapter#query', function(assert) {
+  assert.expect(1)
+  env.adapter.query = function() {
+    throw new Error('Refusing to query records');
+  };
+
+  run(() => {
+    store.query('car', {}).catch(error => {
+      assert.equal(error.message, 'Refusing to query records')
+    })
+  });
+});
+
+test('The store should trap exceptions that are thrown from adapter#queryRecord', function(assert) {
+  assert.expect(1)
+  env.adapter.queryRecord = function() {
+    throw new Error('Refusing to query record');
+  };
+
+  run(() => {
+    store.queryRecord('car', {}).catch(error => {
+      assert.equal(error.message, 'Refusing to query record')
+    })
+  });
+});
+
+
+test('The store should trap exceptions that are thrown from adapter#createRecord', function(assert) {
+  assert.expect(1)
+  env.adapter.createRecord = function() {
+    throw new Error('Refusing to serialize');
+  };
+
+  run(() => {
+    let car = store.createRecord('car')
+
+    car.save().catch(error => {
+      assert.equal(error.message, 'Refusing to serialize')
+    })
+  });
+});

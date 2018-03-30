@@ -27,13 +27,10 @@ export { getOwner, modelHasAttributeOrRelationshipNamedType } from './utils';
 export { default as coerceId } from './system/coerce-id';
 export { default as parseResponseHeaders } from './utils/parse-response-headers';
 
-// should be private ?
-export { default as global } from './global';
 export { default as isEnabled } from './features';
-// `ember-data-model-fragments` relies on `RootState`, `InternalModel` and `ContainerInstanceCache`
+// `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
-export { default as ContainerInstanceCache } from './system/store/container-instance-cache';
 
 export {
   PromiseArray,
@@ -50,6 +47,9 @@ export {
 export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';
 export { default as Relationship } from './system/relationships/state/relationship';
+
+export { default as Map } from './system/map';
+export { default as MapWithDefault } from './system/map-with-default';
 
 // Should be a different Repo ?
 export { default as DebugAdapter } from './system/debug/debug-adapter';

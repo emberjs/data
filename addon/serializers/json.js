@@ -1,15 +1,14 @@
 import { assign, merge } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 import { get } from '@ember/object';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import Serializer from "../serializer";
 import {
   getOwner,
   coerceId,
   modelHasAttributeOrRelationshipNamedType,
   normalizeModelName,
-  errorsArrayToHash,
-  isEnabled
+  errorsArrayToHash
 } from '../-private';
 
 const emberAssign = assign || merge;
@@ -611,26 +610,9 @@ const JSONSerializer = Serializer.extend({
 
       let modelClass = this.store.modelFor(relationshipModelName);
       if (relationshipHash.type && !modelHasAttributeOrRelationshipNamedType(modelClass)) {
-
-        if (isEnabled("ds-payload-type-hooks")) {
-          let modelName = this.modelNameFromPayloadType(relationshipHash.type);
-          let deprecatedModelNameLookup = this.modelNameFromPayloadKey(relationshipHash.type);
-
-          if (modelName !== deprecatedModelNameLookup && this._hasCustomModelNameFromPayloadKey()) {
-            deprecate("You used modelNameFromPayloadKey to customize how a type is normalized. Use modelNameFromPayloadType instead", false, {
-              id: 'ds.json-serializer.deprecated-type-for-polymorphic-relationship',
-              until: '3.0.0'
-            });
-
-            modelName = deprecatedModelNameLookup;
-          }
-
-          relationshipHash.type = modelName;
-
-        } else {
-          relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
-        }
+        relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
       }
+
       return relationshipHash;
     }
     return { id: coerceId(relationshipHash), type: relationshipModelName };
@@ -846,29 +828,7 @@ const JSONSerializer = Serializer.extend({
     @param {String} relationshipType
     @return {boolean} true if the hasMany relationship should be serialized
   */
-
   shouldSerializeHasMany(snapshot, key, relationship) {
-    if ((this._shouldSerializeHasMany !== JSONSerializer.prototype._shouldSerializeHasMany)) {
-      deprecate('The private method _shouldSerializeHasMany has been promoted to the public API. Please remove the underscore to use the public shouldSerializeHasMany method.', false, {
-        id: 'ds.serializer.private-should-serialize-has-many',
-        until: '3.0.0'
-      });
-    }
-
-    return this._shouldSerializeHasMany(snapshot, key, relationship);
-  },
-
-  /**
-    Check if the given hasMany relationship should be serialized
-
-    @method _shouldSerializeHasMany
-    @private
-    @param {DS.Snapshot} snapshot
-    @param {String} key
-    @param {String} relationshipType
-    @return {boolean} true if the hasMany relationship should be serialized
-  */
-  _shouldSerializeHasMany(snapshot, key, relationship) {
     let relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
     if (this._mustSerialize(key)) {
       return true;
@@ -1034,13 +994,9 @@ const JSONSerializer = Serializer.extend({
     let json = {};
 
     if (options && options.includeId) {
-      if (isEnabled('ds-serialize-id')) {
-        this.serializeId(snapshot, json, get(this, 'primaryKey'));
-      } else {
-        const id = snapshot.id;
-        if (id) {
-          json[get(this, 'primaryKey')] = id;
-        }
+      const id = snapshot.id;
+      if (id) {
+        json[get(this, 'primaryKey')] = id;
       }
     }
 
@@ -1219,12 +1175,8 @@ const JSONSerializer = Serializer.extend({
   */
   serializeHasMany(snapshot, json, relationship) {
     let key = relationship.key;
-    let shouldSerializeHasMany = '_shouldSerializeHasMany';
-    if (isEnabled("ds-check-should-serialize-relationships")) {
-      shouldSerializeHasMany = 'shouldSerializeHasMany';
-    }
 
-    if (this[shouldSerializeHasMany](snapshot, key, relationship)) {
+    if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
       let hasMany = snapshot.hasMany(key, { ids: true });
       if (hasMany !== undefined) {
         // if provided, use the mapping provided by `attrs` in
@@ -1504,64 +1456,5 @@ const JSONSerializer = Serializer.extend({
     return transform;
   }
 });
-
-if (isEnabled("ds-payload-type-hooks")) {
-
-  JSONSerializer.reopen({
-
-    /**
-      @method modelNameFromPayloadType
-      @public
-      @param {String} type
-      @return {String} the model's modelName
-      */
-    modelNameFromPayloadType(type) {
-      return normalizeModelName(type);
-    },
-
-    _hasCustomModelNameFromPayloadKey() {
-      return this.modelNameFromPayloadKey !== JSONSerializer.prototype.modelNameFromPayloadKey;
-    }
-
-  });
-
-}
-
-if (isEnabled("ds-serialize-id")) {
-
-  JSONSerializer.reopen({
-
-    /**
-     serializeId can be used to customize how id is serialized
-     For example, your server may expect integer datatype of id
-
-     By default the snapshot's id (String) is set on the json hash via json[primaryKey] = snapshot.id.
-
-     ```app/serializers/application.js
-     import DS from 'ember-data';
-
-     export default DS.JSONSerializer.extend({
-     serializeId(snapshot, json, primaryKey) {
-         var id = snapshot.id;
-         json[primaryKey] = parseInt(id, 10);
-       }
-     });
-     ```
-
-     @method serializeId
-     @public
-     @param {DS.Snapshot} snapshot
-     @param {Object} json
-     @param {String} primaryKey
-     */
-    serializeId(snapshot, json, primaryKey) {
-      let id = snapshot.id;
-
-      if (id) {
-        json[primaryKey] = id;
-      }
-    }
-  });
-}
 
 export default JSONSerializer;

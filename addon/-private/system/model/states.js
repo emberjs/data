@@ -267,6 +267,7 @@ const DirtyState = {
 
     rolledBack(internalModel) {
       internalModel.transitionTo('loaded.saved');
+      internalModel.triggerLater('rolledBack');
     },
 
     becameInvalid(internalModel) {
@@ -299,6 +300,10 @@ const DirtyState = {
     didCommit(internalModel) {
       internalModel.transitionTo('saved');
       internalModel.send('invokeLifecycleCallbacks', this.dirtyType);
+    },
+
+    rolledBack(internalModel) {
+      internalModel.triggerLater('rolledBack');
     },
 
     becameInvalid(internalModel) {
@@ -399,10 +404,12 @@ const createdState = dirtyState({
 
 createdState.invalid.rolledBack = function(internalModel) {
   internalModel.transitionTo('deleted.saved');
+  internalModel.triggerLater('rolledBack');
 };
 
 createdState.uncommitted.rolledBack = function(internalModel) {
   internalModel.transitionTo('deleted.saved');
+  internalModel.triggerLater('rolledBack');
 };
 
 const updatedState = dirtyState({
@@ -445,6 +452,12 @@ updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
 
 updatedState.uncommitted.deleteRecord = function(internalModel) {
   internalModel.transitionTo('deleted.uncommitted');
+};
+
+updatedState.invalid.rolledBack = function(internalModel) {
+  internalModel.clearErrorMessages();
+  internalModel.transitionTo('loaded.saved');
+  internalModel.triggerLater('rolledBack');
 };
 
 const RootState = {
@@ -636,6 +649,7 @@ const RootState = {
       rolledBack(internalModel) {
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
+        internalModel.triggerLater('rolledBack');
       }
     },
 

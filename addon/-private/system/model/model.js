@@ -1,5 +1,4 @@
 import ComputedProperty from '@ember/object/computed';
-import { setOwner } from '@ember/application';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
@@ -8,19 +7,20 @@ import EmberObject, {
   get,
   observer
 } from '@ember/object';
-import Map from '@ember/map';
-import Ember from 'ember';
+import Map from '../map';
 import { DEBUG } from '@glimmer/env';
-import { assert, deprecate, warn } from '@ember/debug';
+import { assert, warn } from '@ember/debug';
 import { PromiseObject } from "../promise-proxies";
 import Errors from "../model/errors";
-import isEnabled from '../../features';
 import RootState from '../model/states';
 import {
   relationshipsByNameDescriptor,
   relatedTypesDescriptor,
   relationshipsDescriptor
 } from '../relationships/ext';
+
+import Ember from 'ember';
+const { changeProperties } = Ember;
 
 /**
   @module ember-data
@@ -636,13 +636,16 @@ const Model = EmberObject.extend(Evented, {
     @private
   */
   _notifyProperties(keys) {
-    Ember.beginPropertyChanges();
-    let key;
-    for (let i = 0, length = keys.length; i < length; i++) {
-      key = keys[i];
-      this.notifyPropertyChange(key);
-    }
-    Ember.endPropertyChanges();
+    // changeProperties defers notifications until after the delegate
+    // and protects with a try...finally block
+    // previously used begin...endPropertyChanges but this is private API
+    changeProperties(() => {
+      let key;
+      for (let i = 0, length = keys.length; i < length; i++) {
+        key = keys[i];
+        this.notifyPropertyChange(key);
+      }
+    });
   },
 
   /**
@@ -1395,7 +1398,7 @@ Model.reopenClass({
 
    @property relationships
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
 
@@ -1518,7 +1521,7 @@ Model.reopenClass({
 
    @property relationshipsByName
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
   relationshipsByName: relationshipsByNameDescriptor,
@@ -1561,11 +1564,11 @@ Model.reopenClass({
 
    @property fields
    @static
-   @type Ember.Map
+   @type Map
    @readOnly
    */
   fields: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isRelationship) {
@@ -1670,11 +1673,11 @@ Model.reopenClass({
 
    @property attributes
    @static
-   @type {Ember.Map}
+   @type {Map}
    @readOnly
    */
   attributes: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
@@ -1723,11 +1726,11 @@ Model.reopenClass({
 
    @property transformedAttributes
    @static
-   @type {Ember.Map}
+   @type {Map}
    @readOnly
    */
   transformedAttributes: computed(function() {
-    let map = Map.create();
+    let map = new Map();
 
     this.eachAttribute((key, meta) => {
       if (meta.type) {
@@ -1838,50 +1841,6 @@ Model.reopenClass({
   }
 });
 
-// if `Ember.setOwner` is defined, accessing `this.container` is
-// deprecated (but functional). In "standard" Ember usage, this
-// deprecation is actually created via an `.extend` of the factory
-// inside the container itself, but that only happens on models
-// with MODEL_FACTORY_INJECTIONS enabled :(
-if (setOwner) {
-  Object.defineProperty(Model.prototype, 'container', {
-    configurable: true,
-    enumerable: false,
-    get() {
-      deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.',
-                      false,
-                      { id: 'ember-application.injected-container', until: '3.0.0' });
-
-      return this.store.container;
-    }
-  });
-}
-
-if (isEnabled('ds-rollback-attribute')) {
-  Model.reopen({
-    /**
-      Discards any unsaved changes to the given attribute. This feature is not enabled by default. You must enable `ds-rollback-attribute` and be running a canary build.
-
-      Example
-
-      ```javascript
-      record.get('name'); // 'Untitled Document'
-      record.set('name', 'Doc 1');
-      record.get('name'); // 'Doc 1'
-      record.rollbackAttribute('name');
-      record.get('name'); // 'Untitled Document'
-      ```
-
-      @method rollbackAttribute
-    */
-    rollbackAttribute(attributeName) {
-      if (attributeName in this._internalModel._attributes) {
-        this.set(attributeName, this._internalModel.lastAcknowledgedValue(attributeName));
-      }
-    }
-  });
-}
-
 if (DEBUG) {
   Model.reopen({
     // This is a temporary solution until we refactor DS.Model to not
@@ -1927,6 +1886,10 @@ if (DEBUG) {
         // the computed property.
         let meta = value.meta();
 
+        /*
+          This is buggy because if the parent has never been looked up
+          via `modelFor` it will not have `modelName` set.
+         */
         meta.parentType = proto.constructor;
       }
     }

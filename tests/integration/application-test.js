@@ -3,7 +3,6 @@ import Controller from '@ember/controller';
 import Application from '@ember/application';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import { module, test } from 'qunit';
 
@@ -181,55 +180,4 @@ test("ember-data initializer does not register the store service when it was alr
   let store = getStore();
   assert.ok(store && store.get('isCustomStore'), 'ember-data initializer does not overwrite the previous registered service store');
 
-});
-
-testInDebug("store initializer is run (DEPRECATED)", function(assert) {
-  let ran = false;
-  App.initializer({
-    name:       "after-store",
-    after:      'store',
-    initialize() { ran = true; }
-  });
-
-  assert.expectDeprecation(() => {
-    run(() => {
-      app = App.create();
-    });
-  }, /The initializer `store` has been deprecated/)
-
-  assert.ok(ran, 'store initializer was found');
-});
-
-testInDebug("injectStore initializer is run (DEPRECATED)", function(assert) {
-  let ran = false;
-  App.initializer({
-    name:       "after-store",
-    after:      'injectStore',
-    initialize() { ran = true; }
-  });
-
-  assert.expectDeprecation(() => {
-    run(() => {
-      app = App.create();
-    });
-  }, /The initializer `injectStore` has been deprecated/)
-
-  assert.ok(ran, 'injectStore initializer was found');
-});
-
-testInDebug("transforms initializer is run (DEPRECATED)", function(assert) {
-  let ran = false;
-  App.initializer({
-    name:       "after-store",
-    after:      'transforms',
-    initialize() { ran = true; }
-  });
-
-  assert.expectDeprecation(() => {
-    run(() => {
-      app = App.create();
-    });
-  }, /The initializer `transforms` has been deprecated/)
-
-  assert.ok(ran, 'transforms initializer was found');
 });

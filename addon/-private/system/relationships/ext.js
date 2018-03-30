@@ -1,8 +1,7 @@
 import { A } from '@ember/array';
 import { computed } from '@ember/object';
-import MapWithDefault from '@ember/map/with-default';
-import Map from '@ember/map';
-import Ember from 'ember';
+import MapWithDefault from '../map-with-default';
+import Map from '../map';
 import { assert } from '@ember/debug';
 import {
   typeForRelationshipMeta,
@@ -10,10 +9,6 @@ import {
 } from "../relationship-meta";
 
 export const relationshipsDescriptor = computed(function() {
-  if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
-    relationshipsDescriptor._cacheable = false;
-  }
-
   let map = new MapWithDefault({
     defaultValue() { return []; }
   });
@@ -37,10 +32,6 @@ export const relationshipsDescriptor = computed(function() {
 }).readOnly();
 
 export const relatedTypesDescriptor = computed(function() {
-  if (Ember.testing === true && relatedTypesDescriptor._cacheable === true) {
-    relatedTypesDescriptor._cacheable = false;
-  }
-
   let modelName;
   let types = A();
 
@@ -65,7 +56,7 @@ export const relatedTypesDescriptor = computed(function() {
 }).readOnly();
 
 export const relationshipsByNameDescriptor = computed(function() {
-  let map = Map.create();
+  let map = new Map();
 
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {

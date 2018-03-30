@@ -6,7 +6,6 @@ import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import DS from 'ember-data';
-import { isEnabled } from 'ember-data/-private';
 
 let env, store, adapter;
 let passedUrl, passedVerb, passedHash;
@@ -90,27 +89,15 @@ function ajaxResponse(responses) {
   passedVerb = [];
   passedHash = [];
 
-  if (isEnabled('ds-improved-ajax')) {
-    adapter._makeRequest = function(request) {
-      index = counter++;
+  adapter.ajax = function(url, verb, hash) {
+    index = counter++;
 
-      passedUrl[index] = request.url;
-      passedVerb[index] = request.method;
-      passedHash[index] = request.data ? { data: request.data } : undefined;
+    passedUrl[index] = url;
+    passedVerb[index] = verb;
+    passedHash[index] = hash;
 
-      return run(RSVP, 'resolve', responses[index]);
-    };
-  } else {
-    adapter.ajax = function(url, verb, hash) {
-      index = counter++;
-
-      passedUrl[index] = url;
-      passedVerb[index] = verb;
-      passedHash[index] = hash;
-
-      return run(RSVP, 'resolve', responses[index]);
-    };
-  }
+    return run(RSVP, 'resolve', responses[index]);
+  };
 }
 
 test('find a single record', function(assert) {

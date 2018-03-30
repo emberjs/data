@@ -6,7 +6,7 @@ import { A } from '@ember/array';
 
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
-import MapWithDefault from '@ember/map/with-default';
+import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import RSVP from 'rsvp';
@@ -50,9 +50,7 @@ import {
 import { getOwner } from '../utils';
 import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
-import ContainerInstanceCache from './store/container-instance-cache';
 import InternalModel from "./model/internal-model";
-import isEnabled from '../features';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
@@ -211,7 +209,6 @@ Store = Service.extend({
     this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
     this._pendingSave = [];
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
     this._modelFactoryCache = Object.create(null);
     this._relationshipsPayloads = new RelationshipPayloadsManager(this);
 
@@ -232,9 +229,10 @@ Store = Service.extend({
     this._updatedInternalModels = [];
 
     // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = MapWithDefault.create({ defaultValue() { return []; } });
+    this._pendingFetch = new MapWithDefault({ defaultValue() { return []; } });
 
-    this._instanceCache = new ContainerInstanceCache(getOwner(this), this);
+    this._adapterCache = Object.create(null);
+    this._serializerCache = Object.create(null);
   },
 
   /**
@@ -274,12 +272,11 @@ Store = Service.extend({
     @param {Object} options an options hash
   */
   serialize(record, options) {
-    if (isEnabled('ds-deprecate-store-serialize')) {
-      deprecate('Use of store.serialize is deprecated, use record.serialize instead.', false, {
-        id: 'ds.store.serialize',
-        until: '3.0'
-      });
-    }
+    deprecate('Use of store.serialize is deprecated, use record.serialize instead.', false, {
+      id: 'ds.store.serialize',
+      until: '3.0'
+    });
+
     let snapshot = record._internalModel.createSnapshot();
     return snapshot.serialize(options);
   },
@@ -359,7 +356,8 @@ Store = Service.extend({
 
     let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
     internalModel.loadedData();
-    let record = internalModel.getRecord(properties);
+    let record = internalModel.getRecord();
+    record.setProperties(properties);
 
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {
@@ -458,9 +456,7 @@ Store = Service.extend({
     assert(`Calling store.find() with a query object is no longer supported. Use store.query() instead.`, typeof id !== 'object');
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return this.findRecord(normalizedModelName, id);
+    return this.findRecord(modelName, id);
   },
 
   /**
@@ -855,6 +851,18 @@ Store = Service.extend({
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
       seeking[internalModel.id] = pendingItem;
+    }
+
+    for (let i = 0; i < totalItems; i++) {
+      let internalModel = internalModels[i];
+      // We may have unloaded the record after scheduling this fetch, in which
+      // case we must cancel the destroy.  This is because we require a record
+      // to build a snapshot.  This is not fundamental: this cancelation code
+      // can be removed when snapshots can be created for internal models that
+      // have no records.
+      if (internalModel.hasScheduledDestroy()) {
+        internalModels[i].cancelDestroy();
+      }
     }
 
     function _fetchRecord(recordResolverPair) {
@@ -1253,18 +1261,25 @@ Store = Service.extend({
     @method query
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.query
     @return {Promise} promise
   */
-  query(modelName, query) {
+  query(modelName, query, options) {
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
+    let adapterOptionsWrapper = {};
+
+    if (options && options.adapterOptions) {
+      adapterOptionsWrapper.adapterOptions = options.adapterOptions
+    }
+
     let normalizedModelName = normalizeModelName(modelName);
-    return this._query(normalizedModelName, query);
+    return this._query(normalizedModelName, query, null, adapterOptionsWrapper);
   },
 
-  _query(modelName, query, array) {
+  _query(modelName, query, array, options) {
     let token = heimdall.start('store._query');
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
@@ -1280,7 +1295,7 @@ Store = Service.extend({
     assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to load a query but your adapter does not implement 'query'`, typeof adapter.query === 'function');
 
-    let pA = promiseArray(_query(adapter, this, modelName, query, array));
+    let pA = promiseArray(_query(adapter, this, modelName, query, array, options));
     instrument(() => {
       pA.finally(() => { heimdall.stop(token); });
     });
@@ -1381,21 +1396,26 @@ Store = Service.extend({
     @method queryRecord
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter.queryRecord
     @return {Promise} promise which resolves with the found record or `null`
   */
-  queryRecord(modelName, query) {
+  queryRecord(modelName, query, options) {
     assert(`You need to pass a model name to the store's queryRecord method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
     let normalizedModelName = normalizeModelName(modelName);
-
     let adapter = this.adapterFor(normalizedModelName);
+    let adapterOptionsWrapper = {};
+
+    if (options && options.adapterOptions) {
+      adapterOptionsWrapper.adapterOptions = options.adapterOptions
+    }
 
     assert(`You tried to make a query but you have no adapter (for ${normalizedModelName})`, adapter);
     assert(`You tried to make a query but your adapter does not implement 'queryRecord'`, typeof adapter.queryRecord === 'function');
 
-    return promiseObject(_queryRecord(adapter, this, modelName, query).then(internalModel => {
+    return promiseObject(_queryRecord(adapter, this, modelName, query, adapterOptionsWrapper).then(internalModel => {
       // the promise returned by store.queryRecord is expected to resolve with
       // an instance of DS.Model
       if (internalModel) {
@@ -1770,10 +1790,11 @@ Store = Service.extend({
     @param {String} modelName
     @param {Object} query optional query
     @param {Function} filter
+    @param {Object} options optional, options to be passed to store.query
     @return {DS.PromiseArray}
     @deprecated
   */
-  filter(modelName, query, filter) {
+  filter(modelName, query, filter, options) {
     assert(`You need to pass a model name to the store's filter method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
@@ -1784,13 +1805,13 @@ Store = Service.extend({
     let promise;
     let length = arguments.length;
     let array;
-    let hasQuery = length === 3;
+    let hasQuery = length >= 3;
 
     let normalizedModelName = normalizeModelName(modelName);
 
     // allow an optional server query
     if (hasQuery) {
-      promise = this.query(normalizedModelName, query);
+      promise = this.query(normalizedModelName, query, options);
     } else if (arguments.length === 2) {
       filter = query;
     }
@@ -2123,7 +2144,10 @@ Store = Service.extend({
       assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
       // TODO: deprecate this
-      klass.modelName = klass.modelName || modelName;
+      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+      if (!hasOwnModelNameSet) {
+        klass.modelName = modelName;
+      }
 
       this._modelFactoryCache[modelName] = factory;
     }
@@ -2520,11 +2544,7 @@ Store = Service.extend({
       let normalizedModelName = normalizeModelName(modelName);
       serializer = this.serializerFor(normalizedModelName);
     }
-    if (isEnabled('ds-pushpayload-return')) {
-      return serializer.pushPayload(this, payload);
-    } else {
-      serializer.pushPayload(this, payload);
-    }
+    serializer.pushPayload(this, payload);
   },
 
   /**
@@ -2653,7 +2673,46 @@ Store = Service.extend({
     assert(`Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('adapter', normalizedModelName);
+    let { _adapterCache } = this;
+    let adapter = _adapterCache[normalizedModelName];
+    if (adapter) { return adapter; }
+
+    let owner = getOwner(this);
+
+    adapter = owner.lookup(`adapter:${normalizedModelName}`);
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      return adapter;
+    }
+
+    // no adapter found for the specific model, fallback and check for application adapter
+    adapter = _adapterCache.application || owner.lookup('adapter:application');
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache.application = adapter;
+      return adapter;
+    }
+
+    // no model specific adapter or application adapter, check for an `adapter`
+    // property defined on the store
+    let adapterName = this.get('adapter');
+    adapter = _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`);
+    if (adapter !== undefined) {
+      set(adapter, 'store', this);
+      _adapterCache[normalizedModelName] = adapter;
+      _adapterCache[adapterName] = adapter;
+      return adapter;
+    }
+
+    // final fallback, no model specific adapter, no application adapter, no
+    // `adapter` property on store: use json-api adapter
+    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    set(adapter, 'store', this);
+    _adapterCache[normalizedModelName] = adapter;
+    _adapterCache['-json-api'] = adapter;
+    return adapter;
   },
 
   // ..............................
@@ -2687,7 +2746,48 @@ Store = Service.extend({
     assert(`Passing classes to store.serializerFor has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
 
-    return this._instanceCache.get('serializer', normalizedModelName);
+    let { _serializerCache } = this;
+    let serializer = _serializerCache[normalizedModelName];
+    if (serializer) { return serializer; }
+
+    let owner = getOwner(this);
+
+    serializer = owner.lookup(`serializer:${normalizedModelName}`);
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      return serializer;
+    }
+
+    // no serializer found for the specific model, fallback and check for application serializer
+    serializer = _serializerCache.application || owner.lookup('serializer:application');
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      _serializerCache.application = serializer;
+      return serializer;
+    }
+
+    // no model specific serializer or application serializer, check for the `defaultSerializer`
+    // property defined on the adapter
+    let adapter = this.adapterFor(modelName);
+    let serializerName = get(adapter, 'defaultSerializer');
+    serializer = _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`);
+    if (serializer !== undefined) {
+      set(serializer, 'store', this);
+      _serializerCache[normalizedModelName] = serializer;
+      _serializerCache[serializerName] = serializer;
+      return serializer;
+    }
+
+    // final fallback, no model specific serializer, no application serializer, no
+    // `serializer` property on store: use json-api serializer
+    serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+    set(serializer, 'store', this);
+    _serializerCache[normalizedModelName] = serializer;
+    _serializerCache['-default'] = serializer;
+
+    return serializer;
   },
 
   lookupAdapter(name) {
@@ -2710,7 +2810,9 @@ Store = Service.extend({
     this._super(...arguments);
     this._pushedInternalModels = null;
     this.recordArrayManager.destroy();
-    this._instanceCache.destroy();
+
+    this._adapterCache = null;
+    this._serializerCache = null;
 
     this.unloadAll();
   },
@@ -2793,7 +2895,7 @@ function _commit(adapter, store, operation, snapshot) {
   let modelClass = store._modelFor(modelName);
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(`You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
-  let promise = adapter[operation](store, modelClass, snapshot);
+  let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = serializerForAdapter(store, adapter, modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 

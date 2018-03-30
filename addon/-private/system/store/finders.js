@@ -21,7 +21,7 @@ function payloadIsNotBlank(adapterPayload) {
 export function _find(adapter, store, modelClass, id, internalModel, options) {
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;
-  let promise = adapter.findRecord(store, modelClass, id, snapshot);
+  let promise = Promise.resolve().then(() => adapter.findRecord(store, modelClass, id, snapshot));
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
   promise = Promise.resolve(promise, label);
@@ -116,7 +116,7 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
   let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
   let snapshotArray = recordArray._createSnapshot(options);
-  let promise = adapter.findAll(store, modelClass, sinceToken, snapshotArray);
+  let promise = Promise.resolve().then(() => adapter.findAll(store, modelClass, sinceToken, snapshotArray));
   let label = "DS: Handle Adapter#findAll of " + modelClass;
 
   promise = Promise.resolve(promise, label);
@@ -134,20 +134,23 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
   }, null, 'DS: Extract payload of findAll ${modelName}');
 }
 
-export function _query(adapter, store, modelName, query, recordArray) {
+export function _query(adapter, store, modelName, query, recordArray, options) {
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
   let promise;
-  if (adapter.query.length > 3) {
+  let createRecordArray = adapter.query.length > 3 ||
+    (adapter.query.wrappedFunction && adapter.query.wrappedFunction.length > 3);
+
+  if (createRecordArray) {
     recordArray = recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-    promise = adapter.query(store, modelClass, query, recordArray);
+    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query, recordArray, options));
   } else {
-    promise = adapter.query(store, modelClass, query);
+    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query));
   }
 
-  let label = `DS: Handle Adapter#query of ${modelClass}`;
-
+  let label = `DS: Handle Adapter#query of ${modelName}`;
   promise = Promise.resolve(promise, label);
+
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(adapterPayload => {
@@ -170,11 +173,11 @@ export function _query(adapter, store, modelName, query, recordArray) {
   }, null, `DS: Extract payload of query ${modelName}`);
 }
 
-export function _queryRecord(adapter, store, modelName, query) {
+export function _queryRecord(adapter, store, modelName, query, options) {
   let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
-  let promise = adapter.queryRecord(store, modelClass, query);
-  let label = `DS: Handle Adapter#queryRecord of ${modelName}`;
+  let promise = Promise.resolve().then(() => adapter.queryRecord(store, modelClass, query, options));
 
+  let label = `DS: Handle Adapter#queryRecord of ${modelName}`;
   promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 

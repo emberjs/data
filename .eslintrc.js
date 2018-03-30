@@ -10,7 +10,8 @@ module.exports = {
     'browser': true,
   },
   globals: {
-    'heimdall': true
+    'heimdall': true,
+    'Map': false,
   },
   rules: {
     'no-unused-vars': ['error', {

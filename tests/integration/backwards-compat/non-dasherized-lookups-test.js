@@ -8,7 +8,6 @@ import DS from 'ember-data';
 
 const {
   JSONAPIAdapter,
-  JSONAPISerializer,
   Model,
   attr,
   belongsTo,
@@ -23,16 +22,16 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
       name: attr('string')
     });
 
-    const env = setupStore({ postNote: PostNote });
-
     const ApplicationAdapter = JSONAPIAdapter.extend({
       shouldBackgroundReloadRecord() {
         return false;
       }
     });
 
-    env.registry.register('adapter:application', ApplicationAdapter);
-    env.registry.register('serializer:application', JSONAPISerializer);
+    const env = setupStore({
+      postNote: PostNote,
+      adapter: ApplicationAdapter
+    });
 
     store = env.store;
   },
@@ -102,20 +101,18 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
       postNotes: hasMany('post_note')
     });
 
-    const env = setupStore({
-      longModelName: LongModelName,
-      notePost: NotePost,
-      postNote: PostNote
-    });
-
     const ApplicationAdapter = JSONAPIAdapter.extend({
       shouldBackgroundReloadRecord() {
         return false;
       }
     });
 
-    env.registry.register('adapter:application', ApplicationAdapter);
-    env.registry.register('serializer:application', JSONAPISerializer);
+    const env = setupStore({
+      longModelName: LongModelName,
+      notePost: NotePost,
+      postNote: PostNote,
+      adapter: ApplicationAdapter
+    });
 
     store = env.store;
   },

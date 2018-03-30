@@ -1,36 +1,4 @@
 import Transform from './transform';
-import Ember from 'ember';
-import { deprecate } from '@ember/debug';
-
-Ember.Date = Ember.Date || {};
-
-/**
- Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
-
- © 2011 Colin Snover <http://zetafleet.com>
-
- Released under MIT license.
-
- @class Date
- @namespace Ember
- @static
- @deprecated
- */
-Ember.Date.parse = function(date) {
-  // throw deprecation
-  deprecate(`Ember.Date.parse is deprecated because Safari 5-, IE8-, and
-    Firefox 3.6- are no longer supported (see
-    https://github.com/csnover/js-iso8601 for the history of this issue).
-    Please use Date.parse instead`,
-    false,
-    {
-      id: 'ds.ember.date.parse-deprecate',
-      until: '3.0.0'
-    });
-
-  return Date.parse(date);
-};
-
 
 /**
  The `DS.DateTransform` class is used to serialize and deserialize
@@ -61,19 +29,7 @@ export default Transform.extend({
     if (type === "string") {
       let offset = serialized.indexOf('+');
 
-      if (offset !== -1 && serialized.length - 3 === offset) {
-        deprecate(`The ECMA2015 Spec for ISO 8601 dates does not allow for shorthand timezone offsets such as +00.
-          Ember Data's normalization of date's allowing for this shorthand has been deprecated, please update your API to return
-          UTC dates formatted with ±hh:mm timezone offsets or implement a custom UTC transform.`,
-          false,
-          {
-            id: 'ds.attr.date.normalize-utc',
-            until: '3.0.0'
-          });
-        return new Date(`${serialized}:00`);
-
-      // this is a phantom specific bug fix in which +0000 is not supported
-      } else if (offset !== -1 && serialized.length - 5 === offset) {
+      if (offset !== -1 && serialized.length - 5 === offset) {
         offset += 3;
         return new Date(serialized.slice(0, offset) + ':' + serialized.slice(offset));
       }

@@ -1,4 +1,3 @@
-import { inspect } from '@ember/debug';
 import EmberObject from '@ember/object';
 import { Promise as EmberPromise, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
@@ -9,8 +8,6 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
-
-import { isEnabled } from 'ember-data/-private';
 
 let env, store, Person, PhoneNumber, Post;
 const { attr, hasMany, belongsTo } = DS;
@@ -503,7 +500,7 @@ test('Calling pushPayload allows partial updates with raw JSON', function(assert
   assert.equal(person.get('lastName'), 'Jackson', 'existing fields are untouched');
 });
 
-test('calling push without data argument as an object raises an error', function(assert) {
+testInDebug('calling push without data argument as an object raises an error', function(assert) {
   let invalidValues = [
     null,
     1,
@@ -516,7 +513,7 @@ test('calling push without data argument as an object raises an error', function
   assert.expect(invalidValues.length);
 
   invalidValues.forEach((invalidValue) => {
-    assert.throws(() => {
+    assert.expectAssertion(() => {
       run(() => {
         store.push('person', invalidValue);
       });
@@ -638,37 +635,20 @@ test('Calling push with a link containing the value null', function(assert) {
 });
 
 testInDebug('calling push with hasMany relationship the value must be an array', function(assert) {
-  let invalidValues = [
-    1,
-    'string',
-    EmberObject.create(),
-    EmberObject.extend(),
-    true
-  ];
-
-  assert.expect(invalidValues.length);
-
-  invalidValues.forEach(invalidValue => {
-    assert.throws(() => {
-      try {
-        run(() => {
-          store.push({
-            data: {
-              type: 'person',
-              id: '1',
-              relationships: {
-                phoneNumbers: {
-                  data: invalidValue
-                }
-              }
+  assert.expectAssertion(() => {
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              data: 1
             }
-          });
-        });
-      } catch (e) {
-        store._pushedInternalModels.length = 0;
-        throw e;
-      }
-    }, /must be an array/, `Expect that '${inspect(invalidValue)}' is not an array`);
+          }
+        }
+      });
+    });
   });
 });
 
@@ -682,7 +662,7 @@ testInDebug('calling push with missing or invalid `id` throws assertion error', 
   assert.expect(invalidValues.length);
 
   invalidValues.forEach(invalidValue => {
-    assert.throws(() => {
+    assert.expectAssertion(() => {
       run(() => {
         store.push({
           data: invalidValue
@@ -693,7 +673,7 @@ testInDebug('calling push with missing or invalid `id` throws assertion error', 
 });
 
 testInDebug('calling push with belongsTo relationship the value must not be an array', function(assert) {
-  assert.throws(() => {
+  assert.expectAssertion(() => {
     run(() => {
       store.push({
         data: {
@@ -775,33 +755,6 @@ testInDebug('Calling push with unknown keys should not warn by default', functio
     });
   }, /The payload for 'person' contains these unknown .*: .* Make sure they've been defined in your model./);
 });
-
-if (isEnabled('ds-pushpayload-return')) {
-  test("Calling pushPayload returns records", function(assert) {
-    env.registry.register('serializer:person', DS.RESTSerializer);
-
-    let people = run(() => {
-      return store.pushPayload('person', {
-        people: [{
-          id: '1',
-          firstName: 'Robert',
-          lastName: 'Jackson'
-        }, {
-          id: '2',
-          firstName: 'Matthew',
-          lastName: 'Beale'
-        }]
-      });
-    });
-
-    assert.equal(people.length, 2, 'both records were returned by `store.pushPayload`');
-
-    assert.equal(people[0].get('firstName'), 'Robert', 'pushPayload returns pushed records');
-    assert.equal(people[0].get('lastName'), 'Jackson', 'pushPayload returns pushed records');
-    assert.equal(people[1].get('firstName'), 'Matthew', 'pushPayload returns pushed records');
-    assert.equal(people[1].get('lastName'), 'Beale', 'pushPayload returns pushed records');
-  });
-}
 
 test('_push returns an instance of InternalModel if an object is pushed', function(assert) {
   let pushResult;

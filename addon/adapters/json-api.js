@@ -3,10 +3,7 @@
   @module ember-data
 */
 import { dasherize } from '@ember/string';
-import $ from 'jquery';
 import RESTAdapter from "./rest";
-import { isEnabled } from '../-private';
-import { deprecate } from '@ember/debug';
 import { instrument } from 'ember-data/-debug';
 import { pluralize } from 'ember-inflector';
 
@@ -170,7 +167,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
           let token = heimdall.start('json.parse');
           let json;
           try {
-            json = $.parseJSON(payload);
+            json = JSON.parse(payload);
           } catch (e) {
             json = payload;
           }
@@ -249,12 +246,8 @@ const JSONAPIAdapter = RESTAdapter.extend({
   coalesceFindRequests: false,
 
   findMany(store, type, ids, snapshots) {
-    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
-      return this._super(...arguments);
-    } else {
-      let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
-      return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
-    }
+    let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
+    return this.ajax(url, 'GET', { data: { filter: { id: ids.join(',') } } });
   },
 
   pathForType(modelName) {
@@ -264,95 +257,15 @@ const JSONAPIAdapter = RESTAdapter.extend({
 
   // TODO: Remove this once we have a better way to override HTTP verbs.
   updateRecord(store, type, snapshot) {
-    if (isEnabled('ds-improved-ajax') && !this._hasCustomizedAjax()) {
-      return this._super(...arguments);
-    } else {
-      let data = {};
-      let serializer = store.serializerFor(type.modelName);
+    let data = {};
+    let serializer = store.serializerFor(type.modelName);
 
-      serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
+    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-      let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
+    let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
-      return this.ajax(url, 'PATCH', { data: data });
-    }
-  },
-
-  _hasCustomizedAjax() {
-    if (this.ajax !== JSONAPIAdapter.prototype.ajax) {
-      deprecate('JSONAPIAdapter#ajax has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.json-api-adapter.ajax',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    if (this.ajaxOptions !== JSONAPIAdapter.prototype.ajaxOptions) {
-      deprecate('JSONAPIAdapterr#ajaxOptions has been deprecated please use. `methodForRequest`, `urlForRequest`, `headersForRequest` or `dataForRequest` instead.', false, {
-        id: 'ds.json-api-adapter.ajax-options',
-        until: '3.0.0'
-      });
-      return true;
-    }
-
-    return false;
+    return this.ajax(url, 'PATCH', { data: data });
   }
 });
-
-if (isEnabled('ds-improved-ajax')) {
-
-  JSONAPIAdapter.reopen({
-
-    methodForRequest(params) {
-      if (params.requestType === 'updateRecord') {
-        return 'PATCH';
-      }
-
-      return this._super(...arguments);
-    },
-
-    dataForRequest(params) {
-      let { requestType, ids } = params;
-
-      if (requestType === 'findMany') {
-        return {
-          filter: { id: ids.join(',') }
-        };
-      }
-
-      if (requestType === 'updateRecord') {
-        let { store, type, snapshot } = params;
-        let data = {};
-        let serializer = store.serializerFor(type.modelName);
-
-        serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
-
-        return data;
-      }
-
-      return this._super(...arguments);
-    },
-
-    headersForRequest() {
-      let headers = this._super(...arguments) || {};
-
-      headers['Accept'] = 'application/vnd.api+json';
-
-      return headers;
-    },
-
-    _requestToJQueryAjaxHash() {
-      let hash = this._super(...arguments);
-
-      if (hash.contentType) {
-        hash.contentType = 'application/vnd.api+json';
-      }
-
-      return hash;
-    }
-
-  });
-
-}
 
 export default JSONAPIAdapter;
