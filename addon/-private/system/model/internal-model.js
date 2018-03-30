@@ -344,7 +344,6 @@ export default class InternalModel {
       let createOptions = {
         store: this.store,
         _internalModel: this,
-        id: this.id,
         currentState: this.currentState,
         isError: this.isError,
         adapterError: this.error
@@ -1019,9 +1018,11 @@ export default class InternalModel {
 
   setId(id) {
     assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
+    let didChange = id !== this.id;
     this.id = id;
-    if (this._record.get('id') !== id) {
-      this._record.set('id', id);
+
+    if (didChange && this.hasRecord) {
+      this._record.notifyPropertyChange('id');
     }
   }
 
