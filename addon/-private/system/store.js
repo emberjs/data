@@ -2144,7 +2144,10 @@ Store = Service.extend({
       assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
       // TODO: deprecate this
-      klass.modelName = klass.modelName || modelName;
+      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+      if (!hasOwnModelNameSet) {
+        klass.modelName = modelName;
+      }
 
       this._modelFactoryCache[modelName] = factory;
     }
