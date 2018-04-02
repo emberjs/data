@@ -357,6 +357,7 @@ export default class InternalModel {
       }
 
       this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+      this._record.setProperties(properties);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
