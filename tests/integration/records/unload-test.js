@@ -2049,7 +2049,7 @@ test('unload invalidates link promises', function(assert) {
       isUnloaded = true;
       run(() => {
         boat2.unloadRecord();
-        person.get('boats');
+        // person.get('boats');
       });
 
       assert.deepEqual(boats.mapBy('id'), ['3'], 'unloaded boat is removed from ManyArray');

@@ -1357,6 +1357,8 @@ Model.reopenClass({
       inverseOptions = possibleRelationships[0].options;
     }
 
+    assert(`The ${inverseType.modelName}:${inverseName} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`, !inverseOptions || inverseOptions.inverse !== null);
+
     return {
       type: inverseType,
       name: inverseName,

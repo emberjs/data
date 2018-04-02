@@ -140,6 +140,7 @@ export default class Relationship {
 
   inverseDidDematerialize(inverseModelData) {
     this.linkPromise = null;
+    this.setHasLoaded(false);
 
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
