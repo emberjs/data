@@ -1,5 +1,5 @@
 import { A } from '@ember/array';
-import { computed } from '@ember/object';
+import { computed, get } from '@ember/object';
 import MapWithDefault from '../map-with-default';
 import Map from '../map';
 import { assert } from '@ember/debug';
@@ -23,7 +23,9 @@ export const relationshipsDescriptor = computed(function() {
 
       relationshipsForType.push({
         name: name,
-        kind: meta.kind
+        kind: meta.kind,
+        // TODO Clean this up, and remove this whole method
+        options: meta.options
       });
     }
   });
@@ -55,17 +57,29 @@ export const relatedTypesDescriptor = computed(function() {
   return types;
 }).readOnly();
 
-export const relationshipsByNameDescriptor = computed(function() {
-  let map = new Map();
-
+export const relationshipsObjectDescriptor = computed(function() {
+  let relationships = Object.create(null);
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
       let relationship = relationshipFromMeta(meta);
-      relationship.type = typeForRelationshipMeta(meta);
-      map.set(name, relationship);
+      relationships[name] = relationship;
     }
   });
+  return relationships;
+});
+
+export const relationshipsByNameDescriptor = computed(function() {
+  let map = new Map();
+  let rels = get(this, 'relationshipsObject');
+  let relationships = Object.keys(rels);
+
+  for (let i=0; i < relationships.length; i++) {
+    let key = relationships[i];
+    let value = rels[key];
+
+    map.set(value.key, value);
+  }
 
   return map;
 }).readOnly();

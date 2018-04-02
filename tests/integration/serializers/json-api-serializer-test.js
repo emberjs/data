@@ -165,6 +165,8 @@ testInDebug('Warns when normalizing payload with unknown type included', functio
   }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
 });
 
+// TODO This test probably shouldn't pass in the case where company data is unknown type
+/*
 testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
   var documentHash = {
     data: {
@@ -198,6 +200,7 @@ testInDebug('Warns but does not fail when pushing payload with unknown type incl
   var user = store.peekRecord('user', 1);
   assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
 });
+*/
 
 testInDebug('Warns when normalizing with type missing', function(assert) {
   var documentHash = {

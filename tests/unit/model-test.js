@@ -772,15 +772,15 @@ test('setting a property back to its original value removes the property from th
 
   return run(() => {
     return store.findRecord('person', 1).then(person => {
-      assert.equal(person._internalModel._attributes.name, undefined, 'the `_attributes` hash is clean');
+      assert.equal(person._internalModel._modelData._attributes.name, undefined, 'the `_attributes` hash is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.equal(person._internalModel._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
+      assert.equal(person._internalModel._modelData._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.equal(person._internalModel._attributes.name, undefined, 'the `_attributes` hash is reset');
+      assert.equal(person._internalModel._modelData._attributes.name, undefined, 'the `_attributes` hash is reset');
     });
   });
 });
@@ -1282,7 +1282,7 @@ test('setting the id after model creation should correctly update the id', funct
   });
 });
 
-test('updating the id with store.updateId should correctly when the id property is watched', function(assert) {
+test('updating the id with store.setRecordId should correctly when the id property is watched', function(assert) {
   assert.expect(2);
 
   const Person = DS.Model.extend({
@@ -1300,7 +1300,7 @@ test('updating the id with store.updateId should correctly when the id property 
 
     assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-    store.updateId(person._internalModel, { id: 'john' });
+    store.setRecordId('person', 'john', person._internalModel.clientId);
 
     assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
@@ -1324,7 +1324,7 @@ test('accessing the model id without the get function should work when id is wat
 
     assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-    store.updateId(person._internalModel, { id: 'john' });
+    store.setRecordId('person', 'john', person._internalModel.clientId);
 
     assert.equal(person.id, 'john', 'new id should be correctly set.');
   });

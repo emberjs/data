@@ -40,15 +40,16 @@ if (DEBUG) {
     return modelClass.detect(addedModelClass);
   };
 
-  assertPolymorphicType = function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel) {
+  assertPolymorphicType = function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel, store) {
     let addedModelName = addedInternalModel.modelName;
     let parentModelName = parentInternalModel.modelName;
     let key = relationshipMeta.key;
     let relationshipModelName = relationshipMeta.type;
-    let relationshipClass = parentInternalModel.store.modelFor(relationshipModelName);
+    let relationshipClass = store.modelFor(relationshipModelName);
+    let addedClass = store.modelFor(addedInternalModel.modelName);
     let assertionMessage = `You cannot add a record of modelClass '${addedModelName}' to the '${parentModelName}.${key}' relationship (only '${relationshipModelName}' allowed)`;
 
-    assert(assertionMessage, checkPolymorphic(relationshipClass, addedInternalModel.modelClass));
+    assert(assertionMessage, checkPolymorphic(relationshipClass, addedClass));
   };
 }
 

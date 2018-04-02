@@ -1,43 +1,21 @@
-import { get } from '@ember/object';
 import ManyRelationship from "./has-many";
 import BelongsToRelationship from "./belongs-to";
-import { DEBUG } from '@glimmer/env';
 
-function shouldFindInverse(relationshipMeta) {
-  let options = relationshipMeta.options;
-  return !(options && options.inverse === null);
-}
-
-function createRelationshipFor(internalModel, relationshipMeta, store) {
-  let inverseKey;
-  let inverse = null;
-
-  if (shouldFindInverse(relationshipMeta)) {
-    inverse = internalModel.type.inverseFor(relationshipMeta.key, store);
-  } else if (DEBUG) {
-    internalModel.type.typeForRelationship(relationshipMeta.key, store);
-  }
-
-  if (inverse) {
-    inverseKey = inverse.name;
-  }
+function createRelationshipFor(relationshipMeta, store, modelData, key) {
+  let inverseKey = modelData.storeWrapper.inverseForRelationship(modelData.modelName, key);
+  let inverseIsAsync = modelData.storeWrapper.inverseIsAsyncForRelationship(modelData.modelName, key);
 
   if (relationshipMeta.kind === 'hasMany') {
-    return new ManyRelationship(store, internalModel, inverseKey, relationshipMeta);
+    return new ManyRelationship(store, inverseKey, relationshipMeta, modelData, inverseIsAsync);
   } else {
-    return new BelongsToRelationship(store, internalModel, inverseKey, relationshipMeta);
+    return new BelongsToRelationship(store, inverseKey, relationshipMeta, modelData, inverseIsAsync);
   }
 }
 
 export default class Relationships {
-  constructor(internalModel) {
-    this.internalModel = internalModel;
+  constructor(modelData) {
+    this.modelData = modelData;
     this.initializedRelationships = Object.create(null);
-  }
-
-  // TODO @runspired deprecate this as it was never truly a record instance
-  get record() {
-    return this.internalModel;
   }
 
   has(key) {
@@ -54,20 +32,13 @@ export default class Relationships {
   get(key) {
     let relationships = this.initializedRelationships;
     let relationship = relationships[key];
-    let internalModel = this.internalModel;
 
     if (!relationship) {
-      let relationshipsByName = get(internalModel.type, 'relationshipsByName');
-      let rel = relationshipsByName.get(key);
+      let modelData = this.modelData;
+      let rel = this.modelData.storeWrapper.relationshipsDefinitionFor(this.modelData.modelName)[key];
 
-      if (!rel) { return undefined; }
-
-      let relationshipPayload = internalModel.store._relationshipsPayloads.get(internalModel.modelName, internalModel.id, key);
-
-      relationship = relationships[key] = createRelationshipFor(internalModel, rel, internalModel.store);
-
-      if (relationshipPayload) {
-        relationship.push(relationshipPayload, true);
+      if (rel) {
+        relationship = relationships[key] = createRelationshipFor(rel, modelData.store, modelData, key);
       }
     }
 
