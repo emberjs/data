@@ -107,7 +107,7 @@ test("when a store is committed, the adapter's `commit` method should be called 
     assert.equal(type, Person, "the type is correct");
     assert.equal(snapshot.record, tom, "the record is correct");
 
-    return run(RSVP, 'resolve');
+    return RSVP.resolve();
   };
 
   let tom;
@@ -124,12 +124,14 @@ test("when a store is committed, the adapter's `commit` method should be called 
     });
   });
 
-  return env.store.findRecord('person', 1).then(person => {
-    tom = person;
-    tom.deleteRecord();
-    return tom.save();
-  }).then(tom => {
-    assert.equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
+  return run(() => {
+    return env.store.findRecord('person', 1).then(person => {
+      tom = person;
+      tom.deleteRecord();
+      return tom.save();
+    }).then(() => {
+      assert.equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
+    });
   });
 });
 

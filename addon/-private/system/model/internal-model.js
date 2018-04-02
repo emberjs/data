@@ -845,6 +845,7 @@ export default class InternalModel {
     }
 
     this.currentState = state;
+    debugger
     if (this.hasRecord) {
       set(this._record, 'currentState', state);
     }
@@ -1079,7 +1080,10 @@ export default class InternalModel {
 
     if (!data) { return; }
 
-    this._record._notifyProperties(changedKeys);
+    // we might be destroying the record, guard against `_record` being missing.
+    if (this._record) {
+      this._record._notifyProperties(changedKeys);
+    }
   }
 
   addErrorMessageToAttribute(attribute, message) {

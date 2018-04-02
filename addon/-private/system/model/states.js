@@ -693,6 +693,7 @@ const RootState = {
 
       setup(internalModel) {
         internalModel.removeFromInverseRelationships();
+        internalModel.unloadRecord();
       },
 
       invokeLifecycleCallbacks(internalModel) {

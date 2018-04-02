@@ -69,7 +69,7 @@ const RESERVED_MODEL_PROPS = [
 ];
 
 const retrieveFromCurrentState = computed('currentState', function(key) {
-  return get(this._internalModel.currentState, key);
+  return get(this.get('currentState'), key);
 }).readOnly();
 
 /**
@@ -345,7 +345,15 @@ const Model = EmberObject.extend(Evented, {
     @private
     @type {Object}
   */
-  currentState: RootState.empty,
+  currentState: computed({
+    get(key) {
+      return RootState.empty;
+    },
+    set(key, value) {
+      debugger;
+      return value;
+    }
+  }),
 
   /**
     When the record is in the `invalid` state this object will contain
