@@ -6,6 +6,7 @@
 /tmp
 /bin
 /docs
+/.node_modules.ember-try
 
 **/.gitkeep
 .appveyor.yml
