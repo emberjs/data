@@ -602,6 +602,42 @@ export default class InternalModel {
     }
   }
 
+  getAttributeValue(key) {
+    if (key in this._attributes) {
+      return this._attributes[key];
+    } else if (key in this._inFlightAttributes) {
+      return this._inFlightAttributes[key];
+    } else {
+      return this._data[key];
+    }
+  }
+
+  setDirtyAttribute(key, value) {
+    let oldValue = this.getAttributeValue(key);
+    let originalValue;
+
+    if (value !== oldValue) {
+      // Add the new value to the changed attributes hash; it will get deleted by
+      // the 'didSetProperty' handler if it is no different from the original value
+      this._attributes[key] = value;
+
+      if (key in this._inFlightAttributes) {
+        originalValue = this._inFlightAttributes[key];
+      } else {
+        originalValue = this._data[key];
+      }
+
+      this.send('didSetProperty', {
+        name: key,
+        oldValue: oldValue,
+        originalValue: originalValue,
+        value: value
+      });
+    }
+
+    return value;
+  }
+
   get isDestroyed() {
     return this._isDestroyed;
   }
