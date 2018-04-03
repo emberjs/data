@@ -17,6 +17,8 @@ export default class ManyRelationship extends Relationship {
     // inverse internal models are unloaded.
     this._retainedManyArray = null;
     this.__loadingPromise = null;
+    this._willUpdateManyArray = false;
+    this._pendingManyArrayUpdates = null;
   }
 
   get _loadingPromise() { return this.__loadingPromise; }
@@ -109,8 +111,46 @@ export default class ManyRelationship extends Relationship {
 
     assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
     super.addInternalModel(internalModel, idx);
-    // make lazy later
-    this.manyArray._addInternalModels([internalModel], idx);
+    this.scheduleManyArrayUpdate(internalModel, idx);
+  }
+
+  scheduleManyArrayUpdate(internalModel, idx) {
+    // ideally we would early exit here, but some tests
+    //   currently suggest that we cannot.
+    // if (!this._manyArray) {
+    //   return;
+    // }
+
+    let pending = this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || [];
+    pending.push(internalModel, idx);
+
+    if (this._willUpdateManyArray === true) {
+      return;
+    }
+
+    this._willUpdateManyArray = true;
+    let backburner = this.store._backburner;
+
+    backburner.join(() => {
+      backburner.schedule('syncRelationships', this, this._flushPendingManyArrayUpdates);
+    });
+  }
+
+  _flushPendingManyArrayUpdates() {
+    if (this._willUpdateManyArray === false) {
+      return;
+    }
+
+    let pending = this._pendingManyArrayUpdates;
+    this._pendingManyArrayUpdates = [];
+    this._willUpdateManyArray = false;
+
+    for (let i = 0; i < pending.length; i += 2) {
+      let internalModel = pending[i];
+      let idx = pending[i + 1];
+
+      this.manyArray._addInternalModels([internalModel], idx);
+    }
   }
 
   removeCanonicalInternalModelFromOwn(internalModel, idx) {

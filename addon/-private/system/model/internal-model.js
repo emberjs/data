@@ -350,13 +350,35 @@ export default class InternalModel {
         isError: this.isError,
         adapterError: this.error
       };
+      let hasCreateProperties = typeof properties === 'object' && properties !== null;
+      let initializedRelationships;
 
-      if (typeof properties === 'object' && properties !== null) {
+      if (hasCreateProperties) {
+        initializedRelationships = [];
 
         if ('id' in properties) {
           this.setId(properties.id);
           delete properties.id;
         }
+
+        this.eachAttribute((name) => {
+          if (name in properties) {
+            this.setDirtyAttribute(name, properties[name]);
+            delete properties[name];
+          }
+        });
+
+        this.eachRelationship((name, { kind }) => {
+          if (name in properties) {
+            initializedRelationships.push(name);
+            if (kind === 'belongsTo') {
+              this.setDirtyBelongsTo(name, properties[name]);
+            } else {
+              this.setDirtyHasMany(name, properties[name]);
+            }
+            delete properties[name];
+          }
+        });
 
         emberAssign(createOptions, properties);
       }
@@ -369,6 +391,12 @@ export default class InternalModel {
       }
 
       this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+
+      if (hasCreateProperties && initializedRelationships.length) {
+        for (let i = 0; i < initializedRelationships.length; i++) {
+          this._relationships.get(initializedRelationships[i]).setHasData(true);
+        }
+      }
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
