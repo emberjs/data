@@ -1,4 +1,5 @@
 import { assign, merge } from '@ember/polyfills';
+import { A } from '@ember/array';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
@@ -13,6 +14,7 @@ import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
 import OrderedSet from "../ordered-set";
+import isArrayLike from "../is-array-like";
 
 import { getOwner } from '../../utils';
 
@@ -609,6 +611,30 @@ export default class InternalModel {
       return this._inFlightAttributes[key];
     } else {
       return this._data[key];
+    }
+  }
+
+  setDirtyHasMany(key, records) {
+    assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
+    assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
+      return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
+    })());
+
+    let relationship = this._relationships.get(key);
+    relationship.clear();
+    relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
+  }
+
+  setDirtyBelongsTo(key, value) {
+    if (value === undefined) {
+      value = null;
+    }
+    if (value && value.then) {
+      this._relationships.get(key).setRecordPromise(value);
+    } else if (value) {
+      this._relationships.get(key).setInternalModel(value._internalModel);
+    } else {
+      this._relationships.get(key).setInternalModel(value);
     }
   }
 

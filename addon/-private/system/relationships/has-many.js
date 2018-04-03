@@ -1,13 +1,9 @@
 /**
   @module ember-data
 */
-
-import { A } from '@ember/array';
-
-import { get, computed } from '@ember/object';
+import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
 import normalizeModelName from "../normalize-model-name";
-import isArrayLike from "../is-array-like";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -147,15 +143,9 @@ export default function hasMany(type, options) {
       return this._internalModel._relationships.get(key).getRecords();
     },
     set(key, records) {
-      assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-      assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
-        return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
-      })());
+      this._internalModel.setDirtyHasMany(key, records);
 
-      let relationship = this._internalModel._relationships.get(key);
-      relationship.clear();
-      relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
-      return relationship.getRecords();
+      return this._internalModel._relationships.get(key).getRecords();
     }
   }).meta(meta);
 }
