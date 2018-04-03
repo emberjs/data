@@ -373,11 +373,11 @@ export default class InternalModel {
               break;
             case 'belongsTo':
               this.setDirtyBelongsTo(name, propertyValue);
-              relationships.get(name).setHasData(true);
+              relationships.get(name).setHasRelationshipDataProperty(true);
               break;
             case 'hasMany':
               this.setDirtyHasMany(name, propertyValue);
-              relationships.get(name).setHasData(true);
+              relationships.get(name).setHasRelationshipDataProperty(true);
               break;
             default:
               createOptions[name] = propertyValue;

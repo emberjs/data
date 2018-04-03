@@ -21,8 +21,9 @@ export default class BelongsToRelationship extends Relationship {
     } else if (this.inverseInternalModel) {
       this.removeInternalModel(this.inverseInternalModel);
     }
-    this.setHasData(true);
+    this.setHasRelationshipDataProperty(true);
     this.setHasLoaded(true);
+    this.setHasLocalData(!this.localStateIsEmpty());
   }
 
   setCanonicalInternalModel(internalModel) {
@@ -165,12 +166,8 @@ export default class BelongsToRelationship extends Relationship {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     if (this.isAsync) {
       let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecord();
-        } else {
-          promise = this.findLink().then(() => this.findRecord());
-        }
+      if (this._shouldFindViaLink()) {
+        promise = this.findLink().then(() => this.findRecord());
       } else {
         promise = this.findRecord();
       }
@@ -202,6 +199,12 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     return this.findRecord();
+  }
+
+  localStateIsEmpty() {
+    let internalModel = this.inverseInternalModel;
+
+    return !internalModel  || internalModel.isEmpty();
   }
 
   updateData(data, initial) {

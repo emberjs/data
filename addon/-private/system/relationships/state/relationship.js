@@ -25,7 +25,7 @@ const {
   removeInternalModelFromInverse,
   removeInternalModelFromOwn,
   removeInternalModels,
-  setHasData,
+  setHasRelationshipDataProperty,
   setHasLoaded,
   updateLink,
   updateMeta,
@@ -49,7 +49,7 @@ const {
   'removeInternalModelFromInverse',
   'removeInternalModelFromOwn',
   'removeInternalModels',
-  'setHasData',
+  'setHasRelationshipDataProperty',
   'setHasLoaded',
   'updateLink',
   'updateMeta',
@@ -75,8 +75,9 @@ export default class Relationship {
     this.inverseKeyForImplicit = this.internalModel.modelName + this.key;
     this.linkPromise = null;
     this.meta = null;
-    this.hasData = false;
+    this.hasRelationshipDataProperty = false;
     this.hasLoaded = false;
+    this.hasLocalData = false;
     this.__inverseMeta = undefined;
   }
 
@@ -204,7 +205,7 @@ export default class Relationship {
       this.setupInverseRelationship(internalModel);
     }
     this.flushCanonicalLater();
-    this.setHasData(true);
+    this.setHasRelationshipDataProperty(true);
   }
 
   setupInverseRelationship(internalModel) {
@@ -277,7 +278,7 @@ export default class Relationship {
       }
       this.internalModel.updateRecordArrays();
     }
-    this.setHasData(true);
+    this.setHasRelationshipDataProperty(true);
   }
 
   removeInternalModel(internalModel) {
@@ -423,17 +424,31 @@ export default class Relationship {
 
   updateLink(link, initial) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
+    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasRelationshipDataProperty , {
       id: 'ds.store.push-link-for-sync-relationship'
     });
     assert(`You have pushed a record of type '${this.internalModel.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
 
     this.link = link;
     this.linkPromise = null;
+    this.setHasLoaded(false);
 
     if (!initial) {
+      this.setHasLocalData(false);
       this.internalModel.notifyPropertyChange(this.key);
     }
+  }
+
+  _shouldFindViaLink() {
+    if (!this.link) {
+      return false;
+    }
+
+    if (this.hasLocalData) {
+      return false;
+    }
+
+    return !this.hasLoaded;
   }
 
   findLink() {
@@ -449,7 +464,7 @@ export default class Relationship {
 
   updateInternalModelsFromAdapter(internalModels) {
     heimdall.increment(updateInternalModelsFromAdapter);
-    this.setHasData(true);
+    this.setHasRelationshipDataProperty(true);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(internalModels);
@@ -458,18 +473,22 @@ export default class Relationship {
   notifyRecordRelationshipAdded() { }
 
   /*
-   `hasData` for a relationship is a flag to indicate if we consider the
-   content of this relationship "known". Snapshots uses this to tell the
-   difference between unknown (`undefined`) or empty (`null`). The reason for
+   `hasRelationshipDataProperty` for a relationship is a flag to indicate if we
+   consider the content of this relationship "known". Snapshots uses this to tell
+   the difference between unknown (`undefined`) or empty (`null`). The reason for
    this is that we wouldn't want to serialize unknown relationships as `null`
    as that might overwrite remote state.
 
    All relationships for a newly created (`store.createRecord()`) are
-   considered known (`hasData === true`).
+   considered known (`hasRelationshipDataProperty === true`).
    */
-  setHasData(value) {
-    heimdall.increment(setHasData);
-    this.hasData = value;
+  setHasRelationshipDataProperty(value) {
+    heimdall.increment(setHasRelationshipDataProperty);
+    this.hasRelationshipDataProperty = value;
+  }
+
+  setHasLocalData(v) {
+    this.hasLocalData = v;
   }
 
   /*
@@ -478,7 +497,7 @@ export default class Relationship {
 
    This is used to be able to tell when to fetch the link and when to return
    the local data in scenarios where the local state is considered known
-   (`hasData === true`).
+   (`hasRelationshipDataProperty === true`).
 
    Updating the link will automatically set `hasLoaded` to `false`.
    */
@@ -498,7 +517,7 @@ export default class Relationship {
   push(payload, initial) {
     heimdall.increment(push);
 
-    let hasData = false;
+    let hasRelationshipDataProperty = false;
     let hasLink = false;
 
     if (payload.meta) {
@@ -506,7 +525,7 @@ export default class Relationship {
     }
 
     if (payload.data !== undefined) {
-      hasData = true;
+      hasRelationshipDataProperty = true;
       this.updateData(payload.data, initial);
     }
 
@@ -522,18 +541,27 @@ export default class Relationship {
      Data being pushed into the relationship might contain only data or links,
      or a combination of both.
 
-     If we got data we want to set both hasData and hasLoaded to true since
-     this would indicate that we should prefer the local state instead of
-     trying to fetch the link or call findRecord().
+     If we got data we want to set both hasRelationshipDataProperty and hasLoaded
+     to true since this would indicate that we should prefer the local state instead
+     of trying to fetch the link or call findRecord().
 
      If we have no data but a link is present we want to set hasLoaded to false
-     without modifying the hasData flag. This will ensure we fetch the updated
-     link next time the relationship is accessed.
+     without modifying the hasRelationshipDataProperty flag. This will ensure we
+     fetch the updated link next time the relationship is accessed.
      */
-    if (hasData) {
-      this.setHasData(true);
-      this.setHasLoaded(true);
-    } else if (hasLink) {
+    if (hasRelationshipDataProperty) {
+      this.setHasRelationshipDataProperty(true);
+
+      if (!hasLink) {
+        this.setHasLoaded(true);
+      }
+
+      if (initial) {
+        this.setHasLocalData(!this.localStateIsEmpty());
+      }
+    }
+
+    if (hasLink) {
       this.setHasLoaded(false);
     }
   }

@@ -260,6 +260,15 @@ export default class RelationshipPayloads {
       if (relationshipData.data !== undefined) {
         this._removeInverse(id, previousPayload, inversePayloadMap);
       }
+
+      if (previousPayload && relationshipData.meta === undefined) {
+        relationshipData.meta = previousPayload.meta;
+      }
+
+      if (previousPayload && relationshipData.links === undefined) {
+        relationshipData.links = previousPayload.links;
+      }
+
       payloadMap.set(modelName, id, relationshipData);
       this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
     }
@@ -306,24 +315,28 @@ export default class RelationshipPayloads {
    */
   _addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany) {
     let relInfo = this._relInfo;
+    let inverseData = inversePayload.data;
 
-    if (relInfo.isReflexive && inversePayload.data.id === resourceIdentifier.id) {
+    if (relInfo.isReflexive && inverseData && inverseData.id === resourceIdentifier.id) {
       // eg <user:1>.friends = [{ id: 1, type: 'user' }]
       return;
     }
 
     let existingPayload = inversePayloadMap.get(resourceIdentifier.type, resourceIdentifier.id);
     let existingData = existingPayload && existingPayload.data;
+    let existingLinks = existingPayload && existingPayload.links;
 
     if (existingData) {
-      // There already is an inverse, either add or overwrite depehnding on
+      // There already is an inverse, either add or overwrite depending on
       // whether the inverse is a many relationship or not
       //
-      if (Array.isArray(existingData)) {
+      if (inverseIsMany) {
         existingData.push(inversePayload.data);
       } else {
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
       }
+    } else if (existingLinks) {
+      return;
     } else {
       // first time we're populating the inverse side
       //

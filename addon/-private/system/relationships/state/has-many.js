@@ -315,7 +315,7 @@ export default class ManyRelationship extends Relationship {
       this.store._backburner.join(() => {
         this.updateInternalModelsFromAdapter(records);
         this.manyArray.set('isLoaded', true);
-        this.setHasData(true);
+        this.setHasRelationshipDataProperty(true);
       });
       return this.manyArray;
     });
@@ -344,12 +344,8 @@ export default class ManyRelationship extends Relationship {
     let manyArray = this.manyArray;
     if (this.isAsync) {
       let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecords();
-        } else {
-          promise = this.findLink().then(() => this.findRecords());
-        }
+      if (this._shouldFindViaLink()) {
+        promise = this.findLink().then(() => this.findRecords());
       } else {
         promise = this.findRecords();
       }
@@ -373,6 +369,20 @@ export default class ManyRelationship extends Relationship {
     } else {
       this.updateInternalModelsFromAdapter(internalModels);
     }
+  }
+
+  localStateIsEmpty() {
+    let manyArray = this.manyArray;
+    let internalModels = manyArray.currentState;
+    let manyArrayIsLoaded = manyArray.get('isLoaded');
+
+    if (!manyArrayIsLoaded) {
+      manyArrayIsLoaded = internalModels.reduce((hasNoEmptyModel, i) => {
+        return hasNoEmptyModel && !i.isEmpty();
+      }, true);
+    }
+
+    return !manyArrayIsLoaded;
   }
 
   destroy() {

@@ -198,7 +198,7 @@ export default class Snapshot {
    */
   belongsTo(keyName, options) {
     let id = options && options.id;
-    let relationship, inverseInternalModel, hasData;
+    let relationship, inverseInternalModel, hasRelationshipDataProperty;
     let result;
 
     if (id && keyName in this._belongsToIds) {
@@ -214,10 +214,10 @@ export default class Snapshot {
       throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
+    hasRelationshipDataProperty = get(relationship, 'hasRelationshipDataProperty');
     inverseInternalModel = get(relationship, 'inverseInternalModel');
 
-    if (hasData) {
+    if (hasRelationshipDataProperty) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
           result = get(inverseInternalModel, 'id');
@@ -269,7 +269,7 @@ export default class Snapshot {
    */
   hasMany(keyName, options) {
     let ids = options && options.ids;
-    let relationship, members, hasData;
+    let relationship, members, hasRelationshipDataProperty;
     let results;
 
     if (ids && keyName in this._hasManyIds) {
@@ -285,10 +285,10 @@ export default class Snapshot {
       throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
-    hasData = get(relationship, 'hasData');
+    hasRelationshipDataProperty = get(relationship, 'hasRelationshipDataProperty');
     members = get(relationship, 'members');
 
-    if (hasData) {
+    if (hasRelationshipDataProperty) {
       results = [];
       members.forEach((member) => {
         if (!member.isDeleted()) {
