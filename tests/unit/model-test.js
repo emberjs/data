@@ -599,19 +599,15 @@ test('supports canonical updates via pushedData in root.deleted.saved', function
   });
 
   run(() => {
-    try {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          attributes: {
-            isArchived: true
-          }
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          isArchived: true
         }
-      });
-    } catch (e) {
-      assert.ok(false, e);
-    }
+      }
+    });
 
     let currentState = record._internalModel.currentState;
 
@@ -653,12 +649,9 @@ test('Does not support dirtying in root.deleted.saved', function(assert) {
   });
 
   run(() => {
-    try {
+    assert.expectAssertion(() => {
       set(record, 'isArchived', true);
-      assert.ok(false, 'Was unable to dirty a deleted record');
-    } catch (e) {
-      assert.ok(true, e.message);
-    }
+    }, /Attempted to handle event `didSetProperty` on <person:1> while in state root.deleted.saved. Called with {name: isArchived, oldValue: false, originalValue: false, value: true}./);
 
     let currentState = record._internalModel.currentState;
 
