@@ -68,7 +68,7 @@ export default class Relationship {
     this.inverseKey = inverseKey;
     this.internalModel = internalModel;
     this.isAsync = typeof async === 'undefined' ? true : async;
-    this.isPolymorphic = typeof polymorphic === 'undefined' ? true : polymorphic;
+    this.isPolymorphic = typeof polymorphic === 'undefined' ? false : polymorphic;
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames

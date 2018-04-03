@@ -10,7 +10,6 @@ export default class ManyRelationship extends Relationship {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.belongsToType = relationshipMeta.type;
     this.canonicalState = [];
-    this.isPolymorphic = relationshipMeta.options.polymorphic;
     // The ManyArray for this relationship
     this._manyArray = null;
     // The previous ManyArray for this relationship.  It will be destroyed when
