@@ -16,7 +16,7 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
-import { assert, deprecate, warn, inspect } from '@ember/debug';
+import { assert, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
@@ -1652,11 +1652,6 @@ Store = Service.extend({
     this.recordArrayManager._didUpdateAll(modelName);
   },
 
-  didUpdateAll(modelName) {
-    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.didUpdateAll', until: '2.17.0' });
-    return this._didUpdateAll(modelName);
-  },
-
   /**
     This method returns a filtered array that contains all of the
     known records for a given type in the store.
@@ -2567,11 +2562,6 @@ Store = Service.extend({
       internalModel = null;
     }
     return internalModel;
-  },
-
-  buildInternalModel(modelName, id, data) {
-    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.buildInternalModel', until: '2.17.0' });
-    return this._buildInternalModel(modelName, id, data);
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
