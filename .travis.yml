@@ -58,6 +58,7 @@ jobs:
       env: NAME=publish                # used only to make Travis UI show description
       install: yarn install
       script:
+        - node_modules/.bin/ember try:reset
         - yarn build:production
         - "./bin/publish-builds"
 
@@ -70,7 +71,7 @@ install:
   - yarn install
 
 script:
-  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO
+  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
 
 env:
   global:
