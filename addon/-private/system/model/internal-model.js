@@ -352,6 +352,12 @@ export default class InternalModel {
       };
 
       if (typeof properties === 'object' && properties !== null) {
+
+        if ('id' in properties) {
+          this.setId(properties.id);
+          delete properties.id;
+        }
+
         emberAssign(createOptions, properties);
       }
 
