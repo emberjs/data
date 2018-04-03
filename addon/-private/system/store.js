@@ -356,8 +356,7 @@ Store = Service.extend({
 
     let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
     internalModel.loadedData();
-    let record = internalModel.getRecord();
-    record.setProperties(properties);
+    let record = internalModel.getRecord(properties);
 
     // TODO @runspired this should also be coalesced into some form of internalModel.setState()
     internalModel.eachRelationship((key, descriptor) => {

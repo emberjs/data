@@ -336,7 +336,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord() {
+  getRecord(properties) {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -359,6 +359,39 @@ export default class InternalModel {
       }
 
       this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+
+      if (typeof properties === 'object' && properties !== null) {
+        let initializedRelationships = [];
+        let initializedAttributes = [];
+
+        this.eachAttribute((name) => {
+          if (name in properties) {
+            initializedAttributes.push(name);
+            this.setDirtyAttribute(name, properties[name]);
+            delete properties[name];
+          }
+        });
+        this.eachRelationship((name, { kind }) => {
+          if (name in properties) {
+            initializedRelationships.push(name);
+            if (kind === 'belongsTo') {
+              this.setDirtyBelongsTo(name, properties[name]);
+            } else {
+              this.setDirtyHasMany(name, properties[name]);
+            }
+            delete properties[name];
+          }
+        });
+
+        if ('id' in properties) {
+          this.setId(properties.id);
+          delete properties.id;
+        }
+
+        this._record._notifyProperties(initializedAttributes);
+        this._record._notifyProperties(initializedRelationships);
+        this._record.setProperties(properties);
+      }
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
