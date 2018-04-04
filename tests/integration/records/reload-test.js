@@ -56,6 +56,44 @@ test("When a single record is requested, the adapter's find method should be cal
   });
 });
 
+test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function(assert) {
+  let count = 0;
+  let reloadOptions = {
+    adapterOptions: {
+      makeSnazzy: true
+    }
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    if (count === 0) {
+      count++;
+      return resolve({ data: { id: id, type: 'person', attributes: { name: "Tom Dale" } } });
+    } else if (count === 1) {
+      assert.equal(snapshot.adapterOptions, reloadOptions.adapterOptions, 'We passed adapterOptions via reload');
+      count++;
+      return resolve({ data: { id: id, type: 'person', attributes: { name: "Braaaahm Dale" } } });
+    } else {
+      assert.ok(false, "Should not get here");
+    }
+  };
+
+  run(function() {
+    env.store.findRecord('person', 1).then(function(person) {
+      assert.equal(get(person, 'name'), "Tom Dale", "The person is loaded with the right name");
+      assert.equal(get(person, 'isLoaded'), true, "The person is now loaded");
+
+      let promise = person.reload(reloadOptions);
+
+      assert.equal(get(person, 'isReloading'), true, "The person is now reloading");
+
+      return promise;
+    }).then(function(person) {
+      assert.equal(get(person, 'isReloading'), false, "The person is no longer reloading");
+      assert.equal(get(person, 'name'), "Braaaahm Dale", "The person is now updated with the right name");
+    });
+  });
+});
+
 test("When a record is reloaded and fails, it can try again", function(assert) {
   var tom;
   run(function() {

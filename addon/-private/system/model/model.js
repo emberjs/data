@@ -816,13 +816,23 @@ const Model = EmberObject.extend(Evented, {
     ```
 
     @method reload
-    @return {Promise} a promise that will be resolved with the record when the
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter request
+
+   @return {Promise} a promise that will be resolved with the record when the
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload() {
+  reload(options) {
+    let wrappedAdapterOptions;
+
+    if (typeof options === 'object' && options !== null && options.adapterOptions) {
+      wrappedAdapterOptions = {
+        adapterOptions: options.adapterOptions
+      };
+    }
+
     return PromiseObject.create({
-      promise: this._internalModel.reload().then(() => this)
+      promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this)
     });
   },
 
