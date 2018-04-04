@@ -123,69 +123,6 @@ test('allow passing relationships as well as attributes', function(assert) {
   assert.equal(storage.get('records').findBy('id', '2'), A(records).findBy('id', '2'), 'Defined relationships are allowed in createRecord');
 });
 
-test('createRecord(properties) makes properties available during record init', function(assert) {
-  assert.expect(4);
-  let comment;
-  let author;
-
-  const Post = Model.extend({
-    title: attr(),
-    author: belongsTo('author', { async: false, inverse: 'post' }),
-    comments: hasMany('comment', { async: false, inverse: 'post' }),
-    init() {
-      this._super(...arguments);
-      assert.ok(this.get('title') === 'My Post', 'Attrs are available as expected');
-      assert.ok(this.get('randomProp') === 'An unknown prop', 'Unknown properties are available as expected');
-      assert.ok(this.get('author') === author, 'belongsTo relationships are available as expected');
-      assert.ok(this.get('comments.firstObject') === comment, 'hasMany relationships are available as expected');
-    }
-  });
-  const Comment = Model.extend({
-    text: attr(),
-    post: belongsTo('post', { async: false, inverse: 'comments' })
-  });
-  const Author = Model.extend({
-    name: attr(),
-    post: belongsTo('post', { async: false, inverse: 'author' })
-  });
-  let env = setupStore({
-    post: Post,
-    comment: Comment,
-    author: Author
-  });
-  let store = env.store;
-
-  run(() => {
-    comment = store.push({
-      data: {
-        type: 'comment',
-        id: '1',
-        attributes: {
-          text: 'Hello darkness my old friend'
-        }
-      }
-    });
-    author = store.push({
-      data: {
-        type: 'author',
-        id: '1',
-        attributes: {
-          name: '@runspired'
-        }
-      }
-    });
-  });
-
-  run(() => {
-    store.createRecord('post', {
-      title: 'My Post',
-      randomProp: 'An unknown prop',
-      comments: [comment],
-      author
-    });
-  });
-});
-
 module('unit/store/createRecord - Store with models by dash', {
   beforeEach() {
     let env = setupStore({
