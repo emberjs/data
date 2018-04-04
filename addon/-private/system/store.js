@@ -339,34 +339,27 @@ Store = Service.extend({
   createRecord(modelName, inputProperties) {
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = normalizeModelName(modelName);
-    let properties = copy(inputProperties) || Object.create(null);
 
-    // If the passed properties do not include a primary key,
-    // give the adapter an opportunity to generate one. Typically,
-    // client-side ID generators will use something like uuid.js
-    // to avoid conflicts.
+    return this._backburner.join(() => {
+      let normalizedModelName = normalizeModelName(modelName);
+      let properties = copy(inputProperties) || Object.create(null);
 
-    if (isNone(properties.id)) {
-      properties.id = this._generateId(normalizedModelName, properties);
-    }
+      // If the passed properties do not include a primary key,
+      // give the adapter an opportunity to generate one. Typically,
+      // client-side ID generators will use something like uuid.js
+      // to avoid conflicts.
 
-    // Coerce ID to a string
-    properties.id = coerceId(properties.id);
-
-    let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
-    internalModel.loadedData();
-    let record = internalModel.getRecord();
-    record.setProperties(properties);
-
-    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
-    internalModel.eachRelationship((key, descriptor) => {
-      if (properties[key] !== undefined) {
-        internalModel._relationships.get(key).setHasData(true);
+      if (isNone(properties.id)) {
+        properties.id = this._generateId(normalizedModelName, properties);
       }
-    });
 
-    return record;
+      // Coerce ID to a string
+      properties.id = coerceId(properties.id);
+
+      let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
+      internalModel.loadedData();
+      return internalModel.getRecord(properties);
+    });
   },
 
   /**

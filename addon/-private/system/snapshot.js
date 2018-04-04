@@ -24,25 +24,13 @@ export default class Snapshot {
     this._hasManyIds = Object.create(null);
     this._internalModel = internalModel;
 
-    let record = internalModel.getRecord();
+    // TODO is there a way we can assign known attributes without
+    //  using `eachAttribute`? This forces us to lookup the model-class
+    //  but for findRecord / findAll these are empty and doing so at
+    //  this point in time is unnecessary.
+    internalModel.eachAttribute((keyName) => this._attributes[keyName] = internalModel.getAttributeValue(keyName));
 
-    /**
-     The underlying record for this snapshot. Can be used to access methods and
-     properties defined on the record.
-
-     Example
-
-     ```javascript
-     let json = snapshot.record.toJSON();
-     ```
-
-     @property record
-     @type {DS.Model}
-     */
-    this.record = record;
-    record.eachAttribute((keyName) => this._attributes[keyName] = get(record, keyName));
-
-    /**
+    /**O
      The id of the snapshot's underlying record
 
      Example
@@ -73,7 +61,24 @@ export default class Snapshot {
      */
     this.modelName = internalModel.modelName;
 
-    this._changedAttributes = record.changedAttributes();
+    this._changedAttributes = internalModel.changedAttributes();
+  }
+
+  /**
+   The underlying record for this snapshot. Can be used to access methods and
+   properties defined on the record.
+
+   Example
+
+   ```javascript
+   let json = snapshot.record.toJSON();
+   ```
+
+   @property record
+   @type {DS.Model}
+   */
+  get record() {
+    return this._internalModel.getRecord();
   }
 
   /**

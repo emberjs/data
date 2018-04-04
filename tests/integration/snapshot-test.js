@@ -2,7 +2,7 @@ import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
-import { module, test } from 'qunit';
+import { module, test, skip } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -75,16 +75,21 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
   });
 });
 
-test('snapshot.type loads the class lazily', function(assert) {
+// skipped because snapshot creation requires using `eachAttribute`
+//  which as an approach requires that we MUST load the class.
+//  there may be strategies via which we can snapshot known attributes
+//  only if no record exists yet, since we would then know for sure
+//  that this snapshot is not being used for a `.save()`.
+skip('snapshot.type loads the class lazily', function(assert) {
   assert.expect(3);
 
   let postClassLoaded = false;
-  let modelFor = env.store._modelFor;
-  env.store._modelFor = (name) => {
+  let modelFactoryFor = env.store._modelFactoryFor;
+  env.store._modelFactoryFor = (name) => {
     if (name === 'post') {
       postClassLoaded = true;
     }
-    return modelFor.call(env.store, name);
+    return modelFactoryFor.call(env.store, name);
   };
 
   run(() => {
