@@ -11,6 +11,14 @@ addons:
 cache:
   yarn: true
 
+branches:
+  only:
+    - master
+    - beta
+    - release
+    # npm version tags
+    - /^v\d+\.\d+\.\d+/
+
 stages:
   - test
   - additional tests
