@@ -16,11 +16,13 @@ module('unit/model - DS.Model', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      isArchived: DS.attr()
     });
     Person.toString =  () => 'person';
 
     env = setupStore({
+      adapter: DS.JSONAPIAdapter,
       person: Person
     });
     store = env.store;
@@ -564,6 +566,99 @@ test('supports pushedData in root.deleted.uncommitted', function(assert) {
     store.push(hash);
     assert.equal(get(record, 'currentState.stateName'), 'root.deleted.uncommitted',
       'record accepts pushedData is in root.deleted.uncommitted state');
+  });
+});
+
+test('supports canonical updates via pushedData in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          isArchived: true
+        }
+      }
+    });
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
+  });
+});
+
+
+test('Does not support dirtying in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    assert.expectAssertion(() => {
+      set(record, 'isArchived', true);
+    }, /Attempted to handle event `didSetProperty` on <person:1> while in state root.deleted.saved. Called with {name: isArchived, oldValue: false, originalValue: false, value: true}./);
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
   });
 });
 

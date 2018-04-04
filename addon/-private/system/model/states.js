@@ -701,7 +701,8 @@ const RootState = {
       },
 
       willCommit() { },
-      didCommit()  { }
+      didCommit()  { },
+      pushedData() {}
     },
 
     invalid: {
