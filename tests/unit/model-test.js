@@ -651,7 +651,7 @@ test('Does not support dirtying in root.deleted.saved', function(assert) {
   run(() => {
     assert.expectAssertion(() => {
       set(record, 'isArchived', true);
-    }, /Attempted to handle event `didSetProperty` on <person:1> while in state root.deleted.saved. Called with {name: isArchived, oldValue: false, originalValue: false, value: true}./);
+    }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
 
     let currentState = record._internalModel.currentState;
 

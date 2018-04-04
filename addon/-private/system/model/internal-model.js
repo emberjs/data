@@ -677,6 +677,10 @@ export default class InternalModel {
   }
 
   setDirtyAttribute(key, value) {
+    if (this.isDeleted()) {
+      throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
+    }
+
     let oldValue = this.getAttributeValue(key);
     let originalValue;
 
