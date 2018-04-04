@@ -321,6 +321,47 @@ test("store#findRecord { reload: true } ignores cached record and reloads record
   });
 });
 
+
+test("store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord", function(assert) {
+  assert.expect(5);
+  let calls = 0;
+
+  const testAdapter = DS.JSONAPIAdapter.extend({
+    shouldReloadRecord(store, type, id, snapshot) {
+      assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
+    },
+    findRecord() {
+      calls++;
+      return resolve({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: calls === 1 ? 'Mini' : 'Princess'
+          }
+        }
+      });
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  let car = run(() => store.findRecord('car', '1'));
+
+  assert.equal(calls, 1, 'We made one call to findRecord');
+  assert.equal(car.get('model'), 'Mini', 'cached car has expected model');
+
+  run(() => {
+    let promiseCar = store.findRecord('car', 1, { reload: true });
+
+    assert.ok(promiseCar.get('model') === undefined, `We don't have early access to local data`);
+  });
+
+  assert.equal(calls, 2, 'We made a second call to findRecord');
+  assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
+});
+
 test("store#findRecord { backgroundReload: false } returns cached record and does not reload in the background", function(assert) {
   assert.expect(2);
 
