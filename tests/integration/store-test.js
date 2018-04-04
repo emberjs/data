@@ -1008,7 +1008,7 @@ test('The store should trap exceptions that are thrown from adapter#createRecord
   };
 
   run(() => {
-    let car = store.createRecord('car')
+    let car = store.createRecord('car');
 
     car.save().catch(error => {
       assert.equal(error.message, 'Refusing to serialize')

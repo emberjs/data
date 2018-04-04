@@ -101,7 +101,7 @@ module('integration/injection eager injections', {
 });
 
 test('did inject', function(assert) {
-  let foo = run(() => env.store.createRecord('foo'));
+  let foo = env.store.createRecord('foo');
   let apple = foo.get('apple');
   let Apple = env.registry.registrations['service:apple'];
 

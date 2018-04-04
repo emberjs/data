@@ -523,7 +523,7 @@ test("a DS.Model does not require an attribute type", function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag', { name: "test" }));
+  let tag = store.createRecord('tag', { name: "test" });
 
   assert.equal(get(tag, 'name'), 'test', 'the value is persisted');
 });
@@ -537,7 +537,7 @@ test('a DS.Model can have a defaultValue without an attribute type', function(as
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.equal(get(tag, 'name'), 'unknown', 'the default value is found');
 });
@@ -545,7 +545,7 @@ test('a DS.Model can have a defaultValue without an attribute type', function(as
 testInDebug('Calling attr() throws a warning', function(assert) {
   assert.expect(1);
 
-  let person = run(() => store.createRecord('person', { id: 1, name: 'TomHuda' }));
+  let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
   assert.throws(() => {
     person.attr();
@@ -742,7 +742,7 @@ test('a DS.Model can have a defaultValue', function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.equal(get(tag, 'name'), 'unknown', 'the default value is found');
 
@@ -789,10 +789,8 @@ test('a defaultValue for an attribute can be a function', function(assert) {
     tag: Tag
   });
 
-  run(() => {
-    let tag = store.createRecord('tag');
-    assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
-  });
+  let tag = store.createRecord('tag');
+  assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
 });
 
 test('a defaultValue function gets the record, options, and key', function(assert) {
@@ -812,7 +810,7 @@ test('a defaultValue function gets the record, options, and key', function(asser
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   get(tag, 'createdAt');
 });
@@ -826,7 +824,7 @@ testInDebug('a complex object defaultValue is deprecated', function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.expectAssertion(() => {
     get(tag, 'tagInfo');
@@ -854,7 +852,7 @@ test('setting a property to undefined on a newly created record should not impac
 
   assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 
-  tag = run(() =>  store.createRecord('tag', { name: undefined }));
+  tag = store.createRecord('tag', { name: undefined });
 
   assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 });
@@ -932,7 +930,7 @@ test("a listener can be added to a record", function(assert) {
   let count = 0;
   let F = function() { count++; };
 
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.on('event!', F);
   run(() => record.trigger('event!'));
@@ -947,7 +945,7 @@ test("a listener can be added to a record", function(assert) {
 test('when an event is triggered on a record the method with the same name is invoked with arguments', function(assert) {
   let count = 0;
   let F = function() { count++; };
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.eventNamedMethod = F;
 
@@ -959,7 +957,7 @@ test('when an event is triggered on a record the method with the same name is in
 test('when a method is invoked from an event with the same name the arguments are passed through', function(assert) {
   let eventMethodArgs = null;
   let F = function() { eventMethodArgs = arguments; };
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.eventThatTriggersMethod = F;
 
@@ -1147,7 +1145,7 @@ testInDebug(`don't allow setting`, function(assert) {
     person: Person
   });
 
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   assert.expectAssertion(() => {
     run(() => {
@@ -1188,7 +1186,7 @@ test('A DS.Model can be JSONified', function(assert) {
   });
 
   let store = createStore({ person: Person });
-  let record = run(() => store.createRecord('person', { name: 'TomHuda' }));
+  let record = store.createRecord('person', { name: 'TomHuda' });
 
   assert.deepEqual(record.toJSON(), { data: { type: 'people', attributes: { name: 'TomHuda' } } });
 });
@@ -1202,9 +1200,7 @@ testInDebug('A subclass of DS.Model can not use the `data` property', function(a
   let store = createStore({ person: Person });
 
   assert.expectAssertion(() => {
-    run(() => {
-      store.createRecord('person', { name: 'TomHuda' });
-    });
+    store.createRecord('person', { name: 'TomHuda' });
   }, /`data` is a reserved property name on DS.Model objects/);
 });
 
@@ -1217,9 +1213,7 @@ testInDebug('A subclass of DS.Model can not use the `store` property', function(
   let store = createStore({ retailer: Retailer });
 
   assert.expectAssertion(() => {
-    run(() => {
-      store.createRecord('retailer', { name: 'Buy n Large' });
-    });
+    store.createRecord('retailer', { name: 'Buy n Large' });
   }, /`store` is a reserved property name on DS.Model objects/);
 });
 
@@ -1235,9 +1229,7 @@ testInDebug('A subclass of DS.Model can not use reserved properties', function(a
     let store = createStore({ post: Post });
 
     assert.expectAssertion(() => {
-      run(() => {
-        store.createRecord('post', {});
-      });
+      store.createRecord('post', {});
     }, /is a reserved property name on DS.Model objects/);
   });
 });
@@ -1248,12 +1240,11 @@ test('Pushing a record into the store should transition it to the loaded state',
   });
 
   let store = createStore({ person: Person });
+  let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+
+  assert.equal(person.get('isNew'), true, 'createRecord should put records into the new state');
 
   run(() => {
-    let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
-
-    assert.equal(person.get('isNew'), true, 'createRecord should put records into the new state');
-
     store.push({
       data: {
         type: 'person',
@@ -1332,7 +1323,7 @@ test('internalModel is ready by `init`', function(assert) {
   let { store } = setupStore({ person: Person });
 
   assert.equal(nameDidChange, 0, 'observer should not trigger on create');
-  let person = run(() => store.createRecord('person'));
+  let person = store.createRecord('person');
   assert.equal(person.get('name'), 'my-name-set-in-init');
 });
 
@@ -1352,7 +1343,7 @@ test('accessing attributes in the initializer should not throw an error', functi
     person: Person
   });
 
-  run(() => store.createRecord('person'));
+  store.createRecord('person');
 });
 
 test('setting the id after model creation should correctly update the id', function(assert) {
@@ -1366,11 +1357,11 @@ test('setting the id after model creation should correctly update the id', funct
     person: Person
   });
 
+  let person = store.createRecord('person');
+
+  assert.equal(person.get('id'), null, 'initial created model id should be null');
+
   run(() => {
-    let person = store.createRecord('person');
-
-    assert.equal(person.get('id'), null, 'initial created model id should be null');
-
     person.set('id', 'john');
 
     assert.equal(person.get('id'), 'john', 'new id should be correctly set.');

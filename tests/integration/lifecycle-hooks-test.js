@@ -33,7 +33,7 @@ test("When the adapter acknowledges that a record has been created, a `didCreate
     return resolve({ data: { id: 99, type: "person", attributes: { name: "Yehuda Katz" } } });
   };
 
-  let person = run(() => env.store.createRecord('person', { name: "Yehuda Katz" }));
+  let person = env.store.createRecord('person', { name: "Yehuda Katz" });
 
   person.on('didCreate', function() {
     assert.equal(this, person, "this is bound to the record");
@@ -52,7 +52,7 @@ test("When the adapter acknowledges that a record has been created without a new
     return resolve();
   };
 
-  let person = run(() => env.store.createRecord('person', { id: 99, name: "Yehuda Katz" }));
+  let person = env.store.createRecord('person', { id: 99, name: "Yehuda Katz" });
 
   person.on('didCreate', function() {
     assert.equal(this, person, "this is bound to the record");

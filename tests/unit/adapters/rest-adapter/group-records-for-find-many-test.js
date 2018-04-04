@@ -82,7 +82,7 @@ test('groupRecordsForFindMany works for encodeURIComponent-ified ids', function(
 });
 
 test('_stripIDFromURL works with id being encoded - #4190', function(assert) {
-  let record = run(() => store.createRecord('testRecord', { id: "id:123" }));
+  let record = store.createRecord('testRecord', { id: "id:123" });
   let adapter = store.adapterFor('testRecord');
   let snapshot = record._internalModel.createSnapshot();
   let strippedUrl = adapter._stripIDFromURL(store, snapshot);

@@ -117,12 +117,8 @@ test("by default, createRecords calls createRecord once per record", function(as
     });
   };
 
-  let tom, yehuda;
-
-  run(() => {
-    tom = store.createRecord('person', { name: "Tom Dale" });
-    yehuda = store.createRecord('person', { name: "Yehuda Katz" });
-  });
+  let tom = store.createRecord('person', { name: "Tom Dale" });
+  let yehuda = store.createRecord('person', { name: "Yehuda Katz" });
 
   let promise = run(() => {
     return hash({
@@ -502,9 +498,7 @@ test("if a created record is marked as invalid by the server, it enters an error
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
   return run(function() {
@@ -549,9 +543,7 @@ test("allows errors on arbitrary properties on create", function(assert) {
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
@@ -603,9 +595,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
@@ -1094,7 +1084,7 @@ test("async hasMany always returns a promise", function(assert) {
     });
   };
 
-  let tom = run(() => store.createRecord('person', { name: "Tom Dale" }));
+  let tom = store.createRecord('person', { name: "Tom Dale" });
 
   run(() => {
     assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
@@ -1115,12 +1105,9 @@ test("createRecord receives a snapshot", function(assert) {
     return resolve();
   };
 
-  var person;
+  let record = store.createRecord('person', { name: "Tom Dale", id: 1 });
 
-  run(() => {
-    person = store.createRecord('person', { name: "Tom Dale", id: 1 });
-    person.save();
-  });
+  run(() => record.save());
 });
 
 test("updateRecord receives a snapshot", function(assert) {
@@ -1329,8 +1316,8 @@ test("record.save should pass adapterOptions to the createRecord method", functi
   };
 
   return run(() => {
-    let person = store.createRecord('person', { name: 'Tom' });
-    return person.save({ adapterOptions: { subscribe: true } });
+    store.createRecord('person', { name: 'Tom' })
+      .save({ adapterOptions: { subscribe: true } });
   });
 });
 

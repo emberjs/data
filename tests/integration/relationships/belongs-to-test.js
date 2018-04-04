@@ -499,11 +499,10 @@ test("polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY
 test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function(assert) {
   setupModelFactoryInjections(false);
   assert.expect(1);
-  run(() => {
-    let message = env.store.createRecord('message', { id: 1 });
-    let comment = env.store.createRecord('comment', { id: 2, message: message });
-    assert.ok(comment instanceof Message, 'a comment is an instance of a message');
-  });
+
+  let message = env.store.createRecord('message', { id: 1 });
+  let comment = env.store.createRecord('comment', { id: 2, message: message });
+  assert.ok(comment instanceof Message, 'a comment is an instance of a message');
 });
 
 test("relationshipsByName does not cache a factory", function(assert) {
@@ -969,16 +968,13 @@ test("Model's belongsTo relationship should not be created during model creation
 });
 
 test("Model's belongsTo relationship should be created during model creation if relationship passed in constructor", function(assert) {
-  let user, message;
-
-  run(() => {
-    message = env.store.createRecord('message');
-    user = env.store.createRecord('user', {
-      name: 'John Doe',
-      favouriteMessage: message
-    });
-    assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  let message = env.store.createRecord('message');
+  let user = env.store.createRecord('user', {
+    name: 'John Doe',
+    favouriteMessage: message
   });
+
+  assert.ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
 });
 
 test("Model's belongsTo relationship should be created during 'set' method", function(assert) {

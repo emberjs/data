@@ -314,13 +314,9 @@ test('Serializer should respect the attrs hash when serializing attributes with 
       'company-name': 'company_name'
     }
   }));
-  var project;
 
-  run(function() {
-    project = env.store.createRecord('project', { 'company-name': 'Tilde Inc.' });
-  });
-
-  var payload = env.store.serializerFor('project').serialize(project._createSnapshot());
+  let project = env.store.createRecord('project', { 'company-name': 'Tilde Inc.' });
+  let payload = env.store.serializerFor('project').serialize(project._createSnapshot());
 
   assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });
@@ -340,10 +336,7 @@ test('options are passed to transform for serialization', function(assert) {
     })
   });
 
-  var user;
-  run(function() {
-    user = env.store.createRecord('user', { myCustomField: 'value' });
-  });
+  let user = env.store.createRecord('user', { myCustomField: 'value' });
 
   env.store.serializerFor('user').serialize(user._createSnapshot());
 });

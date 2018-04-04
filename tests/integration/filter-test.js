@@ -196,9 +196,7 @@ test('a filtered record array includes created elements', function(assert) {
 
   assert.equal(get(recordArray, 'length'), 2, 'precond - The Record Array should have the filtered objects on it');
 
-  run(() => {
-    store.createRecord('person', { name: 'Scumbag Koz' });
-  });
+  store.createRecord('person', { name: 'Scumbag Koz' });
 
   assert.equal(get(recordArray, 'length'), 3, 'The record array has the new object on it');
 });
@@ -566,11 +564,9 @@ test('it is possible to filter created records by dirtiness', function(assert) {
     return store.filter('person', person => !person.get('hasDirtyAttributes'));
   });
 
-  let person = run(() => {
-    return store.createRecord('person', {
-      id: 1,
-      name: 'Tom Dale'
-    });
+  let person = store.createRecord('person', {
+    id: 1,
+    name: 'Tom Dale'
   });
 
   assert.equal(filter.get('length'), 0, 'the dirty record is not in the filter');
@@ -579,35 +575,6 @@ test('it is possible to filter created records by dirtiness', function(assert) {
     return person.save().then(person => {
       assert.equal(filter.get('length'), 1, 'the clean record is in the filter');
     });
-  });
-});
-
-test('it is possible to filter created records by isReloading', function(assert) {
-  customAdapter(env, DS.Adapter.extend({
-    findRecord(store, type, id, snapshot) {
-      return {
-        data: {
-          id: 1,
-          type: 'person',
-          attributes: {
-            name: 'Tom Dalle'
-          }
-        }
-      };
-    }
-  }));
-
-  let filter = store.filter('person', person => {
-    return !person.get('isReloading');
-  });
-
-  let person = store.createRecord('person', {
-    id: 1,
-    name: 'Tom Dale'
-  });
-
-  return person.reload().then(person => {
-    assert.equal(filter.get('length'), 1, 'the filter correctly returned a reloaded object');
   });
 });
 
@@ -632,9 +599,7 @@ function clientEdits(ids) {
 function clientCreates(names) {
   // wrap in an run to guarantee coalescence of the
   // iterated `set` calls.
-  edited = run(() => {
-    return names.map(name => store.createRecord('person', { name: 'Client-side ' + name }));
-  });
+  edited = names.map(name => store.createRecord('person', { name: 'Client-side ' + name }));
 }
 
 function serverResponds() {

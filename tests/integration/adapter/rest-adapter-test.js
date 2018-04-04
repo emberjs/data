@@ -256,11 +256,8 @@ test("createRecord - a payload with a new ID and data applies the updates", func
 });
 
 test("createRecord - a payload with a new ID and data applies the updates (with legacy singular name)", function(assert) {
-  let post;
   ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } });
-  run(function() {
-    post = store.createRecord('post', { name: "The Parley Letter" });
-  });
+  let post = store.createRecord('post', { name: "The Parley Letter" });
 
   return run(post, 'save').then(post => {
     assert.equal(passedUrl, "/posts");
@@ -297,7 +294,7 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
   });
   let post = store.peekRecord('post', 1);
 
-  let comment = run(() => store.createRecord('comment', { name: "The Parley Letter" }));
+  let comment = store.createRecord('comment', { name: "The Parley Letter" });
 
   run(() => {
     post.get('comments').pushObject(comment);
@@ -315,7 +312,6 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
 });
 
 test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
-  let post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
 
@@ -326,9 +322,7 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
 
   ajaxResponse();
 
-  run(() => {
-    post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
-  });
+  let post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
 
   return run(() =>
     post.save()
@@ -513,14 +507,11 @@ test("createRecord - a record on the many side of a hasMany relationship should 
 
 test("createRecord - sideloaded belongsTo relationships are both marked as loaded", function(assert) {
   assert.expect(4);
-  let post;
 
   Post.reopen({ comment: DS.belongsTo('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  run(() => {
-    post = store.createRecord('post', { name: "man" });
-  });
+  let post = store.createRecord('post', { name: "man" });
 
   ajaxResponse({
     posts: [{ id: 1, comment: 1, name: "marked" }],
@@ -556,10 +547,7 @@ test("createRecord - response can contain relationships the client doesn't yet k
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  let post;
-  run(() => {
-    post = store.createRecord('post', { name: "Rails is omakase" });
-  });
+  let post = store.createRecord('post', { name: "Rails is omakase" });
 
   return run(() => {
     return post.save().then(post => {
@@ -575,15 +563,11 @@ test("createRecord - response can contain relationships the client doesn't yet k
 });
 
 test("createRecord - relationships are not duplicated", function(assert) {
-  let post, comment;
-
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  run(() => {
-    post = store.createRecord('post', { name: "Tomtomhuda" });
-    comment = store.createRecord('comment', { id: 2, name: "Comment title" });
-  });
+  let post = store.createRecord('post', { name: "Tomtomhuda" });
+  let comment = store.createRecord('comment', { id: 2, name: "Comment title" });
 
   ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
 
@@ -989,7 +973,7 @@ test("deleteRecord - a payload with sidloaded updates pushes the updates when th
 });
 
 test("deleteRecord - deleting a newly created record should not throw an error", function(assert) {
-  let post = run(() => store.createRecord('post'));
+  let post = store.createRecord('post');
 
   return run(() => {
     post.deleteRecord();

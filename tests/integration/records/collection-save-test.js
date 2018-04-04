@@ -25,10 +25,9 @@ module("integration/records/collection_save - Save Collection of Records", {
 test("Collection will resolve save on success", function(assert) {
   assert.expect(1);
   let id = 1;
-  run(() => {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
-  });
+
+  env.store.createRecord('post', { title: 'Hello' });
+  env.store.createRecord('post', { title: 'World' });
 
   let posts = env.store.peekAll('post');
 
@@ -44,10 +43,8 @@ test("Collection will resolve save on success", function(assert) {
 });
 
 test("Collection will reject save on error", function(assert) {
-  run(() => {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
-  });
+  env.store.createRecord('post', { title: 'Hello' });
+  env.store.createRecord('post', { title: 'World' });
 
   let posts = env.store.peekAll('post');
 
@@ -63,10 +60,8 @@ test("Collection will reject save on error", function(assert) {
 });
 
 test("Retry is allowed in a failure handler", function(assert) {
-  run(() => {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
-  });
+  env.store.createRecord('post', { title: 'Hello' });
+  env.store.createRecord('post', { title: 'World' });
 
   let posts = env.store.peekAll('post');
 
@@ -99,10 +94,8 @@ test("Retry is allowed in a failure handler", function(assert) {
 test("Collection will reject save on invalid", function(assert) {
   assert.expect(1);
 
-  run(() => {
-    env.store.createRecord('post', { title: 'Hello' });
-    env.store.createRecord('post', { title: 'World' });
-  });
+  env.store.createRecord('post', { title: 'Hello' });
+  env.store.createRecord('post', { title: 'World' });
 
   let posts = env.store.peekAll('post');
 

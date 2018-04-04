@@ -1,5 +1,4 @@
 import { computed } from '@ember/object';
-import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 
 import { module, test } from 'qunit';
@@ -33,7 +32,7 @@ test('_debugInfo groups the attributes and relationships correctly', function(as
     user: User
   });
 
-  let record = run(() => store.createRecord('user'));
+  let record = store.createRecord('user');
 
   let propertyInfo = record._debugInfo().propertyInfo;
 
@@ -73,7 +72,7 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
     user: User
   });
 
-  let record = run(() => store.createRecord('user'));
+  let record = store.createRecord('user');
 
   let propertyInfo = record._debugInfo().propertyInfo;
 

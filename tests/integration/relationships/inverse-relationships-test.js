@@ -28,12 +28,9 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
 
   var env = setupStore({ post: Post, comment: Comment });
   var store = env.store;
-  var comment, post;
 
-  run(function() {
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
-  });
+  let comment = store.createRecord('comment');
+  let post = store.createRecord('post');
 
   assert.equal(comment.get('post'), null, "no post has been set on the comment");
 
@@ -59,12 +56,9 @@ test("Inverse relationships can be explicitly nullable", function(assert) {
     user: User,
     post: Post
   });
-  var user, post;
 
-  run(function() {
-    user = store.createRecord('user');
-    post = store.createRecord('post');
-  });
+  let user = store.createRecord('user');
+  let post = store.createRecord('post');
 
   assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
   assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
@@ -87,12 +81,9 @@ test("Null inverses are excluded from potential relationship resolutions", funct
     user: User,
     post: Post
   });
-  let user, post;
 
-  run(function() {
-    user = store.createRecord('user');
-    post = store.createRecord('post');
-  });
+  let user = store.createRecord('user');
+  let post = store.createRecord('post');
 
   assert.equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
   assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
@@ -113,12 +104,9 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
 
   var env = setupStore({ post: Post, comment: Comment });
   var store = env.store;
-  var comment, post;
 
-  run(function() {
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
-  });
+  let comment = store.createRecord('comment');
+  let post = store.createRecord('post');
 
   assert.equal(comment.get('onePost'), null, "onePost has not been set on the comment");
   assert.equal(comment.get('twoPost'), null, "twoPost has not been set on the comment");
@@ -179,13 +167,11 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
 
   var env = setupStore({ post: Post, comment: Comment });
   var store = env.store;
-  var comment, post, post2;
 
-  run(function() {
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
-    post2 = store.createRecord('post');
-  });
+  let comment = store.createRecord('comment');
+  let post = store.createRecord('post');
+  let post2 = store.createRecord('post');
+
   run(function() {
     comment.set('post', post);
     post2.set('bestComment', null);
@@ -217,13 +203,10 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
     post: Post,
     comment: Comment
   });
-  var post, post2, comment;
 
-  run(function() {
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
-    post2 = store.createRecord('post');
-  });
+  let comment = store.createRecord('comment');
+  let post = store.createRecord('post');
+  let post2 = store.createRecord('post');
 
   run(function() {
     comment.set('post', post);
@@ -255,13 +238,12 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
     post: Post,
     comment: Comment
   });
-  var post, comment, comment2;
+
+  let post = store.createRecord('post');
+  let comment = store.createRecord('comment');
+  let comment2 = store.createRecord('comment');
 
   run(function() {
-    post = store.createRecord('post');
-    comment = store.createRecord('comment');
-    comment2 = store.createRecord('comment');
-
     comment.set('post', post);
   });
 
@@ -290,13 +272,10 @@ test("OneToNone relationship works", function(assert) {
 
   var env = setupStore({ post: Post, comment: Comment });
   var store = env.store;
-  var comment, post1, post2;
 
-  run(function() {
-    comment = store.createRecord('comment');
-    post1 = store.createRecord('post');
-    post2 = store.createRecord('post');
-  });
+  let comment = store.createRecord('comment');
+  let post1 = store.createRecord('post');
+  let post2 = store.createRecord('post');
 
   run(function() {
     comment.set('post', post1);
@@ -335,12 +314,9 @@ test("When a record is added to or removed from a polymorphic has-many relations
 
   var env = setupStore({ user: User, message: Message, post: Post });
   var store = env.store;
-  var post, user;
 
-  run(function() {
-    post = store.createRecord('post');
-    user = store.createRecord('user');
-  });
+  let post = store.createRecord('post');
+  let user = store.createRecord('user');
 
   assert.equal(post.get('oneUser'), null, "oneUser has not been set on the user");
   assert.equal(post.get('twoUser'), null, "twoUser has not been set on the user");
@@ -381,16 +357,15 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
   var env = setupStore({ user: User, message: Message, post: Post });
   var store = env.store;
-  var user, post;
+
+  let user = store.createRecord('user');
+  let post = store.createRecord('post');
+
+  assert.equal(user.get('meMessages.length'), 0, "meMessages has no posts");
+  assert.equal(user.get('youMessages.length'), 0, "youMessages has no posts");
+  assert.equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
   run(function() {
-    user = store.createRecord('user');
-    post = store.createRecord('post');
-
-    assert.equal(user.get('meMessages.length'), 0, "meMessages has no posts");
-    assert.equal(user.get('youMessages.length'), 0, "youMessages has no posts");
-    assert.equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
-
     post.set('user', user);
   });
 
@@ -426,16 +401,15 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
 
   var env = setupStore({ comment: Comment, message: Message, post: Post });
   var store = env.store;
-  var comment, post;
+
+  let comment = store.createRecord('comment');
+  let post = store.createRecord('post');
+
+  assert.equal(post.get('meMessages.length'), 0, "meMessages has no posts");
+  assert.equal(post.get('youMessages.length'), 0, "youMessages has no posts");
+  assert.equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
   run(function() {
-    comment = store.createRecord('comment');
-    post = store.createRecord('post');
-
-    assert.equal(post.get('meMessages.length'), 0, "meMessages has no posts");
-    assert.equal(post.get('youMessages.length'), 0, "youMessages has no posts");
-    assert.equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
-
     comment.set('message', post);
   });
 
@@ -462,9 +436,8 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a has
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
   var post;
-  run(function() {
-    env.store.createRecord('comment');
-  });
+
+  env.store.createRecord('comment');
 
   assert.expectAssertion(function() {
     run(function() {
@@ -484,9 +457,7 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a bel
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
   var post;
-  run(function() {
-    env.store.createRecord('user');
-  });
+  env.store.createRecord('user');
 
   assert.expectAssertion(function() {
     run(function() {
@@ -641,9 +612,9 @@ testInDebug("Inverse null relationships with models that don't exist throw a nic
   let env = setupStore({ user: User });
 
   assert.expectAssertion(() => {
-    run(() => env.store.createRecord('user', { post: {}}));
+    env.store.createRecord('user', { post: {}});
   }, /No model was found for/)
 
   // but don't error if the relationship is not used
-  run(() => env.store.createRecord('user', {}));
+  env.store.createRecord('user', {});
 });

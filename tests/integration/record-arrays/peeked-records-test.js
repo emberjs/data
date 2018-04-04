@@ -105,10 +105,9 @@ test('peekAll in the same run-loop as push works as expected', function(assert) 
 test('newly created records notify the array as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -130,10 +129,9 @@ test('newly created records notify the array as expected', function(assert) {
 test('immediately peeking newly created records works as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -156,9 +154,9 @@ test('immediately peeking newly created records works as expected', function(ass
 test('unloading newly created records notify the array as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -180,9 +178,9 @@ test('unloading newly created records notify the array as expected', function(as
 test('immediately peeking after unloading newly created records works as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,

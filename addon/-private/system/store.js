@@ -338,25 +338,32 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    return this._backburner.join(() => {
-      let normalizedModelName = normalizeModelName(modelName);
-      let properties = copy(inputProperties) || Object.create(null);
+    // This is wrapped in a `run.join` so that in test environments users do not need to manually wrap
+    //   calls to `createRecord`. The run loop usage here is because we batch the joining and updating
+    //   of record-arrays via ember's run loop, not our own.
+    //
+    //   to remove this, we would need to move to a new `async` API.
+    return emberRun.join(() => {
+      return this._backburner.join(() => {
+        let normalizedModelName = normalizeModelName(modelName);
+        let properties = copy(inputProperties) || Object.create(null);
 
-      // If the passed properties do not include a primary key,
-      // give the adapter an opportunity to generate one. Typically,
-      // client-side ID generators will use something like uuid.js
-      // to avoid conflicts.
+        // If the passed properties do not include a primary key,
+        // give the adapter an opportunity to generate one. Typically,
+        // client-side ID generators will use something like uuid.js
+        // to avoid conflicts.
 
-      if (isNone(properties.id)) {
-        properties.id = this._generateId(normalizedModelName, properties);
-      }
+        if (isNone(properties.id)) {
+          properties.id = this._generateId(normalizedModelName, properties);
+        }
 
-      // Coerce ID to a string
-      properties.id = coerceId(properties.id);
+        // Coerce ID to a string
+        properties.id = coerceId(properties.id);
 
-      let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
-      internalModel.loadedData();
-      return internalModel.getRecord(properties);
+        let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
+        internalModel.loadedData();
+        return internalModel.getRecord(properties);
+      });
     });
   },
 

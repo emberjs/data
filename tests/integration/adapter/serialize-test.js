@@ -31,8 +31,6 @@ test("serialize() is delegated to the serializer", function(assert) {
     assert.deepEqual(options, { foo: 'bar' });
   };
 
-  run(() => {
-    let person = store.createRecord('person');
-    adapter.serialize(person._createSnapshot(), { foo: 'bar' });
-  });
+  let person = store.createRecord('person');
+  adapter.serialize(person._createSnapshot(), { foo: 'bar' });
 });

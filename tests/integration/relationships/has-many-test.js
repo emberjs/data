@@ -1515,13 +1515,10 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   Post.reopen({
     contact: DS.belongsTo('contact', { polymorphic: true, async: false })
   });
-  let email, post;
 
-  run(function () {
-    email = env.store.createRecord('email');
-    post = env.store.createRecord('post', {
-      contact: email
-    });
+  let email = env.store.createRecord('email');
+  let post = env.store.createRecord('post', {
+    contact: email
   });
 
   assert.equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
@@ -1696,11 +1693,7 @@ test("A record can be removed from a polymorphic association", function(assert) 
 test("When a record is created on the client, its hasMany arrays should be in a loaded state", function(assert) {
   assert.expect(3);
 
-  let post;
-
-  run(function() {
-    post = env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
 
   assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
   let comments;
@@ -1720,9 +1713,7 @@ test("When a record is created on the client, its async hasMany arrays should be
     comments: DS.hasMany('comment', { async: true })
   });
 
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
 
   assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
 
@@ -1737,9 +1728,8 @@ test("When a record is created on the client, its async hasMany arrays should be
 
 test("we can set records SYNC HM relationship", function(assert) {
   assert.expect(1);
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
+
   run(function() {
     env.store.push({
       data: [{
@@ -1768,9 +1758,8 @@ test("We can set records ASYNC HM relationship", function(assert) {
     comments: DS.hasMany('comment', { async: true })
   });
 
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
+
   run(function() {
     env.store.push({
       data: [{
@@ -2773,40 +2762,36 @@ test("hasMany hasData async created", function(assert) {
     pages: hasMany('pages', { async: true })
   });
 
-  run(() => {
-    let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let page = store.createRecord('page');
+  let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+  let page = store.createRecord('page');
 
-    let relationship = chapter._internalModel._relationships.get('pages');
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+  let relationship = chapter._internalModel._relationships.get('pages');
+  assert.equal(relationship.hasData, false, 'relationship does not have data');
 
-    chapter = store.createRecord('chapter', {
-      title: 'The Story Begins',
-      pages: [page]
-    });
-
-    relationship = chapter._internalModel._relationships.get('pages');
-    assert.equal(relationship.hasData, true, 'relationship has data');
+  chapter = store.createRecord('chapter', {
+    title: 'The Story Begins',
+    pages: [page]
   });
+
+  relationship = chapter._internalModel._relationships.get('pages');
+  assert.equal(relationship.hasData, true, 'relationship has data');
 });
 
 test("hasMany hasData sync created", function(assert) {
   assert.expect(2);
 
-  run(() => {
-    let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let relationship = chapter._internalModel._relationships.get('pages');
+  let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+  let relationship = chapter._internalModel._relationships.get('pages');
 
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+  assert.equal(relationship.hasData, false, 'relationship does not have data');
 
-    chapter = store.createRecord('chapter', {
-      title: 'The Story Begins',
-      pages: [store.createRecord('page')]
-    });
-    relationship = chapter._internalModel._relationships.get('pages');
-
-    assert.equal(relationship.hasData, true, 'relationship has data');
+  chapter = store.createRecord('chapter', {
+    title: 'The Story Begins',
+    pages: [store.createRecord('page')]
   });
+  relationship = chapter._internalModel._relationships.get('pages');
+
+  assert.equal(relationship.hasData, true, 'relationship has data');
 });
 
 test("Model's hasMany relationship should not be created during model creation", function(assert) {

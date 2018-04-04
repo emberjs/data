@@ -379,20 +379,15 @@ test('a newly created record is removed from a record array when it is deleted',
     tag: Tag
   });
   let recordArray = store.peekAll('person');
-  let scumbag = run(() => {
-    return store.createRecord('person', {
-      name: 'Scumbag Dale'
-    });
+  let scumbag = store.createRecord('person', {
+    name: 'Scumbag Dale'
   });
 
   assert.equal(get(recordArray, 'length'), 1, 'precond - record array already has the first created item');
 
-  // guarantee coalescence
-  run(() => {
-    store.createRecord('person', { name: 'p1' });
-    store.createRecord('person', { name: 'p2' });
-    store.createRecord('person', { name: 'p3' });
-  });
+  store.createRecord('person', { name: 'p1' });
+  store.createRecord('person', { name: 'p2' });
+  store.createRecord('person', { name: 'p3' });
 
   assert.equal(get(recordArray, 'length'), 4, 'precond - record array has the created item');
   assert.equal(recordArray.objectAt(0), scumbag, 'item at index 0 is record with id 1');

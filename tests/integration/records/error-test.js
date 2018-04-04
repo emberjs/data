@@ -75,12 +75,10 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
 testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
   assert.expect(5);
 
-  var person = run(() => {
-    return store.createRecord('person', {
-      id: 'wat',
-      firstName: 'Yehuda',
-      lastName: 'Katz'
-    });
+  let person = store.createRecord('person', {
+    id: 'wat',
+    firstName: 'Yehuda',
+    lastName: 'Katz'
   });
 
   run(() => {
@@ -105,11 +103,9 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
 testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
   assert.expect(7);
 
-  var person = run(() => {
-    return store.createRecord('person', {
-      id: 'wat',
-      firstName: 'Yehuda'
-    });
+  let person = store.createRecord('person', {
+    id: 'wat',
+    firstName: 'Yehuda'
   });
 
   run(() => {
@@ -136,11 +132,9 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
 testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
   assert.expect(6);
 
-  var person = run(() => {
-    return store.createRecord('person', {
-      id: 'wat',
-      firstName: 'Yehuda'
-    });
+  let person = store.createRecord('person', {
+    id: 'wat',
+    firstName: 'Yehuda'
   });
 
   run(() => {
