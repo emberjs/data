@@ -1397,7 +1397,7 @@ test('updating the id with store.updateId should correctly when the id property 
 
     store.updateId(person._internalModel, { id: 'john' });
 
-    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
   });
 });
 
@@ -1448,6 +1448,6 @@ test('ID mutation (complicated)', function(assert) {
     assert.equal(idChange, 0);
     store.updateId(person._internalModel, { id: 'john' });
     assert.equal(idChange, 1);
-    assert.equal(person.id, 'john', 'new id should be correctly set.');
+    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
 });

@@ -350,37 +350,39 @@ export default class InternalModel {
         isError: this.isError,
         adapterError: this.error
       };
-      let hasCreateProperties = typeof properties === 'object' && properties !== null;
-      let initializedRelationships;
 
-      if (hasCreateProperties) {
-        initializedRelationships = [];
+      if (properties !== undefined) {
+        assert(`You passed '${properties}' as properties for record creation instead of an object.`, typeof properties === 'object' && properties !== null);
+        let classFields = this.getFields();
+        let relationships = this._relationships;
+        let propertyNames = Object.keys(properties);
 
-        if ('id' in properties) {
-          this.setId(properties.id);
-          delete properties.id;
+        for (let i = 0; i < propertyNames.length; i++) {
+          let name = propertyNames[i];
+          let fieldType = classFields.get(name);
+          let propertyValue = properties[name];
+
+          if (name === 'id') {
+            this.setId(propertyValue);
+            continue;
+          }
+
+          switch (fieldType) {
+            case 'attribute':
+              this.setDirtyAttribute(name, propertyValue);
+              break;
+            case 'belongsTo':
+              this.setDirtyBelongsTo(name, propertyValue);
+              relationships.get(name).setHasData(true);
+              break;
+            case 'hasMany':
+              this.setDirtyHasMany(name, propertyValue);
+              relationships.get(name).setHasData(true);
+              break;
+            default:
+              createOptions[name] = propertyValue;
+          }
         }
-
-        this.eachAttribute((name) => {
-          if (name in properties) {
-            this.setDirtyAttribute(name, properties[name]);
-            delete properties[name];
-          }
-        });
-
-        this.eachRelationship((name, { kind }) => {
-          if (name in properties) {
-            initializedRelationships.push(name);
-            if (kind === 'belongsTo') {
-              this.setDirtyBelongsTo(name, properties[name]);
-            } else {
-              this.setDirtyHasMany(name, properties[name]);
-            }
-            delete properties[name];
-          }
-        });
-
-        emberAssign(createOptions, properties);
       }
 
       if (setOwner) {
@@ -392,17 +394,15 @@ export default class InternalModel {
 
       this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
 
-      if (hasCreateProperties && initializedRelationships.length) {
-        for (let i = 0; i < initializedRelationships.length; i++) {
-          this._relationships.get(initializedRelationships[i]).setHasData(true);
-        }
-      }
-
       this._triggerDeferredTriggers();
       heimdall.stop(token);
     }
 
     return this._record;
+  }
+
+  getFields() {
+    return get(this.modelClass, 'fields');
   }
 
   resetRecord() {
