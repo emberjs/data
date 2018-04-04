@@ -412,13 +412,13 @@ export default class InternalModel {
     }
   }
 
-  reload() {
+  reload(options) {
     this.startedReloading();
     let internalModel = this;
     let promiseLabel = "DS: Model#reload of " + this;
 
     return new Promise(function(resolve) {
-      internalModel.send('reloadRecord', resolve);
+      internalModel.send('reloadRecord', { resolve, options });
     }, promiseLabel).then(function() {
       internalModel.didCleanError();
       return internalModel;

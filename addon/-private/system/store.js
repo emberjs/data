@@ -1063,9 +1063,10 @@ Store = Service.extend({
     @method reloadRecord
     @private
     @param {DS.Model} internalModel
+    @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel) {
+  _reloadRecord(internalModel, options) {
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
 
@@ -1073,7 +1074,7 @@ Store = Service.extend({
     assert(`You tried to reload a record but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to reload a record but your adapter does not implement 'findRecord'`, typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
-    return this._scheduleFetch(internalModel);
+    return this._scheduleFetch(internalModel, options);
   },
 
   /**
