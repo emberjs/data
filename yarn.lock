@@ -2424,7 +2424,7 @@ ember-cli-app-version@^3.0.0:
     ember-cli-babel "^6.8.0"
     git-repo-version "^1.0.0"
 
-ember-cli-babel@6.12.0, ember-cli-babel@^6.0.0, ember-cli-babel@^6.10.0, ember-cli-babel@^6.11.0, ember-cli-babel@^6.3.0, ember-cli-babel@^6.8.0, ember-cli-babel@^6.8.1, ember-cli-babel@^6.8.2, ember-cli-babel@^6.9.0:
+ember-cli-babel@6.12.0, ember-cli-babel@^6.0.0, ember-cli-babel@^6.10.0, ember-cli-babel@^6.3.0, ember-cli-babel@^6.8.0, ember-cli-babel@^6.8.1, ember-cli-babel@^6.8.2, ember-cli-babel@^6.9.0:
   version "6.12.0"
   resolved "https://registry.yarnpkg.com/ember-cli-babel/-/ember-cli-babel-6.12.0.tgz#3adcdbe1278da1fcd0b9038f1360cb4ac5d4414c"
   dependencies:
@@ -2632,13 +2632,6 @@ ember-cli-pretender@^1.0.1:
     broccoli-merge-trees "^1.2.1"
     pretender "^1.4.2"
     resolve "^1.2.0"
-
-ember-cli-qunit@^4.0.0:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/ember-cli-qunit/-/ember-cli-qunit-4.3.2.tgz#cfd89ad3b0dbc28a9c2223d532b52eeade7c602c"
-  dependencies:
-    ember-cli-babel "^6.11.0"
-    ember-qunit "^3.3.2"
 
 ember-cli-release@^0.2.9:
   version "0.2.9"
@@ -2855,9 +2848,9 @@ ember-qunit-assert-helpers@^0.2.1:
     broccoli-filter "^1.0.1"
     ember-cli-babel "^6.9.0"
 
-ember-qunit@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/ember-qunit/-/ember-qunit-3.3.2.tgz#cb48e9deaffa3b4c90983f28c5cf8590894c8ea3"
+ember-qunit@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-3.4.0.tgz#47a60c2b889cd4b4a46380bf9da2b10115c0eae7"
   dependencies:
     "@ember/test-helpers" "^0.7.18"
     broccoli-funnel "^2.0.1"
