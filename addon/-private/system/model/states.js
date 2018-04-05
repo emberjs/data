@@ -261,8 +261,8 @@ const DirtyState = {
       internalModel.transitionTo('inFlight');
     },
 
-    reloadRecord(internalModel, resolve) {
-      resolve(internalModel.store._reloadRecord(internalModel));
+    reloadRecord(internalModel, { resolve, options }) {
+      resolve(internalModel.store._reloadRecord(internalModel, options));
     },
 
     rolledBack(internalModel) {
@@ -580,8 +580,8 @@ const RootState = {
         internalModel.transitionTo('updated.inFlight');
       },
 
-      reloadRecord(internalModel, resolve) {
-        resolve(internalModel.store._reloadRecord(internalModel));
+      reloadRecord(internalModel, { resolve, options }) {
+        resolve(internalModel.store._reloadRecord(internalModel, options));
       },
 
       deleteRecord(internalModel) {
@@ -701,7 +701,8 @@ const RootState = {
       },
 
       willCommit() { },
-      didCommit()  { }
+      didCommit()  { },
+      pushedData() {}
     },
 
     invalid: {

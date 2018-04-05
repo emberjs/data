@@ -5,6 +5,8 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 
+const { Model, attr, belongsTo, hasMany } = DS;
+
 let store, Record, Storage;
 
 module('unit/store/createRecord - Store creating records', {
@@ -27,14 +29,66 @@ module('unit/store/createRecord - Store creating records', {
 });
 
 test(`doesn't modify passed in properties hash`, function(assert) {
-  let attributes = { foo: 'bar' };
+  const Post = Model.extend({
+    title: attr(),
+    author: belongsTo('author', { async: false, inverse: 'post' }),
+    comments: hasMany('comment', { async: false, inverse: 'post' })
+  });
+  const Comment = Model.extend({
+    text: attr(),
+    post: belongsTo('post', { async: false, inverse: 'comments' })
+  });
+  const Author = Model.extend({
+    name: attr(),
+    post: belongsTo('post', { async: false, inverse: 'author' })
+  });
+  let env = setupStore({
+    post: Post,
+    comment: Comment,
+    author: Author
+  });
+  let store = env.store;
+  let comment, author;
 
   run(() => {
-    store.createRecord('record', attributes);
-    store.createRecord('record', attributes);
+    comment = store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: {
+          text: 'Hello darkness my old friend'
+        }
+      }
+    });
+    author = store.push({
+      data: {
+        type: 'author',
+        id: '1',
+        attributes: {
+          name: '@runspired'
+        }
+      }
+    });
   });
 
-  assert.deepEqual(attributes, { foo: 'bar' }, 'The properties hash is not modified');
+  let properties = {
+    title: 'My Post',
+    randomProp: 'An unknown prop',
+    comments: [comment],
+    author
+  };
+  let propertiesClone = {
+    title: 'My Post',
+    randomProp: 'An unknown prop',
+    comments: [comment],
+    author
+  };
+
+  run(() => {
+    store.createRecord('post', properties);
+  });
+
+  assert.deepEqual(properties, propertiesClone, 'The properties hash is not modified');
 });
 
 test('allow passing relationships as well as attributes', function(assert) {

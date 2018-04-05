@@ -22,16 +22,6 @@ function hasValue(record, key) {
          key in record._data;
 }
 
-function getValue(record, key) {
-  if (key in record._attributes) {
-    return record._attributes[key];
-  } else if (key in record._inFlightAttributes) {
-    return record._inFlightAttributes[key];
-  } else {
-    return record._data[key];
-  }
-}
-
 /**
   `DS.attr` defines an attribute on a [DS.Model](/api/data/classes/DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
@@ -135,36 +125,13 @@ export default function attr(type, options) {
     get(key) {
       let internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {
-        return getValue(internalModel, key);
+        return internalModel.getAttributeValue(key);
       } else {
         return getDefaultValue(this, options, key);
       }
     },
     set(key, value) {
-      let internalModel = this._internalModel;
-      let oldValue = getValue(internalModel, key);
-      let originalValue;
-
-      if (value !== oldValue) {
-        // Add the new value to the changed attributes hash; it will get deleted by
-        // the 'didSetProperty' handler if it is no different from the original value
-        internalModel._attributes[key] = value;
-
-        if (key in internalModel._inFlightAttributes) {
-          originalValue = internalModel._inFlightAttributes[key];
-        } else {
-          originalValue = internalModel._data[key];
-        }
-
-        this._internalModel.send('didSetProperty', {
-          name: key,
-          oldValue: oldValue,
-          originalValue: originalValue,
-          value: value
-        });
-      }
-
-      return value;
+      return this._internalModel.setDirtyAttribute(key, value);
     }
   }).meta(meta);
 }

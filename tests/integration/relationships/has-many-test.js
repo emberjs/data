@@ -575,13 +575,13 @@ test("A hasMany updated link should not remove new children", function(assert) {
 
     return post.get('comments')
       .then(comments => {
-        assert.equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1, 'initially we have one comment');
 
         return post.save();
       })
       .then(() => post.get('comments'))
       .then(comments => {
-        assert.equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1, 'after saving, we still have one comment');
       });
   });
 });

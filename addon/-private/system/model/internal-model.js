@@ -1,4 +1,5 @@
 import { assign, merge } from '@ember/polyfills';
+import { A } from '@ember/array';
 import { set, get } from '@ember/object';
 import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
@@ -13,6 +14,7 @@ import RootState from "./states";
 import Relationships from "../relationships/state/create";
 import Snapshot from "../snapshot";
 import OrderedSet from "../ordered-set";
+import isArrayLike from "../is-array-like";
 
 import { getOwner } from '../../utils';
 
@@ -334,7 +336,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord() {
+  getRecord(properties) {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -344,11 +346,44 @@ export default class InternalModel {
       let createOptions = {
         store: this.store,
         _internalModel: this,
-        id: this.id,
         currentState: this.currentState,
         isError: this.isError,
         adapterError: this.error
       };
+
+      if (properties !== undefined) {
+        assert(`You passed '${properties}' as properties for record creation instead of an object.`, typeof properties === 'object' && properties !== null);
+        let classFields = this.getFields();
+        let relationships = this._relationships;
+        let propertyNames = Object.keys(properties);
+
+        for (let i = 0; i < propertyNames.length; i++) {
+          let name = propertyNames[i];
+          let fieldType = classFields.get(name);
+          let propertyValue = properties[name];
+
+          if (name === 'id') {
+            this.setId(propertyValue);
+            continue;
+          }
+
+          switch (fieldType) {
+            case 'attribute':
+              this.setDirtyAttribute(name, propertyValue);
+              break;
+            case 'belongsTo':
+              this.setDirtyBelongsTo(name, propertyValue);
+              relationships.get(name).setHasData(true);
+              break;
+            case 'hasMany':
+              this.setDirtyHasMany(name, propertyValue);
+              relationships.get(name).setHasData(true);
+              break;
+            default:
+              createOptions[name] = propertyValue;
+          }
+        }
+      }
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
@@ -364,6 +399,10 @@ export default class InternalModel {
     }
 
     return this._record;
+  }
+
+  getFields() {
+    return get(this.modelClass, 'fields');
   }
 
   resetRecord() {
@@ -413,13 +452,13 @@ export default class InternalModel {
     }
   }
 
-  reload() {
+  reload(options) {
     this.startedReloading();
     let internalModel = this;
     let promiseLabel = "DS: Model#reload of " + this;
 
     return new Promise(function(resolve) {
-      internalModel.send('reloadRecord', resolve);
+      internalModel.send('reloadRecord', { resolve, options });
     }, promiseLabel).then(function() {
       internalModel.didCleanError();
       return internalModel;
@@ -601,6 +640,70 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
+  }
+
+  getAttributeValue(key) {
+    if (key in this._attributes) {
+      return this._attributes[key];
+    } else if (key in this._inFlightAttributes) {
+      return this._inFlightAttributes[key];
+    } else {
+      return this._data[key];
+    }
+  }
+
+  setDirtyHasMany(key, records) {
+    assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
+    assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
+      return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
+    })());
+
+    let relationship = this._relationships.get(key);
+    relationship.clear();
+    relationship.addInternalModels(records.map(record => get(record, '_internalModel')));
+  }
+
+  setDirtyBelongsTo(key, value) {
+    if (value === undefined) {
+      value = null;
+    }
+    if (value && value.then) {
+      this._relationships.get(key).setRecordPromise(value);
+    } else if (value) {
+      this._relationships.get(key).setInternalModel(value._internalModel);
+    } else {
+      this._relationships.get(key).setInternalModel(value);
+    }
+  }
+
+  setDirtyAttribute(key, value) {
+    if (this.isDeleted()) {
+      throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
+    }
+
+    let oldValue = this.getAttributeValue(key);
+    let originalValue;
+
+    if (value !== oldValue) {
+      // Add the new value to the changed attributes hash; it will get deleted by
+      // the 'didSetProperty' handler if it is no different from the original value
+      this._attributes[key] = value;
+
+      if (key in this._inFlightAttributes) {
+        originalValue = this._inFlightAttributes[key];
+      } else {
+        originalValue = this._data[key];
+      }
+
+      this.send('didSetProperty', {
+        name: key,
+        oldValue: oldValue,
+        originalValue: originalValue,
+        value: value
+      });
+    }
+
+    return value;
   }
 
   get isDestroyed() {
@@ -1019,9 +1122,11 @@ export default class InternalModel {
 
   setId(id) {
     assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
+    let didChange = id !== this.id;
     this.id = id;
-    if (this._record.get('id') !== id) {
-      this._record.set('id', id);
+
+    if (didChange && this.hasRecord) {
+      this._record.notifyPropertyChange('id');
     }
   }
 

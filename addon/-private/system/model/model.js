@@ -4,8 +4,7 @@ import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, {
   computed,
-  get,
-  observer
+  get
 } from '@ember/object';
 import Map from '../map';
 import { DEBUG } from '@glimmer/env';
@@ -340,7 +339,6 @@ const Model = EmberObject.extend(Evented, {
     @property id
     @type {String}
   */
-  id: null,
 
   /**
     @property currentState
@@ -744,7 +742,10 @@ const Model = EmberObject.extend(Evented, {
   },
 
   toStringExtension() {
-    return get(this, 'id');
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    return this._internalModel && this._internalModel.id;
   },
 
   /**
@@ -815,13 +816,23 @@ const Model = EmberObject.extend(Evented, {
     ```
 
     @method reload
-    @return {Promise} a promise that will be resolved with the record when the
+    @param {Object} options optional, may include `adapterOptions` hash which will be passed to adapter request
+
+   @return {Promise} a promise that will be resolved with the record when the
     adapter returns successfully or rejected if the adapter returns
     with an error.
   */
-  reload() {
+  reload(options) {
+    let wrappedAdapterOptions;
+
+    if (typeof options === 'object' && options !== null && options.adapterOptions) {
+      wrappedAdapterOptions = {
+        adapterOptions: options.adapterOptions
+      };
+    }
+
     return PromiseObject.create({
-      promise: this._internalModel.reload().then(() => this)
+      promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this)
     });
   },
 
@@ -980,10 +991,6 @@ const Model = EmberObject.extend(Evented, {
     return this._internalModel.referenceFor('hasMany', name);
   },
 
-  setId: observer('id', function () {
-    this._internalModel.setId(this.get('id'));
-  }),
-
   /**
    Provides info about the model for debugging purposes
    by grouping the properties into more semantic groups.
@@ -1133,8 +1140,23 @@ const Model = EmberObject.extend(Evented, {
  @type {Object}
  */
 Object.defineProperty(Model.prototype, 'data', {
+  configurable: false,
   get() {
     return this._internalModel._data;
+  }
+});
+
+Object.defineProperty(Model.prototype, 'id', {
+  configurable: false,
+  set(id) {
+    this._internalModel.setId(id);
+  },
+
+  get() {
+    // the _internalModel guard exists, because some dev-only deprecation code
+    // (addListener via validatePropertyInjections) invokes toString before the
+    // object is real.
+    return this._internalModel && this._internalModel.id;
   }
 });
 

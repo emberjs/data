@@ -339,34 +339,27 @@ Store = Service.extend({
   createRecord(modelName, inputProperties) {
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-    let normalizedModelName = normalizeModelName(modelName);
-    let properties = copy(inputProperties) || Object.create(null);
 
-    // If the passed properties do not include a primary key,
-    // give the adapter an opportunity to generate one. Typically,
-    // client-side ID generators will use something like uuid.js
-    // to avoid conflicts.
+    return this._backburner.join(() => {
+      let normalizedModelName = normalizeModelName(modelName);
+      let properties = copy(inputProperties) || Object.create(null);
 
-    if (isNone(properties.id)) {
-      properties.id = this._generateId(normalizedModelName, properties);
-    }
+      // If the passed properties do not include a primary key,
+      // give the adapter an opportunity to generate one. Typically,
+      // client-side ID generators will use something like uuid.js
+      // to avoid conflicts.
 
-    // Coerce ID to a string
-    properties.id = coerceId(properties.id);
-
-    let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
-    internalModel.loadedData();
-    let record = internalModel.getRecord();
-    record.setProperties(properties);
-
-    // TODO @runspired this should also be coalesced into some form of internalModel.setState()
-    internalModel.eachRelationship((key, descriptor) => {
-      if (properties[key] !== undefined) {
-        internalModel._relationships.get(key).setHasData(true);
+      if (isNone(properties.id)) {
+        properties.id = this._generateId(normalizedModelName, properties);
       }
-    });
 
-    return record;
+      // Coerce ID to a string
+      properties.id = coerceId(properties.id);
+
+      let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
+      internalModel.loadedData();
+      return internalModel.getRecord(properties);
+    });
   },
 
   /**
@@ -1063,9 +1056,10 @@ Store = Service.extend({
     @method reloadRecord
     @private
     @param {DS.Model} internalModel
+    @param options optional to include adapterOptions
     @return {Promise} promise
   */
-  _reloadRecord(internalModel) {
+  _reloadRecord(internalModel, options) {
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
 
@@ -1073,7 +1067,7 @@ Store = Service.extend({
     assert(`You tried to reload a record but you have no adapter (for ${modelName})`, adapter);
     assert(`You tried to reload a record but your adapter does not implement 'findRecord'`, typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
-    return this._scheduleFetch(internalModel);
+    return this._scheduleFetch(internalModel, options);
   },
 
   /**

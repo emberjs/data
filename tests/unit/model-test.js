@@ -16,11 +16,13 @@ module('unit/model - DS.Model', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      isArchived: DS.attr()
     });
     Person.toString =  () => 'person';
 
     env = setupStore({
+      adapter: DS.JSONAPIAdapter,
       person: Person
     });
     store = env.store;
@@ -564,6 +566,99 @@ test('supports pushedData in root.deleted.uncommitted', function(assert) {
     store.push(hash);
     assert.equal(get(record, 'currentState.stateName'), 'root.deleted.uncommitted',
       'record accepts pushedData is in root.deleted.uncommitted state');
+  });
+});
+
+test('supports canonical updates via pushedData in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          isArchived: true
+        }
+      }
+    });
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
+  });
+});
+
+
+test('Does not support dirtying in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    assert.expectAssertion(() => {
+      set(record, 'isArchived', true);
+    }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
   });
 });
 
@@ -1302,7 +1397,7 @@ test('updating the id with store.updateId should correctly when the id property 
 
     store.updateId(person._internalModel, { id: 'john' });
 
-    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
   });
 });
 
@@ -1327,5 +1422,32 @@ test('accessing the model id without the get function should work when id is wat
     store.updateId(person._internalModel, { id: 'john' });
 
     assert.equal(person.id, 'john', 'new id should be correctly set.');
+  });
+});
+
+
+test('ID mutation (complicated)', function(assert) {
+  assert.expect(5);
+  let idChange = 0;
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    idComputed: Ember.computed('id', function() {}),
+    idDidChange: Ember.observer('id', () => idChange++)
+  });
+
+  let { store } = setupStore({
+    person: Person.extend()
+  });
+
+  run(() => {
+    let person = store.createRecord('person');
+    person.get('idComputed');
+    assert.equal(idChange, 0);
+
+    assert.equal(person.get('id'), null, 'initial created model id should be null');
+    assert.equal(idChange, 0);
+    store.updateId(person._internalModel, { id: 'john' });
+    assert.equal(idChange, 1);
+    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
 });

@@ -516,27 +516,31 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
       let hasMany = snapshot.hasMany(key);
       if (hasMany !== undefined) {
+        // only serialize has many relationships that are not new
+        let nonNewHasMany = hasMany.filter(item => item.record && !item.record.get('isNew'));
 
-        json.relationships = json.relationships || {};
+        if (nonNewHasMany.length > 0) {
+          json.relationships = json.relationships || {};
 
-        let payloadKey = this._getMappedKey(key, snapshot.type);
-        if (payloadKey === key && this.keyForRelationship) {
-          payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+          let payloadKey = this._getMappedKey(key, snapshot.type);
+          if (payloadKey === key && this.keyForRelationship) {
+            payloadKey = this.keyForRelationship(key, 'hasMany', 'serialize');
+          }
+
+          let data = new Array(nonNewHasMany.length);
+
+          for (let i = 0; i < nonNewHasMany.length; i++) {
+            let item = hasMany[i];
+            let payloadType = this.payloadKeyFromModelName(item.modelName);
+
+            data[i] = {
+              type: payloadType,
+              id: item.id
+            };
+
+            json.relationships[payloadKey] = { data };
+          }
         }
-
-        let data = new Array(hasMany.length);
-
-        for (let i = 0; i < hasMany.length; i++) {
-          let item = hasMany[i];
-          let payloadType = this.payloadKeyFromModelName(item.modelName);
-
-          data[i] = {
-            type: payloadType,
-            id: item.id
-          };
-        }
-
-        json.relationships[payloadKey] = { data };
       }
     }
   }

@@ -1,4 +1,5 @@
 /* global heimdall */
+/* globals najax */
 /**
   @module ember-data
 */
@@ -6,7 +7,8 @@
 import $ from 'jquery';
 
 import { Promise as EmberPromise } from 'rsvp';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
+import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import Adapter from "../adapter";
 import {
@@ -292,6 +294,10 @@ const Promise = EmberPromise;
 */
 const RESTAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
+
+  fastboot: computed(function() {
+    return getOwner(this).lookup('service:fastboot');
+  }),
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -968,27 +974,21 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       url:    url,
       method: type
     };
+    let hash = adapter.ajaxOptions(url, type, options);
 
     return new Promise(function(resolve, reject) {
-      let hash = adapter.ajaxOptions(url, type, options);
-
       hash.success = function(payload, textStatus, jqXHR) {
         heimdall.stop(token);
-        let response = ajaxSuccess(adapter, jqXHR, payload, requestData);
+        let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
         run.join(null, resolve, response);
       };
-
       hash.error = function(jqXHR, textStatus, errorThrown) {
         heimdall.stop(token);
-        let responseData = {
-          textStatus,
-          errorThrown
-        };
-        let error = ajaxError(adapter, jqXHR, requestData, responseData);
+        let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
         run.join(null, reject, error);
       };
 
-      adapter._ajaxRequest(hash);
+      adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
   },
 
@@ -1002,6 +1002,27 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   /**
+    @method _najaxRequest
+    @private
+    @param {Object} options jQuery ajax options to be used for the najax request
+  */
+  _najaxRequest(options) {
+    if (typeof najax !== 'undefined') {
+      najax(options);
+    } else {
+      throw new Error('najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?');
+    }
+  },
+
+  _ajax(options) {
+    if (get(this, 'fastboot.isFastBoot')) {
+      this._najaxRequest(options);
+    } else {
+      this._ajaxRequest(options);
+    }
+  },
+
+  /**
     @method ajaxOptions
     @private
     @param {String} url
@@ -1011,7 +1032,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   ajaxOptions(url, type, options) {
     let hash = options || {};
-    hash.url = url;
     hash.type = type;
     hash.dataType = 'json';
     hash.context = this;
@@ -1044,7 +1064,30 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       };
     }
 
+    hash.url = this._ajaxURL(url);
+
     return hash;
+  },
+
+  _ajaxURL(url) {
+    if (get(this, 'fastboot.isFastBoot')) {
+      let httpRegex = /^https?:\/\//;
+      let protocolRelativeRegex = /^\/\//;
+      let protocol = get(this, 'fastboot.request.protocol');
+      let host = get(this, 'fastboot.request.host');
+
+      if (protocolRelativeRegex.test(url)) {
+        return `${protocol}${url}`;
+      } else if (!httpRegex.test(url)) {
+        try {
+          return `${protocol}//${host}${url}`;
+        } catch (fbError) {
+          throw new Error('You are using Ember Data with no host defined in your adapter. This will attempt to use the host of the FastBoot request, which is not configured for the current host of this request. Please set the hostWhitelist property for in your environment.js. FastBoot Error: ' + fbError.message);
+        }
+      }
+    }
+
+    return url;
   },
 
   /**
@@ -1133,12 +1176,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   }
 });
 
-function ajaxSuccess(adapter, jqXHR, payload, requestData) {
+function ajaxSuccess(adapter, payload, requestData, responseData) {
   let response;
   try {
     response = adapter.handleResponse(
-      jqXHR.status,
-      parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+      responseData.status,
+      responseData.headers,
       payload,
       requestData
     );
@@ -1153,10 +1196,10 @@ function ajaxSuccess(adapter, jqXHR, payload, requestData) {
   }
 }
 
-function ajaxError(adapter, jqXHR, requestData, responseData) {
+function ajaxError(adapter, payload, requestData, responseData) {
   if (DEBUG) {
     let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
-    let validJSONString = !(responseData.textStatus === "parsererror" && jqXHR.responseText === "");
+    let validJSONString = !(responseData.textStatus === "parsererror" && payload === "");
     warn(message, validJSONString, {
       id: 'ds.adapter.returned-empty-string-as-JSON'
     });
@@ -1168,14 +1211,14 @@ function ajaxError(adapter, jqXHR, requestData, responseData) {
     error = responseData.errorThrown;
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
-  } else if (responseData.textStatus === 'abort' || jqXHR.status === 0) {
+  } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
     error = new AbortError();
   } else {
     try {
       error = adapter.handleResponse(
-        jqXHR.status,
-        parseResponseHeaders(jqXHR.getAllResponseHeaders()),
-        adapter.parseErrorResponse(jqXHR.responseText) || responseData.errorThrown,
+        responseData.status,
+        responseData.headers,
+        payload || responseData.errorThrown,
         requestData
       );
     } catch (e) {
@@ -1193,6 +1236,26 @@ function endsWith(string, suffix) {
   } else {
     return string.endsWith(suffix);
   }
+}
+
+function ajaxSuccessHandler(adapter, payload, jqXHR, requestData) {
+  let responseData = ajaxResponseData(jqXHR);
+  return ajaxSuccess(adapter, payload, requestData, responseData);
+}
+
+function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
+  let responseData = ajaxResponseData(jqXHR);
+  responseData.errorThrown = errorThrown;
+  let payload = adapter.parseErrorResponse(jqXHR.responseText);
+  return ajaxError(adapter, payload, requestData, responseData);
+}
+
+function ajaxResponseData(jqXHR) {
+  return {
+    status: jqXHR.status,
+    textStatus: jqXHR.textStatus,
+    headers: parseResponseHeaders(jqXHR.getAllResponseHeaders())
+  };
 }
 
 export default RESTAdapter;
