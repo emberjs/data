@@ -308,10 +308,8 @@ test("Will resolve destroy and save in same loop", function(assert) {
     });
   };
 
-  run(function() {
-    adam = env.store.createRecord('person', { name: 'Adam Sunderland' });
-    dave = env.store.createRecord('person', { name: 'Dave Sunderland' });
-  });
+  adam = env.store.createRecord('person', { name: 'Adam Sunderland' });
+  dave = env.store.createRecord('person', { name: 'Dave Sunderland' });
 
   run(function() {
     promises = [

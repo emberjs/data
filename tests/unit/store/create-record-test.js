@@ -84,9 +84,7 @@ test(`doesn't modify passed in properties hash`, function(assert) {
     author
   };
 
-  run(() => {
-    store.createRecord('post', properties);
-  });
+  store.createRecord('post', properties);
 
   assert.deepEqual(properties, propertiesClone, 'The properties hash is not modified');
 });
@@ -136,8 +134,7 @@ module('unit/store/createRecord - Store with models by dash', {
 
 test('creating a record by dasherize string finds the model', function(assert) {
   let attributes = { foo: 'bar' };
-
-  let record = run(() => store.createRecord('some-thing', attributes));
+  let record = store.createRecord('some-thing', attributes);
 
   assert.equal(record.get('foo'), attributes.foo, 'The record is created');
   assert.equal(store.modelFor('some-thing').modelName, 'some-thing');

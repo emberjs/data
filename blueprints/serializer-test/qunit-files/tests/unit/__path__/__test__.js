@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { run } from '@ember/runloop';
 
 module('<%= friendlyTestDescription %>', function(hooks) {
   setupTest(hooks);
@@ -15,7 +14,7 @@ module('<%= friendlyTestDescription %>', function(hooks) {
 
   test('it serializes records', function(assert) {
     let store = this.owner.lookup('service:store');
-    let record = run(() => store.createRecord('<%= dasherizedModuleName %>', {}));
+    let record = store.createRecord('<%= dasherizedModuleName %>', {});
 
     let serializedRecord = record.serialize();
 

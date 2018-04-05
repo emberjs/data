@@ -136,8 +136,7 @@ test('a record receives a didCreate callback when it has finished updating', fun
   });
 
   assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
-  let person = run(() => store.createRecord('person', { id: 69, name: 'Newt Gingrich' }));
-
+  let person = store.createRecord('person', { id: 69, name: 'Newt Gingrich' });
 
   return run(() => {
     return person.save().then(() => {
@@ -216,7 +215,7 @@ test('an uncommited record also receives a didDelete callback when it is deleted
     person: Person
   });
 
-  let person = run(() => store.createRecord('person', { name: 'Tomster' }));
+  let person = store.createRecord('person', { name: 'Tomster' });
 
   assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
 

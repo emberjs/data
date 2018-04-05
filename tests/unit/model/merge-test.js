@@ -31,7 +31,7 @@ test('When a record is in flight, changes can be made', function(assert) {
     person: Person
   });
 
-  let person = run(() => store.createRecord('person', { name: 'Tom Dale' }));
+  let person = store.createRecord('person', { name: 'Tom Dale' });
 
   // Make sure saving isn't resolved synchronously
   return run(() => {

@@ -7,7 +7,7 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-var Post, post, Comment, comment, Favorite, favorite, env, serializer;
+var Post, Comment, Favorite, env, serializer;
 
 module("integration/serializer/json - JSONSerializer", {
   beforeEach() {
@@ -39,9 +39,7 @@ module("integration/serializer/json - JSONSerializer", {
 });
 
 test("serialize doesn't include ID when includeId is false", function(assert) {
-  run(() => {
-    post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
-  });
+  let post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
   let json = serializer.serialize(post._createSnapshot(), { includeId: false });
 
   assert.deepEqual(json, {
@@ -52,10 +50,7 @@ test("serialize doesn't include ID when includeId is false", function(assert) {
 
 
 test("serialize doesn't include relationship if not aware of one", function(assert) {
-  run(() => {
-    post = env.store.createRecord('post', { title: 'Rails is omakase' });
-  });
-
+  let post = env.store.createRecord('post', { title: 'Rails is omakase' });
   let json = serializer.serialize(post._createSnapshot());
 
   assert.deepEqual(json, {
@@ -64,8 +59,9 @@ test("serialize doesn't include relationship if not aware of one", function(asse
 });
 
 test("serialize includes id when includeId is true", function(assert) {
+  let post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
+
   run(() => {
-    post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
     post.set('id', 'test');
   });
 
@@ -79,10 +75,8 @@ test("serialize includes id when includeId is true", function(assert) {
 });
 
 test("serializeAttribute", function(assert) {
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-  });
-  var json = {};
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let json = {};
 
   serializer.serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
 
@@ -98,10 +92,8 @@ test("serializeAttribute respects keyForAttribute", function(assert) {
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-  });
-  var json = {};
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let json = {};
 
   env.store.serializerFor("post").serializeAttribute(post._createSnapshot(), json, "title", { type: "string" });
 
@@ -109,12 +101,9 @@ test("serializeAttribute respects keyForAttribute", function(assert) {
 });
 
 test("serializeBelongsTo", function(assert) {
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
-
-  var json = {};
+  let post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  let json = {};
 
   serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
@@ -122,10 +111,8 @@ test("serializeBelongsTo", function(assert) {
 });
 
 test("serializeBelongsTo with null", function(assert) {
-  run(function() {
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: null });
-  });
-  var json = {};
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: null });
+  let json = {};
 
   serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
@@ -138,10 +125,8 @@ test("async serializeBelongsTo with null", function(assert) {
   Comment.reopen({
     post: DS.belongsTo('post', { async: true })
   });
-  run(function() {
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: null });
-  });
-  var json = {};
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: null });
+  let json = {};
 
   serializer.serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
@@ -156,11 +141,10 @@ test("serializeBelongsTo respects keyForRelationship", function(assert) {
       return key.toUpperCase();
     }
   }));
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
-  var json = {};
+
+  let post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  let json = {};
 
   env.store.serializerFor("post").serializeBelongsTo(comment._createSnapshot(), json, { key: "post", options: {} });
 
@@ -176,17 +160,18 @@ test("serializeHasMany respects keyForRelationship", function(assert) {
     }
   }));
 
+  let post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
+  let comment = env.store.createRecord('comment', {
+    body: "Omakase is delicious",
+    post: post,
+    id: "1"
+  });
+
   run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
-    comment = env.store.createRecord('comment', {
-      body: "Omakase is delicious",
-      post: post,
-      id: "1"
-    });
     post.get('comments').pushObject(comment);
   });
 
-  var json = {};
+  let json = {};
 
   env.store.serializerFor("post").serializeHasMany(post._createSnapshot(), json, { key: "comments", options: {} });
 
@@ -196,20 +181,16 @@ test("serializeHasMany respects keyForRelationship", function(assert) {
 });
 
 test("serializeHasMany omits unknown relationships on pushed record", function(assert) {
-
-  run(function() {
-    post = env.store.push({
-      data: {
-        id: "1",
-        type: "post",
-        attributes: {
-          title: "Rails is omakase"
-        }
+  let post = run(() => env.store.push({
+    data: {
+      id: "1",
+      type: "post",
+      attributes: {
+        title: "Rails is omakase"
       }
-    });
-  });
-
-  var json = {};
+    }
+  }));
+  let json = {};
 
   env.store.serializerFor("post").serializeHasMany(post._createSnapshot(), json, { key: "comments", options: {} });
 
@@ -217,11 +198,8 @@ test("serializeHasMany omits unknown relationships on pushed record", function(a
 });
 
 test("shouldSerializeHasMany", function(assert) {
-
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post, id: "1" });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase", id: "1" });
+  env.store.createRecord('comment', { body: "Omakase is delicious", post: post, id: "1" });
 
   var snapshot = post._createSnapshot();
   var relationship = snapshot.record.relationshipFor('comments');
@@ -233,11 +211,9 @@ test("shouldSerializeHasMany", function(assert) {
 });
 
 test("serializeIntoHash", function(assert) {
-  run(() => {
-    post = env.store.createRecord('post', { title: "Rails is omakase", comments: [] });
-  });
-
+  let post = env.store.createRecord('post', { title: "Rails is omakase", comments: [] });
   let json = {};
+
   serializer.serializeIntoHash(json, Post, post._createSnapshot());
 
   assert.deepEqual(json, {
@@ -259,10 +235,8 @@ test("serializePolymorphicType sync", function(assert) {
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: 'Rails is omakase', id: 1 });
-    comment = env.store.createRecord('comment', { body: 'Omakase is delicious', post: post });
-  });
+  let post = env.store.createRecord('post', { title: 'Rails is omakase', id: 1 });
+  let comment = env.store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
   env.store.serializerFor('comment').serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { polymorphic: true } });
 });
@@ -280,10 +254,8 @@ test("serializePolymorphicType async", function(assert) {
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: 'Rails is omakase', id: 1 });
-    comment = env.store.createRecord('comment', { body: 'Omakase is delicious', post: post });
-  });
+  let post = env.store.createRecord('post', { title: 'Rails is omakase', id: 1 });
+  let comment = env.store.createRecord('comment', { body: 'Omakase is delicious', post: post });
 
   env.store.serializerFor('comment').serializeBelongsTo(comment._createSnapshot(), {}, { key: 'post', options: { async: true, polymorphic: true } });
 });
@@ -362,23 +334,18 @@ test('Serializer should respect the attrs hash when serializing records', functi
       parentPost: { key: "my_parent" }
     }
   }));
-  var parentPost;
 
-  run(function() {
-    env.store.push({
-      data: {
-        type: 'post',
-        id: '2',
-        attributes: {
-          title: "Rails is omakase"
-        }
+  let parentPost = run(() => env.store.push({
+    data: {
+      type: 'post',
+      id: '2',
+      attributes: {
+        title: "Rails is omakase"
       }
-    });
-    parentPost = env.store.peekRecord('post', 2);
-    post = env.store.createRecord('post', { title: "Rails is omakase", parentPost: parentPost });
-  });
-
-  var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
+    }
+  }));
+  let post = env.store.createRecord('post', { title: "Rails is omakase", parentPost: parentPost });
+  let payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
   assert.equal(payload.title_payload_key, "Rails is omakase");
   assert.equal(payload.my_parent, '2');
@@ -470,11 +437,8 @@ test('Serializer respects `serialize: false` on the attrs hash', function(assert
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-  });
-
-  var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
   assert.ok(!payload.hasOwnProperty('title'), "Does not add the key to instance");
   assert.ok(!payload.hasOwnProperty('[object Object]'), "Does not add some random key like [object Object]");
@@ -488,10 +452,8 @@ test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` p
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
 
   var serializer = env.store.serializerFor("post");
   var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
@@ -508,10 +470,8 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
 
   var serializer = env.store.serializerFor("comment");
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
@@ -528,10 +488,8 @@ test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` p
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
 
   var serializer = env.store.serializerFor("post");
   var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
@@ -548,10 +506,8 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
 
   var serializer = env.store.serializerFor("comment");
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
@@ -568,9 +524,10 @@ test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` pr
     }
   }));
 
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+
   run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
     post.get('comments').pushObject(comment);
   });
 
@@ -589,10 +546,8 @@ test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` 
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: "Rails is omakase" });
-    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
-  });
+  let post = env.store.createRecord('post', { title: "Rails is omakase" });
+  let comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
 
   var serializer = env.store.serializerFor("comment");
   var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
@@ -620,11 +575,8 @@ test("Serializer should merge attrs from superclasses", function(assert) {
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord("post", { title: "Rails is omakase", description: "Omakase is delicious", anotherString: "yet another string" });
-  });
-
-  var payload = env.store.serializerFor("post").serialize(post._createSnapshot());
+  let post = env.store.createRecord("post", { title: "Rails is omakase", description: "Omakase is delicious", anotherString: "yet another string" });
+  let payload = env.store.serializerFor("post").serialize(post._createSnapshot());
 
   assert.equal(payload.title_payload_key, "Rails is omakase");
   assert.equal(payload.description_payload_key, "Omakase is delicious");
@@ -637,11 +589,8 @@ test("Serializer should respect the primaryKey attribute when extracting records
     primaryKey: '_ID_'
   }));
 
-  var jsonHash = { "_ID_": 1, title: "Rails is omakase" };
-
-  run(function() {
-    post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
-  });
+  let jsonHash = { "_ID_": 1, title: "Rails is omakase" };
+  let post = env.store.serializerFor("post").normalizeResponse(env.store, Post, jsonHash, '1', 'findRecord');
 
   assert.equal(post.data.id, "1");
   assert.equal(post.data.attributes.title, "Rails is omakase");
@@ -652,11 +601,8 @@ test("Serializer should respect the primaryKey attribute when serializing record
     primaryKey: '_ID_'
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { id: "1", title: "Rails is omakase" });
-  });
-
-  var payload = env.store.serializerFor("post").serialize(post._createSnapshot(), { includeId: true });
+  let post = env.store.createRecord('post', { id: "1", title: "Rails is omakase" });
+  let payload = env.store.serializerFor("post").serialize(post._createSnapshot(), { includeId: true });
 
   assert.equal(payload._ID_, "1");
 });
@@ -668,9 +614,8 @@ test("Serializer should respect keyForAttribute when extracting records", functi
     }
   }));
 
-  var jsonHash = { id: 1, TITLE: 'Rails is omakase' };
-
-  post = env.store.serializerFor("post").normalize(Post, jsonHash);
+  let jsonHash = { id: 1, TITLE: 'Rails is omakase' };
+  let post = env.store.serializerFor("post").normalize(Post, jsonHash);
 
   assert.equal(post.data.id, "1");
   assert.equal(post.data.attributes.title, "Rails is omakase");
@@ -683,9 +628,8 @@ test("Serializer should respect keyForRelationship when extracting records", fun
     }
   }));
 
-  var jsonHash = { id: 1, title: 'Rails is omakase', COMMENTS: ['1'] };
-
-  post = env.store.serializerFor("post").normalize(Post, jsonHash);
+  let jsonHash = { id: 1, title: 'Rails is omakase', COMMENTS: ['1'] };
+  let post = env.store.serializerFor("post").normalize(Post, jsonHash);
 
   assert.deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }]);
 });
@@ -746,10 +690,8 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
     }
   }));
 
-  run(function() {
-    post = env.store.createRecord('post', { title: 'Kitties are omakase', id: '1' });
-    favorite = env.store.createRecord('favorite', { post: post, id: '3' });
-  });
+  let post = env.store.createRecord('post', { title: 'Kitties are omakase', id: '1' });
+  let favorite = env.store.createRecord('favorite', { post: post, id: '3' });
 
   env.store.serializerFor('favorite').serializeBelongsTo(favorite._createSnapshot(), json, { key: 'post', options: { polymorphic: true, async: true } });
 
@@ -957,10 +899,7 @@ test('options are passed to transform for serialization', function(assert) {
     })
   });
 
-  var post;
-  run(function() {
-    post = env.store.createRecord('post', { custom: 'value' });
-  });
+  let post = env.store.createRecord('post', { custom: 'value' });
 
   serializer.serialize(post._createSnapshot());
 });

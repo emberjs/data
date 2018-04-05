@@ -1865,16 +1865,13 @@ test('it is possible to add an item to a relationship, remove it, then add it ag
 
   let env = setupStore({ tag: Tag, person: Person });
   let { store } = env;
-  let person, tag1, tag2, tag3, tags;
+  let person = store.createRecord('person');
+  let tag1 = store.createRecord('tag');
+  let tag2 = store.createRecord('tag');
+  let tag3 = store.createRecord('tag');
+  let tags = get(person, 'tags');
 
   run(() => {
-    person = store.createRecord('person');
-    tag1 = store.createRecord('tag');
-    tag2 = store.createRecord('tag');
-    tag3 = store.createRecord('tag');
-
-    tags = get(person, 'tags');
-
     tags.pushObjects([tag1, tag2, tag3]);
     tags.removeObject(tag2);
   });
@@ -1905,11 +1902,9 @@ test("DS.hasMany is async by default", function(assert) {
   });
 
   let { store } = setupStore({ tag: Tag, person: Person });
+  let tag = store.createRecord('tag');
 
-  run(() => {
-    let tag = store.createRecord('tag');
-    assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
-  });
+  assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
 });
 
 test('DS.hasMany is stable', function(assert) {
@@ -1925,7 +1920,7 @@ test('DS.hasMany is stable', function(assert) {
 
   let { store } = setupStore({ tag: Tag, person: Person });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
   let people = tag.get('people');
   let peopleCached = tag.get('people');
 
@@ -1954,7 +1949,7 @@ test('DS.hasMany proxy is destroyed', function(assert) {
 
   let { store } = setupStore({ tag: Tag, person: Person });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
   let peopleProxy = tag.get('people');
 
   return peopleProxy.then(people => {
@@ -1987,7 +1982,7 @@ test('DS.ManyArray is lazy', function(assert) {
   });
 
   let env = setupStore({ tag: Tag, person: Person });
-  let tag = run(() => env.store.createRecord('tag'));
+  let tag = env.store.createRecord('tag');
   let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
 
   assert.ok(!hasManyRelationship._manyArray);
@@ -2001,7 +1996,7 @@ test('DS.ManyArray is lazy', function(assert) {
   assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (after access, but after the current run loop)');
   assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
 
-  let person = run(() => env.store.createRecord('person'));
+  let person = env.store.createRecord('person');
 
   run(() => {
     assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
@@ -2017,12 +2012,8 @@ testInDebug('throws assertion if of not set with an array', function(assert) {
   });
 
   let { store }= setupStore({ tag: Tag, person: Person });
-  let tag, person;
-
-  run(() => {
-    tag = store.createRecord('tag');
-    person = store.createRecord('person');
-  });
+  let tag = store.createRecord('tag');
+  let person = store.createRecord('person');
 
   run(() => {
     assert.expectAssertion(() => {
@@ -2048,12 +2039,8 @@ testInDebug('checks if passed array only contains instances of DS.Model', functi
     };
   };
 
-  let tag, person;
-
-  run(() => {
-    tag = env.store.createRecord('tag');
-    person = env.store.findRecord('person', 1);
-  });
+  let tag = env.store.createRecord('tag');
+  let person = run(() => env.store.findRecord('person', 1));
 
   run(() => {
     assert.expectAssertion(() => {

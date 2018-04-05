@@ -4,10 +4,9 @@ import { run, bind } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-
 import DS from 'ember-data';
 
-var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
+let HomePlanet, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, Basket, Container, env;
 
 module("integration/serializer/rest - RESTSerializer", {
   beforeEach() {
@@ -271,13 +270,9 @@ testInDebug("normalizeResponse warning with custom modelNameFromPayloadKey", fun
 });
 
 test("serialize polymorphicType", function(assert) {
-  var tom, ray;
-  run(function() {
-    tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
-    ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
-  });
-
-  var json = env.restSerializer.serialize(ray._createSnapshot());
+  let tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
+  let ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
+  let json = env.restSerializer.serialize(ray._createSnapshot());
 
   assert.deepEqual(json, {
     name:  "DeathRay",
@@ -287,24 +282,16 @@ test("serialize polymorphicType", function(assert) {
 });
 
 test("serialize polymorphicType with decamelized modelName", function(assert) {
-  var tom, ray;
-  run(function() {
-    tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
-    ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
-  });
-
-  var json = env.restSerializer.serialize(ray._createSnapshot());
+  let tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
+  let ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
+  let json = env.restSerializer.serialize(ray._createSnapshot());
 
   assert.deepEqual(json["evilMinionType"], "yellowMinion");
 });
 
 test("serialize polymorphic when associated object is null", function(assert) {
-  var ray;
-  run(function() {
-    ray = env.store.createRecord('doomsday-device', { name: "DeathRay" });
-  });
-
-  var json = env.restSerializer.serialize(ray._createSnapshot());
+  let ray = env.store.createRecord('doomsday-device', { name: "DeathRay" });
+  let json = env.restSerializer.serialize(ray._createSnapshot());
 
   assert.deepEqual(json["evilMinionType"], null);
 });
@@ -415,10 +402,8 @@ test('normalize should allow for different levels of normalization - attributes'
 });
 
 test("serializeIntoHash", function(assert) {
-  run(function() {
-    league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
-  });
-  var json = {};
+  let league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
+  let json = {};
 
   env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
 
@@ -430,10 +415,8 @@ test("serializeIntoHash", function(assert) {
 });
 
 test("serializeIntoHash with decamelized modelName", function(assert) {
-  run(function() {
-    league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
-  });
-  var json = {};
+  let league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
+  let json = {};
 
   env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
 
@@ -445,14 +428,10 @@ test("serializeIntoHash with decamelized modelName", function(assert) {
 });
 
 test('serializeBelongsTo with async polymorphic', function(assert) {
-  var evilMinion, doomsdayDevice;
-  var json = {};
-  var expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
-
-  run(function() {
-    evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
-    doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
-  });
+  let json = {};
+  let expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
+  let evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
+  let doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
 
   env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
 
@@ -460,18 +439,15 @@ test('serializeBelongsTo with async polymorphic', function(assert) {
 });
 
 test('keyForPolymorphicType can be used to overwrite how the type of a polymorphic record is serialized', function(assert) {
-  var evilMinion, doomsdayDevice;
-  var json = {};
-  var expected = { evilMinion: '1', typeForEvilMinion: 'evilMinion' };
+  let json = {};
+  let expected = { evilMinion: '1', typeForEvilMinion: 'evilMinion' };
 
   env.restSerializer.keyForPolymorphicType = function() {
     return 'typeForEvilMinion';
   };
 
-  run(function() {
-    evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
-    doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
-  });
+  let evilMinion = env.store.createRecord('evil-minion', { id: 1, name: 'Tomster' });
+  let doomsdayDevice = env.store.createRecord('doomsday-device', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
 
   env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
 
@@ -514,10 +490,9 @@ test('keyForPolymorphicType can be used to overwrite how the type of a polymorph
 });
 
 test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload root key', function(assert) {
-  run(function() {
-    league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
-  });
-  var json = {};
+  let league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
+  let json = {};
+
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
     payloadKeyFromModelName(modelName) {
       return dasherize(modelName);

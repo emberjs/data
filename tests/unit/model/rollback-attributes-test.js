@@ -218,7 +218,7 @@ test(`a deleted record's attributes can be rollbacked if it fails to save, recor
 });
 
 test(`new record's attributes can be rollbacked`, function(assert) {
-  let person = run(() => store.createRecord('person', { id: 1 }));
+  let person = store.createRecord('person', { id: 1 });
 
   assert.equal(person.get('isNew'), true, 'must be new');
   assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');
@@ -248,7 +248,7 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
 
   env = setupStore({ person: Person, adapter: adapter });
 
-  let person = run(() => env.store.createRecord('person', { id: 1 }));
+  let person = env.store.createRecord('person', { id: 1 });
 
   assert.equal(person.get('isNew'), true, 'must be new');
   assert.equal(person.get('hasDirtyAttributes'), true, 'must be dirty');

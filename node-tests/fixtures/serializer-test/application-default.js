@@ -1,6 +1,5 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
-import { run } from '@ember/runloop';
 
 module('Unit | Serializer | application', function(hooks) {
   setupTest(hooks);
@@ -15,7 +14,7 @@ module('Unit | Serializer | application', function(hooks) {
 
   test('it serializes records', function(assert) {
     let store = this.owner.lookup('service:store');
-    let record = run(() => store.createRecord('application', {}));
+    let record = store.createRecord('application', {});
 
     let serializedRecord = record.serialize();
 

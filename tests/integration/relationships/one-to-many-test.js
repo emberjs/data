@@ -1477,7 +1477,7 @@ test("createRecord updates inverse record array which has observers", function(a
     user.addObserver('messages.@each.title', () => {});
     user.get('messages.firstObject');
 
-    let message = run(() => store.createRecord('message', { user, title: 'EmberFest was great' }));
+    let message = store.createRecord('message', { user, title: 'EmberFest was great' });
     assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
 
     let messageFromArray = user.get('messages.firstObject');

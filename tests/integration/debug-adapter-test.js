@@ -141,9 +141,8 @@ test("Watching Records", function(assert) {
   assert.deepEqual(record.searchKeywords, ['1', 'Modified Post']);
   assert.deepEqual(record.color, 'blue');
 
-  run(function() {
-    post = store.createRecord('post', { id: '2', title: 'New Post' });
-  });
+  post = store.createRecord('post', { id: '2', title: 'New Post' });
+
   assert.equal(get(addedRecords, 'length'), 1);
   record = addedRecords[0];
   assert.deepEqual(record.columnValues, { id: '2', title: 'New Post' });
