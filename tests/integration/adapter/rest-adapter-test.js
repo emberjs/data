@@ -74,14 +74,14 @@ function ajaxError(responseText, status = 400, headers = '') {
 test("findRecord - basic payload", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 
@@ -93,22 +93,22 @@ test("findRecord - passes buildURL a requestType", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/findRecord/post/1");
-  });
+  }));
 });
 
 test("findRecord - basic payload (with legacy singular name)", function(assert) {
   ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 test("findRecord - payload with sideloaded records of the same type", function(assert) {
@@ -119,7 +119,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
     ]
   });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -130,7 +130,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
     let post2 = store.peekRecord('post', 2);
     assert.equal(post2.get('id'), "2");
     assert.equal(post2.get('name'), "The Parley Letter");
-  });
+  }));
 });
 
 test("findRecord - payload with sideloaded records of a different type", function(assert) {
@@ -139,7 +139,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -150,7 +150,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
     let comment = store.peekRecord('comment', 1);
     assert.equal(comment.get('id'), "1");
     assert.equal(comment.get('name'), "FIRST");
-  });
+  }));
 });
 
 
@@ -161,14 +161,14 @@ test("findRecord - payload with an serializer-specified primary key", function(a
 
   ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 test("findRecord - payload with a serializer-specified attribute mapping", function(assert) {
@@ -185,7 +185,7 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
 
   ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -193,7 +193,7 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
     assert.equal(post.get('createdAt'), 2013);
-  });
+  }));
 });
 
 test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
@@ -201,9 +201,9 @@ test("findRecord - passes `include` as a query parameter to ajax", function(asse
     post: { id: 1, name: 'Rails is very expensive sushi' }
   });
 
-  return run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(() => {
+  return run(() => store.findRecord('post', 1, { include: 'comments' }).then(() => {
     assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
-  });
+  }));
 });
 
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
@@ -330,9 +330,12 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
   });
 
-  return run(post, 'save').then(post => {
-    assert.deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
-  });
+  return run(() =>
+    post.save()
+      .then(post => {
+        assert.deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
+      })
+  );
 });
 
 test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
@@ -584,7 +587,7 @@ test("createRecord - relationships are not duplicated", function(assert) {
 
   ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
 
-  return run(post, 'save').then(post => {
+  return run(() => post.save().then(post => {
     assert.equal(post.get('comments.length'), 0, "post has 0 comments");
     post.get('comments').pushObject(comment);
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
@@ -597,7 +600,7 @@ test("createRecord - relationships are not duplicated", function(assert) {
     return post.save();
   }).then(post => {
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
-  });
+  }));
 });
 
 test("updateRecord - an empty payload is a basic success", function(assert) {
@@ -1446,10 +1449,10 @@ test("findMany - findMany uses a correct URL to access the records", function(as
     ]
   });
 
-  return run(post, 'get', 'comments').then(comments => {
+  return run(() => post.get('comments').then(comments => {
     assert.equal(passedUrl, "/comments");
     assert.deepEqual(passedHash, { data: { ids: ["1", "2", "3"] } });
-  });
+  }));
 });
 
 test("findMany - passes buildURL the requestType", function(assert) {
@@ -1529,10 +1532,10 @@ test("findMany - findMany does not coalesce by default", function(assert) {
     ]
   });
 
-  return run(post, 'get', 'comments').then(comments => {
+  return run(() => post.get('comments').then(comments => {
     assert.equal(passedUrl, "/comments/3");
     assert.deepEqual(passedHash.data, {});
-  });
+  }));
 });
 
 test("findMany - returning an array populates the array", function(assert) {
@@ -1725,7 +1728,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', '1').then(post => {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1749,7 +1752,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     assert.deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
 
     assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], "The correct records are in the array");
-  });
+  }));
 });
 
 test("findHasMany - passes buildURL the requestType", function(assert) {
@@ -1781,7 +1784,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', '1').then(post => {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1791,7 +1794,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
 
     return post.get('comments');
-  });
+  }));
 });
 
 test("findMany - returning sideloaded data loads the data (with JSONApi Links)", function(assert) {
@@ -1925,10 +1928,10 @@ test('findBelongsTo - passes buildURL the requestType', function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'comment', 1).then(comment => {
+  return run(() => store.findRecord('comment', '1').then(comment => {
     ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
     return comment.get('post');
-  });
+  }));
 });
 
 testInDebug('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {

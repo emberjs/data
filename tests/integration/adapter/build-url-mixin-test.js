@@ -61,9 +61,9 @@ test('buildURL - with host and namespace', function(assert) {
 
   ajaxResponse({ posts: [{ id: 1 }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "http://example.com/api/v1/posts/1");
-  });
+  }));
 });
 
 test('buildURL - with relative paths in links', function(assert) {
@@ -79,12 +79,12 @@ test('buildURL - with relative paths in links', function(assert) {
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   }).then(comments => {
     assert.equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
-  });
+  }));
 });
 
 test('buildURL - with absolute paths in links', function(assert) {
@@ -99,12 +99,12 @@ test('buildURL - with absolute paths in links', function(assert) {
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   }).then(comments => {
     assert.equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
-  });
+  }));
 });
 
 
@@ -120,12 +120,12 @@ test('buildURL - with absolute paths in links and protocol relative host', funct
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   }).then(comments => {
     assert.equal(passedUrl, "//example.com/api/v1/posts/1/comments");
-  });
+  }));
 });
 
 test('buildURL - with absolute paths in links and host is /', function(assert) {
@@ -140,12 +140,12 @@ test('buildURL - with absolute paths in links and host is /', function(assert) {
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   }).then(comments => {
     assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
-  });
+  }));
 });
 
 test('buildURL - with full URLs in links', function(assert) {

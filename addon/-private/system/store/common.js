@@ -1,4 +1,7 @@
 import { get } from '@ember/object';
+import { DEBUG } from '@glimmer/env';
+import Ember from 'ember';
+import { Promise } from 'rsvp';
 
 const {
   __bind,
@@ -32,4 +35,21 @@ export function _guard(promise, test) {
 export function _objectIsAlive(object) {
   heimdall.increment(__objectIsAlive);
   return !(get(object, "isDestroyed") || get(object, "isDestroying"));
+}
+
+let ASYNC_REQUEST_COUNT = 0;
+export function incrementRequestCount() {
+  ASYNC_REQUEST_COUNT++;
+}
+
+if (DEBUG) {
+  Ember.Test.registerWaiter(() => {
+    return ASYNC_REQUEST_COUNT === 0;
+  });
+}
+
+export function guardDestroyedStore(promise, store, label) {
+  promise = Promise.resolve(promise, label);
+
+  return _guard(promise, () => { if (DEBUG) { ASYNC_REQUEST_COUNT--; } return _objectIsAlive(store); });
 }

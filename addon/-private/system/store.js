@@ -9,7 +9,7 @@ import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
-import RSVP from 'rsvp';
+import { default as RSVP, Promise } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
@@ -30,7 +30,9 @@ import {
 import {
   _bind,
   _guard,
-  _objectIsAlive
+  _objectIsAlive,
+  guardDestroyedStore,
+  incrementRequestCount
 } from "./store/common";
 
 import { normalizeResponseHelper } from "./store/serializer-response";
@@ -51,15 +53,11 @@ import { getOwner } from '../utils';
 import coerceId from "./coerce-id";
 import RecordArrayManager from "./record-array-manager";
 import InternalModel from "./model/internal-model";
+import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 
-const {
-  _Backburner: Backburner,
-  ENV
-} = Ember;
-
-const { Promise } = RSVP;
+const { ENV } = Ember;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -204,7 +202,7 @@ Store = Service.extend({
   */
   init() {
     this._super(...arguments);
-    this._backburner = new Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
+    this._backburner = edBackburner;
     // internal bookkeeping; not observable
     this.recordArrayManager = new RecordArrayManager({ store: this });
     this._identityMap = new IdentityMap();
@@ -2884,14 +2882,16 @@ function _commit(adapter, store, operation, snapshot) {
   let modelClass = store._modelFor(modelName);
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(`You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
+
+  if (DEBUG) { incrementRequestCount(); }
+
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = serializerForAdapter(store, adapter, modelName);
   let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
 
   assert(`Your adapter's '${operation}' method must return a value, but it returned 'undefined'`, promise !==undefined);
 
-  promise = Promise.resolve(promise, label);
-  promise = _guard(promise, _bind(_objectIsAlive, store));
+  promise = guardDestroyedStore(promise, store, label);
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then((adapterPayload) => {
