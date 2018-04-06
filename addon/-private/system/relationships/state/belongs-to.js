@@ -167,6 +167,7 @@ export default class BelongsToRelationship extends Relationship {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     if (this.isAsync) {
       let promise;
+
       if (this._shouldFindViaLink()) {
         promise = this.findLink().then(() => this.findRecord());
       } else {

@@ -257,21 +257,38 @@ export default class RelationshipPayloads {
       // * null is considered new information "empty", and it should win
       // * undefined is NOT considered new information, we should keep original state
       // * anything else is considered new information, and it should win
+      let isMatchingIdentifier = this._isMatchingIdentifier(
+        relationshipData && relationshipData.data,
+        previousPayload && previousPayload.data
+      );
+
       if (relationshipData.data !== undefined) {
-        this._removeInverse(id, previousPayload, inversePayloadMap);
+        if (!isMatchingIdentifier) {
+          this._removeInverse(id, previousPayload, inversePayloadMap);
+        }
       }
 
-      if (previousPayload && relationshipData.meta === undefined) {
+      if (previousPayload && previousPayload.meta !== undefined && relationshipData.meta === undefined) {
         relationshipData.meta = previousPayload.meta;
       }
 
-      if (previousPayload && relationshipData.links === undefined) {
+      if (previousPayload && previousPayload.links !== undefined && relationshipData.links === undefined) {
         relationshipData.links = previousPayload.links;
       }
 
       payloadMap.set(modelName, id, relationshipData);
-      this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
+
+      if (!isMatchingIdentifier) {
+        this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
+      }
     }
+  }
+
+  _isMatchingIdentifier(a, b) {
+    return a && b &&
+      a.type === b.type &&
+      a.id === b.id &&
+      !Array.isArray(a);
   }
 
   /**
@@ -407,9 +424,8 @@ export default class RelationshipPayloads {
     if (Array.isArray(data)) {
       inversePayload.data = data.filter((x) => x.id !== id);
     } else {
-      inversePayloads.set(resourceIdentifier.type, resourceIdentifier.id, {
-        data: null
-      });
+      // this merges forward links and meta
+      inversePayload.data = null;
     }
   }
 }
