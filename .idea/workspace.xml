@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="8fa7a5e7-1523-47e9-8009-baadbc165186" name="Default Changelist" comment="" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="JQLSearcherProjectManager">
+    <selected>-1</selected>
+    <searchers />
+  </component>
+  <component name="JiraServerManager">
+    <selected>-1</selected>
+    <servers />
+  </component>
+  <component name="PerforceDirect.Settings">
+    <option name="pathToExec" value="/usr/local/bin/p4" />
+    <option name="PATH_TO_P4V" value="$USER_HOME$/Applications/Perforce/p4v.app/Contents/MacOS/p4v" />
+    <option name="USE_PERFORCE_JOBS" value="true" />
+  </component>
+  <component name="ProjectId" id="1RjQWnqQlOxpgV2WTjskZrGmlmV" />
+  <component name="PropertiesComponent">
+    <property name="JavaScriptLanguageLevel" value="ES6" />
+    <property name="JavaScriptWeakerCompletionTypeGuess" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Applications/Perforce/p4v.app/Contents/MacOS/p4v" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.standard" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.standard" value="" />
+    <property name="node.js.selected.package.tslint" value="" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/node_modules/prettier" />
+    <property name="settings.editor.selected.configurable" value="settings.javascript.linters.tslint" />
+    <property name="settings.editor.splitter.proportion" value="0.3119266" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8fa7a5e7-1523-47e9-8009-baadbc165186" name="Default Changelist" comment="" />
+      <created>1570178059206</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1570178059206</updated>
+      <workItem from="1570178060379" duration="18209000" />
+      <workItem from="1570535501562" duration="8486000" />
+      <workItem from="1570723727137" duration="1019000" />
+      <workItem from="1571068932827" duration="7477000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+</project>
