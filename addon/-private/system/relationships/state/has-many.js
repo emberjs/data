@@ -246,14 +246,10 @@ export default class ManyRelationship extends Relationship {
 
   reload() {
     let manyArray = this.manyArray;
-    let manyArrayLoadedState = manyArray.get('isLoaded');
 
     if (this._loadingPromise) {
       if (this._loadingPromise.get('isPending')) {
         return this._loadingPromise;
-      }
-      if (this._loadingPromise.get('isRejected')) {
-        manyArray.set('isLoaded', manyArrayLoadedState);
       }
     }
 
