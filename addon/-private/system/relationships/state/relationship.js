@@ -120,6 +120,14 @@ export default class Relationship {
     this.hasAnyRelationshipData = false;
 
     /*
+      Flag that indicates whether an empty relationship is explicitly empty
+        (signaled by push giving us an empty array or null relationship)
+        e.g. an API response has told us that this relationship is empty.
+
+      Thus far, it does not appear that we actually need this flag; however,
+        @runspired has found it invaluable when debugging relationship tests
+        to determine whether (and why if so) we are in an incorrect state.
+
       true when
         => we receive a push with explicit empty (`[]` or `null`)
         => we have received no signal about what data belongs in this relationship
