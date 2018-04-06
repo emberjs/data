@@ -804,7 +804,7 @@ testInDebug("Passing a model as type to belongsTo should not work", function(ass
   }, /The first argument to DS.belongsTo must be a string/);
 });
 
-test("belongsTo hasRelationshipDataProperty async loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData async loaded", function(assert) {
   assert.expect(1);
 
   Book.reopen({
@@ -827,12 +827,12 @@ test("belongsTo hasRelationshipDataProperty async loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("belongsTo hasRelationshipDataProperty sync loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData sync loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -851,12 +851,12 @@ test("belongsTo hasRelationshipDataProperty sync loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("belongsTo hasRelationshipDataProperty async not loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData async not loaded", function(assert) {
   assert.expect(1);
 
   Book.reopen({
@@ -879,12 +879,12 @@ test("belongsTo hasRelationshipDataProperty async not loaded", function(assert) 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("belongsTo hasRelationshipDataProperty sync not loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData sync not loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -900,12 +900,12 @@ test("belongsTo hasRelationshipDataProperty sync not loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("belongsTo hasRelationshipDataProperty NOT created", function(assert) {
+test("belongsTo hasAnyRelationshipData NOT created", function(assert) {
   assert.expect(2);
 
   Book.reopen({
@@ -917,7 +917,7 @@ test("belongsTo hasRelationshipDataProperty NOT created", function(assert) {
     let book = store.createRecord('book', { name: 'The Greatest Book' });
     let relationship = book._internalModel._relationships.get('author');
 
-    assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+    assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
       name: 'The Greatest Book',
@@ -926,11 +926,11 @@ test("belongsTo hasRelationshipDataProperty NOT created", function(assert) {
 
     relationship = book._internalModel._relationships.get('author');
 
-    assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+    assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
 
-test("belongsTo hasRelationshipDataProperty sync created", function(assert) {
+test("belongsTo hasAnyRelationshipData sync created", function(assert) {
   assert.expect(2);
 
   run(() => {
@@ -940,7 +940,7 @@ test("belongsTo hasRelationshipDataProperty sync created", function(assert) {
     });
 
     let relationship = book._internalModel._relationships.get('author');
-    assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+    assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
       name: 'The Greatest Book',
@@ -948,7 +948,7 @@ test("belongsTo hasRelationshipDataProperty sync created", function(assert) {
     });
 
     relationship = book._internalModel._relationships.get('author');
-    assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+    assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
 

@@ -6,7 +6,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import {
   reset as resetModelFactoryInjection
 } from 'dummy/tests/helpers/model-factory-injection';
-import { module, test, todo } from 'qunit';
+import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from "ember-data/adapters/json-api";
 
@@ -30,7 +30,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
   });
 
   Organisation = DS.Model.extend({
-    adminUsers: hasMany('user')
+    adminUsers: hasMany('user', { inverse: null })
   });
 
   env = setupStore({
@@ -92,7 +92,7 @@ test("Loading link with inverse:null on other model caches the two ends separate
 
             return user1.get('organisation')
               .then(orgFromUser => {
-                assert.equal(user1.belongsTo('organisation').belongsToRelationship.hasLoaded, true, 'user should have loaded its belongsTo relationship');
+                assert.equal(user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale, false, 'user should have loaded its belongsTo relationship');
 
                 assert.ok(org2FromFind, 'organisation we found should be populated');
                 assert.ok(orgFromUser, 'user\'s organisation should be populated');
@@ -154,7 +154,7 @@ test("Pushing child record should not mark parent:children as loaded", function 
       }
     });
 
-    assert.equal(parent.hasMany('children').hasManyRelationship.hasLoaded, false, 'parent should think that children still needs to be loaded');
+    assert.equal(parent.hasMany('children').hasManyRelationship.relationshipIsStale, false, 'parent should think that children still needs to be loaded');
   });
 });
 
@@ -1844,7 +1844,7 @@ test(`get+reload hasMany with empty data, no links`, function(assert) {
 /*
   Ad hoc situations where we do have a link
  */
-todo('We should not fetch a hasMany relationship with links that we know is empty', function(assert) {
+test('We should not fetch a hasMany relationship with links that we know is empty', function(assert) {
   assert.expect(1);
   let { store, adapter } = env;
 

@@ -311,7 +311,6 @@ export default class ManyRelationship extends Relationship {
       this.store._backburner.join(() => {
         this.updateInternalModelsFromAdapter(records);
         this.manyArray.set('isLoaded', true);
-        this.setHasRelationshipDataProperty(true);
       });
       return this.manyArray;
     });

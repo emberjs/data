@@ -9,7 +9,7 @@ import { assert } from '@ember/debug';
  */
 function mergeForwardPayload(oldPayload, newPayload) {
   if (oldPayload && oldPayload.data !== undefined && newPayload.data === undefined) {
-    newPayload.data = oldPayload.data;
+    // newPayload.data = oldPayload.data;
   }
 
   if (oldPayload && oldPayload.meta !== undefined && newPayload.meta === undefined) {
@@ -362,11 +362,12 @@ export default class RelationshipPayloads {
       if (inverseIsMany) {
         let existingData = existingPayload.data;
 
-        if (!existingData) {
-          existingData = existingPayload.data = [];
+        // in the case of a hasMany
+        // we do not want create a `data` array where there was none before
+        // if we also have links, which this would indicate
+        if (existingData) {
+          existingData.push(inversePayload.data);
         }
-
-        existingData.push(inversePayload.data);
       } else {
         mergeForwardPayload(existingPayload, inversePayload);
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);

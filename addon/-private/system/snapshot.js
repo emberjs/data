@@ -214,7 +214,7 @@ export default class Snapshot {
       throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
-    hasRelationshipDataProperty = get(relationship, 'hasRelationshipDataProperty');
+    hasRelationshipDataProperty = get(relationship, 'hasAnyRelationshipData');
     inverseInternalModel = get(relationship, 'inverseInternalModel');
 
     if (hasRelationshipDataProperty) {
@@ -285,7 +285,7 @@ export default class Snapshot {
       throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
-    hasRelationshipDataProperty = get(relationship, 'hasRelationshipDataProperty');
+    hasRelationshipDataProperty = get(relationship, 'hasAnyRelationshipData');
     members = get(relationship, 'members');
 
     if (hasRelationshipDataProperty) {

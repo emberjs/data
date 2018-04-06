@@ -258,7 +258,7 @@ export default class HasManyReference extends Reference {
   }
 
   _isLoaded() {
-    let hasRelationshipDataProperty = get(this.hasManyRelationship, 'hasRelationshipDataProperty');
+    let hasRelationshipDataProperty = get(this.hasManyRelationship, 'hasAnyRelationshipData');
     if (!hasRelationshipDataProperty) {
       return false;
     }

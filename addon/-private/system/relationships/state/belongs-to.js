@@ -9,8 +9,6 @@ import Relationship from "./relationship";
 export default class BelongsToRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
     super(store, internalModel, inverseKey, relationshipMeta);
-    this.internalModel = internalModel;
-    this.key = relationshipMeta.key;
     this.inverseInternalModel = null;
     this.canonicalState = null;
     this._loadingPromise = null;
@@ -22,9 +20,10 @@ export default class BelongsToRelationship extends Relationship {
     } else if (this.inverseInternalModel) {
       this.removeInternalModel(this.inverseInternalModel);
     }
-    this.setHasRelationshipDataProperty(true);
-    this.setHasLoaded(true);
-    this.setHasLocalData(!this.localStateIsEmpty());
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsStale(false);
+    this.setRelationshipIsEmpty(false);
+    this.setHasRelatedResources(!this.localStateIsEmpty());
   }
 
   setCanonicalInternalModel(internalModel) {

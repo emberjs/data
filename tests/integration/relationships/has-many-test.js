@@ -2648,7 +2648,7 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   });
 });
 
-test("hasMany hasRelationshipDataProperty async loaded", function(assert) {
+test("hasMany hasAnyRelationshipData async loaded", function(assert) {
   assert.expect(1);
 
   Chapter.reopen({
@@ -2673,12 +2673,12 @@ test("hasMany hasRelationshipDataProperty async loaded", function(assert) {
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
       let relationship = chapter._internalModel._relationships.get('pages');
-      assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasRelationshipDataProperty sync loaded", function(assert) {
+test("hasMany hasAnyRelationshipData sync loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2699,12 +2699,12 @@ test("hasMany hasRelationshipDataProperty sync loaded", function(assert) {
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
       let relationship = chapter._internalModel._relationships.get('pages');
-      assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasRelationshipDataProperty async not loaded", function(assert) {
+test("hasMany hasAnyRelationshipData async not loaded", function(assert) {
   assert.expect(1);
 
   Chapter.reopen({
@@ -2729,12 +2729,12 @@ test("hasMany hasRelationshipDataProperty async not loaded", function(assert) {
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
       let relationship = chapter._internalModel._relationships.get('pages');
-      assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasRelationshipDataProperty sync not loaded", function(assert) {
+test("hasMany hasAnyRelationshipData sync not loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2750,12 +2750,12 @@ test("hasMany hasRelationshipDataProperty sync not loaded", function(assert) {
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
       let relationship = chapter._internalModel._relationships.get('pages');
-      assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasRelationshipDataProperty async created", function(assert) {
+test("hasMany hasAnyRelationshipData async created", function(assert) {
   assert.expect(2);
 
   Chapter.reopen({
@@ -2766,7 +2766,7 @@ test("hasMany hasRelationshipDataProperty async created", function(assert) {
   let page = store.createRecord('page');
 
   let relationship = chapter._internalModel._relationships.get('pages');
-  assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+  assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
   chapter = store.createRecord('chapter', {
     title: 'The Story Begins',
@@ -2774,16 +2774,16 @@ test("hasMany hasRelationshipDataProperty async created", function(assert) {
   });
 
   relationship = chapter._internalModel._relationships.get('pages');
-  assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+  assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
 
-test("hasMany hasRelationshipDataProperty sync created", function(assert) {
+test("hasMany hasAnyRelationshipData sync created", function(assert) {
   assert.expect(2);
 
   let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
   let relationship = chapter._internalModel._relationships.get('pages');
 
-  assert.equal(relationship.hasRelationshipDataProperty, false, 'relationship does not have data');
+  assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
   chapter = store.createRecord('chapter', {
     title: 'The Story Begins',
@@ -2791,7 +2791,7 @@ test("hasMany hasRelationshipDataProperty sync created", function(assert) {
   });
   relationship = chapter._internalModel._relationships.get('pages');
 
-  assert.equal(relationship.hasRelationshipDataProperty, true, 'relationship has data');
+  assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
 
 test("Model's hasMany relationship should not be created during model creation", function(assert) {
