@@ -2,6 +2,27 @@
 
 ### Master
 
+### Release 3.2.0-beta.2 (April 6, 2018)
+- [#5412](https://github.com/emberjs/data/pull/5412) Fix npmignore and cleanup test artifacts before publishing
+- [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods
+- [#4856](https://github.com/emberjs/data/pull/4856) [BUGFIX #4497] query/queryRecord/filter now support adapter options
+- [#5408](https://github.com/emberjs/data/pull/5408) [FEAT BUGFIX] enable canonical state updates to deleted records
+- [#5336](https://github.com/emberjs/data/pull/5336) [CHORE] remove all benchmark related code
+- [#5324](https://github.com/emberjs/data/pull/5324) Don't serialize new has many relationships
+- [#5405](https://github.com/emberjs/data/pull/5405) [CHORE] remove dead methods left behind from ff removal
+- [#5406](https://github.com/emberjs/data/pull/5406) [BUGFIX release] Fix `Model.modelName` inheritance with Ember 3.2+.
+- [#5366](https://github.com/emberjs/data/pull/5366) fix initial polymorphic attribute
+- [#5345](https://github.com/emberjs/data/pull/5345) Check if adapter#query is a wrapped function
+- [#5385](https://github.com/emberjs/data/pull/5385) Use `najax` in `fastboot` and some refactoring to isolate `jQuery.ajax`
+- [#5399](https://github.com/emberjs/data/pull/5399) Remove unneeded feature flagged tests
+- [#5410](https://github.com/emberjs/data/pull/5410) [FEAT BUGFIX] resolves issues with links and data in relationships (#5410)
+- [#5413](https://github.com/emberjs/data/pull/5413) [BUGFIX] Fix availability of properties in createRecord init
+- [#5414](https://github.com/emberjs/data/pull/5414) [FEAT BUGFIX] adds adapterOptions ability to model.reload()
+- [#5415](https://github.com/emberjs/data/pull/5415) make createRecord sync and remove unnecessary run usage in tests
+- [#5416](https://github.com/emberjs/data/pull/5416) adds a more robust test around reload
+- [#5418](https://github.com/emberjs/data/pull/5418) Limit CI runs on branches to master, beta, release
+- [#5422](https://github.com/emberjs/data/pull/5422) [FEAT] Prevent async test leakage (feat. adds test waiters)
+
 ### Release 3.2.0-beta.1 (March 26, 2018)
 - [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods and reject the (#4977)
 - [#5379](https://github.com/emberjs/data/pull/5379) minor typo
