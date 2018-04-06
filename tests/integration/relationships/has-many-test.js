@@ -756,6 +756,94 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
   });
 });
 
+
+test("A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store", function(assert) {
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true})
+  });
+
+  const postID = '1';
+
+
+  run(function() {
+
+    // load a record with a link hasMany relationship
+    env.store.push({
+      data: {
+        type: 'post',
+        id: postID,
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments'
+            }
+          }
+        }
+      }
+    });
+
+    // if a related comment is pushed into the store,
+    // the post.comments.link will not be requested
+    //
+    // If this comment is not inserted into the store, everything works properly
+    env.store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { body: "First" },
+        relationships: {
+          message: {
+            data: { type: 'post', id: postID }
+          }
+        }
+      }
+    });
+
+
+    env.adapter.findRecord = function(store, type, id, snapshot) {
+      throw new Error(`findRecord for ${type} should not be called`);
+    };
+
+    let hasManyCounter = 0;
+    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      assert.equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
+      assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+      assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+      hasManyCounter++;
+
+      return resolve({ data: [
+        { id: 1, type: 'comment', attributes: { body: "First" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]});
+    };
+
+    const post = env.store.peekRecord('post', postID);
+    post.get('comments').then(function(comments) {
+
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(hasManyCounter, 1, "link was requested");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
+
+      post.hasMany('comments').reload().then(function(comments) {
+
+        assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+        assert.equal(hasManyCounter, 2, "link was requested");
+        assert.equal(comments.get('length'), 2, "comments have 2 length");
+
+      });
+
+
+    });
+
+  });
+
+});
+
 test("A sync hasMany relationship can be reloaded if it was fetched via ids", function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: false })
