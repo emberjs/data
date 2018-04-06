@@ -1,7 +1,7 @@
 import ObjectProxy from '@ember/object/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
 import ArrayProxy from '@ember/array/proxy';
-import { get } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
@@ -82,13 +82,20 @@ export function promiseArray(promise, label) {
   });
 }
 
-export function proxyToContent(method) {
-  return function() {
-    return get(this, 'content')[method](...arguments);
-  };
-}
-
 export const PromiseBelongsTo = PromiseObject.extend({
+
+  // we don't proxy meta because we would need to proxy it to the relationship state container
+  //  however, meta on relationships does not trigger change notifications.
+  //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
+  meta: computed(function() {
+    assert(
+      'You attempted to access meta on the promise for the async belongsTo relationship ' +
+      `${this.get('_belongsToState').internalModel.modelName}:${this.get('_belongsToState').key}'.` +
+       '\nUse `record.belongsTo(relationshipName).meta()` instead.',
+      false
+    );
+  }),
+
   reload() {
     assert('You are trying to reload an async belongsTo before it has been created', this.get('content') !== undefined);
     this.get('_belongsToState').reload();
@@ -114,9 +121,14 @@ export const PromiseBelongsTo = PromiseObject.extend({
   @namespace DS
   @extends Ember.ArrayProxy
 */
-export const PromiseManyArray = PromiseArray.extend({
-  link: reads('content.link'),
 
+export function proxyToContent(method) {
+  return function() {
+    return get(this, 'content')[method](...arguments);
+  };
+}
+
+export const PromiseManyArray = PromiseArray.extend({
   reload() {
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
     this.set('promise', this.get('content').reload());

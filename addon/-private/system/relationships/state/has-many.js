@@ -16,26 +16,25 @@ export default class ManyRelationship extends Relationship {
     // we create a new many array, but in the interim it will be updated if
     // inverse internal models are unloaded.
     this._retainedManyArray = null;
-    this.__loadingPromise = null;
+    this._loadingPromise = null;
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
   }
 
-  get _loadingPromise() { return this.__loadingPromise; }
   _updateLoadingPromise(promise, content) {
-    if (this.__loadingPromise) {
+    if (this._loadingPromise) {
       if (content) {
-        this.__loadingPromise.set('content', content)
+        this._loadingPromise.set('content', content)
       }
-      this.__loadingPromise.set('promise', promise)
+      this._loadingPromise.set('promise', promise)
     } else {
-      this.__loadingPromise = PromiseManyArray.create({
+      this._loadingPromise = PromiseManyArray.create({
         promise,
         content
       });
     }
 
-    return this.__loadingPromise;
+    return this._loadingPromise;
   }
 
   get manyArray() {
@@ -353,13 +352,7 @@ export default class ManyRelationship extends Relationship {
     } else {
       assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
 
-      //TODO(Igor) WTF DO I DO HERE?
-      // TODO @runspired equal WTFs to Igor
-      if (!manyArray.get('isDestroyed')) {
-        manyArray.set('isLoaded', true);
-      } else {
-        throw new Error('WTF am I doing here?!');
-      }
+      manyArray.set('isLoaded', true);
 
       return manyArray;
     }
@@ -396,11 +389,11 @@ export default class ManyRelationship extends Relationship {
       this._manyArray = null;
     }
 
-    let proxy = this.__loadingPromise;
+    let proxy = this._loadingPromise;
 
     if (proxy) {
       proxy.destroy();
-      this.__loadingPromise = null;
+      this._loadingPromise = null;
     }
   }
 }

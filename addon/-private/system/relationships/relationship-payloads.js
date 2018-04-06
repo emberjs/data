@@ -125,16 +125,13 @@ export default class RelationshipPayloads {
    */
   get(modelName, id, relationshipName) {
     this._flushPending();
-    let payload;
 
     if (this._isLHS(modelName, relationshipName)) {
-      payload = this.lhs_payloads.get(modelName, id);
+      return this.lhs_payloads.get(modelName, id);
     } else {
       assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
-      payload = this.rhs_payloads.get(modelName, id);
+      return this.rhs_payloads.get(modelName, id);
     }
-
-    return payload;
   }
 
   /**
