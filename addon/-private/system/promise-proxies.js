@@ -82,6 +82,21 @@ export function promiseArray(promise, label) {
   });
 }
 
+export function proxyToContent(method) {
+  return function() {
+    return get(this, 'content')[method](...arguments);
+  };
+}
+
+export const PromiseBelongsTo = PromiseObject.extend({
+  reload() {
+    assert('You are trying to reload an async belongsTo before it has been created', get(this, 'content'));
+    this.get('_belongsToState').reload();
+
+    return this;
+  }
+});
+
 /**
   A PromiseManyArray is a PromiseArray that also proxies certain method calls
   to the underlying manyArray.
@@ -99,13 +114,6 @@ export function promiseArray(promise, label) {
   @namespace DS
   @extends Ember.ArrayProxy
 */
-
-export function proxyToContent(method) {
-  return function() {
-    return get(this, 'content')[method](...arguments);
-  };
-}
-
 export const PromiseManyArray = PromiseArray.extend({
   reload() {
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));

@@ -774,7 +774,7 @@ function shouldFetchLinkTests(description, payloads) {
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.reload()));
+    run(() => home.reload());
   });
   test(`get+unload+get belongsTo with ${description}`, function(assert) {
     assert.expect(3);
@@ -1080,7 +1080,7 @@ function shouldReloadWithLinkTests(description, payloads) {
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.reload()));
+    run(() => home.reload());
   });
   test(`get+unload+get belongsTo with ${description}`, function(assert) {
     assert.expect(2);
@@ -1356,7 +1356,7 @@ test(`get+reload belongsTo with data, no links`, function(assert) {
 
   assert.ok(!!home, 'We found our home');
 
-  run(() => home.then(h => h.reload()));
+  run(() => home.reload());
 });
 test(`get+unload+get belongsTo with data, no links`, function(assert) {
   assert.expect(3);
@@ -1616,7 +1616,7 @@ test(`get+reload belongsTo with missing data setup from the other side, no links
 
   assert.ok(!!home, 'We found our home');
 
-  run(() => home.then(h => h.reload()));
+  run(() => home.reload());
 });
 test(`get+unload+get belongsTo with missing data setup from the other side, no links`, function(assert) {
   assert.expect(2);

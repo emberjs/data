@@ -1380,9 +1380,9 @@ test("A belongsTo relationship can be reloaded using the reference if it was fet
   });
 });
 
-test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+test("A synchronous belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
   Chapter.reopen({
-    book: DS.belongsTo()
+    book: DS.belongsTo({ async: false })
   });
 
   let chapter;
@@ -1390,10 +1390,10 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
     chapter = env.store.push({
       data: {
         type: 'chapter',
-        id: 1,
+        id: '1',
         relationships: {
           book: {
-            data: { type: 'book', id: 1 }
+            data: { type: 'book', id: '1' }
           }
         }
       }
@@ -1401,7 +1401,7 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
     env.store.push({
       data: {
         type: 'book',
-        id: 1,
+        id: '1',
         attributes: {
           name: "book title"
         }
@@ -1412,7 +1412,7 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
   env.adapter.findRecord = function() {
     return resolve({
       data: {
-        id: 1,
+        id: '1',
         type: 'book',
         attributes: { name: 'updated book title' }
       }
