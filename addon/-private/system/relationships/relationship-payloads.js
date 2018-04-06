@@ -2,7 +2,7 @@ import { assert } from '@ember/debug';
 
 /**
  * Merge data,meta,links information forward to the next payload
- * if required.
+ * if required. Latest data will always win.
  *
  * @param oldPayload
  * @param newPayload
@@ -12,6 +12,17 @@ function mergeForwardPayload(oldPayload, newPayload) {
     newPayload.data = oldPayload.data;
   }
 
+  /*
+    _partialData is has-many relationship data that has been discovered via
+     inverses in the absence of canonical `data` availability from the primary
+     payload.
+
+    We can't merge this data into `data` as that would trick has-many relationships
+     into believing they know their complete membership. Anytime we find canonical
+     data from the primary record, this partial data is discarded. If no canonical
+     data is ever discovered, the partial data will be loaded by the relationship
+     in a way that correctly preserves the `stale` relationship state.
+   */
   if (newPayload.data === undefined && oldPayload && oldPayload._partialData !== undefined) {
     newPayload._partialData = oldPayload._partialData;
   }
