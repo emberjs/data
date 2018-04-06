@@ -1,5 +1,26 @@
 import { assert } from '@ember/debug';
 
+/**
+ * Merge data,meta,links information forward to the next payload
+ * if required.
+ *
+ * @param oldPayload
+ * @param newPayload
+ */
+function mergeForwardPayload(oldPayload, newPayload) {
+  if (oldPayload && oldPayload.data !== undefined && newPayload.data === undefined) {
+    newPayload.data = oldPayload.data;
+  }
+
+  if (oldPayload && oldPayload.meta !== undefined && newPayload.meta === undefined) {
+    newPayload.meta = oldPayload.meta;
+  }
+
+  if (oldPayload && oldPayload.links !== undefined && newPayload.links === undefined) {
+    newPayload.links = oldPayload.links;
+  }
+}
+
 // TODO this is now VERY similar to the identity/internal-model map
 //  so we should probably generalize
 export class TypeCache {
@@ -204,7 +225,6 @@ export default class RelationshipPayloads {
       let payloadMap;
       let inversePayloadMap;
       let inverseIsMany;
-
       if (this._isLHS(modelName, relationshipName)) {
         previousPayload = this.lhs_payloads.get(modelName, id);
         payloadMap = this.lhs_payloads;
@@ -268,14 +288,7 @@ export default class RelationshipPayloads {
         }
       }
 
-      if (previousPayload && previousPayload.meta !== undefined && relationshipData.meta === undefined) {
-        relationshipData.meta = previousPayload.meta;
-      }
-
-      if (previousPayload && previousPayload.links !== undefined && relationshipData.links === undefined) {
-        relationshipData.links = previousPayload.links;
-      }
-
+      mergeForwardPayload(previousPayload, relationshipData);
       payloadMap.set(modelName, id, relationshipData);
 
       if (!isMatchingIdentifier) {
@@ -341,20 +354,23 @@ export default class RelationshipPayloads {
     }
 
     let existingPayload = inversePayloadMap.get(resourceIdentifier.type, resourceIdentifier.id);
-    let existingData = existingPayload && existingPayload.data;
-    let existingLinks = existingPayload && existingPayload.links;
 
-    if (existingData) {
+    if (existingPayload) {
       // There already is an inverse, either add or overwrite depending on
       // whether the inverse is a many relationship or not
       //
       if (inverseIsMany) {
+        let existingData = existingPayload.data;
+
+        if (!existingData) {
+          existingData = existingPayload.data = [];
+        }
+
         existingData.push(inversePayload.data);
       } else {
+        mergeForwardPayload(existingPayload, inversePayload);
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
       }
-    } else if (existingLinks) {
-      return;
     } else {
       // first time we're populating the inverse side
       //

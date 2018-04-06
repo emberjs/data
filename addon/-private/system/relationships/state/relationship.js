@@ -132,6 +132,8 @@ export default class Relationship {
 
   inverseDidDematerialize(inverseInternalModel) {
     this.linkPromise = null;
+    this.setHasLocalData(false);
+
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
@@ -557,7 +559,15 @@ export default class Relationship {
       }
 
       if (initial) {
-        this.setHasLocalData(!this.localStateIsEmpty());
+        // we don't check for empty arrays because due to
+        //  the way we currently setup relationships we
+        //  always have an array even when we were given
+        //  no relationship data property
+        let relationshipIsEmpty = payload.data === null;
+
+        this.setHasLocalData(
+          relationshipIsEmpty || !this.localStateIsEmpty()
+        );
       }
     }
 

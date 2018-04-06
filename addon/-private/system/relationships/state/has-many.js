@@ -338,13 +338,16 @@ export default class ManyRelationship extends Relationship {
   getRecords() {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
+
     if (this.isAsync) {
       let promise;
+
       if (this._shouldFindViaLink()) {
         promise = this.findLink().then(() => this.findRecords());
       } else {
         promise = this.findRecords();
       }
+
       return this._updateLoadingPromise(promise, manyArray);
     } else {
       assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
@@ -353,7 +356,10 @@ export default class ManyRelationship extends Relationship {
       // TODO @runspired equal WTFs to Igor
       if (!manyArray.get('isDestroyed')) {
         manyArray.set('isLoaded', true);
+      } else {
+        throw new Error('WTF am I doing here?!');
       }
+
       return manyArray;
     }
   }
@@ -372,7 +378,7 @@ export default class ManyRelationship extends Relationship {
     let internalModels = manyArray.currentState;
     let manyArrayIsLoaded = manyArray.get('isLoaded');
 
-    if (!manyArrayIsLoaded) {
+    if (!manyArrayIsLoaded && internalModels.length) {
       manyArrayIsLoaded = internalModels.reduce((hasNoEmptyModel, i) => {
         return hasNoEmptyModel && !i.isEmpty();
       }, true);

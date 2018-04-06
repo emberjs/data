@@ -89,8 +89,10 @@ export function proxyToContent(method) {
 }
 
 export const PromiseBelongsTo = PromiseObject.extend({
+  meta: reads('content.meta'),
+
   reload() {
-    assert('You are trying to reload an async belongsTo before it has been created', get(this, 'content'));
+    assert('You are trying to reload an async belongsTo before it has been created', this.get('content') !== undefined);
     this.get('_belongsToState').reload();
 
     return this;
@@ -115,9 +117,11 @@ export const PromiseBelongsTo = PromiseObject.extend({
   @extends Ember.ArrayProxy
 */
 export const PromiseManyArray = PromiseArray.extend({
+  link: reads('content.link'),
+
   reload() {
     assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
-    this.set('promise', this.get('content').reload())
+    this.set('promise', this.get('content').reload());
     return this;
   },
 

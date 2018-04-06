@@ -6,7 +6,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import {
   reset as resetModelFactoryInjection
 } from 'dummy/tests/helpers/model-factory-injection';
-import { module, test } from 'qunit';
+import { module, test, todo } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from "ember-data/adapters/json-api";
 
@@ -671,6 +671,7 @@ module("integration/relationship/json-api-links | Relationship fetching", {
   afterEach() {
     resetModelFactoryInjection();
     run(env.container, 'destroy');
+    env = null;
   }
 });
 
@@ -725,6 +726,9 @@ function shouldFetchLinkTests(description, payloads) {
     assert.expect(3);
     let { store, adapter } = env;
 
+    let petRelationshipData = payloads.user.data.relationships.pets.data;
+    let petRelDataWasEmpty = petRelationshipData && petRelationshipData.length === 0;
+
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(false, 'We should not call findRecord');
@@ -733,10 +737,17 @@ function shouldFetchLinkTests(description, payloads) {
       assert.ok(false, 'We should not call findMany');
     };
     adapter.findHasMany = (_, __, link) => {
-      assert.ok(
-        link === payloads.user.data.relationships.pets.links.related,
-        'We fetched the appropriate link'
-      );
+      if (petRelDataWasEmpty) {
+        assert.ok(
+          link === payloads.user.data.relationships.pets.links.related,
+          'We fetched this link even though we really should not have'
+        );
+      } else {
+        assert.ok(
+          link === payloads.user.data.relationships.pets.links.related,
+          'We fetched the appropriate link'
+        );
+      }
       return resolve(copy(payloads.pets, true));
     };
 
@@ -746,12 +757,21 @@ function shouldFetchLinkTests(description, payloads) {
 
     assert.ok(!!pets, 'We found our pets');
 
-    run(() => pets.objectAt(0).unloadRecord());
-    run(() => user.get('pets'));
+    if (!petRelDataWasEmpty) {
+      run(() => pets.objectAt(0).unloadRecord());
+      run(() => user.get('pets'));
+    } else {
+      assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
+    }
   });
   test(`get+reload belongsTo with ${description}`, function(assert) {
     assert.expect(3);
     let { store, adapter } = env;
+
+    let homeRelationshipData = payloads.user.data.relationships.home.data;
+    let homeRelWasEmpty = homeRelationshipData === null;
+    let isInitialFetch = true;
+    let didFetchInitially = false;
 
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
@@ -761,10 +781,15 @@ function shouldFetchLinkTests(description, payloads) {
       assert.ok(false, 'We should not call findMany');
     };
     adapter.findBelongsTo = (_, __, link) => {
-      assert.ok(
-        link === payloads.user.data.relationships.home.links.related,
-        'We fetched the appropriate link'
-      );
+      if (isInitialFetch && homeRelWasEmpty) {
+        assert.ok(false, 'We should not fetch a relationship we believe is empty');
+        didFetchInitially = true;
+      } else {
+        assert.ok(
+          link === payloads.user.data.relationships.home.links.related,
+          'We fetched the appropriate link'
+        );
+      }
       return resolve(copy(payloads.home, true));
     };
 
@@ -772,7 +797,12 @@ function shouldFetchLinkTests(description, payloads) {
     let user = run(() => store.push(copy(payloads.user, true)));
     let home = run(() => user.get('home'));
 
+    if (homeRelWasEmpty) {
+      assert.ok(!didFetchInitially, 'We did not fetch');
+    }
+
     assert.ok(!!home, 'We found our home');
+    isInitialFetch = false;
 
     run(() => home.reload());
   });
@@ -780,6 +810,9 @@ function shouldFetchLinkTests(description, payloads) {
     assert.expect(3);
     let { store, adapter } = env;
 
+    let homeRelationshipData = payloads.user.data.relationships.home.data;
+    let homeRelWasEmpty = homeRelationshipData === null;
+
     adapter.shouldBackgroundReloadRecord = () => false;
     adapter.findRecord = () => {
       assert.ok(false, 'We should not call findRecord');
@@ -789,6 +822,7 @@ function shouldFetchLinkTests(description, payloads) {
     };
     adapter.findBelongsTo = (_, __, link) => {
       assert.ok(
+        !homeRelWasEmpty &&
         link === payloads.user.data.relationships.home.links.related,
         'We fetched the appropriate link'
       );
@@ -801,8 +835,13 @@ function shouldFetchLinkTests(description, payloads) {
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.unloadRecord()));
-    run(() => user.get('home'));
+    if (!homeRelWasEmpty) {
+      run(() => home.then(h => h.unloadRecord()));
+      run(() => user.get('home'));
+    } else {
+      assert.ok(true, `We cant dirty a relationship we have no knowledge of`);
+      assert.ok(true, `Nor should we have fetched it.`);
+    }
   });
 }
 
@@ -905,6 +944,9 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
             data: {
               type: 'user',
               id: '1'
+            },
+            links: {
+              related: './user/1'
             }
           }
         }
@@ -923,6 +965,9 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
           data: {
             type: 'user',
             id: '1'
+          },
+          links: {
+            related: './user/1'
           }
         }
       }
@@ -930,7 +975,7 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
   }
 });
 
-shouldFetchLinkTests('a link and empty data (`data: []` or `data: null`)', {
+shouldFetchLinkTests('a link and empty data (`data: []` or `data: null`), true inverse unloaded', {
   user: {
     data: {
       type: 'user',
@@ -1104,11 +1149,12 @@ function shouldReloadWithLinkTests(description, payloads) {
     // setup user
     let user = run(() => store.push(copy(payloads.user, true)));
     run(() => store.push(copy(payloads.home, true)));
-    let home = run(() => user.get('home'));
+    let home;
+    run(() => user.get('home').then(h => home = h));
 
     assert.ok(!!home, 'We found our home');
 
-    run(() => home.then(h => h.unloadRecord()));
+    run(() => home.unloadRecord());
     run(() => user.get('home'));
   });
 }
@@ -1170,6 +1216,74 @@ shouldReloadWithLinkTests('a link and data (available in the store)', {
           data: {
             type: 'user',
             id: '1'
+          }
+        }
+      }
+    }
+  }
+});
+
+shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse loaded', {
+  user: {
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        name: '@runspired'
+      },
+      relationships: {
+        pets: {
+          links: {
+            related: './runspired/pets'
+          },
+          data: []
+        },
+        home: {
+          links: {
+            related: './runspired/address'
+          },
+          data: null
+        }
+      }
+    }
+  },
+  pets: {
+    data: [
+      {
+        type: 'pet',
+        id: '1',
+        attributes: {
+          name: 'Shen'
+        },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1'
+            },
+            links: {
+              related: './user/1'
+            }
+          }
+        }
+      }
+    ]
+  },
+  home: {
+    data: {
+      type: 'home',
+      id: '1',
+      attributes: {
+        address: 'Oakland, Ca'
+      },
+      relationships: {
+        owner: {
+          data: {
+            type: 'user',
+            id: '1'
+          },
+          links: {
+            related: './user/1'
           }
         }
       }
@@ -1725,4 +1839,94 @@ test(`get+reload hasMany with empty data, no links`, function(assert) {
   assert.ok(!!pets, 'We found our pets');
 
   run(() => pets.reload());
+});
+
+/*
+  Ad hoc situations where we do have a link
+ */
+todo('We should not fetch a hasMany relationship with links that we know is empty', function(assert) {
+  assert.expect(1);
+  let { store, adapter } = env;
+
+  let user1Payload = {
+    data: {
+      type: 'user',
+        id: '1',
+        attributes: {
+        name: '@runspired'
+      },
+      relationships: {
+        pets: {
+          links: {
+            related: './runspired/pets'
+          },
+          data: [] // we are explicitly told this is empty
+        }
+      }
+    }
+  };
+  let user2Payload = {
+    data: {
+      type: 'user',
+      id: '2',
+      attributes: {
+        name: '@hjdivad'
+      },
+      relationships: {
+        pets: {
+          links: {
+            related: './hjdivad/pets'
+          }
+          // we have no data, so we do not know that this is empty
+        }
+      }
+    }
+  };
+  let requestedUser = null;
+  let failureDescription = '';
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.findRecord = () => {
+    assert.ok(false, 'We should not call findRecord');
+  };
+  adapter.findMany = () => {
+    assert.ok(false, 'We should not call findMany');
+  };
+  adapter.findHasMany = (_, __, link) => {
+    if (!requestedUser) {
+      assert.ok(false, failureDescription);
+    } else {
+      assert.ok(
+        link === requestedUser.data.relationships.pets.links.related,
+        'We fetched the appropriate link'
+      );
+    }
+
+    return resolve({
+      data: []
+    });
+  };
+
+  // setup users
+  let user1 = run(() => store.push(copy(user1Payload, true)));
+  let user2 = run(() => store.push(copy(user2Payload, true)));
+
+  // should not fire a request
+  requestedUser = null;
+  failureDescription = 'We fetched the link for a known empty relationship';
+  run(() => user1.get('pets'));
+
+  // still should not fire a request
+  requestedUser = null;
+  failureDescription = 'We fetched the link (again) for a known empty relationship';
+  run(() => user1.get('pets'));
+
+  // should fire a request
+  requestedUser = user2Payload;
+  run(() => user2.get('pets'));
+
+  // should not fire a request
+  requestedUser = null;
+  failureDescription = 'We fetched the link for a previously fetched and found to be empty relationship';
+  run(() => user2.get('pets'));
 });
