@@ -288,7 +288,8 @@ export default class RelationshipPayloads {
     return a && b &&
       a.type === b.type &&
       a.id === b.id &&
-      !Array.isArray(a);
+      !Array.isArray(a) &&
+      !Array.isArray(b);
   }
 
   /**
