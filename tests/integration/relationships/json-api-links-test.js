@@ -108,7 +108,7 @@ test("Pushing child record should not mark parent:children as loaded", function 
   });
 
   let Parent = DS.Model.extend({
-    children: hasMany('child')
+    children: hasMany('child', { inverse: 'parent' })
   });
 
   env = setupStore({
@@ -154,7 +154,7 @@ test("Pushing child record should not mark parent:children as loaded", function 
       }
     });
 
-    assert.equal(parent.hasMany('children').hasManyRelationship.relationshipIsStale, false, 'parent should think that children still needs to be loaded');
+    assert.equal(parent.hasMany('children').hasManyRelationship.relationshipIsStale, true, 'parent should think that children still needs to be loaded');
   });
 });
 
@@ -975,68 +975,6 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
   }
 });
 
-shouldFetchLinkTests('a link and empty data (`data: []` or `data: null`), true inverse unloaded', {
-  user: {
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          links: {
-            related: './runspired/pets'
-          },
-          data: []
-        },
-        home: {
-          links: {
-            related: './runspired/address'
-          },
-          data: null
-        }
-      }
-    }
-  },
-  pets: {
-    data: [
-      {
-        type: 'pet',
-        id: '1',
-        attributes: {
-          name: 'Shen'
-        },
-        relationships: {
-          owner: {
-            data: {
-              type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  },
-  home: {
-    data: {
-      type: 'home',
-      id: '1',
-      attributes: {
-        address: 'Oakland, Ca'
-      },
-      relationships: {
-        owner: {
-          data: {
-            type: 'user',
-            id: '1'
-          }
-        }
-      }
-    }
-  }
-});
-
 /*
   Used for situations when initially we have data, but reload/missing data
   situations should be done via link
@@ -1284,6 +1222,68 @@ shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), t
           },
           links: {
             related: './user/1'
+          }
+        }
+      }
+    }
+  }
+});
+
+shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse unloaded', {
+  user: {
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        name: '@runspired'
+      },
+      relationships: {
+        pets: {
+          links: {
+            related: './runspired/pets'
+          },
+          data: []
+        },
+        home: {
+          links: {
+            related: './runspired/address'
+          },
+          data: null
+        }
+      }
+    }
+  },
+  pets: {
+    data: [
+      {
+        type: 'pet',
+        id: '1',
+        attributes: {
+          name: 'Shen'
+        },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1'
+            }
+          }
+        }
+      }
+    ]
+  },
+  home: {
+    data: {
+      type: 'home',
+      id: '1',
+      attributes: {
+        address: 'Oakland, Ca'
+      },
+      relationships: {
+        owner: {
+          data: {
+            type: 'user',
+            id: '1'
           }
         }
       }
@@ -1851,8 +1851,8 @@ test('We should not fetch a hasMany relationship with links that we know is empt
   let user1Payload = {
     data: {
       type: 'user',
-        id: '1',
-        attributes: {
+      id: '1',
+      attributes: {
         name: '@runspired'
       },
       relationships: {

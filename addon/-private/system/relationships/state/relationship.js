@@ -566,6 +566,8 @@ export default class Relationship {
     if (payload.data !== undefined) {
       hasRelationshipDataProperty = true;
       this.updateData(payload.data, initial);
+    } else if (payload._partialData !== undefined) {
+      this.updateData(payload._partialData, initial);
     }
 
     if (payload.links && payload.links.related) {

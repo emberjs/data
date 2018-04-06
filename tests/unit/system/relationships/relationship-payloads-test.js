@@ -2,7 +2,7 @@ import { get } from '@ember/object';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
-import { module, test, todo } from 'qunit';
+import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { run } from '@ember/runloop';
 import {
@@ -41,7 +41,7 @@ module('unit/system/relationships/relationship-payloads', {
       purpose: Purpose
     });
 
-    let store = this.env.store;
+    let store = this.store = this.env.store;
 
     this.relationshipPayloadsManager = new RelationshipPayloadsManager(store);
   },
@@ -162,8 +162,6 @@ testInDebug('unload asserts the passed modelName and relationshipName refer to t
   }, 'brand-of-catnip:purpose is not either side of this relationship, user:purpose<->purpose:user');
 });
 
-let env;
-
 module("Unit | Relationship Payloads | Merge Forward Links & Meta", {
   beforeEach() {
     const User = Model.extend({
@@ -195,7 +193,7 @@ module("Unit | Relationship Payloads | Merge Forward Links & Meta", {
   }
 });
 
-todo('links and meta for hasMany inverses are not overwritten', function(assert) {
+test('links and meta for hasMany inverses are not overwritten', function(assert) {
   let { store } = this;
 
   // user:1 with pet:1 pet:2 and home:1 and links and meta for both
@@ -301,27 +299,26 @@ todo('links and meta for hasMany inverses are not overwritten', function(assert)
     ]
   }));
 
-  let user1home = run(() => user1.get('home'));
-  let user1pets = run(() => user1.get('pets'));
-  let home1owners = run(() => home1.get('owners'));
+  run(() => user1.get('home'));
+  run(() => user1.get('pets'));
+  run(() => home1.get('owners'));
 
-  // we currently proxy meta, but not links
-  assert.equal(
-    user1home.get('meta'),
+  assert.deepEqual(
+    user1.belongsTo('home').belongsToRelationship.meta,
     {
       slogan: 'home is where the <3 emoji is'
     },
     `We merged forward meta for user 1's home`
   );
-  assert.equal(
-    home1owners.get('meta'),
+  assert.deepEqual(
+    home1.hasMany('owners').hasManyRelationship.meta,
     {
       slogan: 'what is woof?'
     },
     `We merged forward meta for home 1's owners`
   );
-  assert.equal(
-    user1pets.get('meta'),
+  assert.deepEqual(
+    user1.hasMany('pets').hasManyRelationship.meta,
     {
       slogan: 'catz rewl rawr'
     },

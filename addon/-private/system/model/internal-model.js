@@ -354,6 +354,7 @@ export default class InternalModel {
       if (properties !== undefined) {
         assert(`You passed '${properties}' as properties for record creation instead of an object.`, typeof properties === 'object' && properties !== null);
         let classFields = this.getFields();
+        let relationships = this._relationships;
         let propertyNames = Object.keys(properties);
 
         for (let i = 0; i < propertyNames.length; i++) {
@@ -372,9 +373,13 @@ export default class InternalModel {
               break;
             case 'belongsTo':
               this.setDirtyBelongsTo(name, propertyValue);
+              relationships.get(name).setHasAnyRelationshipData(true);
+              relationships.get(name).setRelationshipIsEmpty(false);
               break;
             case 'hasMany':
               this.setDirtyHasMany(name, propertyValue);
+              relationships.get(name).setHasAnyRelationshipData(true);
+              relationships.get(name).setRelationshipIsEmpty(false);
               break;
             default:
               createOptions[name] = propertyValue;

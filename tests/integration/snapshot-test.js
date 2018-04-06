@@ -2,7 +2,7 @@ import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
-import { module, test, skip } from 'qunit';
+import { module, test, todo } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -80,7 +80,7 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
 //  there may be strategies via which we can snapshot known attributes
 //  only if no record exists yet, since we would then know for sure
 //  that this snapshot is not being used for a `.save()`.
-skip('snapshot.type loads the class lazily', function(assert) {
+todo('snapshot.type loads the class lazily', function(assert) {
   assert.expect(3);
 
   let postClassLoaded = false;

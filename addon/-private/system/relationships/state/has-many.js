@@ -253,6 +253,8 @@ export default class ManyRelationship extends Relationship {
       }
     }
 
+    this.setRelationshipIsStale(true);
+
     let promise;
     if (this.link) {
       promise = this.fetchLink();

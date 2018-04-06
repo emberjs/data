@@ -89,8 +89,6 @@ export function proxyToContent(method) {
 }
 
 export const PromiseBelongsTo = PromiseObject.extend({
-  meta: reads('content.meta'),
-
   reload() {
     assert('You are trying to reload an async belongsTo before it has been created', this.get('content') !== undefined);
     this.get('_belongsToState').reload();

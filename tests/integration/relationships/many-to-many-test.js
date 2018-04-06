@@ -145,10 +145,9 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
         },
         relationships: {
           topics: {
-            data: [{
-              id: '2',
-              type: 'topic'
-            }]
+            data: [
+              { id: '2', type: 'topic' }
+            ]
           }
         }
       }

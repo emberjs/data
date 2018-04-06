@@ -212,6 +212,7 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     let promise;
+    this.setRelationshipIsStale(true);
 
     if (this.link) {
       promise = this.fetchLink();
