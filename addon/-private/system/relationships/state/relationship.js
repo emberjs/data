@@ -148,16 +148,6 @@ export default class Relationship {
     this.hasRelatedResources = false;
   }
 
-  _inverseIsAsync() {
-    let inverseMeta = this._inverseMeta;
-    if (!inverseMeta) {
-      return false;
-    }
-
-    let inverseAsync = inverseMeta.options.async;
-    return typeof inverseAsync === 'undefined' ? true : inverseAsync;
-  }
-
   _inverseIsSync() {
     let inverseMeta = this._inverseMeta;
     if (!inverseMeta) {
