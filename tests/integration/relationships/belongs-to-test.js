@@ -43,12 +43,12 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
     Book = DS.Model.extend({
       name: attr('string'),
       author: belongsTo('author', { async: false }),
-      chapters: hasMany('chapters', { async: false })
+      chapters: hasMany('chapters', { async: false, inverse: 'book' })
     });
 
     Chapter = DS.Model.extend({
       title: attr('string'),
-      book: belongsTo('book', { async: false })
+      book: belongsTo('book', { async: false, inverse: 'chapters' })
     });
 
     Author = DS.Model.extend({
@@ -804,7 +804,7 @@ testInDebug("Passing a model as type to belongsTo should not work", function(ass
   }, /The first argument to DS.belongsTo must be a string/);
 });
 
-test("belongsTo hasData async loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData async loaded", function(assert) {
   assert.expect(1);
 
   Book.reopen({
@@ -827,12 +827,12 @@ test("belongsTo hasData async loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasData, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("belongsTo hasData sync loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData sync loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -851,12 +851,12 @@ test("belongsTo hasData sync loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasData, true, 'relationship has data');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("belongsTo hasData async not loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData async not loaded", function(assert) {
   assert.expect(1);
 
   Book.reopen({
@@ -879,12 +879,12 @@ test("belongsTo hasData async not loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasData, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("belongsTo hasData sync not loaded", function(assert) {
+test("belongsTo hasAnyRelationshipData sync not loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -900,12 +900,12 @@ test("belongsTo hasData sync not loaded", function(assert) {
   return run(() => {
     return store.findRecord('book', 1).then(book => {
       let relationship = book._internalModel._relationships.get('author');
-      assert.equal(relationship.hasData, false, 'relationship does not have data');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("belongsTo hasData NOT created", function(assert) {
+test("belongsTo hasAnyRelationshipData NOT created", function(assert) {
   assert.expect(2);
 
   Book.reopen({
@@ -917,7 +917,7 @@ test("belongsTo hasData NOT created", function(assert) {
     let book = store.createRecord('book', { name: 'The Greatest Book' });
     let relationship = book._internalModel._relationships.get('author');
 
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+    assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
       name: 'The Greatest Book',
@@ -926,11 +926,11 @@ test("belongsTo hasData NOT created", function(assert) {
 
     relationship = book._internalModel._relationships.get('author');
 
-    assert.equal(relationship.hasData, true, 'relationship has data');
+    assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
 
-test("belongsTo hasData sync created", function(assert) {
+test("belongsTo hasAnyRelationshipData sync created", function(assert) {
   assert.expect(2);
 
   run(() => {
@@ -940,7 +940,7 @@ test("belongsTo hasData sync created", function(assert) {
     });
 
     let relationship = book._internalModel._relationships.get('author');
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+    assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
       name: 'The Greatest Book',
@@ -948,7 +948,7 @@ test("belongsTo hasData sync created", function(assert) {
     });
 
     relationship = book._internalModel._relationships.get('author');
-    assert.equal(relationship.hasData, true, 'relationship has data');
+    assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
 
@@ -998,7 +998,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
   });
 });
 
-test("Related link should be fetched when no local data is present", function(assert) {
+test("Related link should be fetched when no relationship data is present", function(assert) {
   assert.expect(3);
 
   Book.reopen({
@@ -1010,7 +1010,7 @@ test("Related link should be fetched when no local data is present", function(as
     assert.ok(true, "The adapter's findBelongsTo method should be called");
     return resolve({
       data: {
-        id: 1,
+        id: '1',
         type: 'author',
         attributes: { name: 'This is author' }
       }
@@ -1038,18 +1038,15 @@ test("Related link should be fetched when no local data is present", function(as
   });
 });
 
-test("Local data should take precedence over related link", function(assert) {
-  assert.expect(1);
+test("Related link should take precedence over relationship data if no local record data is available", function(assert) {
+  assert.expect(2);
 
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
   });
 
   env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
-    assert.ok(false, "The adapter's findBelongsTo method should not be called");
-  };
-
-  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.ok(true, "The adapter's findBelongsTo method should be called");
     return resolve({
       data: {
         id: 1,
@@ -1057,6 +1054,10 @@ test("Local data should take precedence over related link", function(assert) {
         attributes: { name: 'This is author' }
       }
     });
+  };
+
+  env.adapter.findRecord = function() {
+    assert.ok(false, "The adapter's findRecord method should not be called");
   };
 
   return run(() => {
@@ -1073,6 +1074,51 @@ test("Local data should take precedence over related link", function(assert) {
           }
         }
       }
+    });
+
+    return book.get('author').then(author => {
+      assert.equal(author.get('name'), 'This is author', 'author name is correct');
+    });
+  });
+});
+
+test("Relationship data should take precedence over related link when local record data is available", function(assert) {
+  assert.expect(1);
+
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+
+  env.adapter.shouldBackgroundReloadRecord = () => { return false; };
+  env.adapter.findBelongsTo = function(store, snapshot, url, relationship) {
+    assert.ok(false, "The adapter's findBelongsTo method should not be called");
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+
+  return run(() => {
+    let book = env.store.push({
+      data: {
+        type: 'book',
+        id: '1',
+        relationships: {
+          author: {
+            links: {
+              related: 'author'
+            },
+            data: { type: 'author', id: '1' }
+          }
+        }
+      },
+      included: [
+        {
+          id: '1',
+          type: 'author',
+          attributes: { name: 'This is author' }
+        }
+      ]
     });
 
     return book.get('author').then(author => {
@@ -1140,7 +1186,7 @@ test("New related link should take precedence over local data", function(assert)
   });
 });
 
-test("Updated related link should take precedence over local data", function(assert) {
+test("Updated related link should take precedence over relationship data and local record data", function(assert) {
   assert.expect(4);
 
   Book.reopen({
@@ -1152,9 +1198,11 @@ test("Updated related link should take precedence over local data", function(ass
     assert.ok(true, "The adapter's findBelongsTo method should be called");
     return resolve({
       data: {
-        id: 1,
+        id: '1',
         type: 'author',
-        attributes: { name: 'This is updated author' }
+        attributes: {
+          name: 'This is updated author'
+        }
       }
     });
   };
@@ -1177,18 +1225,21 @@ test("Updated related link should take precedence over local data", function(ass
           }
         }
       },
-      included: [{
-        type: 'author',
-        id: '1',
-        attributes: {
-          name: 'This is author'
+      included: [
+        {
+          type: 'author',
+          id: '1',
+          attributes: {
+            name: 'This is author'
+          }
         }
-      }]
+      ]
     });
 
     return book.get('author').then((author) => {
       assert.equal(author.get('name'), 'This is author', 'author name is correct');
     }).then(() => {
+
       env.store.push({
         data: {
           type: 'book',
@@ -1329,9 +1380,9 @@ test("A belongsTo relationship can be reloaded using the reference if it was fet
   });
 });
 
-test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+test("A synchronous belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
   Chapter.reopen({
-    book: DS.belongsTo()
+    book: DS.belongsTo({ async: false })
   });
 
   let chapter;
@@ -1339,10 +1390,10 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
     chapter = env.store.push({
       data: {
         type: 'chapter',
-        id: 1,
+        id: '1',
         relationships: {
           book: {
-            data: { type: 'book', id: 1 }
+            data: { type: 'book', id: '1' }
           }
         }
       }
@@ -1350,7 +1401,7 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
     env.store.push({
       data: {
         type: 'book',
-        id: 1,
+        id: '1',
         attributes: {
           name: "book title"
         }
@@ -1361,7 +1412,7 @@ test("A sync belongsTo relationship can be reloaded using a reference if it was 
   env.adapter.findRecord = function() {
     return resolve({
       data: {
-        id: 1,
+        id: '1',
         type: 'book',
         attributes: { name: 'updated book title' }
       }

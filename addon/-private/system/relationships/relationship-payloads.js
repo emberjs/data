@@ -1,5 +1,41 @@
 import { assert } from '@ember/debug';
 
+/**
+ * Merge data,meta,links information forward to the next payload
+ * if required. Latest data will always win.
+ *
+ * @param oldPayload
+ * @param newPayload
+ */
+function mergeForwardPayload(oldPayload, newPayload) {
+  if (oldPayload && oldPayload.data !== undefined && newPayload.data === undefined) {
+    newPayload.data = oldPayload.data;
+  }
+
+  /*
+    _partialData is has-many relationship data that has been discovered via
+     inverses in the absence of canonical `data` availability from the primary
+     payload.
+
+    We can't merge this data into `data` as that would trick has-many relationships
+     into believing they know their complete membership. Anytime we find canonical
+     data from the primary record, this partial data is discarded. If no canonical
+     data is ever discovered, the partial data will be loaded by the relationship
+     in a way that correctly preserves the `stale` relationship state.
+   */
+  if (newPayload.data === undefined && oldPayload && oldPayload._partialData !== undefined) {
+    newPayload._partialData = oldPayload._partialData;
+  }
+
+  if (oldPayload && oldPayload.meta !== undefined && newPayload.meta === undefined) {
+    newPayload.meta = oldPayload.meta;
+  }
+
+  if (oldPayload && oldPayload.links !== undefined && newPayload.links === undefined) {
+    newPayload.links = oldPayload.links;
+  }
+}
+
 // TODO this is now VERY similar to the identity/internal-model map
 //  so we should probably generalize
 export class TypeCache {
@@ -204,7 +240,6 @@ export default class RelationshipPayloads {
       let payloadMap;
       let inversePayloadMap;
       let inverseIsMany;
-
       if (this._isLHS(modelName, relationshipName)) {
         previousPayload = this.lhs_payloads.get(modelName, id);
         payloadMap = this.lhs_payloads;
@@ -257,12 +292,32 @@ export default class RelationshipPayloads {
       // * null is considered new information "empty", and it should win
       // * undefined is NOT considered new information, we should keep original state
       // * anything else is considered new information, and it should win
+      let isMatchingIdentifier = this._isMatchingIdentifier(
+        relationshipData && relationshipData.data,
+        previousPayload && previousPayload.data
+      );
+
       if (relationshipData.data !== undefined) {
-        this._removeInverse(id, previousPayload, inversePayloadMap);
+        if (!isMatchingIdentifier) {
+          this._removeInverse(id, previousPayload, inversePayloadMap);
+        }
       }
+
+      mergeForwardPayload(previousPayload, relationshipData);
       payloadMap.set(modelName, id, relationshipData);
-      this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
+
+      if (!isMatchingIdentifier) {
+        this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
+      }
     }
+  }
+
+  _isMatchingIdentifier(a, b) {
+    return a && b &&
+      a.type === b.type &&
+      a.id === b.id &&
+      !Array.isArray(a) &&
+      !Array.isArray(b);
   }
 
   /**
@@ -306,22 +361,33 @@ export default class RelationshipPayloads {
    */
   _addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany) {
     let relInfo = this._relInfo;
+    let inverseData = inversePayload.data;
 
-    if (relInfo.isReflexive && inversePayload.data.id === resourceIdentifier.id) {
+    if (relInfo.isReflexive && inverseData && inverseData.id === resourceIdentifier.id) {
       // eg <user:1>.friends = [{ id: 1, type: 'user' }]
       return;
     }
 
     let existingPayload = inversePayloadMap.get(resourceIdentifier.type, resourceIdentifier.id);
-    let existingData = existingPayload && existingPayload.data;
 
-    if (existingData) {
-      // There already is an inverse, either add or overwrite depehnding on
+    if (existingPayload) {
+      // There already is an inverse, either add or overwrite depending on
       // whether the inverse is a many relationship or not
       //
-      if (Array.isArray(existingData)) {
-        existingData.push(inversePayload.data);
+      if (inverseIsMany) {
+        let existingData = existingPayload.data;
+
+        // in the case of a hasMany
+        // we do not want create a `data` array where there was none before
+        // if we also have links, which this would indicate
+        if (existingData) {
+          existingData.push(inversePayload.data);
+        } else {
+          existingPayload._partialData = existingPayload._partialData || [];
+          existingPayload._partialData.push(inversePayload.data);
+        }
       } else {
+        mergeForwardPayload(existingPayload, inversePayload);
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
       }
     } else {
@@ -329,7 +395,7 @@ export default class RelationshipPayloads {
       //
       if (inverseIsMany) {
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, {
-          data: [inversePayload.data]
+          _partialData: [inversePayload.data]
         });
       } else {
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
@@ -357,7 +423,10 @@ export default class RelationshipPayloads {
    */
   _removeInverse(id, previousPayload, inversePayloadMap) {
     let data = previousPayload && previousPayload.data;
-    if (!data) {
+    let partialData = previousPayload && previousPayload._partialData;
+    let maybeData = data || partialData;
+
+    if (!maybeData) {
       // either this is the first time we've seen a payload for this id, or its
       // previous payload indicated that it had no inverse, eg a belongsTo
       // relationship with payload { data: null }
@@ -367,10 +436,10 @@ export default class RelationshipPayloads {
       return;
     }
 
-    if (Array.isArray(data)) {
+    if (Array.isArray(maybeData)) {
       // TODO: diff rather than removeall addall?
-      for (let i=0; i<data.length; ++i) {
-        const resourceIdentifier = data[i];
+      for (let i=0; i<maybeData.length; ++i) {
+        const resourceIdentifier = maybeData[i];
         this._removeFromInverse(id, resourceIdentifier, inversePayloadMap);
       }
     } else {
@@ -388,15 +457,17 @@ export default class RelationshipPayloads {
   _removeFromInverse(id, resourceIdentifier, inversePayloads) {
     let inversePayload = inversePayloads.get(resourceIdentifier.type, resourceIdentifier.id);
     let data = inversePayload && inversePayload.data;
+    let partialData = inversePayload && inversePayload._partialData;
 
-    if (!data) { return; }
+    if (!data && !partialData) { return; }
 
     if (Array.isArray(data)) {
       inversePayload.data = data.filter((x) => x.id !== id);
+    } else if (Array.isArray(partialData)) {
+      inversePayload._partialData = partialData.filter((x) => x.id !== id);
     } else {
-      inversePayloads.set(resourceIdentifier.type, resourceIdentifier.id, {
-        data: null
-      });
+      // this merges forward links and meta
+      inversePayload.data = null;
     }
   }
 }

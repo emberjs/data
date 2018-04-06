@@ -487,9 +487,13 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
 });
 
 test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - sync", function(assert) {
-  var account;
+  let account1;
+  let account2;
+  let user;
+
   run(function () {
-    store.push({
+    // tell the store user:1 has account:1
+    user = store.push({
       data: {
         id: '1',
         type: 'user',
@@ -498,15 +502,16 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
         },
         relationships: {
           accounts: {
-            data: [{
-              id: '1',
-              type: 'account'
-            }]
+            data: [
+              { id: '1', type: 'account' }
+            ]
           }
         }
       }
     });
-    account = store.push({
+
+    // tell the store account:1 has user:1
+    account1 = store.push({
       data: {
         id: '1',
         type: 'account',
@@ -515,15 +520,14 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
         },
         relationships: {
           user: {
-            data: {
-              id: '1',
-              type: 'user'
-            }
+            data: { id: '1', type: 'user' }
           }
         }
       }
     });
-    store.push({
+
+    // tell the store account:2 has no user
+    account2 = store.push({
       data: {
         id: '2',
         type: 'account',
@@ -532,6 +536,8 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
         }
       }
     });
+
+    // tell the store user:1 has account:2 and not account:1
     store.push({
       data: {
         id: '1',
@@ -541,10 +547,9 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
         },
         relationships: {
           accounts: {
-            data: [{
-              id: '2',
-              type: 'account'
-            }]
+            data: [
+              { id: '2', type: 'account' }
+            ]
           }
         }
       }
@@ -552,7 +557,8 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
   });
 
   run(function() {
-    assert.equal(account.get('user'), null, 'User was removed correctly');
+    assert.ok(account1.get('user') === null, 'User was removed correctly');
+    assert.ok(account2.get('user') === user, 'User was added correctly');
   });
 });
 

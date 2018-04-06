@@ -75,7 +75,7 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
   });
 });
 
-// skipped because snapshot creation requires using `eachAttribute`
+// TODO'd because snapshot creation requires using `eachAttribute`
 //  which as an approach requires that we MUST load the class.
 //  there may be strategies via which we can snapshot known attributes
 //  only if no record exists yet, since we would then know for sure

@@ -25,8 +25,6 @@ const {
   removeInternalModelFromInverse,
   removeInternalModelFromOwn,
   removeInternalModels,
-  setHasData,
-  setHasLoaded,
   updateLink,
   updateMeta,
   updateInternalModelsFromAdapter
@@ -49,8 +47,6 @@ const {
   'removeInternalModelFromInverse',
   'removeInternalModelFromOwn',
   'removeInternalModels',
-  'setHasData',
-  'setHasLoaded',
   'updateLink',
   'updateMeta',
   'updateInternalModelsFromAdapter'
@@ -75,19 +71,81 @@ export default class Relationship {
     this.inverseKeyForImplicit = this.internalModel.modelName + this.key;
     this.linkPromise = null;
     this.meta = null;
-    this.hasData = false;
-    this.hasLoaded = false;
     this.__inverseMeta = undefined;
-  }
 
-  _inverseIsAsync() {
-    let inverseMeta = this._inverseMeta;
-    if (!inverseMeta) {
-      return false;
-    }
+    /*
+       This flag indicates whether we should
+        re-fetch the relationship the next time
+        it is accessed.
 
-    let inverseAsync = inverseMeta.options.async;
-    return typeof inverseAsync === 'undefined' ? true : inverseAsync;
+      false when
+        => internalModel.isNew() on initial setup
+        => a previously triggered request has resolved
+        => we get relationship data via push
+
+      true when
+        => !internalModel.isNew() on initial setup
+        => an inverse has been unloaded
+        => relationship.reload() has been called
+        => we get a new link for the relationship
+     */
+    this.relationshipIsStale = !internalModel.isNew();
+
+    /*
+      This flag indicates whether we should consider the content
+       of this relationship "known".
+
+      If we have no relationship knowledge, and the relationship
+       is `async`, we will attempt to fetch the relationship on
+       access if it is also stale.
+
+     Snapshot uses this to tell the difference between unknown
+      (`undefined`) or empty (`null`). The reason for this is that
+      we wouldn't want to serialize  unknown relationships as `null`
+      as that might overwrite remote state.
+
+      All relationships for a newly created (`store.createRecord()`) are
+       considered known (`hasAnyRelationshipData === true`).
+
+      true when
+        => we receive a push with either new data or explicit empty (`[]` or `null`)
+        => the relationship is a belongsTo and we have received data from
+             the other side.
+
+      false when
+        => we have received no signal about what data belongs in this relationship
+        => the relationship is a hasMany and we have only received data from
+            the other side.
+     */
+    this.hasAnyRelationshipData = false;
+
+    /*
+      Flag that indicates whether an empty relationship is explicitly empty
+        (signaled by push giving us an empty array or null relationship)
+        e.g. an API response has told us that this relationship is empty.
+
+      Thus far, it does not appear that we actually need this flag; however,
+        @runspired has found it invaluable when debugging relationship tests
+        to determine whether (and why if so) we are in an incorrect state.
+
+      true when
+        => we receive a push with explicit empty (`[]` or `null`)
+        => we have received no signal about what data belongs in this relationship
+        => on initial create (as no signal is known yet)
+
+      false at all other times
+     */
+    this.relationshipIsEmpty = true;
+
+    /*
+      true when
+        => hasAnyRelationshipData is true
+        AND
+        => members (NOT canonicalMembers) @each !isEmpty
+
+      TODO, consider changing the conditional here from !isEmpty to !hiddenFromRecordArrays
+     */
+    this.hasRelatedResources = false;
   }
 
   _inverseIsSync() {
@@ -131,6 +189,8 @@ export default class Relationship {
 
   inverseDidDematerialize(inverseInternalModel) {
     this.linkPromise = null;
+    this.setRelationshipIsStale(true);
+
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
@@ -204,7 +264,7 @@ export default class Relationship {
       this.setupInverseRelationship(internalModel);
     }
     this.flushCanonicalLater();
-    this.setHasData(true);
+    this.setHasAnyRelationshipData(true);
   }
 
   setupInverseRelationship(internalModel) {
@@ -277,7 +337,7 @@ export default class Relationship {
       }
       this.internalModel.updateRecordArrays();
     }
-    this.setHasData(true);
+    this.setHasAnyRelationshipData(true);
   }
 
   removeInternalModel(internalModel) {
@@ -423,17 +483,27 @@ export default class Relationship {
 
   updateLink(link, initial) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasData , {
+    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasAnyRelationshipData , {
       id: 'ds.store.push-link-for-sync-relationship'
     });
     assert(`You have pushed a record of type '${this.internalModel.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
 
     this.link = link;
     this.linkPromise = null;
+    this.setRelationshipIsStale(true);
 
     if (!initial) {
       this.internalModel.notifyPropertyChange(this.key);
     }
+  }
+
+  _shouldFindViaLink() {
+    if (!this.link) {
+      return false;
+    }
+
+    return this.relationshipIsStale ||
+      !this.hasRelatedResources;
   }
 
   findLink() {
@@ -449,7 +519,7 @@ export default class Relationship {
 
   updateInternalModelsFromAdapter(internalModels) {
     heimdall.increment(updateInternalModelsFromAdapter);
-    this.setHasData(true);
+    this.setHasAnyRelationshipData(true);
     //TODO(Igor) move this to a proper place
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(internalModels);
@@ -457,34 +527,20 @@ export default class Relationship {
 
   notifyRecordRelationshipAdded() { }
 
-  /*
-   `hasData` for a relationship is a flag to indicate if we consider the
-   content of this relationship "known". Snapshots uses this to tell the
-   difference between unknown (`undefined`) or empty (`null`). The reason for
-   this is that we wouldn't want to serialize unknown relationships as `null`
-   as that might overwrite remote state.
-
-   All relationships for a newly created (`store.createRecord()`) are
-   considered known (`hasData === true`).
-   */
-  setHasData(value) {
-    heimdall.increment(setHasData);
-    this.hasData = value;
+  setHasAnyRelationshipData(value) {
+    this.hasAnyRelationshipData = value;
   }
 
-  /*
-   `hasLoaded` is a flag to indicate if we have gotten data from the adapter or
-   not when the relationship has a link.
+  setHasRelatedResources(v) {
+    this.hasRelatedResources = v;
+  }
 
-   This is used to be able to tell when to fetch the link and when to return
-   the local data in scenarios where the local state is considered known
-   (`hasData === true`).
+  setRelationshipIsStale(value) {
+    this.relationshipIsStale = value;
+  }
 
-   Updating the link will automatically set `hasLoaded` to `false`.
-   */
-  setHasLoaded(value) {
-    heimdall.increment(setHasLoaded);
-    this.hasLoaded = value;
+  setRelationshipIsEmpty(value) {
+    this.relationshipIsEmpty = value;
   }
 
   /*
@@ -498,7 +554,7 @@ export default class Relationship {
   push(payload, initial) {
     heimdall.increment(push);
 
-    let hasData = false;
+    let hasRelationshipDataProperty = false;
     let hasLink = false;
 
     if (payload.meta) {
@@ -506,8 +562,10 @@ export default class Relationship {
     }
 
     if (payload.data !== undefined) {
-      hasData = true;
+      hasRelationshipDataProperty = true;
       this.updateData(payload.data, initial);
+    } else if (payload._partialData !== undefined) {
+      this.updateData(payload._partialData, initial);
     }
 
     if (payload.links && payload.links.related) {
@@ -522,19 +580,29 @@ export default class Relationship {
      Data being pushed into the relationship might contain only data or links,
      or a combination of both.
 
-     If we got data we want to set both hasData and hasLoaded to true since
-     this would indicate that we should prefer the local state instead of
-     trying to fetch the link or call findRecord().
+     IF contains only data
+     IF contains both links and data
+      relationshipIsEmpty -> true if is empty array (has-many) or is null (belongs-to)
+      hasAnyRelationshipData -> true
+      relationshipIsStale -> false
+      hasRelatedResources -> run-check-to-determine
 
-     If we have no data but a link is present we want to set hasLoaded to false
-     without modifying the hasData flag. This will ensure we fetch the updated
-     link next time the relationship is accessed.
+     IF contains only links
+      relationshipIsStale -> true
      */
-    if (hasData) {
-      this.setHasData(true);
-      this.setHasLoaded(true);
+
+    if (hasRelationshipDataProperty) {
+      let relationshipIsEmpty = payload.data === null ||
+        (Array.isArray(payload.data) && payload.data.length === 0);
+
+      this.setHasAnyRelationshipData(true);
+      this.setRelationshipIsStale(false);
+      this.setRelationshipIsEmpty(relationshipIsEmpty);
+      this.setHasRelatedResources(
+        relationshipIsEmpty || !this.localStateIsEmpty()
+      );
     } else if (hasLink) {
-      this.setHasLoaded(false);
+      this.setRelationshipIsStale(true);
     }
   }
 

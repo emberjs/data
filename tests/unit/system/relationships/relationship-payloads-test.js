@@ -1,36 +1,54 @@
 import { get } from '@ember/object';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
-import { createStore } from 'dummy/tests/helpers/store';
+import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { run } from '@ember/runloop';
+import {
+  reset as resetModelFactoryInjection
+} from 'dummy/tests/helpers/model-factory-injection';
+
+const {
+  belongsTo,
+  hasMany,
+  attr,
+  Model
+} = DS;
 
 module('unit/system/relationships/relationship-payloads', {
   beforeEach() {
-    const User = DS.Model.extend({
-      purpose: DS.belongsTo('purpose', { inverse: 'user' }),
-      hobbies: DS.hasMany('hobby', { inverse: 'user'}),
-      friends: DS.hasMany('user', { inverse: 'friends' })
+    const User = Model.extend({
+      purpose: belongsTo('purpose', { inverse: 'user' }),
+      hobbies: hasMany('hobby', { inverse: 'user'}),
+      friends: hasMany('user', { inverse: 'friends' })
     });
     User.toString = () => 'User';
 
-    const Hobby = DS.Model.extend({
-      user: DS.belongsTo('user', { inverse: 'hobbies' })
+    const Hobby = Model.extend({
+      user: belongsTo('user', { inverse: 'hobbies' })
     });
     Hobby.toString = () => 'Hobby';
 
-    const Purpose = DS.Model.extend({
-      user: DS.belongsTo('user', { inverse: 'purpose' })
+    const Purpose = Model.extend({
+      user: belongsTo('user', { inverse: 'purpose' })
     });
     Purpose.toString = () => 'Purpose';
 
-    let store = this.store = createStore({
+    this.env = setupStore({
       user: User,
       Hobby: Hobby,
       purpose: Purpose
     });
 
+    let store = this.store = this.env.store;
+
     this.relationshipPayloadsManager = new RelationshipPayloadsManager(store);
+  },
+
+  afterEach() {
+    resetModelFactoryInjection();
+    run(this.env.container, 'destroy');
   }
 });
 
@@ -144,3 +162,183 @@ testInDebug('unload asserts the passed modelName and relationshipName refer to t
   }, 'brand-of-catnip:purpose is not either side of this relationship, user:purpose<->purpose:user');
 });
 
+module("Unit | Relationship Payloads | Merge Forward Links & Meta", {
+  beforeEach() {
+    const User = Model.extend({
+      name: attr(),
+      pets: hasMany('pet', { async: true, inverse: 'owner' }),
+      home: belongsTo('home', { async: true, inverse: 'owners' })
+    });
+    const Home = Model.extend({
+      address: attr(),
+      owners: hasMany('user', { async: true, inverse: 'home' })
+    });
+    const Pet = Model.extend({
+      name: attr(),
+      owner: belongsTo('user', { async: false, inverse: 'pets' })
+    });
+
+    this.env = setupStore({
+      user: User,
+      pet: Pet,
+      home: Home
+    });
+
+    this.store = this.env.store;
+  },
+
+  afterEach() {
+    resetModelFactoryInjection();
+    run(this.env.container, 'destroy');
+  }
+});
+
+test('links and meta for hasMany inverses are not overwritten', function(assert) {
+  let { store } = this;
+
+  // user:1 with pet:1 pet:2 and home:1 and links and meta for both
+  let user1 = run(() => store.push({
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: { name: '@runspired ' },
+      relationships: {
+        home: {
+          links: {
+            related: './runspired/home'
+          },
+          data: {
+            type: 'home',
+            id: '1'
+          },
+          meta: {
+            slogan: 'home is where the <3 emoji is'
+          }
+        },
+        pets: {
+          links: {
+            related: './runspired/pets'
+          },
+          data: [
+            { type: 'pet', id: '1' },
+            { type: 'pet', id: '2' }
+          ],
+          meta: {
+            slogan: 'catz rewl rawr'
+          }
+        }
+      }
+    }
+  }));
+
+  // home:1 with user:1 user:2 and links and meta
+  // user:2 sideloaded to prevent needing to fetch
+  let home1 = run(() => store.push({
+    data: {
+      type: 'home',
+      id: '1',
+      attributes: { address: 'Oakland, CA' },
+      relationships: {
+        owners: {
+          links: {
+            related: './home/1/owners'
+          },
+          data: [
+            { type: 'user', id: '2' },
+            { type: 'user', id: '1' }
+          ],
+          meta: {
+            slogan: 'what is woof?'
+          }
+        }
+      }
+    },
+    included: [
+      {
+        type: 'user',
+        id: '2',
+        attribute: { name: '@hjdivad' },
+        relationships: {
+          home: {
+            data: { type: 'home', id: '1' }
+          }
+        }
+      }
+    ]
+  }));
+
+  // Toss a couple of pets in for good measure
+  run(() => store.push({
+    data: [
+      {
+        type: 'pet',
+        id:'1',
+        attributes: { name: 'Shen' },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1'
+            }
+          }
+        }
+      },
+      {
+        type: 'pet',
+        id:'2',
+        attributes: { name: 'Rambo' },
+        relationships: {
+          owner: {
+            data: {
+              type: 'user',
+              id: '1'
+            }
+          }
+        }
+      }
+    ]
+  }));
+
+  run(() => user1.get('home'));
+  run(() => user1.get('pets'));
+  run(() => home1.get('owners'));
+
+  assert.deepEqual(
+    user1.belongsTo('home').belongsToRelationship.meta,
+    {
+      slogan: 'home is where the <3 emoji is'
+    },
+    `We merged forward meta for user 1's home`
+  );
+  assert.deepEqual(
+    home1.hasMany('owners').hasManyRelationship.meta,
+    {
+      slogan: 'what is woof?'
+    },
+    `We merged forward meta for home 1's owners`
+  );
+  assert.deepEqual(
+    user1.hasMany('pets').hasManyRelationship.meta,
+    {
+      slogan: 'catz rewl rawr'
+    },
+    `We merged forward meta for user 1's pets`
+  );
+
+  // check the link as best we can
+  assert.equal(
+    user1.belongsTo('home').belongsToRelationship.link,
+    './runspired/home',
+    `We merged forward links for user 1's home`
+  );
+  assert.equal(
+    user1.hasMany('pets').hasManyRelationship.link,
+    './runspired/pets',
+    `We merged forward links for user 1's pets`
+  );
+  assert.equal(
+    home1.hasMany('owners').hasManyRelationship.link,
+    './home/1/owners',
+    `We merged forward links for home 1's owners`
+  );
+});

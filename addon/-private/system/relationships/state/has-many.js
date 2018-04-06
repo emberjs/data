@@ -16,26 +16,25 @@ export default class ManyRelationship extends Relationship {
     // we create a new many array, but in the interim it will be updated if
     // inverse internal models are unloaded.
     this._retainedManyArray = null;
-    this.__loadingPromise = null;
+    this._loadingPromise = null;
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
   }
 
-  get _loadingPromise() { return this.__loadingPromise; }
   _updateLoadingPromise(promise, content) {
-    if (this.__loadingPromise) {
+    if (this._loadingPromise) {
       if (content) {
-        this.__loadingPromise.set('content', content)
+        this._loadingPromise.set('content', content)
       }
-      this.__loadingPromise.set('promise', promise)
+      this._loadingPromise.set('promise', promise)
     } else {
-      this.__loadingPromise = PromiseManyArray.create({
+      this._loadingPromise = PromiseManyArray.create({
         promise,
         content
       });
     }
 
-    return this.__loadingPromise;
+    return this._loadingPromise;
   }
 
   get manyArray() {
@@ -246,16 +245,14 @@ export default class ManyRelationship extends Relationship {
 
   reload() {
     let manyArray = this.manyArray;
-    let manyArrayLoadedState = manyArray.get('isLoaded');
 
     if (this._loadingPromise) {
       if (this._loadingPromise.get('isPending')) {
         return this._loadingPromise;
       }
-      if (this._loadingPromise.get('isRejected')) {
-        manyArray.set('isLoaded', manyArrayLoadedState);
-      }
     }
+
+    this.setRelationshipIsStale(true);
 
     let promise;
     if (this.link) {
@@ -315,7 +312,6 @@ export default class ManyRelationship extends Relationship {
       this.store._backburner.join(() => {
         this.updateInternalModelsFromAdapter(records);
         this.manyArray.set('isLoaded', true);
-        this.setHasData(true);
       });
       return this.manyArray;
     });
@@ -342,26 +338,22 @@ export default class ManyRelationship extends Relationship {
   getRecords() {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
+
     if (this.isAsync) {
       let promise;
-      if (this.link) {
-        if (this.hasLoaded) {
-          promise = this.findRecords();
-        } else {
-          promise = this.findLink().then(() => this.findRecords());
-        }
+
+      if (this._shouldFindViaLink()) {
+        promise = this.findLink().then(() => this.findRecords());
       } else {
         promise = this.findRecords();
       }
+
       return this._updateLoadingPromise(promise, manyArray);
     } else {
       assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
 
-      //TODO(Igor) WTF DO I DO HERE?
-      // TODO @runspired equal WTFs to Igor
-      if (!manyArray.get('isDestroyed')) {
-        manyArray.set('isLoaded', true);
-      }
+      manyArray.set('isLoaded', true);
+
       return manyArray;
     }
   }
@@ -375,6 +367,20 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
+  localStateIsEmpty() {
+    let manyArray = this.manyArray;
+    let internalModels = manyArray.currentState;
+    let manyArrayIsLoaded = manyArray.get('isLoaded');
+
+    if (!manyArrayIsLoaded && internalModels.length) {
+      manyArrayIsLoaded = internalModels.reduce((hasNoEmptyModel, i) => {
+        return hasNoEmptyModel && !i.isEmpty();
+      }, true);
+    }
+
+    return !manyArrayIsLoaded;
+  }
+
   destroy() {
     super.destroy();
     let manyArray = this._manyArray;
@@ -383,11 +389,11 @@ export default class ManyRelationship extends Relationship {
       this._manyArray = null;
     }
 
-    let proxy = this.__loadingPromise;
+    let proxy = this._loadingPromise;
 
     if (proxy) {
       proxy.destroy();
-      this.__loadingPromise = null;
+      this._loadingPromise = null;
     }
   }
 }
