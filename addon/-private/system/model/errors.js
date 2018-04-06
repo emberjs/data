@@ -4,7 +4,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
 import MapWithDefault from '../map-with-default';
-import { deprecate, warn } from '@ember/debug';
+import { warn } from '@ember/debug';
 
 /**
 @module ember-data
@@ -86,25 +86,6 @@ import { deprecate, warn } from '@ember/debug';
   @uses Ember.Evented
  */
 export default ArrayProxy.extend(Evented, {
-  /**
-    Register with target handler
-
-    @method registerHandlers
-    @param {Object} target
-    @param {Function} becameInvalid
-    @param {Function} becameValid
-    @deprecated
-  */
-  registerHandlers(target, becameInvalid, becameValid) {
-    deprecate(
-      `Record errors will no longer be evented.`, false, {
-        id: 'ds.errors.registerHandlers',
-        until: '3.0.0'
-      });
-
-    this._registerHandlers(target, becameInvalid, becameValid);
-  },
-
 
   /**
     Register with target handler
@@ -116,7 +97,6 @@ export default ArrayProxy.extend(Evented, {
     this.on('becameInvalid', target, becameInvalid);
     this.on('becameValid', target, becameValid);
   },
-
 
   /**
     @property errorsByAttributeName

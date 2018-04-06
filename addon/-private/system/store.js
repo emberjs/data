@@ -16,7 +16,7 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
-import { assert, deprecate, warn, inspect } from '@ember/debug';
+import { assert, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
@@ -253,31 +253,6 @@ Store = Service.extend({
     @type {String}
   */
   adapter: '-json-api',
-
-  /**
-    Returns a JSON representation of the record using a custom
-    type-specific serializer, if one exists.
-
-    The available options are:
-
-    * `includeId`: `true` if the record's ID should be included in
-      the JSON representation
-
-    @method serialize
-    @private
-    @deprecated
-    @param {DS.Model} record the record to serialize
-    @param {Object} options an options hash
-  */
-  serialize(record, options) {
-    deprecate('Use of store.serialize is deprecated, use record.serialize instead.', false, {
-      id: 'ds.store.serialize',
-      until: '3.0'
-    });
-
-    let snapshot = record._internalModel.createSnapshot();
-    return snapshot.serialize(options);
-  },
 
   /**
     This property returns the adapter, after resolving a possible
@@ -1676,11 +1651,6 @@ Store = Service.extend({
     this.recordArrayManager._didUpdateAll(modelName);
   },
 
-  didUpdateAll(modelName) {
-    deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.didUpdateAll', until: '2.17.0' });
-    return this._didUpdateAll(modelName);
-  },
-
   /**
     This method returns a filtered array that contains all of the
     known records for a given type in the store.
@@ -1824,24 +1794,6 @@ Store = Service.extend({
     promise = promise || Promise.resolve(array);
 
     return promiseArray(promise.then(() => array, null, `DS: Store#filter of ${normalizedModelName}`));
-  },
-
-  /**
-    This method has been deprecated and is an alias for store.hasRecordForId, which should
-    be used instead.
-
-    @deprecated
-    @method recordIsLoaded
-    @param {String} modelName
-    @param {string} id
-    @return {boolean}
-  */
-  recordIsLoaded(modelName, id) {
-    deprecate(`Use of recordIsLoaded is deprecated, use hasRecordForId instead.`, false, {
-      id: 'ds.store.recordIsLoaded',
-      until: '3.0'
-    });
-    return this.hasRecordForId(modelName, id);
   },
 
 
@@ -2611,11 +2563,6 @@ Store = Service.extend({
     return internalModel;
   },
 
-  buildInternalModel(modelName, id, data) {
-    deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.', false, { id: 'ember-data.buildInternalModel', until: '2.17.0' });
-    return this._buildInternalModel(modelName, id, data);
-  },
-
   //Called by the state machine to notify the store that the record is ready to be interacted with
   recordWasLoaded(record) {
     this.recordArrayManager.recordWasLoaded(record);
@@ -2782,22 +2729,6 @@ Store = Service.extend({
     _serializerCache['-default'] = serializer;
 
     return serializer;
-  },
-
-  lookupAdapter(name) {
-    deprecate(`Use of lookupAdapter is deprecated, use adapterFor instead.`, false, {
-      id: 'ds.store.lookupAdapter',
-      until: '3.0'
-    });
-    return this.adapterFor(name);
-  },
-
-  lookupSerializer(name) {
-    deprecate(`Use of lookupSerializer is deprecated, use serializerFor instead.`, false, {
-      id: 'ds.store.lookupSerializer',
-      until: '3.0'
-    });
-    return this.serializerFor(name);
   },
 
   willDestroy() {
