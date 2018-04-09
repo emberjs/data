@@ -1,21 +1,22 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
-import { Promise as EmberPromise } from 'rsvp';
-
+import { resolve, Promise as EmberPromise } from 'rsvp';
+import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-
+import { module, test } from 'qunit';
+import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 
-import { module, test } from 'qunit';
+const {
+  attr,
+  belongsTo,
+  hasMany,
+  Model
+} = DS;
 
-import DS from 'ember-data';
-
-let attr = DS.attr;
-let belongsTo = DS.belongsTo;
-let hasMany = DS.hasMany;
 let env;
 
-let Person = DS.Model.extend({
+let Person = Model.extend({
   name: attr('string'),
   // 1:many sync
   cars: hasMany('car', { async: false }),
@@ -44,55 +45,55 @@ let Person = DS.Model.extend({
 });
 Person.reopenClass({ toString() { return 'Person'; } });
 
-let House = DS.Model.extend({
+let House = Model.extend({
   person: belongsTo('person', { async: false })
 });
 House.reopenClass({ toString() { return 'House'; } });
 
-let Mortgage = DS.Model.extend({
+let Mortgage = Model.extend({
   person: belongsTo('person', { async: true })
 });
 Mortgage.reopenClass({ toString() { return 'Mortgage'; } });
 
-let Group = DS.Model.extend({
+let Group = Model.extend({
   people: hasMany('person', { async: false })
 });
 Group.reopenClass({ toString() { return 'Group'; } });
 
-let Car = DS.Model.extend({
+let Car = Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person', { async: false })
 });
 Car.reopenClass({ toString() { return 'Car'; } });
 
-let Boat = DS.Model.extend({
+let Boat = Model.extend({
   name: attr('string'),
   person: belongsTo('person', { async: true })
 });
 Boat.toString = function() { return 'Boat'; };
 
-let Bike = DS.Model.extend({
+let Bike = Model.extend({
   name: DS.attr()
 });
 Bike.toString = function() { return 'Bike'; };
 
-let Book = DS.Model.extend({
+let Book = Model.extend({
   person: belongsTo('person', { async: true })
 });
 Book.toString = function() { return 'Book'; };
 
-let Spoon = DS.Model.extend({
+let Spoon = Model.extend({
   person: belongsTo('person', { async: true })
 });
 Spoon.toString = function() { return 'Spoon'; };
 
-let Show = DS.Model.extend({
+let Show = Model.extend({
   person: belongsTo('person', { async: false })
 });
 Show.toString = function() { return 'Show'; };
 
-module("integration/unload - Unloading Records", {
+module('integration/unload - Unloading Records', {
   beforeEach() {
     env = setupStore({
       adapter: DS.JSONAPIAdapter,
@@ -116,7 +117,7 @@ module("integration/unload - Unloading Records", {
   }
 });
 
-test("can unload a single record", function(assert) {
+test('can unload a single record', function(assert) {
   let adam;
   run(function() {
     env.store.push({
@@ -165,7 +166,7 @@ test("can unload a single record", function(assert) {
   assert.equal(relPayloads.get('person', 1, 'boats'), null, 'no boat relationship payload is cached');
 });
 
-test("can unload all records for a given type", function(assert) {
+test('can unload all records for a given type', function(assert) {
   assert.expect(11);
 
   let adam, bob, dudu;
@@ -193,8 +194,8 @@ test("can unload all records for a given type", function(assert) {
         type: 'car',
         id: '1',
         attributes: {
-          make: "VW",
-          model: "Beetle"
+          make: 'VW',
+          model: 'Beetle'
         },
         relationships: {
           person: {
@@ -240,7 +241,7 @@ test("can unload all records for a given type", function(assert) {
   assert.equal(env.store.peekRecord('car', 1).get('person.name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
 });
 
-test("can unload all records", function(assert) {
+test('can unload all records', function(assert) {
   assert.expect(8);
 
   let adam, bob, dudu;
@@ -268,8 +269,8 @@ test("can unload all records", function(assert) {
         type: 'car',
         id: '1',
         attributes: {
-          make: "VW",
-          model: "Beetle"
+          make: 'VW',
+          model: 'Beetle'
         },
         relationships: {
           person: {
@@ -296,7 +297,7 @@ test("can unload all records", function(assert) {
   assert.equal(env.store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
 });
 
-test("removes findAllCache after unloading all records", function(assert) {
+test('removes findAllCache after unloading all records', function(assert) {
   assert.expect(4);
 
   let adam, bob;
@@ -332,7 +333,7 @@ test("removes findAllCache after unloading all records", function(assert) {
   assert.equal(env.store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
 });
 
-test("unloading all records also updates record array from peekAll()", function(assert) {
+test('unloading all records also updates record array from peekAll()', function(assert) {
   let adam, bob;
   run(function() {
     env.store.push({
@@ -362,6 +363,159 @@ test("unloading all records also updates record array from peekAll()", function(
     env.store.unloadAll('person');
   });
   assert.equal(all.get('length'), 0);
+});
+
+function makeBoatOneForPersonOne() {
+  return {
+    type: 'boat',
+    id: '1',
+    attributes: {
+      name: 'Boaty McBoatface'
+    },
+    relationships: {
+      person: {
+        data: { type: 'person', id: '1' }
+      }
+    }
+  };
+}
+
+test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via store.push)', function(assert) {
+  assert.expect(15);
+
+  let { store } = env;
+
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Could be Anybody'
+      },
+      relationships: {
+        boats: {
+          data: [
+            { type: 'boat', id: '1' }
+          ]
+        }
+      }
+    },
+    included: [
+      makeBoatOneForPersonOne()
+    ]
+  }));
+
+  let boat = store.peekRecord('boat', '1');
+  let initialBoatInternalModel = boat._internalModel;
+  let relationshipState = person.hasMany('boats').hasManyRelationship;
+  let knownPeople = env.store._internalModelsFor('person');
+  let knownBoats = store._internalModelsFor('boat');
+
+  // ensure we loaded the people and boats
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.equal(env.store.hasRecordForId('person', '1'), true);
+  assert.equal(env.store.hasRecordForId('boat', '1'), true);
+
+  // ensure the relationship was established (we reach through the async proxy here)
+  let peopleBoats = run(() => person.get('boats.content'));
+  let boatPerson = run(() => boat.get('person.content'));
+
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
+  assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
+  assert.ok(boatPerson === person, 'Our boat has the right person');
+
+  run(() => { store.unloadAll('boat') });
+
+  // ensure that our new state is correct
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+  assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+
+  run(() => store.push({
+    data: makeBoatOneForPersonOne()
+  }));
+
+  let reloadedBoat = store.peekRecord('boat', '1');
+  let reloadedBoatInternalModel = reloadedBoat._internalModel;
+
+  assert.ok(reloadedBoatInternalModel === initialBoatInternalModel, 'after an unloadAll, subsequent fetch results in the same InternalModel');
+});
+
+test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function(assert) {
+  assert.expect(17);
+
+  let { store } = env;
+
+  env.adapter.findRecord = (store, type, id) => {
+    assert.ok(type.modelName === 'boat', 'We refetch the boat');
+    assert.ok(id === '1', 'We refetch the right boat');
+    return resolve({
+      data: makeBoatOneForPersonOne()
+    });
+  };
+
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Could be Anybody'
+      },
+      relationships: {
+        boats: {
+          data: [
+            { type: 'boat', id: '1' }
+          ]
+        }
+      }
+    },
+    included: [
+      makeBoatOneForPersonOne()
+    ]
+  }));
+
+  let boat = store.peekRecord('boat', '1');
+  let initialBoatInternalModel = boat._internalModel;
+  let relationshipState = person.hasMany('boats').hasManyRelationship;
+  let knownPeople = env.store._internalModelsFor('person');
+  let knownBoats = store._internalModelsFor('boat');
+
+  // ensure we loaded the people and boats
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.equal(env.store.hasRecordForId('person', '1'), true);
+  assert.equal(env.store.hasRecordForId('boat', '1'), true);
+
+  // ensure the relationship was established (we reach through the async proxy here)
+  let peopleBoats = run(() => person.get('boats.content'));
+  let boatPerson = run(() => boat.get('person.content'));
+
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
+  assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
+  assert.ok(boatPerson === person, 'Our boat has the right person');
+
+  run(() => { store.unloadAll('boat') });
+
+  // ensure that our new state is correct
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+  assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+
+  run(() => person.get('boats'));
+
+  let reloadedBoat = store.peekRecord('boat', '1');
+  let reloadedBoatInternalModel = reloadedBoat._internalModel;
+
+  assert.ok(reloadedBoatInternalModel === initialBoatInternalModel, 'after an unloadAll, subsequent fetch results in the same InternalModel');
 });
 
 test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
@@ -479,7 +633,7 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
 });
 
 
-test("Unloading a record twice only schedules destroy once", function(assert) {
+test('Unloading a record twice only schedules destroy once', function(assert) {
   const store = env.store;
   let record;
 
@@ -507,7 +661,7 @@ test("Unloading a record twice only schedules destroy once", function(assert) {
   assert.equal(internalModel.isDestroyed, false, 'We cancelled destroy');
 });
 
-test("Cancelling destroy leaves the record in the empty state", function(assert) {
+test('Cancelling destroy leaves the record in the empty state', function(assert) {
   const store = env.store;
   let record;
 
@@ -541,7 +695,7 @@ test("Cancelling destroy leaves the record in the empty state", function(assert)
   assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are still unloaded after unloadRecord');
 });
 
-test("after unloading a record, the record can be fetched again immediately", function(assert) {
+test('after unloading a record, the record can be fetched again immediately', function(assert) {
   const store = env.store;
 
   // stub findRecord
@@ -605,7 +759,7 @@ test("after unloading a record, the record can be fetched again immediately", fu
   });
 });
 
-test("after unloading a record, the record can be fetched again immediately (purge relationship)", function(assert) {
+test('after unloading a record, the record can be fetched again immediately (purge relationship)', function(assert) {
   const store = env.store;
 
   // stub findRecord
@@ -675,7 +829,7 @@ test("after unloading a record, the record can be fetched again immediately (pur
   });
 });
 
-test("after unloading a record, the record can be fetched again immediately (with relationships)", function(assert) {
+test('after unloading a record, the record can be fetched again immediately (with relationships)', function(assert) {
   const store = env.store;
   // stub findRecord
   env.adapter.findRecord = () => {
@@ -738,7 +892,7 @@ test("after unloading a record, the record can be fetched again immediately (wit
   return wait;
 });
 
-test("after unloading a record, the record can be fetched again soon there after", function(assert) {
+test('after unloading a record, the record can be fetched again soon there after', function(assert) {
   const store = env.store;
   let record;
 
