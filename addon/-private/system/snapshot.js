@@ -15,18 +15,23 @@ import { assign } from '@ember/polyfills';
 */
 export default class Snapshot {
   constructor(internalModel, options = {}) {
-    this._attributes = Object.create(null);
+    this.__attributes = null;
     this._belongsToRelationships = Object.create(null);
     this._belongsToIds = Object.create(null);
     this._hasManyRelationships = Object.create(null);
     this._hasManyIds = Object.create(null);
     this._internalModel = internalModel;
 
-    // TODO is there a way we can assign known attributes without
-    //  using `eachAttribute`? This forces us to lookup the model-class
-    //  but for findRecord / findAll these are empty and doing so at
-    //  this point in time is unnecessary.
-    internalModel.eachAttribute((keyName) => this._attributes[keyName] = internalModel.getAttributeValue(keyName));
+    /*
+      If the internalModel does not yet have a record, then we are
+      likely a snapshot being provided to a find request, so we
+      populate __attributes lazily. Else, to preserve the "moment
+      in time" in which a snapshot is created, we greedily grab
+      the values.
+     */
+    if (internalModel.hasRecord) {
+      this._attributes;
+    }
 
     /**O
      The id of the snapshot's underlying record
@@ -77,6 +82,19 @@ export default class Snapshot {
    */
   get record() {
     return this._internalModel.getRecord();
+  }
+
+  get _attributes() {
+    let attributes = this.__attributes;
+
+    if (attributes === null) {
+      let record = this.record;
+      attributes = this.__attributes = Object.create(null);
+
+      record.eachAttribute((keyName) => attributes[keyName] = get(record, keyName));
+    }
+
+    return attributes;
   }
 
   /**
