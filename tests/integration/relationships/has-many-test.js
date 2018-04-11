@@ -109,6 +109,66 @@ module("integration/relationships/has_many - Has-Many Relationships", {
   }
 });
 
+test("unloadRecord should remove record from hasMany relationship - async hasMany / non-polymorphic", function(assert) {
+  run(() => {
+    env.store.push({
+      data: {
+        id: 1,
+        type: 'book',
+        relationships: {
+          chapters: {
+            data: [
+              {
+                id: 1,
+                type: 'chapter'
+              },
+              {
+                id: 2,
+                type: 'chapter'
+              },
+              {
+                id: 3,
+                type: 'chapter'
+              }
+            ]
+          }
+        }
+      }
+    });
+
+    env.store.push({
+      data: [
+        {
+          type: 'chapter',
+          id: 1
+        },
+        {
+          type: 'chapter',
+          id: 2
+        },
+        {
+          type: 'chapter',
+          id: 3
+        }
+      ]
+    });
+  });
+
+  env.adapter.findRecord = function(store, type, id, snapshots) {
+    return { data: { id, type: 'chapter', attributes: { title: 'whatever' } }};
+  }
+
+  let book, chapter;
+
+  run(() => {
+    book = env.store.peekRecord('book', 1);
+    assert.equal(book.get('chapters.length'), 3);
+    chapter = env.store.peekRecord('chapter', 2);
+    chapter.unloadRecord();
+    assert.equal(book.get('chapters.length'), 2);
+  });
+});
+
 test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
   assert.expect(0);
 
