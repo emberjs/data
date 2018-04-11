@@ -43,7 +43,6 @@
     "ember-cli-version-checker": "^2.1.0",
     "ember-inflector": "^2.0.0",
     "ember-runtime-enumerable-includes-polyfill": "^2.0.0",
-    "exists-sync": "0.0.3",
     "git-repo-info": "^1.1.2",
     "heimdalljs": "^0.3.0",
     "inflection": "^1.8.0",
