@@ -36,7 +36,7 @@ function hasValue(record, key) {
   supported options are:
 
   - `defaultValue`: Pass a string or a function to be called to set the attribute
-                    to a default value if none is supplied.
+  to a default value if none is supplied.
 
   Example
 
