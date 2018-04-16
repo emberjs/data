@@ -1,7 +1,6 @@
-import { assign, merge } from '@ember/polyfills';
 import { A } from '@ember/array';
 import { set, get } from '@ember/object';
-import { copy } from '@ember/object/internals';
+import { assign } from '@ember/polyfills';
 import EmberError from '@ember/error';
 import { isEqual } from '@ember/utils';
 import { setOwner } from '@ember/application';
@@ -23,8 +22,6 @@ import {
   BelongsToReference,
   HasManyReference
 } from "../references";
-
-const emberAssign = assign || merge;
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -636,7 +633,7 @@ export default class InternalModel {
       changedKeys = this._changedKeys(data.attributes);
     }
 
-    emberAssign(this._data, data.attributes);
+    assign(this._data, data.attributes);
     this.pushedData();
 
     if (this.hasRecord) {
@@ -809,7 +806,7 @@ export default class InternalModel {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
-    let newData = emberAssign(copy(inFlightData), currentData);
+    let newData = assign({}, inFlightData, currentData);
     let diffData = Object.create(null);
     let newDataKeys = Object.keys(newData);
 
@@ -1173,9 +1170,9 @@ export default class InternalModel {
     this.didCleanError();
     let changedKeys = this._changedKeys(data);
 
-    emberAssign(this._data, this._inFlightAttributes);
+    assign(this._data, this._inFlightAttributes);
     if (data) {
-      emberAssign(this._data, data);
+      assign(this._data, data);
     }
 
     this._inFlightAttributes = null;
@@ -1303,8 +1300,8 @@ export default class InternalModel {
         attrs= this._attributes;
       }
 
-      original = emberAssign(Object.create(null), this._data);
-      original = emberAssign(original, this._inFlightAttributes);
+      original = Object.create(null);
+      assign(original, this._data, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {
         key = keys[i];

@@ -1,12 +1,10 @@
 /**
   @module ember-data
 */
-
-import { copy } from '@ember/object/internals';
-
 import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
+import { assign } from '@ember/polyfills';
 
 /**
   @class Snapshot
@@ -150,7 +148,7 @@ export default class Snapshot {
    @return {Object} All attributes of the current snapshot
    */
   attributes() {
-    return copy(this._attributes);
+    return assign({}, this._attributes);
   }
 
   /**
@@ -173,7 +171,7 @@ export default class Snapshot {
 
     for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];
-      changedAttributes[key] = copy(this._changedAttributes[key]);
+      changedAttributes[key] = this._changedAttributes[key].slice();
     }
 
     return changedAttributes;
