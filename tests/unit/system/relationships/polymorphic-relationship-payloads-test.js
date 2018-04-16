@@ -1,8 +1,8 @@
 import { run } from '@ember/runloop';
-import { copy } from '@ember/object/internals';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import { createStore } from 'dummy/tests/helpers/store';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 import testInDebug from '../../../helpers/test-in-debug';
 
@@ -45,7 +45,7 @@ test('push one side is polymorphic, baseType then subTypes', function(assert) {
   let id = 1;
 
   function makeHat(type, props) {
-    const resource = copy(props, true);
+    const resource = deepCopy(props);
     resource.id = `${id++}`;
     resource.type = type;
     resource.attributes.type = type;
@@ -89,7 +89,7 @@ test('push one side is polymorphic, subType then baseType', function(assert) {
   let id = 1;
 
   function makeHat(type, props) {
-    const resource = copy(props, true);
+    const resource = deepCopy(props);
     resource.id = `${id++}`;
     resource.type = type;
     resource.attributes.type = type;
@@ -130,7 +130,7 @@ test('push one side is polymorphic, different subtypes', function(assert) {
   let id = 1;
 
   function makeHat(type, props) {
-    const resource = copy(props, true);
+    const resource = deepCopy(props);
     resource.id = `${id++}`;
     resource.type = type;
     resource.attributes.type = type;
@@ -177,7 +177,7 @@ test('push both sides are polymorphic', function(assert) {
   let id = 1;
 
   function makeHat(type, props) {
-    const resource = copy(props, true);
+    const resource = deepCopy(props);
     resource.id = `${id++}`;
     resource.type = type;
     resource.attributes.type = type;

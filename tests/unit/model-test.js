@@ -830,7 +830,7 @@ test('Does not support dirtying in root.deleted.saved', function(assert) {
   });
 
   run(() => {
-    assert.expectAssertion(() => {
+    assert.throws(() => {
       set(record, 'isArchived', true);
     }, /Attempted to handle event `didSetProperty` on <person:1> while in state root.deleted.saved. Called with {name: isArchived, oldValue: false, originalValue: false, value: true}./);
 
