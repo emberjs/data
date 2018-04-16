@@ -1,12 +1,11 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { run } from '@ember/runloop';
-import Ember from 'ember';
 import setupStore from 'dummy/tests/helpers/store';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 
-const { copy } = Ember;
 const { attr, belongsTo, hasMany, Model } = DS;
 
 let env;
@@ -173,9 +172,9 @@ test("an async has many relationship to an unloaded record can restore that reco
 
     let data;
     if (param === '1') {
-      data = copy(BOAT_ONE, true);
+      data = deepCopy(BOAT_ONE);
     } else if (param === '1') {
-      data = copy(BOAT_TWO, true);
+      data = deepCopy(BOAT_TWO);
     } else {
       throw new Error(`404: no such boat with id=${param}`);
     }
@@ -208,8 +207,8 @@ test("an async has many relationship to an unloaded record can restore that reco
   run(() => {
     env.store.push({
       data: [
-        copy(BOAT_ONE, true),
-        copy(BOAT_TWO, true)
+        deepCopy(BOAT_ONE),
+        deepCopy(BOAT_TWO)
       ]
     });
   });

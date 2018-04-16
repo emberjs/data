@@ -1,11 +1,10 @@
 import { underscore } from '@ember/string';
-import { copy } from '@ember/object/internals';
 import RSVP, { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
 import { singularize } from 'ember-inflector';
-
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
@@ -56,7 +55,7 @@ function ajaxResponse(value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return run(RSVP, 'resolve', copy(value, true));
+    return run(RSVP, 'resolve', deepCopy(value));
   };
 }
 

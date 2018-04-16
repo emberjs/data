@@ -1,4 +1,3 @@
-import { copy } from '@ember/object/internals';
 import RSVP, {
   Promise as EmberPromise,
   resolve
@@ -7,6 +6,7 @@ import { run, next } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -203,7 +203,7 @@ test("destroying the store correctly cleans everything up", function(assert) {
 
 function ajaxResponse(value) {
   env.adapter.ajax = function(url, verb, hash) {
-    return run(RSVP, 'resolve', copy(value, true));
+    return run(RSVP, 'resolve', deepCopy(value));
   };
 }
 

@@ -3,12 +3,11 @@
 */
 
 import { A } from '@ember/array';
-
-import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
+import { assign } from '@ember/polyfills';
 import { default as RSVP, Promise } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
@@ -346,7 +345,7 @@ Store = Service.extend({
     return emberRun.join(() => {
       return this._backburner.join(() => {
         let normalizedModelName = normalizeModelName(modelName);
-        let properties = copy(inputProperties) || Object.create(null);
+        let properties = assign({}, inputProperties);
 
         // If the passed properties do not include a primary key,
         // give the adapter an opportunity to generate one. Typically,

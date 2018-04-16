@@ -1,6 +1,5 @@
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
-import Ember from 'ember';
 import { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
 import {
@@ -9,8 +8,8 @@ import {
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from "ember-data/adapters/json-api";
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 
-const { copy } = Ember;
 const { Model, attr, hasMany, belongsTo } = DS;
 
 let env, User, Organisation;
@@ -711,11 +710,11 @@ function shouldFetchLinkTests(description, payloads) {
         link === payloads.user.data.relationships.pets.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.pets, true));
+      return resolve(deepCopy(payloads.pets));
     };
 
     // setup user
-    let user = run(() => store.push(copy(payloads.user, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
     let pets = run(() => user.get('pets'));
 
     assert.ok(!!pets, 'We found our pets');
@@ -748,11 +747,11 @@ function shouldFetchLinkTests(description, payloads) {
           'We fetched the appropriate link'
         );
       }
-      return resolve(copy(payloads.pets, true));
+      return resolve(deepCopy(payloads.pets));
     };
 
     // setup user
-    let user = run(() => store.push(copy(payloads.user, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
     let pets = run(() => user.get('pets'));
 
     assert.ok(!!pets, 'We found our pets');
@@ -790,11 +789,11 @@ function shouldFetchLinkTests(description, payloads) {
           'We fetched the appropriate link'
         );
       }
-      return resolve(copy(payloads.home, true));
+      return resolve(deepCopy(payloads.home));
     };
 
     // setup user
-    let user = run(() => store.push(copy(payloads.user, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
     let home = run(() => user.get('home'));
 
     if (homeRelWasEmpty) {
@@ -826,11 +825,11 @@ function shouldFetchLinkTests(description, payloads) {
         link === payloads.user.data.relationships.home.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.home, true));
+      return resolve(deepCopy(payloads.home));
     };
 
     // setup user
-    let user = run(() => store.push(copy(payloads.user, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
     let home = run(() => user.get('home'));
 
     assert.ok(!!home, 'We found our home');
@@ -996,12 +995,12 @@ function shouldReloadWithLinkTests(description, payloads) {
         link === payloads.user.data.relationships.pets.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.pets, true));
+      return resolve(deepCopy(payloads.pets));
     };
 
     // setup user and pets
-    let user = run(() => store.push(copy(payloads.user, true)));
-    run(() => store.push(copy(payloads.pets, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
+    run(() => store.push(deepCopy(payloads.pets)));
     let pets = run(() => user.get('pets'));
 
     assert.ok(!!pets, 'We found our pets');
@@ -1024,12 +1023,12 @@ function shouldReloadWithLinkTests(description, payloads) {
         link === payloads.user.data.relationships.pets.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.pets, true));
+      return resolve(deepCopy(payloads.pets));
     };
 
     // setup user and pets
-    let user = run(() => store.push(copy(payloads.user, true)));
-    run(() => store.push(copy(payloads.pets, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
+    run(() => store.push(deepCopy(payloads.pets)));
     let pets = run(() => user.get('pets'));
 
     assert.ok(!!pets, 'We found our pets');
@@ -1053,12 +1052,12 @@ function shouldReloadWithLinkTests(description, payloads) {
         link === payloads.user.data.relationships.home.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.home, true));
+      return resolve(deepCopy(payloads.home));
     };
 
     // setup user and home
-    let user = run(() => store.push(copy(payloads.user, true)));
-    run(() => store.push(copy(payloads.home, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
+    run(() => store.push(deepCopy(payloads.home)));
     let home = run(() => user.get('home'));
 
     assert.ok(!!home, 'We found our home');
@@ -1081,12 +1080,12 @@ function shouldReloadWithLinkTests(description, payloads) {
         link === payloads.user.data.relationships.home.links.related,
         'We fetched the appropriate link'
       );
-      return resolve(copy(payloads.home, true));
+      return resolve(deepCopy(payloads.home));
     };
 
     // setup user
-    let user = run(() => store.push(copy(payloads.user, true)));
-    run(() => store.push(copy(payloads.home, true)));
+    let user = run(() => store.push(deepCopy(payloads.user)));
+    run(() => store.push(deepCopy(payloads.home)));
     let home;
     run(() => user.get('home').then(h => home = h));
 
@@ -1908,8 +1907,8 @@ test('We should not fetch a hasMany relationship with links that we know is empt
   };
 
   // setup users
-  let user1 = run(() => store.push(copy(user1Payload, true)));
-  let user2 = run(() => store.push(copy(user2Payload, true)));
+  let user1 = run(() => store.push(deepCopy(user1Payload)));
+  let user2 = run(() => store.push(deepCopy(user2Payload)));
 
   // should not fire a request
   requestedUser = null;
