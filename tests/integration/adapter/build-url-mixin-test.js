@@ -1,8 +1,8 @@
 import { decamelize, underscore } from '@ember/string';
-import { copy } from '@ember/object/internals';
 import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { pluralize } from 'ember-inflector';
 import { isEnabled } from 'ember-data/-private';
 
@@ -48,13 +48,13 @@ function ajaxResponse(value) {
     adapter._makeRequest = function(request) {
       passedUrl = request.url;
 
-      return run(RSVP, 'resolve', copy(value, true));
+      return run(RSVP, 'resolve', deepCopy(value, true));
     };
   } else {
     adapter.ajax = function(url, verb, hash) {
       passedUrl = url;
 
-      return run(RSVP, 'resolve', copy(value, true));
+      return run(RSVP, 'resolve', deepCopy(value, true));
     };
   }
 }

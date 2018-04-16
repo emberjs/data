@@ -1,6 +1,5 @@
 import { assign, merge } from '@ember/polyfills';
 import { set, get } from '@ember/object';
-import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
 import { isEqual, isEmpty } from '@ember/utils';
 import { setOwner } from '@ember/application';
@@ -707,7 +706,7 @@ export default class InternalModel {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
-    let newData = emberAssign(copy(inFlightData), currentData);
+    let newData = emberAssign(emberAssign({}, inFlightData), currentData);
     let diffData = Object.create(null);
     let newDataKeys = Object.keys(newData);
 
