@@ -93,87 +93,28 @@ test('destroying the store correctly cleans everything up', function(assert) {
     person = store.peekRecord('person', 1);
   });
 
-  let filterd = manager.createFilteredRecordArray('person', () => true);
-  let filterd2 = manager.createFilteredRecordArray('person', () => true);
   let all = store.peekAll('person');
   let adapterPopulated = manager.createAdapterPopulatedRecordArray('person', query);
-
-  let filterdSummary = tap(filterd, 'willDestroy');
-  let filterd2Summary = tap(filterd2, 'willDestroy');
   let allSummary = tap(all, 'willDestroy');
   let adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
-
   let internalPersonModel = person._internalModel;
 
-  assert.equal(filterdSummary.called.length, 0);
-  assert.equal(filterd2Summary.called.length, 0);
   assert.equal(allSummary.called.length, 0);
   assert.equal(adapterPopulatedSummary.called.length, 0);
-
-  assert.equal(internalPersonModel._recordArrays.size, 3, 'expected the person to be a member of 3 recordArrays');
-
-  run(filterd2, filterd2.destroy);
-
-  assert.equal(internalPersonModel._recordArrays.size, 2, 'expected the person to be a member of 2 recordArrays');
-  assert.equal(filterd2Summary.called.length, 1);
-
+  assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
   assert.equal('person' in manager._liveRecordArrays, true);
 
   run(all, all.destroy);
 
-  assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
+  assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of 1 recordArrays');
   assert.equal(allSummary.called.length, 1);
   assert.equal('person' in manager._liveRecordArrays, false);
 
   run(manager, manager.destroy);
 
   assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
-  assert.equal(filterdSummary.called.length, 1);
-  assert.equal(filterd2Summary.called.length, 1);
   assert.equal(allSummary.called.length, 1);
   assert.equal(adapterPopulatedSummary.called.length, 1);
-});
-
-test('Should not filter a store.peekAll() array when a record property is changed', function(assert) {
-  let updateLiveRecordArray = tap(store.recordArrayManager, 'updateLiveRecordArray');
-  let updateFilterRecordArray = tap(store.recordArrayManager, 'updateFilterRecordArray');
-
-  let cars = store.peekAll('car');
-
-  assert.deepEqual(cars.toArray(), []);
-
-  let car = run(() => {
-    store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini Cooper'
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }
-    });
-
-    return store.peekRecord('car', 1);
-  });
-
-  assert.deepEqual(cars.toArray(), [car], 'cars should contain [car]');
-
-  assert.equal(updateLiveRecordArray.called.length, 1, 'updateLiveRecordArray should be called 1 time');
-  assert.equal(updateFilterRecordArray.called.length, 0, 'updateLiveRecordArray should be called 0 times');
-
-  run(() => car.set('model', 'Mini'));
-
-  assert.deepEqual(cars.toArray(), [car], 'cars should contain [car]');
-
-  // TODO: differentiate between change + add/remove so we can skip non-filtered record arrays
-  assert.equal(updateLiveRecordArray.called.length, 2, 'updateLiveRecordArray should be called 2 times');
-  assert.equal(updateFilterRecordArray.called.length, 0, 'updateFilterRecordArray should be called 0 times');
 });
 
 test('batch liveRecordArray changes', function(assert) {
@@ -357,4 +298,106 @@ test('liveRecordArrayFor create with content', function(assert) {
   assert.equal(createRecordArrayCalled, 1, 'one record array is created');
   manager.liveRecordArrayFor('car');
   assert.equal(createRecordArrayCalled, 1, 'no new record array is created');
+});
+
+test('[DEPRECATED FILTER SUPPORT until 3.5]', function(assert) {
+  let cars = store.peekAll('car');
+  let arrayContentWillChangeCount = 0;
+  let updatesWithoutLiveArrayChangeCount = 0;
+  let updatesSignaledCount = 0;
+
+  let originalUpdate = store.recordArrayManager.updateLiveRecordArray;
+  store.recordArrayManager.updateLiveRecordArray = function(recordArray, internalModels) {
+    updatesSignaledCount++;
+    let didUpdate = originalUpdate.call(store.recordArrayManager, recordArray, internalModels);
+
+    if (!didUpdate) {
+      updatesWithoutLiveArrayChangeCount++;
+    }
+
+    return didUpdate;
+  };
+
+  cars.arrayContentWillChange = function() {
+    arrayContentWillChangeCount++;
+  };
+
+  assert.deepEqual(cars.toArray(), []);
+  assert.equal(arrayContentWillChangeCount, 0, 'expected NO arrayChangeEvents yet');
+  assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected NO silent updates yet');
+  assert.equal(updatesSignaledCount, 0, 'expected NO signals yet');
+
+  let [car1, car2] = run(() => store.push({
+    data: [
+      {
+        type: 'car',
+        id: '1',
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper'
+        }
+      },
+      {
+        type: 'car',
+        id: '2',
+        attributes: {
+          make: 'Jeep',
+          model: 'Wrangler'
+        }
+      }
+    ]
+  }));
+
+  assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
+  assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected NO silent updates yet');
+  assert.equal(updatesSignaledCount, 1, 'expected ONE signal');
+  assert.deepEqual(cars.toArray(), [car1, car2]);
+
+  arrayContentWillChangeCount = 0;
+  updatesWithoutLiveArrayChangeCount = 0;
+  updatesSignaledCount = 0;
+
+  run(() => car1.set('model', 'Mini'));
+
+  assert.equal(arrayContentWillChangeCount, 0, 'expected no array change events');
+  assert.equal(updatesWithoutLiveArrayChangeCount, 1, 'expected ONE silent update');
+  assert.equal(updatesSignaledCount, 1, 'expected ONE total signals');
+
+  arrayContentWillChangeCount = 0;
+  updatesWithoutLiveArrayChangeCount = 0;
+  updatesSignaledCount = 0;
+
+  run(() => store.push({
+    data: {
+      type: 'car',
+      id: '2', // this ID is already present, array wont need to change
+      attributes: {
+        make: 'Tesla',
+        model: 'S'
+      }
+    }
+  }));
+
+  assert.equal(arrayContentWillChangeCount, 0, 'expected NO array change events');
+  assert.equal(updatesWithoutLiveArrayChangeCount, 1, 'expected ONE silent update');
+  assert.equal(updatesSignaledCount, 1, 'expected ONE total signals');
+
+  arrayContentWillChangeCount = 0;
+  updatesWithoutLiveArrayChangeCount = 0;
+  updatesSignaledCount = 0;
+
+  run(() => store.push({
+    data: {
+      type: 'car',
+      id: '3',
+      attributes: {
+        make: 'Tesla',
+        model: 'S'
+      }
+    }
+  }));
+
+  assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
+  assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected ONE silent update');
+  assert.equal(updatesSignaledCount, 1, 'expected ONE total signals');
 });

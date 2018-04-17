@@ -15,7 +15,6 @@ module.exports = function(environment) {
     locationType: 'auto',
     EmberENV: {
       FEATURES: featureFlags,
-      ENABLE_DS_FILTER: true,
       RAISE_ON_DEPRECATION: false
     },
 

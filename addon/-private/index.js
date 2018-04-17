@@ -40,7 +40,6 @@ export {
 
 export {
   RecordArray,
-  FilteredRecordArray,
   AdapterPopulatedRecordArray
 } from './system/record-arrays';
 
