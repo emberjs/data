@@ -8,26 +8,22 @@ import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let TestAdapter, store, oldFilterEnabled;
+let TestAdapter, store;
 
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
   beforeEach() {
     TestAdapter = DS.Adapter.extend();
-    oldFilterEnabled = Ember.ENV.ENABLE_DS_FILTER;
-    Ember.ENV.ENABLE_DS_FILTER = false;
   },
 
   afterEach() {
     run(() => {
       if (store) { store.destroy(); }
-      Ember.ENV.ENABLE_DS_FILTER = oldFilterEnabled;
     });
   }
 });

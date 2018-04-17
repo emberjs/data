@@ -177,46 +177,6 @@ test("records can be deleted during record array enumeration", function(assert) 
   assert.equal(all.objectAt(0), null, "can't get any records");
 });
 
-test("when deleted records are rolled back, they are still in their previous record arrays", function(assert) {
-  var jaime, cersei;
-  run(function() {
-    env.store.push({
-      data: [{
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Jaime Lannister'
-        }
-      }, {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'Cersei Lannister'
-        }
-      }]
-    });
-    jaime = env.store.peekRecord('person', 1);
-    cersei = env.store.peekRecord('person', 2);
-  });
-  var all = env.store.peekAll('person');
-  var filtered;
-  run(function() {
-    filtered = env.store.filter('person', function () {
-      return true;
-    });
-  });
-
-  assert.equal(all.get('length'), 2, 'precond - we start with two people');
-  assert.equal(filtered.get('length'), 2, 'precond - we start with two people');
-
-  run(function() {
-    jaime.deleteRecord();
-    jaime.rollbackAttributes();
-  });
-  assert.equal(all.get('length'), 2, 'record was not removed');
-  assert.equal(filtered.get('length'), 2, 'record was not removed');
-});
-
 test("Deleting an invalid newly created record should remove it from the store", function(assert) {
   var record;
   var store = env.store;
