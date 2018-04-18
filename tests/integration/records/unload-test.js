@@ -838,7 +838,7 @@ test('after unloading a record, the record can be fetched again immediately', fu
     assert.equal(record.isDestroying, true, 'the record is destroying');
     assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
     return store.findRecord('person', '1').then(newRecord => {
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'the old internalModel is discarded');
+      assert.ok(internalModel === newRecord._internalModel, 'the old internalModel is reused');
       assert.equal(newRecord._internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded after findRecord');
     });
   });
@@ -857,7 +857,9 @@ test('after unloading a record, the record can be fetched again immediately (pur
           name: 'Adam Sunderland'
         },
         relationships: {
-          cars: { data: null }
+          cars: {
+            data: []
+          }
         }
       }
     };
@@ -876,7 +878,7 @@ test('after unloading a record, the record can be fetched again immediately (pur
           cars: {
             data: [
               {
-                id: 1,
+                id: '1',
                 type: 'car'
               }
             ]
@@ -886,7 +888,7 @@ test('after unloading a record, the record can be fetched again immediately (pur
       included: [
         {
           type: 'car',
-          id: 1,
+          id: '1',
           attributes: {
             make: 'jeep',
             model: 'wrangler'
@@ -907,8 +909,8 @@ test('after unloading a record, the record can be fetched again immediately (pur
     assert.equal(internalModel.currentState.stateName, 'root.empty', 'Expected the previous internal model tobe unloaded');
 
     return store.findRecord('person', '1').then(record => {
-      assert.equal(record.get('cars.length'), 0);
-      assert.equal(internalModel.currentState.stateName, 'root.empty', 'Expected the previous internal model to STILL be unloaded');
+      assert.equal(record.get('cars.length'), 0,  'Expected relationship to be cleared by the new push');
+      assert.ok(internalModel === record._internalModel, 'the old internalModel is reused');
       assert.equal(record._internalModel.currentState.stateName, 'root.loaded.saved', 'Expected the NEW internal model to be loaded');
     });
   });
@@ -955,6 +957,7 @@ test('after unloading a record, the record can be fetched again immediately (wit
   });
 
   const internalModel = record._internalModel;
+  const bike = store.peekRecord('bike', '1');
   assert.equal(internalModel.currentState.stateName, 'root.loaded.saved', 'We are loaded initially');
 
   assert.equal(record.get('bike.name'), 'mr bike');
@@ -965,10 +968,12 @@ test('after unloading a record, the record can be fetched again immediately (wit
     assert.equal(record.isDestroying, true, 'the record is destroying');
     assert.equal(record.isDestroyed, false, 'the record is NOT YET destroyed');
     assert.equal(internalModel.currentState.stateName, 'root.empty', 'We are unloaded after unloadRecord');
+
     let wait = store.findRecord('person', '1').then(newRecord => {
       assert.equal(record.isDestroyed, false, 'the record is NOT YET destroyed');
-      assert.ok(newRecord.get('bike') === null, 'the newRecord should NOT have had a bike');
+      assert.ok(newRecord.get('bike') === bike, 'the newRecord should retain knowledge of the bike');
     });
+
     assert.equal(record.isDestroyed, false, 'the record is NOT YET destroyed');
     return wait;
   });
