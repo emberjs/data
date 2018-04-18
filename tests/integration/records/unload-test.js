@@ -518,6 +518,92 @@ test('unloadAll(type) does not leave stranded internalModels in relationships (r
   assert.ok(reloadedBoatInternalModel === initialBoatInternalModel, 'after an unloadAll, subsequent fetch results in the same InternalModel');
 });
 
+test('(regression) unloadRecord followed by push in the same run-loop', function(assert) {
+  let { store } = env;
+
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        name: 'Could be Anybody'
+      },
+      relationships: {
+        boats: {
+          data: [
+            { type: 'boat', id: '1' }
+          ]
+        }
+      }
+    },
+    included: [
+      makeBoatOneForPersonOne()
+    ]
+  }));
+
+  let boat = store.peekRecord('boat', '1');
+  let initialBoatInternalModel = boat._internalModel;
+  let relationshipState = person.hasMany('boats').hasManyRelationship;
+  let knownPeople = env.store._internalModelsFor('person');
+  let knownBoats = store._internalModelsFor('boat');
+
+  // ensure we loaded the people and boats
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.equal(env.store.hasRecordForId('person', '1'), true);
+  assert.equal(env.store.hasRecordForId('boat', '1'), true);
+
+  // ensure the relationship was established (we reach through the async proxy here)
+  let peopleBoats = run(() => person.get('boats.content'));
+  let boatPerson = run(() => boat.get('person.content'));
+
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
+  assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
+  assert.ok(boatPerson === person, 'Our boat has the right person');
+
+  run(() => boat.unloadRecord());
+
+  // ensure that our new state is correct
+  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.models.length, 1, 'one boat record is known');
+  assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
+  assert.equal(initialBoatInternalModel.isEmpty(), true, 'Model is in the empty state');
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+  assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
+
+  run(() => store.push({
+    data: makeBoatOneForPersonOne()
+  }));
+
+  let reloadedBoat = store.peekRecord('boat', '1');
+  let reloadedBoatInternalModel = reloadedBoat._internalModel;
+
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.ok(reloadedBoatInternalModel === initialBoatInternalModel, 'after an unloadRecord, subsequent fetch results in the same InternalModel');
+
+  // and now the kicker, run-loop fun!
+  //   here, we will dematerialize the record, but push it back into the store
+  //   all in the same run-loop!
+  //   effectively this tests that our destroySync is not stupid
+  run(() => {
+    reloadedBoat.unloadRecord();
+    store.push({
+      data: makeBoatOneForPersonOne()
+    });
+  });
+
+  let yaBoat = store.peekRecord('boat', '1');
+  let yaBoatInternalModel = yaBoat._internalModel;
+
+  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
+  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.ok(yaBoatInternalModel === initialBoatInternalModel, 'after an unloadRecord, subsequent same-loop push results in the same InternalModel');
+});
+
 test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
@@ -631,7 +717,6 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
     assert.equal(relPayloads.get('person', 1, 'boats'), null, 'person - boats relationship payload unloaded');
   });
 });
-
 
 test('Unloading a record twice only schedules destroy once', function(assert) {
   const store = env.store;
