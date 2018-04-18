@@ -49,6 +49,8 @@ export default class InternalModelMap {
     assert(`You cannot re-add an already present InternalModel to the InternalModelMap.`, !this.contains(internalModel));
 
     if (id) {
+      assert(`Duplicate InternalModel for ${this.modelName}:${id} detected.`, !this.has(id) || this.get(id) === internalModel);
+
       this._idToModel[id] = internalModel;
     }
 
