@@ -7,6 +7,10 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
 
+function idsFromOrderedSet(set) {
+  return set.list.map(i => i.id);
+}
+
 const {
   attr,
   belongsTo,
@@ -548,8 +552,8 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   let knownBoats = store._internalModelsFor('boat');
 
   // ensure we loaded the people and boats
-  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
+  assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is loaded');
   assert.equal(env.store.hasRecordForId('person', '1'), true);
   assert.equal(env.store.hasRecordForId('boat', '1'), true);
 
@@ -557,8 +561,8 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   let peopleBoats = run(() => person.get('boats.content'));
   let boatPerson = run(() => boat.get('person.content'));
 
-  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
-  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
   assert.ok(get(peopleBoats, 'length') === 1, 'Our person has a boat');
   assert.ok(peopleBoats.objectAt(0) === boat, 'Our person has the right boat');
   assert.ok(boatPerson === person, 'Our boat has the right person');
@@ -566,12 +570,12 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   run(() => boat.unloadRecord());
 
   // ensure that our new state is correct
-  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-  assert.equal(knownBoats.models.length, 1, 'one boat record is known');
+  assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
+  assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is known');
   assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
   assert.equal(initialBoatInternalModel.isEmpty(), true, 'Model is in the empty state');
-  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should still be 1');
-  assert.equal(relationshipState.members.size, 1, 'members size should still be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should still be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should still be 1');
   assert.ok(get(peopleBoats, 'length') === 0, 'Our person thinks they have no boats');
 
   run(() => store.push({
@@ -581,8 +585,8 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   let reloadedBoat = store.peekRecord('boat', '1');
   let reloadedBoatInternalModel = reloadedBoat._internalModel;
 
-  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
-  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
   assert.ok(reloadedBoatInternalModel === initialBoatInternalModel, 'after an unloadRecord, subsequent fetch results in the same InternalModel');
 
   // and now the kicker, run-loop fun!
@@ -599,8 +603,8 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   let yaBoat = store.peekRecord('boat', '1');
   let yaBoatInternalModel = yaBoat._internalModel;
 
-  assert.equal(relationshipState.canonicalMembers.size, 1, 'canonical member size should be 1');
-  assert.equal(relationshipState.members.size, 1, 'members size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.canonicalMembers), ['1'], 'canonical member size should be 1');
+  assert.deepEqual(idsFromOrderedSet(relationshipState.members), ['1'], 'members size should be 1');
   assert.ok(yaBoatInternalModel === initialBoatInternalModel, 'after an unloadRecord, subsequent same-loop push results in the same InternalModel');
 });
 
