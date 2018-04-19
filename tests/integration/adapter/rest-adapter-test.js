@@ -1918,40 +1918,48 @@ test('findBelongsTo - passes buildURL the requestType', function(assert) {
 });
 
 testInDebug('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {
+  assert.expect(2);
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   adapter.coalesceFindRequests = true;
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({
+    comments: [
+      { id: '1', type: 'comment' }
+    ]
+  });
 
-  let wait;
-  assert.expectWarning(() => {
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '2',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' }
-              ]
-            }
-          }
+  let post = run(() => store.push({
+    data: {
+      type: 'post',
+      id: '2',
+      relationships: {
+        comments: {
+          data: [
+            { type: 'comment', id: '1'},
+            { type: 'comment', id: '2'},
+            { type: 'comment', id: '3'}
+          ]
         }
+      }
+    }
+  }));
+
+  assert.expectWarning(
+    () => {
+      return run(() => {
+        return post.get('comments')
+          .catch(e => {
+            assert.equal(
+              e.message,
+              `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
+            );
+          });
       });
-
-      let post = store.peekRecord('post', 2);
-      wait = post.get('comments').catch(e => {
-        assert.equal(e.message, `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`)
-      })
-    });
-
-    return wait;
-  }, /expected to find records with the following ids in the adapter response but they were missing: \[2,3\]/);
+    },
+    /expected to find records with the following ids in the adapter response but they were missing: \[ "2", "3" \]/
+  );
 });
 
 test('groupRecordsForFindMany groups records based on their url', function(assert) {
