@@ -30,7 +30,6 @@ import {
   PromiseObject,
   PromiseManyArray,
   RecordArray,
-  FilteredRecordArray,
   AdapterPopulatedRecordArray,
   ManyArray,
   RecordArrayManager,
@@ -105,7 +104,6 @@ DS.Serializer = Serializer;
 DS.DebugAdapter = DebugAdapter;
 
 DS.RecordArray                 = RecordArray;
-DS.FilteredRecordArray         = FilteredRecordArray;
 DS.AdapterPopulatedRecordArray = AdapterPopulatedRecordArray;
 DS.ManyArray                   = ManyArray;
 
