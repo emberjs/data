@@ -167,9 +167,9 @@ export default class ManyRelationship extends Relationship {
   }
 
   removeAllCanonicalInternalModelsFromOwn() {
-    super.removeAllCanonicalInternalModelsFromOwn();
     this.canonicalMembers.clear();
     this.canonicalState.splice(0, this.canonicalState.length);
+    super.removeAllCanonicalInternalModelsFromOwn();
   }
 
   removeCompletelyFromOwn(internalModel) {

@@ -1103,15 +1103,20 @@ Store = Service.extend({
     let internalModel = this._internalModelsFor(modelName).get(trueId);
 
     if (internalModel) {
+      // unloadRecord is async, if one attempts to unload + then sync push,
+      //   we must ensure the unload is canceled before continuing
+      //   The createRecord path will take _existingInternalModelForId()
+      //   which will call `destroySync` instead for this unload + then
+      //   sync createRecord scenario. Once we have true client-side
+      //   delete signaling, we should never call destroySync
       if (internalModel.hasScheduledDestroy()) {
-        internalModel.destroySync();
-        return this._buildInternalModel(modelName, trueId);
-      } else {
-        return internalModel;
+        internalModel.cancelDestroy();
       }
-    } else {
-      return this._buildInternalModel(modelName, trueId);
+
+      return internalModel;
     }
+
+    return this._buildInternalModel(modelName, trueId);
   },
 
   _internalModelDidReceiveRelationshipData(modelName, id, relationshipData) {
@@ -2555,7 +2560,11 @@ Store = Service.extend({
 
     if (internalModel && internalModel.hasScheduledDestroy()) {
       // unloadRecord is async, if one attempts to unload + then sync create,
-      // we must ensure the unload is complete before starting the create
+      //   we must ensure the unload is complete before starting the create
+      //   The push path will take _internalModelForId()
+      //   which will call `cancelDestroy` instead for this unload + then
+      //   sync push scenario. Once we have true client-side
+      //   delete signaling, we should never call destroySync
       internalModel.destroySync();
       internalModel = null;
     }

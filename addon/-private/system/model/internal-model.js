@@ -141,7 +141,7 @@ export default class InternalModel {
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;
-    this._isUpdatingRecordArrays = false; // used by the recordArrayManager
+    this._pendingRecordArrayManagerFlush = false; // used by the recordArrayManager
 
     // During dematerialization we don't want to rematerialize the record.  The
     // reason this might happen is that dematerialization removes records from
@@ -415,13 +415,15 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
+    this._isDematerializing = true;
+
     if (this._record) {
-      this._isDematerializing = true;
       this._record.destroy();
-      this.destroyRelationships();
-      this.resetRecord();
     }
 
+    // move to an empty never-loaded state
+    this.destroyRelationships();
+    this.resetRecord();
     this.updateRecordArrays();
   }
 
@@ -607,7 +609,7 @@ export default class InternalModel {
 
   destroy() {
     assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
-
+    this.isDestroying = true;
     this.store._internalModelDestroyed(this);
 
     this._relationships.forEach((name, rel) => rel.destroy());
