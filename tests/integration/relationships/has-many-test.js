@@ -108,6 +108,56 @@ module("integration/relationships/has_many - Has-Many Relationships", {
   }
 });
 
+test("Invalid hasMany relationship identifiers throw errors", function(assert) {
+  assert.expect(2);
+  let { store } = env;
+
+  // test null id
+  let post = run(() => store.push({
+    data: {
+      id: '1',
+      type: 'post',
+      relationships: {
+        comments: {
+          data: [
+            { id: null, type: 'comment' }
+          ]
+        }
+      }
+    }
+  }));
+
+  assert.expectAssertion(
+    () => {
+      run(() => post.get('comments'));
+    },
+    "Assertion Failed: Ember Data expected the data for the comments relationship on a <post:1> to be in a JSON API format and include an `id` and `type` property but it found {id: null, type: comment}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format."
+  );
+
+  // test missing type
+  // test null id
+  post = run(() => store.push({
+    data: {
+      id: '2',
+      type: 'post',
+      relationships: {
+        comments: {
+          data: [
+            { id: '1', type: null }
+          ]
+        }
+      }
+    }
+  }));
+
+  assert.expectAssertion(
+    () => {
+      run(() => post.get('comments'));
+    },
+    "Assertion Failed: Ember Data expected the data for the comments relationship on a <post:2> to be in a JSON API format and include an `id` and `type` property but it found {id: 1, type: null}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format."
+  );
+});
+
 test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function(assert) {
   assert.expect(0);
 

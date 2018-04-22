@@ -2677,10 +2677,12 @@ Store = Service.extend({
     if (isNone(resourceIdentifier)) {
       return;
     }
-
     assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being ${inspect(resourceIdentifier)}, but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
+    assert(
+      `Ember Data expected the data for the ${relationship.key} relationship on a ${relationship.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${inspect(resourceIdentifier)}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+      resourceIdentifier === null || (resourceIdentifier.id && resourceIdentifier.type)
+    );
 
-    //TODO:Better asserts
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
   },
 
