@@ -352,6 +352,9 @@ test('it should cache attributes', function(assert) {
   });
 
   const store = createStore({
+    adapter: DS.JSONAPIAdapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    }),
     post: Post
   });
 
@@ -366,7 +369,7 @@ test('it should cache attributes', function(assert) {
       }
     });
 
-    return store.findRecord('post', 1).then(record => {
+    return store.findRecord('post', '1').then(record => {
       record.set('updatedAt', date);
 
       assert.deepEqual(date, get(record, 'updatedAt'), 'setting a date returns the same date');

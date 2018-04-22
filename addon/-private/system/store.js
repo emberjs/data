@@ -793,7 +793,7 @@ Store = Service.extend({
 
     internalModel.loadingData(promise);
     if (this._pendingFetch.size === 0) {
-      emberRun.schedule('afterRender', this, this.flushAllPendingFetches);
+      emberRun.schedule('actions', this, this.flushAllPendingFetches);
     }
 
     this._pendingFetch.get(modelName).push(pendingFetchItem);
@@ -872,9 +872,15 @@ Store = Service.extend({
       }
 
       if (missingInternalModels.length) {
-        warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + inspect(missingInternalModels.map(r => r.id)), false, {
-          id: 'ds.store.missing-records-from-adapter'
-        });
+        warn(
+          'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
+            missingInternalModels.map(r => r.id).join('", "') +
+            '" ]',
+          false,
+          {
+            id: 'ds.store.missing-records-from-adapter'
+          }
+        );
         rejectInternalModels(missingInternalModels);
       }
     }
