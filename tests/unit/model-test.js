@@ -261,18 +261,18 @@ test("a record's id is included in its toString representation", function(assert
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  return run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: '1'
-      }
-    });
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1'
+    }
+  }));
 
-    return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<model:${record.constructor.modelName}:${guidFor(record)}:1>`, 'reports id in toString');
-    });
-  });
+  assert.equal(
+    person.toString(),
+    `<model:${person.constructor.modelName}:${guidFor(person)}:1>`,
+    'reports id in toString'
+  );
 });
 
 testInDebug('trying to set an `id` attribute should raise', function(assert) {

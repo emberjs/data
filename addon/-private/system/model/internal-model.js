@@ -172,7 +172,7 @@ export default class InternalModel {
   }
 
   get modelClass() {
-    return this._modelClass || (this._modelClass = this.store._modelFor(this.modelName));
+    return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
   }
 
   get type() {
@@ -391,7 +391,7 @@ export default class InternalModel {
         createOptions.container = this.store.container;
       }
 
-      this._record = this.store.modelFactoryFor(this.modelName).create(createOptions);
+      this._record = this.store._modelFactoryFor(this.modelName).create(createOptions);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);

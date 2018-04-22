@@ -67,7 +67,7 @@ module('integration/injection factoryFor enabled', {
 });
 
 test('modelFactoryFor', function(assert) {
-  const modelFactory = env.store.modelFactoryFor('super-villain');
+  const modelFactory = env.store._modelFactoryFor('super-villain');
 
   assert.equal(modelFactory, hasFactoryFor ? factory : model, 'expected the factory itself to be returned');
 });

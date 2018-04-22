@@ -267,7 +267,7 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       var typeName = this.modelNameFromPayloadKey(modelName);
-      if (!store.modelFactoryFor(typeName)) {
+      if (!store._hasModelFor(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
@@ -395,7 +395,7 @@ const RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
-      if (!store.modelFactoryFor(modelName)) {
+      if (!store._hasModelFor(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
           id: 'ds.serializer.model-for-key-missing'
         });
