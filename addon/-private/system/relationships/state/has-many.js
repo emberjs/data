@@ -4,8 +4,7 @@ import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import ManyArray from '../../many-array';
-
-import diffArray from '../../diff-array';
+import {  computeChanges } from '../../diff-array';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
@@ -117,11 +116,9 @@ export default class ManyRelationship extends Relationship {
   }
 
   scheduleManyArrayUpdate(internalModel, idx) {
-    // ideally we would early exit here, but some tests
-    //   currently suggest that we cannot.
-    // if (!this._manyArray) {
-    //   return;
-    // }
+    if (!this._manyArray) {
+      return;
+    }
 
     let pending = this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || [];
     pending.push(internalModel, idx);
@@ -196,10 +193,10 @@ export default class ManyRelationship extends Relationship {
   }
 
   flushCanonical() {
+    super.flushCanonical();
     if (this._manyArray) {
       this._manyArray.flushCanonical();
     }
-    super.flushCanonical();
   }
 
   removeInternalModelFromOwn(internalModel, idx) {
@@ -274,74 +271,24 @@ export default class ManyRelationship extends Relationship {
   }
 
   computeChanges(internalModels = []) {
-    let members = this.canonicalMembers.toArray();
+    let canonicalMembers = this.canonicalMembers.toArray();
     let removedSinceLastTime = this._removedInternalModels;
     this._removedInternalModels = null; // clear it for next time
+    this._previousCanonicalState = canonicalMembers;
 
-    let diff = diffArray(members, internalModels);
+    let changeSet = computeChanges(canonicalMembers, internalModels, removedSinceLastTime);
 
-    if (diff.firstChangeIndex === null) {
-      // no changes found
-      if (removedSinceLastTime) {
-        // records that have been removed since last compute will need their inverses to be corrected
-        for (let i = 0, l = internalModels.length; i < l; i++) {
-          let record = internalModels[i];
-          if (removedSinceLastTime.has(record)) {
-            this.flushCanonicalLater();
-            break;
-          }
-        }
-      }
-      return;
-    }
-    let removedMembersSet = setForArray(members.slice(diff.firstChangeIndex, diff.firstChangeIndex + diff.removedCount));
-    let changeBlockSet = setForArray(internalModels.slice(diff.firstChangeIndex, diff.firstChangeIndex + diff.addedCount));
-
-    // remove members that were removed but not re-added
-    removedMembersSet.forEach(member => {
-      if (!changeBlockSet.has(member)) {
-        this.removeCanonicalInternalModel(member);
-      }
-    });
-
-    let flushCanonicalLater = false;
-
-    // --- deal with records before the change block
-    if (removedSinceLastTime) {
-      // records that have been removed since last compute will need their inverses to be corrected
-      for (let i = 0; i < diff.firstChangeIndex; i++) {
-        let record = internalModels[i];
-        if (removedSinceLastTime.has(record)) {
-          flushCanonicalLater = true;
-          break;
-        }
-      }
-    }
-    // --- deal with records in the change block
-    for (let i = diff.firstChangeIndex, l = diff.firstChangeIndex + diff.addedCount; i < l; i++) {
-      let record = internalModels[i];
-      if (members[i] !== record) {
-        if (removedMembersSet.has(record)) {
-          // this is a reorder
-          this.removeCanonicalInternalModel(record);
-        }
-        // reorder or insert
-        this.addCanonicalInternalModel(record, i);
-      }
-    }
-    // --- deal with records after the change block
-    if (!flushCanonicalLater && removedSinceLastTime) {
-      // records that have been removed since last compute will need their inverses to be corrected
-      for (let i = diff.firstChangeIndex + diff.addedCount, l = internalModels.length; i < l; i++) {
-        let record = internalModels[i];
-        if (removedSinceLastTime.has(record)) {
-          flushCanonicalLater = true;
-          break;
-        }
-      }
+    let arr = changeSet.removals;
+    for (let i = 0; i < arr.length; i++) {
+      this.removeCanonicalInternalModel(arr[i]);
     }
 
-    if (flushCanonicalLater) {
+    arr = changeSet.additions;
+    for (let i = 0; i < arr.length; i+=2) {
+      this.addCanonicalInternalModel(arr[i], arr[i + 1]);
+    }
+
+    if (changeSet.changes) {
       this.flushCanonicalLater();
     }
   }
@@ -457,16 +404,4 @@ export default class ManyRelationship extends Relationship {
       this._loadingPromise = null;
     }
   }
-}
-
-function setForArray(array) {
-  var set = new OrderedSet();
-
-  if (array) {
-    for (var i=0, l=array.length; i<l; i++) {
-      set.add(array[i]);
-    }
-  }
-
-  return set;
 }

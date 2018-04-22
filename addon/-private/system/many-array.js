@@ -136,9 +136,7 @@ export default EmberObject.extend(MutableArray, Evented, {
   },
 
   objectAt(index) {
-    if (this.relationship._willUpdateManyArray) {
-      this.relationship._flushPendingManyArrayUpdates();
-    }
+    this.relationship._flushPendingManyArrayUpdates();
     let internalModel = this.currentState[index];
     if (internalModel === undefined) { return; }
 
@@ -150,17 +148,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     if (!_objectIsAlive(this)) {
       return;
     }
-    let toSet = this.canonicalState;
-
-    //a hack for not removing new records
-    //TODO remove once we have proper diffing
-    let newInternalModels = this.currentState.filter(
-      // only add new internalModels which are not yet in the canonical state of this
-      // relationship (a new internalModel can be in the canonical state if it has
-      // been 'acknowleged' to be in the relationship via a store.push)
-      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
-    );
-    toSet = toSet.concat(newInternalModels);
+    this.relationship._flushPendingManyArrayUpdates();
+    let toSet = this.relationship.members.list.slice();
 
     // diff to find changes
     let diff = diffArray(this.currentState, toSet);

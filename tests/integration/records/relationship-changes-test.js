@@ -668,16 +668,16 @@ test('Calling push with relationship triggers willChange and didChange with deta
   let observer = {
     arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
-      assert.equal(start, 0);
-      assert.equal(removing, 0);
-      assert.equal(adding, 1);
+      assert.equal(start, 0, 'change will start at the beginning');
+      assert.equal(removing, 0, 'we have no removals');
+      assert.equal(adding, 1, 'we have one insertion');
     },
 
     arrayDidChange(array, start, removed, added) {
       didChangeCount++;
-      assert.equal(start, 0);
-      assert.equal(removed, 0);
-      assert.equal(added, 1);
+      assert.equal(start, 0, 'change did start at the beginning');
+      assert.equal(removed, 0, 'change had no removals');
+      assert.equal(added, 1, 'change had one insertion');
     }
   };
 

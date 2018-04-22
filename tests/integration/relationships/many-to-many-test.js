@@ -1,13 +1,10 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
 import { resolve, Promise as EmberPromise } from 'rsvp';
-
 import { run } from '@ember/runloop';
-
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-
 import { module, test } from 'qunit';
-
 import DS from 'ember-data';
 
 const { attr, hasMany } = DS;
@@ -615,5 +612,11 @@ test("Re-loading a removed record should re add it to the relationship when the 
     });
   });
 
-  assert.equal(account.get('users.length'), 2, 'Accounts were updated correctly');
+  let state = account.hasMany('users').hasManyRelationship.canonicalMembers.list;
+  let users = account.get('users');
+
+  assert.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
+  assert.deepEqual(users.map(r => get(r, 'id')), ['1'], 'Accounts were updated correctly (ui state)');
+  assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
+  assert.deepEqual(state.map(r => r.id), ['1', '2'], 'Accounts were updated correctly (server state)');
 });

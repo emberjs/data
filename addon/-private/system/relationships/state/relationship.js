@@ -5,6 +5,7 @@ import { get } from '@ember/object';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
+import { computeChanges } from '../../diff-array';
 
 const {
   addCanonicalInternalModel,
@@ -72,6 +73,7 @@ export default class Relationship {
     this.linkPromise = null;
     this.meta = null;
     this.__inverseMeta = undefined;
+    this._previousCanonicalState = null;
 
     /*
        This flag indicates whether we should
@@ -260,7 +262,7 @@ export default class Relationship {
   addCanonicalInternalModel(internalModel, idx) {
     heimdall.increment(addCanonicalInternalModel);
     if (!this.canonicalMembers.has(internalModel)) {
-      this.canonicalMembers.add(internalModel);
+      this.canonicalMembers.addWithIndex(internalModel, idx);
       this.setupInverseRelationship(internalModel);
     }
     this.flushCanonicalLater();
@@ -454,21 +456,23 @@ export default class Relationship {
 
   flushCanonical() {
     heimdall.increment(flushCanonical);
+    let previousCanonicalList = this._previousCanonicalState || [];
     let list = this.members.list;
     this.willSync = false;
-    //a hack for not removing new internalModels
-    //TODO remove once we have proper diffing
-    let newInternalModels = [];
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].isNew()) {
-        newInternalModels.push(list[i]);
-      }
+    this._previousCanonicalState = null;
+
+    let changeset = computeChanges(previousCanonicalList, list);
+
+    this.members = this.canonicalMembers.copy();
+
+    let arr = changeset.removals;
+    for (let i = 0; i < arr.length; i++) {
+      this.members.delete(arr[i]);
     }
 
-    //TODO(Igor) make this less abysmally slow
-    this.members = this.canonicalMembers.copy();
-    for (let i = 0; i < newInternalModels.length; i++) {
-      this.members.add(newInternalModels[i]);
+    arr = changeset.additions;
+    for (let i = 0; i < arr.length; i+=2) {
+      this.members.addWithIndex(arr[i], arr[i + 1]);
     }
   }
 
