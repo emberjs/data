@@ -19,7 +19,6 @@ module('unit/model - DS.Model', {
       isDrugAddict: DS.attr('boolean'),
       isArchived: DS.attr()
     });
-    Person.toString =  () => 'person';
 
     env = setupStore({
       adapter: DS.JSONAPIAdapter,
@@ -271,7 +270,7 @@ test("a record's id is included in its toString representation", function(assert
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<person:${guidFor(record)}:1>`, 'reports id in toString');
+      assert.equal(record.toString(), `<model:${record.constructor.modelName}:${guidFor(record)}:1>`, 'reports id in toString');
     });
   });
 });

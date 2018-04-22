@@ -1860,6 +1860,16 @@ Model.reopenClass({
     get(this, 'transformedAttributes').forEach((type, name) => {
       callback.call(binding, name, type);
     });
+  },
+
+  /**
+   Returns the name of the model class.
+
+   @method toString
+   @static
+   */
+  toString() {
+    return `model:${get(this, 'modelName')}`;
   }
 });
 
