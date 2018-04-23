@@ -130,7 +130,7 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
           snapshot.include,
           includedResourcesForIds[snapshot.id],
           `Snapshot #${snapshot.id} retains the 'include' adapter option in #findMany`
-        )
+        );
       });
 
       return resolve({
@@ -143,7 +143,7 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
         snapshot.include,
         includedResourcesForIds[snapshot.id],
         `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
-      )
+      );
 
       return resolve({
         data: { id, type: type.modelName }
