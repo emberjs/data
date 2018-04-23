@@ -907,6 +907,10 @@ Store = Service.extend({
       // But since the _findMany() finder is a store method we need to get the
       // records from the grouped snapshots even though the _findMany() finder
       // will once again convert the records to snapshots for adapter.findMany()
+      //
+      // However, this makes it impossible to pass on adapter options like `include`, as
+      // described in #5050. Therefore, we make an exception for _findMany() and pass
+      // the snapshots.
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
         let internalModel = internalModels[i];
@@ -931,7 +935,7 @@ Store = Service.extend({
 
         if (totalInGroup > 1) {
           (function(groupedInternalModels, group) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, group)
+            _findMany(adapter, store, modelName, ids, group)
               .then(function(foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
