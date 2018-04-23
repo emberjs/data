@@ -133,7 +133,7 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
         )
       });
 
-      return Ember.RSVP.resolve({
+      return resolve({
         data: snapshots.map(({ id }) => ({ id, type: type.modelName }))
       });
     },
@@ -145,7 +145,7 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
         `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
       )
 
-      return Ember.RSVP.resolve({
+      return resolve({
         data: { id, type: type.modelName }
       });
     },
@@ -160,7 +160,7 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
   });
 
   return run(() =>
-    Ember.RSVP.all(
+    all(
       Object.entries(includedResourcesForIds).map(
         ([id, include]) => store.findRecord('test', id, { include })
       )
