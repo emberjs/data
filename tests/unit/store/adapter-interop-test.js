@@ -109,7 +109,7 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
   });
 });
 
-test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany', function(assert) {
+test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany and  adapter#findRecord', function(assert) {
   const includedResourcesForIds = {
     1: 'someResource',
     2: 'differentResource',

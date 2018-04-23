@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { Promise } from 'rsvp';
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
