@@ -112,18 +112,24 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
 test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany', function(assert) {
   const includedResourcesForIds = {
     1: 'someResource',
-    2: 'differentResource'
+    2: 'differentResource',
+    3: 'anotherResource'
   };
 
   assert.expect(Object.entries(includedResourcesForIds).length);
 
   const Adapter = TestAdapter.extend({
+    groupRecordsForFindMany(store, snapshots) {
+      // this ensures that `findRecord` is also called
+      return [snapshots.slice(0, -1), snapshots.slice(-1)];
+    },
+
     findMany(store, type, ids, snapshots) {
       snapshots.forEach(snapshot => {
         assert.equal(
           snapshot.include,
           includedResourcesForIds[snapshot.id],
-          `Snapshot #${snapshot.id} retains the 'include' adapter option`
+          `Snapshot #${snapshot.id} retains the 'include' adapter option in #findMany`
         )
       });
 
@@ -131,22 +137,35 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
         data: snapshots.map(({ id }) => ({ id, type: type.modelName }))
       });
     },
+
+    findRecord(store, type, id, snapshot) {
+      assert.equal(
+        snapshot.include,
+        includedResourcesForIds[snapshot.id],
+        `Snapshot #${snapshot.id} retains the 'include' adapter option in #findRecord`
+      )
+
+      return Ember.RSVP.resolve({
+        data: { id, type: type.modelName }
+      });
+    },
+
     coalesceFindRequests: true
   });
 
   const Type = DS.Model.extend();
-  let store = createStore({
+  const store = createStore({
     adapter: Adapter,
     test: Type
   });
 
-  return run(() => {
-    return Ember.RSVP.all(
+  return run(() =>
+    Ember.RSVP.all(
       Object.entries(includedResourcesForIds).map(
         ([id, include]) => store.findRecord('test', id, { include })
       )
-    );
-  });
+    )
+  );
 });
 
 test('Returning a promise from `findRecord` asynchronously loads data', function(assert) {
