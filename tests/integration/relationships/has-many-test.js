@@ -108,7 +108,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
   }
 });
 
-test("Invalid hasMany relationship identifiers throw errors", function(assert) {
+testInDebug("Invalid hasMany relationship identifiers throw errors", function(assert) {
   assert.expect(2);
   let { store } = env;
 

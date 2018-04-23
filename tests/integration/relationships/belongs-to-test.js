@@ -207,7 +207,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 });
 
-test("Invalid belongsTo relationship identifiers throw errors", function(assert) {
+testInDebug("Invalid belongsTo relationship identifiers throw errors", function(assert) {
   assert.expect(2);
   let { store } = env;
 
