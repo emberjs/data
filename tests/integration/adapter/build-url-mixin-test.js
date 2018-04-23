@@ -222,7 +222,7 @@ test('buildURL - buildURL takes the records from findMany', function(assert) {
 
   adapter.buildURL = function(type, ids, snapshots) {
     if (Array.isArray(snapshots)) {
-      return "/posts/" + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
+      return "/posts/" + snapshots[0].belongsTo('post', { id: true }) + '/comments/';
     }
     return "";
   };

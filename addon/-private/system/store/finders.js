@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { Promise } from 'rsvp';
 import { assert, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
@@ -55,7 +54,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 export function _findMany(adapter, store, modelName, ids, snapshots) {
   if (DEBUG) { incrementRequestCount(); }
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
-  let promise = adapter.findMany(store, modelClass, ids, A(snapshots));
+  let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;
 
   if (promise === undefined) {
