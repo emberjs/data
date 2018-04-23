@@ -110,14 +110,26 @@ test('Calling Store#findRecord multiple times coalesces the calls into a adapter
 });
 
 test('Coalesced Store#findRecord requests retain the `include` adapter option in the snapshots passed to adapter#findMany', function(assert) {
-  assert.expect(2);
+  const includedResourcesForIds = {
+    1: 'someResource',
+    2: 'differentResource'
+  };
+
+  assert.expect(Object.entries(includedResourcesForIds).length);
 
   const Adapter = TestAdapter.extend({
     findMany(store, type, ids, snapshots) {
       snapshots.forEach(snapshot => {
-        assert.equal(snapshot.include, 'someResource', 'Snapshots retain the `include` adapter option');
+        assert.equal(
+          snapshot.include,
+          includedResourcesForIds[snapshot.id],
+          `Snapshot #${snapshot.id} retains the 'include' adapter option`
+        )
       });
-      return Ember.RSVP.resolve({ data: [{ id: 1, type: 'test' }, { id: 2, type: 'test' }] });
+
+      return Ember.RSVP.resolve({
+        data: snapshots.map(({ id }) => ({ id, type: type.modelName }))
+      });
     },
     coalesceFindRequests: true
   });
@@ -129,10 +141,11 @@ test('Coalesced Store#findRecord requests retain the `include` adapter option in
   });
 
   return run(() => {
-    return Ember.RSVP.all([
-      store.findRecord('test', 1, { include: 'someResource' }),
-      store.findRecord('test', 2, { include: 'someResource' })
-    ]);
+    return Ember.RSVP.all(
+      Object.entries(includedResourcesForIds).map(
+        ([id, include]) => store.findRecord('test', id, { include })
+      )
+    );
   });
 });
 
