@@ -128,7 +128,7 @@ export default class RelationshipPayloadsManager {
     @method
   */
   unload(modelName, id) {
-    let modelClass = this._store._modelFor(modelName);
+    let modelClass = this._store.modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
     relationshipsByName.forEach((_, relationshipName) => {
       let relationshipPayloads = this._getRelationshipPayloads(modelName, relationshipName, false);
@@ -189,7 +189,7 @@ export default class RelationshipPayloadsManager {
       return cached;
     }
 
-    let modelClass = store._modelFor(modelName);
+    let modelClass = store.modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
 
     // CASE: We don't have a relationship at all

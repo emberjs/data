@@ -15,7 +15,7 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
-import { assert, warn, inspect } from '@ember/debug';
+import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from "./normalize-model-name";
@@ -88,14 +88,11 @@ const {
   _generateId,
   _internalModelForId,
   _load,
-  _modelForMixin,
   _pushInternalModel,
   _setupRelationships,
   adapterFor,
   _buildInternalModel,
   _didUpdateAll,
-  modelFactoryFor,
-  modelFor,
   normalize,
   peekAll,
   peekRecord,
@@ -105,14 +102,11 @@ const {
   '_generateId',
   '_internalModelForId',
   '_load',
-  '_modelForMixin',
   '_pushInternalModel',
   '_setupRelationships',
   'adapterFor',
   '_buildInternalModel',
   '_didUpdateAll',
-  'modelFactoryFor',
-  'modelFor',
   'normalize',
   'peekAll',
   'peekRecord',
@@ -1924,49 +1918,23 @@ Store = Service.extend({
   },
 
   /*
-    In case someone defined a relationship to a mixin, for example:
-    ```
-      let Comment = DS.Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true })
-      });
-      let Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
-      });
-    ```
-    we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
-    DS.Model, so we can access the relationship CPs of the mixin (`comments`)
-    in this case
-
+    @deprecated
     @private
-  */
-  _modelForMixin(normalizedModelName) {
-    heimdall.increment(_modelForMixin);
-    // container.registry = 2.1
-    // container._registry = 1.11 - 2.0
-    // container = < 1.11
-    let owner = getOwner(this);
-    let mixin;
+   */
+  _modelForMixin(modelName) {
+    deprecate(
+      '_modelForMixin is private and deprecated and should never be used directly, use modelFor instead',
+      false,
+      {
+        id: 'ember-data:_modelForMixin',
+        until: '3.5'
+      }
+    );
+    assert(`You need to pass a model name to the store's _modelForMixin method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
 
-    if (owner.factoryFor) {
-      let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-      mixin = MaybeMixin && MaybeMixin.class;
-    } else {
-      mixin = owner._lookupFactory(`mixin:${normalizedModelName}`);
-    }
-
-    if (mixin) {
-      let ModelForMixin = Model.extend(mixin);
-      ModelForMixin.reopenClass({
-        __isMixin: true,
-        __mixin: mixin
-      });
-
-      //Cache the class as a model
-      owner.register('model:' + normalizedModelName, ModelForMixin);
-    }
-
-    return this.modelFactoryFor(normalizedModelName);
+    return _modelForMixin(this, normalizedModelName);
   },
 
   /**
@@ -1985,68 +1953,71 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
 
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return this._modelFor(normalizedModelName);
-  },
-
-  /*
-    @private
-   */
-  _modelFor(modelName) {
     let maybeFactory = this._modelFactoryFor(modelName);
+
     // for factorFor factory/class split
     return maybeFactory.class ? maybeFactory.class : maybeFactory;
   },
 
+  /*
+    @deprecated
+    @private
+  */
+  _modelFor(modelName) {
+    deprecate(
+      '_modelFor is private and deprecated, you should use modelFor instead',
+      false,
+      {
+        id: 'ember-data:_modelFor',
+        until: '3.5'
+      }
+      );
+    return this.modelFor(modelName);
+  },
+
   _modelFactoryFor(modelName) {
-    heimdall.increment(modelFor);
-    let factory = this._modelFactoryCache[modelName];
+    assert(`You need to pass a model name to the store's _modelFactoryFor method`, isPresent(modelName));
+    assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
+    let normalizedModelName = normalizeModelName(modelName);
+    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
-    if (!factory) {
-      factory = this.modelFactoryFor(modelName);
-
-      if (!factory) {
-        //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(modelName);
-      }
-      if (!factory) {
-        throw new EmberError(`No model was found for '${modelName}'`);
-      }
-
-      // interopt with the future
-      let klass = getOwner(this).factoryFor ? factory.class : factory;
-
-      assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
-
-      // TODO: deprecate this
-      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
-      if (!hasOwnModelNameSet) {
-        klass.modelName = modelName;
-      }
-
-      this._modelFactoryCache[modelName] = factory;
+    if (factory === null) {
+      throw new EmberError(`No model was found for '${normalizedModelName}'`);
     }
 
     return factory;
   },
 
   /*
-   @private
-   */
+    @deprecated
+    @private
+  */
   modelFactoryFor(modelName) {
-    heimdall.increment(modelFactoryFor);
-    assert(`You need to pass a model name to the store's modelFactoryFor method`, isPresent(modelName));
+    deprecate('modelFactoryFor is private and deprecated', false, {
+      id: 'ember-data:modelFactoryFor',
+      until: '3.5'
+    });
+    return this._modelFactoryFor(modelName);
+  },
+
+  /*
+  Returns whether a ModelClass exists for a given modelName
+  This exists for legacy support for the RESTSerializer,
+  which due to how it must guess whether a key is a model
+  must query for whether a match exists.
+
+  We should investigate an RFC to make this public or removing
+  this requirement.
+
+  @private
+ */
+  _hasModelFor(modelName) {
+    assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
-
     let normalizedModelName = normalizeModelName(modelName);
-    let owner = getOwner(this);
+    let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
-    if (owner.factoryFor) {
-      return owner.factoryFor(`model:${normalizedModelName}`);
-    } else {
-      return owner._lookupFactory(`model:${normalizedModelName}`);
-    }
+    return factory !== null;
   },
 
   /**
@@ -2262,17 +2233,6 @@ Store = Service.extend({
     return internalModelOrModels;
   },
 
-  _hasModelFor(modelName) {
-    let owner = getOwner(this);
-    modelName = normalizeModelName(modelName);
-
-    if (owner.factoryFor) {
-      return !!owner.factoryFor(`model:${modelName}`);
-    } else {
-      return !!owner._lookupFactory(`model:${modelName}`);
-    }
-  },
-
   _pushInternalModel(data) {
     heimdall.increment(_pushInternalModel);
     let modelName = data.type;
@@ -2284,7 +2244,7 @@ Store = Service.extend({
       // contains unknown attributes or relationships, log a warning.
 
       if (ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-        let modelClass = this._modelFor(modelName);
+        let modelClass = this.modelFor(modelName);
 
         // Check unknown attributes
         let unknownAttributes = Object.keys(data.attributes || {}).filter((key) => {
@@ -2443,7 +2403,7 @@ Store = Service.extend({
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(modelName)}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
     let serializer = this.serializerFor(normalizedModelName);
-    let model = this._modelFor(normalizedModelName);
+    let model = this.modelFor(normalizedModelName);
     return serializer.normalize(model, payload);
   },
 
@@ -2746,7 +2706,7 @@ function defaultSerializer(store) {
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
   let modelName = snapshot.modelName;
-  let modelClass = store._modelFor(modelName);
+  let modelClass = store.modelFor(modelName);
   assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
   assert(`You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`, typeof adapter[operation] === 'function');
 
@@ -2833,6 +2793,99 @@ function isInverseRelationshipInitialized(store, internalModel, data, key, model
     let inverseInternalModel = store._internalModelsFor(relationshipData.type).get(relationshipData.id);
     return inverseInternalModel && inverseInternalModel._relationships.has(inverseRelationshipName);
   }
+}
+
+/**
+ *
+ * @param store
+ * @param cache modelFactoryCache
+ * @param normalizedModelName already normalized modelName
+ * @returns {*}
+ */
+function getModelFactory(store, cache, normalizedModelName) {
+  let factory = cache[normalizedModelName];
+
+  if (!factory) {
+    factory = _lookupModelFactory(store, normalizedModelName);
+
+    if (!factory) {
+      //Support looking up mixins as base types for polymorphic relationships
+      factory = _modelForMixin(store, normalizedModelName);
+    }
+
+    if (!factory) {
+      // we don't cache misses in case someone wants to register a missing model
+      return null;
+    }
+
+    // interopt with the future
+    let klass = getOwner(store).factoryFor ? factory.class : factory;
+    assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
+
+    // TODO: deprecate this
+    let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+    if (!hasOwnModelNameSet) {
+      klass.modelName = normalizedModelName;
+    }
+
+    cache[normalizedModelName] = factory;
+  }
+
+  return factory;
+}
+
+function _lookupModelFactory(store, normalizedModelName) {
+  let owner = getOwner(store);
+
+  if (owner.factoryFor) {
+    return owner.factoryFor(`model:${normalizedModelName}`);
+  } else {
+    return owner._lookupFactory(`model:${normalizedModelName}`);
+  }
+}
+
+
+/*
+  In case someone defined a relationship to a mixin, for example:
+  ```
+    let Comment = DS.Model.extend({
+      owner: belongsTo('commentable'. { polymorphic: true })
+    });
+    let Commentable = Ember.Mixin.create({
+      comments: hasMany('comment')
+    });
+  ```
+  we want to look up a Commentable class which has all the necessary
+  relationship metadata. Thus, we look up the mixin and create a mock
+  DS.Model, so we can access the relationship CPs of the mixin (`comments`)
+  in this case
+*/
+function _modelForMixin(store, normalizedModelName) {
+  // container.registry = 2.1
+  // container._registry = 1.11 - 2.0
+  // container = < 1.11
+  let owner = getOwner(store);
+  let mixin;
+
+  if (owner.factoryFor) {
+    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+    mixin = MaybeMixin && MaybeMixin.class;
+  } else {
+    mixin = owner._lookupFactory(`mixin:${normalizedModelName}`);
+  }
+
+  if (mixin) {
+    let ModelForMixin = Model.extend(mixin);
+    ModelForMixin.reopenClass({
+      __isMixin: true,
+      __mixin: mixin
+    });
+
+    //Cache the class as a model
+    owner.register('model:' + normalizedModelName, ModelForMixin);
+  }
+
+  return _lookupModelFactory(store, normalizedModelName);
 }
 
 function setupRelationships(store, internalModel, data, modelNameToInverseMap) {

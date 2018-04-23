@@ -16,7 +16,7 @@ const MODEL_NAME_METHODS = [
   'findAll',
   'peekAll',
   'modelFor',
-  'modelFactoryFor',
+  '_modelFactoryFor',
   'normalize',
   'adapterFor',
   'serializerFor'

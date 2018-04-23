@@ -36,15 +36,9 @@ module('unit/system/relationships/relationship-payloads-manager', {
 });
 
 test('get throws for invalid models', function(assert) {
-  this.relationshipPayloadsManager._store._modelFor = (name) => {
-    if (name === 'fish') {
-      throw new Error('What is fish?');
-    }
-  };
-
   assert.throws(() => {
     this.relationshipPayloadsManager.get('fish', 9, 'hobbies');
-  }, /What is fish/);
+  }, /No model was found for 'fish'/);
 });
 
 test('get returns null for invalid relationships', function(assert) {

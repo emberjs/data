@@ -95,7 +95,7 @@ export default ArrayProxy.extend(Evented, {
     if (!this.modelName) {
       return null;
     }
-    return this.store._modelFor(this.modelName);
+    return this.store.modelFor(this.modelName);
   }).readOnly(),
 
   /**
