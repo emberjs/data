@@ -15,9 +15,8 @@ const MODEL_NAME_METHODS = [
   'queryRecord',
   'findAll',
   'peekAll',
-  'filter',
   'modelFor',
-  'modelFactoryFor',
+  '_modelFactoryFor',
   'normalize',
   'adapterFor',
   'serializerFor'

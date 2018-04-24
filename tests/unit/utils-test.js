@@ -79,13 +79,13 @@ testInDebug('assertPolymorphicType works for subclasses', function(assert) {
   person = person._internalModel;
 
   try {
-    assertPolymorphicType(user, relationship, post, env.store);
+    assertPolymorphicType(user, relationship, post);
   } catch (e) {
     assert.ok(false, 'should not throw an error');
   }
 
   assert.expectAssertion(() => {
-    assertPolymorphicType(user, relationship, person, env.store);
+    assertPolymorphicType(user, relationship, person);
   }, "You cannot add a record of modelClass 'person' to the 'user.messages' relationship (only 'message' allowed)");
 });
 
@@ -134,12 +134,12 @@ testInDebug('assertPolymorphicType works for mixins', function(assert) {
   person = person._internalModel;
 
   try {
-    assertPolymorphicType(post, relationship, video, env.store);
+    assertPolymorphicType(post, relationship, video);
   } catch (e) {
     assert.ok(false, 'should not throw an error');
   }
 
   assert.expectAssertion(() => {
-    assertPolymorphicType(post, relationship, person, env.store);
+    assertPolymorphicType(post, relationship, person);
   }, "You cannot add a record of modelClass 'person' to the 'post.medias' relationship (only 'medium' allowed)");
 });

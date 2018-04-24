@@ -1611,7 +1611,7 @@ test('hasMany.firstObject.unloadRecord should not break that hasMany', function(
   the parent record's hasMany is a situation in which this limitation will be encountered should other
   local changes to the relationship still exist.
  */
-test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship info from a delete clears local state', function(assert) {
+test('returning new hasMany relationship info from a delete maintains a local addition', function(assert) {
   assert.expect(4);
 
   const Person = DS.Model.extend({
@@ -1642,7 +1642,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
           relationships: {
             pets: {
               data: [
-                { type: 'pet', id: '2' }
+                { type: 'pet', id: 'server-known-2' }
               ]
             }
           }
@@ -1664,8 +1664,8 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
         relationships: {
           pets: {
             data: [
-              { type: 'pet', id: '1' },
-              { type: 'pet', id: '2' }
+              { type: 'pet', id: 'will-destroy-1' },
+              { type: 'pet', id: 'server-known-2' }
             ]
           }
         }
@@ -1673,21 +1673,21 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
       included: [
         {
           type: 'pet',
-          id: '1',
+          id: 'will-destroy-1',
           attributes: {
             name: 'Shenanigans'
           }
         },
         {
           type: 'pet',
-          id: '2',
+          id: 'server-known-2',
           attributes: {
             name: 'Rambunctious'
           }
         },
         {
           type: 'pet',
-          id: '3',
+          id: 'local-3',
           attributes: {
             name: 'Rebel'
           }
@@ -1699,25 +1699,26 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   const person = store.peekRecord('person', '1');
   const pets = run(() => person.get('pets'));
 
-  const shen = store.peekRecord('pet', '1');
-  const rebel = store.peekRecord('pet', '3');
+  const shen = store.peekRecord('pet', 'will-destroy-1');
+  const rebel = store.peekRecord('pet', 'local-3');
 
   assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
-  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2'], 'precond - relationship has the correct pets to start');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['will-destroy-1', 'server-known-2'], 'precond - relationship has the correct pets to start');
 
+  // add a new item locally
   run(() => {
     pets.pushObjects([rebel]);
   });
 
-  assert.deepEqual(pets.map(p => get(p, 'id')), ['1', '2', '3'], 'precond2 - relationship now has the correct three pets');
+  assert.deepEqual(pets.map(p => get(p, 'id')), ['will-destroy-1', 'server-known-2', 'local-3'], 'precond2 - relationship now has the correct three pets');
 
   return run(() => {
     return shen.destroyRecord({})
       .then(() => {
         shen.unloadRecord();
 
-        // were ember-data to now preserve local edits during a relationship push, this would be '2'
-        assert.deepEqual(pets.map(p => get(p, 'id')), ['2'], 'relationship now has only one pet, we lost the local change');
+        // were ember-data to not preserve local edits during a relationship push, this would be 'server-known-2'
+        assert.deepEqual(pets.map(p => get(p, 'id')), ['server-known-2', 'local-3'], 'relationship now has only one pet, we kept the local change');
       });
   });
 });
@@ -1865,16 +1866,13 @@ test('it is possible to add an item to a relationship, remove it, then add it ag
 
   let env = setupStore({ tag: Tag, person: Person });
   let { store } = env;
-  let person, tag1, tag2, tag3, tags;
+  let person = store.createRecord('person');
+  let tag1 = store.createRecord('tag');
+  let tag2 = store.createRecord('tag');
+  let tag3 = store.createRecord('tag');
+  let tags = get(person, 'tags');
 
   run(() => {
-    person = store.createRecord('person');
-    tag1 = store.createRecord('tag');
-    tag2 = store.createRecord('tag');
-    tag3 = store.createRecord('tag');
-
-    tags = get(person, 'tags');
-
     tags.pushObjects([tag1, tag2, tag3]);
     tags.removeObject(tag2);
   });
@@ -1905,11 +1903,9 @@ test("DS.hasMany is async by default", function(assert) {
   });
 
   let { store } = setupStore({ tag: Tag, person: Person });
+  let tag = store.createRecord('tag');
 
-  run(() => {
-    let tag = store.createRecord('tag');
-    assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
-  });
+  assert.ok(tag.get('people') instanceof DS.PromiseArray, 'people should be an async relationship');
 });
 
 test('DS.hasMany is stable', function(assert) {
@@ -1925,7 +1921,7 @@ test('DS.hasMany is stable', function(assert) {
 
   let { store } = setupStore({ tag: Tag, person: Person });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
   let people = tag.get('people');
   let peopleCached = tag.get('people');
 
@@ -1954,17 +1950,15 @@ test('DS.hasMany proxy is destroyed', function(assert) {
 
   let { store } = setupStore({ tag: Tag, person: Person });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
   let peopleProxy = tag.get('people');
 
   return peopleProxy.then(people => {
     run(() => {
       tag.unloadRecord();
-      // TODO Check all unloading behavior
-      //assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
+      assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
       assert.equal(people.isDestroyed, false, 'people is NOT destroyed sync after unloadRecord');
-      // TODO Check if this matters
-      // assert.equal(peopleProxy.isDestroying, false, 'peopleProxy is destroying sync after unloadRecord');
+      assert.equal(peopleProxy.isDestroying, false, 'peopleProxy is destroying sync after unloadRecord');
       assert.equal(peopleProxy.isDestroyed, false, 'peopleProxy is NOT YET destroyed sync after unloadRecord');
     });
 
@@ -1989,10 +1983,10 @@ test('DS.ManyArray is lazy', function(assert) {
   });
 
   let env = setupStore({ tag: Tag, person: Person });
-  let tag = run(() => env.store.createRecord('tag'));
-  //let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
+  let tag = env.store.createRecord('tag');
+  let hasManyRelationship = tag.hasMany('people').hasManyRelationship;
 
-  //assert.ok(!hasManyRelationship._manyArray);
+  assert.ok(!hasManyRelationship._manyArray);
 
   run(() => {
     assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
@@ -2001,14 +1995,86 @@ test('DS.ManyArray is lazy', function(assert) {
   });
 
   assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (after access, but after the current run loop)');
-  //assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
+  assert.ok(hasManyRelationship._manyArray instanceof DS.ManyArray);
 
-  let person = run(() => env.store.createRecord('person'));
+  let person = env.store.createRecord('person');
 
   run(() => {
     assert.equal(peopleDidChange, 0, 'expect people hasMany to not emit a change event (before access)');
     tag.get('people').addObject(person);
     assert.equal(peopleDidChange, 1, 'expect people hasMany to have changed exactly once');
+  });
+});
+
+test('fetch hasMany loads full relationship after a parent and child have been loaded', function(assert) {
+  assert.expect(4);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: true, inverse: 'tags' })
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag', { async: true, inverse: 'person' })
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    assert.equal(relationship.key, 'tags', 'relationship should be tags');
+
+    return { data: [
+      { id: 1, type: 'tag', attributes: { name: 'first' } },
+      { id: 2, type: 'tag', attributes: { name: 'second' } },
+      { id: 3, type: 'tag', attributes: { name: 'third' } }
+    ]};
+  };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    if (type === Person) {
+      return {
+        data: {
+          id: 1,
+          type: 'person',
+          attributes: { name: 'Watson' },
+          relationships: {
+            tags: { links: { related: 'person/1/tags'} }
+          }
+        }
+      };
+    } else if (type === Tag) {
+      return {
+        data: {
+          id: 2,
+          type: 'tag',
+          attributes: { name: 'second' },
+          relationships: {
+            person: {
+              data: { id: 1, type: 'person'}
+            }
+          }
+        }
+      };
+    } else {
+      assert.true(false, 'wrong type')
+    }
+  };
+
+  return run(() => {
+    return store.findRecord('person', 1).then(person => {
+      assert.equal(get(person, 'name'), 'Watson', 'The person is now loaded');
+
+      // when I remove this findRecord the test passes
+      return store.findRecord('tag', 2).then(tag => {
+        assert.equal(get(tag, 'name'), 'second', 'The tag is now loaded');
+
+        return run(() => person.get('tags').then(tags => {
+          assert.equal(get(tags, 'length'), 3, 'the tags are all loaded');
+        }));
+      });
+    });
   });
 });
 
@@ -2019,12 +2085,8 @@ testInDebug('throws assertion if of not set with an array', function(assert) {
   });
 
   let { store }= setupStore({ tag: Tag, person: Person });
-  let tag, person;
-
-  run(() => {
-    tag = store.createRecord('tag');
-    person = store.createRecord('person');
-  });
+  let tag = store.createRecord('tag');
+  let person = store.createRecord('person');
 
   run(() => {
     assert.expectAssertion(() => {
@@ -2050,12 +2112,8 @@ testInDebug('checks if passed array only contains instances of DS.Model', functi
     };
   };
 
-  let tag, person;
-
-  run(() => {
-    tag = env.store.createRecord('tag');
-    person = env.store.findRecord('person', 1);
-  });
+  let tag = env.store.createRecord('tag');
+  let person = run(() => env.store.findRecord('person', 1));
 
   run(() => {
     assert.expectAssertion(() => {

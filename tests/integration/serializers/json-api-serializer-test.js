@@ -165,8 +165,6 @@ testInDebug('Warns when normalizing payload with unknown type included', functio
   }, /Encountered a resource object with type "unknown-types", but no model was found for model name "unknown-type"/);
 });
 
-// TODO This test probably shouldn't pass in the case where company data is unknown type
-/*
 testInDebug('Warns but does not fail when pushing payload with unknown type included', function(assert) {
   var documentHash = {
     data: {
@@ -200,7 +198,6 @@ testInDebug('Warns but does not fail when pushing payload with unknown type incl
   var user = store.peekRecord('user', 1);
   assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
 });
-*/
 
 testInDebug('Warns when normalizing with type missing', function(assert) {
   var documentHash = {
@@ -317,13 +314,9 @@ test('Serializer should respect the attrs hash when serializing attributes with 
       'company-name': 'company_name'
     }
   }));
-  var project;
 
-  run(function() {
-    project = env.store.createRecord('project', { 'company-name': 'Tilde Inc.' });
-  });
-
-  var payload = env.store.serializerFor('project').serialize(project._createSnapshot());
+  let project = env.store.createRecord('project', { 'company-name': 'Tilde Inc.' });
+  let payload = env.store.serializerFor('project').serialize(project._createSnapshot());
 
   assert.equal(payload.data.attributes['company_name'], 'Tilde Inc.');
 });
@@ -343,10 +336,7 @@ test('options are passed to transform for serialization', function(assert) {
     })
   });
 
-  var user;
-  run(function() {
-    user = env.store.createRecord('user', { myCustomField: 'value' });
-  });
+  let user = env.store.createRecord('user', { myCustomField: 'value' });
 
   env.store.serializerFor('user').serialize(user._createSnapshot());
 });
@@ -426,6 +416,147 @@ test('a belongsTo relationship set to a new record will not show in the relation
       data: {
         type: 'handles',
         id: '1'
+      }
+    });
+  });
+});
+
+test('it should serialize a hasMany relationship', function(assert) {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      handles: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'users',
+        id: 1,
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: 1 },
+              { type: 'handles', id: 2 }
+            ]
+          }
+        }
+      },
+      included: [
+        { type: 'handles', id: 1 },
+        { type: 'handles', id: 2 }
+      ]
+    });
+
+    let user = store.peekRecord('user', 1);
+
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null
+        },
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+  });
+});
+
+test('it should not include new records when serializing a hasMany relationship', function(assert) {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      handles: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'users',
+        id: 1,
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: 1 },
+              { type: 'handles', id: 2 }
+            ]
+          }
+        }
+      },
+      included: [
+        { type: 'handles', id: 1 },
+        { type: 'handles', id: 2 }
+      ]
+    });
+
+    let user = store.peekRecord('user', 1);
+    store.createRecord('handle', { user });
+
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null
+        },
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: '1' },
+              { type: 'handles', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+  });
+});
+
+test('it should not include any records when serializing a hasMany relationship if they are all new', function(assert) {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      handles: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'users',
+        id: 1
+      }
+    });
+
+    let user = store.peekRecord('user', 1);
+    store.createRecord('handle', { user });
+
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null
+        }
       }
     });
   });

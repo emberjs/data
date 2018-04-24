@@ -144,9 +144,7 @@ test("When all records for a type are requested, records that are created on the
 
   assert.equal(get(allRecords, 'length'), 0, "precond - the record array's length is zero before any records are loaded");
 
-  run(() => {
-    store.createRecord('person', { name: "Carsten Nielsen" });
-  });
+  store.createRecord('person', { name: "Carsten Nielsen" });
 
   assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
   assert.equal(allRecords.objectAt(0).get('name'), "Carsten Nielsen", "the first item in the record array is Carsten Nielsen");

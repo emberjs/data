@@ -1,5 +1,4 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 
 import { module, test } from 'qunit';
@@ -28,18 +27,16 @@ module('unit/model/relationships - DS.Model', {
 });
 
 test('exposes a hash of the relationships on a model', function(assert) {
-  run(() => {
-    store.createRecord('person');
-    store.createRecord('occupation');
-  });
+  store.createRecord('person');
+  store.createRecord('occupation');
 
   let relationships = get(Person, 'relationships');
   assert.deepEqual(relationships.get('person'), [
-    { name: "people", kind: "hasMany", options: { async: false, inverse: 'parent'} },
-    { name: "parent", kind: "belongsTo", options: { async: false, inverse: 'people' } }
+    { name: "people", kind: "hasMany" },
+    { name: "parent", kind: "belongsTo" }
   ]);
   assert.deepEqual(relationships.get('occupation'), [
-    { name: "occupations", kind: "hasMany", options: { async: false } }
+    { name: "occupations", kind: "hasMany" }
   ]);
 });
 

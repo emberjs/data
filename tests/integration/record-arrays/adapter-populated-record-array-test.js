@@ -270,7 +270,7 @@ test('loadRecord re-syncs internalModels recordArrays', function(assert) {
 test('when an adapter populated record gets updated the array contents are also updated', function(assert) {
   assert.expect(8);
 
-  let filteredPromise, filteredArr, findPromise, findArray;
+  let queryPromise, queryArr, findPromise, findArray;
   let env = setupStore({ person: Person });
   let store = env.store;
   let array = [{ id: '1', type: 'person', attributes: { name: 'Scumbag Dale' } }];
@@ -287,14 +287,14 @@ test('when an adapter populated record gets updated the array contents are also 
   };
 
   run(() => {
-    filteredPromise = store.query('person', { slice: 1 });
+    queryPromise = store.query('person', { slice: 1 });
     findPromise = store.findAll('person');
 
     // initialize adapter populated record array and assert initial state
-    filteredPromise.then((_filteredArr) => {
-      filteredArr = _filteredArr;
-      assert.equal(filteredArr.get('length'), 0, 'No records for this query');
-      assert.equal(filteredArr.get('isUpdating'), false, 'Record array isUpdating state updated');
+    queryPromise.then((_queryArr) => {
+      queryArr = _queryArr;
+      assert.equal(queryArr.get('length'), 0, 'No records for this query');
+      assert.equal(queryArr.get('isUpdating'), false, 'Record array isUpdating state updated');
     });
 
     // initialize a record collection array and assert initial state
@@ -307,9 +307,9 @@ test('when an adapter populated record gets updated the array contents are also 
   // a new element gets pushed in record array
   run(() => {
     array.push({ id: '2', type: 'person', attributes: { name: 'Scumbag Katz' } });
-    filteredArr.update().then(() => {
-      assert.equal(filteredArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
-      assert.equal(filteredArr.get('isUpdating'), false, 'Record array isUpdating state updated');
+    queryArr.update().then(() => {
+      assert.equal(queryArr.get('length'), 1, 'The new record is returned and added in adapter populated array');
+      assert.equal(queryArr.get('isUpdating'), false, 'Record array isUpdating state updated');
       assert.equal(findArray.get('length'), 2);
     });
   });
@@ -317,8 +317,8 @@ test('when an adapter populated record gets updated the array contents are also 
   // element gets removed
   run(() => {
     array.pop(0);
-    filteredArr.update().then(() => {
-      assert.equal(filteredArr.get('length'), 0, 'Record removed from array');
+    queryArr.update().then(() => {
+      assert.equal(queryArr.get('length'), 0, 'Record removed from array');
       // record not removed from the model collection
       assert.equal(findArray.get('length'), 2, 'Record still remains in collection array');
     });

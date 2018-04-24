@@ -35,6 +35,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       messages: hasMany('message', { polymorphic: true, async: false }),
       contacts: hasMany('user', { inverse: null, async: false })
     });
+    User.reopenClass({ toString: () => 'User' });
 
     Contact = DS.Model.extend({
       user: belongsTo('user', { async: false })
@@ -574,13 +575,13 @@ test("A hasMany updated link should not remove new children", function(assert) {
 
     return post.get('comments')
       .then(comments => {
-        assert.equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1, 'initially we have one comment');
 
         return post.save();
       })
       .then(() => post.get('comments'))
       .then(comments => {
-        assert.equal(comments.get('length'), 1);
+        assert.equal(comments.get('length'), 1, 'after saving, we still have one comment');
       });
   });
 });
@@ -1514,13 +1515,10 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   Post.reopen({
     contact: DS.belongsTo('contact', { polymorphic: true, async: false })
   });
-  let email, post;
 
-  run(function () {
-    email = env.store.createRecord('email');
-    post = env.store.createRecord('post', {
-      contact: email
-    });
+  let email = env.store.createRecord('email');
+  let post = env.store.createRecord('post', {
+    contact: email
   });
 
   assert.equal(post.get('contact'), email, 'The polymorphic belongsTo is set up correctly');
@@ -1695,11 +1693,7 @@ test("A record can be removed from a polymorphic association", function(assert) 
 test("When a record is created on the client, its hasMany arrays should be in a loaded state", function(assert) {
   assert.expect(3);
 
-  let post;
-
-  run(function() {
-    post = env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
 
   assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
   let comments;
@@ -1719,9 +1713,7 @@ test("When a record is created on the client, its async hasMany arrays should be
     comments: DS.hasMany('comment', { async: true })
   });
 
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
 
   assert.ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
 
@@ -1736,9 +1728,8 @@ test("When a record is created on the client, its async hasMany arrays should be
 
 test("we can set records SYNC HM relationship", function(assert) {
   assert.expect(1);
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
+
   run(function() {
     env.store.push({
       data: [{
@@ -1767,9 +1758,8 @@ test("We can set records ASYNC HM relationship", function(assert) {
     comments: DS.hasMany('comment', { async: true })
   });
 
-  let post = run(function() {
-    return env.store.createRecord('post');
-  });
+  let post = env.store.createRecord('post');
+
   run(function() {
     env.store.push({
       data: [{
@@ -2487,8 +2477,12 @@ test("Relationship.clear removes all records correctly", function(assert) {
     post = env.store.peekRecord('post', 2);
   });
 
-  run(function() {
-    post._internalModel._modelData._relationships.get('comments').clear();
+  run(() => {
+    // unclear what the semantics of clearing a yet to be created relationship
+    // ought to be.
+    env.store.peekAll('comment').mapBy('post');
+
+    post._internalModel._relationships.get('comments').clear();
     let comments = A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);
   });
@@ -2654,7 +2648,7 @@ test("adding and removing records from hasMany relationship #2666", function(ass
   });
 });
 
-test("hasMany hasData async loaded", function(assert) {
+test("hasMany hasAnyRelationshipData async loaded", function(assert) {
   assert.expect(1);
 
   Chapter.reopen({
@@ -2678,13 +2672,13 @@ test("hasMany hasData async loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._modelData._relationships.get('pages');
-      assert.equal(relationship.hasData, true, 'relationship has data');
+      let relationship = chapter._internalModel._relationships.get('pages');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasData sync loaded", function(assert) {
+test("hasMany hasAnyRelationshipData sync loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2704,13 +2698,13 @@ test("hasMany hasData sync loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._modelData._relationships.get('pages');
-      assert.equal(relationship.hasData, true, 'relationship has data');
+      let relationship = chapter._internalModel._relationships.get('pages');
+      assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
 });
 
-test("hasMany hasData async not loaded", function(assert) {
+test("hasMany hasAnyRelationshipData async not loaded", function(assert) {
   assert.expect(1);
 
   Chapter.reopen({
@@ -2734,13 +2728,13 @@ test("hasMany hasData async not loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._modelData._relationships.get('pages');
-      assert.equal(relationship.hasData, false, 'relationship does not have data');
+      let relationship = chapter._internalModel._relationships.get('pages');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasData sync not loaded", function(assert) {
+test("hasMany hasAnyRelationshipData sync not loaded", function(assert) {
   assert.expect(1);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -2755,53 +2749,49 @@ test("hasMany hasData sync not loaded", function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._modelData._relationships.get('pages');
-      assert.equal(relationship.hasData, false, 'relationship does not have data');
+      let relationship = chapter._internalModel._relationships.get('pages');
+      assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
 });
 
-test("hasMany hasData async created", function(assert) {
+test("hasMany hasAnyRelationshipData async created", function(assert) {
   assert.expect(2);
 
   Chapter.reopen({
     pages: hasMany('pages', { async: true })
   });
 
-  run(() => {
-    let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let page = store.createRecord('page');
+  let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+  let page = store.createRecord('page');
 
-    let relationship = chapter._internalModel._modelData._relationships.get('pages');
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+  let relationship = chapter._internalModel._relationships.get('pages');
+  assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
-    chapter = store.createRecord('chapter', {
-      title: 'The Story Begins',
-      pages: [page]
-    });
-
-    relationship = chapter._internalModel._modelData._relationships.get('pages');
-    assert.equal(relationship.hasData, true, 'relationship has data');
+  chapter = store.createRecord('chapter', {
+    title: 'The Story Begins',
+    pages: [page]
   });
+
+  relationship = chapter._internalModel._relationships.get('pages');
+  assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
 
-test("hasMany hasData sync created", function(assert) {
+test("hasMany hasAnyRelationshipData sync created", function(assert) {
   assert.expect(2);
 
-  run(() => {
-    let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    let relationship = chapter._internalModel._modelData._relationships.get('pages');
+  let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+  let relationship = chapter._internalModel._relationships.get('pages');
 
-    assert.equal(relationship.hasData, false, 'relationship does not have data');
+  assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
-    chapter = store.createRecord('chapter', {
-      title: 'The Story Begins',
-      pages: [store.createRecord('page')]
-    });
-    relationship = chapter._internalModel._modelData._relationships.get('pages');
-
-    assert.equal(relationship.hasData, true, 'relationship has data');
+  chapter = store.createRecord('chapter', {
+    title: 'The Story Begins',
+    pages: [store.createRecord('page')]
   });
+  relationship = chapter._internalModel._relationships.get('pages');
+
+  assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
 
 test("Model's hasMany relationship should not be created during model creation", function(assert) {
@@ -2814,7 +2804,7 @@ test("Model's hasMany relationship should not be created during model creation",
       }
     });
     user = env.store.peekRecord('user', 1);
-    assert.ok(!user._internalModel._modelData._relationships.has('messages'), 'Newly created record should not have relationships');
+    assert.ok(!user._internalModel._relationships.has('messages'), 'Newly created record should not have relationships');
   });
 });
 
@@ -2823,7 +2813,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
   run(() => {
     user = env.store.createRecord('user');
     user.get('messages');
-    assert.ok(user._internalModel._modelData._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    assert.ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
 
@@ -2858,7 +2848,7 @@ test("metadata is accessible when pushed as a meta property for a relationship",
   });
 
   run(() => {
-    assert.equal(book._internalModel._modelData._relationships.get('chapters').meta.where, 'the lefkada sea', 'meta is there');
+    assert.equal(book._internalModel._relationships.get('chapters').meta.where, 'the lefkada sea', 'meta is there');
   });
 });
 
@@ -2983,19 +2973,37 @@ test("metadata should be reset between requests", function(assert) {
   });
 });
 
-test("Related link should be fetched when no local data is present", function(assert) {
+test("Related link should be fetched when no relationship data is present", function(assert) {
   assert.expect(3);
 
   Post.reopen({
-    comments: DS.hasMany('comment', { async: true })
+    comments: DS.hasMany('comment', { async: true, inverse: 'post' })
   });
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => { return false; };
+  env.adapter.findRecord = () => {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+  env.adapter.findMany = () => {
+    assert.ok(false, "The adapter's findMany method should not be called");
+  };
 
   env.adapter.findHasMany = function(store, snapshot, url, relationship) {
-    assert.equal(url, 'comments', 'url is correct');
+    assert.equal(url, 'get-comments', 'url is correct');
     assert.ok(true, "The adapter's findHasMany method should be called");
-    return resolve({ data: [
-      { id: 1, type: 'comment', attributes: { body: 'This is comment' } }
-    ]});
+    return resolve({
+      data: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment'
+          }
+        }
+      ]
+    });
   };
 
   return run(() => {
@@ -3006,7 +3014,7 @@ test("Related link should be fetched when no local data is present", function(as
         relationships: {
           comments: {
             links: {
-              related: 'comments'
+              related: 'get-comments'
             }
           }
         }
@@ -3019,19 +3027,37 @@ test("Related link should be fetched when no local data is present", function(as
   });
 });
 
-test("Local data should take precedence over related link", function(assert) {
-  assert.expect(1);
+test("Related link should take precedence over relationship data when local record data is missing", function(assert) {
+  assert.expect(3);
 
   Post.reopen({
-    comments: DS.hasMany('comment', { async: true })
+    comments: DS.hasMany('comment', { async: true, inverse: 'post' })
   });
-
-  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
-    assert.ok(false, "The adapter's findHasMany method should not be called");
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => { return false; };
+  env.adapter.findRecord = () => {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+  env.adapter.findMany = () => {
+    assert.ok(false, "The adapter's findMany method should not be called");
   };
 
-  env.adapter.findRecord = function(store, type, id, snapshot) {
-    return resolve({ data: { id: 1, type: 'comment', attributes: { body: 'This is comment' } } });
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    assert.equal(url, 'get-comments', 'url is correct');
+    assert.ok(true, "The adapter's findHasMany method should be called");
+    return resolve({
+      data: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment'
+          }
+        }
+      ]
+    });
   };
 
   return run(() => {
@@ -3042,7 +3068,7 @@ test("Local data should take precedence over related link", function(assert) {
         relationships: {
           comments: {
             links: {
-              related: 'comments'
+              related: 'get-comments'
             },
             data: [
               { type: 'comment', id: '1' }
@@ -3058,7 +3084,132 @@ test("Local data should take precedence over related link", function(assert) {
   });
 });
 
-test("Updated related link should take precedence over local data", function(assert) {
+test("Local relationship data should take precedence over related link when local record data is available", function(assert) {
+  assert.expect(1);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true, inverse: 'post' })
+  });
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => { return false; };
+  env.adapter.findRecord = () => {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+  env.adapter.findMany = () => {
+    assert.ok(false, "The adapter's findMany method should not be called");
+  };
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    assert.ok(false, "The adapter's findHasMany method should not be called");
+  };
+
+  return run(() => {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments'
+            },
+            data: [
+              { type: 'comment', id: '1' }
+            ]
+          }
+        }
+      },
+      included: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment'
+          }
+        }
+      ]
+    });
+
+    return post.get('comments').then(comments => {
+      assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+    });
+  });
+});
+
+test("Related link should take precedence over local record data when relationship data is not initially available", function(assert) {
+  assert.expect(3);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true, inverse: 'post' })
+  });
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: false, inverse: 'comments' })
+  });
+  env.adapter.shouldBackgroundReloadRecord = () => { return false; };
+  env.adapter.findRecord = () => {
+    assert.ok(false, "The adapter's findRecord method should not be called");
+  };
+  env.adapter.findMany = () => {
+    assert.ok(false, "The adapter's findMany method should not be called");
+  };
+
+  env.adapter.findHasMany = function(store, snapshot, url, relationship) {
+    assert.equal(url, 'get-comments', 'url is correct');
+    assert.ok(true, "The adapter's findHasMany method should be called");
+    return resolve({
+      data: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment fetched by link'
+          }
+        }
+      ]
+    });
+  };
+
+  return run(() => {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            links: {
+              related: 'get-comments'
+            }
+          }
+        }
+      },
+      included: [
+        {
+          id: '1',
+          type: 'comment',
+          attributes: {
+            body: 'This is comment'
+          },
+          relationships: {
+            post: {
+              data: {
+                type: 'post',
+                id: '1'
+              }
+            }
+          }
+        }
+      ]
+    });
+
+    return post.get('comments').then(comments => {
+      assert.equal(comments.get('firstObject.body'), 'This is comment fetched by link', 'comment body is correct');
+    });
+  });
+});
+
+test("Updated related link should take precedence over relationship data and local record data", function(assert) {
   assert.expect(3);
 
   Post.reopen({
@@ -3069,7 +3220,7 @@ test("Updated related link should take precedence over local data", function(ass
     assert.equal(url, 'comments-updated-link', 'url is correct');
     assert.ok(true, "The adapter's findHasMany method should be called");
     return resolve({ data: [
-      { id: 1, type: 'comment', attributes: { body: 'This is comment' } }
+      { id: 1, type: 'comment', attributes: { body: 'This is updated comment' } }
     ]});
   };
 
@@ -3110,7 +3261,7 @@ test("Updated related link should take precedence over local data", function(ass
     });
 
     return post.get('comments').then(comments => {
-      assert.equal(comments.get('firstObject.body'), 'This is comment', 'comment body is correct');
+      assert.equal(comments.get('firstObject.body'), 'This is updated comment', 'comment body is correct');
     });
   });
 });
@@ -3337,7 +3488,11 @@ test("deleted records should stay deleted", function(assert) {
       }]
     });
 
-    assert.equal(get(user, 'messages.length'), 2, 'user should have 2 message since 1 was deleted');
+    assert.deepEqual(
+      get(user, 'messages').mapBy('id'),
+      ['message-2', 'message-3'],
+      'user should have 2 message since 1 was deleted'
+    );
   });
 });
 
@@ -3370,4 +3525,80 @@ test("hasMany relationship with links doesn't trigger extra change notifications
   });
 
   assert.equal(count, 0);
+});
+
+test("A hasMany relationship with a link will trigger the link request even if a inverse related object is pushed to the store", function(assert) {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true})
+  });
+
+  const postID = '1';
+
+  run(function() {
+    // load a record with a link hasMany relationship
+    env.store.push({
+      data: {
+        type: 'post',
+        id: postID,
+        relationships: {
+          comments: {
+            links: {
+              related: '/posts/1/comments'
+            }
+          }
+        }
+      }
+    });
+
+    // if a related comment is pushed into the store,
+    // the post.comments.link will not be requested
+    //
+    // If this comment is not inserted into the store, everything works properly
+    env.store.push({
+      data: {
+        type: 'comment',
+        id: '1',
+        attributes: { body: "First" },
+        relationships: {
+          message: {
+            data: { type: 'post', id: postID }
+          }
+        }
+      }
+    });
+
+    env.adapter.findRecord = function(store, type, id, snapshot) {
+      throw new Error(`findRecord for ${type} should not be called`);
+    };
+
+    let hasManyCounter = 0;
+    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      assert.equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
+      assert.equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+      assert.equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+      hasManyCounter++;
+
+      return resolve({ data: [
+        { id: 1, type: 'comment', attributes: { body: "First" } },
+        { id: 2, type: 'comment', attributes: { body: "Second" } }
+      ]});
+    };
+
+    const post = env.store.peekRecord('post', postID);
+    post.get('comments').then(function(comments) {
+      assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+      assert.equal(hasManyCounter, 1, "link was requested");
+      assert.equal(comments.get('length'), 2, "comments have 2 length");
+
+      post.hasMany('comments').reload().then(function(comments) {
+        assert.equal(comments.get('isLoaded'), true, "comments are loaded");
+        assert.equal(hasManyCounter, 2, "link was requested");
+        assert.equal(comments.get('length'), 2, "comments have 2 length");
+      });
+    });
+  });
 });

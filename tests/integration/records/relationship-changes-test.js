@@ -2,7 +2,6 @@ import { alias } from '@ember/object/computed';
 import { run } from '@ember/runloop';
 import EmberObject, { set, get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
@@ -533,32 +532,26 @@ test('Calling push with relationship triggers willChange and didChange with deta
     }
   };
 
-  run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {
-          firstName: 'Yehuda',
-          lastName: 'Katz'
-        },
-        relationships: {
-          siblings: {
-            data: [sibling1Ref]
-          }
-        }
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: 'wat',
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
       },
-      included: [
-        sibling1
-      ]
+      relationships: {
+        siblings: {
+          data: [sibling1Ref]
+        }
+      }
+    },
+    included: [
+      sibling1
+    ]
+  }));
 
-    });
-  });
-
-
-  let person = store.peekRecord('person', 'wat');
   let siblings = run(() => person.get('siblings'));
-
   siblings.addArrayObserver(observer);
 
   run(() => {
@@ -589,31 +582,26 @@ test('Calling push with relationship triggers willChange and didChange with deta
 test('Calling push with relationship triggers willChange and didChange with detail when truncating', function(assert) {
   let willChangeCount = 0;
   let didChangeCount = 0;
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {
-          firstName: 'Yehuda',
-          lastName: 'Katz'
-        },
-        relationships: {
-          siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: 'wat',
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
       },
-      included: [
-        sibling1, sibling2
-      ]
-    });
-  });
+      relationships: {
+        siblings: {
+          data: [sibling1Ref, sibling2Ref]
+        }
+      }
+    },
+    included: [
+      sibling1, sibling2
+    ]
+  }));
 
-  let person = store.peekRecord('person', 'wat');
   let siblings = run(() => person.get('siblings'));
-
   let observer = {
     arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
@@ -658,28 +646,24 @@ test('Calling push with relationship triggers willChange and didChange with deta
 test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function(assert) {
   let willChangeCount = 0;
   let didChangeCount = 0;
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: 'wat',
-        attributes: {
-          firstName: 'Yehuda',
-          lastName: 'Katz'
-        },
-        relationships: {
-          siblings: {
-            data: [sibling2Ref]
-          }
-        }
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: 'wat',
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz'
       },
-      included: [
-        sibling2
-      ]
-    });
-  });
-  let person = store.peekRecord('person', 'wat');
+      relationships: {
+        siblings: {
+          data: [sibling2Ref]
+        }
+      }
+    },
+    included: [
+      sibling2
+    ]
+  }));
 
   let observer = {
     arrayWillChange(array, start, removing, adding) {
@@ -890,6 +874,7 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
       }]
     });
 
+    // as with all cps, observers don't fire if the cp isn't lazy.
     post.get('author');
 
     post.addObserver('author', function() {

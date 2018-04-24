@@ -290,10 +290,10 @@ test('calling createRecord and passing in an undefined value for a relationship 
   let { store } = env;
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  run(() => store.createRecord('person', { id: 1, tag: undefined }));
+  store.createRecord('person', { id: '1', tag: undefined });
 
   return run(() => {
-    return store.findRecord('person', 1).then(person => {
+    return store.findRecord('person', '1').then(person => {
       assert.strictEqual(person.get('tag'), null, 'undefined values should return null relationships');
     });
   });
@@ -585,10 +585,7 @@ test('DS.belongsTo should be async by default', function(assert) {
 
   let env = setupStore({ tag: Tag, person: Person });
   let { store }  = env;
+  let person = store.createRecord('person');
 
-  run(() => {
-    let person = store.createRecord('person');
-
-    assert.ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
-  });
+  assert.ok(person.get('tag') instanceof DS.PromiseObject, 'tag should be an async relationship');
 });

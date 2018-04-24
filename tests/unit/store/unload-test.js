@@ -60,7 +60,7 @@ testInDebug('unload a dirty record asserts', function(assert) {
     record.set('title', 'toto2');
     record._internalModel.send('willCommit');
 
-    assert.equal(get(record, 'hasDirtyAttributes'), true, "record is dirty");
+    assert.equal(get(record, 'hasDirtyAttributes'), true, 'record is dirty');
 
     assert.expectAssertion(function() {
       record.unloadRecord();
@@ -102,7 +102,7 @@ test('unload a record', function(assert) {
 });
 
 test('unload followed by create of the same type + id', function(assert) {
-  let record = run(() => store.createRecord('record', { id: 1 }));
+  let record = store.createRecord('record', { id: 1 });
 
   assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
 
@@ -113,7 +113,7 @@ test('unload followed by create of the same type + id', function(assert) {
   });
 });
 
-module("DS.Store - unload record with relationships");
+module('DS.Store - unload record with relationships');
 
 test('can commit store after unload record with relationships', function(assert) {
   assert.expect(1);

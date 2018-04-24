@@ -1,38 +1,35 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { run } from '@ember/runloop';
-
 import setupStore from 'dummy/tests/helpers/store';
-
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
-
 import DS from 'ember-data';
 
-let attr = DS.attr;
-let belongsTo = DS.belongsTo;
-let hasMany = DS.hasMany;
+const { attr, belongsTo, hasMany, Model } = DS;
+
 let env;
 
-let Person = DS.Model.extend({
+let Person = Model.extend({
   name: attr('string'),
   cars: hasMany('car', { async: false }),
   boats: hasMany('boat', { async: true })
 });
 Person.reopenClass({ toString() { return 'Person'; } });
 
-let Group = DS.Model.extend({
+let Group = Model.extend({
   people: hasMany('person', { async: false })
 });
 Group.reopenClass({ toString() { return 'Group'; } });
 
-let Car = DS.Model.extend({
+let Car = Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person', { async: false })
 });
 Car.reopenClass({ toString() { return 'Car'; } });
 
-let Boat = DS.Model.extend({
+let Boat = Model.extend({
   name: attr('string'),
   person: belongsTo('person', { async: false })
 });
@@ -133,12 +130,13 @@ test("a sync belongs to relationship to an unloaded record can restore that reco
 
   let rematerializedPerson = bob.get('person');
   assert.equal(rematerializedPerson.get('id'), '1');
+  assert.equal(rematerializedPerson.get('name'), 'Adam Sunderland');
   // the person is rematerialized; the previous person is *not* re-used
   assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
 });
-/* TODO Igor, fix all unloading behavior
+
 test("an async has many relationship to an unloaded record can restore that record", function(assert) {
-  assert.expect(15);
+  assert.expect(16);
 
   // disable background reloading so we do not re-create the relationship.
   env.adapter.shouldBackgroundReloadRecord = () => false;
@@ -174,9 +172,9 @@ test("an async has many relationship to an unloaded record can restore that reco
 
     let data;
     if (param === '1') {
-      data = BOAT_ONE;
+      data = deepCopy(BOAT_ONE);
     } else if (param === '1') {
-      data = BOAT_TWO;
+      data = deepCopy(BOAT_TWO);
     } else {
       throw new Error(`404: no such boat with id=${param}`);
     }
@@ -184,7 +182,7 @@ test("an async has many relationship to an unloaded record can restore that reco
     return {
       data
     };
-  }
+  };
 
   run(() => {
     env.store.push({
@@ -208,17 +206,20 @@ test("an async has many relationship to an unloaded record can restore that reco
 
   run(() => {
     env.store.push({
-      data: [BOAT_ONE, BOAT_TWO]
+      data: [
+        deepCopy(BOAT_ONE),
+        deepCopy(BOAT_TWO)
+      ]
     });
   });
 
-  let adam = env.store.peekRecord('person', 1);
-  let boaty = env.store.peekRecord('boat', 1);
+  let adam = env.store.peekRecord('person', '1');
+  let boaty = env.store.peekRecord('boat', '1');
 
-  assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
-  assert.equal(env.store._internalModelsFor('person').has(1), true, 'The person internalModel is loaded');
-  assert.equal(env.store.hasRecordForId('boat', 1), true, 'The boat is in the store');
-  assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is loaded');
+  assert.equal(env.store.hasRecordForId('person', '1'), true, 'The person is in the store');
+  assert.equal(env.store._internalModelsFor('person').has('1'), true, 'The person internalModel is loaded');
+  assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
+  assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is loaded');
 
   let boats = run(() => adam.get('boats'));
 
@@ -227,17 +228,18 @@ test("an async has many relationship to an unloaded record can restore that reco
   run(() => boaty.unloadRecord());
   assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
-  assert.equal(env.store.hasRecordForId('boat', 1), false, 'The boat is unloaded');
-  assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
+  assert.equal(env.store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
+  assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');
 
-  let rematerializedBoaty = run(() => adam.get('boats')).objectAt(1);
+  boats = run(() => adam.get('boats'));
+  let rematerializedBoaty = boats.objectAt(1);
 
+  assert.ok(!!rematerializedBoaty, 'We have a boat!');
   assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
-  assert.equal(rematerializedBoaty.get('id'), '1');
-  assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface');
+  assert.equal(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
+  assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
   assert.notEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
 
-  assert.equal(env.store.hasRecordForId('boat', 1), true, 'The boat is loaded');
-  assert.equal(env.store._internalModelsFor('boat').has(1), true, 'The boat internalModel is retained');
+  assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
+  assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');
 });
-*/

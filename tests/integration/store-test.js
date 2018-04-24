@@ -1,4 +1,3 @@
-import { copy } from '@ember/object/internals';
 import RSVP, {
   Promise as EmberPromise,
   resolve
@@ -7,6 +6,7 @@ import { run, next } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -182,9 +182,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
     });
   });
 
-  let filterdPeople = run(() => store.filter('person', () => true));
-
-  let filterdPeopleWillDestroy = tap(filterdPeople.get('content'), 'willDestroy');
   let adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.get('content'), 'willDestroy');
 
   run(() => store.findRecord('person', 2));
@@ -193,10 +190,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
   assert.equal(carsWillDestroy.called.length, 0, 'expected cars.willDestroy to not have been called');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 0, 'expected adapterPopulatedPeople.willDestroy to not have been called');
-  assert.equal(filterdPeopleWillDestroy.called.length, 0, 'expected filterdPeople.willDestroy to not have been called');
-
-  assert.equal(filterdPeople.get('length'), 2, 'expected filterdPeople to have 2 entries');
-
   assert.equal(car.get('person'), person, "expected car's person to be the correct person");
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
@@ -206,12 +199,11 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
   assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
-  assert.equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
 });
 
 function ajaxResponse(value) {
   env.adapter.ajax = function(url, verb, hash) {
-    return run(RSVP, 'resolve', copy(value, true));
+    return run(RSVP, 'resolve', deepCopy(value));
   };
 }
 
@@ -319,6 +311,47 @@ test("store#findRecord { reload: true } ignores cached record and reloads record
       assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
     });
   });
+});
+
+
+test("store#findRecord { reload: true } ignores cached record and reloads record from server even after previous findRecord", function(assert) {
+  assert.expect(5);
+  let calls = 0;
+
+  const testAdapter = DS.JSONAPIAdapter.extend({
+    shouldReloadRecord(store, type, id, snapshot) {
+      assert.ok(false, 'shouldReloadRecord should not be called when { reload: true }');
+    },
+    findRecord() {
+      calls++;
+      return resolve({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: calls === 1 ? 'Mini' : 'Princess'
+          }
+        }
+      });
+    }
+  });
+
+  initializeStore(testAdapter);
+
+  let car = run(() => store.findRecord('car', '1'));
+
+  assert.equal(calls, 1, 'We made one call to findRecord');
+  assert.equal(car.get('model'), 'Mini', 'cached car has expected model');
+
+  run(() => {
+    let promiseCar = store.findRecord('car', 1, { reload: true });
+
+    assert.ok(promiseCar.get('model') === undefined, `We don't have early access to local data`);
+  });
+
+  assert.equal(calls, 2, 'We made a second call to findRecord');
+  assert.equal(car.get('model'), 'Princess', 'cached record ignored, record reloaded via server');
 });
 
 test("store#findRecord { backgroundReload: false } returns cached record and does not reload in the background", function(assert) {
@@ -967,7 +1000,7 @@ test('The store should trap exceptions that are thrown from adapter#createRecord
   };
 
   run(() => {
-    let car = store.createRecord('car')
+    let car = store.createRecord('car');
 
     car.save().catch(error => {
       assert.equal(error.message, 'Refusing to serialize')

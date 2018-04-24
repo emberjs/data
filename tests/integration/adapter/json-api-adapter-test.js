@@ -59,7 +59,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
     });
 
     env = setupStore({
-      adapter: DS.JSONAPIAdapter,
+      adapter: DS.JSONAPIAdapter.extend(),
 
       'user': User,
       'post': Post,

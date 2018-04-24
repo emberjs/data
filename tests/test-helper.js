@@ -69,4 +69,4 @@ QUnit.config.urlConfig.push({
   id: 'enableoptionalfeatures',
   label: 'Enable Opt Features'
 });
-start();
+start({ setupTestIsolationValidation: true });

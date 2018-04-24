@@ -16,11 +16,12 @@ module('unit/model - DS.Model', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      isArchived: DS.attr()
     });
-    Person.toString =  () => 'person';
 
     env = setupStore({
+      adapter: DS.JSONAPIAdapter,
       person: Person
     });
     store = env.store;
@@ -260,18 +261,18 @@ test("a record's id is included in its toString representation", function(assert
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
-  return run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: '1'
-      }
-    });
+  let person = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1'
+    }
+  }));
 
-    return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<person:${guidFor(record)}:1>`, 'reports id in toString');
-    });
-  });
+  assert.equal(
+    person.toString(),
+    `<model:${person.constructor.modelName}:${guidFor(person)}:1>`,
+    'reports id in toString'
+  );
 });
 
 testInDebug('trying to set an `id` attribute should raise', function(assert) {
@@ -350,6 +351,9 @@ test('it should cache attributes', function(assert) {
   });
 
   const store = createStore({
+    adapter: DS.JSONAPIAdapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    }),
     post: Post
   });
 
@@ -364,7 +368,7 @@ test('it should cache attributes', function(assert) {
       }
     });
 
-    return store.findRecord('post', 1).then(record => {
+    return store.findRecord('post', '1').then(record => {
       record.set('updatedAt', date);
 
       assert.deepEqual(date, get(record, 'updatedAt'), 'setting a date returns the same date');
@@ -521,7 +525,7 @@ test("a DS.Model does not require an attribute type", function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag', { name: "test" }));
+  let tag = store.createRecord('tag', { name: "test" });
 
   assert.equal(get(tag, 'name'), 'test', 'the value is persisted');
 });
@@ -535,7 +539,7 @@ test('a DS.Model can have a defaultValue without an attribute type', function(as
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.equal(get(tag, 'name'), 'unknown', 'the default value is found');
 });
@@ -543,7 +547,7 @@ test('a DS.Model can have a defaultValue without an attribute type', function(as
 testInDebug('Calling attr() throws a warning', function(assert) {
   assert.expect(1);
 
-  let person = run(() => store.createRecord('person', { id: 1, name: 'TomHuda' }));
+  let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
 
   assert.throws(() => {
     person.attr();
@@ -564,6 +568,99 @@ test('supports pushedData in root.deleted.uncommitted', function(assert) {
     store.push(hash);
     assert.equal(get(record, 'currentState.stateName'), 'root.deleted.uncommitted',
       'record accepts pushedData is in root.deleted.uncommitted state');
+  });
+});
+
+test('supports canonical updates via pushedData in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          isArchived: true
+        }
+      }
+    });
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === true, 'The record reflects the update to canonical state');
+  });
+});
+
+
+test('Does not support dirtying in root.deleted.saved', function(assert) {
+  let { adapter } = env;
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.deleteRecord = () => {
+    return Ember.RSVP.resolve();
+  };
+
+  let record = run(() => store.push({
+    data: {
+      type: 'person',
+      id: '1',
+      attributes: {
+        isArchived: false
+      }
+    }
+  }));
+
+  run(() => {
+    record.destroyRecord().then(() => {
+      let currentState = record._internalModel.currentState;
+
+      assert.ok(currentState.stateName === 'root.deleted.saved',
+        'record is in a persisted deleted state');
+      assert.equal(get(record, 'isDeleted'), true);
+      assert.ok(store.peekRecord('person', '1') !== null, 'the deleted person is not removed from store (no unload called)');
+    });
+  });
+
+  run(() => {
+    assert.expectAssertion(() => {
+      set(record, 'isArchived', true);
+    }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
+
+    let currentState = record._internalModel.currentState;
+
+    assert.ok(currentState.stateName === 'root.deleted.saved',
+      'record is still in a persisted deleted state');
+    assert.ok(get(record, 'isDeleted') === true, 'The record is still deleted');
+    assert.ok(get(record, 'isArchived') === false, 'The record reflects canonical state');
   });
 });
 
@@ -647,7 +744,7 @@ test('a DS.Model can have a defaultValue', function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.equal(get(tag, 'name'), 'unknown', 'the default value is found');
 
@@ -694,10 +791,8 @@ test('a defaultValue for an attribute can be a function', function(assert) {
     tag: Tag
   });
 
-  run(() => {
-    let tag = store.createRecord('tag');
-    assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
-  });
+  let tag = store.createRecord('tag');
+  assert.equal(get(tag, 'createdAt'), 'le default value', 'the defaultValue function is evaluated');
 });
 
 test('a defaultValue function gets the record, options, and key', function(assert) {
@@ -717,7 +812,7 @@ test('a defaultValue function gets the record, options, and key', function(asser
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   get(tag, 'createdAt');
 });
@@ -731,7 +826,7 @@ testInDebug('a complex object defaultValue is deprecated', function(assert) {
     tag: Tag
   });
 
-  let tag = run(() => store.createRecord('tag'));
+  let tag = store.createRecord('tag');
 
   assert.expectAssertion(() => {
     get(tag, 'tagInfo');
@@ -759,7 +854,7 @@ test('setting a property to undefined on a newly created record should not impac
 
   assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 
-  tag = run(() =>  store.createRecord('tag', { name: undefined }));
+  tag = store.createRecord('tag', { name: undefined });
 
   assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
 });
@@ -772,15 +867,15 @@ test('setting a property back to its original value removes the property from th
 
   return run(() => {
     return store.findRecord('person', 1).then(person => {
-      assert.equal(person._internalModel._modelData._attributes.name, undefined, 'the `_attributes` hash is clean');
+      assert.equal(person._internalModel._attributes.name, undefined, 'the `_attributes` hash is clean');
 
       set(person, 'name', 'Niceguy Dale');
 
-      assert.equal(person._internalModel._modelData._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
+      assert.equal(person._internalModel._attributes.name, 'Niceguy Dale', 'the `_attributes` hash contains the changed value');
 
       set(person, 'name', 'Scumbag Dale');
 
-      assert.equal(person._internalModel._modelData._attributes.name, undefined, 'the `_attributes` hash is reset');
+      assert.equal(person._internalModel._attributes.name, undefined, 'the `_attributes` hash is reset');
     });
   });
 });
@@ -837,7 +932,7 @@ test("a listener can be added to a record", function(assert) {
   let count = 0;
   let F = function() { count++; };
 
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.on('event!', F);
   run(() => record.trigger('event!'));
@@ -852,7 +947,7 @@ test("a listener can be added to a record", function(assert) {
 test('when an event is triggered on a record the method with the same name is invoked with arguments', function(assert) {
   let count = 0;
   let F = function() { count++; };
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.eventNamedMethod = F;
 
@@ -864,7 +959,7 @@ test('when an event is triggered on a record the method with the same name is in
 test('when a method is invoked from an event with the same name the arguments are passed through', function(assert) {
   let eventMethodArgs = null;
   let F = function() { eventMethodArgs = arguments; };
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   record.eventThatTriggersMethod = F;
 
@@ -1052,7 +1147,7 @@ testInDebug(`don't allow setting`, function(assert) {
     person: Person
   });
 
-  let record = run(() => store.createRecord('person'));
+  let record = store.createRecord('person');
 
   assert.expectAssertion(() => {
     run(() => {
@@ -1093,7 +1188,7 @@ test('A DS.Model can be JSONified', function(assert) {
   });
 
   let store = createStore({ person: Person });
-  let record = run(() => store.createRecord('person', { name: 'TomHuda' }));
+  let record = store.createRecord('person', { name: 'TomHuda' });
 
   assert.deepEqual(record.toJSON(), { data: { type: 'people', attributes: { name: 'TomHuda' } } });
 });
@@ -1107,9 +1202,7 @@ testInDebug('A subclass of DS.Model can not use the `data` property', function(a
   let store = createStore({ person: Person });
 
   assert.expectAssertion(() => {
-    run(() => {
-      store.createRecord('person', { name: 'TomHuda' });
-    });
+    store.createRecord('person', { name: 'TomHuda' });
   }, /`data` is a reserved property name on DS.Model objects/);
 });
 
@@ -1122,9 +1215,7 @@ testInDebug('A subclass of DS.Model can not use the `store` property', function(
   let store = createStore({ retailer: Retailer });
 
   assert.expectAssertion(() => {
-    run(() => {
-      store.createRecord('retailer', { name: 'Buy n Large' });
-    });
+    store.createRecord('retailer', { name: 'Buy n Large' });
   }, /`store` is a reserved property name on DS.Model objects/);
 });
 
@@ -1140,9 +1231,7 @@ testInDebug('A subclass of DS.Model can not use reserved properties', function(a
     let store = createStore({ post: Post });
 
     assert.expectAssertion(() => {
-      run(() => {
-        store.createRecord('post', {});
-      });
+      store.createRecord('post', {});
     }, /is a reserved property name on DS.Model objects/);
   });
 });
@@ -1153,12 +1242,11 @@ test('Pushing a record into the store should transition it to the loaded state',
   });
 
   let store = createStore({ person: Person });
+  let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+
+  assert.equal(person.get('isNew'), true, 'createRecord should put records into the new state');
 
   run(() => {
-    let person = store.createRecord('person', { id: 1, name: 'TomHuda' });
-
-    assert.equal(person.get('isNew'), true, 'createRecord should put records into the new state');
-
     store.push({
       data: {
         type: 'person',
@@ -1237,7 +1325,7 @@ test('internalModel is ready by `init`', function(assert) {
   let { store } = setupStore({ person: Person });
 
   assert.equal(nameDidChange, 0, 'observer should not trigger on create');
-  let person = run(() => store.createRecord('person'));
+  let person = store.createRecord('person');
   assert.equal(person.get('name'), 'my-name-set-in-init');
 });
 
@@ -1257,7 +1345,7 @@ test('accessing attributes in the initializer should not throw an error', functi
     person: Person
   });
 
-  run(() => store.createRecord('person'));
+  store.createRecord('person');
 });
 
 test('setting the id after model creation should correctly update the id', function(assert) {
@@ -1271,18 +1359,18 @@ test('setting the id after model creation should correctly update the id', funct
     person: Person
   });
 
+  let person = store.createRecord('person');
+
+  assert.equal(person.get('id'), null, 'initial created model id should be null');
+
   run(() => {
-    let person = store.createRecord('person');
-
-    assert.equal(person.get('id'), null, 'initial created model id should be null');
-
     person.set('id', 'john');
 
     assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
 });
 
-test('updating the id with store.setRecordId should correctly when the id property is watched', function(assert) {
+test('updating the id with store.updateId should correctly when the id property is watched', function(assert) {
   assert.expect(2);
 
   const Person = DS.Model.extend({
@@ -1300,9 +1388,9 @@ test('updating the id with store.setRecordId should correctly when the id proper
 
     assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-    store.setRecordId('person', 'john', person._internalModel.clientId);
+    store.updateId(person._internalModel, { id: 'john' });
 
-    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
   });
 });
 
@@ -1324,7 +1412,7 @@ test('accessing the model id without the get function should work when id is wat
 
     assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-    store.setRecordId('person', 'john', person._internalModel.clientId);
+    store.updateId(person._internalModel, { id: 'john' });
 
     assert.equal(person.id, 'john', 'new id should be correctly set.');
   });
@@ -1353,6 +1441,6 @@ test('ID mutation (complicated)', function(assert) {
     assert.equal(idChange, 0);
     store.updateId(person._internalModel, { id: 'john' });
     assert.equal(idChange, 1);
-    assert.equal(person.id, 'john', 'new id should be correctly set.');
+    assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
 });

@@ -73,7 +73,7 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
     });
   };
 
-  return run(store, 'query', 'person', { q: 'bla' }).then(people => {
+  return run(() => store.query('person', { q: 'bla' }).then(people => {
     let people2 = store.query('person', { q: 'bla2' });
 
     return hash({ people: people, people2: people2 });
@@ -86,7 +86,7 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
 
     // delete record will not throw exception
     person.deleteRecord();
-  });
+  }));
 });
 
 test("by default, createRecords calls createRecord once per record", function(assert) {
@@ -117,12 +117,8 @@ test("by default, createRecords calls createRecord once per record", function(as
     });
   };
 
-  let tom, yehuda;
-
-  run(() => {
-    tom = store.createRecord('person', { name: "Tom Dale" });
-    yehuda = store.createRecord('person', { name: "Yehuda Katz" });
-  });
+  let tom = store.createRecord('person', { name: "Tom Dale" });
+  let yehuda = store.createRecord('person', { name: "Yehuda Katz" });
 
   let promise = run(() => {
     return hash({
@@ -426,7 +422,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   });
 
   // Retrieve that loaded record and edit it so it becomes dirty
-  return run(store, 'findRecord', 'person', 'deleted-record').then(tom => {
+  return run(() => store.findRecord('person', 'deleted-record').then(tom => {
     tom.set('name', "Tom Mothereffin' Dale");
 
     assert.equal(get(tom, 'hasDirtyAttributes'), true, "precond - record should be dirty after editing");
@@ -436,7 +432,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   }).then(tom => {
     assert.equal(get(tom, 'hasDirtyAttributes'), false, "record should not be dirty");
     assert.equal(get(tom, 'isDeleted'), true, "record should be considered deleted");
-  });
+  }));
 });
 
 test("if a deleted record errors, it enters the error state", function(assert) {
@@ -502,9 +498,7 @@ test("if a created record is marked as invalid by the server, it enters an error
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
   return run(function() {
@@ -549,9 +543,7 @@ test("allows errors on arbitrary properties on create", function(assert) {
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
@@ -603,9 +595,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
     }
   };
 
-  let yehuda = run(() => {
-    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-  });
+  let yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
@@ -870,14 +860,14 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return store.peekRecord('person', 1);
   });
 
-  return run(store, 'findRecord', 'person', 1).then(record => {
+  return run(() => store.findRecord('person', 1).then(record => {
     assert.equal(record, person, "The person was resolved");
     person.set('name', "Jonathan Doe");
     return person.save();
   }).catch(reason => {
     assert.ok(get(person, 'isError'), "the record is in the error state");
     assert.equal(get(person, 'adapterError'), error, "error object is exposed");
-  });
+  }));
 });
 
 test("can be created after the DS.Store", function(assert) {
@@ -889,44 +879,6 @@ test("can be created after the DS.Store", function(assert) {
   };
 
   run(() => store.findRecord('person', 1));
-});
-
-test("the filter method can optionally take a server query as well", function(assert) {
-  adapter.shouldBackgroundReloadRecord = () => false;
-  adapter.query = function(store, type, query, array) {
-    return resolve({
-      data: [
-        {
-          id: 1,
-          type: "person",
-          attributes: {
-            name: "Yehuda Katz"
-          }
-        },
-        {
-          id: 2,
-          type: "person",
-          attributes: {
-            name: "Tom Dale"
-          }
-        }
-      ]
-    });
-  };
-
-  let asyncFilter = store.filter('person', { page: 1 }, data => {
-    return data.get('name') === "Tom Dale";
-  });
-
-  let loadedFilter;
-
-  return asyncFilter.then(filter => {
-    loadedFilter = filter;
-    return store.findRecord('person', 2);
-  }).then(tom => {
-    assert.equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
-    assert.deepEqual(loadedFilter.toArray(), [tom], "The filter has a single entry in it");
-  });
 });
 
 test("relationships returned via `commit` do not trigger additional findManys", function(assert) {
@@ -1043,7 +995,7 @@ test("relationships don't get reset if the links is the same", function(assert) 
 
   let tom, dogs;
 
-  return run(store, 'findRecord', 'person', 1).then(person => {
+  return run(() => store.findRecord('person', 1).then(person => {
     tom = person;
     dogs = tom.get('dogs');
     return dogs;
@@ -1069,7 +1021,7 @@ test("relationships don't get reset if the links is the same", function(assert) 
     return tom.get('dogs');
   }).then(dogs => {
     assert.equal(dogs.get('length'), 1, "The same dogs are loaded");
-  });
+  }));
 });
 
 test("async hasMany always returns a promise", function(assert) {
@@ -1092,7 +1044,7 @@ test("async hasMany always returns a promise", function(assert) {
     });
   };
 
-  let tom = run(() => store.createRecord('person', { name: "Tom Dale" }));
+  let tom = store.createRecord('person', { name: "Tom Dale" });
 
   run(() => {
     assert.ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
@@ -1113,12 +1065,9 @@ test("createRecord receives a snapshot", function(assert) {
     return resolve();
   };
 
-  var person;
+  let record = store.createRecord('person', { name: "Tom Dale", id: 1 });
 
-  run(() => {
-    person = store.createRecord('person', { name: "Tom Dale", id: 1 });
-    person.save();
-  });
+  run(() => record.save());
 });
 
 test("updateRecord receives a snapshot", function(assert) {
@@ -1327,8 +1276,8 @@ test("record.save should pass adapterOptions to the createRecord method", functi
   };
 
   return run(() => {
-    let person = store.createRecord('person', { name: 'Tom' });
-    return person.save({ adapterOptions: { subscribe: true } });
+    store.createRecord('person', { name: 'Tom' })
+      .save({ adapterOptions: { subscribe: true } });
   });
 });
 
@@ -1379,20 +1328,6 @@ test("store.query should pass adapterOptions to adapter.query ", function(assert
 
   return run(() => {
     return store.query('person', {}, { adapterOptions: { query: { embed: true } } });
-  });
-});
-
-test("store.filter should pass adapterOptions to adapter.query", function(assert) {
-  assert.expect(2);
-
-  env.adapter.query = function(store, type, query, array, options) {
-    assert.ok(!('adapterOptions' in query));
-    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
-    return { data: [] };
-  };
-
-  return run(() => {
-    return store.filter('person', {}, () => {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 
@@ -1486,22 +1421,20 @@ test("An async hasMany relationship with links should not trigger shouldBackgrou
 
   store = env.store;
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', '1').then(post => {
     return post.get('comments');
   }).then(comments => {
     assert.equal(comments.get('length'), 3);
-  });
+  }));
 });
 
 testInDebug("There should be a friendly error for if the adapter does not implement createRecord", function(assert) {
   adapter.createRecord = null;
 
-  let tom;
+  let tom = run(() => store.createRecord('person', { name: "Tom Dale" }));
+
   assert.expectAssertion(() => {
-    run(() => {
-      tom = store.createRecord('person', { name: "Tom Dale" });
-      tom.save();
-    });
+    run(() => tom.save());
   }, /does not implement 'createRecord'/);
 
   moveRecordOutOfInFlight(tom);
@@ -1510,12 +1443,9 @@ testInDebug("There should be a friendly error for if the adapter does not implem
 testInDebug("There should be a friendly error for if the adapter does not implement updateRecord", function(assert) {
   adapter.updateRecord = null;
 
-  let tom;
+  let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
   assert.expectAssertion(() => {
-    run(() => {
-      tom = store.push({ data: { type: 'person', id: 1 } });
-      tom.save();
-    });
+    run(() => tom.save());
   }, /does not implement 'updateRecord'/);
 
   moveRecordOutOfInFlight(tom);
@@ -1524,12 +1454,12 @@ testInDebug("There should be a friendly error for if the adapter does not implem
 testInDebug("There should be a friendly error for if the adapter does not implement deleteRecord", function(assert) {
   adapter.deleteRecord = null;
 
-  let tom;
+  let tom = run(() => store.push({ data: { type: 'person', id: 1 } }));
+
   assert.expectAssertion(() => {
     run(() => {
-      tom = store.push({ data: { type: 'person', id: 1 } });
       tom.deleteRecord();
-      tom.save();
+      return tom.save();
     });
   }, /does not implement 'deleteRecord'/);
 

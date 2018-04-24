@@ -8,26 +8,22 @@ import { set, get } from '@ember/object';
 import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-let TestAdapter, store, oldFilterEnabled;
+let TestAdapter, store;
 
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
   beforeEach() {
     TestAdapter = DS.Adapter.extend();
-    oldFilterEnabled = Ember.ENV.ENABLE_DS_FILTER;
-    Ember.ENV.ENABLE_DS_FILTER = false;
   },
 
   afterEach() {
     run(() => {
       if (store) { store.destroy(); }
-      Ember.ENV.ENABLE_DS_FILTER = oldFilterEnabled;
     });
   }
 });
@@ -337,7 +333,7 @@ test('a new record of a particular type is created via store.createRecord(type)'
     person: Person
   });
 
-  let person = run(() => store.createRecord('person'));
+  let person = store.createRecord('person');
 
   assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
   assert.equal(get(person, 'isNew'), true, 'A newly created record is new');
@@ -363,12 +359,10 @@ testInDebug("a new record with a specific id can't be created if this id is alre
     person: Person
   });
 
-  run(() => store.createRecord('person', { id: 5 }));
+  store.createRecord('person', { id: 5 });
 
   assert.expectAssertion(() => {
-    run(() => {
-      store.createRecord('person', { id: 5 });
-    });
+    store.createRecord('person', { id: 5 });
   }, /The id 5 has already been used with another record for modelClass 'person'/);
 });
 
@@ -381,7 +375,7 @@ test('an initial data hash can be provided via store.createRecord(type, hash)', 
     person: Person
   });
 
-  let person = run(() => store.createRecord('person', { name: 'Brohuda Katz' }));
+  let person = store.createRecord('person', { name: 'Brohuda Katz' });
 
   assert.equal(get(person, 'isLoaded'), true, 'A newly created record is loaded');
   assert.equal(get(person, 'isNew'), true, 'A newly created record is new');
@@ -650,12 +644,8 @@ test('records should have their ids updated when the adapter returns the id data
   });
 
   let people = store.peekAll('person');
-  let tom, yehuda;
-
-  run(() => {
-    tom = store.createRecord('person', { name: 'Tom Dale' });
-    yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
-  });
+  let tom = store.createRecord('person', { name: 'Tom Dale' });
+  let yehuda = store.createRecord('person', { name: 'Yehuda Katz' });
 
   return run(() => {
     return all([
@@ -678,7 +668,7 @@ test('store.fetchMany should always return a promise', function(assert) {
     person: Person
   });
 
-  run(() => store.createRecord('person'));
+  store.createRecord('person')
 
   let records = [];
   let results = run(() => store._scheduleFetchMany(records));
@@ -723,7 +713,7 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
     phone: Phone
   });
 
-  run(() => store.createRecord('test'));
+  store.createRecord('test');
 
   let internalModels = [
     store._internalModelForId('test', 10),

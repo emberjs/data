@@ -3,7 +3,6 @@ import { createStore } from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { get } from '@ember/object';
-import hasEmberVersion from 'ember-test-helpers/has-ember-version';
 import { watchProperties } from '../../helpers/watch-property';
 
 let store;
@@ -105,10 +104,9 @@ test('peekAll in the same run-loop as push works as expected', function(assert) 
 test('newly created records notify the array as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -130,10 +128,9 @@ test('newly created records notify the array as expected', function(assert) {
 test('immediately peeking newly created records works as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -156,9 +153,9 @@ test('immediately peeking newly created records works as expected', function(ass
 test('unloading newly created records notify the array as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -180,9 +177,9 @@ test('unloading newly created records notify the array as expected', function(as
 test('immediately peeking after unloading newly created records works as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
-  let aNewlyCreatedRecord = run(() => store.createRecord('person', {
+  let aNewlyCreatedRecord = store.createRecord('person', {
     name: 'James'
-  }));
+  });
 
   assert.watchedPropertyCounts(
     watcher,
@@ -378,56 +375,3 @@ test('push-without-materialize => unloadAll => push-without-materialize works as
   );
 });
 
-test('unloading filtered records', function(assert) {
-  function push() {
-    run(() => {
-      store.push({
-        data: [
-          {
-            type: 'person',
-            id: '1',
-            attributes: {
-              name: 'Scumbag John'
-            }
-          },
-          {
-            type: 'person',
-            id: '2',
-            attributes: {
-              name: 'Scumbag Joe'
-            }
-          }
-        ]
-      });
-    });
-  }
-
-  let people = run(() => {
-    return store.filter('person', hash => {
-      if (hash.get('name').match(/Scumbag/)) {
-        return true;
-      }
-    });
-  });
-
-  assert.equal(get(people, 'length'), 0, 'precond - no items in the RecordArray');
-
-  push();
-
-  assert.equal(get(people, 'length'), 2, 'precond - two items in the RecordArray');
-
-  run(() => {
-    people.objectAt(0).unloadRecord();
-
-    if (hasEmberVersion(3, 0)) {
-      assert.equal(get(people, 'length'), 2, 'Unload does not complete until the end of the loop');
-      assert.equal(get(people.objectAt(0), 'name'), 'Scumbag John', 'John is still the first object until the end of the loop');
-    } else {
-      assert.equal(get(people, 'length'), 2, 'Unload does not complete until the end of the loop');
-      assert.equal(people.objectAt(0), undefined, 'John is still the first object until the end of the loop');
-    }
-  });
-
-  assert.equal(get(people, 'length'), 1, 'Unloaded record removed from the array');
-  assert.equal(get(people.objectAt(0), 'name'), 'Scumbag Joe', 'Joe shifted down after the unload');
-});

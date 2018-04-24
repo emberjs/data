@@ -5,19 +5,20 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+const { Model, attr, hasMany,belongsTo, Snapshot } = DS;
 
 let env, Post, Comment;
 
-module("integration/snapshot - DS.Snapshot", {
+module("integration/snapshot - Snapshot", {
   beforeEach() {
-    Post = DS.Model.extend({
-      author: DS.attr(),
-      title: DS.attr(),
-      comments: DS.hasMany({ async: true })
+    Post = Model.extend({
+      author: attr(),
+      title: attr(),
+      comments: hasMany({ async: true })
     });
-    Comment = DS.Model.extend({
-      body: DS.attr(),
-      post: DS.belongsTo({ async: true })
+    Comment = Model.extend({
+      body: attr(),
+      post: belongsTo({ async: true })
     });
 
     env = setupStore({
@@ -31,6 +32,30 @@ module("integration/snapshot - DS.Snapshot", {
       env.store.destroy();
     });
   }
+});
+
+test('snapshot.attributes() includes defaultValues when appropriate', function(assert) {
+  const Address = Model.extend({
+    street: attr(),
+    country: attr({ defaultValue: 'USA' }),
+    state: attr({ defaultValue: () => 'CA' })
+  });
+
+  let { store } = setupStore({
+    address: Address
+  });
+  let newAddress = store.createRecord('address', {});
+  let snapshot = newAddress._createSnapshot();
+  let expected = {
+    country: "USA",
+    state: "CA",
+    street: undefined
+  };
+
+  assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
+  assert.deepEqual(snapshot.attributes(), expected, 'We generated attributes with default values');
+
+  run(() => store.destroy());
 });
 
 test("record._createSnapshot() returns a snapshot", function(assert) {
@@ -49,7 +74,7 @@ test("record._createSnapshot() returns a snapshot", function(assert) {
     let post = env.store.peekRecord('post', 1);
     let snapshot = post._createSnapshot();
 
-    assert.ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    assert.ok(snapshot instanceof Snapshot, 'snapshot is an instance of Snapshot');
   });
 });
 
@@ -70,7 +95,7 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
     let snapshot = post._createSnapshot();
 
     assert.equal(snapshot.id, '1', 'id is correct');
-    assert.ok(DS.Model.detect(snapshot.type), 'type is correct');
+    assert.ok(Model.detect(snapshot.type), 'type is correct');
     assert.equal(snapshot.modelName, 'post', 'modelName is correct');
   });
 });
@@ -79,16 +104,16 @@ test('snapshot.type loads the class lazily', function(assert) {
   assert.expect(3);
 
   let postClassLoaded = false;
-  let modelFor = env.store._modelFor;
-  env.store._modelFor = (name) => {
+  let modelFactoryFor = env.store._modelFactoryFor;
+  env.store._modelFactoryFor = (name) => {
     if (name === 'post') {
       postClassLoaded = true;
     }
-    return modelFor.call(env.store, name);
+    return modelFactoryFor.call(env.store, name);
   };
 
   run(() => {
-    env.store.push({
+    env.store._push({
       data: {
         type: 'post',
         id: '1',
@@ -104,6 +129,73 @@ test('snapshot.type loads the class lazily', function(assert) {
     assert.equal(snapshot.type, Post, 'type is correct');
     assert.equal(true, postClassLoaded, 'model class is loaded');
   });
+});
+
+test('an initial findRecord call has no record for internal-model when a snapshot is generated', function(assert) {
+  assert.expect(2);
+  env.adapter.findRecord = (store, type, id, snapshot) => {
+    assert.equal(snapshot._internalModel.hasRecord, false, 'We do not have a materialized record');
+    assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
+    return resolve({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Hello World'
+        }
+      }
+    });
+  };
+
+  run(() => env.store.findRecord('post', '1'));
+});
+
+test('snapshots for un-materialized internal-models generate attributes lazily', function(assert) {
+  assert.expect(2);
+
+  run(() => env.store._push({
+    data: {
+      type: 'post',
+      id: '1',
+      attributes: {
+        title: 'Hello World'
+      }
+    }
+  }));
+
+  let postInternalModel = env.store._internalModelForId('post', 1);
+  let snapshot = postInternalModel.createSnapshot();
+  let expected = {
+    author: undefined,
+    title: 'Hello World'
+  };
+
+  assert.equal(snapshot.__attributes, null, 'attributes were not populated initially');
+  snapshot.attributes();
+  assert.deepEqual(snapshot.__attributes, expected, 'attributes were populated on access');
+});
+
+test('snapshots for materialized internal-models generate attributes greedily', function(assert) {
+  assert.expect(1);
+
+  run(() => env.store.push({
+    data: {
+      type: 'post',
+      id: '1',
+      attributes: {
+        title: 'Hello World'
+      }
+    }
+  }));
+
+  let postInternalModel = env.store._internalModelForId('post', 1);
+  let snapshot = postInternalModel.createSnapshot();
+  let expected = {
+    author: undefined,
+    title: 'Hello World'
+  };
+
+  assert.deepEqual(snapshot.__attributes, expected, 'attributes were populated initially');
 });
 
 test("snapshot.attr() does not change when record changes", function(assert) {
@@ -276,7 +368,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship is set", function(
     let snapshot = comment._createSnapshot();
     let relationship = snapshot.belongsTo('post');
 
-    assert.ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
     assert.equal(relationship.id, '1', 'post id is correct');
     assert.equal(relationship.attr('title'), 'Hello World', 'post title is correct');
   });
@@ -398,7 +490,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
       let snapshot = comment._createSnapshot();
       let relationship = snapshot.belongsTo('post');
 
-      assert.ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      assert.ok(relationship instanceof Snapshot, 'snapshot is an instance of Snapshot');
       assert.equal(relationship.id, '1', 'post id is correct');
     });
   });
@@ -438,7 +530,7 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding 
       assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
       assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-      assert.ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+      assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
       assert.equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
     });
   });
@@ -477,7 +569,7 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting
     assert.ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     assert.equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-    assert.ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+    assert.ok(belongsToRelationship instanceof Snapshot, 'belongsTo relationship is an instance of Snapshot');
     assert.equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
   });
 });
@@ -640,7 +732,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship is set", fun
 
     let relationship1 = relationship[0];
 
-    assert.ok(relationship1 instanceof DS.Snapshot, 'relationship item is an instance of DS.Snapshot');
+    assert.ok(relationship1 instanceof Snapshot, 'relationship item is an instance of Snapshot');
 
     assert.equal(relationship1.id, '1', 'relationship item id is correct');
     assert.equal(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');

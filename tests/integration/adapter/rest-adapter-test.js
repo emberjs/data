@@ -1,11 +1,10 @@
 import { underscore } from '@ember/string';
-import { copy } from '@ember/object/internals';
 import RSVP, { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
 import { singularize } from 'ember-inflector';
-
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
@@ -56,7 +55,7 @@ function ajaxResponse(value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return run(RSVP, 'resolve', copy(value, true));
+    return run(RSVP, 'resolve', deepCopy(value));
   };
 }
 
@@ -74,14 +73,14 @@ function ajaxError(responseText, status = 400, headers = '') {
 test("findRecord - basic payload", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 
@@ -93,22 +92,22 @@ test("findRecord - passes buildURL a requestType", function(assert) {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/findRecord/post/1");
-  });
+  }));
 });
 
 test("findRecord - basic payload (with legacy singular name)", function(assert) {
   ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 test("findRecord - payload with sideloaded records of the same type", function(assert) {
@@ -119,7 +118,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
     ]
   });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -130,7 +129,7 @@ test("findRecord - payload with sideloaded records of the same type", function(a
     let post2 = store.peekRecord('post', 2);
     assert.equal(post2.get('id'), "2");
     assert.equal(post2.get('name'), "The Parley Letter");
-  });
+  }));
 });
 
 test("findRecord - payload with sideloaded records of a different type", function(assert) {
@@ -139,7 +138,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -150,7 +149,7 @@ test("findRecord - payload with sideloaded records of a different type", functio
     let comment = store.peekRecord('comment', 1);
     assert.equal(comment.get('id'), "1");
     assert.equal(comment.get('name'), "FIRST");
-  });
+  }));
 });
 
 
@@ -161,14 +160,14 @@ test("findRecord - payload with an serializer-specified primary key", function(a
 
   ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
 
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
-  });
+  }));
 });
 
 test("findRecord - payload with a serializer-specified attribute mapping", function(assert) {
@@ -185,7 +184,7 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
 
   ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+  return run(() => store.findRecord('post', 1).then(post => {
     assert.equal(passedUrl, "/posts/1");
     assert.equal(passedVerb, "GET");
     assert.deepEqual(passedHash.data, {});
@@ -193,7 +192,7 @@ test("findRecord - payload with a serializer-specified attribute mapping", funct
     assert.equal(post.get('id'), "1");
     assert.equal(post.get('name'), "Rails is omakase");
     assert.equal(post.get('createdAt'), 2013);
-  });
+  }));
 });
 
 test("findRecord - passes `include` as a query parameter to ajax", function(assert) {
@@ -201,9 +200,9 @@ test("findRecord - passes `include` as a query parameter to ajax", function(asse
     post: { id: 1, name: 'Rails is very expensive sushi' }
   });
 
-  return run(store, 'findRecord', 'post', 1, { include: 'comments' }).then(() => {
+  return run(() => store.findRecord('post', 1, { include: 'comments' }).then(() => {
     assert.deepEqual(passedHash.data, { include: 'comments' }, '`include` parameter sent to adapter.ajax');
-  });
+  }));
 });
 
 test("createRecord - an empty payload is a basic success if an id was specified", function(assert) {
@@ -256,11 +255,8 @@ test("createRecord - a payload with a new ID and data applies the updates", func
 });
 
 test("createRecord - a payload with a new ID and data applies the updates (with legacy singular name)", function(assert) {
-  let post;
   ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } });
-  run(function() {
-    post = store.createRecord('post', { name: "The Parley Letter" });
-  });
+  let post = store.createRecord('post', { name: "The Parley Letter" });
 
   return run(post, 'save').then(post => {
     assert.equal(passedUrl, "/posts");
@@ -297,7 +293,7 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
   });
   let post = store.peekRecord('post', 1);
 
-  let comment = run(() => store.createRecord('comment', { name: "The Parley Letter" }));
+  let comment = store.createRecord('comment', { name: "The Parley Letter" });
 
   run(() => {
     post.get('comments').pushObject(comment);
@@ -315,7 +311,6 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
 });
 
 test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
-  let post;
   env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
 
@@ -326,13 +321,14 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
 
   ajaxResponse();
 
-  run(() => {
-    post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
-  });
+  let post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
 
-  return run(post, 'save').then(post => {
-    assert.deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
-  });
+  return run(() =>
+    post.save()
+      .then(post => {
+        assert.deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
+      })
+  );
 });
 
 test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
@@ -510,14 +506,11 @@ test("createRecord - a record on the many side of a hasMany relationship should 
 
 test("createRecord - sideloaded belongsTo relationships are both marked as loaded", function(assert) {
   assert.expect(4);
-  let post;
 
   Post.reopen({ comment: DS.belongsTo('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  run(() => {
-    post = store.createRecord('post', { name: "man" });
-  });
+  let post = store.createRecord('post', { name: "man" });
 
   ajaxResponse({
     posts: [{ id: 1, comment: 1, name: "marked" }],
@@ -553,10 +546,7 @@ test("createRecord - response can contain relationships the client doesn't yet k
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  let post;
-  run(() => {
-    post = store.createRecord('post', { name: "Rails is omakase" });
-  });
+  let post = store.createRecord('post', { name: "Rails is omakase" });
 
   return run(() => {
     return post.save().then(post => {
@@ -572,19 +562,15 @@ test("createRecord - response can contain relationships the client doesn't yet k
 });
 
 test("createRecord - relationships are not duplicated", function(assert) {
-  let post, comment;
-
   Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  run(() => {
-    post = store.createRecord('post', { name: "Tomtomhuda" });
-    comment = store.createRecord('comment', { id: 2, name: "Comment title" });
-  });
+  let post = store.createRecord('post', { name: "Tomtomhuda" });
+  let comment = store.createRecord('comment', { id: 2, name: "Comment title" });
 
   ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
 
-  return run(post, 'save').then(post => {
+  return run(() => post.save().then(post => {
     assert.equal(post.get('comments.length'), 0, "post has 0 comments");
     post.get('comments').pushObject(comment);
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
@@ -597,7 +583,7 @@ test("createRecord - relationships are not duplicated", function(assert) {
     return post.save();
   }).then(post => {
     assert.equal(post.get('comments.length'), 1, "post has 1 comment");
-  });
+  }));
 });
 
 test("updateRecord - an empty payload is a basic success", function(assert) {
@@ -986,7 +972,7 @@ test("deleteRecord - a payload with sidloaded updates pushes the updates when th
 });
 
 test("deleteRecord - deleting a newly created record should not throw an error", function(assert) {
-  let post = run(() => store.createRecord('post'));
+  let post = store.createRecord('post');
 
   return run(() => {
     post.deleteRecord();
@@ -1446,10 +1432,10 @@ test("findMany - findMany uses a correct URL to access the records", function(as
     ]
   });
 
-  return run(post, 'get', 'comments').then(comments => {
+  return run(() => post.get('comments').then(comments => {
     assert.equal(passedUrl, "/comments");
     assert.deepEqual(passedHash, { data: { ids: ["1", "2", "3"] } });
-  });
+  }));
 });
 
 test("findMany - passes buildURL the requestType", function(assert) {
@@ -1529,10 +1515,10 @@ test("findMany - findMany does not coalesce by default", function(assert) {
     ]
   });
 
-  return run(post, 'get', 'comments').then(comments => {
+  return run(() => post.get('comments').then(comments => {
     assert.equal(passedUrl, "/comments/3");
     assert.deepEqual(passedHash.data, {});
-  });
+  }));
 });
 
 test("findMany - returning an array populates the array", function(assert) {
@@ -1725,7 +1711,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', '1').then(post => {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1749,7 +1735,7 @@ test("findHasMany - returning an array populates the array", function(assert) {
     assert.deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
 
     assert.deepEqual(comments.toArray(), [comment1, comment2, comment3], "The correct records are in the array");
-  });
+  }));
 });
 
 test("findHasMany - passes buildURL the requestType", function(assert) {
@@ -1781,7 +1767,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'post', '1').then(post => {
+  return run(() => store.findRecord('post', '1').then(post => {
     ajaxResponse({
       comments: [
         { id: 1, name: "FIRST" },
@@ -1791,7 +1777,7 @@ test("findHasMany - passes buildURL the requestType", function(assert) {
     });
 
     return post.get('comments');
-  });
+  }));
 });
 
 test("findMany - returning sideloaded data loads the data (with JSONApi Links)", function(assert) {
@@ -1925,47 +1911,55 @@ test('findBelongsTo - passes buildURL the requestType', function(assert) {
     });
   });
 
-  return run(store, 'findRecord', 'comment', 1).then(comment => {
+  return run(() => store.findRecord('comment', '1').then(comment => {
     ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
     return comment.get('post');
-  });
+  }));
 });
 
 testInDebug('coalesceFindRequests assert.warns if the expected records are not returned in the coalesced request', function(assert) {
+  assert.expect(2);
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   adapter.coalesceFindRequests = true;
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({
+    comments: [
+      { id: '1', type: 'comment' }
+    ]
+  });
 
-  let wait;
-  assert.expectWarning(() => {
-    run(() => {
-      store.push({
-        data: {
-          type: 'post',
-          id: '2',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' }
-              ]
-            }
-          }
+  let post = run(() => store.push({
+    data: {
+      type: 'post',
+      id: '2',
+      relationships: {
+        comments: {
+          data: [
+            { type: 'comment', id: '1'},
+            { type: 'comment', id: '2'},
+            { type: 'comment', id: '3'}
+          ]
         }
+      }
+    }
+  }));
+
+  assert.expectWarning(
+    () => {
+      return run(() => {
+        return post.get('comments')
+          .catch(e => {
+            assert.equal(
+              e.message,
+              `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`
+            );
+          });
       });
-
-      let post = store.peekRecord('post', 2);
-      wait = post.get('comments').catch(e => {
-        assert.equal(e.message, `Expected: '<comment:2>' to be present in the adapter provided payload, but it was not found.`)
-      })
-    });
-
-    return wait;
-  }, /expected to find records with the following ids in the adapter response but they were missing: \[2,3\]/);
+    },
+    /expected to find records with the following ids in the adapter response but they were missing: \[ "2", "3" \]/
+  );
 });
 
 test('groupRecordsForFindMany groups records based on their url', function(assert) {
