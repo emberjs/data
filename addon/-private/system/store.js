@@ -1060,10 +1060,10 @@ Store = Service.extend({
     This method is called by the record's `reload` method.
 
     This method calls the adapter's `find` method, which returns a promise. When
-    **that** promise resolves, `reloadRecord` will resolve the promise returned
+    **that** promise resolves, `_reloadRecord` will resolve the promise returned
     by the record's `reload`.
 
-    @method reloadRecord
+    @method _reloadRecord
     @private
     @param {DS.Model} internalModel
     @param options optional to include adapterOptions
