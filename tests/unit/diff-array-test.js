@@ -1,4 +1,5 @@
 import { module, test } from 'qunit';
+
 import { diffArray } from 'ember-data/-private';
 
 module('unit/diff-array Diff Array tests', {
