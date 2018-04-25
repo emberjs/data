@@ -2,6 +2,7 @@ import { alias } from '@ember/object/computed';
 import { run } from '@ember/runloop';
 import EmberObject, { set, get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
+
 import DS from 'ember-data';
 import { module, test } from 'qunit';
 
@@ -532,26 +533,32 @@ test('Calling push with relationship triggers willChange and didChange with deta
     }
   };
 
-  let person = run(() => store.push({
-    data: {
-      type: 'person',
-      id: 'wat',
-      attributes: {
-        firstName: 'Yehuda',
-        lastName: 'Katz'
-      },
-      relationships: {
-        siblings: {
-          data: [sibling1Ref]
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref]
+          }
         }
-      }
-    },
-    included: [
-      sibling1
-    ]
-  }));
+      },
+      included: [
+        sibling1
+      ]
 
+    });
+  });
+
+
+  let person = store.peekRecord('person', 'wat');
   let siblings = run(() => person.get('siblings'));
+
   siblings.addArrayObserver(observer);
 
   run(() => {
@@ -582,26 +589,31 @@ test('Calling push with relationship triggers willChange and didChange with deta
 test('Calling push with relationship triggers willChange and didChange with detail when truncating', function(assert) {
   let willChangeCount = 0;
   let didChangeCount = 0;
-  let person = run(() => store.push({
-    data: {
-      type: 'person',
-      id: 'wat',
-      attributes: {
-        firstName: 'Yehuda',
-        lastName: 'Katz'
-      },
-      relationships: {
-        siblings: {
-          data: [sibling1Ref, sibling2Ref]
-        }
-      }
-    },
-    included: [
-      sibling1, sibling2
-    ]
-  }));
 
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          siblings: {
+            data: [sibling1Ref, sibling2Ref]
+          }
+        }
+      },
+      included: [
+        sibling1, sibling2
+      ]
+    });
+  });
+
+  let person = store.peekRecord('person', 'wat');
   let siblings = run(() => person.get('siblings'));
+
   let observer = {
     arrayWillChange(array, start, removing, adding) {
       willChangeCount++;
@@ -646,24 +658,28 @@ test('Calling push with relationship triggers willChange and didChange with deta
 test('Calling push with relationship triggers willChange and didChange with detail when inserting at front', function(assert) {
   let willChangeCount = 0;
   let didChangeCount = 0;
-  let person = run(() => store.push({
-    data: {
-      type: 'person',
-      id: 'wat',
-      attributes: {
-        firstName: 'Yehuda',
-        lastName: 'Katz'
-      },
-      relationships: {
-        siblings: {
-          data: [sibling2Ref]
+
+  run(() => {
+    store.push({
+      data: {
+        type: 'person',
+        id: 'wat',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          siblings: {
+            data: [sibling2Ref]
+          }
         }
-      }
-    },
-    included: [
-      sibling2
-    ]
-  }));
+      },
+      included: [
+        sibling2
+      ]
+    });
+  });
+  let person = store.peekRecord('person', 'wat');
 
   let observer = {
     arrayWillChange(array, start, removing, adding) {
