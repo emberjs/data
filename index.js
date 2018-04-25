@@ -5,7 +5,6 @@ const path = require('path');
 const SilentError = require('silent-error');
 const Funnel = require('broccoli-funnel');
 const Rollup = require('broccoli-rollup');
-const Babel = require('broccoli-babel-transpiler');
 const merge = require('broccoli-merge-trees');
 const semver = require('semver');
 const version = require('./lib/version');
