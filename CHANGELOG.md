@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.2.0-beta.3 (April 25, 2018)
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+
 ### Release 3.2.0-beta.2 (April 6, 2018)
 - [#5412](https://github.com/emberjs/data/pull/5412) Fix npmignore and cleanup test artifacts before publishing
 - [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods
