@@ -502,6 +502,9 @@ Re-release of 3.9.3 to allow for an extended stabilization period for the [Packa
 - [#5383](https://github.com/emberjs/data/pull/5383) fix external ordered set dependency
 - [#5384](https://github.com/emberjs/data/pull/5384) [FEAT] remove all stale feature flags (#5384)
 
+### Release 3.2.0-beta.3 (April 25, 2018)
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+
 ### Release 3.2.0-beta.2 (April 6, 2018)
 - [#5412](https://github.com/emberjs/data/pull/5412) Fix npmignore and cleanup test artifacts before publishing
 - [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods
