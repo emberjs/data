@@ -8,7 +8,7 @@ import {
   setup as setupModelFactoryInjections,
   reset as resetModelFactoryInjection
 } from 'dummy/tests/helpers/model-factory-injection';
-import { module, test } from 'qunit';
+import { module, test, skip } from 'qunit';
 
 import DS from 'ember-data';
 
@@ -1532,4 +1532,73 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   });
 
   assert.equal(count, 0);
+});
+
+/**
+ * @TODO Test fails at the last assert since the relationship is not cleared
+ */
+skip('clear async belongsTo relationship', function (assert) {
+  let employee;
+
+  let Employee = DS.Model.extend({
+    name: DS.attr('string'),
+    company: DS.belongsTo('company', {async: true})
+  });
+
+  let Company = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  env.registry.register('model:company', Company);
+  env.registry.register('model:employee', Employee);
+
+  run(() => {
+    store.push({
+      data: {
+        id: 'c1',
+        type: 'company',
+        attributes: {
+          name: "United Brands"
+        }
+      }
+    });
+
+    employee = store.push({
+      data: {
+        id: 'e1',
+        type: 'employee',
+        attributes: {
+          name: "Williams"
+        },
+        relationships: {
+          company: {
+            data: {
+              id: 'c1',
+              type: 'company'
+            }
+          }
+        }
+      }
+    });
+  });
+
+  assert.equal(employee.get('company.name'), "United Brands");
+
+  run(() => {
+    store.push({
+      "data": [{
+        "id": 'e1',
+        "type": 'employee',
+        "relationships": {
+          company: {
+            data: null
+          }
+        }
+      }]
+    });
+  });
+
+  run(() => {
+    assert.equal(employee.get('company.name'), undefined);
+  });
 });
