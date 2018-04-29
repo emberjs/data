@@ -70,53 +70,53 @@ module.exports = {
         }
       }
     },
-    {
-      name: 'ember-beta',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#beta'
-        },
-        resolutions: {
-          'ember': 'beta'
-        }
-      },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-canary',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#canary'
-        },
-        resolutions: {
-          'ember': 'canary'
-        }
-      },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-alpha',
-      bower: {
-        dependencies: {
-          'ember': 'alpha'
-        },
-        resolutions: {
-          'ember': 'alpha'
-        }
-      },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    }
+    // {
+    //   name: 'ember-beta',
+    //   bower: {
+    //     dependencies: {
+    //       'ember': 'components/ember#beta'
+    //     },
+    //     resolutions: {
+    //       'ember': 'beta'
+    //     }
+    //   },
+    //   npm: {
+    //     devDependencies: {
+    //       'ember-source': null
+    //     }
+    //   }
+    // },
+    // {
+    //   name: 'ember-canary',
+    //   bower: {
+    //     dependencies: {
+    //       'ember': 'components/ember#canary'
+    //     },
+    //     resolutions: {
+    //       'ember': 'canary'
+    //     }
+    //   },
+    //   npm: {
+    //     devDependencies: {
+    //       'ember-source': null
+    //     }
+    //   }
+    // },
+    // {
+    //   name: 'ember-alpha',
+    //   bower: {
+    //     dependencies: {
+    //       'ember': 'alpha'
+    //     },
+    //     resolutions: {
+    //       'ember': 'alpha'
+    //     }
+    //   },
+    //   npm: {
+    //     devDependencies: {
+    //       'ember-source': null
+    //     }
+    //   }
+    // }
   ]
 };

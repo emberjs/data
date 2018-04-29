@@ -3,8 +3,7 @@ import { copy } from '@ember/object/internals';
 import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import { createStore } from 'dummy/tests/helpers/store';
-import { module, test } from 'qunit';
-import testInDebug from '../../../helpers/test-in-debug';
+import { module, test, skip } from 'qunit';
 
 const { Model, hasMany, belongsTo, attr } = DS;
 
@@ -777,7 +776,7 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
   );
 });
 
-testInDebug('Invalid inverses throw errors', function(assert) {
+skip('Invalid inverses throw errors', function(assert) {
   let PostModel = Model.extend({
     comments: hasMany('comment', { async: false })
   });
