@@ -182,9 +182,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
     });
   });
 
-  let filterdPeople = run(() => store.filter('person', () => true));
-
-  let filterdPeopleWillDestroy = tap(filterdPeople.get('content'), 'willDestroy');
   let adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.get('content'), 'willDestroy');
 
   run(() => store.findRecord('person', 2));
@@ -193,10 +190,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
   assert.equal(carsWillDestroy.called.length, 0, 'expected cars.willDestroy to not have been called');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 0, 'expected adapterPopulatedPeople.willDestroy to not have been called');
-  assert.equal(filterdPeopleWillDestroy.called.length, 0, 'expected filterdPeople.willDestroy to not have been called');
-
-  assert.equal(filterdPeople.get('length'), 2, 'expected filterdPeople to have 2 entries');
-
   assert.equal(car.get('person'), person, "expected car's person to be the correct person");
   assert.equal(person.get('cars.firstObject'), car, " expected persons cars's firstRecord to be the correct car");
 
@@ -206,7 +199,6 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');
   assert.equal(carsWillDestroy.called.length, 1, 'expected person.cars to recieve willDestroy once');
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
-  assert.equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
 });
 
 function ajaxResponse(value) {

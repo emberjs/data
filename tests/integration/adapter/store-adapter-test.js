@@ -881,46 +881,6 @@ test("can be created after the DS.Store", function(assert) {
   run(() => store.findRecord('person', 1));
 });
 
-test("the filter method can optionally take a server query as well", function(assert) {
-  adapter.shouldBackgroundReloadRecord = () => false;
-  adapter.query = function(store, type, query, array) {
-    return resolve({
-      data: [
-        {
-          id: 1,
-          type: "person",
-          attributes: {
-            name: "Yehuda Katz"
-          }
-        },
-        {
-          id: 2,
-          type: "person",
-          attributes: {
-            name: "Tom Dale"
-          }
-        }
-      ]
-    });
-  };
-
-  return run(() => {
-    let asyncFilter = store.filter('person', { page: 1 }, data => {
-      return data.get('name') === "Tom Dale";
-    });
-
-    let loadedFilter;
-
-    return asyncFilter.then(filter => {
-      loadedFilter = filter;
-      return store.findRecord('person', 2);
-    }).then(tom => {
-      assert.equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
-      assert.deepEqual(loadedFilter.toArray(), [tom], "The filter has a single entry in it");
-    });
-  });
-});
-
 test("relationships returned via `commit` do not trigger additional findManys", function(assert) {
   Person.reopen({
     dogs: DS.hasMany('dog', { async: false })
@@ -1368,20 +1328,6 @@ test("store.query should pass adapterOptions to adapter.query ", function(assert
 
   return run(() => {
     return store.query('person', {}, { adapterOptions: { query: { embed: true } } });
-  });
-});
-
-test("store.filter should pass adapterOptions to adapter.query", function(assert) {
-  assert.expect(2);
-
-  env.adapter.query = function(store, type, query, array, options) {
-    assert.ok(!('adapterOptions' in query));
-    assert.deepEqual(options.adapterOptions, { query: { embed: true } });
-    return { data: [] };
-  };
-
-  return run(() => {
-    return store.filter('person', {}, () => {}, { adapterOptions: { query: { embed: true } } });
   });
 });
 
