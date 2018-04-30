@@ -1,6 +1,7 @@
 import ComputedProperty from '@ember/object/computed';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
+import { run } from '@ember/runloop';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
 import Map from '../map';
@@ -614,7 +615,12 @@ const Model = EmberObject.extend(Evented, {
   */
   destroyRecord(options) {
     this.deleteRecord();
-    return this.save(options);
+    return this.save(options).then(() => {
+      // the nested runloop here is necessary to ensure that the record is fully
+      //   destroyed prior to the promise resolving.
+      //   run.join is inadequate as the destroy queue would still be flushed after the resolve
+      run(() => this.unloadRecord());
+    });
   },
 
   /**

@@ -699,6 +699,8 @@ const RootState = {
         internalModel.triggerLater('didCommit', internalModel);
       },
 
+      // TODO @runspired should we special case unloadRecord for root.deleted.saved ?
+
       willCommit() {},
       didCommit() {},
       pushedData() {},

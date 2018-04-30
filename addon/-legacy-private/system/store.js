@@ -2046,20 +2046,14 @@ Store = Service.extend({
     if (dataArg) {
       data = dataArg.data;
     }
-    if (data) {
-      // normalize relationship IDs into records
-      this.updateId(internalModel, data);
-      this._setupRelationshipsForModel(internalModel, data);
-    } else {
-      assert(
-        `Your ${
-          internalModel.modelName
-        } record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
-        internalModel.id
-      );
-    }
 
-    //We first make sure the primary data has been updated
+    assert(
+      `Your ${
+        internalModel.modelName
+      } record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
+      internalModel.id || (data && data.id)
+    );
+
     //TODO try to move notification to the user to the end of the runloop
     internalModel.adapterDidCommit(data);
   },

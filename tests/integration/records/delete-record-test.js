@@ -1,102 +1,103 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|dave|cersei)" }]*/
 
-import { Promise as EmberPromise, all } from 'rsvp';
-
+import { resolve, reject, all } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-
-import setupStore from 'dummy/tests/helpers/store';
-
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import Model from 'ember-data/model';
+import Store from 'ember-data/store';
+import { InvalidError } from 'ember-data/adapters/errors';
+import { attr, hasMany } from '@ember-decorators/data';
+import todo from '../../helpers/todo';
 
-import DS from 'ember-data';
+class Person extends Model {
+  @attr name;
 
-var attr = DS.attr;
-var Person, env;
+  static toString() {
+    return 'Person';
+  }
+}
 
-module('integration/deletedRecord - Deleting Records', {
-  beforeEach() {
-    Person = DS.Model.extend({
-      name: attr('string'),
-    });
-    Person.toString = () => {
-      return 'Person';
+module('integration/deletedRecord - Deleting Records', function(hooks) {
+  let store, adapter;
+  setupTest(hooks);
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('service:store', Store);
+    owner.register('model:person', Person);
+    owner.register('adapter:application', JSONAPIAdapter);
+    owner.register('serializer:application', JSONAPISerializer);
+
+    store = owner.lookup('service:store');
+    adapter = store.adapterFor('application');
+  });
+
+  test('records should not be removed from record arrays just after deleting, but only after committing them', async function(assert) {
+    adapter.deleteRecord = function() {
+      return resolve();
     };
 
-    env = setupStore({
-      person: Person,
-    });
-  },
-
-  afterEach() {
-    run(function() {
-      env.container.destroy();
-    });
-  },
-});
-
-test('records should not be removed from record arrays just after deleting, but only after committing them', function(assert) {
-  var adam, dave;
-
-  env.adapter.deleteRecord = function() {
-    return EmberPromise.resolve();
-  };
-
-  var all;
-  run(function() {
-    env.store.push({
+    store.push({
       data: [
         {
           type: 'person',
           id: '1',
           attributes: {
-            name: 'Adam Sunderland',
+            name: 'Adam',
           },
         },
         {
           type: 'person',
           id: '2',
           attributes: {
-            name: 'Dave Sunderland',
+            name: 'Dave',
           },
         },
       ],
     });
-    adam = env.store.peekRecord('person', 1);
-    dave = env.store.peekRecord('person', 2);
-    all = env.store.peekAll('person');
+    let adam = store.peekRecord('person', 1);
+    let all = store.peekAll('person');
+    let entries = all.map(r => get(r, 'name'));
+
+    // pre-condition
+    assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
+    assert.deepEqual(
+      entries,
+      ['Adam', 'Dave'],
+      'pre-condition: The correct records are in the array'
+    );
+
+    adam.deleteRecord();
+
+    assert.equal(all.get('length'), 2, '2 records in array after deleteRecord');
+
+    await adam.save();
+
+    assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
   });
 
-  // pre-condition
-  assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
+  test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', async function(assert) {
+    class Group extends Model {
+      @hasMany('person', { inverse: null, async: false })
+      people;
 
-  run(adam, 'deleteRecord');
+      static toString() {
+        return 'Group';
+      }
+    }
 
-  assert.equal(all.get('length'), 2, '2 records in array after deleteRecord');
+    this.owner.register('model:group', Group);
+    adapter.deleteRecord = function() {
+      return resolve({
+        data: null,
+      });
+    };
 
-  run(adam, 'save');
-
-  assert.equal(all.get('length'), 1, '1 record in array after deleteRecord and save');
-});
-
-test('deleting a record that is part of a hasMany removes it from the hasMany recordArray', function(assert) {
-  let group;
-  let person;
-  const Group = DS.Model.extend({
-    people: DS.hasMany('person', { inverse: null, async: false }),
-  });
-  Group.toString = () => {
-    return 'Group';
-  };
-
-  env.adapter.deleteRecord = function() {
-    return EmberPromise.resolve();
-  };
-
-  env.registry.register('model:group', Group);
-
-  run(function() {
-    env.store.push({
+    let group = store.push({
       data: {
         type: 'group',
         id: '1',
@@ -124,101 +125,80 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
       ],
     });
 
-    group = env.store.peekRecord('group', '1');
-    person = env.store.peekRecord('person', '1');
+    let person = store.peekRecord('person', '1');
+
+    // Sanity Check we are in the correct state.
+    assert.equal(group.get('people.length'), 2, 'expected 2 related records before delete');
+    assert.deepEqual(
+      group.get('people').map(p => get(p, 'name')),
+      ['Adam Sunderland', 'Dave Sunderland'],
+      'expected the right records before delete'
+    );
+    assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+
+    person.deleteRecord();
+
+    await person.save();
+
+    assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
+    assert.deepEqual(
+      group.get('people').map(p => get(p, 'name')),
+      ['Dave Sunderland'],
+      'expected 1 related records after delete'
+    );
   });
 
-  // Sanity Check we are in the correct state.
-  assert.equal(group.get('people.length'), 2, 'expected 2 related records before delete');
-  assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+  test('We properly unload a record when destroyRecord is called', async function(assert) {
+    class Group extends Model {
+      @attr name;
 
-  run(function() {
-    person.destroyRecord();
-  });
-
-  assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
-});
-
-test('deleting a record that is part of a hasMany removes it from the hasMany recordArray when adapter deleteRecord function returns a payload', function(assert) {
-  let group;
-  let person;
-  const Group = DS.Model.extend({
-    people: DS.hasMany('person', { inverse: null, async: false })
-  });
-  Group.toString = () => { return 'Group'; }
-
-  env.adapter.deleteRecord = function() {
-    return EmberPromise.resolve({
-      data: {
-        id: '1',
-        type: 'group',
-        attributes: {}
+      static toString() {
+        return 'Group';
       }
-    });
-  };
+    }
 
-  env.registry.register('model:group', Group);
+    adapter.shouldBackgroundReloadRecord = () => false;
+    adapter.deleteRecord = function() {
+      return resolve({
+        data: {
+          id: '1',
+          type: 'group',
+          attributes: {
+            name: 'Deleted Checkers',
+          },
+        },
+      });
+    };
 
-  run(function() {
-    env.store.push({
+    this.owner.register('model:group', Group);
+
+    let group = store.push({
       data: {
         type: 'group',
         id: '1',
-        relationships: {
-          people: {
-            data: [
-              { type: 'person', id: '1' },
-              { type: 'person', id: '2' }
-            ]
-          }
-        }
-      },
-      included: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Adam Sunderland'
-          }
+        attributes: {
+          name: 'Checkers',
         },
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Dave Sunderland'
-          }
-        }
-      ]
+      },
     });
 
-    group = env.store.peekRecord('group', '1');
-    person = env.store.peekRecord('person', '1');
+    assert.equal(group.get('name'), 'Checkers', 'We have the right group');
+
+    await group.destroyRecord();
+
+    const deletedGroup = store.peekRecord('group', '1');
+
+    assert.ok(deletedGroup === null, 'expected to no longer have group 1');
   });
 
-  // Sanity Check we are in the correct state.
-  assert.equal(group.get('people.length'), 2, 'expected 2 related records before delete');
-  assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
+  test('records can be deleted during record array enumeration', async function(assert) {
+    adapter.deleteRecord = function() {
+      return resolve({
+        data: null,
+      });
+    };
 
-  const promise = run(() => group.destroyRecord());
-
-  return promise.then(() => {
-    // qunit complains if i pass the record to QUnit due to some assertion in ember
-    // iterating over the properties.
-    const hasGroup = env.store.peekRecord('group', '1') ? true : false;
-    assert.equal(hasGroup, false);
-    assert.equal(person.get('group'), null, 'expected relationship to be null');
-  });
-});
-
-test('records can be deleted during record array enumeration', function(assert) {
-  var adam, dave;
-
-  env.adapter.deleteRecord = function() {
-    return EmberPromise.resolve();
-  };
-
-  run(function() {
-    env.store.push({
+    store.push({
       data: [
         {
           type: 'person',
@@ -236,140 +216,171 @@ test('records can be deleted during record array enumeration', function(assert) 
         },
       ],
     });
-    adam = env.store.peekRecord('person', 1);
-    dave = env.store.peekRecord('person', 2);
-  });
-  var all = env.store.peekAll('person');
 
-  // pre-condition
-  assert.equal(all.get('length'), 2, 'expected 2 records');
+    let adam = store.peekRecord('person', 1);
+    let dave = store.peekRecord('person', 2);
+    let allPeople = store.peekAll('person');
 
-  run(function() {
-    all.forEach(function(record) {
-      record.destroyRecord();
+    // pre-condition
+    assert.equal(allPeople.get('length'), 2, 'expected 2 records');
+    assert.deepEqual(allPeople.toArray(), [adam, dave], 'expected the right 2 records');
+
+    let promises = allPeople.map(record => {
+      record.deleteRecord();
+      return record.save();
     });
+
+    await all(promises);
+
+    assert.equal(allPeople.get('length'), 0, 'expected 0 records');
+    assert.equal(allPeople.objectAt(0), null, "can't get any records");
   });
 
-  assert.equal(all.get('length'), 0, 'expected 0 records');
-  assert.equal(all.objectAt(0), null, "can't get any records");
-});
-
-test('Deleting an invalid newly created record should remove it from the store', function(assert) {
-  var record;
-  var store = env.store;
-
-  env.adapter.createRecord = function() {
-    return EmberPromise.reject(
-      new DS.InvalidError([
-        {
-          title: 'Invalid Attribute',
-          detail: 'name is invalid',
-          source: {
-            pointer: '/data/attributes/name',
+  todo('Deleting an invalid newly created record should remove it from the store', async function(
+    assert
+  ) {
+    adapter.createRecord = function() {
+      return reject(
+        new InvalidError([
+          {
+            title: 'Invalid Attribute',
+            detail: 'name is invalid',
+            source: {
+              pointer: '/data/attributes/name',
+            },
           },
-        },
-      ])
-    );
-  };
+        ])
+      );
+    };
 
-  run(function() {
-    record = store.createRecord('person', { name: 'pablobm' });
+    let record = store.createRecord('person', { name: 'pablobm' });
+
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
-    record.save().catch(() => {});
-  });
+    await record.save().catch(() => {});
 
-  // Preconditions
-  assert.equal(
-    get(record, 'currentState.stateName'),
-    'root.loaded.created.invalid',
-    'records should start in the created.invalid state'
-  );
-  assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
-
-  run(function() {
-    record.deleteRecord();
-  });
-
-  assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-  assert.equal(
-    get(store.peekAll('person'), 'length'),
-    0,
-    'The new person should be removed from the store'
-  );
-});
-
-test('Destroying an invalid newly created record should remove it from the store', function(assert) {
-  var record;
-  var store = env.store;
-
-  env.adapter.deleteRecord = function() {
-    assert.fail(
-      "The adapter's deletedRecord method should not be called when the record was created locally."
+    // Preconditions
+    assert.equal(
+      get(record, 'currentState.stateName'),
+      'root.loaded.created.invalid',
+      'records should start in the created.invalid state'
     );
-  };
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      1,
+      'The new person should be in the store'
+    );
 
-  env.adapter.createRecord = function() {
-    return EmberPromise.reject(
-      new DS.InvalidError([
-        {
-          title: 'Invalid Attribute',
-          detail: 'name is invalid',
-          source: {
-            pointer: '/data/attributes/name',
+    let internalModel = record._internalModel;
+
+    await record.destroyRecord();
+
+    assert.equal(
+      internalModel.currentState.stateName,
+      'root.deleted.saved',
+      'We reached the correct persisted saved state'
+    );
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      0,
+      'The new person should be removed from the store'
+    );
+
+    let cache = store._identityMap._map.person._models;
+    assert.todo.ok(
+      cache.indexOf(internalModel) === -1,
+      'The internal model is removed from the cache'
+    );
+    assert.todo.equal(internalModel.isDestroying, true, 'The internal model is destroyed');
+    assert.todo.equal(internalModel._isDematerializing, true, 'The internal model is unloaded');
+  });
+
+  test('Destroying an invalid newly created record should remove it from the store', async function(assert) {
+    adapter.deleteRecord = function() {
+      assert.fail(
+        "The adapter's deletedRecord method should not be called when the record was created locally."
+      );
+    };
+    adapter.createRecord = function() {
+      return reject(
+        new InvalidError([
+          {
+            title: 'Invalid Attribute',
+            detail: 'name is invalid',
+            source: {
+              pointer: '/data/attributes/name',
+            },
           },
-        },
-      ])
-    );
-  };
+        ])
+      );
+    };
 
-  run(function() {
-    record = store.createRecord('person', { name: 'pablobm' });
+    let record = store.createRecord('person', { name: 'pablobm' });
+
     // Invalidate the record to put it in the `root.loaded.created.invalid` state
-    record.save().catch(() => {});
+    await record.save().catch(() => {});
+
+    // Preconditions
+    assert.equal(
+      get(record, 'currentState.stateName'),
+      'root.loaded.created.invalid',
+      'records should start in the created.invalid state'
+    );
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      1,
+      'The new person should be in the store'
+    );
+    let internalModel = record._internalModel;
+
+    await record.destroyRecord();
+
+    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
+    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
+    assert.equal(
+      internalModel.currentState.stateName,
+      'root.empty',
+      'We reached the correct persisted saved state'
+    );
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      0,
+      'The new person should be removed from the store'
+    );
+
+    let cache = store._identityMap._map.person._models;
+
+    assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
+    assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
   });
 
-  // Preconditions
-  assert.equal(
-    get(record, 'currentState.stateName'),
-    'root.loaded.created.invalid',
-    'records should start in the created.invalid state'
-  );
-  assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
+  todo('Will resolve destroy and save in same loop', async function(assert) {
+    let adam, dave;
+    let promises;
 
-  run(function() {
-    record.destroyRecord();
-  });
+    assert.expect(1);
 
-  assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-  assert.equal(
-    get(store.peekAll('person'), 'length'),
-    0,
-    'The new person should be removed from the store'
-  );
-});
+    adapter.createRecord = function() {
+      assert.ok(true, 'save operation resolves');
+      return resolve({
+        data: {
+          id: 123,
+          type: 'person',
+        },
+      });
+    };
 
-test('Will resolve destroy and save in same loop', function(assert) {
-  let adam, dave;
-  let promises;
+    adam = store.createRecord('person', { name: 'Adam Sunderland' });
+    dave = store.createRecord('person', { name: 'Dave Sunderland' });
 
-  assert.expect(1);
-
-  env.adapter.createRecord = function() {
-    assert.ok(true, 'save operation resolves');
-    return EmberPromise.resolve({
-      data: {
-        id: 123,
-        type: 'person',
-      },
+    run(function() {
+      promises = [adam.destroyRecord(), dave.save()];
     });
-  };
 
-  adam = env.store.createRecord('person', { name: 'Adam Sunderland' });
-  dave = env.store.createRecord('person', { name: 'Dave Sunderland' });
+    await all(promises);
 
-  run(function() {
-    promises = [adam.destroyRecord(), dave.save()];
+    assert.todo.ok(
+      false,
+      'We need to test that the one record was destroyed, better test that the other was saved'
+    );
   });
-
-  return all(promises);
 });
