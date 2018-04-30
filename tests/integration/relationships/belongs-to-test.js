@@ -92,6 +92,77 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   }
 });
 
+test("returning a null relationship from payload sets the relationship to null on both sides", function(assert) {
+  env.registry.register('model:app', DS.Model.extend({
+    name: attr('string'),
+    team: belongsTo('team', { async: true }),
+  }));
+  env.registry.register('model:team', DS.Model.extend({
+    apps: hasMany('app', {async: true})
+  }));
+  run(() => {
+    env.store.push({
+      data: {
+        id: '1',
+        type: 'app',
+        relationships: {
+          team: {
+            data: {
+              id: '1',
+              type: 'team'
+            }
+          }
+        }
+      },
+      included: [
+        {
+          id: '1',
+          type: 'team',
+          relationships: {
+            apps: {
+              data: [{
+                id: '1',
+                type: 'app'
+              }]
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  const app = env.store.peekRecord('app', '1');
+  const team = env.store.peekRecord('team', '1');
+  assert.equal(app.get('team.id'), team.get('id'), 'sets team correctly on app');
+  assert.deepEqual(team.get('apps').toArray().mapBy('id'), ['1'], 'sets apps correctly on team');
+
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.updateRecord = (store, type, snapshot) => {
+    return RSVP.resolve({
+      data: {
+        id: '1',
+        type: 'app',
+        attributes: {
+          name: 'Hello'
+        },
+        relationships: {
+          team: {
+            data: null
+          }
+        }
+      }
+    });
+  };
+
+  return run(() => {
+    app.set('name', 'Hello');
+    return app.save().then(() => {
+      assert.equal(app.get('team.id'), null, 'team removed from app relationship');
+      assert.deepEqual(team.get('apps').toArray().mapBy('id'), [], 'app removed from team apps relationship');
+    });
+  });
+});
+
 test("The store can materialize a non loaded monomorphic belongsTo association", function(assert) {
   assert.expect(1);
 
