@@ -688,7 +688,8 @@ test('supports canonical updates via pushedData in root.deleted.saved', function
   );
 
   run(() => {
-    record.destroyRecord().then(() => {
+    record.deleteRecord();
+    record.save().then(() => {
       let currentState = record._internalModel.currentState;
 
       assert.ok(
@@ -749,7 +750,8 @@ test('Does not support dirtying in root.deleted.saved', function(assert) {
   );
 
   run(() => {
-    record.destroyRecord().then(() => {
+    record.deleteRecord();
+    record.save().then(() => {
       let currentState = record._internalModel.currentState;
 
       assert.ok(

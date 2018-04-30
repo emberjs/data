@@ -1197,12 +1197,13 @@ export default class InternalModel {
     @method adapterDidCommit
   */
   adapterDidCommit(data) {
+    let store = this.store;
+
     if (data) {
-      this.store._internalModelDidReceiveRelationshipData(
-        this.modelName,
-        this.id,
-        data.relationships
-      );
+      // normalize relationship IDs into records
+      store.updateId(this, data);
+      store._setupRelationshipsForModel(this, data);
+      store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
 
       data = data.attributes;
     }

@@ -615,7 +615,9 @@ const Model = EmberObject.extend(Evented, {
   */
   destroyRecord(options) {
     this.deleteRecord();
-    return this.save(options);
+    return this.save(options).then(() => {
+      this.unloadRecord();
+    });
   },
 
   /**

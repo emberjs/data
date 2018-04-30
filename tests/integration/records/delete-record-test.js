@@ -133,10 +133,60 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
   assert.equal(person.get('name'), 'Adam Sunderland', 'expected related records to be loaded');
 
   run(function() {
-    person.destroyRecord();
+    person.deleteRecord();
+    person.save();
   });
 
   assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
+});
+
+test('We properly unload a record when destroyRecord is called', function(assert) {
+  let group;
+  const Group = DS.Model.extend({
+    name: attr(),
+  });
+  Group.toString = () => {
+    return 'Group';
+  };
+
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+  env.adapter.deleteRecord = function() {
+    return EmberPromise.resolve({
+      data: {
+        id: '1',
+        type: 'group',
+        attributes: {
+          name: 'Deleted Checkers',
+        },
+      },
+    });
+  };
+
+  env.registry.register('model:group', Group);
+
+  run(function() {
+    env.store.push({
+      data: {
+        type: 'group',
+        id: '1',
+        attributes: {
+          name: 'Checkers',
+        },
+      },
+    });
+
+    group = env.store.peekRecord('group', '1');
+  });
+
+  assert.equal(group.get('name'), 'Checkers', 'We have the right group');
+
+  const promise = run(() => group.destroyRecord());
+
+  return promise.then(() => {
+    const deletedGroup = env.store.peekRecord('group', '1');
+
+    assert.equal(!!deletedGroup, false, 'expected to no longer have group 1');
+  });
 });
 
 test('records can be deleted during record array enumeration', function(assert) {
@@ -175,7 +225,8 @@ test('records can be deleted during record array enumeration', function(assert) 
 
   run(function() {
     all.forEach(function(record) {
-      record.destroyRecord();
+      record.deleteRecord();
+      record.save();
     });
   });
 
