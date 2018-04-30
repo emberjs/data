@@ -95,7 +95,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 test("returning a null relationship from payload sets the relationship to null on both sides", function(assert) {
   env.registry.register('model:app', DS.Model.extend({
     name: attr('string'),
-    team: belongsTo('team', { async: true }),
+    team: belongsTo('team', { async: true })
   }));
   env.registry.register('model:team', DS.Model.extend({
     apps: hasMany('app', {async: true})

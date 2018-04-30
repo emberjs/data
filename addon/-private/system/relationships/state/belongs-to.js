@@ -188,7 +188,7 @@ export default class BelongsToRelationship extends Relationship {
 
   _updateLoadingPromise(promise, content) {
     if (this._loadingPromise) {
-      if (content) {
+      if (content !== undefined) {
         this._loadingPromise.set('content', content)
       }
       this._loadingPromise.set('promise', promise)
