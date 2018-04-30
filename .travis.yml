@@ -61,6 +61,11 @@ jobs:
     - env: EMBER_TRY_SCENARIO=ember-release
     - env: EMBER_TRY_SCENARIO=ember-beta
     - env: EMBER_TRY_SCENARIO=ember-canary
+      matrix:
+        allow_failures:
+          - env: EMBER_TRY_SCENARIO=ember-beta
+          - env: EMBER_TRY_SCENARIO=ember-canary
+
 
     - stage: deploy
       env: NAME=publish                # used only to make Travis UI show description
@@ -69,7 +74,6 @@ jobs:
         - node_modules/.bin/ember try:reset
         - yarn build:production
         - "./bin/publish-builds"
-
 
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
