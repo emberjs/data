@@ -201,6 +201,13 @@ test("destroying the store correctly cleans everything up", function(assert) {
   assert.equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
 });
 
+testInDebug("_setupRelationshipsForModel generates helpful error in non-prod.", function(assert) {
+  run(store, 'destroy');
+  assert.throws(() => {
+    store._setupRelationshipsForModel(null, { relationships: {} });
+  }, /Attempting to set up relationships after store has been destroyed/);
+});
+
 function ajaxResponse(value) {
   env.adapter.ajax = function(url, verb, hash) {
     return run(RSVP, 'resolve', deepCopy(value));
