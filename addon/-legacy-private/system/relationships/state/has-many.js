@@ -119,11 +119,9 @@ export default class ManyRelationship extends Relationship {
   }
 
   scheduleManyArrayUpdate(internalModel, idx) {
-    // ideally we would early exit here, but some tests
-    //   currently suggest that we cannot.
-    // if (!this._manyArray) {
-    //   return;
-    // }
+    if (!this._manyArray) {
+      return;
+    }
 
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
     pending.push(internalModel, idx);
@@ -198,10 +196,10 @@ export default class ManyRelationship extends Relationship {
   }
 
   flushCanonical() {
+    super.flushCanonical();
     if (this._manyArray) {
       this._manyArray.flushCanonical();
     }
-    super.flushCanonical();
   }
 
   removeInternalModelFromOwn(internalModel, idx) {

@@ -263,7 +263,7 @@ export default class Relationship {
   addCanonicalInternalModel(internalModel, idx) {
     heimdall.increment(addCanonicalInternalModel);
     if (!this.canonicalMembers.has(internalModel)) {
-      this.canonicalMembers.add(internalModel);
+      this.canonicalMembers.addWithIndex(internalModel, idx);
       this.setupInverseRelationship(internalModel);
     }
     this.flushCanonicalLater();
