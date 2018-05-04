@@ -556,6 +556,65 @@ test('it should not include any records when serializing a hasMany relationship 
           'first-name': null,
           'last-name': null,
           title: null
+        },
+        relationships: {
+          handles: {
+            data: []
+          }
+        }
+      }
+    });
+  });
+});
+
+test('it should include an empty list when serializing an empty hasMany relationship', function(assert) {
+  env.registry.register("serializer:user", DS.JSONAPISerializer.extend({
+    attrs: {
+      handles: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    serializer.pushPayload(store, {
+      data: {
+        type: 'users',
+        id: 1,
+        relationships: {
+          handles: {
+            data: [
+              { type: 'handles', id: 1 },
+              { type: 'handles', id: 2 }
+            ]
+          }
+        }
+      },
+      included: [
+        { type: 'handles', id: 1 },
+        { type: 'handles', id: 2 }
+      ]
+    });
+
+    let user = store.peekRecord('user', 1);
+    let handle1 = store.peekRecord('handle', 1);
+    let handle2 = store.peekRecord('handle', 2);
+    user.get('handles').removeObject(handle1);
+    user.get('handles').removeObject(handle2);
+
+    let serialized = user.serialize({ includeId: true });
+
+    assert.deepEqual(serialized, {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': null,
+          'last-name': null,
+          title: null
+        },
+        relationships: {
+          handles: {
+            data: []
+          }
         }
       }
     });
