@@ -245,7 +245,7 @@ export default class HasManyReference extends Reference {
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel);
+          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
         }
 
         return record._internalModel;

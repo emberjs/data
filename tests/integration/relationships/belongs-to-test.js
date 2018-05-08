@@ -1567,7 +1567,7 @@ testInDebug("A belongsTo relationship warns if malformatted data is pushed into 
       });
       chapter.get('book');
     });
-  }, /expected the data for the book relationship on a <chapter:1> to be in a JSON API format/);
+  }, /Encountered a relationship identifier without a type for the belongsTo relationship 'book' on <chapter:1>, expected a json-api identifier with type 'book'/);
 });
 
 test("belongsTo relationship with links doesn't trigger extra change notifications - #4942", function(assert) {

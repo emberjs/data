@@ -1,5 +1,5 @@
 import { A } from '@ember/array';
-import { computed } from '@ember/object';
+import { computed , get } from '@ember/object';
 import MapWithDefault from '../map-with-default';
 import Map from '../map';
 import { assert } from '@ember/debug';
@@ -13,19 +13,12 @@ export const relationshipsDescriptor = computed(function() {
     defaultValue() { return []; }
   });
 
-  // Loop through each computed property on the class
-  this.eachComputedProperty((name, meta) => {
-    // If the computed property is a relationship, add
-    // it to the map.
-    if (meta.isRelationship) {
-      meta.key = name;
-      let relationshipsForType = map.get(typeForRelationshipMeta(meta));
+  let relationshipsByName = get(this, 'relationshipsByName');
 
-      relationshipsForType.push({
-        name: name,
-        kind: meta.kind
-      });
-    }
+  // Loop through each computed property on the class
+  relationshipsByName.forEach(desc => {
+    let relationshipsForType = map.get(desc.type);
+    relationshipsForType.push(desc);
   });
 
   return map;
@@ -61,9 +54,8 @@ export const relationshipsByNameDescriptor = computed(function() {
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
-      let relationship = relationshipFromMeta(meta);
-      relationship.type = typeForRelationshipMeta(meta);
-      map.set(name, relationship);
+      meta.name = name;
+      map.set(name, relationshipFromMeta(meta));
     }
   });
 

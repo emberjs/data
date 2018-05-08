@@ -1300,23 +1300,19 @@ Model.reopenClass({
     let inverseMap = get(this, 'inverseMap');
     if (inverseMap[name] !== undefined) {
       return inverseMap[name];
-    } else {
-      let relationship = get(this, 'relationshipsByName').get(name);
-      if (!relationship) {
-        inverseMap[name] = null;
-        return null;
-      }
-
-      let options = relationship.options;
-      if (options && options.inverse === null) {
-        // populate the cache with a miss entry so we can skip getting and going
-        // through `relationshipsByName`
-        inverseMap[name] = null;
-        return null;
-      }
-
-      return inverseMap[name] = this._findInverseFor(name, store);
     }
+
+    let relationship = get(this, 'relationshipsByName').get(name);
+    if (
+      !relationship ||
+      // populate the cache with a miss entry so we can skip getting and going
+      // through `relationshipsByName`
+      (relationship.options && relationship.options.inverse === null)
+    ) {
+      return inverseMap[name] = null;
+    }
+
+    return inverseMap[name] = this._findInverseFor(name, store);
   },
 
   //Calculate the inverse, ignoring the cache
@@ -1332,7 +1328,7 @@ Model.reopenClass({
     let options = propertyMeta.options;
     if (options.inverse === null) { return null; }
 
-    let inverseName, inverseKind, inverse;
+    let inverseName, inverseKind, inverse, inverseOptions;
 
     //If inverse is specified manually, return the inverse
     if (options.inverse) {
@@ -1342,7 +1338,9 @@ Model.reopenClass({
       assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
         "' model. This is most likely due to a missing attribute on your model definition.", !isNone(inverse));
 
+      // TODO probably just return the whole inverse here
       inverseKind = inverse.kind;
+      inverseOptions = inverse.options;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
       if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
@@ -1374,12 +1372,16 @@ Model.reopenClass({
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
+      inverseOptions = possibleRelationships[0].options;
     }
+
+    assert(`The ${inverseType.modelName}:${inverseName} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`, !inverseOptions || inverseOptions.inverse !== null);
 
     return {
       type: inverseType,
       name: inverseName,
-      kind: inverseKind
+      kind: inverseKind,
+      options: inverseOptions
     };
   },
 

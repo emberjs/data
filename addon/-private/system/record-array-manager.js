@@ -306,6 +306,10 @@ export default class RecordArrayManager {
     }
   }
 
+  _associateWithRecordArray(internalModels, array) {
+    associateWithRecordArray(internalModels, array);
+  }
+
   willDestroy() {
     Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
     this._adapterPopulatedRecordArrays.forEach(destroy);

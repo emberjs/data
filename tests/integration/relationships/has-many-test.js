@@ -35,7 +35,6 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       messages: hasMany('message', { polymorphic: true, async: false }),
       contacts: hasMany('user', { inverse: null, async: false })
     });
-    User.reopenClass({ toString: () => 'User' });
 
     Contact = DS.Model.extend({
       user: belongsTo('user', { async: false })
@@ -1864,11 +1863,16 @@ test("dual non-async HM <-> BT", function(assert) {
 });
 
 test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function(assert) {
+  assert.expect(6);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
+  let findManyCalls = 0;
+  let findRecordCalls = 0;
+
   env.adapter.findMany = function(store, type, ids, snapshots) {
+    assert.ok(true, `findMany called ${++findManyCalls}x`);
     return resolve({ data: [
       { id: 1, type: 'comment', attributes: { body: 'first' } },
       { id: 2, type: 'comment', attributes: { body: 'second' } }
@@ -1876,6 +1880,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
   };
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.ok(true, `findRecord called ${++findRecordCalls}x`);
     return resolve({ data: { id: 3, type: 'comment', attributes: { body: 'third' } } });
   };
   let post;
@@ -1902,6 +1907,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
     return post.get('comments').then(fetchedComments => {
       assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
       assert.equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
+
       env.store.push({
         data: {
           type: 'post',
@@ -2478,10 +2484,6 @@ test("Relationship.clear removes all records correctly", function(assert) {
   });
 
   run(() => {
-    // unclear what the semantics of clearing a yet to be created relationship
-    // ought to be.
-    env.store.peekAll('comment').mapBy('post');
-
     post._internalModel._relationships.get('comments').clear();
     let comments = A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);

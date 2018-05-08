@@ -11,11 +11,11 @@
     "build": "ember build",
     "build:production": "ember build --environment=production",
     "start": "ember server",
-    "test": "ember test",
+    "test": "ember test && ember test --record-data-rfc-build",
     "test:all": "ember try:each",
     "test:node": "node node-tests/nodetest-runner.js",
-    "test:production": "ember test --environment=production",
-    "test:optional-features": "ember test --environment=test-optional-features"
+    "test:production": "ember test -e production && ember test -e production --record-data-rfc-build",
+    "test:optional-features": "ember test -e test-optional-features && ember test -e test-optional-features --record-data-rfc-build"
   },
   "author": "",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "broccoli-file-creator": "^1.0.0",
     "broccoli-funnel": "^1.2.0",
     "broccoli-merge-trees": "^2.0.0",
-    "broccoli-rollup": "^1.2.0",
+    "broccoli-rollup": "^2.1.0",
     "calculate-cache-key-for-tree": "^1.1.0",
     "chalk": "^1.1.1",
     "ember-cli-babel": "^6.8.2",
@@ -87,7 +87,7 @@
     "ember-cli-shims": "^1.0.2",
     "ember-cli-sri": "^2.1.0",
     "ember-cli-test-loader": "^1.1.0",
-    "ember-cli-uglify": "^1.2.0",
+    "ember-cli-uglify": "2.0.0-beta.1",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.5",
@@ -110,7 +110,7 @@
     "testem": "^1.15.0"
   },
   "engines": {
-    "node": ">= 4.0.0"
+    "node": ">= 6.0.0"
   },
   "keywords": [
     "ember-addon"

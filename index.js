@@ -2,28 +2,31 @@
 'use strict';
 
 const path = require('path');
-const SilentError = require('silent-error');
 const Funnel = require('broccoli-funnel');
 const Rollup = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
-const semver = require('semver');
 const version = require('./lib/version');
 const BroccoliDebug = require('broccoli-debug');
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 
 // allow toggling of heimdall instrumentation
 let INSTRUMENT_HEIMDALL = false;
+let USE_RECORD_DATA_RFC = false;
 let args = process.argv;
 
 for (let i = 1; i < args.length; i++) {
   if (args[i] === '--instrument') {
     INSTRUMENT_HEIMDALL = true;
-    break;
+    if (USE_RECORD_DATA_RFC) {
+      break;
+    }
+  } else if (args[i] === '--record-data-rfc-build') {
+    USE_RECORD_DATA_RFC = true;
+    if (INSTRUMENT_HEIMDALL) {
+      break;
+    }
   }
 }
-const NOOP_TREE = function(dir) {
-  return { inputTree: dir, rebuild() { return []; } };
-};
 
 process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
@@ -42,7 +45,7 @@ module.exports = {
   name: 'ember-data',
 
   _prodLikeWarning() {
-    let emberEnv = process.env.EMBER_ENV
+    let emberEnv = process.env.EMBER_ENV;
     if(emberEnv !== 'production' && /production/.test(emberEnv)) {
       this._warn(`Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`);
     }
@@ -75,68 +78,22 @@ module.exports = {
     this._super.init && this._super.init.apply(this, arguments);
     this._prodLikeWarning();
     this.debugTree = BroccoliDebug.buildDebugCallback('ember-data');
+    this.options = this.options || {};
+  },
 
-    let bowerDeps = this.project.bowerDependencies();
-
-    let VersionChecker = require('ember-cli-version-checker');
-    let options = this.options = this.options || {};
-
-    let checker = new VersionChecker(this);
-    // prevent errors when ember-cli-shims is no longer required
-    let shims = bowerDeps['ember-cli-shims'] && checker.for('ember-cli-shims', 'bower');
-
-    let version = require('./package').version;
-
-    if (process.env.EMBER_DATA_SKIP_VERSION_CHECKING_DO_NOT_USE_THIS_ENV_VARIABLE) {
-      // Skip for node tests as we can't currently override the version of ember-cli-shims
-      // before the test helpers run.
-      return;
-    }
-
-    let hasShims = !!shims;
-    let shimsHasEmberDataShims = hasShims && shims.satisfies('< 0.1.0');
-    let emberDataNPMWithShimsIncluded = semver.satisfies(version, '^2.3.0-beta.3');
-
-    if (bowerDeps['ember-data']) {
-      this._warn('Please remove `ember-data` from `bower.json`. As of Ember Data 2.3.0, only the NPM package is needed. If you need an ' +
-                'earlier version of ember-data (< 2.3.0), you can leave this unchanged for now, but we strongly suggest you upgrade your version of Ember Data ' +
-                'as soon as possible.');
-      this._forceBowerUsage = true;
-
-      let emberDataBower = checker.for('ember-data', 'bower');
-      let emberDataBowerWithShimsIncluded = emberDataBower.satisfies('>= 2.3.0-beta.3');
-
-      if (hasShims && !shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
-        throw new SilentError('Using a version of ember-cli-shims greater than or equal to 0.1.0 will cause errors while loading Ember Data < 2.3.0-beta.3 Please update ember-cli-shims from ' + shims.version + ' to 0.0.6');
+  config() {
+    return {
+      emberData: {
+        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC
       }
-
-      if (hasShims && shimsHasEmberDataShims && !emberDataBowerWithShimsIncluded) {
-        throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
-      }
-
-    } else {
-      // NPM only, but ember-cli-shims does not match
-      if (hasShims && shimsHasEmberDataShims && emberDataNPMWithShimsIncluded) {
-        throw new SilentError('Using a version of ember-cli-shims prior to 0.1.0 will cause errors while loading Ember Data 2.3.0-beta.3+. Please update ember-cli-shims from ' + shims.version + ' to 0.1.0.');
-      }
-    }
+    };
   },
 
   blueprintsPath() {
     return path.join(__dirname, 'blueprints');
   },
 
-  treeForApp(dir) {
-    if (this._forceBowerUsage) { return NOOP_TREE(dir); }
-
-    // this._super.treeForApp is undefined in ember-cli (1.13) for some reason.
-    // TODO: investigate why treeForApp isn't on _super
-    return dir;
-  },
-
   treeForAddon(tree) {
-    if (this._forceBowerUsage) { return NOOP_TREE(tree); }
-
     tree = this.debugTree(tree, 'input');
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
@@ -146,10 +103,20 @@ module.exports = {
       version() // compile the VERSION into the build
     ]);
 
-    let withPrivate    = new Funnel(tree, { include: ['-private/**'] });
+    let withPrivate;
+
+    if (USE_RECORD_DATA_RFC) {
+      withPrivate = new Funnel(tree, {
+          include: ['-record-data-rfc-private/**']
+        });
+    } else {
+      withPrivate = new Funnel(tree, { include: ['-private/**'] });
+    }
+
     let withoutPrivate = new Funnel(treeWithVersion, {
       exclude: [
         '-private',
+        '-record-data-rfc-private',
         isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false
       ].filter(Boolean),
 
@@ -172,9 +139,14 @@ module.exports = {
 
     privateTree = new Rollup(privateTree, {
       rollup: {
-        entry: '-private/index.js',
-        targets: [
-          { dest: 'ember-data/-private.js', format: babel.shouldCompileModules() ? 'amd' : 'es', moduleId: 'ember-data/-private' }
+        input: USE_RECORD_DATA_RFC ? '-record-data-rfc-private/index.js' : '-private/index.js',
+        output: [
+          {
+            file: 'ember-data/-private.js',
+            format: babel.shouldCompileModules() ? 'amd' : 'es',
+            amd: { id: 'ember-data/-private' },
+            exports: 'named',
+          }
         ],
         external: [
           'ember',
@@ -183,7 +155,7 @@ module.exports = {
           'ember-data/-debug',
           'ember-data/adapters/errors',
           '@ember/ordered-set'
-        ]
+        ],
         // cache: true|false Defaults to true
       }
     });
@@ -229,13 +201,6 @@ module.exports = {
     this._super.included.apply(this, arguments);
 
     this._setupBabelOptions();
-
-    if (this._forceBowerUsage) {
-      this.app.import({
-        development: app.bowerDirectory + '/ember-data/ember-data.js',
-        production: app.bowerDirectory + '/ember-data/ember-data.prod.js'
-      });
-    }
   },
 
   cacheKeyForTree(treeType) {

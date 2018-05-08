@@ -40,7 +40,7 @@ export default class ManyRelationship extends Relationship {
   get manyArray() {
     assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, this._manyArray === null || this._retainedManyArray === null);
 
-    if (!this._manyArray) {
+    if (!this._manyArray && !this.isDestroying) {
       this._manyArray = ManyArray.create({
         canonicalState: this.canonicalState,
         store: this.store,
@@ -108,7 +108,7 @@ export default class ManyRelationship extends Relationship {
       return;
     }
 
-    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel);
+    assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel, this.store);
     super.addInternalModel(internalModel, idx);
     this.scheduleManyArrayUpdate(internalModel, idx);
   }
@@ -382,6 +382,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   destroy() {
+    this.isDestroying = true;
     super.destroy();
     let manyArray = this._manyArray;
     if (manyArray) {
@@ -395,6 +396,7 @@ export default class ManyRelationship extends Relationship {
       proxy.destroy();
       this._loadingPromise = null;
     }
+    this.isDestroyed = true;
   }
 }
 

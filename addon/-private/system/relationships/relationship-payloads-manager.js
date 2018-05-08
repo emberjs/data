@@ -198,8 +198,16 @@ export default class RelationshipPayloadsManager {
       return null;
     }
 
-    let inverseMeta = modelClass.inverseFor(relationshipName, store);
     let relationshipMeta = relationshipsByName.get(relationshipName);
+    let inverseMeta;
+
+    // CASE: Inverse is explicitly null
+    if (relationshipMeta.options && relationshipMeta.options.inverse === null) {
+      inverseMeta = null;
+    } else {
+      inverseMeta = modelClass.inverseFor(relationshipName, store);
+    }
+
     let selfIsPolymorphic = relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
     let inverseBaseModelName = relationshipMeta.type;
 

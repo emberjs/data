@@ -244,7 +244,7 @@ export default class BelongsToReference extends Reference {
         record = this.store.push(data);
       }
 
-      assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel);
+      assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel, this.store);
 
       this.belongsToRelationship.setCanonicalInternalModel(record._internalModel);
 

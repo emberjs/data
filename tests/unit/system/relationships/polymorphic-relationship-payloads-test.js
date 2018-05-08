@@ -1,5 +1,4 @@
 import { run } from '@ember/runloop';
-import { RelationshipPayloadsManager } from 'ember-data/-private';
 import DS from 'ember-data';
 import { createStore } from 'dummy/tests/helpers/store';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
@@ -29,15 +28,13 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
     const BigHat = Hat.extend({});
     const SmallHat = Hat.extend({});
 
-    let store = this.store = createStore({
+    this.store = createStore({
       user: User,
       alien: Alien,
       hat: Hat,
       'big-hat': BigHat,
       'small-hat': SmallHat
     });
-
-    this.relationshipPayloadsManager = new RelationshipPayloadsManager(store);
   }
 });
 

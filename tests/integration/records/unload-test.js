@@ -6,6 +6,7 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
+import { testRecordData, skipRecordData } from 'dummy/tests/helpers/test-in-debug';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
@@ -150,14 +151,8 @@ test('can unload a single record', function(assert) {
     adam = env.store.peekRecord('person', 1);
   });
 
-
   assert.equal(env.store.peekAll('person').get('length'), 1, 'one person record loaded');
   assert.equal(env.store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
-
-  let relPayloads = env.store._relationshipsPayloads;
-
-  assert.equal(relPayloads.get('person', 1, 'cars').data.length, 1, 'one car relationship payload is cached');
-  assert.equal(relPayloads.get('person', 1, 'boats').data.length, 1, 'one boat relationship payload is cached');
 
   run(function() {
     adam.unloadRecord();
@@ -165,15 +160,12 @@ test('can unload a single record', function(assert) {
 
   assert.equal(env.store.peekAll('person').get('length'), 0, 'no person records');
   assert.equal(env.store._internalModelsFor('person').length, 0, 'no person internalModels');
-
-  assert.equal(relPayloads.get('person', 1, 'cars'), null, 'no car relationship payload is cached');
-  assert.equal(relPayloads.get('person', 1, 'boats'), null, 'no boat relationship payload is cached');
 });
 
 test('can unload all records for a given type', function(assert) {
-  assert.expect(11);
+  assert.expect(10);
 
-  let adam, bob, dudu;
+  let adam, bob, dudu, car;
   run(function() {
     env.store.push({
       data: [{
@@ -193,7 +185,7 @@ test('can unload all records for a given type', function(assert) {
     adam = env.store.peekRecord('person', 1);
     bob = env.store.peekRecord('person', 2);
 
-    env.store.push({
+    car = env.store.push({
       data: {
         type: 'car',
         id: '1',
@@ -216,11 +208,8 @@ test('can unload all records for a given type', function(assert) {
   assert.equal(env.store.peekAll('car').get('length'), 1, 'one car record loaded');
   assert.equal(env.store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
 
-  let relPayloads = env.store._relationshipsPayloads;
-
-  assert.equal(relPayloads.get('car', 1, 'person').data.id, 1, 'car - person payload is loaded');
-
   run(function() {
+    car.get('person');
     env.store.unloadAll('person');
   });
 
@@ -241,8 +230,26 @@ test('can unload all records for a given type', function(assert) {
     });
   });
 
-  assert.equal(env.store.peekRecord('car', 1).get('person.id'), '1', 'Inverse can load relationship after the record is unloaded');
-  assert.equal(env.store.peekRecord('car', 1).get('person.name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
+  car = env.store.peekRecord('car', 1);
+  let person = car.get('person');
+
+  assert.ok(!!car, 'We have a car');
+  assert.ok(!person, 'We dont have a person');
+
+  /*
+   @runspired believes these asserts were incorrect on master.
+   Basically, we intentionally treat unload on a sync belongsTo as client-side
+   delete bc "bad reason" of legacy support for the mis-use of unloadRecord.
+
+   Because of this, there should be no way to resurrect the relationship without
+   receiving new relationship info which does not occur in this test.
+
+   He checked how master manages to do this, and discovered bad things. TL;DR
+   because the `person` relationship is never materialized, it's state was
+   not cleared on unload, and thus the client-side delete never happened as intended.
+  */
+  // assert.equal(person.get('id'), '1', 'Inverse can load relationship after the record is unloaded');
+  // assert.equal(person.get('name'), 'Richard II', 'Inverse can load relationship after the record is unloaded');
 });
 
 test('can unload all records', function(assert) {
@@ -608,7 +615,7 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   assert.ok(yaBoatInternalModel === initialBoatInternalModel, 'after an unloadRecord, subsequent same-loop push results in the same InternalModel');
 });
 
-test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
+testRecordData('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(() => {
@@ -679,25 +686,24 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
   assert.equal(env.store.hasRecordForId('boat', 1), true);
   assert.equal(env.store.hasRecordForId('boat', 2), true);
 
-  let relPayloads = env.store._relationshipsPayloads;
-
-  assert.equal(relPayloads.get('person', 1, 'boats').data.length, 2, 'person - boats relationship payload loaded');
-
   let checkOrphanCalls = 0;
   let cleanupOrphanCalls = 0;
 
   function countOrphanCalls(record) {
-    let origCheck = record._internalModel._checkForOrphanedInternalModels;
-    let origCleanup = record._internalModel._cleanupOrphanedInternalModels;
+    let internalModel = record._internalModel;
+    let origCheck = internalModel._checkForOrphanedInternalModels;
 
-    record._internalModel._checkForOrphanedInternalModels = function () {
+    let modelData = internalModel._modelData;
+    let origCleanup = modelData._cleanupOrphanedModelDatas;
+
+    internalModel._checkForOrphanedInternalModels = function () {
       ++checkOrphanCalls;
       return origCheck.apply(record._internalModel, arguments);
     };
 
-    record._internalModel._cleanupOrphanedInternalModels = function () {
+    modelData._cleanupOrphanedModelDatas = function () {
       ++cleanupOrphanCalls;
-      return origCleanup.apply(record._internalModel, arguments);
+      return origCleanup.apply(modelData, arguments);
     };
   }
   countOrphanCalls(env.store.peekRecord('person', 1));
@@ -716,9 +722,116 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
     assert.equal(env.store._internalModelsFor('boat').models.length, 0);
 
     assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
-    assert.equal(cleanupOrphanCalls, 1, 'cleanup only happens once');
+    assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
+  });
+});
 
-    assert.equal(relPayloads.get('person', 1, 'boats'), null, 'person - boats relationship payload unloaded');
+skipRecordData('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
+  env.adapter.shouldBackgroundReloadRecord = () => false;
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Could be Anybody'
+        },
+        relationships: {
+          boats: {
+            data: [
+              { type: 'boat', id: '1' },
+              { type: 'boat', id: '2' }
+            ]
+          }
+        }
+      }
+    });
+  });
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'boat',
+        id: '1',
+        attributes: {
+          name: 'Boaty McBoatface'
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }
+    });
+  });
+
+  run(() => {
+    env.store.push({
+      data: {
+        type: 'boat',
+        id: '2',
+        attributes: {
+          name: 'The jackson'
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: '1' }
+          }
+        }
+      }
+    });
+  });
+
+  assert.equal(
+    env.store._internalModelsFor('person').models.length,
+    1,
+    'one person record is loaded'
+  );
+  assert.equal(
+    env.store._internalModelsFor('boat').models.length,
+    2,
+    'two boat records are loaded'
+  );
+  assert.equal(env.store.hasRecordForId('person', 1), true);
+  assert.equal(env.store.hasRecordForId('boat', 1), true);
+  assert.equal(env.store.hasRecordForId('boat', 2), true);
+
+  let checkOrphanCalls = 0;
+  let cleanupOrphanCalls = 0;
+
+  function countOrphanCalls(record) {
+    let internalModel = record._internalModel;
+    let origCheck = internalModel._checkForOrphanedInternalModels;
+    let origCleanup = internalModel._cleanupOrphanedInternalModels;
+
+    internalModel._checkForOrphanedInternalModels = function () {
+      ++checkOrphanCalls;
+      return origCheck.apply(record._internalModel, arguments);
+    };
+
+    internalModel._cleanupOrphanedInternalModels = function () {
+      ++cleanupOrphanCalls;
+      return origCleanup.apply(internalModel, arguments);
+    };
+  }
+  countOrphanCalls(env.store.peekRecord('person', 1));
+  countOrphanCalls(env.store.peekRecord('boat', 1));
+  countOrphanCalls(env.store.peekRecord('boat', 2));
+
+  // make sure relationships are initialized
+  return env.store.peekRecord('person', 1).get('boats').then(() => {
+    run(() => {
+      env.store.peekRecord('person', 1).unloadRecord();
+      env.store.peekRecord('boat', 1).unloadRecord();
+      env.store.peekRecord('boat', 2).unloadRecord();
+    });
+
+    assert.equal(env.store._internalModelsFor('person').models.length, 0);
+    assert.equal(env.store._internalModelsFor('boat').models.length, 0);
+
+    assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
+    assert.equal(cleanupOrphanCalls, 1, 'each model data tries to cleanup');
   });
 });
 

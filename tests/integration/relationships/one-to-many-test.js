@@ -1487,6 +1487,6 @@ test("createRecord updates inverse record array which has observers", function(a
     assert.equal(user.get('messages.length'), 1, 'The message is added to the record array');
 
     let messageFromArray = user.get('messages.firstObject');
-    assert.ok(message === messageFromArray, 'Only one message should be created');
+    assert.ok(message === messageFromArray, 'Only one message record instance should be created');
   });
 });
