@@ -2677,11 +2677,7 @@ Store = Service.extend({
     if (isNone(resourceIdentifier)) {
       return;
     }
-    assert(`A ${relationship.internalModel.modelName} record was pushed into the store with the value of ${relationship.key} being '${JSON.stringify(resourceIdentifier)}', but ${relationship.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(resourceIdentifier));
-    assert(
-      `Ember Data expected the data for the ${relationship.key} relationship on a ${relationship.internalModel.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found '${JSON.stringify(resourceIdentifier)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-      resourceIdentifier === null || (coerceId(resourceIdentifier.id) && resourceIdentifier.type)
-    );
+    assertRelationshipData(this, relationship.internalModel, resourceIdentifier, relationship.relationshipMeta);
 
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
   },
@@ -2912,28 +2908,6 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
         return;
       }
 
-      // eslint-disable-next-line no-inner-declarations
-      function assertRelationshipData(store, internalModel, data, meta) {
-        assert(
-          `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier with type '${meta.type}'.`,
-          data === null || (typeof data.type === 'string' && data.type.length)
-        );
-        assert(
-          `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier.`,
-          data === null || data.id || data.id === 0
-        );
-        assert(
-          `Encountered a relationship identifier with type '${
-            data.type
-            }' for the ${meta.kind} relationship '${meta.key}' on ${
-            internalModel
-            }, Expected a json-api identifier with type '${
-            meta.type
-            }'. No model was found for '${data.type}'.`,
-          data === null || !data.type || store._hasModelFor(data.type)
-        );
-      }
-
       if (relationshipData.links) {
         let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
         warn(`You pushed a record of type '${internalModel.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
@@ -2941,7 +2915,6 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
         });
       } else if (relationshipData.data) {
         if (relationshipMeta.kind === 'belongsTo') {
-          assert(`A ${internalModel.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
           assertRelationshipData(store, internalModel, relationshipData.data, relationshipMeta);
         } else if (relationshipMeta.kind === 'hasMany') {
           assert(`A ${internalModel.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
@@ -2954,6 +2927,28 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
       }
     }
   });
+}
+
+function assertRelationshipData(store, internalModel, data, meta) {
+  assert(`A ${internalModel.modelName} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(data)}', but ${meta.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(data));
+  assert(
+    `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier with type '${meta.type}' but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    data === null || (typeof data.type === 'string' && data.type.length)
+  );
+  assert(
+    `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    data === null || coerceId(data.id)
+  );
+  assert(
+    `Encountered a relationship identifier with type '${
+      data.type
+      }' for the ${meta.kind} relationship '${meta.key}' on ${
+      internalModel
+      }, Expected a json-api identifier with type '${
+      meta.type
+      }'. No model was found for '${data.type}'.`,
+    data === null || !data.type || store._hasModelFor(data.type)
+  );
 }
 
 export { Store };

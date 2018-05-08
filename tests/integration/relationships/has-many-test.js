@@ -113,48 +113,50 @@ testInDebug("Invalid hasMany relationship identifiers throw errors", function(as
   let { store } = env;
 
   // test null id
-  let post = run(() => store.push({
-    data: {
-      id: '1',
-      type: 'post',
-      relationships: {
-        comments: {
-          data: [
-            { id: null, type: 'comment' }
-          ]
-        }
-      }
-    }
-  }));
-
   assert.expectAssertion(
     () => {
-      run(() => post.get('comments'));
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '1',
+            type: 'post',
+            relationships: {
+              comments: {
+                data: [
+                  { id: null, type: 'comment' }
+                ]
+              }
+            }
+          }
+        });
+
+        post.get('comments');
+      });
     },
-    'Assertion Failed: Ember Data expected the data for the comments relationship on a <post:1> to be in a JSON API format and include an `id` and `type` property but it found \'{\"id\":null,\"type\":\"comment\"}\'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.'
+    `Assertion Failed: Encountered a relationship identifier without an id for the hasMany relationship 'comments' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"comment"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
   );
 
   // test missing type
-  // test null id
-  post = run(() => store.push({
-    data: {
-      id: '2',
-      type: 'post',
-      relationships: {
-        comments: {
-          data: [
-            { id: '1', type: null }
-          ]
-        }
-      }
-    }
-  }));
-
   assert.expectAssertion(
     () => {
-      run(() => post.get('comments'));
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '2',
+            type: 'post',
+            relationships: {
+              comments: {
+                data: [
+                  { id: '1', type: null }
+                ]
+              }
+            }
+          }
+        });
+        post.get('comments')
+      });
     },
-    'Assertion Failed: Ember Data expected the data for the comments relationship on a <post:2> to be in a JSON API format and include an `id` and `type` property but it found \'{\"id\":\"1\",\"type\":null}\'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.'
+    `Assertion Failed: Encountered a relationship identifier without a type for the hasMany relationship 'comments' on <post:2>, expected a json-api identifier with type 'comment' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
   );
 });
 

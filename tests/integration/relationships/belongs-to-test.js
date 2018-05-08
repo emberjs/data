@@ -212,50 +212,51 @@ testInDebug("Invalid belongsTo relationship identifiers throw errors", function(
   let { store } = env;
 
   // test null id
-  let post = run(() => store.push({
-    data: {
-      id: '1',
-      type: 'post',
-      relationships: {
-        user: {
-          data: {
-            id: null,
-            type: 'user'
-          }
-        }
-      }
-    }
-  }));
-
   assert.expectAssertion(
     () => {
-      run(() => post.get('user'));
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '1',
+            type: 'post',
+            relationships: {
+              user: {
+                data: {
+                  id: null,
+                  type: 'user'
+                }
+              }
+            }
+          }
+        });
+        post.get('user');
+      });
     },
-    'Assertion Failed: Ember Data expected the data for the user relationship on a <post:1> to be in a JSON API format and include an `id` and `type` property but it found \'{\"id\":null,\"type\":\"user\"}\'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.'
+    `Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"user"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
   );
 
   // test missing type
-  // test null id
-  post = run(() => store.push({
-    data: {
-      id: '2',
-      type: 'post',
-      relationships: {
-        user: {
-          data: {
-            id: '1',
-            type: null
-          }
-        }
-      }
-    }
-  }));
-
   assert.expectAssertion(
     () => {
-      run(() => post.get('user'));
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '2',
+            type: 'post',
+            relationships: {
+              user: {
+                data: {
+                  id: '1',
+                  type: null
+                }
+              }
+            }
+          }
+        });
+        post.get('user');
+      });
     },
-    'Assertion Failed: Ember Data expected the data for the user relationship on a <post:2> to be in a JSON API format and include an `id` and `type` property but it found \'{\"id\":\"1\",\"type\":null}\'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.'
+    `Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected a json-api identifier with type 'user' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
   );
 });
 
