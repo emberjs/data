@@ -29,9 +29,13 @@ module.exports = {
         'ember-cli-build.js',
         'index.js',
         'testem.js',
+        'lib/**/*.js',
         'blueprints/*/index.js',
+        'blueprints/*.js',
         'config/**/*.js',
-        'tests/dummy/config/**/*.js'
+        'tests/dummy/config/**/*.js',
+        'node-tests/**',
+        'bin/**',
       ],
       excludedFiles: [
         'addon/**',
@@ -45,7 +49,8 @@ module.exports = {
       },
       env: {
         browser: false,
-        node: true
+        node: true,
+        es6: true,
       },
       plugins: ['node'],
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
@@ -53,17 +58,45 @@ module.exports = {
       })
     },
 
+    // browser files
     {
       files: [
         'addon/**',
+        'app/**',
+        'tests/**',
+      ],
+      excludedFiles: [
+        'tests/dummy/config/**'
       ],
       env: {
         browser: true,
         node: false,
       },
       globals: {
-        Heimdall: true,
+        heimdall: true,
         Map: false,
+      }
+    },
+
+    // browser tests
+    {
+      files: [
+        'tests/**'
+      ],
+
+      rules: {
+        'no-console': 0
+      }
+    },
+
+    // node tests
+    {
+      files: [
+        'node-tests/**'
+      ],
+
+      env: {
+        mocha: true,
       }
     }
   ],

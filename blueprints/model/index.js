@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 var inflection  = require('inflection');
 var stringUtils = require('ember-cli-string-utils');
 var EOL         = require('os').EOL;

@@ -1,5 +1,5 @@
 "use strict";
-/* eslint-env node */
+
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 const merge    = require('broccoli-merge-trees');
 const yuidoc   = require('./lib/yuidoc');
