@@ -1125,7 +1125,10 @@ Store = Service.extend({
 
   _internalModelDestroyed(internalModel) {
     this._removeFromIdMap(internalModel);
-    this._relationshipsPayloads.unload(internalModel.modelName, internalModel.id);
+
+    if (!this.isDestroying) {
+      this._relationshipsPayloads.unload(internalModel.modelName, internalModel.id);
+    }
   },
 
   /**
@@ -2625,6 +2628,7 @@ Store = Service.extend({
     this._pushedInternalModels = null;
     this.recordArrayManager.destroy();
 
+    this._relationshipsPayloads = null;
     this._adapterCache = null;
     this._serializerCache = null;
 
