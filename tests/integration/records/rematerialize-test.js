@@ -167,13 +167,14 @@ test("an async has many relationship to an unloaded record can restore that reco
     }
   };
 
+  let adapterCalls = 0;
   env.adapter.findRecord = function(store, model, param) {
-    assert.ok('adapter called');
+    assert.ok(true, `adapter called ${++adapterCalls}x`);
 
     let data;
     if (param === '1') {
       data = deepCopy(BOAT_ONE);
-    } else if (param === '1') {
+    } else if (param === '2') {
       data = deepCopy(BOAT_TWO);
     } else {
       throw new Error(`404: no such boat with id=${param}`);
@@ -216,21 +217,23 @@ test("an async has many relationship to an unloaded record can restore that reco
   let adam = env.store.peekRecord('person', '1');
   let boaty = env.store.peekRecord('boat', '1');
 
+  // assert our initial cache state
   assert.equal(env.store.hasRecordForId('person', '1'), true, 'The person is in the store');
   assert.equal(env.store._internalModelsFor('person').has('1'), true, 'The person internalModel is loaded');
   assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
   assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is loaded');
 
   let boats = run(() => adam.get('boats'));
-
   assert.equal(boats.get('length'), 2, 'Before unloading boats.length is correct');
 
   run(() => boaty.unloadRecord());
   assert.equal(boats.get('length'), 1, 'after unloading boats.length is correct');
 
+  // assert our new cache state
   assert.equal(env.store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
   assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');
 
+  // cause a rematerialization, this should also cause us to fetch boat '1' again
   boats = run(() => adam.get('boats'));
   let rematerializedBoaty = boats.objectAt(1);
 
@@ -238,7 +241,7 @@ test("an async has many relationship to an unloaded record can restore that reco
   assert.equal(adam.get('boats.length'), 2, 'boats.length correct after rematerialization');
   assert.equal(rematerializedBoaty.get('id'), '1', 'Rematerialized boat has the right id');
   assert.equal(rematerializedBoaty.get('name'), 'Boaty McBoatface', 'Rematerialized boat has the right name');
-  assert.notEqual(rematerializedBoaty, boaty, 'the boat is rematerialized, not recycled');
+  assert.ok(rematerializedBoaty !== boaty, 'the boat is rematerialized, not recycled');
 
   assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
   assert.equal(env.store._internalModelsFor('boat').has('1'), true, 'The boat internalModel is retained');

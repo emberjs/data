@@ -2,9 +2,8 @@ import { A } from '@ember/array';
 import RSVP from 'rsvp';
 import { run } from '@ember/runloop';
 import DS from 'ember-data';
-
 import { module, test } from 'qunit';
-const { AdapterPopulatedRecordArray } = DS;
+const { AdapterPopulatedRecordArray , RecordArrayManager } = DS;
 
 module('unit/record-arrays/adapter-populated-record-array - DS.AdapterPopulatedRecordArray');
 
@@ -18,7 +17,7 @@ function internalModelFor(record) {
     }
   };
 
-  record._internalModel = _internalModel
+  record._internalModel = _internalModel;
   return _internalModel;
 }
 
@@ -110,7 +109,8 @@ test('#_setInternalModels', function(assert) {
   }
 
   let recordArray = AdapterPopulatedRecordArray.create({
-    query: 'some-query'
+    query: 'some-query',
+    manager: new RecordArrayManager({})
   });
 
   let model1 = internalModelFor({ id: 1 });
@@ -166,11 +166,12 @@ test('change events when receiving a new query payload', function(assert) {
   }
 
   let recordArray = AdapterPopulatedRecordArray.create({
-    query: 'some-query'
+    query: 'some-query',
+    manager: new RecordArrayManager({})
   });
 
   let model1 = internalModelFor({ id: '1', name: 'Scumbag Dale' });
-  let model2 = internalModelFor({ id: '2', name: 'Scumbag Katz' })
+  let model2 = internalModelFor({ id: '2', name: 'Scumbag Katz' });
 
   model1._recordArrays = { add, delete: del };
   model2._recordArrays = { add, delete: del };

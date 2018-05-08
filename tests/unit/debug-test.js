@@ -60,7 +60,7 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
       options: { inverse: null },
       isRelationship: true,
       kind: 'customRelationship',
-      name: 'Custom Relationship',
+      name: 'posts',
       type: 'post'
     })
   });
@@ -89,14 +89,14 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
         expand: true
       },
       {
-        name: 'Belongs To',
+        name: 'maritalStatus',
         properties: [
           'maritalStatus'
         ],
         expand: true
       },
       {
-        name: 'Custom Relationship',
+        name: 'posts',
         properties: [
           'posts'
         ],

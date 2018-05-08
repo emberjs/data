@@ -2,7 +2,7 @@ import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { testInDebug, testRecordData, skipRecordData } from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
@@ -467,7 +467,7 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a bel
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 });
 
-test("inverseFor short-circuits when inverse is null", function(assert) {
+skipRecordData("inverseFor short-circuits when inverse is null", function(assert) {
   assert.expect(4);
   Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: false, inverse: null })
@@ -502,6 +502,143 @@ test("inverseFor short-circuits when inverse is null", function(assert) {
 
   User._findInverseFor = function() {
     assert.ok(true, 'User model _findInverseFor is called');
+  };
+
+  run(function() {
+    store.push({
+      data: {
+        id: '1',
+        type: 'post',
+        relationships: {
+          comments: {
+            data: [
+              {
+                id: '1',
+                type: 'comment'
+              },
+              {
+                id: '2',
+                type: 'comment'
+              }
+            ]
+          }
+        }
+      }
+    });
+    store.push({
+      data: [
+        {
+          id: '1',
+          type: 'comment',
+          relationships: {
+            post: {
+              data: {
+                id: '1',
+                type: 'post'
+              }
+            }
+          }
+        },
+        {
+          id: '2',
+          type: 'comment',
+          relationships: {
+            post: {
+              data: {
+                id: '1',
+                type: 'post'
+              }
+            }
+          }
+        }
+      ]
+    });
+    store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        relationships: {
+          messages: {
+            data: [
+              {
+                id: '1',
+                type: 'message'
+              },
+              {
+                id: '2',
+                type: 'message'
+              }
+            ]
+          }
+        }
+      }
+    });
+    store.push({
+      data: [
+        {
+          id: '1',
+          type: 'message',
+          relationships: {
+            user: {
+              data: {
+                id: '1',
+                type: 'user'
+              }
+            }
+          }
+        },
+        {
+          id: '2',
+          type: 'message',
+          relationships: {
+            post: {
+              data: {
+                id: '1',
+                type: 'user'
+              }
+            }
+          }
+        }
+      ]
+    });
+  });
+});
+
+testRecordData("inverseFor is only called when inverse is not null", function(assert) {
+  assert.expect(2);
+  Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: false, inverse: null })
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: false, inverse: null })
+  });
+
+  User = DS.Model.extend({
+    messages: DS.hasMany('message', { async: false, inverse: 'user' })
+  });
+
+  Message = DS.Model.extend({
+    user: DS.belongsTo('user', { async: false, inverse: 'messages' })
+  });
+
+  var env = setupStore({ post: Post, comment: Comment, user: User, message: Message });
+  var store = env.store;
+
+  Post.inverseFor = function() {
+    assert.notOk(true, 'Post model inverseFor is not called');
+  };
+
+  Comment.inverseFor = function() {
+    assert.notOk(true, 'Comment model inverseFor is not called');
+  };
+
+  Message.inverseFor = function() {
+    assert.ok(true, 'Message model inverseFor is called');
+  };
+
+  User.inverseFor = function() {
+    assert.ok(true, 'User model inverseFor is called');
   };
 
   run(function() {

@@ -2769,7 +2769,7 @@ function isInverseRelationshipInitialized(store, internalModel, data, key, model
     return false;
   }
 
-  let inverseMap = modelNameToInverseMap[internalModel.modelName]
+  let inverseMap = modelNameToInverseMap[internalModel.modelName];
   if (!inverseMap) {
     inverseMap = modelNameToInverseMap[internalModel.modelName] = get(internalModel.type, 'inverseMap');
   }
@@ -2903,7 +2903,6 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
       relationships.get(relationshipName).push(relationshipData, false);
     }
 
-    // in debug, assert payload validity eagerly
     if (DEBUG) {
       let relationshipMeta = get(internalModel.type, 'relationshipsByName').get(relationshipName);
       let relationshipData = data.relationships[relationshipName];
@@ -2911,16 +2910,44 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
         return;
       }
 
+      // eslint-disable-next-line no-inner-declarations
+      function assertRelationshipData(store, internalModel, data, meta) {
+        assert(
+          `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier with type '${meta.type}'.`,
+          data === null || (typeof data.type === 'string' && data.type.length)
+        );
+        assert(
+          `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${internalModel}, expected a json-api identifier.`,
+          data === null || data.id || data.id === 0
+        );
+        assert(
+          `Encountered a relationship identifier with type '${
+            data.type
+            }' for the ${meta.kind} relationship '${meta.key}' on ${
+            internalModel
+            }, Expected a json-api identifier with type '${
+            meta.type
+            }'. No model was found for '${data.type}'.`,
+          data === null || !data.type || store._hasModelFor(data.type)
+        );
+      }
+
       if (relationshipData.links) {
         let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
+        warn(`You pushed a record of type '${internalModel.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
           id: 'ds.store.push-link-for-sync-relationship'
         });
       } else if (relationshipData.data) {
         if (relationshipMeta.kind === 'belongsTo') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
+          assert(`A ${internalModel.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
+          assertRelationshipData(store, internalModel, relationshipData.data, relationshipMeta);
         } else if (relationshipMeta.kind === 'hasMany') {
-          assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
+          assert(`A ${internalModel.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
+          if (Array.isArray(relationshipData.data)) {
+            for (let i = 0; i < relationshipData.data.length; i++) {
+              assertRelationshipData(store, internalModel, relationshipData.data[i], relationshipMeta);
+            }
+          }
         }
       }
     }

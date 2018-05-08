@@ -173,11 +173,6 @@ testInDebug('Warns but does not fail when pushing payload with unknown type incl
       attributes: {
         'first-name': 'Yehuda',
         'last-name': 'Katz'
-      },
-      relationships: {
-        company: {
-          data: { type: 'unknown-types', id: '2' }
-        }
       }
     },
     included: [{
@@ -197,6 +192,30 @@ testInDebug('Warns but does not fail when pushing payload with unknown type incl
 
   var user = store.peekRecord('user', 1);
   assert.equal(get(user, 'firstName'), 'Yehuda', 'firstName is correct');
+});
+
+testInDebug('Errors when pushing payload with unknown type included in relationship', function(assert) {
+  var documentHash = {
+    data: {
+      type: 'users',
+      id: '1',
+      attributes: {
+        'first-name': 'Yehuda',
+        'last-name': 'Katz'
+      },
+      relationships: {
+        company: {
+          data: { type: 'unknown-types', id: '2' }
+        }
+      }
+    }
+  };
+
+  assert.expectAssertion(function() {
+    run(function() {
+      env.store.pushPayload(documentHash);
+    });
+  }, /No model was found for 'unknown-type'/);
 });
 
 testInDebug('Warns when normalizing with type missing', function(assert) {
@@ -407,7 +426,6 @@ test('a belongsTo relationship set to a new record will not show in the relation
     });
 
     let handle = store.peekRecord('handle', 1);
-
     let user = store.createRecord('user');
     handle.set('user', user);
 

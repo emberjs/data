@@ -24,4 +24,4 @@ bower_components/
 .metadata_never_index
 npm-debug.log
 
-DEBUG-*
+/DEBUG
