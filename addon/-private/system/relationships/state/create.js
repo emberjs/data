@@ -1,6 +1,6 @@
 import { get } from '@ember/object';
-import ManyRelationship from "./has-many";
-import BelongsToRelationship from "./belongs-to";
+import ManyRelationship from './has-many';
+import BelongsToRelationship from './belongs-to';
 import { DEBUG } from '@glimmer/env';
 
 function shouldFindInverse(relationshipMeta) {
@@ -60,11 +60,21 @@ export default class Relationships {
       let relationshipsByName = get(internalModel.type, 'relationshipsByName');
       let rel = relationshipsByName.get(key);
 
-      if (!rel) { return undefined; }
+      if (!rel) {
+        return undefined;
+      }
 
-      let relationshipPayload = internalModel.store._relationshipsPayloads.get(internalModel.modelName, internalModel.id, key);
+      let relationshipPayload = internalModel.store._relationshipsPayloads.get(
+        internalModel.modelName,
+        internalModel.id,
+        key
+      );
 
-      relationship = relationships[key] = createRelationshipFor(internalModel, rel, internalModel.store);
+      relationship = relationships[key] = createRelationshipFor(
+        internalModel,
+        rel,
+        internalModel.store
+      );
 
       if (relationshipPayload) {
         relationship.push(relationshipPayload, true);

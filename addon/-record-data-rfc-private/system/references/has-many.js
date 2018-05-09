@@ -69,12 +69,11 @@ export default class HasManyReference extends Reference {
   remoteType() {
     let value = this._resource();
     if (value && value.links && value.links.related) {
-      return "link";
+      return 'link';
     }
 
-    return "ids";
+    return 'ids';
   }
-
 
   /**
    `ids()` returns an array of the record ids in this relationship.
@@ -113,13 +112,11 @@ export default class HasManyReference extends Reference {
 
     let ids = [];
     if (resource.data) {
-      ids = resource.data.map((data) => data.id);
+      ids = resource.data.map(data => data.id);
     }
 
     return ids;
   }
-
-
 
   /**
    `push` can be used to update the data in the relationship and Ember
@@ -164,19 +161,24 @@ export default class HasManyReference extends Reference {
    @return {DS.ManyArray}
    */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then((payload) => {
+    return resolve(objectOrPromise).then(payload => {
       let array = payload;
 
-      if (typeof payload === "object" && payload.data) {
+      if (typeof payload === 'object' && payload.data) {
         array = payload.data;
       }
 
-      let internalModels = array.map((obj) => {
+      let internalModels = array.map(obj => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
+          assertPolymorphicType(
+            this.internalModel,
+            relationshipMeta,
+            record._internalModel,
+            this.store
+          );
         }
         return record._internalModel._modelData;
       });
@@ -198,7 +200,7 @@ export default class HasManyReference extends Reference {
     let members = this.hasManyRelationship.members.toArray();
 
     //TODO Igor cleanup
-    return members.every((modelData) => {
+    return members.every(modelData => {
       let store = this.parentInternalModel.store;
       let internalModel = store._internalModelForModelData(modelData);
       return internalModel.isLoaded() === true;

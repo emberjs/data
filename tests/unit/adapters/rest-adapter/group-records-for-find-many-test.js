@@ -10,50 +10,54 @@ let GroupsAdapter, store, requests;
 let maxLength;
 let lengths;
 
-module('unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany', {
-  beforeEach() {
-    maxLength = -1;
-    requests = [];
-    lengths = [];
+module(
+  'unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany',
+  {
+    beforeEach() {
+      maxLength = -1;
+      requests = [];
+      lengths = [];
 
-    GroupsAdapter = DS.RESTAdapter.extend({
+      GroupsAdapter = DS.RESTAdapter.extend({
+        coalesceFindRequests: true,
 
-      coalesceFindRequests: true,
+        findRecord(store, type, id, snapshot) {
+          return { id };
+        },
+      });
 
-      findRecord(store, type, id, snapshot) {
-        return { id };
-      }
-    });
+      GroupsAdapter.reopen({
+        ajax(url, type, options) {
+          requests.push({
+            url,
+            ids: options.data.ids,
+          });
 
-    GroupsAdapter.reopen({
-      ajax(url, type, options) {
-        requests.push({
-          url,
-          ids: options.data.ids
-        });
+          let queryString = options.data.ids
+            .map(i => {
+              return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
+            })
+            .join('&');
+          let fullUrl = url + '?' + queryString;
 
-        let queryString = options.data.ids.map(i => {
-          return encodeURIComponent('ids[]') + '=' + encodeURIComponent(i);
-        }).join('&');
-        let fullUrl = url + '?' + queryString;
+          maxLength = this.get('maxURLLength');
+          lengths.push(fullUrl.length);
 
-        maxLength = this.get('maxURLLength');
-        lengths.push(fullUrl.length);
+          let testRecords = options.data.ids.map(id => ({ id }));
+          return EmberPromise.resolve({ testRecords: testRecords });
+        },
+      });
 
-        let testRecords = options.data.ids.map(id => ({ id }));
-        return EmberPromise.resolve({ 'testRecords' :  testRecords });
-      }
-    });
-
-    store = createStore({
-      adapter: GroupsAdapter,
-      testRecord: DS.Model.extend()
-    });
-  },
-  afterEach() {
-    run(store, 'destroy');
+      store = createStore({
+        adapter: GroupsAdapter,
+        testRecord: DS.Model.extend(),
+      });
+    },
+    afterEach() {
+      run(store, 'destroy');
+    },
   }
-});
+);
 
 test('groupRecordsForFindMany - findMany', function(assert) {
   let wait = [];
@@ -82,7 +86,7 @@ test('groupRecordsForFindMany works for encodeURIComponent-ified ids', function(
 });
 
 test('_stripIDFromURL works with id being encoded - #4190', function(assert) {
-  let record = store.createRecord('testRecord', { id: "id:123" });
+  let record = store.createRecord('testRecord', { id: 'id:123' });
   let adapter = store.adapterFor('testRecord');
   let snapshot = record._internalModel.createSnapshot();
   let strippedUrl = adapter._stripIDFromURL(store, snapshot);

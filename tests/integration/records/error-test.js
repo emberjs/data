@@ -18,11 +18,11 @@ module('integration/records/error', {
   beforeEach: function() {
     Person = DS.Model.extend({
       firstName: attr('string'),
-      lastName: attr('string')
+      lastName: attr('string'),
     });
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
 
     store = env.store;
@@ -32,7 +32,7 @@ module('integration/records/error', {
     run(function() {
       env.container.destroy();
     });
-  }
+  },
 });
 
 testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
@@ -45,9 +45,9 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
-        }
-      }
+          lastName: 'Katz',
+        },
+      },
     });
     return store.peekRecord('person', 'wat');
   });
@@ -59,7 +59,7 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
 
-  updateErrors(() => person.get('errors').add('firstName', 'is invalid') , assert);
+  updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
 
@@ -67,10 +67,9 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
 
   assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
-    { attribute: 'lastName', message: 'is invalid' }
+    { attribute: 'lastName', message: 'is invalid' },
   ]);
 });
-
 
 testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
   assert.expect(5);
@@ -78,7 +77,7 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
   let person = store.createRecord('person', {
     id: 'wat',
     firstName: 'Yehuda',
-    lastName: 'Katz'
+    lastName: 'Katz',
   });
 
   run(() => {
@@ -96,7 +95,7 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
 
   assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
-    { attribute: 'lastName', message: 'is invalid' }
+    { attribute: 'lastName', message: 'is invalid' },
   ]);
 });
 
@@ -105,7 +104,7 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
 
   let person = store.createRecord('person', {
     id: 'wat',
-    firstName: 'Yehuda'
+    firstName: 'Yehuda',
   });
 
   run(() => {
@@ -125,16 +124,18 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
   updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
 
   assert.deepEqual(person.get('errors').toArray(), [
-    { attribute: 'firstName', message: 'is invalid' }
+    { attribute: 'firstName', message: 'is invalid' },
   ]);
 });
 
-testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(assert) {
+testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(
+  assert
+) {
   assert.expect(6);
 
   let person = store.createRecord('person', {
     id: 'wat',
-    firstName: 'Yehuda'
+    firstName: 'Yehuda',
   });
 
   run(() => {
@@ -154,28 +155,29 @@ testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)
     person.get('errors').add('firstName', 'is invalid');
   }, assert);
 
-
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
   assert.deepEqual(person.get('errors').toArray(), [
-    { attribute: 'firstName', message: 'is invalid' }
+    { attribute: 'firstName', message: 'is invalid' },
   ]);
 });
 
 test('using setProperties to clear errors', function(assert) {
   env.adapter.reopen({
     createRecord() {
-      return RSVP.reject(new DS.InvalidError([
-        {
-          detail: 'Must be unique',
-          source: { pointer: '/data/attributes/first-name' }
-        },
-        {
-          detail: 'Must not be blank',
-          source: { pointer: '/data/attributes/last-name'}
-        }
-      ]));
-    }
+      return RSVP.reject(
+        new DS.InvalidError([
+          {
+            detail: 'Must be unique',
+            source: { pointer: '/data/attributes/first-name' },
+          },
+          {
+            detail: 'Must not be blank',
+            source: { pointer: '/data/attributes/last-name' },
+          },
+        ])
+      );
+    },
   });
 
   return run(() => {
@@ -189,8 +191,8 @@ test('using setProperties to clear errors', function(assert) {
       assert.ok(errors.has('lastName'));
 
       person.setProperties({
-        firstName: "updated",
-        lastName: "updated"
+        firstName: 'updated',
+        lastName: 'updated',
       });
 
       assert.equal(errors.get('length'), 0);

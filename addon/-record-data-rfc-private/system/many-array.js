@@ -7,8 +7,8 @@ import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
 import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { PromiseArray } from "./promise-proxies";
-import { _objectIsAlive } from "./store/common";
+import { PromiseArray } from './promise-proxies';
+import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
 
 /**
@@ -136,7 +136,7 @@ export default EmberObject.extend(MutableArray, Evented, {
 
   // TODO: if(DEBUG)
   anyUnloaded() {
-    let unloaded = this.currentState.find((im) => im._isDematerializing || !im.isLoaded());
+    let unloaded = this.currentState.find(im => im._isDematerializing || !im.isLoaded());
     return !!unloaded;
   },
 
@@ -162,7 +162,9 @@ export default EmberObject.extend(MutableArray, Evented, {
     }
     */
     let internalModel = this.currentState[index];
-    if (internalModel === undefined) { return; }
+    if (internalModel === undefined) {
+      return;
+    }
 
     return internalModel.getRecord();
   },
@@ -174,7 +176,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     }
     // diff to find changes
     let diff = diffArray(this.currentState, toSet);
-    if (diff.firstChangeIndex !== null) { // it's null if no change found
+    if (diff.firstChangeIndex !== null) {
+      // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.set('length', toSet.length);
@@ -191,11 +194,18 @@ export default EmberObject.extend(MutableArray, Evented, {
   replace(idx, amt, objects) {
     let internalModels;
     if (amt > 0) {
-      internalModels = this.currentState.slice(idx, idx+amt);
-      this.get('modelData').removeFromHasMany(this.get('key'), internalModels.map((im) => im._modelData));
+      internalModels = this.currentState.slice(idx, idx + amt);
+      this.get('modelData').removeFromHasMany(
+        this.get('key'),
+        internalModels.map(im => im._modelData)
+      );
     }
     if (objects) {
-      this.get('modelData').addToHasMany(this.get('key'), objects.map(obj => obj._internalModel._modelData), idx);
+      this.get('modelData').addToHasMany(
+        this.get('key'),
+        objects.map(obj => obj._internalModel._modelData),
+        idx
+      );
       //this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
     }
     this.retrieveLatest();
@@ -263,8 +273,11 @@ export default EmberObject.extend(MutableArray, Evented, {
   save() {
     let manyArray = this;
     let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
-    let promise = all(this.invoke("save"), promiseLabel).
-      then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
+    let promise = all(this.invoke('save'), promiseLabel).then(
+      () => manyArray,
+      null,
+      'DS: ManyArray#save return ManyArray'
+    );
 
     return PromiseArray.create({ promise });
   },
@@ -281,10 +294,13 @@ export default EmberObject.extend(MutableArray, Evented, {
     const store = get(this, 'store');
     const type = get(this, 'type');
 
-    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
+    assert(
+      `You cannot add '${type.modelName}' records to this polymorphic relationship.`,
+      !get(this, 'isPolymorphic')
+    );
     let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
-  }
+  },
 });

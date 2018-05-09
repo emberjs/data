@@ -26,7 +26,7 @@ export default Transform.extend({
   deserialize(serialized) {
     let type = typeof serialized;
 
-    if (type === "string") {
+    if (type === 'string') {
       let offset = serialized.indexOf('+');
 
       if (offset !== -1 && serialized.length - 5 === offset) {
@@ -34,8 +34,8 @@ export default Transform.extend({
         return new Date(serialized.slice(0, offset) + ':' + serialized.slice(offset));
       }
       return new Date(serialized);
-    } else if (type === "number") {
-      return new Date(serialized)
+    } else if (type === 'number') {
+      return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {
       // if the value is null return null
       // if the value is not present in the data return undefined
@@ -51,5 +51,5 @@ export default Transform.extend({
     } else {
       return null;
     }
-  }
+  },
 });

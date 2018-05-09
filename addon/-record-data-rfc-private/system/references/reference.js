@@ -5,7 +5,7 @@ var Reference = function(store, internalModel) {
 };
 
 Reference.prototype = {
-  constructor: Reference
+  constructor: Reference,
 };
 
 /**
@@ -50,10 +50,10 @@ Reference.prototype = {
 Reference.prototype.remoteType = function() {
   let value = this._resource();
   if (value && value.links && value.links.related) {
-    return "link";
+    return 'link';
   }
 
-  return "id";
+  return 'id';
 };
 
 /**

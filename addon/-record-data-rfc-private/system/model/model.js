@@ -2,21 +2,18 @@ import ComputedProperty from '@ember/object/computed';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
-import EmberObject, {
-  computed,
-  get
-} from '@ember/object';
+import EmberObject, { computed, get } from '@ember/object';
 import Map from '../map';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
-import { PromiseObject } from "../promise-proxies";
-import Errors from "../model/errors";
+import { PromiseObject } from '../promise-proxies';
+import Errors from '../model/errors';
 import RootState from '../model/states';
 import {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
   relatedTypesDescriptor,
-  relationshipsDescriptor
+  relationshipsDescriptor,
 } from '../relationships/ext';
 
 import Ember from 'ember';
@@ -30,7 +27,9 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   let possibleRelationships = relationshipsSoFar || [];
 
   let relationshipMap = get(inverseType, 'relationships');
-  if (!relationshipMap) { return possibleRelationships; }
+  if (!relationshipMap) {
+    return possibleRelationships;
+  }
 
   let relationships = relationshipMap.get(type.modelName).filter(relationship => {
     let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
@@ -54,9 +53,9 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   return possibleRelationships;
 }
 
-function intersection (array1, array2) {
+function intersection(array1, array2) {
   let result = [];
-  array1.forEach((element) => {
+  array1.forEach(element => {
     if (array2.indexOf(element) >= 0) {
       result.push(element);
     }
@@ -65,9 +64,7 @@ function intersection (array1, array2) {
   return result;
 }
 
-const RESERVED_MODEL_PROPS = [
-  'currentState', 'data', 'store'
-];
+const RESERVED_MODEL_PROPS = ['currentState', 'data', 'store'];
 
 const retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
@@ -402,13 +399,15 @@ const Model = EmberObject.extend(Evented, {
   errors: computed(function() {
     let errors = Errors.create();
 
-    errors._registerHandlers(this._internalModel,
+    errors._registerHandlers(
+      this._internalModel,
       function() {
         this.send('becameInvalid');
       },
       function() {
         this.send('becameValid');
-      });
+      }
+    );
     return errors;
   }).readOnly(),
 
@@ -538,7 +537,6 @@ const Model = EmberObject.extend(Evented, {
     return this._internalModel.transitionTo(name);
   },
 
-
   /**
     Marks the record as deleted but does not save it. You must call
     `save` afterwards if you want to persist it. You might use this
@@ -626,7 +624,9 @@ const Model = EmberObject.extend(Evented, {
     @method unloadRecord
   */
   unloadRecord() {
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
     this._internalModel.unloadRecord();
   },
 
@@ -791,7 +791,7 @@ const Model = EmberObject.extend(Evented, {
   */
   save(options) {
     return PromiseObject.create({
-      promise: this._internalModel.save(options).then(() => this)
+      promise: this._internalModel.save(options).then(() => this),
     });
   },
 
@@ -828,15 +828,14 @@ const Model = EmberObject.extend(Evented, {
 
     if (typeof options === 'object' && options !== null && options.adapterOptions) {
       wrappedAdapterOptions = {
-        adapterOptions: options.adapterOptions
+        adapterOptions: options.adapterOptions,
       };
     }
 
     return PromiseObject.create({
-      promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this)
+      promise: this._internalModel.reload(wrappedAdapterOptions).then(() => this),
     });
   },
-
 
   /**
     Override the default event firing from Ember.Evented to
@@ -856,14 +855,17 @@ const Model = EmberObject.extend(Evented, {
       for (let i = 1; i < length; i++) {
         args[i - 1] = arguments[i];
       }
-      fn.apply(this, args)
+      fn.apply(this, args);
     }
 
     this._super(...arguments);
   },
 
   attr() {
-    assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    assert(
+      'The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?',
+      false
+    );
   },
 
   /**
@@ -1010,7 +1012,7 @@ const Model = EmberObject.extend(Evented, {
    */
   _debugInfo() {
     let attributes = ['id'];
-    let relationships = { };
+    let relationships = {};
     let expensiveProperties = [];
 
     this.eachAttribute((name, meta) => attributes.push(name));
@@ -1019,8 +1021,8 @@ const Model = EmberObject.extend(Evented, {
       {
         name: 'Attributes',
         properties: attributes,
-        expand: true
-      }
+        expand: true,
+      },
     ];
 
     this.eachRelationship((name, relationship) => {
@@ -1031,7 +1033,7 @@ const Model = EmberObject.extend(Evented, {
         groups.push({
           name: relationship.name,
           properties,
-          expand: true
+          expand: true,
         });
       }
       properties.push(name);
@@ -1040,7 +1042,15 @@ const Model = EmberObject.extend(Evented, {
 
     groups.push({
       name: 'Flags',
-      properties: ['isLoaded', 'hasDirtyAttributes', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid']
+      properties: [
+        'isLoaded',
+        'hasDirtyAttributes',
+        'isSaving',
+        'isDeleted',
+        'isError',
+        'isNew',
+        'isValid',
+      ],
     });
 
     return {
@@ -1049,8 +1059,8 @@ const Model = EmberObject.extend(Evented, {
         includeOtherProperties: true,
         groups: groups,
         // don't pre-calculate unless cached
-        expensiveProperties: expensiveProperties
-      }
+        expensiveProperties: expensiveProperties,
+      },
     };
   },
 
@@ -1130,7 +1140,7 @@ const Model = EmberObject.extend(Evented, {
 
   eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
-  }
+  },
 });
 
 /**
@@ -1143,7 +1153,7 @@ Object.defineProperty(Model.prototype, 'data', {
   get() {
     // TODO deprecate this!!!!!!!!!!! it's private but intimate
     return this._internalModel._modelData._data;
-  }
+  },
 });
 
 Object.defineProperty(Model.prototype, 'id', {
@@ -1157,7 +1167,7 @@ Object.defineProperty(Model.prototype, 'id', {
     // (addListener via validatePropertyInjections) invokes toString before the
     // object is real.
     return this._internalModel && this._internalModel.id;
-  }
+  },
 });
 
 if (DEBUG) {
@@ -1166,9 +1176,11 @@ if (DEBUG) {
       this._super(...arguments);
 
       if (!this._internalModel) {
-        throw new EmberError('You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.');
+        throw new EmberError(
+          'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
       }
-    }
+    },
   });
 }
 
@@ -1309,7 +1321,6 @@ Model.reopenClass({
 
   //Calculate the inverse, ignoring the cache
   _findInverseFor(name, store) {
-
     let inverseType = this.typeForRelationship(name, store);
     if (!inverseType) {
       return null;
@@ -1318,7 +1329,9 @@ Model.reopenClass({
     let propertyMeta = this.metaForProperty(name);
     //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
     let options = propertyMeta.options;
-    if (options.inverse === null) { return null; }
+    if (options.inverse === null) {
+      return null;
+    }
 
     let inverseName, inverseKind, inverse, inverseOptions;
 
@@ -1327,8 +1340,14 @@ Model.reopenClass({
       inverseName = options.inverse;
       inverse = get(inverseType, 'relationshipsByName').get(inverseName);
 
-      assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
-        "' model. This is most likely due to a missing attribute on your model definition.", !isNone(inverse));
+      assert(
+        "We found no inverse relationships by the name of '" +
+          inverseName +
+          "' on the '" +
+          inverseType.modelName +
+          "' model. This is most likely due to a missing attribute on your model definition.",
+        !isNone(inverse)
+      );
 
       // TODO probably just return the whole inverse here
       inverseKind = inverse.kind;
@@ -1336,44 +1355,73 @@ Model.reopenClass({
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
       if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
-        warn(`Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`, false, {
-          id: 'ds.model.reflexive-relationship-without-inverse'
-        });
+        warn(
+          `Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
+          false,
+          {
+            id: 'ds.model.reflexive-relationship-without-inverse',
+          }
+        );
       }
 
       let possibleRelationships = findPossibleInverses(this, inverseType, name);
 
-      if (possibleRelationships.length === 0) { return null; }
+      if (possibleRelationships.length === 0) {
+        return null;
+      }
 
-      let filteredRelationships = possibleRelationships.filter((possibleRelationship) => {
+      let filteredRelationships = possibleRelationships.filter(possibleRelationship => {
         let optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
         return name === optionsForRelationship.inverse;
       });
 
-      assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
-        inverseType.toString() + " multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses",
-        filteredRelationships.length < 2);
+      assert(
+        "You defined the '" +
+          name +
+          "' relationship on " +
+          this +
+          ', but you defined the inverse relationships of type ' +
+          inverseType.toString() +
+          ' multiple times. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
+        filteredRelationships.length < 2
+      );
 
-      if (filteredRelationships.length === 1 ) {
+      if (filteredRelationships.length === 1) {
         possibleRelationships = filteredRelationships;
       }
 
-      assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
-        this + " were found on " + inverseType + ". Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses",
-        possibleRelationships.length === 1);
+      assert(
+        "You defined the '" +
+          name +
+          "' relationship on " +
+          this +
+          ', but multiple possible inverse relationships of type ' +
+          this +
+          ' were found on ' +
+          inverseType +
+          '. Look at https://guides.emberjs.com/current/models/relationships/#toc_explicit-inverses for how to explicitly specify inverses',
+        possibleRelationships.length === 1
+      );
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
       inverseOptions = possibleRelationships[0].options;
     }
 
-    assert(`The ${inverseType.modelName}:${inverseName} relationship declares 'inverse: null', but it was resolved as the inverse for ${this.modelName}:${name}.`, !inverseOptions || inverseOptions.inverse !== null);
+    assert(
+      `The ${
+        inverseType.modelName
+      }:${inverseName} relationship declares 'inverse: null', but it was resolved as the inverse for ${
+        this.modelName
+      }:${name}.`,
+      !inverseOptions || inverseOptions.inverse !== null
+    );
 
     return {
       type: inverseType,
       name: inverseName,
       kind: inverseKind,
-      options: inverseOptions
+      options: inverseOptions,
     };
   },
 
@@ -1457,7 +1505,7 @@ Model.reopenClass({
   relationshipNames: computed(function() {
     let names = {
       hasMany: [],
-      belongsTo: []
+      belongsTo: [],
     };
 
     this.eachComputedProperty((name, meta) => {
@@ -1541,7 +1589,6 @@ Model.reopenClass({
    @readOnly
    */
   relationshipsByName: relationshipsByNameDescriptor,
-
 
   relationshipsObject: relationshipsObjectDescriptor,
 
@@ -1700,7 +1747,11 @@ Model.reopenClass({
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
-        assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
+        assert(
+          "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " +
+            this.toString(),
+          name !== 'id'
+        );
 
         meta.name = name;
         map.set(name, meta);
@@ -1867,7 +1918,7 @@ Model.reopenClass({
    */
   toString() {
     return `model:${get(this, 'modelName')}`;
-  }
+  },
 });
 
 if (DEBUG) {
@@ -1876,8 +1927,18 @@ if (DEBUG) {
     // rely on the data property.
     willMergeMixin(props) {
       let constructor = this.constructor;
-      assert('`' + intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]);
-      assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + constructor.toString(), Object.keys(props).indexOf('id') === -1);
+      assert(
+        '`' +
+          intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] +
+          '` is a reserved property name on DS.Model objects. Please choose a different property name for ' +
+          constructor.toString(),
+        !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]
+      );
+      assert(
+        "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " +
+          constructor.toString(),
+        Object.keys(props).indexOf('id') === -1
+      );
     },
 
     /**
@@ -1909,7 +1970,6 @@ if (DEBUG) {
     didDefineProperty(proto, key, value) {
       // Check if the value being set is a computed property.
       if (value instanceof ComputedProperty) {
-
         // If it is, get the metadata for the relationship. This is
         // populated by the `DS.belongsTo` helper when it is creating
         // the computed property.
@@ -1921,7 +1981,7 @@ if (DEBUG) {
          */
         meta.parentType = proto.constructor;
       }
-    }
+    },
   });
 }
 

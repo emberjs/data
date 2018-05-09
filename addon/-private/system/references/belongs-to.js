@@ -14,7 +14,6 @@ import { assertPolymorphicType } from 'ember-data/-debug';
    @extends DS.Reference
 */
 export default class BelongsToReference extends Reference {
-
   constructor(store, parentInternalModel, belongsToRelationship) {
     super(store, parentInternalModel);
     this.belongsToRelationship = belongsToRelationship;
@@ -60,10 +59,10 @@ export default class BelongsToReference extends Reference {
   */
   remoteType() {
     if (this.belongsToRelationship.link) {
-      return "link";
+      return 'link';
     }
 
-    return "id";
+    return 'id';
   }
 
   /**
@@ -235,7 +234,7 @@ export default class BelongsToReference extends Reference {
      @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
   */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then((data) => {
+    return resolve(objectOrPromise).then(data => {
       let record;
 
       if (data instanceof Model) {
@@ -244,7 +243,12 @@ export default class BelongsToReference extends Reference {
         record = this.store.push(data);
       }
 
-      assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel, this.store);
+      assertPolymorphicType(
+        this.internalModel,
+        this.belongsToRelationship.relationshipMeta,
+        record._internalModel,
+        this.store
+      );
 
       this.belongsToRelationship.setCanonicalInternalModel(record._internalModel);
 
@@ -346,12 +350,12 @@ export default class BelongsToReference extends Reference {
      @return {Promise} a promise that resolves with the record in this belongs-to relationship.
   */
   load() {
-    if (this.remoteType() === "id") {
+    if (this.remoteType() === 'id') {
       return this.belongsToRelationship.getRecord();
     }
 
-    if (this.remoteType() === "link") {
-      return this.belongsToRelationship.findLink().then((internalModel) => {
+    if (this.remoteType() === 'link') {
+      return this.belongsToRelationship.findLink().then(internalModel => {
         return this.value();
       });
     }
@@ -393,9 +397,8 @@ export default class BelongsToReference extends Reference {
      @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
   */
   reload() {
-    return this.belongsToRelationship.reload().then((internalModel) => {
+    return this.belongsToRelationship.reload().then(internalModel => {
       return this.value();
     });
   }
-
 }

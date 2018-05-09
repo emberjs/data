@@ -10,13 +10,13 @@ import DS from 'ember-data';
 
 let Person, env, store, adapter;
 
-module("integration/adapter/queries - Queries", {
+module('integration/adapter/queries - Queries', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      lastName: DS.attr('string'),
     });
 
     env = setupStore({ person: Person });
@@ -26,24 +26,24 @@ module("integration/adapter/queries - Queries", {
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
-testInDebug("It raises an assertion when no type is passed", function(assert) {
+testInDebug('It raises an assertion when no type is passed', function(assert) {
   assert.expectAssertion(() => {
     store.query();
   }, "You need to pass a model name to the store's query method");
 });
 
-testInDebug("It raises an assertion when no query hash is passed", function(assert) {
+testInDebug('It raises an assertion when no query hash is passed', function(assert) {
   assert.expectAssertion(() => {
     store.query('person');
   }, "You need to pass a query hash to the store's query method");
 });
 
-test("When a query is made, the adapter should receive a record array it can populate with the results of the query.", function(assert) {
+test('When a query is made, the adapter should receive a record array it can populate with the results of the query.', function(assert) {
   adapter.query = function(store, type, query, recordArray) {
-    assert.equal(type, Person, "the query method is called with the correct type");
+    assert.equal(type, Person, 'the query method is called with the correct type');
 
     return EmberPromise.resolve({
       data: [
@@ -51,72 +51,93 @@ test("When a query is made, the adapter should receive a record array it can pop
           id: 1,
           type: 'person',
           attributes: {
-            name: "Peter Wagenet"
-          }
+            name: 'Peter Wagenet',
+          },
         },
         {
           id: 2,
-          type: "person",
+          type: 'person',
           attributes: {
-            name: "Brohuda Katz"
-          }
-        }
-      ]
+            name: 'Brohuda Katz',
+          },
+        },
+      ],
     });
-  }
+  };
 
   return store.query('person', { page: 1 }).then(queryResults => {
-    assert.equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
-    assert.equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
+    assert.equal(
+      get(queryResults, 'length'),
+      2,
+      'the record array has a length of 2 after the results are loaded'
+    );
+    assert.equal(
+      get(queryResults, 'isLoaded'),
+      true,
+      "the record array's `isLoaded` property should be true"
+    );
 
-    assert.equal(queryResults.objectAt(0).get('name'), "Peter Wagenet", "the first record is 'Peter Wagenet'");
-    assert.equal(queryResults.objectAt(1).get('name'), "Brohuda Katz", "the second record is 'Brohuda Katz'");
+    assert.equal(
+      queryResults.objectAt(0).get('name'),
+      'Peter Wagenet',
+      "the first record is 'Peter Wagenet'"
+    );
+    assert.equal(
+      queryResults.objectAt(1).get('name'),
+      'Brohuda Katz',
+      "the second record is 'Brohuda Katz'"
+    );
   });
 });
 
-test("a query can be updated via `update()`", function(assert) {
+test('a query can be updated via `update()`', function(assert) {
   adapter.query = function() {
     return resolve({ data: [{ id: 'first', type: 'person' }] });
   };
 
   return run(() => {
-    return store.query('person', {}).then(query => {
-      assert.equal(query.get('length'), 1);
-      assert.equal(query.get('firstObject.id'), 'first');
-      assert.equal(query.get('isUpdating'), false);
+    return store
+      .query('person', {})
+      .then(query => {
+        assert.equal(query.get('length'), 1);
+        assert.equal(query.get('firstObject.id'), 'first');
+        assert.equal(query.get('isUpdating'), false);
 
-      adapter.query = function() {
-        assert.ok('query is called a second time');
-        return resolve({data: [{ id: 'second', type: 'person' }] });
-      };
+        adapter.query = function() {
+          assert.ok('query is called a second time');
+          return resolve({ data: [{ id: 'second', type: 'person' }] });
+        };
 
-      let updateQuery = query.update();
+        let updateQuery = query.update();
 
-      assert.equal(query.get('isUpdating'), true);
+        assert.equal(query.get('isUpdating'), true);
 
-      return updateQuery;
+        return updateQuery;
+      })
+      .then(query => {
+        assert.equal(query.get('length'), 1);
+        assert.equal(query.get('firstObject.id'), 'second');
 
-    }).then(query => {
-      assert.equal(query.get('length'), 1);
-      assert.equal(query.get('firstObject.id'), 'second');
-
-      assert.equal(query.get('isUpdating'), false);
-    });
+        assert.equal(query.get('isUpdating'), false);
+      });
   });
 });
 
-testInDebug("The store asserts when query is made and the adapter responses with a single record.", function(assert) {
-  env = setupStore({ person: Person, adapter: DS.RESTAdapter });
-  store = env.store;
-  adapter = env.adapter;
+testInDebug(
+  'The store asserts when query is made and the adapter responses with a single record.',
+  function(assert) {
+    env = setupStore({ person: Person, adapter: DS.RESTAdapter });
+    store = env.store;
+    adapter = env.adapter;
 
-  adapter.query = function(store, type, query, recordArray) {
-    assert.equal(type, Person, "the query method is called with the correct type");
+    adapter.query = function(store, type, query, recordArray) {
+      assert.equal(type, Person, 'the query method is called with the correct type');
 
-    return resolve({ data: [{ id: 1, type: 'person', attributes: { name: "Peter Wagenet" } }] });
-  };
+      return resolve({ data: [{ id: 1, type: 'person', attributes: { name: 'Peter Wagenet' } }] });
+    };
 
-  assert.expectAssertion(() => {
-    run(() => store.query('person', { page: 1 }));
-  }, /The response to store.query is expected to be an array but it was a single record/);
-});
+    assert.expectAssertion(() => {
+      run(() => store.query('person', { page: 1 }));
+    }, /The response to store.query is expected to be an array but it was a single record/);
+  }
+);

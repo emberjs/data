@@ -129,7 +129,6 @@ import { normalizeModelName } from '../-private';
   @extends DS.JSONSerializer
 */
 const JSONAPISerializer = JSONSerializer.extend({
-
   /**
     @method _normalizeDocumentHelper
     @param {Object} documentHash
@@ -137,7 +136,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     @private
   */
   _normalizeDocumentHelper(documentHash) {
-
     if (typeOf(documentHash.data) === 'object') {
       documentHash.data = this._normalizeResourceHelper(documentHash.data);
     } else if (Array.isArray(documentHash.data)) {
@@ -156,7 +154,8 @@ const JSONAPISerializer = JSONSerializer.extend({
       for (let i = 0; i < documentHash.included.length; i++) {
         let included = documentHash.included[i];
         let normalized = this._normalizeResourceHelper(included);
-        if (normalized !== null) { // can be null when unknown type is encountered
+        if (normalized !== null) {
+          // can be null when unknown type is encountered
           ret.push(normalized);
         }
       }
@@ -187,7 +186,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   */
   _normalizeResourceHelper(resourceHash) {
     assert(this.warnMessageForUndefinedType(), !isNone(resourceHash.type), {
-      id: 'ds.serializer.type-is-undefined'
+      id: 'ds.serializer.type-is-undefined',
     });
 
     let modelName, usedLookup;
@@ -197,7 +196,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
     if (!this.store._hasModelFor(modelName)) {
       warn(this.warnMessageNoModelForType(modelName, resourceHash.type, usedLookup), false, {
-        id: 'ds.serializer.model-for-type-missing'
+        id: 'ds.serializer.model-for-type-missing',
       });
       return null;
     }
@@ -237,9 +236,13 @@ const JSONAPISerializer = JSONSerializer.extend({
   normalizeQueryRecordResponse() {
     let normalized = this._super(...arguments);
 
-    assert('Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.', !Array.isArray(normalized.data), {
-      id: 'ds.serializer.json-api.queryRecord-array-response'
-    });
+    assert(
+      'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.',
+      !Array.isArray(normalized.data),
+      {
+        id: 'ds.serializer.json-api.queryRecord-array-response',
+      }
+    );
 
     return normalized;
   },
@@ -248,14 +251,22 @@ const JSONAPISerializer = JSONSerializer.extend({
     let attributes = {};
 
     if (resourceHash.attributes) {
-      modelClass.eachAttribute((key) => {
+      modelClass.eachAttribute(key => {
         let attributeKey = this.keyForAttribute(key, 'deserialize');
         if (resourceHash.attributes[attributeKey] !== undefined) {
           attributes[key] = resourceHash.attributes[attributeKey];
         }
         if (DEBUG) {
-          if (resourceHash.attributes[attributeKey] === undefined && resourceHash.attributes[key] !== undefined) {
-            assert(`Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${attributeKey}'. This is most likely because Ember Data's JSON API serializer dasherizes attribute keys by default. You should subclass JSONAPISerializer and implement 'keyForAttribute(key) { return key; }' to prevent Ember Data from customizing your attribute keys.`, false);
+          if (
+            resourceHash.attributes[attributeKey] === undefined &&
+            resourceHash.attributes[key] !== undefined
+          ) {
+            assert(
+              `Your payload for '${
+                modelClass.modelName
+              }' contains '${key}', but your serializer is setup to look for '${attributeKey}'. This is most likely because Ember Data's JSON API serializer dasherizes attribute keys by default. You should subclass JSONAPISerializer and implement 'keyForAttribute(key) { return key; }' to prevent Ember Data from customizing your attribute keys.`,
+              false
+            );
           }
         }
       });
@@ -274,7 +285,6 @@ const JSONAPISerializer = JSONSerializer.extend({
      @return {Object}
   */
   extractRelationship(relationshipHash) {
-
     if (typeOf(relationshipHash.data) === 'object') {
       relationshipHash.data = this._normalizeRelationshipDataHelper(relationshipHash.data);
     }
@@ -310,14 +320,20 @@ const JSONAPISerializer = JSONSerializer.extend({
       modelClass.eachRelationship((key, relationshipMeta) => {
         let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
         if (resourceHash.relationships[relationshipKey] !== undefined) {
-
           let relationshipHash = resourceHash.relationships[relationshipKey];
           relationships[key] = this.extractRelationship(relationshipHash);
-
         }
         if (DEBUG) {
-          if (resourceHash.relationships[relationshipKey] === undefined && resourceHash.relationships[key] !== undefined) {
-            assert(`Your payload for '${modelClass.modelName}' contains '${key}', but your serializer is setup to look for '${relationshipKey}'. This is most likely because Ember Data's JSON API serializer dasherizes relationship keys by default. You should subclass JSONAPISerializer and implement 'keyForRelationship(key) { return key; }' to prevent Ember Data from customizing your relationship keys.`, false);
+          if (
+            resourceHash.relationships[relationshipKey] === undefined &&
+            resourceHash.relationships[key] !== undefined
+          ) {
+            assert(
+              `Your payload for '${
+                modelClass.modelName
+              }' contains '${key}', but your serializer is setup to look for '${relationshipKey}'. This is most likely because Ember Data's JSON API serializer dasherizes relationship keys by default. You should subclass JSONAPISerializer and implement 'keyForRelationship(key) { return key; }' to prevent Ember Data from customizing your relationship keys.`,
+              false
+            );
           }
         }
       });
@@ -378,10 +394,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     }
 
     let data = {
-      id:            this.extractId(modelClass, resourceHash),
-      type:          this._extractType(modelClass, resourceHash),
-      attributes:    this.extractAttributes(modelClass, resourceHash),
-      relationships: this.extractRelationships(modelClass, resourceHash)
+      id: this.extractId(modelClass, resourceHash),
+      type: this._extractType(modelClass, resourceHash),
+      attributes: this.extractAttributes(modelClass, resourceHash),
+      relationships: this.extractRelationships(modelClass, resourceHash),
     };
 
     this.applyTransforms(modelClass, data.attributes);
@@ -501,7 +517,7 @@ const JSONAPISerializer = JSONSerializer.extend({
 
           data = {
             type: payloadType,
-            id: belongsTo.id
+            id: belongsTo.id,
           };
         }
 
@@ -516,7 +532,6 @@ const JSONAPISerializer = JSONSerializer.extend({
     if (this.shouldSerializeHasMany(snapshot, key, relationship)) {
       let hasMany = snapshot.hasMany(key);
       if (hasMany !== undefined) {
-
         json.relationships = json.relationships || {};
 
         let payloadKey = this._getMappedKey(key, snapshot.type);
@@ -534,33 +549,45 @@ const JSONAPISerializer = JSONSerializer.extend({
 
           data[i] = {
             type: payloadType,
-            id: item.id
+            id: item.id,
           };
         }
 
         json.relationships[payloadKey] = { data };
       }
     }
-  }
+  },
 });
 
 if (DEBUG) {
   JSONAPISerializer.reopen({
     willMergeMixin(props) {
       let constructor = this.constructor;
-      warn(`You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#toc_customizing-meta on how to customize meta when using JSON API.`, isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta, {
-        id: 'ds.serializer.json-api.extractMeta'
-      });
-      warn('The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.', !props.isEmbeddedRecordsMixin, {
-        id: 'ds.serializer.embedded-records-mixin-not-supported'
-      });
+      warn(
+        `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#toc_customizing-meta on how to customize meta when using JSON API.`,
+        isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta,
+        {
+          id: 'ds.serializer.json-api.extractMeta',
+        }
+      );
+      warn(
+        'The JSONAPISerializer does not work with the EmbeddedRecordsMixin because the JSON API spec does not describe how to format embedded resources.',
+        !props.isEmbeddedRecordsMixin,
+        {
+          id: 'ds.serializer.embedded-records-mixin-not-supported',
+        }
+      );
     },
     warnMessageForUndefinedType() {
-      return 'Encountered a resource object with an undefined type (resolved resource using ' + this.constructor.toString() + ')';
+      return (
+        'Encountered a resource object with an undefined type (resolved resource using ' +
+        this.constructor.toString() +
+        ')'
+      );
     },
     warnMessageNoModelForType(modelName, originalType, usedLookup) {
       return `Encountered a resource object with type "${originalType}", but no model was found for model name "${modelName}" (resolved model name using '${this.constructor.toString()}.${usedLookup}("${originalType}")').`;
-    }
+    },
   });
 }
 

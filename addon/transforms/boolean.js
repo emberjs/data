@@ -44,11 +44,11 @@ export default Transform.extend({
     }
 
     let type = typeof serialized;
-    if (type === "boolean") {
+    if (type === 'boolean') {
       return serialized;
-    } else if (type === "string") {
+    } else if (type === 'string') {
       return /^(true|t|1)$/i.test(serialized);
-    } else if (type === "number") {
+    } else if (type === 'number') {
       return serialized === 1;
     } else {
       return false;
@@ -61,5 +61,5 @@ export default Transform.extend({
     }
 
     return Boolean(deserialized);
-  }
+  },
 });

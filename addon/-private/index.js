@@ -1,7 +1,7 @@
 // public
 export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';
-export { default as Store }  from './system/store';
+export { default as Store } from './system/store';
 export { default as DS } from './core';
 export { default as belongsTo } from './system/relationships/belongs-to';
 export { default as hasMany } from './system/relationships/has-many';
@@ -19,7 +19,7 @@ export {
   TimeoutError,
   AbortError,
   errorsHashToArray,
-  errorsArrayToHash
+  errorsArrayToHash,
 } from './adapters/errors';
 
 // maybe public ?
@@ -33,16 +33,9 @@ export { default as isEnabled } from './features';
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 
-export {
-  PromiseArray,
-  PromiseObject,
-  PromiseManyArray
-} from './system/promise-proxies';
+export { PromiseArray, PromiseObject, PromiseManyArray } from './system/promise-proxies';
 
-export {
-  RecordArray,
-  AdapterPopulatedRecordArray
-} from './system/record-arrays';
+export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
 export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';
@@ -56,6 +49,8 @@ export { default as DebugAdapter } from './system/debug/debug-adapter';
 
 // Used by tests
 export { default as diffArray } from './system/diff-array';
-export { default as RelationshipPayloadsManager } from './system/relationships/relationship-payloads-manager';
+export {
+  default as RelationshipPayloadsManager,
+} from './system/relationships/relationship-payloads-manager';
 export { default as RelationshipPayloads } from './system/relationships/relationship-payloads';
 export { default as SnapshotRecordArray } from './system/snapshot-record-array';

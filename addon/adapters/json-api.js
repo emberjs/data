@@ -3,7 +3,7 @@
   @module ember-data
 */
 import { dasherize } from '@ember/string';
-import RESTAdapter from "./rest";
+import RESTAdapter from './rest';
 import { instrument } from 'ember-data/-debug';
 import { pluralize } from 'ember-inflector';
 
@@ -173,7 +173,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
           }
           heimdall.stop(token);
           return json;
-        }
+        },
       };
     });
 
@@ -265,7 +265,7 @@ const JSONAPIAdapter = RESTAdapter.extend({
     let url = this.buildURL(type.modelName, snapshot.id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PATCH', { data: data });
-  }
+  },
 });
 
 export default JSONAPIAdapter;

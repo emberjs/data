@@ -16,13 +16,13 @@ export function validateDocumentStructure(doc) {
   if (!doc || typeof doc !== 'object') {
     errors.push('Top level of a JSON API document must be an object');
   } else {
-    if (!('data' in doc) &&
-        !('errors' in doc) &&
-        !('meta' in doc)) {
+    if (!('data' in doc) && !('errors' in doc) && !('meta' in doc)) {
       errors.push('One or more of the following keys must be present: "data", "errors", "meta".');
     } else {
-      if (('data' in doc) && ('errors' in doc)) {
-        errors.push('Top level keys "errors" and "data" cannot both be present in a JSON API document');
+      if ('data' in doc && 'errors' in doc) {
+        errors.push(
+          'Top level keys "errors" and "data" cannot both be present in a JSON API document'
+        );
       }
     }
     if ('data' in doc) {
@@ -73,12 +73,23 @@ export function validateDocumentStructure(doc) {
   @return {Object} JSON-API Document
 */
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
-  let normalizedResponse = serializer.normalizeResponse(store, modelClass, payload, id, requestType);
+  let normalizedResponse = serializer.normalizeResponse(
+    store,
+    modelClass,
+    payload,
+    id,
+    requestType
+  );
   let validationErrors = [];
   if (DEBUG) {
     validationErrors = validateDocumentStructure(normalizedResponse);
   }
-  assert(`normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join('\n\t* ')}`, validationErrors.length === 0);
+  assert(
+    `normalizeResponse must return a valid JSON API document:\n\t* ${validationErrors.join(
+      '\n\t* '
+    )}`,
+    validationErrors.length === 0
+  );
 
   return normalizedResponse;
 }

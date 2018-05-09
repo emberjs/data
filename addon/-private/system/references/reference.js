@@ -4,7 +4,7 @@ var Reference = function(store, internalModel) {
 };
 
 Reference.prototype = {
-  constructor: Reference
+  constructor: Reference,
 };
 
 export default Reference;

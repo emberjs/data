@@ -1,6 +1,6 @@
 import { computed } from '@ember/object';
 import { assert, warn, inspect } from '@ember/debug';
-import normalizeModelName from "../normalize-model-name";
+import normalizeModelName from '../normalize-model-name';
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -88,7 +88,12 @@ export default function belongsTo(modelName, options) {
     userEnteredModelName = normalizeModelName(userEnteredModelName);
   }
 
-  assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
+  assert(
+    'The first argument to DS.belongsTo must be a string representing a model type key, not an instance of ' +
+      inspect(userEnteredModelName) +
+      ". E.g., to define a relation to the Person model, use DS.belongsTo('person')",
+    typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
+  );
 
   opts = opts || {};
 
@@ -98,21 +103,33 @@ export default function belongsTo(modelName, options) {
     options: opts,
     kind: 'belongsTo',
     name: 'Belongs To',
-    key: null
+    key: null,
   };
 
   return computed({
     get(key) {
       if (opts.hasOwnProperty('serialize')) {
-        warn(`You provided a serialize option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`, false, {
-          id: 'ds.model.serialize-option-in-belongs-to'
-        });
+        warn(
+          `You provided a serialize option on the "${key}" property in the "${
+            this._internalModel.modelName
+          }" class, this belongs in the serializer. See DS.Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`,
+          false,
+          {
+            id: 'ds.model.serialize-option-in-belongs-to',
+          }
+        );
       }
 
       if (opts.hasOwnProperty('embedded')) {
-        warn(`You provided an embedded option on the "${key}" property in the "${this._internalModel.modelName}" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`, false, {
-          id: 'ds.model.embedded-option-in-belongs-to'
-        });
+        warn(
+          `You provided an embedded option on the "${key}" property in the "${
+            this._internalModel.modelName
+          }" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`,
+          false,
+          {
+            id: 'ds.model.embedded-option-in-belongs-to',
+          }
+        );
       }
 
       return this._internalModel.getBelongsTo(key);
@@ -121,6 +138,6 @@ export default function belongsTo(modelName, options) {
       this._internalModel.setDirtyBelongsTo(key, value);
 
       return this._internalModel.getBelongsTo(key);
-    }
+    },
   }).meta(meta);
 }

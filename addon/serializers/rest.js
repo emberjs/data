@@ -6,15 +6,15 @@ import { typeOf, isNone } from '@ember/utils';
 
 import { makeArray } from '@ember/array';
 import { camelize } from '@ember/string';
-import { singularize } from "ember-inflector";
+import { singularize } from 'ember-inflector';
 import { assert, deprecate, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
-import JSONSerializer from "../serializers/json";
+import JSONSerializer from '../serializers/json';
 import {
   coerceId,
   modelHasAttributeOrRelationshipNamedType,
-  normalizeModelName
+  normalizeModelName,
 } from '../-private';
 
 /**
@@ -61,7 +61,6 @@ import {
   @extends DS.JSONSerializer
 */
 const RESTSerializer = JSONSerializer.extend({
-
   /**
    `keyForPolymorphicType` can be used to define a custom key when
    serializing and deserializing a polymorphic type. By default, the
@@ -175,14 +174,20 @@ const RESTSerializer = JSONSerializer.extend({
   _normalizeArray(store, modelName, arrayHash, prop) {
     let documentHash = {
       data: [],
-      included: []
+      included: [],
     };
 
     let modelClass = store.modelFor(modelName);
     let serializer = store.serializerFor(modelName);
 
-    makeArray(arrayHash).forEach((hash) => {
-      let { data, included } = this._normalizePolymorphicRecord(store, hash, prop, modelClass, serializer);
+    makeArray(arrayHash).forEach(hash => {
+      let { data, included } = this._normalizePolymorphicRecord(
+        store,
+        hash,
+        prop,
+        modelClass,
+        serializer
+      );
       documentHash.data.push(data);
       if (included) {
         documentHash.included.push(...included);
@@ -225,12 +230,15 @@ const RESTSerializer = JSONSerializer.extend({
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
     let documentHash = {
       data: null,
-      included: []
+      included: [],
     };
 
     let meta = this.extractMeta(store, primaryModelClass, payload);
     if (meta) {
-      assert('The `meta` returned from `extractMeta` has to be an object, not "' + typeOf(meta) + '".', typeOf(meta) === 'object');
+      assert(
+        'The `meta` returned from `extractMeta` has to be an object, not "' + typeOf(meta) + '".',
+        typeOf(meta) === 'object'
+      );
       documentHash.meta = meta;
     }
 
@@ -269,12 +277,12 @@ const RESTSerializer = JSONSerializer.extend({
       var typeName = this.modelNameFromPayloadKey(modelName);
       if (!store._hasModelFor(typeName)) {
         warn(this.warnMessageNoModelForKey(modelName, typeName), false, {
-          id: 'ds.serializer.model-for-key-missing'
+          id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
 
-      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
+      var isPrimary = !forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -282,12 +290,14 @@ const RESTSerializer = JSONSerializer.extend({
       }
 
       if (DEBUG) {
-        let isQueryRecordAnArray = requestType === 'queryRecord' && isPrimary && Array.isArray(value);
-        let message = "The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.";
+        let isQueryRecordAnArray =
+          requestType === 'queryRecord' && isPrimary && Array.isArray(value);
+        let message =
+          'The adapter returned an array for the primary data of a `queryRecord` response. This is deprecated as `queryRecord` should return a single record.';
 
         deprecate(message, !isQueryRecordAnArray, {
           id: 'ds.serializer.rest.queryRecord-array-response',
-          until: '3.0'
+          until: '3.0',
         });
       }
 
@@ -303,7 +313,13 @@ const RESTSerializer = JSONSerializer.extend({
         ```
        */
       if (isPrimary && !Array.isArray(value)) {
-        let { data, included } = this._normalizePolymorphicRecord(store, value, prop, primaryModelClass, this);
+        let { data, included } = this._normalizePolymorphicRecord(
+          store,
+          value,
+          prop,
+          primaryModelClass,
+          this
+        );
         documentHash.data = data;
         if (included) {
           documentHash.included.push(...included);
@@ -319,7 +335,6 @@ const RESTSerializer = JSONSerializer.extend({
 
       if (isSingle) {
         data.forEach(resource => {
-
           /*
             Figures out if this is the primary record or not.
 
@@ -390,14 +405,14 @@ const RESTSerializer = JSONSerializer.extend({
   pushPayload(store, payload) {
     let documentHash = {
       data: [],
-      included: []
+      included: [],
     };
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);
       if (!store._hasModelFor(modelName)) {
         warn(this.warnMessageNoModelForKey(prop, modelName), false, {
-          id: 'ds.serializer.model-for-key-missing'
+          id: 'ds.serializer.model-for-key-missing',
         });
         continue;
       }
@@ -772,23 +787,37 @@ const RESTSerializer = JSONSerializer.extend({
     let isPolymorphic = relationshipMeta.options.polymorphic;
     let typeProperty = this.keyForPolymorphicType(key, relationshipType, 'deserialize');
 
-    if (isPolymorphic && resourceHash[typeProperty] !== undefined && typeof relationshipHash !== 'object') {
+    if (
+      isPolymorphic &&
+      resourceHash[typeProperty] !== undefined &&
+      typeof relationshipHash !== 'object'
+    ) {
       let type = this.modelNameFromPayloadKey(resourceHash[typeProperty]);
       return {
         id: relationshipHash,
-        type: type
+        type: type,
       };
     }
 
     return this._super(...arguments);
-  }
+  },
 });
 
 if (DEBUG) {
   RESTSerializer.reopen({
     warnMessageNoModelForKey(prop, typeKey) {
-      return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
-    }
+      return (
+        'Encountered "' +
+        prop +
+        '" in payload, but no model was found for model name "' +
+        typeKey +
+        '" (resolved model name using ' +
+        this.constructor.toString() +
+        '.modelNameFromPayloadKey("' +
+        prop +
+        '"))'
+      );
+    },
   });
 }
 

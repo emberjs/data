@@ -13,24 +13,25 @@ module('DS.DebugAdapter', {
   beforeEach() {
     run(function() {
       App = Application.extend({
-        toString() { return 'debug-app'; }
+        toString() {
+          return 'debug-app';
+        },
       }).create();
 
       App.StoreService = DS.Store.extend({});
 
       App.ApplicationAdapter = DS.Adapter.extend({
-        shouldBackgroundReloadRecord: () => false
+        shouldBackgroundReloadRecord: () => false,
       });
 
       App.Post = DS.Model.extend({
-        title: DS.attr('string')
+        title: DS.attr('string'),
       });
 
       // TODO: Remove this when Ember is upgraded to >= 1.13
       App.Post.reopenClass({
-        _debugContainerKey: 'model:post'
+        _debugContainerKey: 'model:post',
       });
-
     });
 
     store = App.__container__.lookup('service:store');
@@ -47,13 +48,13 @@ module('DS.DebugAdapter', {
     debugAdapter.reopen({
       getModelTypes() {
         return A([{ klass, name: 'post' }]);
-      }
+      },
     });
   },
   afterEach() {
     run(App, App.destroy);
     App = store = null;
-  }
+  },
 });
 
 test('Watching Model Types', function(assert) {
@@ -78,14 +79,14 @@ test('Watching Model Types', function(assert) {
         type: 'post',
         id: '1',
         attributes: {
-          title: 'Post Title'
-        }
-      }
+          title: 'Post Title',
+        },
+      },
     });
   });
 });
 
-test("Watching Records", function(assert) {
+test('Watching Records', function(assert) {
   var post, record, addedRecords, updatedRecords, removedIndex, removedCount;
 
   run(function() {
@@ -94,16 +95,16 @@ test("Watching Records", function(assert) {
         type: 'post',
         id: '1',
         attributes: {
-          title: 'Clean Post'
-        }
-      }
+          title: 'Clean Post',
+        },
+      },
     });
   });
 
   var recordsAdded = function(wrappedRecords) {
     addedRecords = wrappedRecords;
   };
-  var  recordsUpdated = function(wrappedRecords) {
+  var recordsUpdated = function(wrappedRecords) {
     updatedRecords = wrappedRecords;
   };
   var recordsRemoved = function(index, count) {

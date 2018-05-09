@@ -11,11 +11,11 @@ function setupModels(testState) {
   let types;
   const Comment = Model.extend({
     text: attr(),
-    post: belongsTo('post', { async: false, inverse: 'comments' })
+    post: belongsTo('post', { async: false, inverse: 'comments' }),
   });
   const Author = Model.extend({
     name: attr(),
-    post: belongsTo('post', { async: false, inverse: 'author' })
+    post: belongsTo('post', { async: false, inverse: 'author' }),
   });
   const Post = Model.extend({
     title: attr(),
@@ -24,19 +24,19 @@ function setupModels(testState) {
     init() {
       this._super(...arguments);
       testState(types, this);
-    }
+    },
   });
   types = {
     Author,
     Comment,
-    Post
+    Post,
   };
 
   return setupStore({
     adapter: JSONAPIAdapter.extend(),
     post: Post,
     comment: Comment,
-    author: Author
+    author: Author,
   });
 }
 
@@ -49,9 +49,18 @@ test('createRecord(properties) makes properties available during record init', f
 
   function testState(types, record) {
     assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(get(record, 'randomProp') === 'An unknown prop', 'Unknown properties are available as expected');
-    assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-    assert.ok(get(record, 'comments.firstObject') instanceof types.Comment, 'hasMany relationships are available as expected');
+    assert.ok(
+      get(record, 'randomProp') === 'An unknown prop',
+      'Unknown properties are available as expected'
+    );
+    assert.ok(
+      get(record, 'author') instanceof types.Author,
+      'belongsTo relationships are available as expected'
+    );
+    assert.ok(
+      get(record, 'comments.firstObject') instanceof types.Comment,
+      'hasMany relationships are available as expected'
+    );
   }
 
   let { store } = setupModels(testState);
@@ -62,18 +71,18 @@ test('createRecord(properties) makes properties available during record init', f
         type: 'comment',
         id: '1',
         attributes: {
-          text: 'Hello darkness my old friend'
-        }
-      }
+          text: 'Hello darkness my old friend',
+        },
+      },
     });
     author = store.push({
       data: {
         type: 'author',
         id: '1',
         attributes: {
-          name: '@runspired'
-        }
-      }
+          name: '@runspired',
+        },
+      },
     });
   });
 
@@ -82,7 +91,7 @@ test('createRecord(properties) makes properties available during record init', f
       title: 'My Post',
       randomProp: 'An unknown prop',
       comments: [comment],
-      author
+      author,
     });
   });
 });
@@ -92,45 +101,53 @@ test('store.push() makes properties available during record init', function(asse
 
   function testState(types, record) {
     assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-    assert.ok(get(record, 'comments.firstObject') instanceof types.Comment, 'hasMany relationships are available as expected');
+    assert.ok(
+      get(record, 'author') instanceof types.Author,
+      'belongsTo relationships are available as expected'
+    );
+    assert.ok(
+      get(record, 'comments.firstObject') instanceof types.Comment,
+      'hasMany relationships are available as expected'
+    );
   }
 
   let { store } = setupModels(testState);
 
-  run(() => store.push({
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'My Post'
-      },
-      relationships: {
-        comments: {
-          data: [{ type: 'comment', id: '1' }]
+  run(() =>
+    store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'My Post',
         },
-        author: {
-          data: { type: 'author', id: '1' }
-        }
-      }
-    },
-    included: [
-      {
-        type: 'comment',
-        id: '1',
-        attributes: {
-          text: 'Hello darkness my old friend'
-        }
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }],
+          },
+          author: {
+            data: { type: 'author', id: '1' },
+          },
+        },
       },
-      {
-        type: 'author',
-        id: '1',
-        attributes: {
-          name: '@runspired'
-        }
-      }
-    ]
-  }));
+      included: [
+        {
+          type: 'comment',
+          id: '1',
+          attributes: {
+            text: 'Hello darkness my old friend',
+          },
+        },
+        {
+          type: 'author',
+          id: '1',
+          attributes: {
+            name: '@runspired',
+          },
+        },
+      ],
+    })
+  );
 });
 
 test('store.findRecord(type, id) makes properties available during record init', function(assert) {
@@ -138,8 +155,14 @@ test('store.findRecord(type, id) makes properties available during record init',
 
   function testState(types, record) {
     assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-    assert.ok(get(record, 'comments.firstObject') instanceof types.Comment, 'hasMany relationships are available as expected');
+    assert.ok(
+      get(record, 'author') instanceof types.Author,
+      'belongsTo relationships are available as expected'
+    );
+    assert.ok(
+      get(record, 'comments.firstObject') instanceof types.Comment,
+      'hasMany relationships are available as expected'
+    );
   }
 
   let { adapter, store } = setupModels(testState);
@@ -150,33 +173,33 @@ test('store.findRecord(type, id) makes properties available during record init',
         type: 'post',
         id: '1',
         attributes: {
-          title: 'My Post'
+          title: 'My Post',
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '1' }]
+            data: [{ type: 'comment', id: '1' }],
           },
           author: {
-            data: { type: 'author', id: '1' }
-          }
-        }
+            data: { type: 'author', id: '1' },
+          },
+        },
       },
       included: [
         {
           type: 'comment',
           id: '1',
           attributes: {
-            text: 'Hello darkness my old friend'
-          }
+            text: 'Hello darkness my old friend',
+          },
         },
         {
           type: 'author',
           id: '1',
           attributes: {
-            name: '@runspired'
-          }
-        }
-      ]
+            name: '@runspired',
+          },
+        },
+      ],
     });
   };
 
@@ -188,8 +211,14 @@ test('store.queryRecord(type, query) makes properties available during record in
 
   function testState(types, record) {
     assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(get(record, 'author') instanceof types.Author, 'belongsTo relationships are available as expected');
-    assert.ok(get(record, 'comments.firstObject') instanceof types.Comment, 'hasMany relationships are available as expected');
+    assert.ok(
+      get(record, 'author') instanceof types.Author,
+      'belongsTo relationships are available as expected'
+    );
+    assert.ok(
+      get(record, 'comments.firstObject') instanceof types.Comment,
+      'hasMany relationships are available as expected'
+    );
   }
 
   let { adapter, store } = setupModels(testState);
@@ -200,33 +229,33 @@ test('store.queryRecord(type, query) makes properties available during record in
         type: 'post',
         id: '1',
         attributes: {
-          title: 'My Post'
+          title: 'My Post',
         },
         relationships: {
           comments: {
-            data: [{ type: 'comment', id: '1' }]
+            data: [{ type: 'comment', id: '1' }],
           },
           author: {
-            data: { type: 'author', id: '1' }
-          }
-        }
+            data: { type: 'author', id: '1' },
+          },
+        },
       },
       included: [
         {
           type: 'comment',
           id: '1',
           attributes: {
-            text: 'Hello darkness my old friend'
-          }
+            text: 'Hello darkness my old friend',
+          },
         },
         {
           type: 'author',
           id: '1',
           attributes: {
-            name: '@runspired'
-          }
-        }
-      ]
+            name: '@runspired',
+          },
+        },
+      ],
     });
   };
 

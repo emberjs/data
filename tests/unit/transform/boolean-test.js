@@ -4,7 +4,7 @@ import { module, test } from 'qunit';
 
 module('unit/transform - DS.BooleanTransform');
 
-test("#serialize", function(assert) {
+test('#serialize', function(assert) {
   let transform = new DS.BooleanTransform();
 
   assert.strictEqual(transform.serialize(null, { allowNull: true }), null);

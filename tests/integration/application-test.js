@@ -26,7 +26,7 @@ function lookup(thing) {
   return run(container, 'lookup', thing);
 }
 
-module("integration/application - Injecting a Custom Store", {
+module('integration/application - Injecting a Custom Store', {
   beforeEach() {
     run(() => {
       app = Application.create({
@@ -34,7 +34,7 @@ module("integration/application - Injecting a Custom Store", {
         FooController: Controller.extend(),
         BazController: {},
         ApplicationController: Controller.extend(),
-        rootElement: '#qunit-fixture'
+        rootElement: '#qunit-fixture',
       });
     });
 
@@ -44,22 +44,22 @@ module("integration/application - Injecting a Custom Store", {
   afterEach() {
     run(app, app.destroy);
     Ember.BOOTED = false;
-  }
+  },
 });
 
-test("If a Store property exists on an Ember.Application, it should be instantiated.", function(assert) {
+test('If a Store property exists on an Ember.Application, it should be instantiated.', function(assert) {
   run(() => {
-    assert.ok(getStore().get('isCustom'), "the custom store was instantiated");
+    assert.ok(getStore().get('isCustom'), 'the custom store was instantiated');
   });
 });
 
-test("If a store is instantiated, it should be made available to each controller.", function(assert) {
+test('If a store is instantiated, it should be made available to each controller.', function(assert) {
   let fooController = lookup('controller:foo');
   let isCustom = run(fooController, 'get', 'store.isCustom');
-  assert.ok(isCustom, "the custom store was injected");
+  assert.ok(isCustom, 'the custom store was injected');
 });
 
-test("The JSONAPIAdapter is the default adapter when no custom adapter is provided", function(assert) {
+test('The JSONAPIAdapter is the default adapter when no custom adapter is provided', function(assert) {
   run(() => {
     let store = getStore();
     let adapter = store.adapterFor('application');
@@ -68,13 +68,13 @@ test("The JSONAPIAdapter is the default adapter when no custom adapter is provid
   });
 });
 
-module("integration/application - Injecting the Default Store", {
+module('integration/application - Injecting the Default Store', {
   beforeEach() {
     run(() => {
       app = Application.create({
         FooController: Controller.extend(),
         BazController: {},
-        ApplicationController: Controller.extend()
+        ApplicationController: Controller.extend(),
       });
     });
 
@@ -84,32 +84,32 @@ module("integration/application - Injecting the Default Store", {
   afterEach() {
     run(app, 'destroy');
     Ember.BOOTED = false;
-  }
+  },
 });
 
-test("If a Store property exists on an Ember.Application, it should be instantiated.", function(assert) {
-  assert.ok(getStore() instanceof DS.Store, "the store was instantiated");
+test('If a Store property exists on an Ember.Application, it should be instantiated.', function(assert) {
+  assert.ok(getStore() instanceof DS.Store, 'the store was instantiated');
 });
 
-test("If a store is instantiated, it should be made available to each controller.", function(assert) {
+test('If a store is instantiated, it should be made available to each controller.', function(assert) {
   run(() => {
     let fooController = lookup('controller:foo');
-    assert.ok(fooController.get('store') instanceof DS.Store, "the store was injected");
+    assert.ok(fooController.get('store') instanceof DS.Store, 'the store was injected');
   });
 });
 
-test("the DS namespace should be accessible", function(assert) {
+test('the DS namespace should be accessible', function(assert) {
   run(() => {
-    assert.ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
+    assert.ok(Namespace.byName('DS') instanceof Namespace, 'the DS namespace is accessible');
   });
 });
 
 if (Ember.inject && service) {
-  module("integration/application - Using the store as a service", {
+  module('integration/application - Using the store as a service', {
     beforeEach() {
       run(() => {
         app = Application.create({
-          DoodleService: Service.extend({ store: service() })
+          DoodleService: Service.extend({ store: service() }),
         });
       });
 
@@ -119,18 +119,18 @@ if (Ember.inject && service) {
     afterEach() {
       run(app, 'destroy');
       Ember.BOOTED = false;
-    }
+    },
   });
 
-  test("The store can be injected as a service", function(assert) {
+  test('The store can be injected as a service', function(assert) {
     run(() => {
       let doodleService = lookup('service:doodle');
-      assert.ok(doodleService.get('store') instanceof Store, "the store can be used as a service");
+      assert.ok(doodleService.get('store') instanceof Store, 'the store can be used as a service');
     });
   });
 }
 
-module("integration/application - Attaching initializer", {
+module('integration/application - Attaching initializer', {
   beforeEach() {
     App = Application.extend();
   },
@@ -140,15 +140,17 @@ module("integration/application - Attaching initializer", {
       run(app, app.destroy);
     }
     Ember.BOOTED = false;
-  }
+  },
 });
 
-test("ember-data initializer is run", function(assert) {
+test('ember-data initializer is run', function(assert) {
   let ran = false;
   App.initializer({
-    name:       "after-ember-data",
-    after:      "ember-data",
-    initialize() { ran = true; }
+    name: 'after-ember-data',
+    after: 'ember-data',
+    initialize() {
+      ran = true;
+    },
   });
 
   run(() => {
@@ -158,18 +160,17 @@ test("ember-data initializer is run", function(assert) {
   assert.ok(ran, 'ember-data initializer was found');
 });
 
-test("ember-data initializer does not register the store service when it was already registered", function(assert) {
-
+test('ember-data initializer does not register the store service when it was already registered', function(assert) {
   let AppStore = Store.extend({
-    isCustomStore: true
+    isCustomStore: true,
   });
 
   App.initializer({
-    name:       "after-ember-data",
-    before:      "ember-data",
+    name: 'after-ember-data',
+    before: 'ember-data',
     initialize(registry) {
       registry.register('service:store', AppStore);
-    }
+    },
   });
 
   run(() => {
@@ -178,6 +179,8 @@ test("ember-data initializer does not register the store service when it was alr
   });
 
   let store = getStore();
-  assert.ok(store && store.get('isCustomStore'), 'ember-data initializer does not overwrite the previous registered service store');
-
+  assert.ok(
+    store && store.get('isCustomStore'),
+    'ember-data initializer does not overwrite the previous registered service store'
+  );
 });

@@ -11,19 +11,19 @@ let store, env, manager;
 
 const Person = DS.Model.extend({
   name: DS.attr('string'),
-  cars: DS.hasMany('car', { async: false })
+  cars: DS.hasMany('car', { async: false }),
 });
 
 const Car = DS.Model.extend({
   make: DS.attr('string'),
   model: DS.attr('string'),
-  person: DS.belongsTo('person', { async: false })
+  person: DS.belongsTo('person', { async: false }),
 });
 
 module('integration/record_array_manager', {
   beforeEach() {
     env = setupStore({
-      adapter: DS.RESTAdapter.extend()
+      adapter: DS.RESTAdapter.extend(),
     });
     store = env.store;
 
@@ -31,7 +31,7 @@ module('integration/record_array_manager', {
 
     env.registry.register('model:car', Car);
     env.registry.register('model:person', Person);
-  }
+  },
 });
 
 function tap(obj, methodName, callback) {
@@ -52,7 +52,7 @@ function tap(obj, methodName, callback) {
 }
 
 test('destroying the store correctly cleans everything up', function(assert) {
-  let query = { };
+  let query = {};
   let person;
 
   run(() => {
@@ -62,14 +62,14 @@ test('destroying the store correctly cleans everything up', function(assert) {
         id: '1',
         attributes: {
           make: 'BMC',
-          model: 'Mini Cooper'
+          model: 'Mini Cooper',
         },
         relationships: {
           person: {
-            data: { type: 'person', id: '1' }
-          }
-        }
-      }
+            data: { type: 'person', id: '1' },
+          },
+        },
+      },
     });
   });
 
@@ -79,16 +79,14 @@ test('destroying the store correctly cleans everything up', function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          name: 'Tom Dale'
+          name: 'Tom Dale',
         },
         relationships: {
           cars: {
-            data: [
-              { type: 'car', id: '1' }
-            ]
-          }
-        }
-      }
+            data: [{ type: 'car', id: '1' }],
+          },
+        },
+      },
     });
     person = store.peekRecord('person', 1);
   });
@@ -101,18 +99,30 @@ test('destroying the store correctly cleans everything up', function(assert) {
 
   assert.equal(allSummary.called.length, 0);
   assert.equal(adapterPopulatedSummary.called.length, 0);
-  assert.equal(internalPersonModel._recordArrays.size, 1, 'expected the person to be a member of 1 recordArrays');
+  assert.equal(
+    internalPersonModel._recordArrays.size,
+    1,
+    'expected the person to be a member of 1 recordArrays'
+  );
   assert.equal('person' in manager._liveRecordArrays, true);
 
   run(all, all.destroy);
 
-  assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of 1 recordArrays');
+  assert.equal(
+    internalPersonModel._recordArrays.size,
+    0,
+    'expected the person to be a member of 1 recordArrays'
+  );
   assert.equal(allSummary.called.length, 1);
   assert.equal('person' in manager._liveRecordArrays, false);
 
   run(manager, manager.destroy);
 
-  assert.equal(internalPersonModel._recordArrays.size, 0, 'expected the person to be a member of no recordArrays');
+  assert.equal(
+    internalPersonModel._recordArrays.size,
+    0,
+    'expected the person to be a member of no recordArrays'
+  );
   assert.equal(allSummary.called.length, 1);
   assert.equal(adapterPopulatedSummary.called.length, 1);
 });
@@ -139,27 +149,24 @@ test('batch liveRecordArray changes', function(assert) {
           id: '1',
           attributes: {
             make: 'BMC',
-            model: 'Mini Cooper'
-          }
+            model: 'Mini Cooper',
+          },
         },
         {
           type: 'car',
           id: '2',
           attributes: {
             make: 'Jeep',
-            model: 'Wrangler'
-          }
-        }
-      ]
+            model: 'Wrangler',
+          },
+        },
+      ],
     });
   });
 
   assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
 
-  assert.deepEqual(cars.toArray(), [
-    store.peekRecord('car', 1),
-    store.peekRecord('car', 2)
-  ]);
+  assert.deepEqual(cars.toArray(), [store.peekRecord('car', 1), store.peekRecord('car', 2)]);
 
   run(() => store.peekRecord('car', 1).set('model', 'Mini'));
 
@@ -182,10 +189,10 @@ test('batch liveRecordArray changes', function(assert) {
           id: 2, // this ID is already present, array wont need to change
           attributes: {
             make: 'Tesla',
-            model: 'S'
-          }
-        }
-      ]
+            model: 'S',
+          },
+        },
+      ],
     });
   });
 
@@ -199,10 +206,10 @@ test('batch liveRecordArray changes', function(assert) {
           id: 3,
           attributes: {
             make: 'Tesla',
-            model: 'S'
-          }
-        }
-      ]
+            model: 'S',
+          },
+        },
+      ],
     });
   });
 
@@ -217,9 +224,9 @@ test('#GH-4041 store#query AdapterPopulatedRecordArrays are removed from their m
         id: '1',
         attributes: {
           make: 'Honda',
-          model: 'fit'
-        }
-      }
+          model: 'fit',
+        },
+      },
     });
   });
 
@@ -248,7 +255,7 @@ test('createRecordArray with optional content', function(assert) {
     _recordArrays: new OrderedSet(),
     getRecord() {
       return record;
-    }
+    },
   };
   let content = A([internalModel]);
   let recordArray = manager.createRecordArray('foo', content);
@@ -263,7 +270,7 @@ test('createRecordArray with optional content', function(assert) {
 });
 
 test('liveRecordArrayFor always return the same array for a given type', function(assert) {
-  assert.equal(manager.liveRecordArrayFor('foo'), manager.liveRecordArrayFor('foo'))
+  assert.equal(manager.liveRecordArrayFor('foo'), manager.liveRecordArrayFor('foo'));
 });
 
 test('liveRecordArrayFor create with content', function(assert) {
@@ -287,9 +294,9 @@ test('liveRecordArrayFor create with content', function(assert) {
         id: '1',
         attributes: {
           make: 'BMC',
-          model: 'Mini Cooper'
-        }
-      }
+          model: 'Mini Cooper',
+        },
+      },
     });
   });
 
@@ -327,26 +334,28 @@ test('[DEPRECATED FILTER SUPPORT until 3.5]', function(assert) {
   assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected NO silent updates yet');
   assert.equal(updatesSignaledCount, 0, 'expected NO signals yet');
 
-  let [car1, car2] = run(() => store.push({
-    data: [
-      {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini Cooper'
-        }
-      },
-      {
-        type: 'car',
-        id: '2',
-        attributes: {
-          make: 'Jeep',
-          model: 'Wrangler'
-        }
-      }
-    ]
-  }));
+  let [car1, car2] = run(() =>
+    store.push({
+      data: [
+        {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini Cooper',
+          },
+        },
+        {
+          type: 'car',
+          id: '2',
+          attributes: {
+            make: 'Jeep',
+            model: 'Wrangler',
+          },
+        },
+      ],
+    })
+  );
 
   assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
   assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected NO silent updates yet');
@@ -367,16 +376,18 @@ test('[DEPRECATED FILTER SUPPORT until 3.5]', function(assert) {
   updatesWithoutLiveArrayChangeCount = 0;
   updatesSignaledCount = 0;
 
-  run(() => store.push({
-    data: {
-      type: 'car',
-      id: '2', // this ID is already present, array wont need to change
-      attributes: {
-        make: 'Tesla',
-        model: 'S'
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'car',
+        id: '2', // this ID is already present, array wont need to change
+        attributes: {
+          make: 'Tesla',
+          model: 'S',
+        },
+      },
+    })
+  );
 
   assert.equal(arrayContentWillChangeCount, 0, 'expected NO array change events');
   assert.equal(updatesWithoutLiveArrayChangeCount, 1, 'expected ONE silent update');
@@ -386,16 +397,18 @@ test('[DEPRECATED FILTER SUPPORT until 3.5]', function(assert) {
   updatesWithoutLiveArrayChangeCount = 0;
   updatesSignaledCount = 0;
 
-  run(() => store.push({
-    data: {
-      type: 'car',
-      id: '3',
-      attributes: {
-        make: 'Tesla',
-        model: 'S'
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'car',
+        id: '3',
+        attributes: {
+          make: 'Tesla',
+          model: 'S',
+        },
+      },
+    })
+  );
 
   assert.equal(arrayContentWillChangeCount, 1, 'expected ONE array change event');
   assert.equal(updatesWithoutLiveArrayChangeCount, 0, 'expected ONE silent update');

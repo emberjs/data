@@ -19,7 +19,7 @@ import VERSION from 'ember-data/version';
 */
 const DS = Ember.Namespace.create({
   VERSION: VERSION,
-  name: "DS"
+  name: 'DS',
 });
 
 if (Ember.libraries) {

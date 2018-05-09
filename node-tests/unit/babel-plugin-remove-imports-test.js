@@ -20,10 +20,10 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
   let input, output;
 
   function transform(code) {
-    return co.wrap(function* () {
+    return co.wrap(function*() {
       input.write({ 'test.js': code });
       let babel = new Babel(input.path(), {
-        plugins
+        plugins,
       });
 
       output = createBuilder(babel);
@@ -36,26 +36,28 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
     })();
   }
 
-  beforeEach(co.wrap(function* () {
-    pluginOptions = {};
+  beforeEach(
+    co.wrap(function*() {
+      pluginOptions = {};
 
-    plugins = [
-      [StripFilteredImports, pluginOptions]
-    ];
+      plugins = [[StripFilteredImports, pluginOptions]];
 
-    input = yield createTempDir();
-  }));
+      input = yield createTempDir();
+    })
+  );
 
-  afterEach(co.wrap(function* () {
-    if (input) {
-      yield input.dispose();
-    }
-    if (output) {
-      yield output.dispose();
-    }
+  afterEach(
+    co.wrap(function*() {
+      if (input) {
+        yield input.dispose();
+      }
+      if (output) {
+        yield output.dispose();
+      }
 
-    input = output = undefined;
-  }));
+      input = output = undefined;
+    })
+  );
 
   it('Returns a plugin', function() {
     let plugin = StripFilteredImports();
@@ -63,20 +65,25 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
     expect(plugin).to.be.ok;
   });
 
-  it('Does not alter a file if no imports are meant to be filtered', co.wrap(function*() {
-    const input = stripIndent`
+  it(
+    'Does not alter a file if no imports are meant to be filtered',
+    co.wrap(function*() {
+      const input = stripIndent`
       import Foo from 'bar';
       import { baz } from 'none';
       import * as drinks from 'drinks';
       import 'bem';
     `;
-    const result = yield transform(input);
+      const result = yield transform(input);
 
-    expect(result).to.equal(stripNewlines(input));
-  }));
+      expect(result).to.equal(stripNewlines(input));
+    })
+  );
 
-  it('Properly strips desired imports and specifiers', co.wrap(function*() {
-    const input = stripIndent`
+  it(
+    'Properly strips desired imports and specifiers',
+    co.wrap(function*() {
+      const input = stripIndent`
       import Foo from 'bar';
       import { bit } from 'wow';
       import { baz, bell } from 'none';
@@ -88,23 +95,24 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
       import 'bell';
     `;
 
-    pluginOptions.none = ['baz'];
-    pluginOptions.bar = true;
-    pluginOptions.drinks = '*';
-    pluginOptions.wow = ['bit'];
-    pluginOptions.bem = ['biz'];
-    pluginOptions.bosh = '*';
-    pluginOptions.dranks = ['bex'];
-    pluginOptions.bell = true;
+      pluginOptions.none = ['baz'];
+      pluginOptions.bar = true;
+      pluginOptions.drinks = '*';
+      pluginOptions.wow = ['bit'];
+      pluginOptions.bem = ['biz'];
+      pluginOptions.bosh = '*';
+      pluginOptions.dranks = ['bex'];
+      pluginOptions.bell = true;
 
-    const expectedOutput = stripNewlines(stripIndent`
+      const expectedOutput = stripNewlines(stripIndent`
       import { bell } from 'none';
       import { foo } from 'happy';
       import * as dranks from 'dranks';
       import 'bem';
     `);
-    const result = yield transform(input);
+      const result = yield transform(input);
 
-    expect(result).to.equal(expectedOutput);
-  }));
+      expect(result).to.equal(expectedOutput);
+    })
+  );
 });

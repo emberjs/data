@@ -91,7 +91,7 @@ export default class Snapshot {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
 
-      record.eachAttribute((keyName) => attributes[keyName] = get(record, keyName));
+      record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
     }
 
     return attributes;
@@ -131,7 +131,9 @@ export default class Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new EmberError("Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined.");
+    throw new EmberError(
+      "Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined."
+    );
   }
 
   /**
@@ -169,7 +171,7 @@ export default class Snapshot {
     let changedAttributes = Object.create(null);
     let changedAttributeKeys = Object.keys(this._changedAttributes);
 
-    for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
+    for (let i = 0, length = changedAttributeKeys.length; i < length; i++) {
       let key = changedAttributeKeys[i];
       changedAttributes[key] = this._changedAttributes[key].slice();
     }
@@ -227,13 +229,16 @@ export default class Snapshot {
 
     relationship = this._internalModel._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
-      throw new EmberError("Model '" + inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
+      throw new EmberError(
+        "Model '" +
+          inspect(this.record) +
+          "' has no belongsTo relationship named '" +
+          keyName +
+          "' defined."
+      );
     }
 
-    let {
-      hasAnyRelationshipData,
-      inverseInternalModel
-    } = relationship;
+    let { hasAnyRelationshipData, inverseInternalModel } = relationship;
 
     if (hasAnyRelationshipData) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -300,17 +305,20 @@ export default class Snapshot {
 
     relationship = this._internalModel._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
-      throw new EmberError("Model '" + inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
+      throw new EmberError(
+        "Model '" +
+          inspect(this.record) +
+          "' has no hasMany relationship named '" +
+          keyName +
+          "' defined."
+      );
     }
 
-    let {
-      hasAnyRelationshipData,
-      members
-    } = relationship;
+    let { hasAnyRelationshipData, members } = relationship;
 
     if (hasAnyRelationshipData) {
       results = [];
-      members.forEach((member) => {
+      members.forEach(member => {
         if (!member.isDeleted()) {
           if (ids) {
             results.push(member.id);

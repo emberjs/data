@@ -18,13 +18,17 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', {
       rolledBackCount: 0,
       rolledBack() {
         this.incrementProperty('rolledBackCount');
-      }
+      },
     });
-    Person.reopenClass({ toString() { return 'Person'; } });
+    Person.reopenClass({
+      toString() {
+        return 'Person';
+      },
+    });
 
     env = setupStore({ person: Person });
     store = env.store;
-  }
+  },
 });
 
 test('changes to attributes can be rolled back', function(assert) {
@@ -34,22 +38,22 @@ test('changes to attributes can be rolled back', function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          firstName: "Tom",
-          lastName: "Dale"
-        }
-      }
+          firstName: 'Tom',
+          lastName: 'Dale',
+        },
+      },
     });
     person = store.peekRecord('person', 1);
-    person.set('firstName', "Thomas");
+    person.set('firstName', 'Thomas');
     return person;
   });
 
-  assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('firstName'), 'Thomas');
   assert.equal(person.get('rolledBackCount'), 0);
 
   run(() => person.rollbackAttributes());
 
-  assert.equal(person.get('firstName'), "Tom");
+  assert.equal(person.get('firstName'), 'Tom');
   assert.equal(person.get('hasDirtyAttributes'), false);
   assert.equal(person.get('rolledBackCount'), 1);
 });
@@ -61,17 +65,17 @@ test('changes to unassigned attributes can be rolled back', function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          lastName: 'Dale'
-        }
-      }
+          lastName: 'Dale',
+        },
+      },
     });
     person = store.peekRecord('person', 1);
-    person.set('firstName', "Thomas");
+    person.set('firstName', 'Thomas');
 
     return person;
   });
 
-  assert.equal(person.get('firstName'), "Thomas");
+  assert.equal(person.get('firstName'), 'Thomas');
   assert.equal(person.get('rolledBackCount'), 0);
 
   run(() => person.rollbackAttributes());
@@ -93,14 +97,14 @@ test('changes to attributes made after a record is in-flight only rolls back the
         type: 'person',
         id: '1',
         attributes: {
-          firstName: "Tom",
-          lastName: "Dale"
-        }
-      }
+          firstName: 'Tom',
+          lastName: 'Dale',
+        },
+      },
     });
 
     let person = store.peekRecord('person', 1);
-    person.set('firstName', "Thomas");
+    person.set('firstName', 'Thomas');
 
     return person;
   });
@@ -108,17 +112,17 @@ test('changes to attributes made after a record is in-flight only rolls back the
   return run(() => {
     let saving = person.save();
 
-    assert.equal(person.get('firstName'), "Thomas");
+    assert.equal(person.get('firstName'), 'Thomas');
 
-    person.set('lastName', "Dolly");
+    person.set('lastName', 'Dolly');
 
-    assert.equal(person.get('lastName'), "Dolly");
+    assert.equal(person.get('lastName'), 'Dolly');
     assert.equal(person.get('rolledBackCount'), 0);
 
     person.rollbackAttributes();
 
-    assert.equal(person.get('firstName'), "Thomas");
-    assert.equal(person.get('lastName'), "Dale");
+    assert.equal(person.get('firstName'), 'Thomas');
+    assert.equal(person.get('lastName'), 'Dale');
     assert.equal(person.get('isSaving'), true);
 
     return saving.then(() => {
@@ -139,31 +143,31 @@ test("a record's changes can be made if it fails to save", function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          firstName: "Tom",
-          lastName: "Dale"
-        }
-      }
+          firstName: 'Tom',
+          lastName: 'Dale',
+        },
+      },
     });
 
     let person = store.peekRecord('person', 1);
-    person.set('firstName', "Thomas");
+    person.set('firstName', 'Thomas');
 
     return person;
   });
 
-  assert.deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
+  assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
 
   run(function() {
     person.save().then(null, function() {
       assert.equal(person.get('isError'), true);
-      assert.deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
+      assert.deepEqual(person.changedAttributes().firstName, ['Tom', 'Thomas']);
       assert.equal(person.get('rolledBackCount'), 0);
 
       run(function() {
         person.rollbackAttributes();
       });
 
-      assert.equal(person.get('firstName'), "Tom");
+      assert.equal(person.get('firstName'), 'Tom');
       assert.equal(person.get('isError'), false);
       assert.equal(Object.keys(person.changedAttributes()).length, 0);
       assert.equal(person.get('rolledBackCount'), 1);
@@ -185,10 +189,10 @@ test(`a deleted record's attributes can be rollbacked if it fails to save, recor
         type: 'person',
         id: '1',
         attributes: {
-          firstName: "Tom",
-          lastName: "Dale"
-        }
-      }
+          firstName: 'Tom',
+          lastName: 'Dale',
+        },
+      },
     });
     person = store.peekRecord('person', 1);
     people = store.peekAll('person');
@@ -196,24 +200,39 @@ test(`a deleted record's attributes can be rollbacked if it fails to save, recor
 
   run(() => person.deleteRecord());
 
-  assert.equal(people.get('length'), 1, 'a deleted record appears in record array until it is saved');
-  assert.equal(people.objectAt(0), person, 'a deleted record appears in record array until it is saved');
+  assert.equal(
+    people.get('length'),
+    1,
+    'a deleted record appears in record array until it is saved'
+  );
+  assert.equal(
+    people.objectAt(0),
+    person,
+    'a deleted record appears in record array until it is saved'
+  );
 
   return run(() => {
-    return person.save().catch(() => {
-      assert.equal(person.get('isError'), true);
-      assert.equal(person.get('isDeleted'), true);
-      assert.equal(person.get('rolledBackCount'), 0);
+    return person
+      .save()
+      .catch(() => {
+        assert.equal(person.get('isError'), true);
+        assert.equal(person.get('isDeleted'), true);
+        assert.equal(person.get('rolledBackCount'), 0);
 
-      run(() => person.rollbackAttributes());
+        run(() => person.rollbackAttributes());
 
-      assert.equal(person.get('isDeleted'), false);
-      assert.equal(person.get('isError'), false);
-      assert.equal(person.get('hasDirtyAttributes'), false, 'must be not dirty');
-      assert.equal(person.get('rolledBackCount'), 1);
-    }).then(() => {
-      assert.equal(people.get('length'), 1, 'the underlying record array is updated accordingly in an asynchronous way');
-    });
+        assert.equal(person.get('isDeleted'), false);
+        assert.equal(person.get('isError'), false);
+        assert.equal(person.get('hasDirtyAttributes'), false, 'must be not dirty');
+        assert.equal(person.get('rolledBackCount'), 1);
+      })
+      .then(() => {
+        assert.equal(
+          people.get('length'),
+          1,
+          'the underlying record array is updated accordingly in an asynchronous way'
+        );
+      });
   });
 });
 
@@ -236,14 +255,14 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
   let error = new DS.InvalidError([
     {
       detail: 'is invalid',
-      source: { pointer: 'data/attributes/name' }
-    }
+      source: { pointer: 'data/attributes/name' },
+    },
   ]);
 
   let adapter = DS.RESTAdapter.extend({
     ajax(url, type, hash) {
       return reject(error);
-    }
+    },
   });
 
   env = setupStore({ person: Person, adapter: adapter });
@@ -269,12 +288,11 @@ test(`invalid new record's attributes can be rollbacked`, function(assert) {
 });
 
 test(`invalid record's attributes can be rollbacked after multiple failed calls - #3677`, function(assert) {
-
   let adapter = DS.RESTAdapter.extend({
     ajax(url, type, hash) {
       let error = new DS.InvalidError();
       return reject(error);
-    }
+    },
   });
 
   env = setupStore({ person: Person, adapter: adapter });
@@ -286,9 +304,9 @@ test(`invalid record's attributes can be rollbacked after multiple failed calls 
         type: 'person',
         id: 1,
         attributes: {
-          firstName: 'original name'
-        }
-      }
+          firstName: 'original name',
+        },
+      },
     });
 
     person.set('firstName', 'updated name');
@@ -297,18 +315,25 @@ test(`invalid record's attributes can be rollbacked after multiple failed calls 
   return run(() => {
     assert.equal(person.get('firstName'), 'updated name', 'precondition: firstName is changed');
 
-    return person.save().catch(() => {
-      assert.equal(person.get('hasDirtyAttributes'), true, 'has dirty attributes');
-      assert.equal(person.get('firstName'), 'updated name', 'firstName is still changed');
+    return person
+      .save()
+      .catch(() => {
+        assert.equal(person.get('hasDirtyAttributes'), true, 'has dirty attributes');
+        assert.equal(person.get('firstName'), 'updated name', 'firstName is still changed');
 
-      return person.save();
-    }).catch(() => {
-      run(() => person.rollbackAttributes());
+        return person.save();
+      })
+      .catch(() => {
+        run(() => person.rollbackAttributes());
 
-      assert.equal(person.get('hasDirtyAttributes'), false, 'has no dirty attributes');
-      assert.equal(person.get('firstName'), 'original name', 'after rollbackAttributes() firstName has the original value');
-      assert.equal(person.get('rolledBackCount'), 1);
-    });
+        assert.equal(person.get('hasDirtyAttributes'), false, 'has no dirty attributes');
+        assert.equal(
+          person.get('firstName'),
+          'original name',
+          'after rollbackAttributes() firstName has the original value'
+        );
+        assert.equal(person.get('rolledBackCount'), 1);
+      });
   });
 });
 
@@ -319,22 +344,34 @@ test(`deleted record's attributes can be rollbacked`, function(assert) {
     store.push({
       data: {
         type: 'person',
-        id: '1'
-      }
+        id: '1',
+      },
     });
     person = store.peekRecord('person', 1);
     people = store.peekAll('person');
     person.deleteRecord();
   });
 
-  assert.equal(people.get('length'), 1, 'a deleted record appears in the record array until it is saved');
-  assert.equal(people.objectAt(0), person, 'a deleted record appears in the record array until it is saved');
+  assert.equal(
+    people.get('length'),
+    1,
+    'a deleted record appears in the record array until it is saved'
+  );
+  assert.equal(
+    people.objectAt(0),
+    person,
+    'a deleted record appears in the record array until it is saved'
+  );
 
   assert.equal(person.get('isDeleted'), true, 'must be deleted');
 
   run(() => person.rollbackAttributes());
 
-  assert.equal(people.get('length'), 1, 'the rollbacked record should appear again in the record array');
+  assert.equal(
+    people.get('length'),
+    1,
+    'the rollbacked record should appear again in the record array'
+  );
   assert.equal(person.get('isDeleted'), false, 'must not be deleted');
   assert.equal(person.get('hasDirtyAttributes'), false, 'must not be dirty');
 });
@@ -346,20 +383,20 @@ test("invalid record's attributes can be rollbacked", function(assert) {
     rolledBackCount: 0,
     rolledBack() {
       this.incrementProperty('rolledBackCount');
-    }
+    },
   });
 
   let error = new DS.InvalidError([
     {
       detail: 'is invalid',
-      source: { pointer: 'data/attributes/name' }
-    }
+      source: { pointer: 'data/attributes/name' },
+    },
   ]);
 
   let adapter = DS.RESTAdapter.extend({
     ajax(url, type, hash) {
       return reject(error);
-    }
+    },
   });
 
   env = setupStore({ dog: Dog, adapter: adapter });
@@ -370,12 +407,12 @@ test("invalid record's attributes can be rollbacked", function(assert) {
         type: 'dog',
         id: '1',
         attributes: {
-          name: "Pluto"
-        }
-      }
+          name: 'Pluto',
+        },
+      },
     });
     dog = env.store.peekRecord('dog', 1);
-    dog.set('name', "is a dwarf planet");
+    dog.set('name', 'is a dwarf planet');
   });
 
   return run(() => {
@@ -383,19 +420,24 @@ test("invalid record's attributes can be rollbacked", function(assert) {
       assert.ok(true, 'errors.name did change');
     });
 
-    dog.get('errors').addArrayObserver({}, {
-      willChange() {
-        assert.ok(true, 'errors will change');
-      },
-      didChange() {
-        assert.ok(true, 'errors did change');
+    dog.get('errors').addArrayObserver(
+      {},
+      {
+        willChange() {
+          assert.ok(true, 'errors will change');
+        },
+        didChange() {
+          assert.ok(true, 'errors did change');
+        },
       }
-    });
+    );
 
     return dog.save().catch(reason => {
       assert.equal(reason, error);
 
-      run(() => { dog.rollbackAttributes() });
+      run(() => {
+        dog.rollbackAttributes();
+      });
 
       assert.equal(dog.get('hasDirtyAttributes'), false, 'must not be dirty');
       assert.equal(dog.get('name'), 'Pluto');
@@ -410,20 +452,20 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
   assert.expect(14);
   const Dog = DS.Model.extend({
     name: DS.attr(),
-    breed: DS.attr()
+    breed: DS.attr(),
   });
 
   let error = new DS.InvalidError([
     {
       detail: 'is invalid',
-      source: { pointer: 'data/attributes/name' }
-    }
+      source: { pointer: 'data/attributes/name' },
+    },
   ]);
 
   let adapter = DS.RESTAdapter.extend({
     ajax(url, type, hash) {
       return reject(error);
-    }
+    },
   });
 
   env = setupStore({ dog: Dog, adapter: adapter });
@@ -434,13 +476,13 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
         type: 'dog',
         id: '1',
         attributes: {
-          name: "Pluto",
-          breed: "Disney"
-        }
-      }
+          name: 'Pluto',
+          breed: 'Disney',
+        },
+      },
     });
     dog = env.store.peekRecord('dog', 1);
-    dog.set('name', "is a dwarf planet");
+    dog.set('name', 'is a dwarf planet');
     dog.set('breed', 'planet');
   });
 
@@ -474,20 +516,20 @@ test(`invalid record's attributes rolled back to correct state after set`, funct
 
 test(`when destroying a record setup the record state to invalid, the record's attributes can be rollbacked`, function(assert) {
   const Dog = DS.Model.extend({
-    name: DS.attr()
+    name: DS.attr(),
   });
 
   let error = new DS.InvalidError([
     {
       detail: 'is invalid',
-      source: { pointer: 'data/attributes/name' }
-    }
+      source: { pointer: 'data/attributes/name' },
+    },
   ]);
 
   let adapter = DS.RESTAdapter.extend({
     ajax(url, type, hash) {
       return reject(error);
-    }
+    },
   });
 
   env = setupStore({ dog: Dog, adapter: adapter });
@@ -497,15 +539,15 @@ test(`when destroying a record setup the record state to invalid, the record's a
         type: 'dog',
         id: '1',
         attributes: {
-          name: "Pluto"
-        }
-      }
+          name: 'Pluto',
+        },
+      },
     });
     return env.store.peekRecord('dog', 1);
   });
 
   return run(() => {
-    return dog.destroyRecord().catch(reason  => {
+    return dog.destroyRecord().catch(reason => {
       assert.equal(reason, error);
 
       assert.equal(dog.get('isError'), false, 'must not be error');
@@ -519,6 +561,6 @@ test(`when destroying a record setup the record state to invalid, the record's a
       assert.equal(dog.get('isDeleted'), false, 'must not be deleted after `rollbackAttributes`');
       assert.equal(dog.get('isValid'), true, 'must be valid after `rollbackAttributes`');
       assert.ok(dog.get('errors.length') === 0, 'must not have errors');
-    })
+    });
   });
 });

@@ -12,9 +12,9 @@ module('unit/model/merge - Merging', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr(),
-      city: DS.attr()
+      city: DS.attr(),
     });
-  }
+  },
 });
 
 test('When a record is in flight, changes can be made', function(assert) {
@@ -23,12 +23,12 @@ test('When a record is in flight, changes can be made', function(assert) {
   const Adapter = DS.Adapter.extend({
     createRecord(store, type, snapshot) {
       return { data: { id: 1, type: 'person', attributes: { name: 'Tom Dale' } } };
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   let person = store.createRecord('person', { name: 'Tom Dale' });
@@ -56,7 +56,7 @@ test('Make sure snapshot is created at save time not at flush time', function(as
       assert.equal(snapshot.attr('name'), 'Thomas Dale');
 
       return resolve();
-    }
+    },
   });
 
   let store = createStore({ adapter: Adapter, person: Person });
@@ -68,9 +68,9 @@ test('Make sure snapshot is created at save time not at flush time', function(as
         type: 'person',
         id: '1',
         attributes: {
-          name: "Tom"
-        }
-      }
+          name: 'Tom',
+        },
+      },
     });
     person.set('name', 'Thomas Dale');
   });
@@ -86,26 +86,32 @@ test('Make sure snapshot is created at save time not at flush time', function(as
 
     return promise.then(person => {
       assert.equal(person.get('hasDirtyAttributes'), true, 'The person is still dirty');
-      assert.equal(person.get('name'), "Tomasz Dale", 'The local changes apply');
+      assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
     });
   });
 });
 
-test("When a record is in flight, pushes are applied underneath the in flight changes", function(assert) {
+test('When a record is in flight, pushes are applied underneath the in flight changes', function(assert) {
   assert.expect(6);
 
   const Adapter = DS.Adapter.extend({
     updateRecord(store, type, snapshot) {
       // Make sure saving isn't resolved synchronously
-      return new EmberPromise(resolve =>  {
-        run.next(null, resolve, { data: { id: 1, type: 'person', attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' } } });
+      return new EmberPromise(resolve => {
+        run.next(null, resolve, {
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: { name: 'Senor Thomas Dale, Esq.', city: 'Portland' },
+          },
+        });
       });
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
   let person;
 
@@ -115,9 +121,9 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
         type: 'person',
         id: '1',
         attributes: {
-          name: "Tom"
-        }
-      }
+          name: 'Tom',
+        },
+      },
     });
     person.set('name', 'Thomas Dale');
   });
@@ -134,10 +140,10 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
         type: 'person',
         id: '1',
         attributes: {
-          name: "Tommy Dale",
-          city: "PDX"
-        }
-      }
+          name: 'Tommy Dale',
+          city: 'PDX',
+        },
+      },
     });
 
     assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes applied on top');
@@ -146,7 +152,11 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     return promise.then(person => {
       assert.equal(person.get('hasDirtyAttributes'), true, 'The person is still dirty');
       assert.equal(person.get('name'), 'Tomasz Dale', 'The local changes apply');
-      assert.equal(person.get('city'), 'Portland', 'The updates from the server apply on top of the previous pushes');
+      assert.equal(
+        person.get('city'),
+        'Portland',
+        'The updates from the server apply on top of the previous pushes'
+      );
     });
   });
 });
@@ -154,7 +164,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 test('When a record is dirty, pushes are overridden by local changes', function(assert) {
   let store = createStore({
     adapter: DS.Adapter,
-    person: Person
+    person: Person,
   });
   let person;
 
@@ -165,9 +175,9 @@ test('When a record is dirty, pushes are overridden by local changes', function(
         id: '1',
         attributes: {
           name: 'Tom Dale',
-          city: 'San Francisco'
-        }
-      }
+          city: 'San Francisco',
+        },
+      },
     });
     person.set('name', 'Tomasz Dale');
   });
@@ -182,22 +192,26 @@ test('When a record is dirty, pushes are overridden by local changes', function(
         type: 'person',
         id: '1',
         attributes: {
-          name: "Thomas Dale",
-          city: "Portland"
-        }
-      }
+          name: 'Thomas Dale',
+          city: 'Portland',
+        },
+      },
     });
   });
 
   assert.equal(person.get('hasDirtyAttributes'), true, 'the local changes are reapplied');
   assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes are reapplied');
-  assert.equal(person.get('city'), 'Portland', 'if there are no local changes, the new data applied');
+  assert.equal(
+    person.get('city'),
+    'Portland',
+    'if there are no local changes, the new data applied'
+  );
 });
 
 test('When a record is invalid, pushes are overridden by local changes', function(assert) {
   let store = createStore({
     adapter: DS.Adapter,
-    person: Person
+    person: Person,
   });
   let person;
 
@@ -208,9 +222,9 @@ test('When a record is invalid, pushes are overridden by local changes', functio
         id: '1',
         attributes: {
           name: 'Brendan McLoughlin',
-          city: 'Boston'
-        }
-      }
+          city: 'Boston',
+        },
+      },
     });
     person.set('name', 'Brondan McLoughlin');
     person.send('becameInvalid');
@@ -228,9 +242,9 @@ test('When a record is invalid, pushes are overridden by local changes', functio
         id: '1',
         attributes: {
           name: 'bmac',
-          city: 'Prague'
-        }
-      }
+          city: 'Prague',
+        },
+      },
     });
   });
 
@@ -246,12 +260,12 @@ test('A record with no changes can still be saved', function(assert) {
   const Adapter = DS.Adapter.extend({
     updateRecord(store, type, snapshot) {
       return { data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } } };
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
   let person = run(() => {
     return store.push({
@@ -259,9 +273,9 @@ test('A record with no changes can still be saved', function(assert) {
         type: 'person',
         id: '1',
         attributeS: {
-          name: 'Tom Dale'
-        }
-      }
+          name: 'Tom Dale',
+        },
+      },
     });
   });
 
@@ -277,13 +291,15 @@ test('A dirty record can be reloaded', function(assert) {
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
-      return { data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale', city: 'Portland' } } };
-    }
+      return {
+        data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale', city: 'Portland' } },
+      };
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   let person;
@@ -294,9 +310,9 @@ test('A dirty record can be reloaded', function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          name: 'Tom Dale'
-        }
-      }
+          name: 'Tom Dale',
+        },
+      },
     });
     person.set('name', 'Tomasz Dale');
   });
@@ -304,8 +320,8 @@ test('A dirty record can be reloaded', function(assert) {
   return run(() => {
     return person.reload().then(() => {
       assert.equal(person.get('hasDirtyAttributes'), true, 'the person is dirty');
-      assert.equal(person.get('name'), "Tomasz Dale", 'the local changes remain');
-      assert.equal(person.get('city'), "Portland", 'the new changes apply');
+      assert.equal(person.get('name'), 'Tomasz Dale', 'the local changes remain');
+      assert.equal(person.get('city'), 'Portland', 'the new changes apply');
     });
   });
 });

@@ -94,11 +94,17 @@ export default Mixin.create({
 
     if (modelName) {
       path = this.pathForType(modelName);
-      if (path) { url.push(path); }
+      if (path) {
+        url.push(path);
+      }
     }
 
-    if (id) { url.push(encodeURIComponent(id)); }
-    if (prefix) { url.unshift(prefix); }
+    if (id) {
+      url.push(encodeURIComponent(id));
+    }
+    if (prefix) {
+      url.unshift(prefix);
+    }
 
     url = url.join('/');
     if (!host && url && url.charAt(0) !== '/') {
@@ -392,10 +398,10 @@ export default Mixin.create({
         // Do nothing, the full host is already included.
         return path;
 
-      // Absolute path
+        // Absolute path
       } else if (path.charAt(0) === '/') {
         return `${host}${path}`;
-      // Relative path
+        // Relative path
       } else {
         return `${parentURL}/${path}`;
       }
@@ -403,8 +409,12 @@ export default Mixin.create({
 
     // No path provided
     let url = [];
-    if (host) { url.push(host); }
-    if (namespace) { url.push(namespace); }
+    if (host) {
+      url.push(host);
+    }
+    if (namespace) {
+      url.push(namespace);
+    }
     return url.join('/');
   },
 
@@ -439,5 +449,5 @@ export default Mixin.create({
   pathForType(modelName) {
     let camelized = camelize(modelName);
     return pluralize(camelized);
-  }
+  },
 });

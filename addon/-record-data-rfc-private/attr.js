@@ -10,8 +10,10 @@ function getDefaultValue(record, options, key) {
     return options.defaultValue.apply(null, arguments);
   } else {
     let defaultValue = options.defaultValue;
-    assert(`Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
-           typeof defaultValue !== 'object' || defaultValue === null);
+    assert(
+      `Non primitive defaultValues are not supported because they are shared between all instances. If you would like to use a complex object as a default value please provide a function that returns the complex object.`,
+      typeof defaultValue !== 'object' || defaultValue === null
+    );
     return defaultValue;
   }
 }
@@ -116,7 +118,7 @@ export default function attr(type, options) {
   let meta = {
     type: type,
     isAttribute: true,
-    options: options
+    options: options,
   };
 
   return computed({
@@ -130,6 +132,6 @@ export default function attr(type, options) {
     },
     set(key, value) {
       return this._internalModel.setDirtyAttribute(key, value);
-    }
+    },
   }).meta(meta);
 }

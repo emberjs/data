@@ -11,10 +11,10 @@ export default function setupStore(options) {
   if (Ember.Registry) {
     registry = env.registry = new Ember.Registry();
     owner = Owner.create({
-      __registry__: registry
+      __registry__: registry,
     });
     container = env.container = registry.container({
-      owner: owner
+      owner: owner,
     });
     owner.__container__ = container;
   } else {
@@ -30,7 +30,7 @@ export default function setupStore(options) {
     }
   };
 
-  let adapter = env.adapter = (options.adapter || '-default');
+  let adapter = (env.adapter = options.adapter || '-default');
   delete options.adapter;
 
   if (typeof adapter !== 'string') {
@@ -42,9 +42,12 @@ export default function setupStore(options) {
     registry.register('model:' + dasherize(prop), options[prop]);
   }
 
-  registry.register('service:store', DS.Store.extend({
-    adapter: adapter
-  }));
+  registry.register(
+    'service:store',
+    DS.Store.extend({
+      adapter: adapter,
+    })
+  );
 
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
@@ -78,7 +81,7 @@ export default function setupStore(options) {
       this._adapter = adapter;
     },
     enumerable: true,
-    configurable: true
+    configurable: true,
   });
 
   return env;

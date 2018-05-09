@@ -5,23 +5,25 @@ import { module, test } from 'qunit';
 
 let adapter, env;
 
-module("unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL", {
+module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', {
   beforeEach() {
     const customPathForType = {
       pathForType(type) {
-        if (type === 'rootModel') { return ''; }
+        if (type === 'rootModel') {
+          return '';
+        }
         return this._super(type);
-      }
+      },
     };
 
     const Adapter = DS.Adapter.extend(DS.BuildURLMixin, customPathForType);
 
     env = setupStore({
-      adapter: Adapter
+      adapter: Adapter,
     });
 
     adapter = env.adapter;
-  }
+  },
 });
 
 test('buildURL - works with empty paths', function(assert) {

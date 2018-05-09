@@ -1,7 +1,4 @@
-import {
-  DebugAdapter,
-  Store
-} from './-private';
+import { DebugAdapter, Store } from './-private';
 import JSONAPISerializer from './serializers/json-api';
 import JSONSerializer from './serializers/json';
 import RESTSerializer from './serializers/rest';
@@ -40,7 +37,6 @@ function initializeStore(registry) {
 
   registry.register('adapter:-json-api', JSONAPIAdapter);
   registry.register('serializer:-json-api', JSONAPISerializer);
-
 
   if (!has(registry, 'service:store')) {
     registry.register('service:store', Store);

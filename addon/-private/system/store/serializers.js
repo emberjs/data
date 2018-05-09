@@ -7,7 +7,9 @@ export function serializerForAdapter(store, adapter, modelName) {
 
   if (serializer === null || serializer === undefined) {
     serializer = {
-      extract(store, type, payload) { return payload; }
+      extract(store, type, payload) {
+        return payload;
+      },
     };
   }
 

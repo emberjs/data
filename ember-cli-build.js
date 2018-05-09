@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
-const merge    = require('broccoli-merge-trees');
-const yuidoc   = require('./lib/yuidoc');
+const merge = require('broccoli-merge-trees');
+const yuidoc = require('./lib/yuidoc');
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {});

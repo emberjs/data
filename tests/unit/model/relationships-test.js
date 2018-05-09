@@ -14,16 +14,16 @@ module('unit/model/relationships - DS.Model', {
     Person = DS.Model.extend({
       occupations: DS.hasMany('occupation', { async: false }),
       people: DS.hasMany('person', { inverse: 'parent', async: false }),
-      parent: DS.belongsTo('person', { inverse: 'people', async: false })
+      parent: DS.belongsTo('person', { inverse: 'people', async: false }),
     });
 
     store = createStore({
       occupation: Occupation,
-      person: Person
+      person: Person,
     });
 
     Person = store.modelFor('person');
-  }
+  },
 });
 
 test('exposes a hash of the relationships on a model', function(assert) {
@@ -38,23 +38,25 @@ test('exposes a hash of the relationships on a model', function(assert) {
       return {
         kind: desc.kind,
         name: desc.name,
-        options: desc.options
+        options: desc.options,
       };
     });
   }
 
   assert.deepEqual(extractDetails('person'), [
-    { name: "people", kind: "hasMany", options: { async: false, inverse: 'parent'} },
-    { name: "parent", kind: "belongsTo", options: { async: false, inverse: 'people' } }
+    { name: 'people', kind: 'hasMany', options: { async: false, inverse: 'parent' } },
+    { name: 'parent', kind: 'belongsTo', options: { async: false, inverse: 'people' } },
   ]);
   assert.deepEqual(extractDetails('occupation'), [
-    { name: "occupations", kind: "hasMany", options: { async: false } }
+    { name: 'occupations', kind: 'hasMany', options: { async: false } },
   ]);
 });
 
 test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
-  assert.deepEqual(get(Person, 'relationshipNames'),
-    { hasMany: ['occupations', 'people'], belongsTo: ["parent"] });
+  assert.deepEqual(get(Person, 'relationshipNames'), {
+    hasMany: ['occupations', 'people'],
+    belongsTo: ['parent'],
+  });
 });
 
 test('eachRelatedType() iterates over relations without duplication', function(assert) {

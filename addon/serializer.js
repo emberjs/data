@@ -25,7 +25,6 @@ import EmberObject from '@ember/object';
 */
 
 export default EmberObject.extend({
-
   /**
     The `store` property is the application's `store` that contains
     all records. It can be used to look up serializers for other model
@@ -154,6 +153,5 @@ export default EmberObject.extend({
   */
   normalize(typeClass, hash) {
     return hash;
-  }
-
+  },
 });

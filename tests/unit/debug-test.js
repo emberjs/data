@@ -11,25 +11,25 @@ module('Debug');
 
 test('_debugInfo groups the attributes and relationships correctly', function(assert) {
   const MaritalStatus = DS.Model.extend({
-    name: DS.attr('string')
+    name: DS.attr('string'),
   });
 
   const Post = DS.Model.extend({
-    title: DS.attr('string')
+    title: DS.attr('string'),
   });
 
   const User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
     maritalStatus: DS.belongsTo('marital-status', { async: false }),
-    posts: DS.hasMany('post', { async: false })
+    posts: DS.hasMany('post', { async: false }),
   });
 
   let store = createStore({
     adapter: TestAdapter.extend(),
     maritalStatus: MaritalStatus,
     post: Post,
-    user: User
+    user: User,
   });
 
   let record = store.createRecord('user');
@@ -44,32 +44,33 @@ test('_debugInfo groups the attributes and relationships correctly', function(as
 
 test('_debugInfo supports arbitray relationship types', function(assert) {
   const MaritalStatus = DS.Model.extend({
-    name: DS.attr('string')
+    name: DS.attr('string'),
   });
 
   const Post = DS.Model.extend({
-    title: DS.attr('string')
+    title: DS.attr('string'),
   });
 
   const User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
     maritalStatus: DS.belongsTo('marital-status', { async: false }),
-    posts: computed(() => [1, 2, 3] )
-    .readOnly().meta({
-      options: { inverse: null },
-      isRelationship: true,
-      kind: 'customRelationship',
-      name: 'posts',
-      type: 'post'
-    })
+    posts: computed(() => [1, 2, 3])
+      .readOnly()
+      .meta({
+        options: { inverse: null },
+        isRelationship: true,
+        kind: 'customRelationship',
+        name: 'posts',
+        type: 'post',
+      }),
   });
 
   let store = createStore({
     adapter: TestAdapter.extend(),
     maritalStatus: MaritalStatus,
     post: Post,
-    user: User
+    user: User,
   });
 
   let record = store.createRecord('user');
@@ -81,26 +82,18 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
     groups: [
       {
         name: 'Attributes',
-        properties: [
-          'id',
-          'name',
-          'isDrugAddict'
-        ],
-        expand: true
+        properties: ['id', 'name', 'isDrugAddict'],
+        expand: true,
       },
       {
         name: 'maritalStatus',
-        properties: [
-          'maritalStatus'
-        ],
-        expand: true
+        properties: ['maritalStatus'],
+        expand: true,
       },
       {
         name: 'posts',
-        properties: [
-          'posts'
-        ],
-        expand: true
+        properties: ['posts'],
+        expand: true,
       },
       {
         name: 'Flags',
@@ -111,13 +104,10 @@ test('_debugInfo supports arbitray relationship types', function(assert) {
           'isDeleted',
           'isError',
           'isNew',
-          'isValid'
-        ]
-      }
+          'isValid',
+        ],
+      },
     ],
-    expensiveProperties: [
-      'maritalStatus',
-      'posts'
-    ]
-  })
+    expensiveProperties: ['maritalStatus', 'posts'],
+  });
 });

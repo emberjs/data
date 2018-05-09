@@ -7,22 +7,15 @@ import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
-import RootState from "./states";
-import Snapshot from "../snapshot";
-import OrderedSet from "../ordered-set";
-import isArrayLike from "../is-array-like";
+import RootState from './states';
+import Snapshot from '../snapshot';
+import OrderedSet from '../ordered-set';
+import isArrayLike from '../is-array-like';
 import ManyArray from '../many-array';
-import {
-  PromiseBelongsTo,
-  PromiseManyArray
-} from '../promise-proxies';
+import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
 
-import {
-  RecordReference,
-  BelongsToReference,
-  HasManyReference
-} from "../references";
+import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -40,15 +33,11 @@ const _extractPivotNameCache = Object.create(null);
 const _splitOnDotCache = Object.create(null);
 
 function splitOnDot(name) {
-  return _splitOnDotCache[name] || (
-    _splitOnDotCache[name] = name.split('.')
-  );
+  return _splitOnDotCache[name] || (_splitOnDotCache[name] = name.split('.'));
 }
 
 function extractPivotName(name) {
-  return _extractPivotNameCache[name] || (
-    _extractPivotNameCache[name] = splitOnDot(name)[0]
-  );
+  return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
 // this (and all heimdall instrumentation) will be stripped by a babel transform
@@ -62,8 +51,9 @@ const {
   new_InternalModel,
   send,
   setupData,
-  transitionTo
-} = heimdall.registerMonitor('InternalModel',
+  transitionTo,
+} = heimdall.registerMonitor(
+  'InternalModel',
   '_triggerDeferredTriggers',
   'changedAttributes',
   'createSnapshot',
@@ -132,7 +122,6 @@ export default class InternalModel {
     this._manyArrayCache = Object.create(null);
     this._retainedManyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
-
   }
 
   get modelClass() {
@@ -179,11 +168,13 @@ export default class InternalModel {
     // `lastObject` have changed.  When this happens we don't want those
     // models to rematerialize their records.
 
-    return this._isDematerializing ||
+    return (
+      this._isDematerializing ||
       this.hasScheduledDestroy() ||
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
-      this.isEmpty();
+      this.isEmpty()
+    );
   }
 
   isRecordInUse() {
@@ -249,11 +240,14 @@ export default class InternalModel {
         _internalModel: this,
         currentState: this.currentState,
         isError: this.isError,
-        adapterError: this.error
+        adapterError: this.error,
       };
 
       if (properties !== undefined) {
-        assert(`You passed '${properties}' as properties for record creation instead of an object.`, typeof properties === 'object' && properties !== null);
+        assert(
+          `You passed '${properties}' as properties for record creation instead of an object.`,
+          typeof properties === 'object' && properties !== null
+        );
         let classFields = this.getFields();
         // TODO disentangle post-rebase
         let relationships = this._modelData._relationships;
@@ -324,7 +318,7 @@ export default class InternalModel {
     this._doNotDestroy = false;
 
     if (this._record) {
-      Object.keys(this._relationshipPromisesCache).forEach((key) => {
+      Object.keys(this._relationshipPromisesCache).forEach(key => {
         // TODO Igor cleanup the guard
         // TODO there is probably relationship cleanup to do outside of the _record check
         if (this._relationshipPromisesCache[key].destroy) {
@@ -332,7 +326,7 @@ export default class InternalModel {
         }
         delete this._relationshipPromisesCache[key];
       });
-      Object.keys(this._manyArrayCache).forEach((key) => {
+      Object.keys(this._manyArrayCache).forEach(key => {
         this._retainedManyArrayCache[key] = this._manyArrayCache[key];
         delete this._manyArrayCache[key];
       });
@@ -350,7 +344,7 @@ export default class InternalModel {
   }
 
   save(options) {
-    let promiseLabel = "DS: Model#save " + this;
+    let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
@@ -380,22 +374,27 @@ export default class InternalModel {
   reload(options) {
     this.startedReloading();
     let internalModel = this;
-    let promiseLabel = "DS: Model#reload of " + this;
+    let promiseLabel = 'DS: Model#reload of ' + this;
 
     return new Promise(function(resolve) {
       internalModel.send('reloadRecord', { resolve, options });
-    }, promiseLabel).then(function() {
-      internalModel.didCleanError();
-      return internalModel;
-    }, function(error) {
-      internalModel.didError(error);
-      throw error;
-    }, "DS: Model#reload complete, update flags").finally(function () {
-      internalModel.finishedReloading();
-      internalModel.updateRecordArrays();
-    });
+    }, promiseLabel)
+      .then(
+        function() {
+          internalModel.didCleanError();
+          return internalModel;
+        },
+        function(error) {
+          internalModel.didError(error);
+          throw error;
+        },
+        'DS: Model#reload complete, update flags'
+      )
+      .finally(function() {
+        internalModel.finishedReloading();
+        internalModel.updateRecordArrays();
+      });
   }
-
 
   /*
     Unload the record for this internal model. This will cause the record to be
@@ -410,15 +409,24 @@ export default class InternalModel {
     once all models that refer to it via some relationship are also unloaded.
   */
   unloadRecord() {
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
       // TODO: use run.schedule once we drop 1.13
       if (!run.currentRunLoop) {
-        assert('You have turned on testing mode, which disabled the run-loop\'s autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run', Ember.testing);
+        assert(
+          "You have turned on testing mode, which disabled the run-loop's autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run",
+          Ember.testing
+        );
       }
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels')
+      this._scheduledDestroy = run.backburner.schedule(
+        'destroy',
+        this,
+        '_checkForOrphanedInternalModels'
+      );
     }
   }
 
@@ -427,7 +435,10 @@ export default class InternalModel {
   }
 
   cancelDestroy() {
-    assert(`You cannot cancel the destruction of an InternalModel once it has already been destroyed`, !this.isDestroyed);
+    assert(
+      `You cannot cancel the destruction of an InternalModel once it has already been destroyed`,
+      !this.isDestroyed
+    );
 
     this._doNotDestroy = true;
     this._isDematerializing = false;
@@ -451,7 +462,9 @@ export default class InternalModel {
       this.cancelDestroy();
     }
     this._checkForOrphanedInternalModels();
-    if (this.isDestroyed || this.isDestroying) { return; }
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
 
     // just in-case we are not one of the orphaned, we should still
     // still destroy ourselves
@@ -461,7 +474,9 @@ export default class InternalModel {
   _checkForOrphanedInternalModels() {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
   }
 
   eachRelationship(callback, binding) {
@@ -477,11 +492,16 @@ export default class InternalModel {
     let isAsync = typeof async === 'undefined' ? true : async;
 
     if (isAsync) {
-      let internalModel = resource && resource.data ? store._internalModelForResource(resource.data) : null;
+      let internalModel =
+        resource && resource.data ? store._internalModelForResource(resource.data) : null;
       return PromiseBelongsTo.create({
         _belongsToState: resource._relationship,
-        promise: store._findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta),
-        content: internalModel ? internalModel.getRecord() : null
+        promise: store._findBelongsToByJsonApiResource(
+          resource,
+          parentInternalModel,
+          relationshipMeta
+        ),
+        content: internalModel ? internalModel.getRecord() : null,
       });
     } else {
       if (!resource || !resource.data) {
@@ -489,7 +509,16 @@ export default class InternalModel {
       } else {
         let internalModel = store._internalModelForResource(resource.data);
         let toReturn = internalModel.getRecord();
-        assert("You looked up the '" + key + "' relationship on a '" + parentInternalModel.modelName + "' with id " + parentInternalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+        assert(
+          "You looked up the '" +
+            key +
+            "' relationship on a '" +
+            parentInternalModel.modelName +
+            "' with id " +
+            parentInternalModel.id +
+            ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
+          toReturn === null || !toReturn.get('isEmpty')
+        );
         return toReturn;
       }
     }
@@ -501,7 +530,10 @@ export default class InternalModel {
     let jsonApi = this._modelData.getHasMany(key);
     let manyArray = this._manyArrayCache[key];
 
-    assert(`Error: relationship ${this.modelName}:${key} has both many array and retained many array`, !manyArray || !this._retainedManyArrayCache[key]);
+    assert(
+      `Error: relationship ${this.modelName}:${key} has both many array and retained many array`,
+      !manyArray || !this._retainedManyArrayCache[key]
+    );
 
     if (!manyArray) {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
@@ -514,7 +546,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
-        internalModel: this
+        internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
     }
@@ -529,7 +561,7 @@ export default class InternalModel {
 
   fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray) {
     let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
-    promise = promise.then((initialState) => {
+    promise = promise.then(initialState => {
       // TODO why don't we do this in the store method
       manyArray.retrieveLatest();
       manyArray.set('isLoaded', true);
@@ -552,7 +584,7 @@ export default class InternalModel {
       if (!promiseArray) {
         promiseArray = PromiseManyArray.create({
           promise: this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray),
-          content: manyArray
+          content: manyArray,
         });
         this._relationshipPromisesCache[key] = promiseArray;
       }
@@ -560,7 +592,12 @@ export default class InternalModel {
       return promiseArray;
     } else {
       manyArray.set('isLoaded', true);
-      assert(`You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, !manyArray.anyUnloaded());
+      assert(
+        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${
+          this.id
+        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
+        !manyArray.anyUnloaded()
+      );
 
       return manyArray;
     }
@@ -570,13 +607,13 @@ export default class InternalModel {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
       if (content) {
-        loadingPromise.set('content', content)
+        loadingPromise.set('content', content);
       }
-      loadingPromise.set('promise', promise)
+      loadingPromise.set('promise', promise);
     } else {
       this._relationshipPromisesCache[key] = PromiseManyArray.create({
         promise,
-        content
+        content,
       });
     }
 
@@ -624,9 +661,12 @@ export default class InternalModel {
   }
 
   destroy() {
-    assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
+    assert(
+      'Cannot destroy an internalModel while its record is materialized',
+      !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
+    );
     this.isDestroying = true;
-    Object.keys(this._retainedManyArrayCache).forEach((key) => {
+    Object.keys(this._retainedManyArrayCache).forEach(key => {
       this._retainedManyArrayCache[key].destroy();
       delete this._retainedManyArrayCache[key];
     });
@@ -658,16 +698,23 @@ export default class InternalModel {
 
   setDirtyHasMany(key, records) {
     assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-    assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
-      return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
-    })());
+    assert(
+      `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
+        records
+      )}`,
+      (function() {
+        return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      })()
+    );
 
     // TODO this seems like unnecessary churn
-    this._modelData.setDirtyHasMany(key, records.map((record) => record.get('_internalModel._modelData').getResourceIdentifier()));
+    this._modelData.setDirtyHasMany(
+      key,
+      records.map(record => record.get('_internalModel._modelData').getResourceIdentifier())
+    );
   }
 
   setDirtyBelongsTo(key, value) {
-
     // TODO this seems like a digression from the pattern in setDirtyHasMany
     return this._modelData.setDirtyBelongsTo(key, value);
   }
@@ -683,7 +730,7 @@ export default class InternalModel {
       let isDirty = this._modelData.isAttrDirty(key);
       this.send('didSetProperty', {
         name: key,
-        isDirty: isDirty
+        isDirty: isDirty,
       });
     }
 
@@ -878,7 +925,9 @@ export default class InternalModel {
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
-      if (state.exit) { state.exit(this); }
+      if (state.exit) {
+        state.exit(this);
+      }
       state = state.parentState;
     } while (!state[pivotName]);
 
@@ -901,8 +950,12 @@ export default class InternalModel {
       for (i = 0, l = path.length; i < l; i++) {
         state = state[path[i]];
 
-        if (state.enter) { enters.push(state); }
-        if (state.setup) { setups.push(state); }
+        if (state.enter) {
+          enters.push(state);
+        }
+        if (state.setup) {
+          setups.push(state);
+        }
       }
 
       TransitionChainMap[transitionMapId] = { setups, enters, state };
@@ -925,12 +978,12 @@ export default class InternalModel {
   }
 
   _unhandledEvent(state, name, context) {
-    let errorMessage = "Attempted to handle event `" + name + "` ";
-    errorMessage    += "on " + String(this) + " while in state ";
-    errorMessage    += state.stateName + ". ";
+    let errorMessage = 'Attempted to handle event `' + name + '` ';
+    errorMessage += 'on ' + String(this) + ' while in state ';
+    errorMessage += state.stateName + '. ';
 
     if (context !== undefined) {
-      errorMessage  += "Called with " + inspect(context) + ".";
+      errorMessage += 'Called with ' + inspect(context) + '.';
     }
 
     throw new EmberError(errorMessage);
@@ -955,7 +1008,7 @@ export default class InternalModel {
     let triggers = this._deferredTriggers;
     let record = this._record;
     let trigger = record.trigger;
-    for (let i = 0, l= triggers.length; i<l; i++) {
+    for (let i = 0, l = triggers.length; i < l; i++) {
       trigger.apply(record, triggers[i]);
     }
 
@@ -984,7 +1037,7 @@ export default class InternalModel {
   preloadData(preload) {
     let jsonPayload = {};
     //TODO(Igor) consider the polymorphic case
-    Object.keys(preload).forEach((key) => {
+    Object.keys(preload).forEach(key => {
       let preloadValue = get(preload, key);
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
@@ -1007,8 +1060,11 @@ export default class InternalModel {
     let modelClass = relationshipMeta.type;
     let data;
     if (relationshipMeta.kind === 'hasMany') {
-      assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
-      data =  preloadValue.map((value) => this._convertPreloadRelationshipToJSON(value, modelClass ));
+      assert(
+        'You need to pass in an array to set a hasMany property on a record',
+        Array.isArray(preloadValue)
+      );
+      data = preloadValue.map(value => this._convertPreloadRelationshipToJSON(value, modelClass));
     } else {
       data = this._convertPreloadRelationshipToJSON(preloadValue, modelClass);
     }
@@ -1040,7 +1096,10 @@ export default class InternalModel {
   }
 
   setId(id) {
-    assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
+    assert(
+      "A record's id cannot be changed once it is in the loaded state",
+      this.id === null || this.id === id || this.isNew()
+    );
     let didChange = id !== this.id;
     this.id = id;
 
@@ -1056,7 +1115,7 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record.setProperties({
         isError: true,
-        adapterError: error
+        adapterError: error,
       });
     }
   }
@@ -1068,7 +1127,7 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record.setProperties({
         isError: false,
-        adapterError: null
+        adapterError: null,
       });
     }
   }
@@ -1088,7 +1147,9 @@ export default class InternalModel {
     this.send('didCommit');
     this.updateRecordArrays();
 
-    if (!data) { return; }
+    if (!data) {
+      return;
+    }
 
     this._record._notifyProperties(changedKeys);
   }
@@ -1155,15 +1216,21 @@ export default class InternalModel {
 
       if (DEBUG) {
         let modelName = this.modelName;
-        assert(`There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`, relationship);
+        assert(
+          `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
+          relationship
+        );
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
-        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === kind);
+        assert(
+          `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
+          actualRelationshipKind === kind
+        );
       }
 
-      if (kind === "belongsTo") {
+      if (kind === 'belongsTo') {
         reference = new BelongsToReference(this.store, this, relationship, name);
-      } else if (kind === "hasMany") {
+      } else if (kind === 'hasMany') {
         reference = new HasManyReference(this.store, this, relationship, name);
       }
 

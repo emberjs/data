@@ -45,8 +45,10 @@ module.exports = {
 
   _prodLikeWarning() {
     let emberEnv = process.env.EMBER_ENV;
-    if(emberEnv !== 'production' && /production/.test(emberEnv)) {
-      this._warn(`Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`);
+    if (emberEnv !== 'production' && /production/.test(emberEnv)) {
+      this._warn(
+        `Production-like values for EMBER_ENV are deprecated (your EMBER_ENV is "${emberEnv}") and support will be removed in Ember Data 4.0.0. If using ember-cli-deploy, please configure your build using 'production'. Otherwise please set your EMBER_ENV to 'production' for production builds.`
+      );
     }
   },
 
@@ -84,8 +86,8 @@ module.exports = {
   config() {
     return {
       emberData: {
-        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC
-      }
+        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC,
+      },
     };
   },
 
@@ -100,15 +102,15 @@ module.exports = {
 
     let treeWithVersion = merge([
       tree,
-      version() // compile the VERSION into the build
+      version(), // compile the VERSION into the build
     ]);
 
     let withPrivate;
 
     if (USE_RECORD_DATA_RFC) {
       withPrivate = new Funnel(tree, {
-          include: ['-record-data-rfc-private/**']
-        });
+        include: ['-record-data-rfc-private/**'],
+      });
     } else {
       withPrivate = new Funnel(tree, { include: ['-private/**'] });
     }
@@ -117,17 +119,17 @@ module.exports = {
       exclude: [
         '-private',
         '-record-data-rfc-private',
-        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false
+        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
       ].filter(Boolean),
 
-      destDir: 'ember-data'
+      destDir: 'ember-data',
     });
 
     let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
       babel: this.buildBabelOptions(),
       'ember-cli-babel': {
-        compileModules: false
-      }
+        compileModules: false,
+      },
     });
 
     privateTree = this.debugTree(privateTree, 'babel-private:output');
@@ -146,7 +148,7 @@ module.exports = {
             format: babel.shouldCompileModules() ? 'amd' : 'es',
             amd: { id: 'ember-data/-private' },
             exports: 'named',
-          }
+          },
         ],
         external: [
           'ember',
@@ -154,23 +156,20 @@ module.exports = {
           'ember-data/version',
           'ember-data/-debug',
           'ember-data/adapters/errors',
-          '@ember/ordered-set'
+          '@ember/ordered-set',
         ],
         // cache: true|false Defaults to true
-      }
+      },
     });
 
     privateTree = this.debugTree(privateTree, 'rollup-output');
 
     let destDir = this.getOutputDirForVersion();
 
-    publicTree  = new Funnel(publicTree,  { destDir });
+    publicTree = new Funnel(publicTree, { destDir });
     privateTree = new Funnel(privateTree, { destDir });
 
-    return this.debugTree(merge([
-      publicTree,
-      privateTree
-    ]), 'final');
+    return this.debugTree(merge([publicTree, privateTree]), 'final');
   },
 
   buildBabelOptions() {
@@ -180,10 +179,7 @@ module.exports = {
       loose: true,
       plugins: customPlugins.plugins,
       postTransformPlugins: customPlugins.postTransformPlugins,
-      exclude: [
-        'transform-es2015-block-scoping',
-        'transform-es2015-typeof-symbol'
-      ]
+      exclude: ['transform-es2015-block-scoping', 'transform-es2015-typeof-symbol'],
     };
   },
 
@@ -205,5 +201,5 @@ module.exports = {
 
   cacheKeyForTree(treeType) {
     return calculateCacheKeyForTree(treeType, this);
-  }
+  },
 };

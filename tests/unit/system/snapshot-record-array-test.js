@@ -7,10 +7,10 @@ module('Unit - snapshot-record-array');
 test('constructor', function(assert) {
   let array = A([1, 2]);
   array.type = 'some type';
-  let meta = { };
+  let meta = {};
   let options = {
     adapterOptions: 'some options',
-    include: 'include me'
+    include: 'include me',
   };
 
   let snapshot = new SnapshotRecordArray(array, meta, options);
@@ -33,10 +33,10 @@ test('#snapshot', function(assert) {
     return snapshotTaken;
   };
 
-  let meta = { };
+  let meta = {};
   let options = {
     adapterOptions: 'some options',
-    include: 'include me'
+    include: 'include me',
   };
 
   let snapshot = new SnapshotRecordArray(array, meta, options);
@@ -56,13 +56,13 @@ test('SnapshotRecordArray.type loads the class lazily', function(assert) {
     get() {
       typeLoaded = true;
       return 'some type';
-    }
+    },
   });
 
-  let meta = { };
+  let meta = {};
   let options = {
     adapterOptions: 'some options',
-    include: 'include me'
+    include: 'include me',
   };
 
   let snapshot = new SnapshotRecordArray(array, meta, options);

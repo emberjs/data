@@ -2,39 +2,37 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-import {
-  reset as resetModelFactoryInjection
-} from 'dummy/tests/helpers/model-factory-injection';
+import { reset as resetModelFactoryInjection } from 'dummy/tests/helpers/model-factory-injection';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
-import JSONAPIAdapter from "ember-data/adapters/json-api";
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 
 const { Model, attr, hasMany, belongsTo } = DS;
 
 let env, User, Organisation;
 
-module("integration/relationship/json-api-links | Relationship state updates", {
+module('integration/relationship/json-api-links | Relationship state updates', {
   beforeEach() {},
 
   afterEach() {
     resetModelFactoryInjection();
     run(env.container, 'destroy');
-  }
+  },
 });
 
-test("Loading link with inverse:null on other model caches the two ends separately", function (assert) {
+test('Loading link with inverse:null on other model caches the two ends separately', function(assert) {
   User = DS.Model.extend({
-    organisation: belongsTo('organisation', { inverse: null })
+    organisation: belongsTo('organisation', { inverse: null }),
   });
 
   Organisation = DS.Model.extend({
-    adminUsers: hasMany('user', { inverse: null })
+    adminUsers: hasMany('user', { inverse: null }),
   });
 
   env = setupStore({
     user: User,
-    organisation: Organisation
+    organisation: Organisation,
   });
 
   env.registry.optionsForType('serializer', { singleton: false });
@@ -45,74 +43,89 @@ test("Loading link with inverse:null on other model caches the two ends separate
   User = store.modelFor('user');
   Organisation = store.modelFor('organisation');
 
-  env.registry.register('adapter:user', DS.JSONAPISerializer.extend({
-    findRecord(store, type, id) {
-      return resolve({
-        data: {
-          id,
-          type: 'user',
-          relationships: {
-            organisation: {
-              data: { id: 1, type: 'organisation' }
-            }
-          }
-        }
-      });
-    }
-  }));
+  env.registry.register(
+    'adapter:user',
+    DS.JSONAPISerializer.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            id,
+            type: 'user',
+            relationships: {
+              organisation: {
+                data: { id: 1, type: 'organisation' },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
 
-  env.registry.register('adapter:organisation', DS.JSONAPISerializer.extend({
-    findRecord(store, type, id) {
-      return resolve({
-        data: {
-          type: 'organisation',
-          id,
-          relationships: {
-            'admin-users': {
-              links: {
-                related: '/org-admins'
-              }
-            }
-          }
-        }
-      });
-    }
-  }));
+  env.registry.register(
+    'adapter:organisation',
+    DS.JSONAPISerializer.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'organisation',
+            id,
+            relationships: {
+              'admin-users': {
+                links: {
+                  related: '/org-admins',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
 
   return run(() => {
-    return store.findRecord('user', 1)
-      .then(user1 => {
-        assert.ok(user1, 'user should be populated');
+    return store.findRecord('user', 1).then(user1 => {
+      assert.ok(user1, 'user should be populated');
 
-        return store.findRecord('organisation', 2)
-          .then(org2FromFind => {
-            assert.equal(user1.belongsTo('organisation').remoteType(), 'id', `user's belongsTo is based on id`);
-            assert.equal(user1.belongsTo('organisation').id(), 1, `user's belongsTo has its id populated`);
+      return store.findRecord('organisation', 2).then(org2FromFind => {
+        assert.equal(
+          user1.belongsTo('organisation').remoteType(),
+          'id',
+          `user's belongsTo is based on id`
+        );
+        assert.equal(
+          user1.belongsTo('organisation').id(),
+          1,
+          `user's belongsTo has its id populated`
+        );
 
-            return user1.get('organisation')
-              .then(orgFromUser => {
-                assert.equal(user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale, false, 'user should have loaded its belongsTo relationship');
+        return user1.get('organisation').then(orgFromUser => {
+          assert.equal(
+            user1.belongsTo('organisation').belongsToRelationship.relationshipIsStale,
+            false,
+            'user should have loaded its belongsTo relationship'
+          );
 
-                assert.ok(org2FromFind, 'organisation we found should be populated');
-                assert.ok(orgFromUser, 'user\'s organisation should be populated');
-              })
-          })
-      })
+          assert.ok(org2FromFind, 'organisation we found should be populated');
+          assert.ok(orgFromUser, "user's organisation should be populated");
+        });
+      });
+    });
   });
 });
 
-test("Pushing child record should not mark parent:children as loaded", function (assert) {
+test('Pushing child record should not mark parent:children as loaded', function(assert) {
   let Child = DS.Model.extend({
-    parent: belongsTo('parent', { inverse: 'children' })
+    parent: belongsTo('parent', { inverse: 'children' }),
   });
 
   let Parent = DS.Model.extend({
-    children: hasMany('child', { inverse: 'parent' })
+    children: hasMany('child', { inverse: 'parent' }),
   });
 
   env = setupStore({
     parent: Parent,
-    child: Child
+    child: Child,
   });
 
   env.registry.optionsForType('serializer', { singleton: false });
@@ -131,11 +144,11 @@ test("Pushing child record should not mark parent:children as loaded", function 
         relationships: {
           children: {
             links: {
-              related: '/parent/1/children'
-            }
-          }
-        }
-      }
+              related: '/parent/1/children',
+            },
+          },
+        },
+      },
     });
 
     store.push({
@@ -146,23 +159,27 @@ test("Pushing child record should not mark parent:children as loaded", function 
           parent: {
             data: {
               id: 'p1',
-              type: 'parent'
-            }
-          }
-        }
-      }
+              type: 'parent',
+            },
+          },
+        },
+      },
     });
 
-    assert.equal(parent.hasMany('children').hasManyRelationship.relationshipIsStale, true, 'parent should think that children still needs to be loaded');
+    assert.equal(
+      parent.hasMany('children').hasManyRelationship.relationshipIsStale,
+      true,
+      'parent should think that children still needs to be loaded'
+    );
   });
 });
 
-test("pushing has-many payloads with data (no links), then more data (no links) works as expected", function(assert) {
+test('pushing has-many payloads with data (no links), then more data (no links) works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany() {
@@ -179,63 +196,62 @@ test("pushing has-many payloads with data (no links), then more data (no links) 
           id,
           relationships: {
             owner: {
-              data: { type: 'user', id: '1' }
-            }
-          }
-        }
+              data: { type: 'user', id: '1' },
+            },
+          },
+        },
       });
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push data, no links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+        },
+      },
+    })
+  );
 
   // push links, no data
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '2' },
-            { type: 'pet', id: '3' }
-          ]
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
   run(() => get(Chris, 'pets'));
 });
 
-test("pushing has-many payloads with data (no links), then links (no data) works as expected", function(assert) {
+test('pushing has-many payloads with data (no links), then links (no data) works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany(_, __, link) {
@@ -247,20 +263,20 @@ test("pushing has-many payloads with data (no links), then links (no data) works
             id: '1',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
+                data: { type: 'user', id: '1' },
+              },
+            },
           },
           {
             type: 'pet',
             id: '2',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
-          }
-        ]
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        ],
       });
     },
     findMany() {
@@ -268,57 +284,59 @@ test("pushing has-many payloads with data (no links), then links (no data) works
     },
     findRecord() {
       assert.ok(false, 'adapter findRecord called instead of using findHasMany with a link');
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push data, no links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+        },
+      },
+    })
+  );
 
   // push links, no data
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          links: {
-            related: './user/1/pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
   run(() => get(Chris, 'pets'));
 });
 
-test("pushing has-many payloads with links (no data), then data (no links) works as expected", function(assert) {
+test('pushing has-many payloads with links (no data), then data (no links) works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany(_, __, link) {
@@ -330,20 +348,20 @@ test("pushing has-many payloads with links (no data), then data (no links) works
             id: '1',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
+                data: { type: 'user', id: '1' },
+              },
+            },
           },
           {
             type: 'pet',
             id: '2',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
-          }
-        ]
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        ],
       });
     },
     findMany() {
@@ -351,46 +369,48 @@ test("pushing has-many payloads with links (no data), then data (no links) works
     },
     findRecord() {
       assert.ok(false, 'adapter findRecord called instead of using findHasMany with a link');
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push links, no data
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          links: {
-            related: './user/1/pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   // push data, no links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
 
@@ -398,12 +418,12 @@ test("pushing has-many payloads with links (no data), then data (no links) works
   run(() => get(Chris, 'pets'));
 });
 
-test("pushing has-many payloads with links, then links again works as expected", function(assert) {
+test('pushing has-many payloads with links, then links again works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany(_, __, link) {
@@ -415,20 +435,20 @@ test("pushing has-many payloads with links, then links again works as expected",
             id: '1',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
+                data: { type: 'user', id: '1' },
+              },
+            },
           },
           {
             type: 'pet',
             id: '2',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
-          }
-        ]
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        ],
       });
     },
     findMany() {
@@ -436,46 +456,50 @@ test("pushing has-many payloads with links, then links again works as expected",
     },
     findRecord() {
       assert.ok(false, 'adapter findRecord called instead of using findHasMany with a link');
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push links, no data
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          links: {
-            related: './user/1/not-pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/not-pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   // push data, no links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          links: {
-            related: './user/1/pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            links: {
+              related: './user/1/pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
 
@@ -483,12 +507,12 @@ test("pushing has-many payloads with links, then links again works as expected",
   run(() => get(Chris, 'pets'));
 });
 
-test("pushing has-many payloads with links and data works as expected", function(assert) {
+test('pushing has-many payloads with links and data works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany(_, __, link) {
@@ -500,20 +524,20 @@ test("pushing has-many payloads with links and data works as expected", function
             id: '1',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
+                data: { type: 'user', id: '1' },
+              },
+            },
           },
           {
             type: 'pet',
             id: '2',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
-          }
-        ]
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        ],
       });
     },
     findMany() {
@@ -521,45 +545,45 @@ test("pushing has-many payloads with links and data works as expected", function
     },
     findRecord() {
       assert.ok(false, 'adapter findRecord called instead of using findHasMany with a link');
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push data and links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ],
-          links: {
-            related: './user/1/pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+            links: {
+              related: './user/1/pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
   run(() => get(Chris, 'pets'));
 });
 
-test("pushing has-many payloads with links, then one with links and data works as expected", function(assert) {
+test('pushing has-many payloads with links, then one with links and data works as expected', function(assert) {
   const User = Model.extend({
-    pets: hasMany('pet', { async: true, inverse: 'owner' })
+    pets: hasMany('pet', { async: true, inverse: 'owner' }),
   });
   const Pet = Model.extend({
-    owner: belongsTo('user', { async: false, inverse: 'pets' })
+    owner: belongsTo('user', { async: false, inverse: 'pets' }),
   });
   const Adapter = JSONAPIAdapter.extend({
     findHasMany(_, __, link) {
@@ -571,20 +595,20 @@ test("pushing has-many payloads with links, then one with links and data works a
             id: '1',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
+                data: { type: 'user', id: '1' },
+              },
+            },
           },
           {
             type: 'pet',
             id: '2',
             relationships: {
               owner: {
-                data: { type: 'user', id: '1' }
-              }
-            }
-          }
-        ]
+                data: { type: 'user', id: '1' },
+              },
+            },
+          },
+        ],
       });
     },
     findMany() {
@@ -592,70 +616,68 @@ test("pushing has-many payloads with links, then one with links and data works a
     },
     findRecord() {
       assert.ok(false, 'adapter findRecord called instead of using findHasMany with a link');
-    }
+    },
   });
 
   env = setupStore({
     adapter: Adapter,
     user: User,
-    pet: Pet
+    pet: Pet,
   });
 
   let { store } = env;
 
   // push data, no links
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+        },
+      },
+    })
+  );
 
   // push links and data
-  run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' },
-            { type: 'pet', id: '2' },
-            { type: 'pet', id: '3' }
-          ],
-          links: {
-            related: './user/1/pets'
-          }
-        }
-      }
-    }
-  }));
+  run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }, { type: 'pet', id: '2' }, { type: 'pet', id: '3' }],
+            links: {
+              related: './user/1/pets',
+            },
+          },
+        },
+      },
+    })
+  );
 
   let Chris = run(() => store.peekRecord('user', '1'));
   run(() => get(Chris, 'pets'));
 });
 
-module("integration/relationship/json-api-links | Relationship fetching", {
+module('integration/relationship/json-api-links | Relationship fetching', {
   beforeEach() {
     const User = Model.extend({
       name: attr(),
       pets: hasMany('pet', { async: true, inverse: 'owner' }),
-      home: belongsTo('home', { async: true, inverse: 'owner' })
+      home: belongsTo('home', { async: true, inverse: 'owner' }),
     });
     const Home = Model.extend({
       address: attr(),
-      owner: belongsTo('user', { async: false, inverse: 'home' })
+      owner: belongsTo('user', { async: false, inverse: 'home' }),
     });
     const Pet = Model.extend({
       name: attr(),
-      owner: belongsTo('user', { async: false, inverse: 'pets' })
+      owner: belongsTo('user', { async: false, inverse: 'pets' }),
     });
     const Adapter = JSONAPIAdapter.extend();
 
@@ -663,7 +685,7 @@ module("integration/relationship/json-api-links | Relationship fetching", {
       adapter: Adapter,
       user: User,
       pet: Pet,
-      home: Home
+      home: Home,
     });
   },
 
@@ -671,7 +693,7 @@ module("integration/relationship/json-api-links | Relationship fetching", {
     resetModelFactoryInjection();
     run(env.container, 'destroy');
     env = null;
-  }
+  },
 });
 
 /*
@@ -821,8 +843,7 @@ function shouldFetchLinkTests(description, payloads) {
     };
     adapter.findBelongsTo = (_, __, link) => {
       assert.ok(
-        !homeRelWasEmpty &&
-        link === payloads.user.data.relationships.home.links.related,
+        !homeRelWasEmpty && link === payloads.user.data.relationships.home.links.related,
         'We fetched the appropriate link'
       );
       return resolve(deepCopy(payloads.home));
@@ -850,21 +871,21 @@ shouldFetchLinkTests('a link (no data)', {
       type: 'user',
       id: '1',
       attributes: {
-        name: '@runspired'
+        name: '@runspired',
       },
       relationships: {
         pets: {
           links: {
-            related: './runspired/pets'
-          }
+            related: './runspired/pets',
+          },
         },
         home: {
           links: {
-            related: './runspired/address'
-          }
-        }
-      }
-    }
+            related: './runspired/address',
+          },
+        },
+      },
+    },
   },
   pets: {
     data: [
@@ -872,36 +893,36 @@ shouldFetchLinkTests('a link (no data)', {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
+              id: '1',
+            },
+          },
+        },
+      },
+    ],
   },
   home: {
     data: {
       type: 'home',
       id: '1',
       attributes: {
-        address: 'Oakland, Ca'
+        address: 'Oakland, Ca',
       },
       relationships: {
         owner: {
           data: {
             type: 'user',
-            id: '1'
-          }
-        }
-      }
-    }
-  }
+            id: '1',
+          },
+        },
+      },
+    },
+  },
 });
 
 shouldFetchLinkTests('a link and data (not available in the store)', {
@@ -910,25 +931,23 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
       type: 'user',
       id: '1',
       attributes: {
-        name: '@runspired'
+        name: '@runspired',
       },
       relationships: {
         pets: {
           links: {
-            related: './runspired/pets'
+            related: './runspired/pets',
           },
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+          data: [{ type: 'pet', id: '1' }],
         },
         home: {
           links: {
-            related: './runspired/address'
+            related: './runspired/address',
           },
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
+          data: { type: 'home', id: '1' },
+        },
+      },
+    },
   },
   pets: {
     data: [
@@ -936,42 +955,42 @@ shouldFetchLinkTests('a link and data (not available in the store)', {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
+              id: '1',
             },
             links: {
-              related: './user/1'
-            }
-          }
-        }
-      }
-    ]
+              related: './user/1',
+            },
+          },
+        },
+      },
+    ],
   },
   home: {
     data: {
       type: 'home',
       id: '1',
       attributes: {
-        address: 'Oakland, Ca'
+        address: 'Oakland, Ca',
       },
       relationships: {
         owner: {
           data: {
             type: 'user',
-            id: '1'
+            id: '1',
           },
           links: {
-            related: './user/1'
-          }
-        }
-      }
-    }
-  }
+            related: './user/1',
+          },
+        },
+      },
+    },
+  },
 });
 
 /*
@@ -1087,7 +1106,7 @@ function shouldReloadWithLinkTests(description, payloads) {
     let user = run(() => store.push(deepCopy(payloads.user)));
     run(() => store.push(deepCopy(payloads.home)));
     let home;
-    run(() => user.get('home').then(h => home = h));
+    run(() => user.get('home').then(h => (home = h)));
 
     assert.ok(!!home, 'We found our home');
 
@@ -1102,25 +1121,23 @@ shouldReloadWithLinkTests('a link and data (available in the store)', {
       type: 'user',
       id: '1',
       attributes: {
-        name: '@runspired'
+        name: '@runspired',
       },
       relationships: {
         pets: {
           links: {
-            related: './runspired/pets'
+            related: './runspired/pets',
           },
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+          data: [{ type: 'pet', id: '1' }],
         },
         home: {
           links: {
-            related: './runspired/address'
+            related: './runspired/address',
           },
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
+          data: { type: 'home', id: '1' },
+        },
+      },
+    },
   },
   pets: {
     data: [
@@ -1128,167 +1145,173 @@ shouldReloadWithLinkTests('a link and data (available in the store)', {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
+              id: '1',
+            },
+          },
+        },
+      },
+    ],
   },
   home: {
     data: {
       type: 'home',
       id: '1',
       attributes: {
-        address: 'Oakland, Ca'
+        address: 'Oakland, Ca',
       },
       relationships: {
         owner: {
           data: {
             type: 'user',
-            id: '1'
-          }
-        }
-      }
-    }
-  }
+            id: '1',
+          },
+        },
+      },
+    },
+  },
 });
 
-shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse loaded', {
-  user: {
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          links: {
-            related: './runspired/pets'
-          },
-          data: []
-        },
-        home: {
-          links: {
-            related: './runspired/address'
-          },
-          data: null
-        }
-      }
-    }
-  },
-  pets: {
-    data: [
-      {
-        type: 'pet',
+shouldReloadWithLinkTests(
+  'a link and empty data (`data: []` or `data: null`), true inverse loaded',
+  {
+    user: {
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            links: {
+              related: './runspired/pets',
+            },
+            data: [],
+          },
+          home: {
+            links: {
+              related: './runspired/address',
+            },
+            data: null,
+          },
+        },
+      },
+    },
+    pets: {
+      data: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shen',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+              links: {
+                related: './user/1',
+              },
+            },
+          },
+        },
+      ],
+    },
+    home: {
+      data: {
+        type: 'home',
+        id: '1',
+        attributes: {
+          address: 'Oakland, Ca',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
+              id: '1',
             },
             links: {
-              related: './user/1'
-            }
-          }
-        }
-      }
-    ]
-  },
-  home: {
-    data: {
-      type: 'home',
-      id: '1',
-      attributes: {
-        address: 'Oakland, Ca'
-      },
-      relationships: {
-        owner: {
-          data: {
-            type: 'user',
-            id: '1'
+              related: './user/1',
+            },
           },
-          links: {
-            related: './user/1'
-          }
-        }
-      }
-    }
-  }
-});
-
-shouldReloadWithLinkTests('a link and empty data (`data: []` or `data: null`), true inverse unloaded', {
-  user: {
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          links: {
-            related: './runspired/pets'
-          },
-          data: []
         },
-        home: {
-          links: {
-            related: './runspired/address'
-          },
-          data: null
-        }
-      }
-    }
-  },
-  pets: {
-    data: [
-      {
-        type: 'pet',
+      },
+    },
+  }
+);
+
+shouldReloadWithLinkTests(
+  'a link and empty data (`data: []` or `data: null`), true inverse unloaded',
+  {
+    user: {
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: '@runspired',
+        },
+        relationships: {
+          pets: {
+            links: {
+              related: './runspired/pets',
+            },
+            data: [],
+          },
+          home: {
+            links: {
+              related: './runspired/address',
+            },
+            data: null,
+          },
+        },
+      },
+    },
+    pets: {
+      data: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shen',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+    },
+    home: {
+      data: {
+        type: 'home',
+        id: '1',
+        attributes: {
+          address: 'Oakland, Ca',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  },
-  home: {
-    data: {
-      type: 'home',
-      id: '1',
-      attributes: {
-        address: 'Oakland, Ca'
+              id: '1',
+            },
+          },
+        },
       },
-      relationships: {
-        owner: {
-          data: {
-            type: 'user',
-            id: '1'
-          }
-        }
-      }
-    }
+    },
   }
-});
+);
 
 /*
   Ad Hoc Situations when we don't have a link
@@ -1307,17 +1330,17 @@ test(`get+reload hasMany with data, no links`, function(assert) {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1328,25 +1351,25 @@ test(`get+reload hasMany with data, no links`, function(assert) {
   };
 
   // setup user
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-        home: {
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
-  }));
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+          home: {
+            data: { type: 'home', id: '1' },
+          },
+        },
+      },
+    })
+  );
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
@@ -1365,17 +1388,17 @@ test(`get+unload+get hasMany with data, no links`, function(assert) {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1386,25 +1409,25 @@ test(`get+unload+get hasMany with data, no links`, function(assert) {
   };
 
   // setup user
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-        home: {
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
-  }));
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+          home: {
+            data: { type: 'home', id: '1' },
+          },
+        },
+      },
+    })
+  );
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
@@ -1424,17 +1447,17 @@ test(`get+reload belongsTo with data, no links`, function(assert) {
         type: 'home',
         id: '1',
         attributes: {
-          address: 'Oakland, CA'
+          address: 'Oakland, CA',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1444,27 +1467,26 @@ test(`get+reload belongsTo with data, no links`, function(assert) {
     assert.ok(false, 'We should not call findHasMany');
   };
 
-
   // setup user
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-        home: {
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
-  }));
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+          home: {
+            data: { type: 'home', id: '1' },
+          },
+        },
+      },
+    })
+  );
   let home = run(() => user.get('home'));
 
   assert.ok(!!home, 'We found our home');
@@ -1483,17 +1505,17 @@ test(`get+unload+get belongsTo with data, no links`, function(assert) {
         type: 'home',
         id: '1',
         attributes: {
-          address: 'Oakland, Ca'
+          address: 'Oakland, Ca',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1503,27 +1525,26 @@ test(`get+unload+get belongsTo with data, no links`, function(assert) {
     assert.ok(false, 'We should not call findHasMany');
   };
 
-
   // setup user
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          data: [
-            { type: 'pet', id: '1' }
-          ]
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-        home: {
-          data: { type: 'home', id: '1' }
-        }
-      }
-    }
-  }));
+        relationships: {
+          pets: {
+            data: [{ type: 'pet', id: '1' }],
+          },
+          home: {
+            data: { type: 'home', id: '1' },
+          },
+        },
+      },
+    })
+  );
   let home = run(() => user.get('home'));
 
   assert.ok(!!home, 'We found our home');
@@ -1545,17 +1566,17 @@ test(`get+reload hasMany with missing data setup from the other side, no links`,
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1566,33 +1587,35 @@ test(`get+reload hasMany with missing data setup from the other side, no links`,
   };
 
   // setup user and pet
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {}
-    },
-    included: [
-      {
-        type: 'pet',
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: '@runspired',
         },
-        relationships: {
-          owner: {
-            data: {
-              type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  }));
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shen',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+    })
+  );
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
@@ -1610,17 +1633,17 @@ test(`get+unload+get hasMany with missing data setup from the other side, no lin
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1631,33 +1654,35 @@ test(`get+unload+get hasMany with missing data setup from the other side, no lin
   };
 
   // setup user and pet
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {}
-    },
-    included: [
-      {
-        type: 'pet',
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: '@runspired',
         },
-        relationships: {
-          owner: {
-            data: {
-              type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  }));
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: {
+            name: 'Shen',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+    })
+  );
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
@@ -1677,17 +1702,17 @@ test(`get+reload belongsTo with missing data setup from the other side, no links
         type: 'home',
         id: '1',
         attributes: {
-          address: 'Oakland, CA'
+          address: 'Oakland, CA',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1698,33 +1723,35 @@ test(`get+reload belongsTo with missing data setup from the other side, no links
   };
 
   // setup user and home
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {}
-    },
-    included: [
-      {
-        type: 'home',
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          address: 'Oakland, CA'
+          name: '@runspired',
         },
-        relationships: {
-          owner: {
-            data: {
-              type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  }));
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'home',
+          id: '1',
+          attributes: {
+            address: 'Oakland, CA',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+    })
+  );
   let home = run(() => user.get('home'));
 
   assert.ok(!!home, 'We found our home');
@@ -1743,17 +1770,17 @@ test(`get+unload+get belongsTo with missing data setup from the other side, no l
         type: 'home',
         id: '1',
         attributes: {
-          address: 'Oakland, CA'
+          address: 'Oakland, CA',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
+              id: '1',
+            },
+          },
+        },
+      },
     });
   };
   adapter.findMany = () => {
@@ -1764,33 +1791,35 @@ test(`get+unload+get belongsTo with missing data setup from the other side, no l
   };
 
   // setup user and home
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {}
-    },
-    included: [
-      {
-        type: 'home',
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
         id: '1',
         attributes: {
-          address: 'Oakland, CA'
+          name: '@runspired',
         },
-        relationships: {
-          owner: {
-            data: {
-              type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
-  }));
+        relationships: {},
+      },
+      included: [
+        {
+          type: 'home',
+          id: '1',
+          attributes: {
+            address: 'Oakland, CA',
+          },
+          relationships: {
+            owner: {
+              data: {
+                type: 'user',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+    })
+  );
   let home = run(() => user.get('home'));
 
   assert.ok(!!home, 'We found our home');
@@ -1816,23 +1845,25 @@ test(`get+reload hasMany with empty data, no links`, function(assert) {
   };
 
   // setup user
-  let user = run(() => store.push({
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        name: '@runspired'
-      },
-      relationships: {
-        pets: {
-          data: []
+  let user = run(() =>
+    store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          name: '@runspired',
         },
-        home: {
-          data: null
-        }
-      }
-    }
-  }));
+        relationships: {
+          pets: {
+            data: [],
+          },
+          home: {
+            data: null,
+          },
+        },
+      },
+    })
+  );
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
@@ -1852,34 +1883,34 @@ test('We should not fetch a hasMany relationship with links that we know is empt
       type: 'user',
       id: '1',
       attributes: {
-        name: '@runspired'
+        name: '@runspired',
       },
       relationships: {
         pets: {
           links: {
-            related: './runspired/pets'
+            related: './runspired/pets',
           },
-          data: [] // we are explicitly told this is empty
-        }
-      }
-    }
+          data: [], // we are explicitly told this is empty
+        },
+      },
+    },
   };
   let user2Payload = {
     data: {
       type: 'user',
       id: '2',
       attributes: {
-        name: '@hjdivad'
+        name: '@hjdivad',
       },
       relationships: {
         pets: {
           links: {
-            related: './hjdivad/pets'
-          }
+            related: './hjdivad/pets',
+          },
           // we have no data, so we do not know that this is empty
-        }
-      }
-    }
+        },
+      },
+    },
   };
   let requestedUser = null;
   let failureDescription = '';
@@ -1902,7 +1933,7 @@ test('We should not fetch a hasMany relationship with links that we know is empt
     }
 
     return resolve({
-      data: []
+      data: [],
     });
   };
 
@@ -1926,6 +1957,7 @@ test('We should not fetch a hasMany relationship with links that we know is empt
 
   // should not fire a request
   requestedUser = null;
-  failureDescription = 'We fetched the link for a previously fetched and found to be empty relationship';
+  failureDescription =
+    'We fetched the link for a previously fetched and found to be empty relationship';
   run(() => user2.get('pets'));
 });

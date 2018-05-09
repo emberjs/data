@@ -87,7 +87,7 @@ export default class RecordReference extends Reference {
     @return Promise<record> a promise for the value (record or relationship)
   */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then((data) => {
+    return resolve(objectOrPromise).then(data => {
       return this.store.push(data);
     });
   }
@@ -159,5 +159,4 @@ export default class RecordReference extends Reference {
 
     return this.load();
   }
-
 }

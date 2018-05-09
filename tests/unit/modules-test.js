@@ -18,12 +18,7 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import RESTSerializer from 'ember-data/serializers/rest';
 import EmbeddedRecordsMixin from 'ember-data/serializers/embedded-records-mixin';
 
-import {
-  AdapterError,
-  InvalidError,
-  TimeoutError,
-  AbortError
-} from 'ember-data/adapters/errors';
+import { AdapterError, InvalidError, TimeoutError, AbortError } from 'ember-data/adapters/errors';
 
 module('unit/modules - public modules');
 

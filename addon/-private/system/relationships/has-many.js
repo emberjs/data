@@ -3,7 +3,7 @@
 */
 import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
-import normalizeModelName from "../normalize-model-name";
+import normalizeModelName from '../normalize-model-name';
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -117,7 +117,12 @@ export default function hasMany(type, options) {
     type = undefined;
   }
 
-  assert(`The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${inspect(type)}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`, typeof type === 'string' || typeof type === 'undefined');
+  assert(
+    `The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${inspect(
+      type
+    )}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`,
+    typeof type === 'string' || typeof type === 'undefined'
+  );
 
   options = options || {};
 
@@ -135,7 +140,7 @@ export default function hasMany(type, options) {
     isRelationship: true,
     kind: 'hasMany',
     name: 'Has Many',
-    key: null
+    key: null,
   };
 
   return computed({
@@ -146,6 +151,6 @@ export default function hasMany(type, options) {
       this._internalModel.setDirtyHasMany(key, records);
 
       return this._internalModel._relationships.get(key).getRecords();
-    }
+    },
   }).meta(meta);
 }

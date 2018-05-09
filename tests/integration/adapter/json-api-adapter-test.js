@@ -10,7 +10,15 @@ import DS from 'ember-data';
 let env, store, adapter;
 let passedUrl, passedVerb, passedHash;
 
-let User, Post, Comment, Handle, GithubHandle, TwitterHandle, Company, DevelopmentShop, DesignStudio;
+let User,
+  Post,
+  Comment,
+  Handle,
+  GithubHandle,
+  TwitterHandle,
+  Company,
+  DevelopmentShop,
+  DesignStudio;
 
 module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
   beforeEach() {
@@ -19,57 +27,57 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
       lastName: DS.attr('string'),
       posts: DS.hasMany('post', { async: true }),
       handles: DS.hasMany('handle', { async: true, polymorphic: true }),
-      company: DS.belongsTo('company', { async: true, polymorphic: true })
+      company: DS.belongsTo('company', { async: true, polymorphic: true }),
     });
 
     Post = DS.Model.extend({
       title: DS.attr('string'),
       author: DS.belongsTo('user', { async: true }),
-      comments: DS.hasMany('comment', { async: true })
+      comments: DS.hasMany('comment', { async: true }),
     });
 
     Comment = DS.Model.extend({
       text: DS.attr('string'),
-      post: DS.belongsTo('post', { async: true })
+      post: DS.belongsTo('post', { async: true }),
     });
 
     Handle = DS.Model.extend({
-      user: DS.belongsTo('user', { async: true })
+      user: DS.belongsTo('user', { async: true }),
     });
 
     GithubHandle = Handle.extend({
-      username: DS.attr('string')
+      username: DS.attr('string'),
     });
 
     TwitterHandle = Handle.extend({
-      nickname: DS.attr('string')
+      nickname: DS.attr('string'),
     });
 
     Company = DS.Model.extend({
       name: DS.attr('string'),
-      employees: DS.hasMany('user', { async: true })
+      employees: DS.hasMany('user', { async: true }),
     });
 
     DevelopmentShop = Company.extend({
-      coffee: DS.attr('boolean')
+      coffee: DS.attr('boolean'),
     });
 
     DesignStudio = Company.extend({
-      hipsters: DS.attr('number')
+      hipsters: DS.attr('number'),
     });
 
     env = setupStore({
       adapter: DS.JSONAPIAdapter.extend(),
 
-      'user': User,
-      'post': Post,
-      'comment': Comment,
-      'handle': Handle,
+      user: User,
+      post: Post,
+      comment: Comment,
+      handle: Handle,
       'github-handle': GithubHandle,
       'twitter-handle': TwitterHandle,
-      'company': Company,
+      company: Company,
       'development-shop': DevelopmentShop,
-      'design-studio': DesignStudio
+      'design-studio': DesignStudio,
     });
 
     store = env.store;
@@ -78,7 +86,7 @@ module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
 
   afterEach() {
     run(env.store, 'destroy');
-  }
+  },
 });
 
 function ajaxResponse(responses) {
@@ -103,15 +111,17 @@ function ajaxResponse(responses) {
 test('find a single record', function(assert) {
   assert.expect(3);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
-      }
-    }
-  }]);
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -126,57 +136,63 @@ test('find a single record', function(assert) {
 test('find all records with sideloaded relationships', function(assert) {
   assert.expect(9);
 
-  ajaxResponse([{
-    data: [{
-      type: 'posts',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
-      },
-      relationships: {
-        author: {
-          data: { type: 'users', id: '3' }
-        }
-      }
-    }, {
-      type: 'posts',
-      id: '2',
-      attributes: {
-        title: 'Tomster rules'
-      },
-      relationships: {
-        author: {
-          data: { type: 'users', id: '3' }
+  ajaxResponse([
+    {
+      data: [
+        {
+          type: 'posts',
+          id: '1',
+          attributes: {
+            title: 'Ember.js rocks',
+          },
+          relationships: {
+            author: {
+              data: { type: 'users', id: '3' },
+            },
+          },
         },
-        comments: {
-          data: [
-            { type: 'comments', id: '4' },
-            { type: 'comments', id: '5' }
-          ]
-        }
-      }
-    }],
-    included: [{
-      type: 'users',
-      id: '3',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
-      }
-    }, {
-      type: 'comments',
-      id: '4',
-      attributes: {
-        text: 'This is the first comment'
-      }
-    }, {
-      type: 'comments',
-      id: '5',
-      attributes: {
-        text: 'This is the second comment'
-      }
-    }]
-  }]);
+        {
+          type: 'posts',
+          id: '2',
+          attributes: {
+            title: 'Tomster rules',
+          },
+          relationships: {
+            author: {
+              data: { type: 'users', id: '3' },
+            },
+            comments: {
+              data: [{ type: 'comments', id: '4' }, { type: 'comments', id: '5' }],
+            },
+          },
+        },
+      ],
+      included: [
+        {
+          type: 'users',
+          id: '3',
+          attributes: {
+            'first-name': 'Yehuda',
+            'last-name': 'Katz',
+          },
+        },
+        {
+          type: 'comments',
+          id: '4',
+          attributes: {
+            text: 'This is the first comment',
+          },
+        },
+        {
+          type: 'comments',
+          id: '5',
+          attributes: {
+            text: 'This is the second comment',
+          },
+        },
+      ],
+    },
+  ]);
 
   return run(() => {
     return store.findAll('post').then(posts => {
@@ -200,15 +216,19 @@ test('find all records with sideloaded relationships', function(assert) {
 test('find many records', function(assert) {
   assert.expect(4);
 
-  ajaxResponse([{
-    data: [{
-      type: 'posts',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
-      }
-    }]
-  }]);
+  ajaxResponse([
+    {
+      data: [
+        {
+          type: 'posts',
+          id: '1',
+          attributes: {
+            title: 'Ember.js rocks',
+          },
+        },
+      ],
+    },
+  ]);
 
   return run(() => {
     return store.query('post', { filter: { id: 1 } }).then(posts => {
@@ -222,15 +242,17 @@ test('find many records', function(assert) {
 });
 
 test('queryRecord - primary data being a single record', function(assert) {
-  ajaxResponse([{
-    data: {
-      type: 'posts',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
-      }
-    }
-  }]);
+  ajaxResponse([
+    {
+      data: {
+        type: 'posts',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.queryRecord('post', {}).then(post => {
@@ -242,9 +264,11 @@ test('queryRecord - primary data being a single record', function(assert) {
 });
 
 test('queryRecord - primary data being null', function(assert) {
-  ajaxResponse([{
-    data: null
-  }]);
+  ajaxResponse([
+    {
+      data: null,
+    },
+  ]);
 
   return run(() => {
     return store.queryRecord('post', {}).then(post => {
@@ -256,46 +280,53 @@ test('queryRecord - primary data being null', function(assert) {
 });
 
 testInDebug('queryRecord - primary data being an array throws an assertion', function(assert) {
-  ajaxResponse([{
-    data: [{
-      type: 'posts',
-      id: '1'
-    }]
-  }]);
+  ajaxResponse([
+    {
+      data: [
+        {
+          type: 'posts',
+          id: '1',
+        },
+      ],
+    },
+  ]);
 
   assert.expectAssertion(() => {
     run(() => store.queryRecord('post', {}));
-  }, "Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.");
+  }, 'Expected the primary data returned by the serializer for a `queryRecord` response to be a single object but instead it was an array.');
 });
 
 test('find a single record with belongsTo link as object { related }', function(assert) {
   assert.expect(7);
 
-  ajaxResponse([{
-    data: {
-      type: 'posts',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'posts',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          author: {
+            links: {
+              related: 'http://example.com/user/2',
+            },
+          },
+        },
       },
-      relationships: {
-        author: {
-          links: {
-            related: 'http://example.com/user/2'
-          }
-        }
-      }
-    }
-  }, {
-    data: {
-      type: 'users',
-      id: '2',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
-      }
-    }
-  }]);
+    },
+    {
+      data: {
+        type: 'users',
+        id: '2',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -318,29 +349,32 @@ test('find a single record with belongsTo link as object { related }', function(
 test('find a single record with belongsTo link as object { data }', function(assert) {
   assert.expect(7);
 
-  ajaxResponse([{
-    data: {
-      type: 'posts',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'posts',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          author: {
+            data: { type: 'users', id: '2' },
+          },
+        },
       },
-      relationships: {
-        author: {
-          data: { type: 'users', id: '2' }
-        }
-      }
-    }
-  }, {
-    data: {
-      type: 'users',
-      id: '2',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
-      }
-    }
-  }]);
+    },
+    {
+      data: {
+        type: 'users',
+        id: '2',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -363,30 +397,33 @@ test('find a single record with belongsTo link as object { data }', function(ass
 test('find a single record with belongsTo link as object { data } (polymorphic)', function(assert) {
   assert.expect(8);
 
-  ajaxResponse([{
-    data: {
-      type: 'users',
-      id: '1',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
+  ajaxResponse([
+    {
+      data: {
+        type: 'users',
+        id: '1',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+        relationships: {
+          company: {
+            data: { type: 'development-shops', id: '2' },
+          },
+        },
       },
-      relationships: {
-        company: {
-          data: { type: 'development-shops', id: '2' }
-        }
-      }
-    }
-  }, {
-    data: {
-      type: 'development-shop',
-      id: '2',
-      attributes: {
-        name: 'Tilde',
-        coffee: true
-      }
-    }
-  }]);
+    },
+    {
+      data: {
+        type: 'development-shop',
+        id: '2',
+        attributes: {
+          name: 'Tilde',
+          coffee: true,
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('user', 1).then(user => {
@@ -410,28 +447,32 @@ test('find a single record with belongsTo link as object { data } (polymorphic)'
 test('find a single record with sideloaded belongsTo link as object { data }', function(assert) {
   assert.expect(7);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          author: {
+            data: { type: 'user', id: '2' },
+          },
+        },
       },
-      relationships: {
-        author: {
-          data: { type: 'user', id: '2' }
-        }
-      }
+      included: [
+        {
+          type: 'user',
+          id: '2',
+          attributes: {
+            'first-name': 'Yehuda',
+            'last-name': 'Katz',
+          },
+        },
+      ],
     },
-    included: [{
-      type: 'user',
-      id: '2',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
-      }
-    }]
-  }]);
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -454,36 +495,42 @@ test('find a single record with sideloaded belongsTo link as object { data }', f
 test('find a single record with hasMany link as object { related }', function(assert) {
   assert.expect(7);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          comments: {
+            links: {
+              related: 'http://example.com/post/1/comments',
+            },
+          },
+        },
       },
-      relationships: {
-        comments: {
-          links: {
-            related: 'http://example.com/post/1/comments'
-          }
-        }
-      }
-    }
-  }, {
-    data: [{
-      type: 'comment',
-      id: '2',
-      attributes: {
-        text: 'This is the first comment'
-      }
-    }, {
-      type: 'comment',
-      id: '3',
-      attributes: {
-        text: 'This is the second comment'
-      }
-    }]
-  }]);
+    },
+    {
+      data: [
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            text: 'This is the first comment',
+          },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          attributes: {
+            text: 'This is the second comment',
+          },
+        },
+      ],
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -506,39 +553,40 @@ test('find a single record with hasMany link as object { related }', function(as
 test('find a single record with hasMany link as object { data }', function(assert) {
   assert.expect(8);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+          },
+        },
       },
-      relationships: {
-        comments: {
-          data: [
-            { type: 'comment', id: '2' },
-            { type: 'comment', id: '3' }
-          ]
-        }
-      }
-    }
-  }, {
-    data: {
-      type: 'comment',
-      id: '2',
-      attributes: {
-        text: 'This is the first comment'
-      }
-    }
-  }, {
-    data: {
-      type: 'comment',
-      id: '3',
-      attributes: {
-        text: 'This is the second comment'
-      }
-    }
-  }]);
+    },
+    {
+      data: {
+        type: 'comment',
+        id: '2',
+        attributes: {
+          text: 'This is the first comment',
+        },
+      },
+    },
+    {
+      data: {
+        type: 'comment',
+        id: '3',
+        attributes: {
+          text: 'This is the second comment',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -562,40 +610,41 @@ test('find a single record with hasMany link as object { data }', function(asser
 test('find a single record with hasMany link as object { data } (polymorphic)', function(assert) {
   assert.expect(9);
 
-  ajaxResponse([{
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
+  ajaxResponse([
+    {
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+        relationships: {
+          handles: {
+            data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+          },
+        },
       },
-      relationships: {
-        handles: {
-          data: [
-            { type: 'github-handle', id: '2' },
-            { type: 'twitter-handle', id: '3' }
-          ]
-        }
-      }
-    }
-  }, {
-    data: {
-      type: 'github-handle',
-      id: '2',
-      attributes: {
-        username: 'wycats'
-      }
-    }
-  }, {
-    data: {
-      type: 'twitter-handle',
-      id: '3',
-      attributes: {
-        nickname: '@wycats'
-      }
-    }
-  }]);
+    },
+    {
+      data: {
+        type: 'github-handle',
+        id: '2',
+        attributes: {
+          username: 'wycats',
+        },
+      },
+    },
+    {
+      data: {
+        type: 'twitter-handle',
+        id: '3',
+        attributes: {
+          nickname: '@wycats',
+        },
+      },
+    },
+  ]);
 
   return run(() => {
     return store.findRecord('user', 1).then(user => {
@@ -620,36 +669,38 @@ test('find a single record with hasMany link as object { data } (polymorphic)', 
 test('find a single record with sideloaded hasMany link as object { data }', function(assert) {
   assert.expect(7);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '2' }, { type: 'comment', id: '3' }],
+          },
+        },
       },
-      relationships: {
-        comments: {
-          data: [
-            { type: 'comment', id: '2' },
-            { type: 'comment', id: '3' }
-          ]
-        }
-      }
+      included: [
+        {
+          type: 'comment',
+          id: '2',
+          attributes: {
+            text: 'This is the first comment',
+          },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          attributes: {
+            text: 'This is the second comment',
+          },
+        },
+      ],
     },
-    included: [{
-      type: 'comment',
-      id: '2',
-      attributes: {
-        text: 'This is the first comment'
-      }
-    }, {
-      type: 'comment',
-      id: '3',
-      attributes: {
-        text: 'This is the second comment'
-      }
-    }]
-  }]);
+  ]);
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
@@ -672,37 +723,39 @@ test('find a single record with sideloaded hasMany link as object { data }', fun
 test('find a single record with sideloaded hasMany link as object { data } (polymorphic)', function(assert) {
   assert.expect(8);
 
-  ajaxResponse([{
-    data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        'first-name': 'Yehuda',
-        'last-name': 'Katz'
+  ajaxResponse([
+    {
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          'first-name': 'Yehuda',
+          'last-name': 'Katz',
+        },
+        relationships: {
+          handles: {
+            data: [{ type: 'github-handle', id: '2' }, { type: 'twitter-handle', id: '3' }],
+          },
+        },
       },
-      relationships: {
-        handles: {
-          data: [
-            { type: 'github-handle', id: '2' },
-            { type: 'twitter-handle', id: '3' }
-          ]
-        }
-      }
+      included: [
+        {
+          type: 'github-handle',
+          id: '2',
+          attributes: {
+            username: 'wycats',
+          },
+        },
+        {
+          type: 'twitter-handle',
+          id: '3',
+          attributes: {
+            nickname: '@wycats',
+          },
+        },
+      ],
     },
-    included: [{
-      type: 'github-handle',
-      id: '2',
-      attributes: {
-        username: 'wycats'
-      }
-    }, {
-      type: 'twitter-handle',
-      id: '3',
-      attributes: {
-        nickname: '@wycats'
-      }
-    }]
-  }]);
+  ]);
 
   return run(() => {
     return store.findRecord('user', 1).then(user => {
@@ -726,35 +779,40 @@ test('find a single record with sideloaded hasMany link as object { data } (poly
 test('create record', function(assert) {
   assert.expect(3);
 
-  ajaxResponse([{
-    data: {
-      type: 'users',
-      id: '3'
-    }
-  }]);
+  ajaxResponse([
+    {
+      data: {
+        type: 'users',
+        id: '3',
+      },
+    },
+  ]);
 
   return run(() => {
+    let company = store.push({
+      data: {
+        type: 'company',
+        id: '1',
+        attributes: {
+          name: 'Tilde Inc.',
+        },
+      },
+    });
 
-    let company = store.push({ data: {
-      type: 'company',
-      id: '1',
-      attributes: {
-        name: 'Tilde Inc.'
-      }
-    } });
-
-    let githubHandle = store.push({ data: {
-      type: 'github-handle',
-      id: '2',
-      attributes: {
-        username: 'wycats'
-      }
-    } });
+    let githubHandle = store.push({
+      data: {
+        type: 'github-handle',
+        id: '2',
+        attributes: {
+          username: 'wycats',
+        },
+      },
+    });
 
     let user = store.createRecord('user', {
       firstName: 'Yehuda',
       lastName: 'Katz',
-      company: company
+      company: company,
     });
 
     return user.get('handles').then(handles => {
@@ -765,19 +823,19 @@ test('create record', function(assert) {
         assert.equal(passedVerb[0], 'POST');
         assert.deepEqual(passedHash[0], {
           data: {
-            data : {
+            data: {
               type: 'users',
               attributes: {
                 'first-name': 'Yehuda',
-                'last-name': 'Katz'
+                'last-name': 'Katz',
               },
               relationships: {
                 company: {
-                  data: { type: 'companies', id: '1' }
-                }
-              }
-            }
-          }
+                  data: { type: 'companies', id: '1' },
+                },
+              },
+            },
+          },
         });
       });
     });
@@ -787,38 +845,46 @@ test('create record', function(assert) {
 test('update record', function(assert) {
   assert.expect(3);
 
-  ajaxResponse([{
-    data: {
-      type: 'users',
-      id: '1'
-    }
-  }]);
+  ajaxResponse([
+    {
+      data: {
+        type: 'users',
+        id: '1',
+      },
+    },
+  ]);
 
   return run(() => {
-    let user = store.push({ data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        firstName: 'Yehuda',
-        lastName: 'Katz'
-      }
-    } });
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+      },
+    });
 
-    let company = store.push({ data: {
-      type: 'company',
-      id: '2',
-      attributes: {
-        name: 'Tilde Inc.'
-      }
-    } });
+    let company = store.push({
+      data: {
+        type: 'company',
+        id: '2',
+        attributes: {
+          name: 'Tilde Inc.',
+        },
+      },
+    });
 
-    let githubHandle = store.push({ data: {
-      type: 'github-handle',
-      id: '3',
-      attributes: {
-        username: 'wycats'
-      }
-    } });
+    let githubHandle = store.push({
+      data: {
+        type: 'github-handle',
+        id: '3',
+        attributes: {
+          username: 'wycats',
+        },
+      },
+    });
 
     user.set('firstName', 'Yehuda!');
     user.set('company', company);
@@ -831,20 +897,20 @@ test('update record', function(assert) {
         assert.equal(passedVerb[0], 'PATCH');
         assert.deepEqual(passedHash[0], {
           data: {
-            data : {
+            data: {
               type: 'users',
               id: '1',
               attributes: {
                 'first-name': 'Yehuda!',
-                'last-name': 'Katz'
+                'last-name': 'Katz',
               },
               relationships: {
                 company: {
-                  data: { type: 'companies', id: '2' }
-                }
-              }
-            }
-          }
+                  data: { type: 'companies', id: '2' },
+                },
+              },
+            },
+          },
         });
       });
     });
@@ -854,44 +920,55 @@ test('update record', function(assert) {
 test('update record - serialize hasMany', function(assert) {
   assert.expect(3);
 
-  ajaxResponse([{
-    data: {
-      type: 'users',
-      id: '1'
-    }
-  }]);
+  ajaxResponse([
+    {
+      data: {
+        type: 'users',
+        id: '1',
+      },
+    },
+  ]);
 
-  env.registry.register('serializer:user', DS.JSONAPISerializer.extend({
-    attrs: {
-      handles: { serialize: true }
-    }
-  }));
+  env.registry.register(
+    'serializer:user',
+    DS.JSONAPISerializer.extend({
+      attrs: {
+        handles: { serialize: true },
+      },
+    })
+  );
 
   return run(() => {
-    let user = store.push({ data: {
-      type: 'user',
-      id: '1',
-      attributes: {
-        firstName: 'Yehuda',
-        lastName: 'Katz'
-      }
-    } });
+    let user = store.push({
+      data: {
+        type: 'user',
+        id: '1',
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz',
+        },
+      },
+    });
 
-    let githubHandle = store.push({ data: {
-      type: 'github-handle',
-      id: '2',
-      attributes: {
-        username: 'wycats'
-      }
-    } });
+    let githubHandle = store.push({
+      data: {
+        type: 'github-handle',
+        id: '2',
+        attributes: {
+          username: 'wycats',
+        },
+      },
+    });
 
-    let twitterHandle = store.push({ data: {
-      type: 'twitter-handle',
-      id: '3',
-      attributes: {
-        nickname: '@wycats'
-      }
-    } });
+    let twitterHandle = store.push({
+      data: {
+        type: 'twitter-handle',
+        id: '3',
+        attributes: {
+          nickname: '@wycats',
+        },
+      },
+    });
 
     user.set('firstName', 'Yehuda!');
 
@@ -904,23 +981,20 @@ test('update record - serialize hasMany', function(assert) {
         assert.equal(passedVerb[0], 'PATCH');
         assert.deepEqual(passedHash[0], {
           data: {
-            data : {
+            data: {
               type: 'users',
               id: '1',
               attributes: {
                 'first-name': 'Yehuda!',
-                'last-name': 'Katz'
+                'last-name': 'Katz',
               },
               relationships: {
                 handles: {
-                  data: [
-                    { type: 'github-handles', id: '2' },
-                    { type: 'twitter-handles', id: '3' }
-                  ]
-                }
-              }
-            }
-          }
+                  data: [{ type: 'github-handles', id: '2' }, { type: 'twitter-handles', id: '3' }],
+                },
+              },
+            },
+          },
         });
       });
     });
@@ -930,32 +1004,38 @@ test('update record - serialize hasMany', function(assert) {
 test('fetching a belongsTo relationship link that returns null', function(assert) {
   assert.expect(3);
 
-  ajaxResponse([{
-    data: {
-      type: 'post',
-      id: '1',
-      attributes: {
-        title: 'Ember.js rocks'
+  ajaxResponse([
+    {
+      data: {
+        type: 'post',
+        id: '1',
+        attributes: {
+          title: 'Ember.js rocks',
+        },
+        relationships: {
+          author: {
+            links: {
+              related: 'http://example.com/post/1/author',
+            },
+          },
+        },
       },
-      relationships: {
-        author: {
-          links: {
-            related: 'http://example.com/post/1/author'
-          }
-        }
-      }
-    }
-  }, {
-    data: null
-  }]);
+    },
+    {
+      data: null,
+    },
+  ]);
 
   return run(() => {
-    return store.findRecord('post', 1).then(post => {
-      assert.equal(passedUrl[0], '/posts/1');
-      return post.get('author');
-    }).then(author => {
-      assert.equal(passedUrl[1], 'http://example.com/post/1/author');
-      assert.strictEqual(author, null);
-    });
+    return store
+      .findRecord('post', 1)
+      .then(post => {
+        assert.equal(passedUrl[0], '/posts/1');
+        return post.get('author');
+      })
+      .then(author => {
+        assert.equal(passedUrl[1], 'http://example.com/post/1/author');
+        assert.strictEqual(author, null);
+      });
   });
 });

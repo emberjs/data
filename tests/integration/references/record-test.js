@@ -7,24 +7,24 @@ import { module, test } from 'qunit';
 
 var env, Person;
 
-module("integration/references/record", {
+module('integration/references/record', {
   beforeEach() {
     Person = DS.Model.extend({
-      name: DS.attr()
+      name: DS.attr(),
     });
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
   },
 
   afterEach() {
     run(env.store, 'unloadAll');
     run(env.container, 'destroy');
-  }
+  },
 });
 
-test("a RecordReference can be retrieved via store.getReference(type, id)", function(assert) {
+test('a RecordReference can be retrieved via store.getReference(type, id)', function(assert) {
   var recordReference = env.store.getReference('person', 1);
 
   assert.equal(recordReference.remoteType(), 'identity');
@@ -32,7 +32,7 @@ test("a RecordReference can be retrieved via store.getReference(type, id)", func
   assert.equal(recordReference.id(), 1);
 });
 
-test("push(object)", function(assert) {
+test('push(object)', function(assert) {
   var done = assert.async();
 
   var push;
@@ -44,9 +44,9 @@ test("push(object)", function(assert) {
         type: 'person',
         id: 1,
         attributes: {
-          name: "le name"
-        }
-      }
+          name: 'le name',
+        },
+      },
     });
   });
 
@@ -54,15 +54,15 @@ test("push(object)", function(assert) {
 
   run(function() {
     push.then(function(record) {
-      assert.ok(record instanceof Person, "push resolves with the record");
-      assert.equal(get(record, 'name'), "le name");
+      assert.ok(record instanceof Person, 'push resolves with the record');
+      assert.equal(get(record, 'name'), 'le name');
 
       done();
     });
   });
 });
 
-test("push(promise)", function(assert) {
+test('push(promise)', function(assert) {
   var done = assert.async();
 
   var push;
@@ -81,35 +81,35 @@ test("push(promise)", function(assert) {
         type: 'person',
         id: 1,
         attributes: {
-          name: "le name"
-        }
-      }
+          name: 'le name',
+        },
+      },
     });
   });
 
   run(function() {
     push.then(function(record) {
-      assert.ok(record instanceof Person, "push resolves with the record");
-      assert.equal(get(record, 'name'), "le name", "name is updated");
+      assert.ok(record instanceof Person, 'push resolves with the record');
+      assert.equal(get(record, 'name'), 'le name', 'name is updated');
 
       done();
     });
   });
 });
 
-test("value() returns null when not yet loaded", function(assert) {
+test('value() returns null when not yet loaded', function(assert) {
   var recordReference = env.store.getReference('person', 1);
   assert.strictEqual(recordReference.value(), null);
 });
 
-test("value() returns the record when loaded", function(assert) {
+test('value() returns the record when loaded', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
       data: {
         type: 'person',
-        id: 1
-      }
+        id: 1,
+      },
     });
   });
 
@@ -117,7 +117,7 @@ test("value() returns the record when loaded", function(assert) {
   assert.equal(recordReference.value(), person);
 });
 
-test("load() fetches the record", function(assert) {
+test('load() fetches the record', function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
@@ -126,9 +126,9 @@ test("load() fetches the record", function(assert) {
         id: 1,
         type: 'person',
         attributes: {
-          name: 'Vito'
-        }
-      }
+          name: 'Vito',
+        },
+      },
     });
   };
 
@@ -136,20 +136,24 @@ test("load() fetches the record", function(assert) {
 
   run(function() {
     recordReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito");
+      assert.equal(get(record, 'name'), 'Vito');
       done();
     });
   });
 });
 
-test("load() only a single find is triggered", function(assert) {
+test('load() only a single find is triggered', function(assert) {
   var done = assert.async();
 
   var deferred = defer();
   var count = 0;
 
-  env.adapter.shouldReloadRecord = function() { return false; };
-  env.adapter.shouldBackgroundReloadRecord = function() { return false; };
+  env.adapter.shouldReloadRecord = function() {
+    return false;
+  };
+  env.adapter.shouldBackgroundReloadRecord = function() {
+    return false;
+  };
   env.adapter.findRecord = function(store, type, id) {
     count++;
     assert.equal(count, 1);
@@ -162,7 +166,7 @@ test("load() only a single find is triggered", function(assert) {
   run(function() {
     recordReference.load();
     recordReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito");
+      assert.equal(get(record, 'name'), 'Vito');
     });
   });
 
@@ -172,22 +176,22 @@ test("load() only a single find is triggered", function(assert) {
         id: 1,
         type: 'person',
         attributes: {
-          name: 'Vito'
-        }
-      }
+          name: 'Vito',
+        },
+      },
     });
   });
 
   run(function() {
     recordReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito");
+      assert.equal(get(record, 'name'), 'Vito');
 
       done();
     });
   });
 });
 
-test("reload() loads the record if not yet loaded", function(assert) {
+test('reload() loads the record if not yet loaded', function(assert) {
   var done = assert.async();
 
   var count = 0;
@@ -200,9 +204,9 @@ test("reload() loads the record if not yet loaded", function(assert) {
         id: 1,
         type: 'person',
         attributes: {
-          name: 'Vito Coreleone'
-        }
-      }
+          name: 'Vito Coreleone',
+        },
+      },
     });
   };
 
@@ -210,14 +214,14 @@ test("reload() loads the record if not yet loaded", function(assert) {
 
   run(function() {
     recordReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito Coreleone");
+      assert.equal(get(record, 'name'), 'Vito Coreleone');
 
       done();
     });
   });
 });
 
-test("reload() fetches the record", function(assert) {
+test('reload() fetches the record', function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
@@ -226,9 +230,9 @@ test("reload() fetches the record", function(assert) {
         id: 1,
         type: 'person',
         attributes: {
-          name: 'Vito Coreleone'
-        }
-      }
+          name: 'Vito Coreleone',
+        },
+      },
     });
   };
 
@@ -238,9 +242,9 @@ test("reload() fetches the record", function(assert) {
         type: 'person',
         id: 1,
         attributes: {
-          name: 'Vito'
-        }
-      }
+          name: 'Vito',
+        },
+      },
     });
   });
 
@@ -248,7 +252,7 @@ test("reload() fetches the record", function(assert) {
 
   run(function() {
     recordReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Vito Coreleone");
+      assert.equal(get(record, 'name'), 'Vito Coreleone');
 
       done();
     });

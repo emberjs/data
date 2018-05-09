@@ -9,15 +9,23 @@ let rootState, stateName;
 module('unit/states - Flags for record states', {
   beforeEach() {
     rootState = DS.RootState;
-  }
+  },
 });
 
 assert.flagIsTrue = function flagIsTrue(flag) {
-  this.equal(get(rootState, stateName + '.' + flag), true, stateName + '.' + flag + ' should be true');
+  this.equal(
+    get(rootState, stateName + '.' + flag),
+    true,
+    stateName + '.' + flag + ' should be true'
+  );
 };
 
 assert.flagIsFalse = function flagIsFalse(flag) {
-  this.equal(get(rootState, stateName + '.' + flag), false, stateName + '.' + flag + ' should be false');
+  this.equal(
+    get(rootState, stateName + '.' + flag),
+    false,
+    stateName + '.' + flag + ' should be false'
+  );
 };
 
 test('the empty state', function(assert) {

@@ -7,8 +7,8 @@ import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
 import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
-import { PromiseArray } from "./promise-proxies";
-import { _objectIsAlive } from "./store/common";
+import { PromiseArray } from './promise-proxies';
+import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
 
 /**
@@ -113,7 +113,7 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {Object} meta
     @public
     */
-    this.meta = this.meta ||  null;
+    this.meta = this.meta || null;
 
     /**
     `true` if the relationship is polymorphic, `false` otherwise.
@@ -140,7 +140,9 @@ export default EmberObject.extend(MutableArray, Evented, {
       this.relationship._flushPendingManyArrayUpdates();
     }
     let internalModel = this.currentState[index];
-    if (internalModel === undefined) { return; }
+    if (internalModel === undefined) {
+      return;
+    }
 
     return internalModel.getRecord();
   },
@@ -158,14 +160,15 @@ export default EmberObject.extend(MutableArray, Evented, {
       // only add new internalModels which are not yet in the canonical state of this
       // relationship (a new internalModel can be in the canonical state if it has
       // been 'acknowleged' to be in the relationship via a store.push)
-      (internalModel) => internalModel.isNew() && toSet.indexOf(internalModel) === -1
+      internalModel => internalModel.isNew() && toSet.indexOf(internalModel) === -1
     );
     toSet = toSet.concat(newInternalModels);
 
     // diff to find changes
     let diff = diffArray(this.currentState, toSet);
 
-    if (diff.firstChangeIndex !== null) { // it's null if no change found
+    if (diff.firstChangeIndex !== null) {
+      // it's null if no change found
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.set('length', toSet.length);
@@ -191,7 +194,7 @@ export default EmberObject.extend(MutableArray, Evented, {
 
   //TODO(Igor) optimize
   _removeInternalModels(internalModels) {
-    for (let i=0; i < internalModels.length; i++) {
+    for (let i = 0; i < internalModels.length; i++) {
       let index = this.currentState.indexOf(internalModels[i]);
       this.internalReplace(index, 1);
     }
@@ -208,7 +211,7 @@ export default EmberObject.extend(MutableArray, Evented, {
   replace(idx, amt, objects) {
     let internalModels;
     if (amt > 0) {
-      internalModels = this.currentState.slice(idx, idx+amt);
+      internalModels = this.currentState.slice(idx, idx + amt);
       this.get('relationship').removeInternalModels(internalModels);
     }
     if (objects) {
@@ -265,8 +268,11 @@ export default EmberObject.extend(MutableArray, Evented, {
   save() {
     let manyArray = this;
     let promiseLabel = 'DS: ManyArray#save ' + get(this, 'type');
-    let promise = all(this.invoke("save"), promiseLabel).
-      then(() => manyArray, null, 'DS: ManyArray#save return ManyArray');
+    let promise = all(this.invoke('save'), promiseLabel).then(
+      () => manyArray,
+      null,
+      'DS: ManyArray#save return ManyArray'
+    );
 
     return PromiseArray.create({ promise });
   },
@@ -283,10 +289,13 @@ export default EmberObject.extend(MutableArray, Evented, {
     const store = get(this, 'store');
     const type = get(this, 'type');
 
-    assert(`You cannot add '${type.modelName}' records to this polymorphic relationship.`, !get(this, 'isPolymorphic'));
+    assert(
+      `You cannot add '${type.modelName}' records to this polymorphic relationship.`,
+      !get(this, 'isPolymorphic')
+    );
     let record = store.createRecord(type.modelName, hash);
     this.pushObject(record);
 
     return record;
-  }
+  },
 });

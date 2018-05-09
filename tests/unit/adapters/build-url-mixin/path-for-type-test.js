@@ -6,21 +6,22 @@ import { module, test } from 'qunit';
 
 let env, adapter;
 
-module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {
+module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType', {
   beforeEach() {
-
     // test for overriden pathForType methods which return null path values
     let customPathForType = {
       pathForType(type) {
-        if (type === 'rootModel') { return ''; }
+        if (type === 'rootModel') {
+          return '';
+        }
         return this._super(type);
-      }
+      },
     };
 
     let Adapter = DS.Adapter.extend(DS.BuildURLMixin, customPathForType);
 
     env = setupStore({
-      adapter: Adapter
+      adapter: Adapter,
     });
 
     adapter = env.adapter;
@@ -28,7 +29,7 @@ module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForTy
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
 test('pathForType - works with camelized types', function(assert) {

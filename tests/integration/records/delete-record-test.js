@@ -14,15 +14,17 @@ import DS from 'ember-data';
 var attr = DS.attr;
 var Person, env;
 
-module("integration/deletedRecord - Deleting Records", {
+module('integration/deletedRecord - Deleting Records', {
   beforeEach() {
     Person = DS.Model.extend({
-      name: attr('string')
+      name: attr('string'),
     });
-    Person.toString = () => { return 'Person'; };
+    Person.toString = () => {
+      return 'Person';
+    };
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
   },
 
@@ -30,10 +32,10 @@ module("integration/deletedRecord - Deleting Records", {
     run(function() {
       env.container.destroy();
     });
-  }
+  },
 });
 
-test("records should not be removed from record arrays just after deleting, but only after committing them", function(assert) {
+test('records should not be removed from record arrays just after deleting, but only after committing them', function(assert) {
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
@@ -43,25 +45,27 @@ test("records should not be removed from record arrays just after deleting, but 
   var all;
   run(function() {
     env.store.push({
-      data: [{
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Adam Sunderland'
-        }
-      }, {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'Dave Sunderland'
-        }
-      }]
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Adam Sunderland',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Dave Sunderland',
+          },
+        },
+      ],
     });
     adam = env.store.peekRecord('person', 1);
     dave = env.store.peekRecord('person', 2);
-    all  = env.store.peekAll('person');
+    all = env.store.peekAll('person');
   });
-
 
   // pre-condition
   assert.equal(all.get('length'), 2, 'pre-condition: 2 records in array');
@@ -79,9 +83,11 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
   let group;
   let person;
   const Group = DS.Model.extend({
-    people: DS.hasMany('person', { inverse: null, async: false })
+    people: DS.hasMany('person', { inverse: null, async: false }),
   });
-  Group.toString = () => { return 'Group'; }
+  Group.toString = () => {
+    return 'Group';
+  };
 
   env.adapter.deleteRecord = function() {
     return EmberPromise.resolve();
@@ -96,29 +102,26 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
         id: '1',
         relationships: {
           people: {
-            data: [
-              { type: 'person', id: '1' },
-              { type: 'person', id: '2' }
-            ]
-          }
-        }
+            data: [{ type: 'person', id: '1' }, { type: 'person', id: '2' }],
+          },
+        },
       },
       included: [
         {
           type: 'person',
           id: '1',
           attributes: {
-            name: 'Adam Sunderland'
-          }
+            name: 'Adam Sunderland',
+          },
         },
         {
           type: 'person',
           id: '2',
           attributes: {
-            name: 'Dave Sunderland'
-          }
-        }
-      ]
+            name: 'Dave Sunderland',
+          },
+        },
+      ],
     });
 
     group = env.store.peekRecord('group', '1');
@@ -136,7 +139,7 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
   assert.equal(group.get('people.length'), 1, 'expected 1 related records after delete');
 });
 
-test("records can be deleted during record array enumeration", function(assert) {
+test('records can be deleted during record array enumeration', function(assert) {
   var adam, dave;
 
   env.adapter.deleteRecord = function() {
@@ -145,19 +148,22 @@ test("records can be deleted during record array enumeration", function(assert) 
 
   run(function() {
     env.store.push({
-      data: [{
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Adam Sunderland'
-        }
-      }, {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'Dave Sunderland'
-        }
-      }]
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Adam Sunderland',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Dave Sunderland',
+          },
+        },
+      ],
     });
     adam = env.store.peekRecord('person', 1);
     dave = env.store.peekRecord('person', 2);
@@ -177,20 +183,22 @@ test("records can be deleted during record array enumeration", function(assert) 
   assert.equal(all.objectAt(0), null, "can't get any records");
 });
 
-test("Deleting an invalid newly created record should remove it from the store", function(assert) {
+test('Deleting an invalid newly created record should remove it from the store', function(assert) {
   var record;
   var store = env.store;
 
   env.adapter.createRecord = function() {
-    return EmberPromise.reject(new DS.InvalidError([
-      {
-        title: 'Invalid Attribute',
-        detail: 'name is invalid',
-        source: {
-          pointer: '/data/attributes/name'
-        }
-      }
-    ]));
+    return EmberPromise.reject(
+      new DS.InvalidError([
+        {
+          title: 'Invalid Attribute',
+          detail: 'name is invalid',
+          source: {
+            pointer: '/data/attributes/name',
+          },
+        },
+      ])
+    );
   };
 
   run(function() {
@@ -200,8 +208,11 @@ test("Deleting an invalid newly created record should remove it from the store",
   });
 
   // Preconditions
-  assert.equal(get(record, 'currentState.stateName'), 'root.loaded.created.invalid',
-               'records should start in the created.invalid state');
+  assert.equal(
+    get(record, 'currentState.stateName'),
+    'root.loaded.created.invalid',
+    'records should start in the created.invalid state'
+  );
   assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
   run(function() {
@@ -209,28 +220,35 @@ test("Deleting an invalid newly created record should remove it from the store",
   });
 
   assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-  assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+  assert.equal(
+    get(store.peekAll('person'), 'length'),
+    0,
+    'The new person should be removed from the store'
+  );
 });
 
-
-test("Destroying an invalid newly created record should remove it from the store", function(assert) {
+test('Destroying an invalid newly created record should remove it from the store', function(assert) {
   var record;
   var store = env.store;
 
   env.adapter.deleteRecord = function() {
-    assert.fail('The adapter\'s deletedRecord method should not be called when the record was created locally.');
+    assert.fail(
+      "The adapter's deletedRecord method should not be called when the record was created locally."
+    );
   };
 
   env.adapter.createRecord = function() {
-    return EmberPromise.reject(new DS.InvalidError([
-      {
-        title: 'Invalid Attribute',
-        detail: 'name is invalid',
-        source: {
-          pointer: '/data/attributes/name'
-        }
-      }
-    ]));
+    return EmberPromise.reject(
+      new DS.InvalidError([
+        {
+          title: 'Invalid Attribute',
+          detail: 'name is invalid',
+          source: {
+            pointer: '/data/attributes/name',
+          },
+        },
+      ])
+    );
   };
 
   run(function() {
@@ -240,8 +258,11 @@ test("Destroying an invalid newly created record should remove it from the store
   });
 
   // Preconditions
-  assert.equal(get(record, 'currentState.stateName'), 'root.loaded.created.invalid',
-               'records should start in the created.invalid state');
+  assert.equal(
+    get(record, 'currentState.stateName'),
+    'root.loaded.created.invalid',
+    'records should start in the created.invalid state'
+  );
   assert.equal(get(store.peekAll('person'), 'length'), 1, 'The new person should be in the store');
 
   run(function() {
@@ -249,10 +270,14 @@ test("Destroying an invalid newly created record should remove it from the store
   });
 
   assert.equal(get(record, 'currentState.stateName'), 'root.deleted.saved');
-  assert.equal(get(store.peekAll('person'), 'length'), 0, 'The new person should be removed from the store');
+  assert.equal(
+    get(store.peekAll('person'), 'length'),
+    0,
+    'The new person should be removed from the store'
+  );
 });
 
-test("Will resolve destroy and save in same loop", function(assert) {
+test('Will resolve destroy and save in same loop', function(assert) {
   let adam, dave;
   let promises;
 
@@ -263,8 +288,8 @@ test("Will resolve destroy and save in same loop", function(assert) {
     return EmberPromise.resolve({
       data: {
         id: 123,
-        type: 'person'
-      }
+        type: 'person',
+      },
     });
   };
 
@@ -272,10 +297,7 @@ test("Will resolve destroy and save in same loop", function(assert) {
   dave = env.store.createRecord('person', { name: 'Dave Sunderland' });
 
   run(function() {
-    promises = [
-      adam.destroyRecord(),
-      dave.save()
-    ];
+    promises = [adam.destroyRecord(), dave.save()];
   });
 
   return all(promises);

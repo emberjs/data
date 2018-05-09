@@ -9,7 +9,7 @@ test('#serialize', function(assert) {
 
   assert.strictEqual(transform.serialize(null), null);
   assert.strictEqual(transform.serialize(undefined), null);
-  assert.equal(transform.serialize("1.1"), 1.1);
+  assert.equal(transform.serialize('1.1'), 1.1);
   assert.equal(transform.serialize(1.1), 1.1);
   assert.equal(transform.serialize(new Number(1.1)), 1.1);
   assert.strictEqual(transform.serialize(NaN), null);

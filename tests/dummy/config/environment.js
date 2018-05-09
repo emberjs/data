@@ -15,13 +15,13 @@ module.exports = function(environment) {
     locationType: 'auto',
     EmberENV: {
       FEATURES: featureFlags,
-      RAISE_ON_DEPRECATION: false
+      RAISE_ON_DEPRECATION: false,
     },
 
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-    }
+    },
   };
 
   if (environment === 'test-optional-features') {

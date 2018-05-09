@@ -16,18 +16,18 @@ test('a record receives a didLoad callback when it has finished loading', functi
     name: DS.attr(),
     didLoad() {
       assert.ok('The didLoad callback was called');
-    }
+    },
   });
 
   const Adapter = DS.Adapter.extend({
     findRecord(store, type, id, snapshot) {
       return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   return run(() => {
@@ -45,19 +45,19 @@ test(`TEMPORARY: a record receives a didLoad callback once it materializes if it
     name: DS.attr(),
     didLoad() {
       didLoadCalled++;
-    }
+    },
   });
 
   let store = createStore({
-    person: Person
+    person: Person,
   });
 
   run(() => {
     store._pushInternalModel({ id: 1, type: 'person' });
-    assert.equal(didLoadCalled, 0, "didLoad was not called");
+    assert.equal(didLoadCalled, 0, 'didLoad was not called');
   });
   run(() => store.peekRecord('person', 1));
-  assert.equal(didLoadCalled, 1, "didLoad was called");
+  assert.equal(didLoadCalled, 1, 'didLoad was called');
 });
 
 test('a record receives a didUpdate callback when it has finished updating', function(assert) {
@@ -73,7 +73,7 @@ test('a record receives a didUpdate callback when it has finished updating', fun
       callCount++;
       assert.equal(get(this, 'isSaving'), false, 'record should be saving');
       assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    }
+    },
   });
 
   const Adapter = DS.Adapter.extend({
@@ -85,12 +85,12 @@ test('a record receives a didUpdate callback when it has finished updating', fun
       assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
 
       return resolve();
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   let asyncPerson = run(() => store.findRecord('person', 1));
@@ -98,14 +98,16 @@ test('a record receives a didUpdate callback when it has finished updating', fun
   assert.equal(callCount, 0, 'precond - didUpdate callback was not called yet');
 
   return run(() => {
-    return asyncPerson.then(person => {
-      return run(() => {
-        person.set('bar', "Bar");
-        return person.save();
+    return asyncPerson
+      .then(person => {
+        return run(() => {
+          person.set('bar', 'Bar');
+          return person.save();
+        });
+      })
+      .then(() => {
+        assert.equal(callCount, 1, 'didUpdate called after update');
       });
-    }).then(() => {
-      assert.equal(callCount, 1, 'didUpdate called after update');
-    });
   });
 });
 
@@ -119,7 +121,7 @@ test('a record receives a didCreate callback when it has finished updating', fun
       callCount++;
       assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
       assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    }
+    },
   });
 
   const Adapter = DS.Adapter.extend({
@@ -127,12 +129,12 @@ test('a record receives a didCreate callback when it has finished updating', fun
       assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
 
       return resolve();
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
@@ -159,7 +161,7 @@ test('a record receives a didDelete callback when it has finished deleting', fun
 
       assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
       assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    }
+    },
   });
 
   const Adapter = DS.Adapter.extend({
@@ -171,26 +173,28 @@ test('a record receives a didDelete callback when it has finished deleting', fun
       assert.equal(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
 
       return resolve();
-    }
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
   let asyncPerson = run(() => store.findRecord('person', 1));
 
   assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
 
   return run(() => {
-    return asyncPerson.then(person => {
-      return run(() => {
-        person.deleteRecord();
-        return person.save();
+    return asyncPerson
+      .then(person => {
+        return run(() => {
+          person.deleteRecord();
+          return person.save();
+        });
+      })
+      .then(() => {
+        assert.equal(callCount, 1, 'didDelete called after delete');
       });
-    }).then(() => {
-      assert.equal(callCount, 1, 'didDelete called after delete');
-    });
   });
 });
 
@@ -207,12 +211,12 @@ test('an uncommited record also receives a didDelete callback when it is deleted
       callCount++;
       assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
       assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    }
+    },
   });
 
   let store = createStore({
     adapter: DS.Adapter.extend(),
-    person: Person
+    person: Person,
   });
 
   let person = store.createRecord('person', { name: 'Tomster' });
@@ -238,7 +242,7 @@ test('a record receives a becameInvalid callback when it became invalid', functi
 
       assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
       assert.equal(get(this, 'hasDirtyAttributes'), true, 'record should be dirty');
-    }
+    },
   });
 
   const Adapter = DS.Adapter.extend({
@@ -247,23 +251,29 @@ test('a record receives a becameInvalid callback when it became invalid', functi
     },
 
     updateRecord(store, type, snapshot) {
-      assert.equal(callCount, 0, 'becameInvalid callback was not called until recordWasInvalid is called');
+      assert.equal(
+        callCount,
+        0,
+        'becameInvalid callback was not called until recordWasInvalid is called'
+      );
 
-      return reject(new DS.InvalidError([
-        {
-          title: 'Invalid Attribute',
-          detail: 'error',
-          source: {
-            pointer: '/data/attributes/bar'
-          }
-        }
-      ]));
-    }
+      return reject(
+        new DS.InvalidError([
+          {
+            title: 'Invalid Attribute',
+            detail: 'error',
+            source: {
+              pointer: '/data/attributes/bar',
+            },
+          },
+        ])
+      );
+    },
   });
 
   let store = createStore({
     adapter: Adapter,
-    person: Person
+    person: Person,
   });
 
   let asyncPerson = run(() => store.findRecord('person', 1));
@@ -289,11 +299,11 @@ test('a record receives a becameInvalid callback when it became invalid', functi
 
 test('an ID of 0 is allowed', function(assert) {
   const Person = DS.Model.extend({
-    name: DS.attr('string')
+    name: DS.attr('string'),
   });
 
   let store = createStore({
-    person: Person
+    person: Person,
   });
 
   run(() => {
@@ -302,11 +312,18 @@ test('an ID of 0 is allowed', function(assert) {
         type: 'person',
         id: '0',
         attributes: {
-          name: 'Tom Dale'
-        }
-      }
+          name: 'Tom Dale',
+        },
+      },
     });
   });
 
-  assert.equal(store.peekAll('person').objectAt(0).get('name'), 'Tom Dale', 'found record with id 0');
+  assert.equal(
+    store
+      .peekAll('person')
+      .objectAt(0)
+      .get('name'),
+    'Tom Dale',
+    'found record with id 0'
+  );
 });

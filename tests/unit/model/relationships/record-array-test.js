@@ -11,7 +11,7 @@ module('unit/model/relationships - RecordArray');
 
 test('updating the content of a RecordArray updates its content', function(assert) {
   let Tag = DS.Model.extend({
-    name: DS.attr('string')
+    name: DS.attr('string'),
   });
 
   let env = setupStore({ tag: Tag });
@@ -21,30 +21,34 @@ test('updating the content of a RecordArray updates its content', function(asser
 
   run(() => {
     internalModels = store._push({
-      data: [{
-        type: 'tag',
-        id: '5',
-        attributes: {
-          name: 'friendly'
-        }
-      }, {
-        type: 'tag',
-        id: '2',
-        attributes: {
-          name: 'smarmy'
-        }
-      }, {
-        type: 'tag',
-        id: '12',
-        attributes: {
-          name: 'oohlala'
-        }
-      }]
+      data: [
+        {
+          type: 'tag',
+          id: '5',
+          attributes: {
+            name: 'friendly',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'smarmy',
+          },
+        },
+        {
+          type: 'tag',
+          id: '12',
+          attributes: {
+            name: 'oohlala',
+          },
+        },
+      ],
     });
     tags = DS.RecordArray.create({
       content: A(internalModels.slice(0, 2)),
       store: store,
-      modelName: 'tag'
+      modelName: 'tag',
     });
   });
 
@@ -62,12 +66,12 @@ test('can create child record from a hasMany relationship', function(assert) {
 
   const Tag = DS.Model.extend({
     name: DS.attr('string'),
-    person: DS.belongsTo('person', { async: false })
+    person: DS.belongsTo('person', { async: false }),
   });
 
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag', { async: false })
+    tags: DS.hasMany('tag', { async: false }),
   });
 
   let env = setupStore({ tag: Tag, person: Person });
@@ -81,9 +85,9 @@ test('can create child record from a hasMany relationship', function(assert) {
         type: 'person',
         id: '1',
         attributes: {
-          name: 'Tom Dale'
-        }
-      }
+          name: 'Tom Dale',
+        },
+      },
     });
   });
 
@@ -93,7 +97,13 @@ test('can create child record from a hasMany relationship', function(assert) {
 
       assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
       assert.equal(get(person, 'tags.length'), 1, 'tag is added to the parent record');
-      assert.equal(get(person, 'tags').objectAt(0).get('name'), 'cool', 'tag values are passed along');
+      assert.equal(
+        get(person, 'tags')
+          .objectAt(0)
+          .get('name'),
+        'cool',
+        'tag values are passed along'
+      );
     });
   });
 });

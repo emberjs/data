@@ -7,8 +7,8 @@ import Evented from '@ember/object/evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { Promise } from 'rsvp';
-import { PromiseArray } from "../promise-proxies";
-import SnapshotRecordArray from "../snapshot-record-array";
+import { PromiseArray } from '../promise-proxies';
+import SnapshotRecordArray from '../snapshot-record-array';
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -53,7 +53,7 @@ export default ArrayProxy.extend(Evented, {
     @type Boolean
     */
     this.isLoaded = this.isLoaded || false;
-      /**
+    /**
     The flag to signal a `RecordArray` is currently loading data.
 
     Example
@@ -70,7 +70,7 @@ export default ArrayProxy.extend(Evented, {
     */
     this.isUpdating = false;
 
-      /**
+    /**
     The store that created this record array.
 
     @property store
@@ -82,7 +82,11 @@ export default ArrayProxy.extend(Evented, {
   },
 
   replace() {
-    throw new Error(`The result of a server query (for all ${this.modelName} types) is immutable. To modify contents, use toArray()`);
+    throw new Error(
+      `The result of a server query (for all ${
+        this.modelName
+      } types) is immutable. To modify contents, use toArray()`
+    );
   },
 
   /**
@@ -131,13 +135,17 @@ export default ArrayProxy.extend(Evented, {
     @method update
   */
   update() {
-    if (get(this, 'isUpdating')) { return this._updatingPromise; }
+    if (get(this, 'isUpdating')) {
+      return this._updatingPromise;
+    }
 
     this.set('isUpdating', true);
 
     let updatingPromise = this._update().finally(() => {
       this._updatingPromise = null;
-      if (this.get('isDestroying') || this.get('isDestroyed')) { return }
+      if (this.get('isDestroying') || this.get('isDestroyed')) {
+        return;
+      }
       this.set('isUpdating', false);
     });
 
@@ -197,8 +205,11 @@ export default ArrayProxy.extend(Evented, {
   */
   save() {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;
-    let promise = Promise.all(this.invoke('save'), promiseLabel)
-      .then(() => this, null, 'DS: RecordArray#save return RecordArray');
+    let promise = Promise.all(this.invoke('save'), promiseLabel).then(
+      () => this,
+      null,
+      'DS: RecordArray#save return RecordArray'
+    );
 
     return PromiseArray.create({ promise });
   },
@@ -251,5 +262,5 @@ export default ArrayProxy.extend(Evented, {
   */
   _takeSnapshot() {
     return get(this, 'content').map(internalModel => internalModel.createSnapshot());
-  }
+  },
 });

@@ -1,10 +1,10 @@
 import isEnabled from '../../features';
 import { DEBUG } from '@glimmer/env';
-import Relationships from "../relationships/state/create";
+import Relationships from '../relationships/state/create';
 import { assign } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
-import coerceId from "../coerce-id";
+import coerceId from '../coerce-id';
 import { run } from '@ember/runloop';
 
 let nextBfsId = 1;
@@ -31,8 +31,8 @@ export default class ModelData {
     return {
       id: this.id,
       type: this.modelName,
-      clientId: this.clientId
-    }
+      clientId: this.clientId,
+    };
   }
 
   pushData(data, calculateChange) {
@@ -72,9 +72,7 @@ export default class ModelData {
   //   and relationships need this info and @runspired didn't see
   //   how to get it just yet from storeWrapper.
   isEmpty() {
-    return this.__attributes === null &&
-      this.__inFlightAttributes === null &&
-      this.__data === null;
+    return this.__attributes === null && this.__inFlightAttributes === null && this.__data === null;
   }
 
   reset() {
@@ -86,7 +84,7 @@ export default class ModelData {
   _setupRelationships(data) {
     let relationships = this.storeWrapper.relationshipsDefinitionFor(this.modelName);
     let keys = Object.keys(relationships);
-    for (let i=0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
       let relationshipName = keys[i];
 
       if (!data.relationships[relationshipName]) {
@@ -105,18 +103,43 @@ export default class ModelData {
 
         if (relationshipData.links) {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-          warn(`You pushed a record of type '${this.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
-            id: 'ds.store.push-link-for-sync-relationship'
-          });
+          warn(
+            `You pushed a record of type '${
+              this.modelName
+            }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`,
+            isAsync || relationshipData.data,
+            {
+              id: 'ds.store.push-link-for-sync-relationship',
+            }
+          );
         } else if (relationshipData.data) {
           if (relationshipMeta.kind === 'belongsTo') {
-            assert(`A ${this.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
+            assert(
+              `A ${
+                this.modelName
+              } record was pushed into the store with the value of ${relationshipName} being ${inspect(
+                relationshipData.data
+              )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
+              !Array.isArray(relationshipData.data)
+            );
             assertRelationshipData(store, modelData, relationshipData.data, relationshipMeta);
           } else if (relationshipMeta.kind === 'hasMany') {
-            assert(`A ${this.modelName} record was pushed into the store with the value of ${relationshipName} being '${inspect(relationshipData.data)}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`, Array.isArray(relationshipData.data));
+            assert(
+              `A ${
+                this.modelName
+              } record was pushed into the store with the value of ${relationshipName} being '${inspect(
+                relationshipData.data
+              )}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`,
+              Array.isArray(relationshipData.data)
+            );
             if (Array.isArray(relationshipData.data)) {
               for (let i = 0; i < relationshipData.data.length; i++) {
-                assertRelationshipData(store, modelData, relationshipData.data[i], relationshipMeta);
+                assertRelationshipData(
+                  store,
+                  modelData,
+                  relationshipData.data[i],
+                  relationshipMeta
+                );
               }
             }
           }
@@ -233,7 +256,11 @@ export default class ModelData {
   setDirtyHasMany(key, resources) {
     let relationship = this._relationships.get(key);
     relationship.clear();
-    relationship.addModelDatas(resources.map(resource => this.storeWrapper.modelDataFor(resource.type, resource.id, resource.clientId)));
+    relationship.addModelDatas(
+      resources.map(resource =>
+        this.storeWrapper.modelDataFor(resource.type, resource.id, resource.clientId)
+      )
+    );
   }
 
   // append to "current state" via ModelDatas
@@ -252,7 +279,7 @@ export default class ModelData {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
-      for (let i=0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i++) {
         if (attrs[keys[i]] === undefined) {
           attrs[keys[i]] = this._inFlightAttributes[keys[i]];
         }
@@ -306,9 +333,7 @@ export default class ModelData {
   }
 
   hasAttr(key) {
-    return key in this._attributes ||
-         key in this._inFlightAttributes ||
-         key in this._data;
+    return key in this._attributes || key in this._inFlightAttributes || key in this._data;
   }
 
   unloadRecord() {
@@ -318,14 +343,18 @@ export default class ModelData {
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_cleanupOrphanedModelDatas')
+      this._scheduledDestroy = run.backburner.schedule(
+        'destroy',
+        this,
+        '_cleanupOrphanedModelDatas'
+      );
     }
   }
 
   _cleanupOrphanedModelDatas() {
     let relatedModelDatas = this._allRelatedModelDatas();
     if (areAllModelsUnloaded(relatedModelDatas)) {
-      for (let i=0; i<relatedModelDatas.length; ++i) {
+      for (let i = 0; i < relatedModelDatas.length; ++i) {
         let modelData = relatedModelDatas[i];
         if (!modelData.isDestroyed) {
           modelData.destroy();
@@ -384,7 +413,7 @@ export default class ModelData {
       let node = queue.shift();
       array.push(node);
       let related = node._directlyRelatedModelDatas();
-      for (let i=0; i<related.length; ++i) {
+      for (let i = 0; i < related.length; ++i) {
         let modelData = related[i];
         assert('Internal Error: seen a future bfs iteration', modelData._bfsId <= bfsId);
         if (modelData._bfsId < bfsId) {
@@ -395,8 +424,6 @@ export default class ModelData {
     }
     return array;
   }
-
-
 
   isAttrDirty(key) {
     if (this._attributes[key] === undefined) {
@@ -514,7 +541,7 @@ export default class ModelData {
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
 
-    Object.keys(implicitRelationships).forEach((key) => {
+    Object.keys(implicitRelationships).forEach(key => {
       let rel = implicitRelationships[key];
 
       rel.removeCompletelyFromInverse();
@@ -530,7 +557,7 @@ export default class ModelData {
 
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
-    Object.keys(implicitRelationships).forEach((key) => {
+    Object.keys(implicitRelationships).forEach(key => {
       let rel = implicitRelationships[key];
       destroyRelationship(rel);
     });
@@ -539,7 +566,6 @@ export default class ModelData {
   clientDidCreate() {
     this._isNew = true;
   }
-
 
   /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
@@ -597,7 +623,7 @@ export default class ModelData {
       let hasAttrs = this.hasChangedAttributes();
       let attrs;
       if (hasAttrs) {
-        attrs= this._attributes;
+        attrs = this._attributes;
       }
 
       original = assign(Object.create(null), this._data, this.__inFlightAttributes);
@@ -626,7 +652,6 @@ export default class ModelData {
   toString() {
     return `<${this.modelName}:${this.id}>`;
   }
-
 }
 
 if (isEnabled('ds-rollback-attribute')) {
@@ -647,23 +672,38 @@ if (isEnabled('ds-rollback-attribute')) {
 }
 
 function assertRelationshipData(store, modelData, data, meta) {
-  assert(`A ${modelData.modelName} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(data)}', but ${meta.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(data));
   assert(
-    `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier with type '${meta.type}' but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    `A ${modelData.modelName} record was pushed into the store with the value of ${
+      meta.key
+    } being '${JSON.stringify(data)}', but ${
+      meta.key
+    } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
+    !Array.isArray(data)
+  );
+  assert(
+    `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
+      meta.key
+    }' on ${modelData}, expected a json-api identifier with type '${
+      meta.type
+    }' but found '${JSON.stringify(
+      data
+    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || (typeof data.type === 'string' && data.type.length)
   );
   assert(
-    `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${
+      meta.key
+    }' on ${modelData}, expected a json-api identifier but found '${JSON.stringify(
+      data
+    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || coerceId(data.id)
   );
   assert(
-    `Encountered a relationship identifier with type '${
-      data.type
-      }' for the ${meta.kind} relationship '${meta.key}' on ${
-      modelData
-      }, Expected a json-api identifier with type '${
+    `Encountered a relationship identifier with type '${data.type}' for the ${
+      meta.kind
+    } relationship '${meta.key}' on ${modelData}, Expected a json-api identifier with type '${
       meta.type
-      }'. No model was found for '${data.type}'.`,
+    }'. No model was found for '${data.type}'.`,
     data === null || !data.type || store._hasModelFor(data.type)
   );
 }
@@ -688,7 +728,7 @@ function destroyRelationship(rel) {
 }
 
 function areAllModelsUnloaded(modelDatas) {
-  for (let i=0; i<modelDatas.length; ++i) {
+  for (let i = 0; i < modelDatas.length; ++i) {
     if (modelDatas[i].isRecordInUse()) {
       return false;
     }

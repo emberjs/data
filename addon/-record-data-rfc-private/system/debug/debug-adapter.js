@@ -23,7 +23,7 @@ export default DataAdapter.extend({
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
-      { name: 'isClean', desc: 'Clean' }
+      { name: 'isClean', desc: 'Clean' },
     ];
   },
 
@@ -32,14 +32,18 @@ export default DataAdapter.extend({
   },
 
   columnsForType(typeClass) {
-    let columns = [{
-      name: 'id',
-      desc: 'Id'
-    }];
+    let columns = [
+      {
+        name: 'id',
+        desc: 'Id',
+      },
+    ];
     let count = 0;
     let self = this;
     get(typeClass, 'attributes').forEach((meta, name) => {
-      if (count++ > self.attributeLimit) { return false; }
+      if (count++ > self.attributeLimit) {
+        return false;
+      }
       let desc = capitalize(underscore(name).replace('_', ' '));
       columns.push({ name: name, desc: desc });
     });
@@ -57,7 +61,10 @@ export default DataAdapter.extend({
         }
       }
     }
-    assert("Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support", !!modelName);
+    assert(
+      'Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support',
+      !!modelName
+    );
     return this.get('store').peekAll(modelName);
   },
 
@@ -65,7 +72,7 @@ export default DataAdapter.extend({
     let count = 0;
     let columnValues = { id: get(record, 'id') };
 
-    record.eachAttribute((key) => {
+    record.eachAttribute(key => {
       if (count++ > this.attributeLimit) {
         return false;
       }
@@ -77,8 +84,8 @@ export default DataAdapter.extend({
   getRecordKeywords(record) {
     let keywords = [];
     let keys = A(['id']);
-    record.eachAttribute((key) => keys.push(key));
-    keys.forEach((key) => keywords.push(get(record, key)));
+    record.eachAttribute(key => keys.push(key));
+    keys.forEach(key => keywords.push(get(record, key)));
     return keywords;
   },
 
@@ -86,7 +93,7 @@ export default DataAdapter.extend({
     return {
       isNew: record.get('isNew'),
       isModified: record.get('hasDirtyAttributes') && !record.get('isNew'),
-      isClean: !record.get('hasDirtyAttributes')
+      isClean: !record.get('hasDirtyAttributes'),
     };
   },
 
@@ -104,7 +111,7 @@ export default DataAdapter.extend({
     let releaseMethods = A();
     let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
 
-    record.eachAttribute((key) => keysToObserve.push(key));
+    record.eachAttribute(key => keysToObserve.push(key));
     let adapter = this;
 
     keysToObserve.forEach(function(key) {
@@ -118,9 +125,9 @@ export default DataAdapter.extend({
     });
 
     let release = function() {
-      releaseMethods.forEach((fn) => fn());
+      releaseMethods.forEach(fn => fn());
     };
 
     return release;
-  }
+  },
 });

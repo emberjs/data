@@ -29,5 +29,5 @@ export default Transform.extend({
   },
   serialize(deserialized) {
     return none(deserialized) ? null : String(deserialized);
-  }
+  },
 });

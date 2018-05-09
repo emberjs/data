@@ -18,7 +18,7 @@ export default function diffArray(oldArray, newArray) {
   let firstChangeIndex = null; // null signifies no changes
 
   // find the first change
-  for (let i=0; i<shortestLength; i++) {
+  for (let i = 0; i < shortestLength; i++) {
     // compare each item in the array
     if (oldArray[i] !== newArray[i]) {
       firstChangeIndex = i;
@@ -39,10 +39,10 @@ export default function diffArray(oldArray, newArray) {
     // we found a change, find the end of the change
     let unchangedEndBlockLength = shortestLength - firstChangeIndex;
     // walk back from the end of both arrays until we find a change
-    for (let i=1; i<=shortestLength; i++) {
+    for (let i = 1; i <= shortestLength; i++) {
       // compare each item in the array
-      if (oldArray[oldLength-i] !== newArray[newLength-i]) {
-        unchangedEndBlockLength = i-1;
+      if (oldArray[oldLength - i] !== newArray[newLength - i]) {
+        unchangedEndBlockLength = i - 1;
         break;
       }
     }
@@ -53,6 +53,6 @@ export default function diffArray(oldArray, newArray) {
   return {
     firstChangeIndex,
     addedCount,
-    removedCount
+    removedCount,
   };
 }
