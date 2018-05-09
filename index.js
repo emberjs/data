@@ -59,6 +59,7 @@ module.exports = {
     } else if (this.ui) {
       this.ui.writeLine(warning);
     } else {
+      // eslint-disable-next-line no-console
       console.log(warning);
     }
   },

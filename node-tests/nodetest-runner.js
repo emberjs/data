@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-console, no-process-exit */
+
 if (/^win/.test(require('os').platform())){
   // don't run these tests in windows right now, they don't work
   process.exit(0);

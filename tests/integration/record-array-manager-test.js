@@ -242,7 +242,7 @@ test('createRecordArray', function(assert) {
   assert.deepEqual(recordArray.toArray(), []);
 });
 
-test('createRecordArray \w optional content', function(assert) {
+test('createRecordArray with optional content', function(assert) {
   let record = {};
   let internalModel = {
     _recordArrays: new OrderedSet(),
