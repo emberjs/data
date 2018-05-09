@@ -121,10 +121,6 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config",
-    "paths": [
-      "lib/enable-optional-features-via-url"
-    ],
-    "after": "ember-cli-mocha"
+    "configPath": "tests/dummy/config"
   }
 }
