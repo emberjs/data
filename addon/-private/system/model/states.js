@@ -239,10 +239,12 @@ const DirtyState = {
 
     //TODO(Igor) reloading now triggers a
     //loadingData event, though it seems fine?
-    loadingData() { },
+    loadingData() {},
 
     propertyWasReset(internalModel, name) {
-      if (!internalModel.hasChangedAttributes()) { internalModel.send('rolledBack'); }
+      if (!internalModel.hasChangedAttributes()) {
+        internalModel.send('rolledBack');
+      }
     },
 
     pushedData(internalModel) {
@@ -277,7 +279,7 @@ const DirtyState = {
     rollback(internalModel) {
       internalModel.rollbackAttributes();
       internalModel.triggerLater('ready');
-    }
+    },
   },
 
   // Once a record has been handed off to the adapter to be
@@ -289,13 +291,13 @@ const DirtyState = {
 
     // EVENTS
     didSetProperty,
-    becomeDirty() { },
-    pushedData() { },
+    becomeDirty() {},
+    pushedData() {},
 
     unloadRecord: assertAgainstUnloadRecord,
 
     // TODO: More robust semantics around save-while-in-flight
-    willCommit() { },
+    willCommit() {},
 
     didCommit(internalModel) {
       internalModel.transitionTo('saved');
@@ -314,7 +316,7 @@ const DirtyState = {
     becameError(internalModel) {
       internalModel.transitionTo('uncommitted');
       internalModel.triggerLater('becameError', internalModel);
-    }
+    },
   },
 
   // A record is in the `invalid` if the adapter has indicated
@@ -338,9 +340,9 @@ const DirtyState = {
       }
     },
 
-    becameInvalid() { },
-    becomeDirty() { },
-    pushedData() { },
+    becameInvalid() {},
+    becomeDirty() {},
+    pushedData() {},
 
     willCommit(internalModel) {
       internalModel.clearErrorMessages();
@@ -359,8 +361,8 @@ const DirtyState = {
 
     invokeLifecycleCallbacks(internalModel) {
       internalModel.triggerLater('becameInvalid', internalModel);
-    }
-  }
+    },
+  },
 };
 
 // The created and updated states are created outside the state
@@ -399,7 +401,7 @@ function dirtyState(options) {
 const createdState = dirtyState({
   dirtyType: 'created',
   // FLAGS
-  isNew: true
+  isNew: true,
 });
 
 createdState.invalid.rolledBack = function(internalModel) {
@@ -413,7 +415,7 @@ createdState.uncommitted.rolledBack = function(internalModel) {
 };
 
 const updatedState = dirtyState({
-  dirtyType: 'updated'
+  dirtyType: 'updated',
 });
 
 function createdStateDeleteRecord(internalModel) {
@@ -438,7 +440,7 @@ createdState.uncommitted.pushedData = function(internalModel) {
 createdState.uncommitted.propertyWasReset = function() {};
 
 function assertAgainstUnloadRecord(internalModel) {
-  assert("You can only unload a record which is not inFlight. `" + internalModel + "`", false);
+  assert('You can only unload a record which is not inFlight. `' + internalModel + '`', false);
 }
 
 updatedState.invalid.becameValid = function(internalModel) {
@@ -477,11 +479,10 @@ const RootState = {
   // doesn't change your state. For example, if you're in the
   // in-flight state, rolling back the record doesn't move
   // you out of the in-flight state.
-  rolledBack() { },
-  unloadRecord(internalModel) {
-  },
+  rolledBack() {},
+  unloadRecord(internalModel) {},
 
-  propertyWasReset() { },
+  propertyWasReset() {},
 
   // SUBSTATES
 
@@ -508,7 +509,7 @@ const RootState = {
       internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('didLoad');
       internalModel.triggerLater('ready');
-    }
+    },
   },
 
   // A record enters this state when the store asks
@@ -540,7 +541,7 @@ const RootState = {
 
     notFound(internalModel) {
       internalModel.transitionTo('empty');
-    }
+    },
   },
 
   // A record enters this state when its data is populated.
@@ -554,7 +555,7 @@ const RootState = {
 
     //TODO(Igor) Reloading now triggers a loadingData event,
     //but it should be ok?
-    loadingData() { },
+    loadingData() {},
 
     // SUBSTATES
 
@@ -570,7 +571,7 @@ const RootState = {
       // EVENTS
       didSetProperty,
 
-      pushedData() { },
+      pushedData() {},
 
       becomeDirty(internalModel) {
         internalModel.transitionTo('updated.uncommitted');
@@ -588,14 +589,13 @@ const RootState = {
         internalModel.transitionTo('deleted.uncommitted');
       },
 
-      unloadRecord(internalModel) {
-      },
+      unloadRecord(internalModel) {},
 
       didCommit() {},
 
       // loaded.saved.notFound would be triggered by a failed
       // `reload()` on an unchanged record
-      notFound() { }
+      notFound() {},
     },
 
     // A record is in this state after it has been locally
@@ -606,7 +606,7 @@ const RootState = {
     // A record is in this state if it has already been
     // saved to the server, but there are new local changes
     // that have not yet been saved.
-    updated: updatedState
+    updated: updatedState,
   },
 
   // A record is in this state if it was deleted from the store.
@@ -630,7 +630,6 @@ const RootState = {
     // state. It will exit this state when the record
     // starts to commit.
     uncommitted: {
-
       // EVENTS
 
       willCommit(internalModel) {
@@ -642,15 +641,15 @@ const RootState = {
         internalModel.triggerLater('ready');
       },
 
-      pushedData()   { },
-      becomeDirty()  { },
-      deleteRecord() { },
+      pushedData() {},
+      becomeDirty() {},
+      deleteRecord() {},
 
       rolledBack(internalModel) {
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
         internalModel.triggerLater('rolledBack');
-      }
+      },
     },
 
     // After a record starts committing, but
@@ -666,7 +665,7 @@ const RootState = {
       unloadRecord: assertAgainstUnloadRecord,
 
       // TODO: More robust semantics around save-while-in-flight
-      willCommit() { },
+      willCommit() {},
       didCommit(internalModel) {
         internalModel.transitionTo('saved');
 
@@ -681,7 +680,7 @@ const RootState = {
       becameInvalid(internalModel) {
         internalModel.transitionTo('invalid');
         internalModel.triggerLater('becameInvalid', internalModel);
-      }
+      },
     },
 
     // Once the adapter indicates that the deletion has
@@ -700,9 +699,9 @@ const RootState = {
         internalModel.triggerLater('didCommit', internalModel);
       },
 
-      willCommit() { },
-      didCommit()  { },
-      pushedData() {}
+      willCommit() {},
+      didCommit() {},
+      pushedData() {},
     },
 
     invalid: {
@@ -718,10 +717,10 @@ const RootState = {
         }
       },
 
-      becameInvalid() { },
-      becomeDirty()   { },
-      deleteRecord()  { },
-      willCommit()    { },
+      becameInvalid() {},
+      becomeDirty() {},
+      deleteRecord() {},
+      willCommit() {},
 
       rolledBack(internalModel) {
         internalModel.clearErrorMessages();
@@ -731,9 +730,8 @@ const RootState = {
 
       becameValid(internalModel) {
         internalModel.transitionTo('uncommitted');
-      }
-
-    }
+      },
+    },
   },
 
   invokeLifecycleCallbacks(internalModel, dirtyType) {
@@ -744,7 +742,7 @@ const RootState = {
     }
 
     internalModel.triggerLater('didCommit', internalModel);
-  }
+  },
 };
 
 function wireState(object, parent, name) {
@@ -754,7 +752,9 @@ function wireState(object, parent, name) {
   object.stateName = name;
 
   for (let prop in object) {
-    if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') { continue; }
+    if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') {
+      continue;
+    }
     if (typeof object[prop] === 'object') {
       object[prop] = wireState(object[prop], object, name + '.' + prop);
     }

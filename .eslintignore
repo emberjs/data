@@ -1,0 +1,6 @@
+tmp
+dist
+node-tests/fixtures/
+blueprints/*/mocha-files/
+blueprints/*/qunit-files/
+blueprints/*/files/

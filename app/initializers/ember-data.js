@@ -42,5 +42,5 @@ import 'ember-data';
 
 export default {
   name: 'ember-data',
-  initialize: setupContainer
+  initialize: setupContainer,
 };

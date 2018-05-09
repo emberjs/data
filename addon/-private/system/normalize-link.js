@@ -12,8 +12,10 @@
 */
 export default function _normalizeLink(link) {
   switch (typeof link) {
-    case 'object': return link;
-    case 'string': return { href: link };
+    case 'object':
+      return link;
+    case 'string':
+      return { href: link };
   }
   return null;
 }

@@ -1,7 +1,7 @@
 // public
 export { default as Model } from './system/model/model';
 export { default as Errors } from './system/model/errors';
-export { default as Store }  from './system/store';
+export { default as Store } from './system/store';
 export { default as DS } from './core';
 export { default as belongsTo } from './system/relationships/belongs-to';
 export { default as hasMany } from './system/relationships/has-many';
@@ -19,7 +19,7 @@ export {
   TimeoutError,
   AbortError,
   errorsHashToArray,
-  errorsArrayToHash
+  errorsArrayToHash,
 } from './adapters/errors';
 
 // maybe public ?
@@ -34,16 +34,9 @@ export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
 export { default as ModelData } from './system/model/model-data';
 
-export {
-  PromiseArray,
-  PromiseObject,
-  PromiseManyArray
-} from './system/promise-proxies';
+export { PromiseArray, PromiseObject, PromiseManyArray } from './system/promise-proxies';
 
-export {
-  RecordArray,
-  AdapterPopulatedRecordArray
-} from './system/record-arrays';
+export { RecordArray, AdapterPopulatedRecordArray } from './system/record-arrays';
 
 export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';

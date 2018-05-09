@@ -11,7 +11,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
   beforeEach() {
     const User = DS.Model.extend({
       hats: hasMany('hat', { async: false, polymorphic: true, inverse: 'user' }),
-      sharedHats: hasMany('hat', { async: false, polymorphic: true, inverse: 'sharingUsers' })
+      sharedHats: hasMany('hat', { async: false, polymorphic: true, inverse: 'sharingUsers' }),
     });
     User.toString = () => 'User';
 
@@ -23,7 +23,7 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       user: belongsTo('user', { async: false, inverse: 'hats', polymorphic: true }),
       sharingUsers: belongsTo('users', { async: false, inverse: 'sharedHats', polymorphic: true }),
       hat: belongsTo('hat', { async: false, inverse: 'hats', polymorphic: true }),
-      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true })
+      hats: hasMany('hat', { async: false, inverse: 'hat', polymorphic: true }),
     });
     const BigHat = Hat.extend({});
     const SmallHat = Hat.extend({});
@@ -33,9 +33,9 @@ module('unit/system/relationships/relationship-payloads-manager (polymorphic)', 
       alien: Alien,
       hat: Hat,
       'big-hat': BigHat,
-      'small-hat': SmallHat
+      'small-hat': SmallHat,
     });
-  }
+  },
 });
 
 test('push one side is polymorphic, baseType then subTypes', function(assert) {
@@ -53,9 +53,9 @@ test('push one side is polymorphic, baseType then subTypes', function(assert) {
     attributes: {},
     relationships: {
       user: {
-        data: { id: '1' , type: 'user' }
-      }
-    }
+        data: { id: '1', type: 'user' },
+      },
+    },
   };
 
   const hatData1 = makeHat('hat', hatData),
@@ -66,13 +66,9 @@ test('push one side is polymorphic, baseType then subTypes', function(assert) {
     data: {
       id: '1',
       type: 'user',
-      attributes: {}
+      attributes: {},
     },
-    included: [
-      hatData1,
-      bigHatData1,
-      smallHatData1
-    ]
+    included: [hatData1, bigHatData1, smallHatData1],
   };
 
   const user = run(() => this.store.push(userData));
@@ -97,9 +93,9 @@ test('push one side is polymorphic, subType then baseType', function(assert) {
     attributes: {},
     relationships: {
       user: {
-        data: { id: '1' , type: 'user' }
-      }
-    }
+        data: { id: '1', type: 'user' },
+      },
+    },
   };
 
   const bigHatData1 = makeHat('hat', hatData),
@@ -111,14 +107,14 @@ test('push one side is polymorphic, subType then baseType', function(assert) {
     data: {
       id: '1',
       type: 'user',
-      attributes: {}
+      attributes: {},
     },
-    included
+    included,
   };
 
   const user = run(() => this.store.push(userData)),
     finalResult = user.get('hats').mapBy('type'),
-    expectedResults = included.map(m=>m.type);
+    expectedResults = included.map(m => m.type);
 
   assert.deepEqual(finalResult, expectedResults, 'We got all our hats!');
 });
@@ -135,32 +131,27 @@ test('push one side is polymorphic, different subtypes', function(assert) {
   }
 
   const hatData = {
-    attributes:{},
+    attributes: {},
     relationships: {
       user: {
-        data: { id: '1' , type: 'user' }
-      }
-    }
+        data: { id: '1', type: 'user' },
+      },
+    },
   };
 
   const bigHatData1 = makeHat('big-hat', hatData),
     smallHatData1 = makeHat('small-hat', hatData),
     bigHatData2 = makeHat('big-hat', hatData),
     smallHatData2 = makeHat('small-hat', hatData),
-    included = [
-      bigHatData1,
-      smallHatData1,
-      bigHatData2,
-      smallHatData2
-    ];
+    included = [bigHatData1, smallHatData1, bigHatData2, smallHatData2];
 
   const userData = {
     data: {
       id: '1',
       type: 'user',
-      attributes: {}
+      attributes: {},
     },
-    included
+    included,
   };
 
   const user = run(() => this.store.push(userData)),
@@ -185,9 +176,9 @@ test('push both sides are polymorphic', function(assert) {
     attributes: {},
     relationships: {
       user: {
-        data: { id: '1' , type: 'alien' }
-      }
-    }
+        data: { id: '1', type: 'alien' },
+      },
+    },
   };
 
   const bigHatData1 = makeHat('hat', alienHatData),
@@ -198,9 +189,9 @@ test('push both sides are polymorphic', function(assert) {
     data: {
       id: '1',
       type: 'alien',
-      attributes: {}
+      attributes: {},
     },
-    included: alienIncluded
+    included: alienIncluded,
   };
 
   const expectedAlienResults = alienIncluded.map(m => m.type),
@@ -220,10 +211,10 @@ test('handles relationships where both sides are polymorphic', function(assert) 
         person: {
           data: {
             id: isForBigPerson ? '1' : '2',
-            type: isForBigPerson ? 'big-person' : 'small-person'
-          }
-        }
-      }
+            type: isForBigPerson ? 'big-person' : 'small-person',
+          },
+        },
+      },
     };
   }
 
@@ -238,42 +229,34 @@ test('handles relationships where both sides are polymorphic', function(assert) 
     data: {
       id: '1',
       type: 'big-person',
-      attributes: {}
+      attributes: {},
     },
-    included: [
-      bigHatData1,
-      smallHatData1,
-      bigHatData2,
-      smallHatData2
-    ]
+    included: [bigHatData1, smallHatData1, bigHatData2, smallHatData2],
   };
 
   const smallPersonData = {
     data: {
       id: '2',
       type: 'small-person',
-      attributes: {}
+      attributes: {},
     },
-    included: [
-      bigHatData3,
-      smallHatData3
-    ]
+    included: [bigHatData3, smallHatData3],
   };
 
   const PersonModel = Model.extend({
     hats: hasMany('hat', {
       async: false,
       polymorphic: true,
-      inverse: 'person'
-    })
+      inverse: 'person',
+    }),
   });
   const HatModel = Model.extend({
     type: attr('string'),
     person: belongsTo('person', {
       async: false,
       inverse: 'hats',
-      polymorphic: true
-    })
+      polymorphic: true,
+    }),
   });
   const BigHatModel = HatModel.extend({});
   const SmallHatModel = HatModel.extend({});
@@ -281,14 +264,14 @@ test('handles relationships where both sides are polymorphic', function(assert) 
   const BigPersonModel = PersonModel.extend({});
   const SmallPersonModel = PersonModel.extend({});
 
-  const store = this.store = createStore({
+  const store = (this.store = createStore({
     person: PersonModel,
     bigPerson: BigPersonModel,
     smallPerson: SmallPersonModel,
     hat: HatModel,
     bigHat: BigHatModel,
-    smallHat: SmallHatModel
-  });
+    smallHat: SmallHatModel,
+  }));
 
   const bigPerson = run(() => {
     return store.push(bigPersonData);
@@ -308,11 +291,11 @@ test('handles relationships where both sides are polymorphic', function(assert) 
 test('handles relationships where both sides are polymorphic reflexive', function(assert) {
   function link(a, b, relationshipName, recurse = true) {
     a.relationships = a.relationships || {};
-    const rel = a.relationships[relationshipName] = a.relationships[relationshipName] || {};
+    const rel = (a.relationships[relationshipName] = a.relationships[relationshipName] || {});
 
     if (Array.isArray(b)) {
-      rel.data = b.map((i) => {
-        let {type, id} = i;
+      rel.data = b.map(i => {
+        let { type, id } = i;
 
         if (recurse === true) {
           link(i, [a], relationshipName, false);
@@ -323,7 +306,7 @@ test('handles relationships where both sides are polymorphic reflexive', functio
     } else {
       rel.data = {
         type: b.type,
-        id: b.id
+        id: b.id,
       };
 
       if (recurse === true) {
@@ -336,7 +319,7 @@ test('handles relationships where both sides are polymorphic reflexive', functio
   const Person = Model.extend({
     name: attr(),
     family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
-    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' })
+    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
   });
   const Girl = Person.extend({});
   const Boy = Person.extend({});
@@ -346,29 +329,29 @@ test('handles relationships where both sides are polymorphic reflexive', functio
     type: 'boy',
     id: `${id++}`,
     attributes: {
-      name: 'Gavin'
-    }
+      name: 'Gavin',
+    },
   };
   const sisterPayload = {
     type: 'girl',
     id: `${id++}`,
     attributes: {
-      name: 'Rose'
-    }
+      name: 'Rose',
+    },
   };
   const fatherPayload = {
     type: 'grownup',
     id: `${id++}`,
     attributes: {
-      name: 'Garak'
-    }
+      name: 'Garak',
+    },
   };
   const motherPayload = {
     type: 'grownup',
     id: `${id++}`,
     attributes: {
-      name: 'Kira'
-    }
+      name: 'Kira',
+    },
   };
 
   link(brotherPayload, sisterPayload, 'twin');
@@ -376,32 +359,30 @@ test('handles relationships where both sides are polymorphic reflexive', functio
 
   const payload = {
     data: brotherPayload,
-    included: [
-      sisterPayload,
-      fatherPayload,
-      motherPayload
-    ]
+    included: [sisterPayload, fatherPayload, motherPayload],
   };
   const expectedFamilyReferences = [
     { type: 'girl', id: sisterPayload.id },
     { type: 'grownup', id: fatherPayload.id },
-    { type: 'grownup', id: motherPayload.id }
+    { type: 'grownup', id: motherPayload.id },
   ];
   const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
 
-  const store = this.store = createStore({
+  const store = (this.store = createStore({
     person: Person,
     grownup: Grownup,
     boy: Boy,
-    girl: Girl
-  });
+    girl: Girl,
+  }));
 
   const boyInstance = run(() => {
     return store.push(payload);
   });
 
-  const familyResultReferences = boyInstance.get('family').toArray()
-    .map((i) => {
+  const familyResultReferences = boyInstance
+    .get('family')
+    .toArray()
+    .map(i => {
       return { type: i.constructor.modelName, id: i.id };
     });
   const twinResult = boyInstance.get('twin');
@@ -414,11 +395,11 @@ test('handles relationships where both sides are polymorphic reflexive', functio
 test('handles relationships where both sides are polymorphic reflexive but the primary payload does not include linkage', function(assert) {
   function link(a, b, relationshipName, recurse = true) {
     a.relationships = a.relationships || {};
-    const rel = a.relationships[relationshipName] = a.relationships[relationshipName] || {};
+    const rel = (a.relationships[relationshipName] = a.relationships[relationshipName] || {});
 
     if (Array.isArray(b)) {
-      rel.data = b.map((i) => {
-        let {type, id} = i;
+      rel.data = b.map(i => {
+        let { type, id } = i;
 
         if (recurse === true) {
           link(i, [a], relationshipName, false);
@@ -429,7 +410,7 @@ test('handles relationships where both sides are polymorphic reflexive but the p
     } else {
       rel.data = {
         type: b.type,
-        id: b.id
+        id: b.id,
       };
 
       if (recurse === true) {
@@ -442,7 +423,7 @@ test('handles relationships where both sides are polymorphic reflexive but the p
   const Person = Model.extend({
     name: attr(),
     family: hasMany('person', { async: false, polymorphic: true, inverse: 'family' }),
-    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' })
+    twin: belongsTo('person', { async: false, polymorphic: true, inverse: 'twin' }),
   });
   const Girl = Person.extend({});
   const Boy = Person.extend({});
@@ -452,29 +433,29 @@ test('handles relationships where both sides are polymorphic reflexive but the p
     type: 'boy',
     id: `${id++}`,
     attributes: {
-      name: 'Gavin'
-    }
+      name: 'Gavin',
+    },
   };
   const sisterPayload = {
     type: 'girl',
     id: `${id++}`,
     attributes: {
-      name: 'Rose'
-    }
+      name: 'Rose',
+    },
   };
   const fatherPayload = {
     type: 'grownup',
     id: `${id++}`,
     attributes: {
-      name: 'Garak'
-    }
+      name: 'Garak',
+    },
   };
   const motherPayload = {
     type: 'grownup',
     id: `${id++}`,
     attributes: {
-      name: 'Kira'
-    }
+      name: 'Kira',
+    },
   };
 
   link(brotherPayload, sisterPayload, 'twin');
@@ -485,36 +466,37 @@ test('handles relationships where both sides are polymorphic reflexive but the p
 
   const payload = {
     data: brotherPayload,
-    included: [
-      sisterPayload,
-      fatherPayload,
-      motherPayload
-    ]
+    included: [sisterPayload, fatherPayload, motherPayload],
   };
   const expectedFamilyReferences = [
     { type: 'girl', id: sisterPayload.id },
     { type: 'grownup', id: fatherPayload.id },
-    { type: 'grownup', id: motherPayload.id }
+    { type: 'grownup', id: motherPayload.id },
   ];
   const expectedTwinReference = { type: 'girl', id: sisterPayload.id };
 
-  const store = this.store = createStore({
+  const store = (this.store = createStore({
     person: Person,
     grownup: Grownup,
     boy: Boy,
-    girl: Girl
-  });
+    girl: Girl,
+  }));
 
   const boyInstance = run(() => {
     return store.push(payload);
   });
 
-  const familyResultReferences = boyInstance.get('family').toArray()
-    .map((i) => {
+  const familyResultReferences = boyInstance
+    .get('family')
+    .toArray()
+    .map(i => {
       return { type: i.constructor.modelName, id: i.id };
     });
   const twinResult = boyInstance.get('twin');
-  const twinResultReference = twinResult && { type: twinResult.constructor.modelName, id: twinResult.id };
+  const twinResultReference = twinResult && {
+    type: twinResult.constructor.modelName,
+    id: twinResult.id,
+  };
 
   assert.deepEqual(familyResultReferences, expectedFamilyReferences, 'We linked family correctly');
   assert.deepEqual(twinResultReference, expectedTwinReference, 'We linked twin correctly');
@@ -526,8 +508,8 @@ test('push polymorphic self-referential non-reflexive relationship', function(as
     data: {
       id: '1',
       type: 'big-hat',
-      attributes: {}
-    }
+      attributes: {},
+    },
   };
   const hat2Data = {
     data: {
@@ -536,30 +518,33 @@ test('push polymorphic self-referential non-reflexive relationship', function(as
       attributes: {},
       relationships: {
         hats: {
-          data: [{ id: '1', type: 'big-hat' }]
-        }
-      }
-    }
+          data: [{ id: '1', type: 'big-hat' }],
+        },
+      },
+    },
   };
 
   const hat1 = run(() => store.push(hat1Data));
   const hat2 = run(() => store.push(hat2Data));
 
-  const expectedHatReference = { id:  '2', type: 'big-hat' };
+  const expectedHatReference = { id: '2', type: 'big-hat' };
   const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-  const finalHatsReferences = hat2.get('hats').toArray()
-    .map((i) => {
+  const finalHatsReferences = hat2
+    .get('hats')
+    .toArray()
+    .map(i => {
       return { type: i.constructor.modelName, id: i.id };
     });
   const hatResult = hat1.get('hat');
-  const finalHatReference = hatResult && { type: hatResult.constructor.modelName, id: hatResult.id };
-
+  const finalHatReference = hatResult && {
+    type: hatResult.constructor.modelName,
+    id: hatResult.id,
+  };
 
   assert.deepEqual(finalHatReference, expectedHatReference, 'we set hat on hat:1');
   assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
 });
-
 
 test('push polymorphic self-referential circular non-reflexive relationship', function(assert) {
   const store = this.store;
@@ -570,105 +555,104 @@ test('push polymorphic self-referential circular non-reflexive relationship', fu
       attributes: {},
       relationships: {
         hat: {
-          data: { id: '1', type: 'big-hat' }
+          data: { id: '1', type: 'big-hat' },
         },
         hats: {
-          data: [{ id: '1', type: 'big-hat' }]
-        }
-      }
-    }
+          data: [{ id: '1', type: 'big-hat' }],
+        },
+      },
+    },
   };
 
   const hat = run(() => store.push(hatData));
 
-  const expectedHatReference = { id:  '1', type: 'big-hat' };
+  const expectedHatReference = { id: '1', type: 'big-hat' };
   const expectedHatsReferences = [{ id: '1', type: 'big-hat' }];
 
-  const finalHatsReferences = hat.get('hats').toArray()
-    .map((i) => {
+  const finalHatsReferences = hat
+    .get('hats')
+    .toArray()
+    .map(i => {
       return { type: i.constructor.modelName, id: i.id };
     });
   const hatResult = hat.get('hat');
-  const finalHatReference = hatResult && { type: hatResult.constructor.modelName, id: hatResult.id };
-
+  const finalHatReference = hatResult && {
+    type: hatResult.constructor.modelName,
+    id: hatResult.id,
+  };
 
   assert.deepEqual(finalHatReference, expectedHatReference, 'we set hat on hat:1');
   assert.deepEqual(finalHatsReferences, expectedHatsReferences, 'We have hats on hat:2');
 });
 
 test('polymorphic hasMany to types with separate id-spaces', function(assert) {
-  const user = run(() => this.store.push({
-    data: {
-      id: '1',
-      type: 'user',
-      relationships: {
-        hats: {
-          data: [
-            { id: '1', type: 'big-hat' },
-            { id: '1', type: 'small-hat' }
-          ]
-        }
-      }
-    },
-    included: [{
-      id: '1',
-      type: 'big-hat'
-    }, {
-      id: '1',
-      type: 'small-hat'
-    }]
-  }));
+  const user = run(() =>
+    this.store.push({
+      data: {
+        id: '1',
+        type: 'user',
+        relationships: {
+          hats: {
+            data: [{ id: '1', type: 'big-hat' }, { id: '1', type: 'small-hat' }],
+          },
+        },
+      },
+      included: [
+        {
+          id: '1',
+          type: 'big-hat',
+        },
+        {
+          id: '1',
+          type: 'small-hat',
+        },
+      ],
+    })
+  );
 
   const hats = user.get('hats');
 
-  assert.deepEqual(
-    hats.map(h => h.constructor.modelName),
-    ['big-hat', 'small-hat']
-  );
-  assert.deepEqual(
-    hats.map(h => h.id),
-    ['1', '1']
-  );
+  assert.deepEqual(hats.map(h => h.constructor.modelName), ['big-hat', 'small-hat']);
+  assert.deepEqual(hats.map(h => h.id), ['1', '1']);
 });
 
-test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function (assert) {
-  const user = run(() => this.store.push({
-    data: {
-      id: '1',
-      type: 'user'
-    },
-    included: [{
-      id: '1',
-      type: 'big-hat',
-      relationships: {
-        user: {
-          data: { id: '1', type: 'user' }
-        }
-      }
-    }, {
-      id: '1',
-      type: 'small-hat',
-      relationships: {
-        user: {
-          data: { id: '1', type: 'user' }
-        }
-      }
-    }]
-  }));
+test('polymorphic hasMany to types with separate id-spaces, from inverse payload', function(assert) {
+  const user = run(() =>
+    this.store.push({
+      data: {
+        id: '1',
+        type: 'user',
+      },
+      included: [
+        {
+          id: '1',
+          type: 'big-hat',
+          relationships: {
+            user: {
+              data: { id: '1', type: 'user' },
+            },
+          },
+        },
+        {
+          id: '1',
+          type: 'small-hat',
+          relationships: {
+            user: {
+              data: { id: '1', type: 'user' },
+            },
+          },
+        },
+      ],
+    })
+  );
 
   const hats = user.get('hats');
 
-  assert.deepEqual(
-    hats.map(h => h.constructor.modelName),
-    ['big-hat', 'small-hat']
-  );
-  assert.deepEqual(
-    hats.map(h => h.id),
-    ['1', '1']
-  );
+  assert.deepEqual(hats.map(h => h.constructor.modelName), ['big-hat', 'small-hat']);
+  assert.deepEqual(hats.map(h => h.id), ['1', '1']);
 });
 
-test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function (assert) {
+test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces', function(assert) {
   let bigHatId = 1;
   let smallHatId = 1;
   function makePolymorphicHatForPolymorphicPerson(type, isForBigPerson = true) {
@@ -680,10 +664,10 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
         person: {
           data: {
             id: '1',
-            type: isForBigPerson ? 'big-person' : 'small-person'
-          }
-        }
-      }
+            type: isForBigPerson ? 'big-person' : 'small-person',
+          },
+        },
+      },
     };
   }
 
@@ -698,42 +682,34 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
     data: {
       id: '1',
       type: 'big-person',
-      attributes: {}
+      attributes: {},
     },
-    included: [
-      bigHatData1,
-      smallHatData1,
-      bigHatData2,
-      smallHatData2
-    ]
+    included: [bigHatData1, smallHatData1, bigHatData2, smallHatData2],
   };
 
   const smallPersonData = {
     data: {
       id: '1',
       type: 'small-person',
-      attributes: {}
+      attributes: {},
     },
-    included: [
-      bigHatData3,
-      smallHatData3
-    ]
+    included: [bigHatData3, smallHatData3],
   };
 
   const PersonModel = Model.extend({
     hats: hasMany('hat', {
       async: false,
       polymorphic: true,
-      inverse: 'person'
-    })
+      inverse: 'person',
+    }),
   });
   const HatModel = Model.extend({
     type: attr('string'),
     person: belongsTo('person', {
       async: false,
       inverse: 'hats',
-      polymorphic: true
-    })
+      polymorphic: true,
+    }),
   });
   const BigHatModel = HatModel.extend({});
   const SmallHatModel = HatModel.extend({});
@@ -741,14 +717,14 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
   const BigPersonModel = PersonModel.extend({});
   const SmallPersonModel = PersonModel.extend({});
 
-  const store = this.store = createStore({
+  const store = (this.store = createStore({
     person: PersonModel,
     bigPerson: BigPersonModel,
     smallPerson: SmallPersonModel,
     hat: HatModel,
     bigHat: BigHatModel,
-    smallHat: SmallHatModel
-  });
+    smallHat: SmallHatModel,
+  }));
 
   const bigPerson = run(() => {
     return store.push(bigPersonData);
@@ -763,27 +739,32 @@ test('polymorphic hasMany to polymorphic hasMany types with separate id-spaces',
 
   assert.deepEqual(
     finalBigResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
-    [{ type: 'big-hat', id: '1'}, { type: 'small-hat', id: '1'}, { type: 'big-hat', id: '2'}, { type: 'small-hat', id: '2'}],
+    [
+      { type: 'big-hat', id: '1' },
+      { type: 'small-hat', id: '1' },
+      { type: 'big-hat', id: '2' },
+      { type: 'small-hat', id: '2' },
+    ],
     'big-person hats is all good'
   );
 
   assert.deepEqual(
     finalSmallResult.map(h => ({ type: h.constructor.modelName, id: h.get('id') })),
-    [{ type: 'big-hat', id: '3'}, { type: 'small-hat', id: '3'}],
+    [{ type: 'big-hat', id: '3' }, { type: 'small-hat', id: '3' }],
     'small-person hats is all good'
   );
 });
 
 testInDebug('Invalid inverses throw errors', function(assert) {
   let PostModel = Model.extend({
-    comments: hasMany('comment', { async: false, inverse: 'post' })
+    comments: hasMany('comment', { async: false, inverse: 'post' }),
   });
   let CommentModel = Model.extend({
-    post: belongsTo('post', { async: false, inverse: null })
+    post: belongsTo('post', { async: false, inverse: null }),
   });
   let store = createStore({
     post: PostModel,
-    comment: CommentModel
+    comment: CommentModel,
   });
 
   function runInvalidPush() {
@@ -794,11 +775,9 @@ testInDebug('Invalid inverses throw errors', function(assert) {
           id: '1',
           relationships: {
             comments: {
-              data: [
-                { type: 'comment', id: '1' }
-              ]
-            }
-          }
+              data: [{ type: 'comment', id: '1' }],
+            },
+          },
         },
         included: [
           {
@@ -808,15 +787,19 @@ testInDebug('Invalid inverses throw errors', function(assert) {
               post: {
                 data: {
                   type: 'post',
-                  id: '1'
-                }
-              }
-            }
-          }
-        ]
+                  id: '1',
+                },
+              },
+            },
+          },
+        ],
       });
     });
   }
 
-  assert.expectAssertion(runInvalidPush, /The comment:post relationship declares 'inverse: null', but it was resolved as the inverse for post:comments/, 'We detected the invalid inverse');
+  assert.expectAssertion(
+    runInvalidPush,
+    /The comment:post relationship declares 'inverse: null', but it was resolved as the inverse for post:comments/,
+    'We detected the invalid inverse'
+  );
 });

@@ -10,7 +10,7 @@ export default class ModelDataWrapper {
   }
 
   _scheduleManyArrayUpdate(modelName, id, clientId, key) {
-    let pending = this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || [];
+    let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
     pending.push(modelName, id, clientId, key);
 
     if (this._willUpdateManyArrays === true) {
@@ -100,7 +100,7 @@ export default class ModelDataWrapper {
   isRecordInUse(modelName, id, clientId) {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     if (!internalModel) {
-      return false
+      return false;
     }
     return internalModel.isRecordInUse();
   }
@@ -111,5 +111,4 @@ export default class ModelDataWrapper {
       internalModel.destroyFromModelData();
     }
   }
-
 }

@@ -20,19 +20,19 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
       return emberNew();
     });
 
-
     it('transform', function() {
       let args = ['transform', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/transforms/foo.js'))
-          .to.contain('import DS from \'ember-data\';')
+          .to.contain("import DS from 'ember-data';")
           .to.contain('export default DS.Transform.extend(')
           .to.contain('deserialize(serialized) {')
           .to.contain('serialize(deserialized) {');
 
-        expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.equal(fixture('transform-test/default.js'));
+        expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+          fixture('transform-test/default.js')
+        );
       });
     });
 
@@ -40,8 +40,9 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
       let args = ['transform-test', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/transforms/foo-test.js'))
-          .to.equal(fixture('transform-test/default.js'));
+        expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+          fixture('transform-test/default.js')
+        );
       });
     });
 
@@ -52,18 +53,18 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
 
       it('transform-test-test foo', function() {
         return emberGenerateDestroy(['transform-test', 'foo'], _file => {
-          expect(_file('tests/unit/transforms/foo-test.js'))
-            .to.equal(fixture('transform-test/rfc232.js'));
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+            fixture('transform-test/rfc232.js')
+          );
         });
       });
     });
-
 
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
         modifyPackages([
           { name: 'ember-cli-qunit', delete: true },
-          { name: 'ember-cli-mocha', dev: true }
+          { name: 'ember-cli-mocha', dev: true },
         ]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
       });
@@ -72,8 +73,9 @@ describe('Acceptance: generate and destroy transform blueprints', function() {
         let args = ['transform-test', 'foo'];
 
         return emberGenerateDestroy(args, _file => {
-          expect(_file('tests/unit/transforms/foo-test.js'))
-            .to.equal(fixture('transform-test/mocha-0.12.js'));
+          expect(_file('tests/unit/transforms/foo-test.js')).to.equal(
+            fixture('transform-test/mocha-0.12.js')
+          );
         });
       });
     });

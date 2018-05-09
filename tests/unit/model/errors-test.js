@@ -9,11 +9,14 @@ let errors;
 module('unit/model/errors', {
   beforeEach() {
     errors = DS.Errors.create();
-  }
+  },
 });
 
 function updateErrors(func, assert) {
-  assert.expectWarning(func, 'Interacting with a record errors object will no longer change the record state.');
+  assert.expectWarning(
+    func,
+    'Interacting with a record errors object will no longer change the record state.'
+  );
 }
 
 AssertPrototype.becameInvalid = function becameInvalid(eventName) {
@@ -67,11 +70,11 @@ testInDebug('get error', function(assert) {
   assert.deepEqual(errors.toArray(), [
     { attribute: 'firstName', message: 'error' },
     { attribute: 'firstName', message: 'error2' },
-    { attribute: 'lastName', message: 'error3' }
+    { attribute: 'lastName', message: 'error3' },
   ]);
   assert.deepEqual(errors.get('firstName'), [
     { attribute: 'firstName', message: 'error' },
-    { attribute: 'firstName', message: 'error2' }
+    { attribute: 'firstName', message: 'error2' },
   ]);
   assert.deepEqual(errors.get('messages'), ['error', 'error2', 'error3']);
 });

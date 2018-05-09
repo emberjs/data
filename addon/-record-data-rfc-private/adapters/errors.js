@@ -81,8 +81,8 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
   this.errors = errors || [
     {
       title: 'Adapter Error',
-      detail: message
-    }
+      detail: message,
+    },
   ];
 }
 
@@ -165,8 +165,10 @@ AdapterError.extend = extendFn(AdapterError);
   @class InvalidError
   @namespace DS
 */
-export const InvalidError = extend(AdapterError,
-  'The adapter rejected the commit because it was invalid');
+export const InvalidError = extend(
+  AdapterError,
+  'The adapter rejected the commit because it was invalid'
+);
 
 /**
   A `DS.TimeoutError` is used by an adapter to signal that a request
@@ -200,8 +202,7 @@ export const InvalidError = extend(AdapterError,
   @class TimeoutError
   @namespace DS
 */
-export const TimeoutError = extend(AdapterError,
-  'The adapter operation timed out');
+export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
 
 /**
   A `DS.AbortError` is used by an adapter to signal that a request to
@@ -212,8 +213,7 @@ export const TimeoutError = extend(AdapterError,
   @class AbortError
   @namespace DS
 */
-export const AbortError = extend(AdapterError,
-  'The adapter operation was aborted');
+export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
 
 /**
   A `DS.UnauthorizedError` equates to a HTTP `401 Unauthorized` response
@@ -320,7 +320,10 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
   @class ServerError
   @namespace DS
 */
-export const ServerError = extend(AdapterError, 'The adapter operation failed due to a server error');
+export const ServerError = extend(
+  AdapterError,
+  'The adapter operation failed due to a server error'
+);
 
 /**
   Convert an hash of errors into an array with errors in JSON-API format.
@@ -372,7 +375,7 @@ export function errorsHashToArray(errors) {
   let out = [];
 
   if (isPresent(errors)) {
-    Object.keys(errors).forEach((key) => {
+    Object.keys(errors).forEach(key => {
       let messages = makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         let title = 'Invalid Attribute';
@@ -385,8 +388,8 @@ export function errorsHashToArray(errors) {
           title: title,
           detail: messages[i],
           source: {
-            pointer: pointer
-          }
+            pointer: pointer,
+          },
         });
       }
     });
@@ -439,7 +442,7 @@ export function errorsArrayToHash(errors) {
   let out = {};
 
   if (isPresent(errors)) {
-    errors.forEach((error) => {
+    errors.forEach(error => {
       if (error.source && error.source.pointer) {
         let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
 

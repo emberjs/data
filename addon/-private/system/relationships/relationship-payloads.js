@@ -140,7 +140,12 @@ export default class RelationshipPayloads {
     if (this._isLHS(modelName, relationshipName)) {
       return this.lhs_payloads.get(modelName, id);
     } else {
-      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
+      assert(
+        `${modelName}:${relationshipName} is not either side of this relationship, ${
+          this._relInfo.lhs_key
+        }<->${this._relInfo.rhs_key}`,
+        this._isRHS(modelName, relationshipName)
+      );
       return this.rhs_payloads.get(modelName, id);
     }
   }
@@ -169,7 +174,14 @@ export default class RelationshipPayloads {
     if (this._isLHS(modelName, relationshipName)) {
       delete this.lhs_payloads.delete(modelName, id);
     } else {
-      assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_baseModelName}:${this._relInfo.lhs_relationshipName}<->${this._relInfo.rhs_baseModelName}:${this._relInfo.rhs_relationshipName}`, this._isRHS(modelName, relationshipName));
+      assert(
+        `${modelName}:${relationshipName} is not either side of this relationship, ${
+          this._relInfo.lhs_baseModelName
+        }:${this._relInfo.lhs_relationshipName}<->${this._relInfo.rhs_baseModelName}:${
+          this._relInfo.rhs_relationshipName
+        }`,
+        this._isRHS(modelName, relationshipName)
+      );
       delete this.rhs_payloads.delete(modelName, id);
     }
   }
@@ -186,9 +198,11 @@ export default class RelationshipPayloads {
     let isRelationship = relationshipName === relInfo.lhs_relationshipName;
 
     if (isRelationship === true) {
-      return isSelfReferential === true || // itself
+      return (
+        isSelfReferential === true || // itself
         modelName === relInfo.lhs_baseModelName || // base or non-polymorphic
-        relInfo.lhs_modelNames.indexOf(modelName) !== -1; // polymorphic
+        relInfo.lhs_modelNames.indexOf(modelName) !== -1
+      ); // polymorphic
     }
 
     return false;
@@ -206,19 +220,23 @@ export default class RelationshipPayloads {
     let isRelationship = relationshipName === relInfo.rhs_relationshipName;
 
     if (isRelationship === true) {
-      return isSelfReferential === true || // itself
+      return (
+        isSelfReferential === true || // itself
         modelName === relInfo.rhs_baseModelName || // base or non-polymorphic
-        relInfo.rhs_modelNames.indexOf(modelName) !== -1; // polymorphic
+        relInfo.rhs_modelNames.indexOf(modelName) !== -1
+      ); // polymorphic
     }
 
     return false;
   }
 
   _flushPending() {
-    if (this._pendingPayloads.length === 0) { return; }
+    if (this._pendingPayloads.length === 0) {
+      return;
+    }
 
     let payloadsToBeProcessed = this._pendingPayloads.splice(0, this._pendingPayloads.length);
-    for (let i=0; i<payloadsToBeProcessed.length; ++i) {
+    for (let i = 0; i < payloadsToBeProcessed.length; ++i) {
       let modelName = payloadsToBeProcessed[i][0];
       let id = payloadsToBeProcessed[i][1];
       let relationshipName = payloadsToBeProcessed[i][2];
@@ -228,8 +246,8 @@ export default class RelationshipPayloads {
       let inverseRelationshipData = {
         data: {
           id: id,
-          type: modelName
-        }
+          type: modelName,
+        },
       };
 
       // start flushing this individual payload.  The logic is the same whether
@@ -246,7 +264,12 @@ export default class RelationshipPayloads {
         inversePayloadMap = this.rhs_payloads;
         inverseIsMany = this._rhsRelationshipIsMany;
       } else {
-        assert(`${modelName}:${relationshipName} is not either side of this relationship, ${this._relInfo.lhs_key}<->${this._relInfo.rhs_key}`, this._isRHS(modelName, relationshipName));
+        assert(
+          `${modelName}:${relationshipName} is not either side of this relationship, ${
+            this._relInfo.lhs_key
+          }<->${this._relInfo.rhs_key}`,
+          this._isRHS(modelName, relationshipName)
+        );
         previousPayload = this.rhs_payloads.get(modelName, id);
         payloadMap = this.rhs_payloads;
         inversePayloadMap = this.lhs_payloads;
@@ -307,17 +330,18 @@ export default class RelationshipPayloads {
       payloadMap.set(modelName, id, relationshipData);
 
       if (!isMatchingIdentifier) {
-        this._populateInverse(relationshipData, inverseRelationshipData, inversePayloadMap, inverseIsMany);
+        this._populateInverse(
+          relationshipData,
+          inverseRelationshipData,
+          inversePayloadMap,
+          inverseIsMany
+        );
       }
     }
   }
 
   _isMatchingIdentifier(a, b) {
-    return a && b &&
-      a.type === b.type &&
-      a.id === b.id &&
-      !Array.isArray(a) &&
-      !Array.isArray(b);
+    return a && b && a.type === b.type && a.id === b.id && !Array.isArray(a) && !Array.isArray(b);
   }
 
   /**
@@ -338,7 +362,7 @@ export default class RelationshipPayloads {
     }
 
     if (Array.isArray(relationshipData.data)) {
-      for (let i=0; i<relationshipData.data.length; ++i) {
+      for (let i = 0; i < relationshipData.data.length; ++i) {
         let resourceIdentifier = relationshipData.data[i];
         this._addToInverse(inversePayload, resourceIdentifier, inversePayloadMap, inverseIsMany);
       }
@@ -395,7 +419,7 @@ export default class RelationshipPayloads {
       //
       if (inverseIsMany) {
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, {
-          _partialData: [inversePayload.data]
+          _partialData: [inversePayload.data],
         });
       } else {
         inversePayloadMap.set(resourceIdentifier.type, resourceIdentifier.id, inversePayload);
@@ -438,7 +462,7 @@ export default class RelationshipPayloads {
 
     if (Array.isArray(maybeData)) {
       // TODO: diff rather than removeall addall?
-      for (let i=0; i<maybeData.length; ++i) {
+      for (let i = 0; i < maybeData.length; ++i) {
         const resourceIdentifier = maybeData[i];
         this._removeFromInverse(id, resourceIdentifier, inversePayloadMap);
       }
@@ -459,12 +483,14 @@ export default class RelationshipPayloads {
     let data = inversePayload && inversePayload.data;
     let partialData = inversePayload && inversePayload._partialData;
 
-    if (!data && !partialData) { return; }
+    if (!data && !partialData) {
+      return;
+    }
 
     if (Array.isArray(data)) {
-      inversePayload.data = data.filter((x) => x.id !== id);
+      inversePayload.data = data.filter(x => x.id !== id);
     } else if (Array.isArray(partialData)) {
-      inversePayload._partialData = partialData.filter((x) => x.id !== id);
+      inversePayload._partialData = partialData.filter(x => x.id !== id);
     } else {
       // this merges forward links and meta
       inversePayload.data = null;

@@ -9,12 +9,12 @@ import DS from 'ember-data';
 var Person, store, env;
 var run = Ember.run;
 
-module("integration/store/query", {
+module('integration/store/query', {
   beforeEach() {
     Person = DS.Model.extend();
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
 
     store = env.store;
@@ -22,17 +22,20 @@ module("integration/store/query", {
 
   afterEach() {
     run(store, 'destroy');
-  }
+  },
 });
 
-test("meta is proxied correctly on the PromiseArray", function(assert) {
+test('meta is proxied correctly on the PromiseArray', function(assert) {
   let defered = RSVP.defer();
 
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    query(store, type, query) {
-      return defered.promise;
-    }
-  }));
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      query(store, type, query) {
+        return defered.promise;
+      },
+    })
+  );
 
   let result;
   run(function() {

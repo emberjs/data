@@ -19,14 +19,14 @@ const MODEL_NAME_METHODS = [
   '_modelFactoryFor',
   'normalize',
   'adapterFor',
-  'serializerFor'
+  'serializerFor',
 ];
 
 testInDebug('Calling Store methods with no modelName asserts', function(assert) {
   assert.expect(MODEL_NAME_METHODS.length);
   let store = createStore();
 
-  MODEL_NAME_METHODS.forEach(methodName =>{
+  MODEL_NAME_METHODS.forEach(methodName => {
     assert.expectAssertion(() => {
       store[methodName](null);
     }, new RegExp(`You need to pass a model name to the store's ${methodName} method`));

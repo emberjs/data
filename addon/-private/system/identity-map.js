@@ -1,6 +1,5 @@
 import InternalModelMap from './internal-model-map';
 
-
 /**
  `IdentityMap` is a custom storage map for records by modelName
  used by `DS.Store`.

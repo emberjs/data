@@ -107,42 +107,42 @@ test('CustomAdapterError with default message', function(assert) {
 
 const errorsHash = {
   name: ['is invalid', 'must be a string'],
-  age: ['must be a number']
+  age: ['must be a number'],
 };
 
 const errorsArray = [
   {
     title: 'Invalid Attribute',
     detail: 'is invalid',
-    source: { pointer: '/data/attributes/name' }
+    source: { pointer: '/data/attributes/name' },
   },
   {
     title: 'Invalid Attribute',
     detail: 'must be a string',
-    source: { pointer: '/data/attributes/name' }
+    source: { pointer: '/data/attributes/name' },
   },
   {
     title: 'Invalid Attribute',
     detail: 'must be a number',
-    source: { pointer: '/data/attributes/age' }
-  }
+    source: { pointer: '/data/attributes/age' },
+  },
 ];
 
 const errorsPrimaryHash = {
-  base: ['is invalid', 'error message']
+  base: ['is invalid', 'error message'],
 };
 
 const errorsPrimaryArray = [
   {
     title: 'Invalid Document',
     detail: 'is invalid',
-    source: { pointer: '/data' }
+    source: { pointer: '/data' },
   },
   {
     title: 'Invalid Document',
     detail: 'error message',
-    source: { pointer: '/data' }
-  }
+    source: { pointer: '/data' },
+  },
 ];
 
 test('errorsHashToArray', function(assert) {
@@ -164,8 +164,8 @@ test('errorsArrayToHash without trailing slash', function(assert) {
   let result = DS.errorsArrayToHash([
     {
       detail: 'error message',
-      source: { pointer: 'data/attributes/name' }
-    }
+      source: { pointer: 'data/attributes/name' },
+    },
   ]);
   assert.deepEqual(result, { name: ['error message'] });
 });

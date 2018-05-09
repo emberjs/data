@@ -24,13 +24,13 @@ export default class ManyRelationship extends Relationship {
   _updateLoadingPromise(promise, content) {
     if (this._loadingPromise) {
       if (content) {
-        this._loadingPromise.set('content', content)
+        this._loadingPromise.set('content', content);
       }
-      this._loadingPromise.set('promise', promise)
+      this._loadingPromise.set('promise', promise);
     } else {
       this._loadingPromise = PromiseManyArray.create({
         promise,
-        content
+        content,
       });
     }
 
@@ -38,7 +38,12 @@ export default class ManyRelationship extends Relationship {
   }
 
   get manyArray() {
-    assert(`Error: relationship ${this.parentType}:${this.key} has both many array and retained many array`, this._manyArray === null || this._retainedManyArray === null);
+    assert(
+      `Error: relationship ${this.parentType}:${
+        this.key
+      } has both many array and retained many array`,
+      this._manyArray === null || this._retainedManyArray === null
+    );
 
     if (!this._manyArray && !this.isDestroying) {
       this._manyArray = ManyArray.create({
@@ -48,7 +53,7 @@ export default class ManyRelationship extends Relationship {
         type: this.store.modelFor(this.belongsToType),
         record: this.internalModel,
         meta: this.meta,
-        isPolymorphic: this.isPolymorphic
+        isPolymorphic: this.isPolymorphic,
       });
 
       if (this._retainedManyArray !== null) {
@@ -120,7 +125,7 @@ export default class ManyRelationship extends Relationship {
     //   return;
     // }
 
-    let pending = this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || [];
+    let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
     pending.push(internalModel, idx);
 
     if (this._willUpdateManyArray === true) {
@@ -271,7 +276,9 @@ export default class ManyRelationship extends Relationship {
     let internalModelSet = setForArray(internalModels);
 
     members.forEach(member => {
-      if (internalModelSet.has(member)) { return; }
+      if (internalModelSet.has(member)) {
+        return;
+      }
 
       internalModelsToRemove.push(member);
     });
@@ -290,7 +297,7 @@ export default class ManyRelationship extends Relationship {
       return;
     }
 
-    for (let i = 0; i< internalModels.length; i++) {
+    for (let i = 0; i < internalModels.length; i++) {
       let internalModel = internalModels[i];
       if (this.canonicalMembers.has(internalModel)) {
         continue;
@@ -305,16 +312,18 @@ export default class ManyRelationship extends Relationship {
   }
 
   fetchLink() {
-    return this.store.findHasMany(this.internalModel, this.link, this.relationshipMeta).then(records => {
-      if (records.hasOwnProperty('meta')) {
-        this.updateMeta(records.meta);
-      }
-      this.store._backburner.join(() => {
-        this.updateInternalModelsFromAdapter(records);
-        this.manyArray.set('isLoaded', true);
+    return this.store
+      .findHasMany(this.internalModel, this.link, this.relationshipMeta)
+      .then(records => {
+        if (records.hasOwnProperty('meta')) {
+          this.updateMeta(records.meta);
+        }
+        this.store._backburner.join(() => {
+          this.updateInternalModelsFromAdapter(records);
+          this.manyArray.set('isLoaded', true);
+        });
+        return this.manyArray;
       });
-      return this.manyArray;
-    });
   }
 
   findRecords() {
@@ -350,7 +359,14 @@ export default class ManyRelationship extends Relationship {
 
       return this._updateLoadingPromise(promise, manyArray);
     } else {
-      assert(`You looked up the '${this.key}' relationship on a '${this.internalModel.type.modelName}' with id ${this.internalModel.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`, manyArray.isEvery('isEmpty', false));
+      assert(
+        `You looked up the '${this.key}' relationship on a '${
+          this.internalModel.type.modelName
+        }' with id ${
+          this.internalModel.id
+        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
+        manyArray.isEvery('isEmpty', false)
+      );
 
       manyArray.set('isLoaded', true);
 
@@ -404,7 +420,7 @@ function setForArray(array) {
   var set = new OrderedSet();
 
   if (array) {
-    for (var i=0, l=array.length; i<l; i++) {
+    for (var i = 0, l = array.length; i < l; i++) {
       set.add(array[i]);
     }
   }

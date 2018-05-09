@@ -35,6 +35,7 @@ jobs:
       env: NAME=test                  # used only to make Travis UI show description
       script:
         - ./bin/lint-features
+        - yarn lint:js
         - yarn test
 
     - stage: additional tests

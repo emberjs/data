@@ -15,7 +15,7 @@ let container, registry, application;
   initialization and dependency injection API.
 */
 
-module("integration/setup-container - Setting up a container", {
+module('integration/setup-container - Setting up a container', {
   beforeEach() {
     application = run(() => Application.create());
 
@@ -35,19 +35,22 @@ module("integration/setup-container - Setting up a container", {
 
   afterEach() {
     run(() => application.destroy());
-  }
+  },
 });
 
-test("The store should be registered into a container.", function(assert) {
-  assert.ok(container.lookup('service:store') instanceof Store, "the custom store is instantiated");
+test('The store should be registered into a container.', function(assert) {
+  assert.ok(container.lookup('service:store') instanceof Store, 'the custom store is instantiated');
 });
 
-test("The store should be registered into the container as a service.", function(assert) {
-  assert.ok(container.lookup('service:store') instanceof Store, "the store as a service is registered");
+test('The store should be registered into the container as a service.', function(assert) {
+  assert.ok(
+    container.lookup('service:store') instanceof Store,
+    'the store as a service is registered'
+  );
 });
 
-test("If a store is instantiated, it should be made available to each controller.", function(assert) {
+test('If a store is instantiated, it should be made available to each controller.', function(assert) {
   registry.register('controller:foo', EmberObject.extend({}));
   let fooController = container.lookup('controller:foo');
-  assert.ok(fooController.get('store') instanceof Store, "the store was injected");
+  assert.ok(fooController.get('store') instanceof Store, 'the store was injected');
 });

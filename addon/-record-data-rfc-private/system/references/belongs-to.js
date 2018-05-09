@@ -122,22 +122,31 @@ export default class BelongsToReference extends Reference {
    @return {Promise<record>} A promise that resolves with the new value in this belongs-to relationship.
    */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then((data) => {
+    return resolve(objectOrPromise).then(data => {
       let record;
 
       if (data instanceof Model) {
         if (isEnabled('ds-overhaul-references')) {
-          deprecate("BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.", false, {
-            id: 'ds.references.belongs-to.push-record',
-            until: '4.0.0'
-          });
+          deprecate(
+            "BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.",
+            false,
+            {
+              id: 'ds.references.belongs-to.push-record',
+              until: '4.0.0',
+            }
+          );
         }
         record = data;
       } else {
         record = this.store.push(data);
       }
 
-      assertPolymorphicType(this.internalModel, this.belongsToRelationship.relationshipMeta, record._internalModel, this.store);
+      assertPolymorphicType(
+        this.internalModel,
+        this.belongsToRelationship.relationshipMeta,
+        record._internalModel,
+        this.store
+      );
 
       //TODO Igor cleanup, maybe move to relationship push
       this.belongsToRelationship.setCanonicalModelData(record._internalModel._modelData);
@@ -246,7 +255,6 @@ export default class BelongsToReference extends Reference {
     return this.parentInternalModel.getBelongsTo(this.key);
   }
 
-
   /**
    Triggers a reload of the value in this relationship. If the
    remoteType is `"link"` Ember Data will use the relationship link to
@@ -286,13 +294,17 @@ export default class BelongsToReference extends Reference {
   reload() {
     let resource = this._resource();
     if (resource && resource.links && resource.links.related) {
-      return this.store._fetchBelongsToLinkFromResource(resource, this.parentInternalModel, this.belongsToRelationship.relationshipMeta);
+      return this.store._fetchBelongsToLinkFromResource(
+        resource,
+        this.parentInternalModel,
+        this.belongsToRelationship.relationshipMeta
+      );
     }
     if (resource && resource.data) {
       if (resource.data && (resource.data.id || resource.data.clientId)) {
         let internalModel = this.store._internalModelForResource(resource.data);
         if (internalModel.isLoaded()) {
-          return internalModel.reload().then((internalModel) => {
+          return internalModel.reload().then(internalModel => {
             if (internalModel) {
               return internalModel.getRecord();
             }

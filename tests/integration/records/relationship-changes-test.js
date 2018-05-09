@@ -11,17 +11,17 @@ const { attr, belongsTo, hasMany, Model } = DS;
 let env, store;
 
 const Author = Model.extend({
-  name: attr('string')
+  name: attr('string'),
 });
 
 const Post = Model.extend({
-  author: belongsTo()
+  author: belongsTo(),
 });
 
 const Person = DS.Model.extend({
   firstName: attr('string'),
   lastName: attr('string'),
-  siblings: hasMany('person')
+  siblings: hasMany('person'),
 });
 
 const sibling1 = {
@@ -29,13 +29,13 @@ const sibling1 = {
   id: '1',
   attributes: {
     firstName: 'Dogzn',
-    lastName: 'Katz'
-  }
+    lastName: 'Katz',
+  },
 };
 
 const sibling1Ref = {
   type: 'person',
-  id: '1'
+  id: '1',
 };
 
 const sibling2 = {
@@ -43,13 +43,13 @@ const sibling2 = {
   id: '2',
   attributes: {
     firstName: 'Katzn',
-    lastName: 'Dogz'
-  }
+    lastName: 'Dogz',
+  },
 };
 
 const sibling2Ref = {
   type: 'person',
-  id: '2'
+  id: '2',
 };
 
 const sibling3 = {
@@ -57,13 +57,13 @@ const sibling3 = {
   id: '3',
   attributes: {
     firstName: 'Snakezn',
-    lastName: 'Ladderz'
-  }
+    lastName: 'Ladderz',
+  },
 };
 
 const sibling3Ref = {
   type: 'person',
-  id: '3'
+  id: '3',
 };
 
 const sibling4 = {
@@ -71,13 +71,13 @@ const sibling4 = {
   id: '4',
   attributes: {
     firstName: 'Hamsterzn',
-    lastName: 'Gerbilz'
-  }
+    lastName: 'Gerbilz',
+  },
 };
 
 const sibling4Ref = {
   type: 'person',
-  id: '4'
+  id: '4',
 };
 
 const sibling5 = {
@@ -85,13 +85,13 @@ const sibling5 = {
   id: '5',
   attributes: {
     firstName: 'Donkeyzn',
-    lastName: 'Llamaz'
-  }
+    lastName: 'Llamaz',
+  },
 };
 
 const sibling5Ref = {
   type: 'person',
-  id: '5'
+  id: '5',
 };
 
 module('integration/records/relationship-changes - Relationship changes', {
@@ -99,7 +99,7 @@ module('integration/records/relationship-changes - Relationship changes', {
     env = setupStore({
       person: Person,
       author: Author,
-      post: Post
+      post: Post,
     });
     store = env.store;
   },
@@ -108,7 +108,7 @@ module('integration/records/relationship-changes - Relationship changes', {
     run(() => {
       env.container.destroy();
     });
-  }
+  },
 });
 
 test('Calling push with relationship triggers observers once if the relationship was empty and is added to', function(assert) {
@@ -123,14 +123,14 @@ test('Calling push with relationship triggers observers once if the relationship
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: []
-          }
-        }
-      }
+            data: [],
+          },
+        },
+      },
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -148,17 +148,14 @@ test('Calling push with relationship triggers observers once if the relationship
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
+      included: [sibling1],
     });
   });
 
@@ -172,7 +169,7 @@ test('Calling push with relationship recalculates computed alias property if the
 
   let Obj = EmberObject.extend({
     person: null,
-    siblings: alias('person.siblings')
+    siblings: alias('person.siblings'),
   });
 
   const obj = Obj.create();
@@ -184,14 +181,14 @@ test('Calling push with relationship recalculates computed alias property if the
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: []
-          }
-        }
-      }
+            data: [],
+          },
+        },
+      },
     });
     set(obj, 'person', store.peekRecord('person', 'wat'));
   });
@@ -201,17 +198,14 @@ test('Calling push with relationship recalculates computed alias property if the
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
+      included: [sibling1],
     });
   });
 
@@ -227,7 +221,7 @@ test('Calling push with relationship recalculates computed alias property to fir
 
   let Obj = EmberObject.extend({
     person: null,
-    firstSibling: alias('person.siblings.firstObject')
+    firstSibling: alias('person.siblings.firstObject'),
   });
 
   const obj = Obj.create();
@@ -239,14 +233,14 @@ test('Calling push with relationship recalculates computed alias property to fir
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: []
-          }
-        }
-      }
+            data: [],
+          },
+        },
+      },
     });
     set(obj, 'person', store.peekRecord('person', 'wat'));
   });
@@ -256,17 +250,14 @@ test('Calling push with relationship recalculates computed alias property to fir
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
+      included: [sibling1],
     });
   });
 
@@ -289,17 +280,15 @@ test('Calling push with relationship triggers observers once if the relationship
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
+      included: [sibling1],
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -317,17 +306,14 @@ test('Calling push with relationship triggers observers once if the relationship
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling2
-      ]
+      included: [sibling2],
     });
   });
 
@@ -348,17 +334,15 @@ test('Calling push with relationship triggers observers once if the relationship
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
+      included: [sibling1],
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -371,21 +355,19 @@ test('Calling push with relationship triggers observers once if the relationship
     person.get('siblings');
   });
 
-
   run(() => {
     store.push({
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: []
-          }
-        }
+            data: [],
+          },
+        },
       },
-      included: []
+      included: [],
     });
   });
 
@@ -406,19 +388,15 @@ test('Calling push with relationship triggers observers once if the relationship
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling1,
-        sibling2
-      ]
-
+      included: [sibling1, sibling2],
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -431,21 +409,19 @@ test('Calling push with relationship triggers observers once if the relationship
     person.get('siblings');
   });
 
-
   run(() => {
     store.push({
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling2Ref, sibling1Ref]
-          }
-        }
+            data: [sibling2Ref, sibling1Ref],
+          },
+        },
       },
-      included: []
+      included: [],
     });
   });
 
@@ -466,18 +442,15 @@ test('Calling push with relationship does not trigger observers if the relations
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
-
+      included: [sibling1],
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -490,21 +463,19 @@ test('Calling push with relationship does not trigger observers if the relations
     });
   });
 
-
   run(() => {
     store.push({
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: []
+      included: [],
     });
   });
 
@@ -530,7 +501,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
       assert.equal(start, 1, 'didChange.start');
       assert.equal(removed, 0, 'didChange.removed');
       assert.equal(added, 1, 'didChange.added');
-    }
+    },
   };
 
   run(() => {
@@ -540,21 +511,17 @@ test('Calling push with relationship triggers willChange and didChange with deta
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: [
-        sibling1
-      ]
-
+      included: [sibling1],
     });
   });
-
 
   let person = store.peekRecord('person', 'wat');
   let siblings = run(() => person.get('siblings'));
@@ -566,17 +533,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling2
-      ]
+      included: [sibling2],
     });
   });
 
@@ -597,17 +561,15 @@ test('Calling push with relationship triggers willChange and didChange with deta
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling1, sibling2
-      ]
+      included: [sibling1, sibling2],
     });
   });
 
@@ -627,7 +589,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
       assert.equal(start, 1);
       assert.equal(removed, 1);
       assert.equal(added, 0);
-    }
+    },
   };
 
   siblings.addArrayObserver(observer);
@@ -637,15 +599,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref]
-          }
-        }
+            data: [sibling1Ref],
+          },
+        },
       },
-      included: []
+      included: [],
     });
   });
 
@@ -666,17 +627,15 @@ test('Calling push with relationship triggers willChange and didChange with deta
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling2Ref]
-          }
-        }
+            data: [sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling2
-      ]
+      included: [sibling2],
     });
   });
   let person = store.peekRecord('person', 'wat');
@@ -694,7 +653,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
       assert.equal(start, 0);
       assert.equal(removed, 0);
       assert.equal(added, 1);
-    }
+    },
   };
 
   let siblings = run(() => person.get('siblings'));
@@ -705,17 +664,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref],
+          },
+        },
       },
-      included: [
-        sibling2
-      ]
+      included: [sibling2],
     });
   });
 
@@ -736,19 +692,15 @@ test('Calling push with relationship triggers willChange and didChange with deta
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling3Ref]
-          }
-        }
+            data: [sibling1Ref, sibling3Ref],
+          },
+        },
       },
-      included: [
-        sibling1,
-        sibling3
-      ]
-
+      included: [sibling1, sibling3],
     });
   });
   let person = store.peekRecord('person', 'wat');
@@ -764,7 +716,7 @@ test('Calling push with relationship triggers willChange and didChange with deta
       assert.equal(start, 1);
       assert.equal(removed, 0);
       assert.equal(added, 1);
-    }
+    },
   };
 
   let siblings = run(() => person.get('siblings'));
@@ -775,17 +727,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref, sibling3Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref, sibling3Ref],
+          },
+        },
       },
-      included: [
-        sibling2
-      ]
+      included: [sibling2],
     });
   });
 
@@ -806,19 +755,15 @@ test('Calling push with relationship triggers willChange and didChange with deta
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
+          lastName: 'Katz',
         },
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling2Ref, sibling3Ref]
-          }
-        }
+            data: [sibling1Ref, sibling2Ref, sibling3Ref],
+          },
+        },
       },
-      included: [
-        sibling1,
-        sibling2,
-        sibling3
-      ]
+      included: [sibling1, sibling2, sibling3],
     });
   });
 
@@ -836,10 +781,10 @@ test('Calling push with relationship triggers willChange and didChange with deta
       assert.equal(start, 1);
       assert.equal(removed, 1);
       assert.equal(added, 2);
-    }
+    },
   };
 
-  let siblings =  run(() => person.get('siblings'));
+  let siblings = run(() => person.get('siblings'));
   siblings.addArrayObserver(observer);
 
   run(() => {
@@ -847,18 +792,14 @@ test('Calling push with relationship triggers willChange and didChange with deta
       data: {
         type: 'person',
         id: 'wat',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           siblings: {
-            data: [sibling1Ref, sibling4Ref, sibling5Ref, sibling3Ref]
-          }
-        }
+            data: [sibling1Ref, sibling4Ref, sibling5Ref, sibling3Ref],
+          },
+        },
       },
-      included: [
-        sibling4,
-        sibling5
-      ]
+      included: [sibling4, sibling5],
     });
   });
 
@@ -880,14 +821,16 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
         id: '1',
         relationships: {
           author: {
-            data: { type: 'author', id: '2' }
-          }
-        }
+            data: { type: 'author', id: '2' },
+          },
+        },
       },
-      included: [{
-        id: 2,
-        type: 'author'
-      }]
+      included: [
+        {
+          id: 2,
+          type: 'author',
+        },
+      ],
     });
 
     post.get('author');
@@ -902,10 +845,10 @@ test('Calling push with updated belongsTo relationship trigger observer', functi
         id: '1',
         relationships: {
           author: {
-            data: { type: 'author', id: '3' }
-          }
-        }
-      }
+            data: { type: 'author', id: '3' },
+          },
+        },
+      },
     });
   });
 
@@ -924,10 +867,10 @@ test('Calling push with same belongsTo relationship does not trigger observer', 
         id: '1',
         relationships: {
           author: {
-            data: { type: 'author', id: '2' }
-          }
-        }
-      }
+            data: { type: 'author', id: '2' },
+          },
+        },
+      },
     });
 
     post.addObserver('author', function() {
@@ -940,10 +883,10 @@ test('Calling push with same belongsTo relationship does not trigger observer', 
         id: '1',
         relationships: {
           author: {
-            data: { type: 'author', id: '2' }
-          }
-        }
-      }
+            data: { type: 'author', id: '2' },
+          },
+        },
+      },
     });
   });
 

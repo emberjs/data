@@ -26,8 +26,9 @@ const {
   removeModelDatas,
   updateLink,
   updateMeta,
-  updateModelDatasFromAdapter
-} = heimdall.registerMonitor('system.relationships.state.relationship',
+  updateModelDatasFromAdapter,
+} = heimdall.registerMonitor(
+  'system.relationships.state.relationship',
   'addCanonicalModelData',
   'addCanonicalModelDatas',
   'addModelData',
@@ -70,7 +71,6 @@ export default class Relationship {
     this.inverseKeyForImplicit = this._tempModelName + this.key;
     this.meta = null;
     this.__inverseMeta = undefined;
-
 
     /*
        This flag indicates whether we should
@@ -199,10 +199,12 @@ export default class Relationship {
   }
 
   modelDataDidDematerialize() {
-    if (!this.inverseKey) { return; }
+    if (!this.inverseKey) {
+      return;
+    }
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
-    this.forAllMembers((inverseModelData) => {
+    this.forAllMembers(inverseModelData => {
       let relationship = inverseModelData._relationships.get(this.inverseKey);
       relationship.inverseDidDematerialize(this.modelData);
     });
@@ -275,7 +277,7 @@ export default class Relationship {
 
   removeModelDatas(modelDatas) {
     heimdall.increment(removeModelDatas);
-    modelDatas.forEach((modelData) => this.removeModelData(modelData));
+    modelDatas.forEach(modelData => this.removeModelData(modelData));
   }
 
   addModelDatas(modelDatas, idx) {
@@ -290,9 +292,9 @@ export default class Relationship {
 
   addCanonicalModelDatas(modelDatas, idx) {
     heimdall.increment(addCanonicalModelDatas);
-    for (let i=0; i<modelDatas.length; i++) {
+    for (let i = 0; i < modelDatas.length; i++) {
       if (idx !== undefined) {
-        this.addCanonicalModelData(modelDatas[i], i+idx);
+        this.addCanonicalModelData(modelDatas[i], i + idx);
       } else {
         this.addCanonicalModelData(modelDatas[i]);
       }
@@ -313,18 +315,22 @@ export default class Relationship {
     if (this.inverseKey) {
       let relationships = modelData._relationships;
       let relationship = relationships.get(this.inverseKey);
-        // if we have only just initialized the inverse relationship, then it
-        // already has this.modelData in its canonicalMembers, so skip the
-        // unnecessary work.  The exception to this is polymorphic
-        // relationships whose members are determined by their inverse, as those
-        // relationships cannot efficiently find their inverse payloads.
+      // if we have only just initialized the inverse relationship, then it
+      // already has this.modelData in its canonicalMembers, so skip the
+      // unnecessary work.  The exception to this is polymorphic
+      // relationships whose members are determined by their inverse, as those
+      // relationships cannot efficiently find their inverse payloads.
       relationship.addCanonicalModelData(this.modelData);
     } else {
       let relationships = modelData._implicitRelationships;
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
-        relationship = relationships[this.inverseKeyForImplicit] =
-          new Relationship(this.store, this.key,  { options: { async: this.isAsync } }, modelData);
+        relationship = relationships[this.inverseKeyForImplicit] = new Relationship(
+          this.store,
+          this.key,
+          { options: { async: this.isAsync } },
+          modelData
+        );
       }
       relationship.addCanonicalModelData(this.modelData);
     }
@@ -332,9 +338,9 @@ export default class Relationship {
 
   removeCanonicalModelDatas(modelDatas, idx) {
     heimdall.increment(removeCanonicalModelDatas);
-    for (let i=0; i<modelDatas.length; i++) {
+    for (let i = 0; i < modelDatas.length; i++) {
       if (idx !== undefined) {
-        this.removeCanonicalModelData(modelDatas[i], i+idx);
+        this.removeCanonicalModelData(modelDatas[i], i + idx);
       } else {
         this.removeCanonicalModelData(modelDatas[i]);
       }
@@ -349,7 +355,9 @@ export default class Relationship {
         this.removeCanonicalModelDataFromInverse(modelData);
       } else {
         if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
-          modelData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalModelData(this.modelData);
+          modelData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalModelData(
+            this.modelData
+          );
         }
       }
     }
@@ -365,7 +373,13 @@ export default class Relationship {
         modelData._relationships.get(this.inverseKey).addModelData(this.modelData);
       } else {
         if (!modelData._implicitRelationships[this.inverseKeyForImplicit]) {
-          modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, this.key,  { options: { async: this.isAsync } }, modelData, this.isAsync);
+          modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
+            this.store,
+            this.key,
+            { options: { async: this.isAsync } },
+            modelData,
+            this.isAsync
+          );
         }
         modelData._implicitRelationships[this.inverseKeyForImplicit].addModelData(this.modelData);
       }
@@ -381,7 +395,9 @@ export default class Relationship {
         this.removeModelDataFromInverse(modelData);
       } else {
         if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
-          modelData._implicitRelationships[this.inverseKeyForImplicit].removeModelData(this.modelData);
+          modelData._implicitRelationships[this.inverseKeyForImplicit].removeModelData(
+            this.modelData
+          );
         }
       }
     }
@@ -425,7 +441,9 @@ export default class Relationship {
     @private
    */
   removeCompletelyFromInverse() {
-    if (!this.inverseKey) { return; }
+    if (!this.inverseKey) {
+      return;
+    }
 
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
@@ -494,10 +512,21 @@ export default class Relationship {
 
   updateLink(link, initial) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.modelData.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasAnyRelationshipData , {
-      id: 'ds.store.push-link-for-sync-relationship'
-    });
-    assert(`You have pushed a record of type '${this.modelData.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
+    warn(
+      `You pushed a record of type '${this.modelData.modelName}' with a relationship '${
+        this.key
+      }' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`,
+      this.isAsync || this.hasAnyRelationshipData,
+      {
+        id: 'ds.store.push-link-for-sync-relationship',
+      }
+    );
+    assert(
+      `You have pushed a record of type '${this.modelData.modelName}' with '${
+        this.key
+      }' as a link, but the value of that link is not a string.`,
+      typeof link === 'string' || link === null
+    );
 
     this.link = link;
     this.setRelationshipIsStale(true);
@@ -505,7 +534,12 @@ export default class Relationship {
     if (!initial) {
       let modelData = this.modelData;
       let storeWrapper = this.modelData.storeWrapper;
-      storeWrapper.notifyPropertyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
+      storeWrapper.notifyPropertyChange(
+        modelData.modelName,
+        modelData.id,
+        modelData.clientId,
+        this.key
+      );
     }
   }
 
@@ -517,7 +551,7 @@ export default class Relationship {
     this.computeChanges(modelDatas);
   }
 
-  notifyRecordRelationshipAdded() { }
+  notifyRecordRelationshipAdded() {}
 
   setHasAnyRelationshipData(value) {
     this.hasAnyRelationshipData = value;
@@ -582,8 +616,8 @@ export default class Relationship {
       relationshipIsStale -> true
      */
     if (hasRelationshipDataProperty) {
-      let relationshipIsEmpty = payload.data === null ||
-        (Array.isArray(payload.data) && payload.data.length === 0);
+      let relationshipIsEmpty =
+        payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
 
       this.setHasAnyRelationshipData(true);
       this.setRelationshipIsStale(false);

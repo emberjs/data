@@ -9,19 +9,15 @@ import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
-import RootState from "./states";
-import Relationships from "../relationships/state/create";
-import Snapshot from "../snapshot";
-import OrderedSet from "../ordered-set";
-import isArrayLike from "../is-array-like";
+import RootState from './states';
+import Relationships from '../relationships/state/create';
+import Snapshot from '../snapshot';
+import OrderedSet from '../ordered-set';
+import isArrayLike from '../is-array-like';
 
 import { getOwner } from '../../utils';
 
-import {
-  RecordReference,
-  BelongsToReference,
-  HasManyReference
-} from "../references";
+import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -39,19 +35,15 @@ const _extractPivotNameCache = Object.create(null);
 const _splitOnDotCache = Object.create(null);
 
 function splitOnDot(name) {
-  return _splitOnDotCache[name] || (
-    _splitOnDotCache[name] = name.split('.')
-  );
+  return _splitOnDotCache[name] || (_splitOnDotCache[name] = name.split('.'));
 }
 
 function extractPivotName(name) {
-  return _extractPivotNameCache[name] || (
-    _extractPivotNameCache[name] = splitOnDot(name)[0]
-  );
+  return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
 function areAllModelsUnloaded(internalModels) {
-  for (let i=0; i<internalModels.length; ++i) {
+  for (let i = 0; i < internalModels.length; ++i) {
     let record = internalModels[i]._record;
     if (record && !(record.get('isDestroyed') || record.get('isDestroying'))) {
       return false;
@@ -93,8 +85,9 @@ const {
   send,
   setupData,
   transitionTo,
-  updateChangedAttributes
-} = heimdall.registerMonitor('InternalModel',
+  updateChangedAttributes,
+} = heimdall.registerMonitor(
+  'InternalModel',
   '_triggerDeferredTriggers',
   'changedAttributes',
   'createSnapshot',
@@ -290,11 +283,13 @@ export default class InternalModel {
     // `lastObject` have changed.  When this happens we don't want those
     // models to rematerialize their records.
 
-    return this._isDematerializing ||
+    return (
+      this._isDematerializing ||
       this.hasScheduledDestroy() ||
       this.isDestroyed ||
       this.currentState.stateName === 'root.deleted.saved' ||
-      this.isEmpty();
+      this.isEmpty()
+    );
   }
 
   isEmpty() {
@@ -345,11 +340,14 @@ export default class InternalModel {
         _internalModel: this,
         currentState: this.currentState,
         isError: this.isError,
-        adapterError: this.error
+        adapterError: this.error,
       };
 
       if (properties !== undefined) {
-        assert(`You passed '${properties}' as properties for record creation instead of an object.`, typeof properties === 'object' && properties !== null);
+        assert(
+          `You passed '${properties}' as properties for record creation instead of an object.`,
+          typeof properties === 'object' && properties !== null
+        );
         let classFields = this.getFields();
         let relationships = this._relationships;
         let propertyNames = Object.keys(properties);
@@ -432,7 +430,7 @@ export default class InternalModel {
   }
 
   save(options) {
-    let promiseLabel = "DS: Model#save " + this;
+    let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
@@ -456,20 +454,26 @@ export default class InternalModel {
   reload(options) {
     this.startedReloading();
     let internalModel = this;
-    let promiseLabel = "DS: Model#reload of " + this;
+    let promiseLabel = 'DS: Model#reload of ' + this;
 
     return new Promise(function(resolve) {
       internalModel.send('reloadRecord', { resolve, options });
-    }, promiseLabel).then(function() {
-      internalModel.didCleanError();
-      return internalModel;
-    }, function(error) {
-      internalModel.didError(error);
-      throw error;
-    }, "DS: Model#reload complete, update flags").finally(function () {
-      internalModel.finishedReloading();
-      internalModel.updateRecordArrays();
-    });
+    }, promiseLabel)
+      .then(
+        function() {
+          internalModel.didCleanError();
+          return internalModel;
+        },
+        function(error) {
+          internalModel.didError(error);
+          throw error;
+        },
+        'DS: Model#reload complete, update flags'
+      )
+      .finally(function() {
+        internalModel.finishedReloading();
+        internalModel.updateRecordArrays();
+      });
   }
 
   /*
@@ -487,7 +491,6 @@ export default class InternalModel {
     });
     return array;
   }
-
 
   /*
     Computes the set of internal models reachable from this internal model.
@@ -509,7 +512,7 @@ export default class InternalModel {
       let node = queue.shift();
       array.push(node);
       let related = node._directlyRelatedInternalModels();
-      for (let i=0; i<related.length; ++i) {
+      for (let i = 0; i < related.length; ++i) {
         let internalModel = related[i];
         assert('Internal Error: seen a future bfs iteration', internalModel._bfsId <= bfsId);
         if (internalModel._bfsId < bfsId) {
@@ -520,7 +523,6 @@ export default class InternalModel {
     }
     return array;
   }
-
 
   /*
     Unload the record for this internal model. This will cause the record to be
@@ -535,16 +537,25 @@ export default class InternalModel {
     once all models that refer to it via some relationship are also unloaded.
   */
   unloadRecord() {
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
     this.send('unloadRecord');
     this.dematerializeRecord();
 
     if (this._scheduledDestroy === null) {
       // TODO: use run.schedule once we drop 1.13
       if (!run.currentRunLoop) {
-        assert('You have turned on testing mode, which disabled the run-loop\'s autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run', Ember.testing);
+        assert(
+          "You have turned on testing mode, which disabled the run-loop's autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run",
+          Ember.testing
+        );
       }
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels')
+      this._scheduledDestroy = run.backburner.schedule(
+        'destroy',
+        this,
+        '_checkForOrphanedInternalModels'
+      );
     }
   }
 
@@ -553,7 +564,10 @@ export default class InternalModel {
   }
 
   cancelDestroy() {
-    assert(`You cannot cancel the destruction of an InternalModel once it has already been destroyed`, !this.isDestroyed);
+    assert(
+      `You cannot cancel the destruction of an InternalModel once it has already been destroyed`,
+      !this.isDestroyed
+    );
 
     this._isDematerializing = false;
     run.cancel(this._scheduledDestroy);
@@ -576,7 +590,9 @@ export default class InternalModel {
       this.cancelDestroy();
     }
     this._checkForOrphanedInternalModels();
-    if (this.isDestroyed || this.isDestroying) { return; }
+    if (this.isDestroyed || this.isDestroying) {
+      return;
+    }
 
     // just in-case we are not one of the orphaned, we should still
     // still destroy ourselves
@@ -586,7 +602,9 @@ export default class InternalModel {
   _checkForOrphanedInternalModels() {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
-    if (this.isDestroyed) { return; }
+    if (this.isDestroyed) {
+      return;
+    }
 
     this._cleanupOrphanedInternalModels();
   }
@@ -594,7 +612,7 @@ export default class InternalModel {
   _cleanupOrphanedInternalModels() {
     let relatedInternalModels = this._allRelatedInternalModels();
     if (areAllModelsUnloaded(relatedInternalModels)) {
-      for (let i=0; i<relatedInternalModels.length; ++i) {
+      for (let i = 0; i < relatedInternalModels.length; ++i) {
         let internalModel = relatedInternalModels[i];
         if (!internalModel.isDestroyed) {
           internalModel.destroy();
@@ -608,7 +626,10 @@ export default class InternalModel {
   }
 
   destroy() {
-    assert("Cannot destroy an internalModel while its record is materialized", !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying'));
+    assert(
+      'Cannot destroy an internalModel while its record is materialized',
+      !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
+    );
     this.isDestroying = true;
     this.store._internalModelDestroyed(this);
 
@@ -627,7 +648,11 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+    this.store._internalModelDidReceiveRelationshipData(
+      this.modelName,
+      this.id,
+      data.relationships
+    );
 
     let changedKeys;
 
@@ -655,9 +680,14 @@ export default class InternalModel {
 
   setDirtyHasMany(key, records) {
     assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-    assert(`All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(records)}`, (function() {
-      return A(records).every((record) => record.hasOwnProperty('_internalModel') === true);
-    })());
+    assert(
+      `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
+        records
+      )}`,
+      (function() {
+        return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      })()
+    );
 
     let relationship = this._relationships.get(key);
     relationship.clear();
@@ -700,7 +730,7 @@ export default class InternalModel {
         name: key,
         oldValue: oldValue,
         originalValue: originalValue,
-        value: value
+        value: value,
       });
     }
 
@@ -879,7 +909,6 @@ export default class InternalModel {
       this._attributes = null;
     }
 
-
     if (get(this, 'isError')) {
       this._inFlightAttributes = null;
       this.didCleanError();
@@ -915,7 +944,9 @@ export default class InternalModel {
     let transitionMapId = `${state.stateName}->${name}`;
 
     do {
-      if (state.exit) { state.exit(this); }
+      if (state.exit) {
+        state.exit(this);
+      }
       state = state.parentState;
     } while (!state[pivotName]);
 
@@ -938,8 +969,12 @@ export default class InternalModel {
       for (i = 0, l = path.length; i < l; i++) {
         state = state[path[i]];
 
-        if (state.enter) { enters.push(state); }
-        if (state.setup) { setups.push(state); }
+        if (state.enter) {
+          enters.push(state);
+        }
+        if (state.setup) {
+          setups.push(state);
+        }
       }
 
       TransitionChainMap[transitionMapId] = { setups, enters, state };
@@ -962,12 +997,12 @@ export default class InternalModel {
   }
 
   _unhandledEvent(state, name, context) {
-    let errorMessage = "Attempted to handle event `" + name + "` ";
-    errorMessage    += "on " + String(this) + " while in state ";
-    errorMessage    += state.stateName + ". ";
+    let errorMessage = 'Attempted to handle event `' + name + '` ';
+    errorMessage += 'on ' + String(this) + ' while in state ';
+    errorMessage += state.stateName + '. ';
 
     if (context !== undefined) {
-      errorMessage  += "Called with " + inspect(context) + ".";
+      errorMessage += 'Called with ' + inspect(context) + '.';
     }
 
     throw new EmberError(errorMessage);
@@ -992,7 +1027,7 @@ export default class InternalModel {
     let triggers = this._deferredTriggers;
     let record = this._record;
     let trigger = record.trigger;
-    for (let i = 0, l= triggers.length; i<l; i++) {
+    for (let i = 0, l = triggers.length; i < l; i++) {
       trigger.apply(record, triggers[i]);
     }
 
@@ -1017,7 +1052,7 @@ export default class InternalModel {
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
 
-    Object.keys(implicitRelationships).forEach((key) => {
+    Object.keys(implicitRelationships).forEach(key => {
       let rel = implicitRelationships[key];
 
       rel.removeCompletelyFromInverse();
@@ -1035,7 +1070,7 @@ export default class InternalModel {
 
     let implicitRelationships = this._implicitRelationships;
     this.__implicitRelationships = null;
-    Object.keys(implicitRelationships).forEach((key) => {
+    Object.keys(implicitRelationships).forEach(key => {
       let rel = implicitRelationships[key];
       destroyRelationship(rel);
     });
@@ -1058,7 +1093,7 @@ export default class InternalModel {
   */
   preloadData(preload) {
     //TODO(Igor) consider the polymorphic case
-    Object.keys(preload).forEach((key) => {
+    Object.keys(preload).forEach(key => {
       let preloadValue = get(preload, key);
       let relationshipMeta = this.modelClass.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
@@ -1080,7 +1115,10 @@ export default class InternalModel {
   }
 
   _preloadHasMany(key, preloadValue, modelClass) {
-    assert("You need to pass in an array to set a hasMany property on a record", Array.isArray(preloadValue));
+    assert(
+      'You need to pass in an array to set a hasMany property on a record',
+      Array.isArray(preloadValue)
+    );
     let recordsToSet = new Array(preloadValue.length);
 
     for (let i = 0; i < preloadValue.length; i++) {
@@ -1122,7 +1160,10 @@ export default class InternalModel {
   }
 
   setId(id) {
-    assert('A record\'s id cannot be changed once it is in the loaded state', this.id === null || this.id === id || this.isNew());
+    assert(
+      "A record's id cannot be changed once it is in the loaded state",
+      this.id === null || this.id === id || this.isNew()
+    );
     let didChange = id !== this.id;
     this.id = id;
 
@@ -1138,7 +1179,7 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record.setProperties({
         isError: true,
-        adapterError: error
+        adapterError: error,
       });
     }
   }
@@ -1150,7 +1191,7 @@ export default class InternalModel {
     if (this.hasRecord) {
       this._record.setProperties({
         isError: false,
-        adapterError: null
+        adapterError: null,
       });
     }
   }
@@ -1164,7 +1205,11 @@ export default class InternalModel {
   */
   adapterDidCommit(data) {
     if (data) {
-      this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
+      this.store._internalModelDidReceiveRelationshipData(
+        this.modelName,
+        this.id,
+        data.relationships
+      );
 
       data = data.attributes;
     }
@@ -1182,7 +1227,9 @@ export default class InternalModel {
     this.send('didCommit');
     this.updateRecordArrays();
 
-    if (!data) { return; }
+    if (!data) {
+      return;
+    }
 
     this._record._notifyProperties(changedKeys);
   }
@@ -1239,7 +1286,7 @@ export default class InternalModel {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
-      for (let i=0; i < keys.length; i++) {
+      for (let i = 0; i < keys.length; i++) {
         if (attrs[keys[i]] === undefined) {
           attrs[keys[i]] = this._inFlightAttributes[keys[i]];
         }
@@ -1299,7 +1346,7 @@ export default class InternalModel {
       let hasAttrs = this.hasChangedAttributes();
       let attrs;
       if (hasAttrs) {
-        attrs= this._attributes;
+        attrs = this._attributes;
       }
 
       original = Object.create(null);
@@ -1338,15 +1385,21 @@ export default class InternalModel {
 
       if (DEBUG) {
         let modelName = this.modelName;
-        assert(`There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`, relationship);
+        assert(
+          `There is no ${kind} relationship named '${name}' on a model of modelClass '${modelName}'`,
+          relationship
+        );
 
         let actualRelationshipKind = relationship.relationshipMeta.kind;
-        assert(`You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`, actualRelationshipKind === kind);
+        assert(
+          `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
+          actualRelationshipKind === kind
+        );
       }
 
-      if (kind === "belongsTo") {
+      if (kind === 'belongsTo') {
         reference = new BelongsToReference(this.store, this, relationship);
-      } else if (kind === "hasMany") {
+      } else if (kind === 'hasMany') {
         reference = new HasManyReference(this.store, this, relationship);
       }
 

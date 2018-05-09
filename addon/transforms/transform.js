@@ -106,5 +106,5 @@ export default EmberObject.extend({
     @param options hash of options passed to `DS.attr`
     @return The deserialized value
   */
-  deserialize: null
+  deserialize: null,
 });

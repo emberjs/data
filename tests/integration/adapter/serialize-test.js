@@ -7,10 +7,10 @@ import DS from 'ember-data';
 
 let env, store, adapter, serializer;
 
-module("integration/adapter/serialize - DS.Adapter integration test", {
+module('integration/adapter/serialize - DS.Adapter integration test', {
   beforeEach() {
     const Person = DS.Model.extend({
-      name: DS.attr('string')
+      name: DS.attr('string'),
     });
 
     env = setupStore({ person: Person });
@@ -21,10 +21,10 @@ module("integration/adapter/serialize - DS.Adapter integration test", {
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
-test("serialize() is delegated to the serializer", function(assert) {
+test('serialize() is delegated to the serializer', function(assert) {
   assert.expect(1);
 
   serializer.serialize = function(snapshot, options) {

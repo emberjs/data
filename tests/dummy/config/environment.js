@@ -1,4 +1,4 @@
-/* eslint-env node */
+'use strict';
 
 var fs = require('fs');
 var path = require('path');
@@ -15,13 +15,13 @@ module.exports = function(environment) {
     locationType: 'auto',
     EmberENV: {
       FEATURES: featureFlags,
-      RAISE_ON_DEPRECATION: false
+      RAISE_ON_DEPRECATION: false,
     },
 
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-    }
+    },
   };
 
   if (environment === 'test-optional-features') {
@@ -45,10 +45,6 @@ module.exports = function(environment) {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
-  }
-
-  if (environment === 'production') {
-
   }
 
   return ENV;

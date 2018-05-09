@@ -1,8 +1,8 @@
 import { once } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
-import RecordArray from "./record-array";
-import cloneNull from "../clone-null";
+import RecordArray from './record-array';
+import cloneNull from '../clone-null';
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -80,7 +80,7 @@ export default RecordArray.extend({
       isLoaded: true,
       isUpdating: false,
       meta: cloneNull(payload.meta),
-      links: cloneNull(payload.links)
+      links: cloneNull(payload.links),
     });
 
     this.manager._associateWithRecordArray(internalModels, this);
@@ -88,5 +88,5 @@ export default RecordArray.extend({
     // TODO: should triggering didLoad event be the last action of the runLoop?
     once(this, 'trigger', 'didLoad');
     heimdall.stop(token);
-  }
+  },
 });

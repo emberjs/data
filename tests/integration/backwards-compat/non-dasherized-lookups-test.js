@@ -6,40 +6,37 @@ import { module, test } from 'qunit';
 
 import DS from 'ember-data';
 
-const {
-  JSONAPIAdapter,
-  Model,
-  attr,
-  belongsTo,
-  hasMany
-} = DS;
+const { JSONAPIAdapter, Model, attr, belongsTo, hasMany } = DS;
 
 let store;
 
-module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders', {
-  beforeEach() {
-    const PostNote = Model.extend({
-      name: attr('string')
-    });
+module(
+  'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders',
+  {
+    beforeEach() {
+      const PostNote = Model.extend({
+        name: attr('string'),
+      });
 
-    const ApplicationAdapter = JSONAPIAdapter.extend({
-      shouldBackgroundReloadRecord() {
-        return false;
-      }
-    });
+      const ApplicationAdapter = JSONAPIAdapter.extend({
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
+      });
 
-    const env = setupStore({
-      postNote: PostNote,
-      adapter: ApplicationAdapter
-    });
+      const env = setupStore({
+        postNote: PostNote,
+        adapter: ApplicationAdapter,
+      });
 
-    store = env.store;
-  },
+      store = env.store;
+    },
 
-  afterEach() {
-    run(store, 'destroy');
+    afterEach() {
+      run(store, 'destroy');
+    },
   }
-});
+);
 
 test('can lookup records using camelCase strings', function(assert) {
   assert.expect(1);
@@ -50,14 +47,14 @@ test('can lookup records using camelCase strings', function(assert) {
         type: 'post-notes',
         id: '1',
         attributes: {
-          name: 'Ember Data'
-        }
-      }
+          name: 'Ember Data',
+        },
+      },
     });
   });
 
   run(() => {
-    store.findRecord('postNote', 1).then((postNote) => {
+    store.findRecord('postNote', 1).then(postNote => {
       assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
     });
   });
@@ -72,55 +69,58 @@ test('can lookup records using under_scored strings', function(assert) {
         type: 'post-notes',
         id: '1',
         attributes: {
-          name: 'Ember Data'
-        }
-      }
+          name: 'Ember Data',
+        },
+      },
     });
   });
 
   run(() => {
-    store.findRecord('post_note', 1).then((postNote) => {
+    store.findRecord('post_note', 1).then(postNote => {
       assert.equal(get(postNote, 'name'), 'Ember Data', 'record found');
     });
   });
 });
 
-module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros', {
-  beforeEach() {
-    const PostNote = Model.extend({
-      notePost: belongsTo('note-post', { async: false }),
+module(
+  'integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros',
+  {
+    beforeEach() {
+      const PostNote = Model.extend({
+        notePost: belongsTo('note-post', { async: false }),
 
-      name: attr('string')
-    });
+        name: attr('string'),
+      });
 
-    const NotePost = Model.extend({
-      name: attr('string')
-    });
+      const NotePost = Model.extend({
+        name: attr('string'),
+      });
 
-    const LongModelName = Model.extend({
-      postNotes: hasMany('post_note')
-    });
+      const LongModelName = Model.extend({
+        postNotes: hasMany('post_note'),
+      });
 
-    const ApplicationAdapter = JSONAPIAdapter.extend({
-      shouldBackgroundReloadRecord() {
-        return false;
-      }
-    });
+      const ApplicationAdapter = JSONAPIAdapter.extend({
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
+      });
 
-    const env = setupStore({
-      longModelName: LongModelName,
-      notePost: NotePost,
-      postNote: PostNote,
-      adapter: ApplicationAdapter
-    });
+      const env = setupStore({
+        longModelName: LongModelName,
+        notePost: NotePost,
+        postNote: PostNote,
+        adapter: ApplicationAdapter,
+      });
 
-    store = env.store;
-  },
+      store = env.store;
+    },
 
-  afterEach() {
-    run(store, 'destroy');
+    afterEach() {
+      run(store, 'destroy');
+    },
   }
-});
+);
 
 test('looks up belongsTo using camelCase strings', function(assert) {
   assert.expect(1);
@@ -131,28 +131,28 @@ test('looks up belongsTo using camelCase strings', function(assert) {
         type: 'post-notes',
         id: '1',
         attributes: {
-          name: 'Ember Data'
+          name: 'Ember Data',
         },
         relationships: {
           'note-post': {
-            data: { type: 'note-post', id: '1' }
-          }
-        }
-      }
+            data: { type: 'note-post', id: '1' },
+          },
+        },
+      },
     });
     store.pushPayload('notePost', {
       data: {
         type: 'note-posts',
         id: '1',
         attributes: {
-          name: 'Inverse'
-        }
-      }
+          name: 'Inverse',
+        },
+      },
     });
   });
 
   run(() => {
-    store.findRecord('post-note', 1).then((postNote) => {
+    store.findRecord('post-note', 1).then(postNote => {
       assert.equal(get(postNote, 'notePost.name'), 'Inverse', 'inverse record found');
     });
   });
@@ -166,14 +166,13 @@ test('looks up belongsTo using under_scored strings', function(assert) {
       data: {
         type: 'long-model-names',
         id: '1',
-        attributes: {
-        },
+        attributes: {},
         relationships: {
           'post-notes': {
-            data: [{ type: 'post-note', id: '1' }]
-          }
-        }
-      }
+            data: [{ type: 'post-note', id: '1' }],
+          },
+        },
+      },
     });
 
     store.pushPayload('post-note', {
@@ -181,18 +180,17 @@ test('looks up belongsTo using under_scored strings', function(assert) {
         type: 'post-notes',
         id: '1',
         attributes: {
-          name: 'Ember Data'
-        }
-      }
+          name: 'Ember Data',
+        },
+      },
     });
   });
 
   run(() => {
-    store.findRecord('long_model_name', 1).then((longModelName) => {
+    store.findRecord('long_model_name', 1).then(longModelName => {
       const postNotes = get(longModelName, 'postNotes').toArray();
 
-      assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)],
-        'inverse records found');
+      assert.deepEqual(postNotes, [store.peekRecord('postNote', 1)], 'inverse records found');
     });
   });
 });

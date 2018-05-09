@@ -9,5 +9,5 @@ export {
   TimeoutError,
   AbortError,
   errorsHashToArray,
-  errorsArrayToHash
+  errorsArrayToHash,
 } from '../-private';

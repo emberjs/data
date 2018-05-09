@@ -9,9 +9,7 @@ import DS from 'ember-data';
 import Model from 'ember-data/model';
 
 import { assertPolymorphicType } from 'ember-data/-debug';
-import {
-  modelHasAttributeOrRelationshipNamedType
-} from 'ember-data/-private';
+import { modelHasAttributeOrRelationshipNamedType } from 'ember-data/-private';
 
 let env, User, Message, Post, Person, Video, Medium;
 
@@ -19,12 +17,12 @@ module('unit/utils', {
   beforeEach() {
     Person = Model.extend();
     User = Model.extend({
-      messages: DS.hasMany('message', { async: false })
+      messages: DS.hasMany('message', { async: false }),
     });
 
     Message = Model.extend();
     Post = Message.extend({
-      medias: DS.hasMany('medium', { async: false })
+      medias: DS.hasMany('medium', { async: false }),
     });
 
     Medium = Mixin.create();
@@ -35,7 +33,7 @@ module('unit/utils', {
       person: Person,
       message: Message,
       post: Post,
-      video: Video
+      video: Video,
     });
 
     env.registry.register('mixin:medium', Medium);
@@ -43,7 +41,7 @@ module('unit/utils', {
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
 testInDebug('assertPolymorphicType works for subclasses', function(assert) {
@@ -51,21 +49,25 @@ testInDebug('assertPolymorphicType works for subclasses', function(assert) {
 
   run(() => {
     env.store.push({
-      data: [{
-        type: 'user',
-        id: '1',
-        relationships: {
-          messages: {
-            data: []
-          }
-        }
-      }, {
-        type: 'post',
-        id: '1'
-      }, {
-        type: 'person',
-        id: '1'
-      }]
+      data: [
+        {
+          type: 'user',
+          id: '1',
+          relationships: {
+            messages: {
+              data: [],
+            },
+          },
+        },
+        {
+          type: 'post',
+          id: '1',
+        },
+        {
+          type: 'person',
+          id: '1',
+        },
+      ],
     });
 
     user = env.store.peekRecord('user', 1);
@@ -91,13 +93,13 @@ testInDebug('assertPolymorphicType works for subclasses', function(assert) {
 
 test('modelHasAttributeOrRelationshipNamedType', function(assert) {
   let ModelWithTypeAttribute = Model.extend({
-    type: DS.attr()
+    type: DS.attr(),
   });
   let ModelWithTypeBelongsTo = Model.extend({
-    type: DS.belongsTo()
+    type: DS.belongsTo(),
   });
   let ModelWithTypeHasMany = Model.extend({
-    type: DS.hasMany()
+    type: DS.hasMany(),
   });
 
   assert.equal(modelHasAttributeOrRelationshipNamedType(Model), false);
@@ -112,16 +114,20 @@ testInDebug('assertPolymorphicType works for mixins', function(assert) {
 
   run(() => {
     env.store.push({
-      data: [{
-        type: 'post',
-        id: '1'
-      }, {
-        type: 'video',
-        id: '1'
-      }, {
-        type: 'person',
-        id: '1'
-      }]
+      data: [
+        {
+          type: 'post',
+          id: '1',
+        },
+        {
+          type: 'video',
+          id: '1',
+        },
+        {
+          type: 'person',
+          id: '1',
+        },
+      ],
     });
     post = env.store.peekRecord('post', 1);
     video = env.store.peekRecord('video', 1);

@@ -40,7 +40,12 @@ if (DEBUG) {
     return modelClass.detect(addedModelClass);
   };
 
-  assertPolymorphicType = function assertPolymorphicType(parentInternalModel, relationshipMeta, addedInternalModel, store) {
+  assertPolymorphicType = function assertPolymorphicType(
+    parentInternalModel,
+    relationshipMeta,
+    addedInternalModel,
+    store
+  ) {
     let addedModelName = addedInternalModel.modelName;
     let parentModelName = parentInternalModel.modelName;
     let key = relationshipMeta.key;
@@ -53,4 +58,4 @@ if (DEBUG) {
   };
 }
 
-export { assertPolymorphicType }
+export { assertPolymorphicType };

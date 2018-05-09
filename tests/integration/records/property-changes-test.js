@@ -13,11 +13,11 @@ module('integration/records/property-changes - Property changes', {
   beforeEach() {
     Person = DS.Model.extend({
       firstName: attr('string'),
-      lastName: attr('string')
+      lastName: attr('string'),
     });
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
     store = env.store;
   },
@@ -26,7 +26,7 @@ module('integration/records/property-changes - Property changes', {
     run(function() {
       env.container.destroy();
     });
-  }
+  },
 });
 
 test('Calling push with partial records trigger observers for just those attributes that changed', function(assert) {
@@ -40,9 +40,9 @@ test('Calling push with partial records trigger observers for just those attribu
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
-        }
-      }
+          lastName: 'Katz',
+        },
+      },
     });
     person = store.peekRecord('person', 'wat');
   });
@@ -62,9 +62,9 @@ test('Calling push with partial records trigger observers for just those attribu
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz!'
-        }
-      }
+          lastName: 'Katz!',
+        },
+      },
     });
   });
 });
@@ -80,9 +80,9 @@ test('Calling push does not trigger observers for locally changed attributes wit
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
-        }
-      }
+          lastName: 'Katz',
+        },
+      },
     });
     person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
@@ -103,9 +103,9 @@ test('Calling push does not trigger observers for locally changed attributes wit
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz!'
-        }
-      }
+          lastName: 'Katz!',
+        },
+      },
     });
   });
 });
@@ -125,9 +125,9 @@ test('Saving a record trigger observers for locally changed attributes with the 
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
-        }
-      }
+          lastName: 'Katz',
+        },
+      },
     });
     person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
@@ -157,9 +157,9 @@ test('store.push should not override a modified attribute', function(assert) {
         id: 'wat',
         attributes: {
           firstName: 'Yehuda',
-          lastName: 'Katz'
-        }
-      }
+          lastName: 'Katz',
+        },
+      },
     });
     person = store.peekRecord('person', 'wat');
     person.set('lastName', 'Katz!');
@@ -180,9 +180,9 @@ test('store.push should not override a modified attribute', function(assert) {
         id: 'wat',
         attributes: {
           firstName: 'Tom',
-          lastName: 'Dale'
-        }
-      }
+          lastName: 'Dale',
+        },
+      },
     });
   });
 });

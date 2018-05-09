@@ -1,21 +1,22 @@
 import Ember from 'ember';
 import QUnit from 'qunit';
 
-const {
-  addObserver,
-  removeObserver
-} = Ember;
+const { addObserver, removeObserver } = Ember;
 
 function makeCounter() {
   let count = 0;
   const counter = Object.create(null);
-  counter.reset = function resetCounter() { count = 0; };
+  counter.reset = function resetCounter() {
+    count = 0;
+  };
 
   Object.defineProperty(counter, 'count', {
-    get() { return count; },
+    get() {
+      return count;
+    },
     set() {},
     configurable: false,
-    enumerable: true
+    enumerable: true,
   });
 
   Object.freeze(counter);
@@ -48,7 +49,9 @@ export function watchProperties(obj, propertyNames) {
   let counters = {};
 
   if (!Array.isArray(propertyNames)) {
-    throw new Error(`Must call watchProperties with an array of propertyNames to watch, received ${propertyNames}`);
+    throw new Error(
+      `Must call watchProperties with an array of propertyNames to watch, received ${propertyNames}`
+    );
   }
 
   for (let i = 0; i < propertyNames.length; i++) {
@@ -66,7 +69,7 @@ export function watchProperties(obj, propertyNames) {
   }
 
   function unwatch() {
-    Object.keys(watched).forEach((propertyName) => {
+    Object.keys(watched).forEach(propertyName => {
       removeObserver(obj, propertyName, watched[propertyName]);
     });
   }
@@ -74,14 +77,20 @@ export function watchProperties(obj, propertyNames) {
   return { counters, unwatch };
 }
 
-QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watchedObject, expectedCounts, label = '') {
+QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(
+  watchedObject,
+  expectedCounts,
+  label = ''
+) {
   if (!watchedObject || !watchedObject.counters) {
-    throw new Error('Expected to receive the return value of watchProperties: an object containing counters');
+    throw new Error(
+      'Expected to receive the return value of watchProperties: an object containing counters'
+    );
   }
 
   let counters = watchedObject.counters;
 
-  Object.keys(expectedCounts).forEach((propertyName) => {
+  Object.keys(expectedCounts).forEach(propertyName => {
     let counter = counters[propertyName];
     let expectedCount = expectedCounts[propertyName];
     let assertionText = label;
@@ -91,22 +100,30 @@ QUnit.assert.watchedPropertyCounts = function assertWatchedPropertyCount(watched
       expectedCount = expectedCount[0];
     }
 
-    assertionText += ` | Expected ${expectedCount} change notifications for ${propertyName} but recieved ${counter.count}`;
+    assertionText += ` | Expected ${expectedCount} change notifications for ${propertyName} but recieved ${
+      counter.count
+    }`;
 
     if (counter === undefined) {
-      throw new Error(`Cannot assert expected count for ${propertyName} as there is no watcher for that property`);
+      throw new Error(
+        `Cannot assert expected count for ${propertyName} as there is no watcher for that property`
+      );
     }
 
     this.pushResult({
       result: counter.count === expectedCount,
       actual: counter.count,
       expected: expectedCount,
-      message: assertionText
+      message: assertionText,
     });
   });
 };
 
-QUnit.assert.watchedPropertyCount = function assertWatchedPropertyCount(watcher, expectedCount, label) {
+QUnit.assert.watchedPropertyCount = function assertWatchedPropertyCount(
+  watcher,
+  expectedCount,
+  label
+) {
   let counter;
   if (!watcher) {
     throw new Error(`Expected to receive a watcher`);
@@ -123,7 +140,7 @@ QUnit.assert.watchedPropertyCount = function assertWatchedPropertyCount(watcher,
     result: counter.count === expectedCount,
     actual: counter.count,
     expected: expectedCount,
-    message: label
+    message: label,
   });
 };
 
@@ -136,9 +153,7 @@ QUnit.assert.dirties = function assertDirties(options, updateMethodCallback, lab
     result: counter.count === count,
     actual: counter.count,
     expected: count,
-    message: label
+    message: label,
   });
   unwatch();
 };
-
-

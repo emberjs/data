@@ -8,7 +8,9 @@ import { get } from '@ember/object';
   @param modelClass
  */
 function modelHasAttributeOrRelationshipNamedType(modelClass) {
-  return get(modelClass, 'attributes').has('type') || get(modelClass, 'relationshipsByName').has('type');
+  return (
+    get(modelClass, 'attributes').has('type') || get(modelClass, 'relationshipsByName').has('type')
+  );
 }
 
 /*
@@ -29,7 +31,7 @@ function getOwner(context) {
     // `owner` is a container, we are just making this work
     owner._lookupFactory = function() {
       return owner.lookupFactory(...arguments);
-    }
+    };
 
     owner.register = function() {
       let registry = owner.registry || owner._registry || owner;
@@ -41,7 +43,4 @@ function getOwner(context) {
   return owner;
 }
 
-export {
-  modelHasAttributeOrRelationshipNamedType,
-  getOwner
-};
+export { modelHasAttributeOrRelationshipNamedType, getOwner };

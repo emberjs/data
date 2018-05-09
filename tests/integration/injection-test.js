@@ -1,6 +1,6 @@
 import {
   setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections
+  reset as resetModelFactoryInjections,
 } from 'dummy/tests/helpers/model-factory-injection';
 import EmberObject from '@ember/object';
 import { getOwner } from '@ember/application';
@@ -13,10 +13,10 @@ let env, hasFactoryFor, originalLookupFactory, originalOwnerLookupFactory, origi
 
 const model = {
   isModel: true,
-  _create() { }
+  _create() {},
 };
 const factory = {
-  class: model
+  class: model,
 };
 
 module('integration/injection factoryFor enabled', {
@@ -63,13 +63,17 @@ module('integration/injection factoryFor enabled', {
     }
 
     run(env.store, 'destroy');
-  }
+  },
 });
 
 test('modelFactoryFor', function(assert) {
   const modelFactory = env.store._modelFactoryFor('super-villain');
 
-  assert.equal(modelFactory, hasFactoryFor ? factory : model, 'expected the factory itself to be returned');
+  assert.equal(
+    modelFactory,
+    hasFactoryFor ? factory : model,
+    'expected the factory itself to be returned'
+  );
 });
 
 test('modelFor', function(assert) {
@@ -78,7 +82,11 @@ test('modelFor', function(assert) {
   assert.equal(modelFactory, model, 'expected the factory itself to be returned');
 
   // TODO: we should deprecate this next line. Resolved state on the class is fraught with peril
-  assert.equal(modelFactory.modelName, 'super-villain', 'expected the factory itself to be returned');
+  assert.equal(
+    modelFactory.modelName,
+    'super-villain',
+    'expected the factory itself to be returned'
+  );
 });
 
 module('integration/injection eager injections', {
@@ -87,7 +95,7 @@ module('integration/injection eager injections', {
     env = setupStore();
 
     env.registry.injection('model:foo', 'apple', 'service:apple');
-    env.registry.register('model:foo',     DS.Model);
+    env.registry.register('model:foo', DS.Model);
     env.registry.register('service:apple', EmberObject.extend({ isService: true }));
     // container injection
   },
@@ -97,7 +105,7 @@ module('integration/injection eager injections', {
     resetModelFactoryInjections();
 
     run(env.store, 'destroy');
-  }
+  },
 });
 
 test('did inject', function(assert) {

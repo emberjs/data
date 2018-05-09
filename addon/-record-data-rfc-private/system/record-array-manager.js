@@ -7,10 +7,7 @@ import { set, get } from '@ember/object';
 import { run as emberRun } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import cloneNull from './clone-null';
-import {
-  RecordArray,
-  AdapterPopulatedRecordArray
-} from './record-arrays';
+import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
 
 const {
   _flush,
@@ -20,8 +17,9 @@ const {
   createRecordArray,
   liveRecordArrayFor,
   recordDidChange,
-  unregisterRecordArray
-} = heimdall.registerMonitor('recordArrayManager',
+  unregisterRecordArray,
+} = heimdall.registerMonitor(
+  'recordArrayManager',
   '_flush',
   'array_remove',
   'create',
@@ -72,7 +70,7 @@ export default class RecordArrayManager {
     internalModel._pendingRecordArrayManagerFlush = true;
 
     let pending = this._pending;
-    let models = pending[modelName] = pending[modelName] || [];
+    let models = (pending[modelName] = pending[modelName] || []);
     if (models.push(internalModel) !== 1) {
       return;
     }
@@ -123,7 +121,10 @@ export default class RecordArrayManager {
   }
 
   _syncLiveRecordArray(array, modelName) {
-    assert(`recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`, typeof modelName === 'string');
+    assert(
+      `recordArrayManger.syncLiveRecordArray expects modelName not modelClass as the second param`,
+      typeof modelName === 'string'
+    );
     let pending = this._pending[modelName];
     let hasPendingChanges = Array.isArray(pending);
     let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
@@ -177,7 +178,10 @@ export default class RecordArrayManager {
     @return {DS.RecordArray}
   */
   liveRecordArrayFor(modelName) {
-    assert(`recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`, typeof modelName === 'string');
+    assert(
+      `recordArrayManger.liveRecordArrayFor expects modelName not modelClass as the param`,
+      typeof modelName === 'string'
+    );
 
     heimdall.increment(liveRecordArrayFor);
 
@@ -218,7 +222,10 @@ export default class RecordArrayManager {
     @return {DS.RecordArray}
   */
   createRecordArray(modelName, content) {
-    assert(`recordArrayManger.createRecordArray expects modelName not modelClass as the param`, typeof modelName === 'string');
+    assert(
+      `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
+      typeof modelName === 'string'
+    );
     heimdall.increment(createRecordArray);
 
     let array = RecordArray.create({
@@ -226,7 +233,7 @@ export default class RecordArrayManager {
       content: A(content || []),
       store: this.store,
       isLoaded: true,
-      manager: this
+      manager: this,
     });
 
     if (Array.isArray(content)) {
@@ -246,7 +253,10 @@ export default class RecordArrayManager {
   */
   createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
     heimdall.increment(createAdapterPopulatedRecordArray);
-    assert(`recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`, typeof modelName === 'string');
+    assert(
+      `recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`,
+      typeof modelName === 'string'
+    );
 
     let array;
     if (Array.isArray(internalModels)) {
@@ -259,7 +269,7 @@ export default class RecordArrayManager {
         isLoaded: true,
         isUpdating: false,
         meta: cloneNull(payload.meta),
-        links: cloneNull(payload.links)
+        links: cloneNull(payload.links),
       });
 
       associateWithRecordArray(internalModels, array);
@@ -269,7 +279,7 @@ export default class RecordArrayManager {
         query: query,
         content: A(),
         store: this.store,
-        manager: this
+        manager: this,
       });
     }
 
@@ -294,7 +304,6 @@ export default class RecordArrayManager {
     let removedFromAdapterPopulated = remove(this._adapterPopulatedRecordArrays, array);
 
     if (!removedFromAdapterPopulated) {
-
       let liveRecordArrayForType = this._liveRecordArrays[modelName];
       // unregister live record array
       if (liveRecordArrayForType) {
@@ -305,12 +314,14 @@ export default class RecordArrayManager {
     }
   }
 
-  _associateWithRecordArray(internalModels, array)  {
+  _associateWithRecordArray(internalModels, array) {
     associateWithRecordArray(internalModels, array);
   }
 
   willDestroy() {
-    Object.keys(this._liveRecordArrays).forEach(modelName => this._liveRecordArrays[modelName].destroy());
+    Object.keys(this._liveRecordArrays).forEach(modelName =>
+      this._liveRecordArrays[modelName].destroy()
+    );
     this._adapterPopulatedRecordArrays.forEach(destroy);
     this.isDestroyed = true;
   }
@@ -355,12 +366,16 @@ function updateLiveRecordArray(array, internalModels) {
 
     if (isDeleted) {
       modelsToRemove.push(internalModel);
-      recordArrays.delete(array)
+      recordArrays.delete(array);
     }
   }
 
-  if (modelsToAdd.length > 0)    { array._pushInternalModels(modelsToAdd); }
-  if (modelsToRemove.length > 0) { array._removeInternalModels(modelsToRemove); }
+  if (modelsToAdd.length > 0) {
+    array._pushInternalModels(modelsToAdd);
+  }
+  if (modelsToRemove.length > 0) {
+    array._removeInternalModels(modelsToRemove);
+  }
 
   // return whether we performed an update.
   // Necessary until 3.5 allows us to finish off ember-data-filter support.

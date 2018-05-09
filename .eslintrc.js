@@ -1,19 +1,14 @@
-/* global module */
 module.exports = {
   root: true,
   parserOptions: {
-    ecmaVersion: 6,
+    ecmaVersion: 2017,
     sourceType: 'module',
   },
-  extends: 'eslint:recommended',
-  env: {
-    'browser': true,
-  },
-  globals: {
-    'heimdall': true,
-    'Map': false,
-  },
+  extends: ['eslint:recommended', 'prettier'],
+  plugins: ['prettier'],
   rules: {
+    'prettier/prettier': 'error',
+
     'no-unused-vars': ['error', {
       'args': 'none',
     }],
@@ -29,35 +24,83 @@ module.exports = {
     'no-irregular-whitespace': 'error',
     'no-undef': 'error',
     'no-eq-null': 'error',
-
-    // from JSCS
-    'array-bracket-spacing': ['error', 'never'],
-    'comma-style': ['error', 'last'],
-    'brace-style': ['error', '1tbs', {
-      'allowSingleLine': true,
-    }],
-    'no-spaced-func': 'error',
-    'no-empty': 'error',
-    'curly': ['error', 'all'],
-    'eol-last': 'error',
-    'no-trailing-spaces': 'error',
-    'comma-dangle': ['error', 'never'],
-    'space-before-blocks': ['error', 'always'],
-    'indent': ['error', 2, {
-      'SwitchCase': 1,
-    }],
-    'keyword-spacing': ['error', {
-      'overrides': {
-        'else': {
-          'before': true,
-        },
-        'while': {
-          'before': true,
-        },
-        'catch': {
-          'before': true,
-        },
-      },
-    }],
   },
+  overrides: [
+    // node files
+    {
+      files: [
+        'ember-cli-build.js',
+        'index.js',
+        'testem.js',
+        'lib/**/*.js',
+        'blueprints/*/index.js',
+        'blueprints/*.js',
+        'config/**/*.js',
+        'tests/dummy/config/**/*.js',
+        'node-tests/**',
+        'bin/**',
+      ],
+      excludedFiles: [
+        'addon/**',
+        'addon-test-support/**',
+        'app/**',
+        'tests/dummy/app/**'
+      ],
+      parserOptions: {
+        sourceType: 'script',
+        ecmaVersion: 2015
+      },
+      env: {
+        browser: false,
+        node: true,
+        es6: true,
+      },
+      plugins: ['node'],
+      rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
+        // add your custom rules and overrides for node files here
+      })
+    },
+
+    // browser files
+    {
+      files: [
+        'addon/**',
+        'app/**',
+        'tests/**',
+      ],
+      excludedFiles: [
+        'tests/dummy/config/**'
+      ],
+      env: {
+        browser: true,
+        node: false,
+      },
+      globals: {
+        heimdall: true,
+        Map: false,
+      }
+    },
+
+    // browser tests
+    {
+      files: [
+        'tests/**'
+      ],
+
+      rules: {
+        'no-console': 0
+      }
+    },
+
+    // node tests
+    {
+      files: [
+        'node-tests/**'
+      ],
+
+      env: {
+        mocha: true,
+      }
+    }
+  ],
 };

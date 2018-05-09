@@ -15,7 +15,7 @@ test('.reload should NOT leak the internal promise, rather return another promis
   content.reload = () => EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
-    content
+    content,
   });
 
   let reloaded = array.reload();
@@ -34,7 +34,7 @@ test('.reload should be stable', function(assert) {
   let promise = EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
-    promise
+    promise,
   });
 
   assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
@@ -72,12 +72,12 @@ test('.reload should be stable', function(assert) {
 test('.set to new promise should be like reload', function(assert) {
   assert.expect(18);
 
-  let content = A([1,2,3]);
+  let content = A([1, 2, 3]);
 
   let promise = EmberPromise.resolve(content);
 
   let array = DS.PromiseManyArray.create({
-    promise
+    promise,
   });
 
   assert.equal(array.get('isRejected'), false, 'should NOT be rejected');
@@ -110,4 +110,3 @@ test('.set to new promise should be like reload', function(assert) {
     });
   });
 });
-

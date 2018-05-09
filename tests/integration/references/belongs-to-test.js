@@ -8,25 +8,25 @@ import { module, test } from 'qunit';
 
 var env, Family;
 
-module("integration/references/belongs-to", {
+module('integration/references/belongs-to', {
   beforeEach() {
     Family = DS.Model.extend({
       persons: DS.hasMany(),
-      name: DS.attr()
+      name: DS.attr(),
     });
     var Person = DS.Model.extend({
-      family: DS.belongsTo({ async: true })
+      family: DS.belongsTo({ async: true }),
     });
 
     env = setupStore({
       person: Person,
-      family: Family
+      family: Family,
     });
   },
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
 testInDebug("record#belongsTo asserts when specified relationship doesn't exist", function(assert) {
@@ -35,37 +35,40 @@ testInDebug("record#belongsTo asserts when specified relationship doesn't exist"
     person = env.store.push({
       data: {
         type: 'person',
-        id: 1
-      }
+        id: 1,
+      },
     });
   });
 
   assert.expectAssertion(function() {
     run(function() {
-      person.belongsTo("unknown-relationship");
+      person.belongsTo('unknown-relationship');
     });
   }, "There is no belongsTo relationship named 'unknown-relationship' on a model of modelClass 'person'");
 });
 
-testInDebug("record#belongsTo asserts when the type of the specified relationship isn't the requested one", function(assert) {
-  var family;
-  run(function() {
-    family = env.store.push({
-      data: {
-        type: 'family',
-        id: 1
-      }
-    });
-  });
-
-  assert.expectAssertion(function() {
+testInDebug(
+  "record#belongsTo asserts when the type of the specified relationship isn't the requested one",
+  function(assert) {
+    var family;
     run(function() {
-      family.belongsTo("persons");
+      family = env.store.push({
+        data: {
+          type: 'family',
+          id: 1,
+        },
+      });
     });
-  }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of kind 'hasMany'. Use record.hasMany('persons') instead.");
-});
 
-test("record#belongsTo", function(assert) {
+    assert.expectAssertion(function() {
+      run(function() {
+        family.belongsTo('persons');
+      });
+    }, "You tried to get the 'persons' relationship on a 'family' via record.belongsTo('persons'), but the relationship is of kind 'hasMany'. Use record.hasMany('persons') instead.");
+  }
+);
+
+test('record#belongsTo', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
@@ -74,10 +77,10 @@ test("record#belongsTo", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -88,7 +91,7 @@ test("record#belongsTo", function(assert) {
   assert.equal(familyReference.id(), 1);
 });
 
-test("record#belongsTo for a linked reference", function(assert) {
+test('record#belongsTo for a linked reference', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
@@ -97,10 +100,10 @@ test("record#belongsTo for a linked reference", function(assert) {
         id: 1,
         relationships: {
           family: {
-            links: { related: '/families/1' }
-          }
-        }
-      }
+            links: { related: '/families/1' },
+          },
+        },
+      },
     });
   });
 
@@ -108,10 +111,10 @@ test("record#belongsTo for a linked reference", function(assert) {
 
   assert.equal(familyReference.remoteType(), 'link');
   assert.equal(familyReference.type, 'family');
-  assert.equal(familyReference.link(), "/families/1");
+  assert.equal(familyReference.link(), '/families/1');
 });
 
-test("BelongsToReference#parent is a reference to the parent where the relationship is defined", function(assert) {
+test('BelongsToReference#parent is a reference to the parent where the relationship is defined', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
@@ -120,10 +123,10 @@ test("BelongsToReference#parent is a reference to the parent where the relations
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -134,7 +137,7 @@ test("BelongsToReference#parent is a reference to the parent where the relations
   assert.equal(familyReference.parent, personReference);
 });
 
-test("BelongsToReference#meta() returns the most recent meta for the relationship", function(assert) {
+test('BelongsToReference#meta() returns the most recent meta for the relationship', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
@@ -144,14 +147,14 @@ test("BelongsToReference#meta() returns the most recent meta for the relationshi
         relationships: {
           family: {
             links: {
-              related: '/families/1'
+              related: '/families/1',
             },
             meta: {
-              foo: true
-            }
-          }
-        }
-      }
+              foo: true,
+            },
+          },
+        },
+      },
     });
   });
 
@@ -159,7 +162,7 @@ test("BelongsToReference#meta() returns the most recent meta for the relationshi
   assert.deepEqual(familyReference.meta(), { foo: true });
 });
 
-test("push(object)", function(assert) {
+test('push(object)', function(assert) {
   var done = assert.async();
 
   var person;
@@ -170,10 +173,10 @@ test("push(object)", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -185,21 +188,21 @@ test("push(object)", function(assert) {
         type: 'family',
         id: 1,
         attributes: {
-          name: "Coreleone"
-        }
-      }
+          name: 'Coreleone',
+        },
+      },
     };
 
     familyReference.push(data).then(function(record) {
-      assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
-      assert.equal(get(record, 'name'), "Coreleone", "name is set");
+      assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
+      assert.equal(get(record, 'name'), 'Coreleone', 'name is set');
 
       done();
     });
   });
 });
 
-testInDebug("push(record)", function(assert) {
+testInDebug('push(record)', function(assert) {
   var done = assert.async();
 
   var person, family;
@@ -210,19 +213,19 @@ testInDebug("push(record)", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     family = env.store.push({
       data: {
         type: 'family',
         id: 1,
         attributes: {
-          name: "Coreleone"
-        }
-      }
+          name: 'Coreleone',
+        },
+      },
     });
   });
 
@@ -230,8 +233,8 @@ testInDebug("push(record)", function(assert) {
 
   run(function() {
     familyReference.push(family).then(function(record) {
-      assert.ok(Family.detectInstance(record), "push resolves with the referenced record");
-      assert.equal(get(record, 'name'), "Coreleone", "name is set");
+      assert.ok(Family.detectInstance(record), 'push resolves with the referenced record');
+      assert.equal(get(record, 'name'), 'Coreleone', 'name is set');
       assert.equal(record, family);
 
       done();
@@ -239,7 +242,7 @@ testInDebug("push(record)", function(assert) {
   });
 });
 
-test("push(promise)", function(assert) {
+test('push(promise)', function(assert) {
   var done = assert.async();
 
   var push;
@@ -252,10 +255,10 @@ test("push(promise)", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     var familyReference = person.belongsTo('family');
     push = familyReference.push(deferred.promise);
@@ -269,23 +272,23 @@ test("push(promise)", function(assert) {
         type: 'family',
         id: 1,
         attributes: {
-          name: "Coreleone"
-        }
-      }
+          name: 'Coreleone',
+        },
+      },
     });
   });
 
   run(function() {
     push.then(function(record) {
-      assert.ok(Family.detectInstance(record), "push resolves with the record");
-      assert.equal(get(record, 'name'), "Coreleone", "name is updated");
+      assert.ok(Family.detectInstance(record), 'push resolves with the record');
+      assert.equal(get(record, 'name'), 'Coreleone', 'name is updated');
 
       done();
     });
   });
 });
 
-testInDebug("push(record) asserts for invalid modelClass", function(assert) {
+testInDebug('push(record) asserts for invalid modelClass', function(assert) {
   var person, anotherPerson;
   run(function() {
     person = env.store.push({
@@ -294,16 +297,16 @@ testInDebug("push(record) asserts for invalid modelClass", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     anotherPerson = env.store.push({
       data: {
         type: 'person',
-        id: 2
-      }
+        id: 2,
+      },
     });
   });
 
@@ -316,7 +319,7 @@ testInDebug("push(record) asserts for invalid modelClass", function(assert) {
   }, "You cannot add a record of modelClass 'person' to the 'person.family' relationship (only 'family' allowed)");
 });
 
-testInDebug("push(record) works with polymorphic modelClass", function(assert) {
+testInDebug('push(record) works with polymorphic modelClass', function(assert) {
   var done = assert.async();
 
   var person, mafiaFamily;
@@ -327,14 +330,14 @@ testInDebug("push(record) works with polymorphic modelClass", function(assert) {
     person = env.store.push({
       data: {
         type: 'person',
-        id: 1
-      }
+        id: 1,
+      },
     });
     mafiaFamily = env.store.push({
       data: {
         type: 'mafia-family',
-        id: 1
-      }
+        id: 1,
+      },
     });
   });
 
@@ -348,7 +351,7 @@ testInDebug("push(record) works with polymorphic modelClass", function(assert) {
   });
 });
 
-test("value() is null when reference is not yet loaded", function(assert) {
+test('value() is null when reference is not yet loaded', function(assert) {
   var person;
   run(function() {
     person = env.store.push({
@@ -357,10 +360,10 @@ test("value() is null when reference is not yet loaded", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -368,7 +371,7 @@ test("value() is null when reference is not yet loaded", function(assert) {
   assert.strictEqual(familyReference.value(), null);
 });
 
-test("value() returns the referenced record when loaded", function(assert) {
+test('value() returns the referenced record when loaded', function(assert) {
   var person, family;
   run(function() {
     person = env.store.push({
@@ -377,16 +380,16 @@ test("value() returns the referenced record when loaded", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     family = env.store.push({
       data: {
         type: 'family',
-        id: 1
-      }
+        id: 1,
+      },
     });
   });
 
@@ -394,7 +397,7 @@ test("value() returns the referenced record when loaded", function(assert) {
   assert.equal(familyReference.value(), family);
 });
 
-test("value() returns the referenced record when loaded even if links are present", function(assert) {
+test('value() returns the referenced record when loaded even if links are present', function(assert) {
   var person, family;
   run(function() {
     person = env.store.push({
@@ -403,10 +406,10 @@ test("value() returns the referenced record when loaded even if links are presen
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     family = env.store.push({
       data: {
@@ -415,11 +418,11 @@ test("value() returns the referenced record when loaded even if links are presen
         relationships: {
           persons: {
             links: {
-              related: '/this/should/not/matter'
-            }
-          }
-        }
-      }
+              related: '/this/should/not/matter',
+            },
+          },
+        },
+      },
     });
   });
 
@@ -427,7 +430,7 @@ test("value() returns the referenced record when loaded even if links are presen
   assert.equal(familyReference.value(), family);
 });
 
-test("load() fetches the record", function(assert) {
+test('load() fetches the record', function(assert) {
   var done = assert.async();
 
   env.adapter.findRecord = function(store, type, id) {
@@ -435,8 +438,8 @@ test("load() fetches the record", function(assert) {
       data: {
         id: 1,
         type: 'family',
-        attributes: { name: "Coreleone" }
-      }
+        attributes: { name: 'Coreleone' },
+      },
     });
   };
 
@@ -448,10 +451,10 @@ test("load() fetches the record", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -459,25 +462,25 @@ test("load() fetches the record", function(assert) {
 
   run(function() {
     familyReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+      assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
     });
   });
 });
 
-test("load() fetches link when remoteType is link", function(assert) {
+test('load() fetches link when remoteType is link', function(assert) {
   var done = assert.async();
 
   env.adapter.findBelongsTo = function(store, snapshot, link) {
-    assert.equal(link, "/families/1");
+    assert.equal(link, '/families/1');
 
     return resolve({
       data: {
         id: 1,
         type: 'family',
-        attributes: { name: "Coreleone" }
-      }
+        attributes: { name: 'Coreleone' },
+      },
     });
   };
 
@@ -489,26 +492,26 @@ test("load() fetches link when remoteType is link", function(assert) {
         id: 1,
         relationships: {
           family: {
-            links: { related: '/families/1' }
-          }
-        }
-      }
+            links: { related: '/families/1' },
+          },
+        },
+      },
     });
   });
 
   var familyReference = person.belongsTo('family');
-  assert.equal(familyReference.remoteType(), "link");
+  assert.equal(familyReference.remoteType(), 'link');
 
   run(function() {
     familyReference.load().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+      assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
     });
   });
 });
 
-test("reload() - loads the record when not yet loaded", function(assert) {
+test('reload() - loads the record when not yet loaded', function(assert) {
   var done = assert.async();
 
   var count = 0;
@@ -520,8 +523,8 @@ test("reload() - loads the record when not yet loaded", function(assert) {
       data: {
         id: 1,
         type: 'family',
-        attributes: { name: "Coreleone" }
-      }
+        attributes: { name: 'Coreleone' },
+      },
     });
   };
 
@@ -533,10 +536,10 @@ test("reload() - loads the record when not yet loaded", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
   });
 
@@ -544,14 +547,14 @@ test("reload() - loads the record when not yet loaded", function(assert) {
 
   run(function() {
     familyReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+      assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
     });
   });
 });
 
-test("reload() - reloads the record when already loaded", function(assert) {
+test('reload() - reloads the record when already loaded', function(assert) {
   var done = assert.async();
 
   var count = 0;
@@ -563,8 +566,8 @@ test("reload() - reloads the record when already loaded", function(assert) {
       data: {
         id: 1,
         type: 'family',
-        attributes: { name: "Coreleone" }
-      }
+        attributes: { name: 'Coreleone' },
+      },
     });
   };
 
@@ -576,16 +579,16 @@ test("reload() - reloads the record when already loaded", function(assert) {
         id: 1,
         relationships: {
           family: {
-            data: { type: 'family', id: 1 }
-          }
-        }
-      }
+            data: { type: 'family', id: 1 },
+          },
+        },
+      },
     });
     env.store.push({
       data: {
         type: 'family',
-        id: 1
-      }
+        id: 1,
+      },
     });
   });
 
@@ -593,25 +596,25 @@ test("reload() - reloads the record when already loaded", function(assert) {
 
   run(function() {
     familyReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+      assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
     });
   });
 });
 
-test("reload() - uses link to reload record", function(assert) {
+test('reload() - uses link to reload record', function(assert) {
   var done = assert.async();
 
   env.adapter.findBelongsTo = function(store, snapshot, link) {
-    assert.equal(link, "/families/1");
+    assert.equal(link, '/families/1');
 
     return resolve({
       data: {
         id: 1,
         type: 'family',
-        attributes: { name: "Coreleone" }
-      }
+        attributes: { name: 'Coreleone' },
+      },
     });
   };
 
@@ -623,10 +626,10 @@ test("reload() - uses link to reload record", function(assert) {
         id: 1,
         relationships: {
           family: {
-            links: { related: '/families/1' }
-          }
-        }
-      }
+            links: { related: '/families/1' },
+          },
+        },
+      },
     });
   });
 
@@ -634,7 +637,7 @@ test("reload() - uses link to reload record", function(assert) {
 
   run(function() {
     familyReference.reload().then(function(record) {
-      assert.equal(get(record, 'name'), "Coreleone");
+      assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
     });

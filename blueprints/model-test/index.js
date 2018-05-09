@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 var ModelBlueprint = require('../model');
 var testInfo = require('ember-cli-test-info');
 var useTestFrameworkDetector = require('../test-framework-detector');
@@ -10,8 +8,8 @@ module.exports = useTestFrameworkDetector({
   locals: function(options) {
     var result = ModelBlueprint.locals.apply(this, arguments);
 
-    result.friendlyTestDescription = testInfo.description(options.entity.name, "Unit", "Model");
+    result.friendlyTestDescription = testInfo.description(options.entity.name, 'Unit', 'Model');
 
     return result;
-  }
+  },
 });

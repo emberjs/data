@@ -112,7 +112,9 @@ export default class RelationshipPayloadsManager {
     @method
   */
   push(modelName, id, relationshipsData) {
-    if (!relationshipsData) { return; }
+    if (!relationshipsData) {
+      return;
+    }
 
     Object.keys(relationshipsData).forEach(key => {
       let relationshipPayloads = this._getRelationshipPayloads(modelName, key, true);
@@ -208,7 +210,8 @@ export default class RelationshipPayloadsManager {
       inverseMeta = modelClass.inverseFor(relationshipName, store);
     }
 
-    let selfIsPolymorphic = relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
+    let selfIsPolymorphic =
+      relationshipMeta.options !== undefined && relationshipMeta.options.polymorphic === true;
     let inverseBaseModelName = relationshipMeta.type;
 
     // CASE: We have no inverse
@@ -228,7 +231,7 @@ export default class RelationshipPayloadsManager {
         rhs_isPolymorphic: false,
         hasInverse: false,
         isSelfReferential: false, // modelName === inverseBaseModelName,
-        isReflexive: false
+        isReflexive: false,
       };
 
       inverseCache.set(modelName, relationshipName, info);
@@ -239,7 +242,9 @@ export default class RelationshipPayloadsManager {
     // CASE: We do have an inverse
 
     let inverseRelationshipName = inverseMeta.name;
-    let inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(inverseRelationshipName);
+    let inverseRelationshipMeta = get(inverseMeta.type, 'relationshipsByName').get(
+      inverseRelationshipName
+    );
     let baseModelName = inverseRelationshipMeta.type;
     let isSelfReferential = baseModelName === inverseBaseModelName;
 
@@ -254,11 +259,15 @@ export default class RelationshipPayloadsManager {
 
     // CASE: We may have already discovered the inverse for the baseModelName
     // CASE: We have already discovered the inverse
-    cached = inverseCache.get(baseModelName, relationshipName) ||
+    cached =
+      inverseCache.get(baseModelName, relationshipName) ||
       inverseCache.get(inverseBaseModelName, inverseRelationshipName);
     if (cached) {
       // TODO this assert can be removed if the above assert is enabled
-      assert(`The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`, cached.hasInverse !== false);
+      assert(
+        `The ${inverseBaseModelName}:${inverseRelationshipName} relationship declares 'inverse: null', but it was resolved as the inverse for ${baseModelName}:${relationshipName}.`,
+        cached.hasInverse !== false
+      );
 
       let isLHS = cached.lhs_baseModelName === baseModelName;
       let modelNames = isLHS ? cached.lhs_modelNames : cached.rhs_modelNames;
@@ -281,10 +290,12 @@ export default class RelationshipPayloadsManager {
       rhs_baseModelName: inverseBaseModelName,
       rhs_relationshipName: inverseRelationshipName,
       rhs_relationshipMeta: inverseRelationshipMeta,
-      rhs_isPolymorphic: inverseRelationshipMeta.options !== undefined && inverseRelationshipMeta.options.polymorphic === true,
+      rhs_isPolymorphic:
+        inverseRelationshipMeta.options !== undefined &&
+        inverseRelationshipMeta.options.polymorphic === true,
       hasInverse: true,
       isSelfReferential,
-      isReflexive: isSelfReferential && relationshipName === inverseRelationshipName
+      isReflexive: isSelfReferential && relationshipName === inverseRelationshipName,
     };
 
     // Create entries for the baseModelName as well as modelName to speed up
@@ -324,7 +335,7 @@ export default class RelationshipPayloadsManager {
     // This works out better than creating a single common key, because to
     // compute that key we would need to do work to look up the inverse
     //
-    let cache = this._cache[lhsKey] = new RelationshipPayloads(relInfo);
+    let cache = (this._cache[lhsKey] = new RelationshipPayloads(relInfo));
 
     if (relInfo.hasInverse === true) {
       this._cache[rhsKey] = cache;

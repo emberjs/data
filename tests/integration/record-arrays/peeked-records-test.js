@@ -11,39 +11,41 @@ const Person = DS.Model.extend({
   name: DS.attr('string'),
   toString() {
     return `<Person#${this.get('id')}>`;
-  }
+  },
 });
 
 module('integration/peeked-records', {
   beforeEach() {
     store = createStore({
-      person: Person
+      person: Person,
     });
-  }
+  },
 });
 
 test('repeated calls to peekAll in separate run-loops works as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
 
-  run(() => store.push({
-    data: [
-      {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'John'
-        }
-      },
-      {
-        type: 'person',
-        id: '2',
-        attributes: {
-          name: 'Joe'
-        }
-      }
-    ]
-  }));
+  run(() =>
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'John',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Joe',
+          },
+        },
+      ],
+    })
+  );
 
   assert.watchedPropertyCounts(
     watcher,
@@ -71,17 +73,17 @@ test('peekAll in the same run-loop as push works as expected', function(assert) 
           type: 'person',
           id: '1',
           attributes: {
-            name: 'John'
-          }
+            name: 'John',
+          },
         },
         {
           type: 'person',
           id: '2',
           attributes: {
-            name: 'Joe'
-          }
-        }
-      ]
+            name: 'Joe',
+          },
+        },
+      ],
     });
     store.peekAll('person');
   });
@@ -105,7 +107,7 @@ test('newly created records notify the array as expected', function(assert) {
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
   let aNewlyCreatedRecord = store.createRecord('person', {
-    name: 'James'
+    name: 'James',
   });
 
   assert.watchedPropertyCounts(
@@ -129,7 +131,7 @@ test('immediately peeking newly created records works as expected', function(ass
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
   let aNewlyCreatedRecord = store.createRecord('person', {
-    name: 'James'
+    name: 'James',
   });
 
   assert.watchedPropertyCounts(
@@ -154,7 +156,7 @@ test('unloading newly created records notify the array as expected', function(as
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
   let aNewlyCreatedRecord = store.createRecord('person', {
-    name: 'James'
+    name: 'James',
   });
 
   assert.watchedPropertyCounts(
@@ -178,7 +180,7 @@ test('immediately peeking after unloading newly created records works as expecte
   let peekedRecordArray = run(() => store.peekAll('person'));
   let watcher = watchProperties(peekedRecordArray, ['length', '[]']);
   let aNewlyCreatedRecord = store.createRecord('person', {
-    name: 'James'
+    name: 'James',
   });
 
   assert.watchedPropertyCounts(
@@ -210,17 +212,17 @@ test('unloadAll followed by peekAll in the same run-loop works as expected', fun
           type: 'person',
           id: '1',
           attributes: {
-            name: 'John'
-          }
+            name: 'John',
+          },
         },
         {
           type: 'person',
           id: '2',
           attributes: {
-            name: 'Joe'
-          }
-        }
-      ]
+            name: 'Joe',
+          },
+        },
+      ],
     });
   });
 
@@ -241,7 +243,11 @@ test('unloadAll followed by peekAll in the same run-loop works as expected', fun
       'RecordArray state after unloadAll has not changed yet'
     );
 
-    assert.equal(get(peekedRecordArray, 'length'), 2, 'Array length is unchanged before the next peek');
+    assert.equal(
+      get(peekedRecordArray, 'length'),
+      2,
+      'Array length is unchanged before the next peek'
+    );
 
     store.peekAll('person');
 
@@ -270,17 +276,17 @@ test('push+materialize => unloadAll => push+materialize works as expected', func
             type: 'person',
             id: '1',
             attributes: {
-              name: 'John'
-            }
+              name: 'John',
+            },
           },
           {
             type: 'person',
             id: '2',
             attributes: {
-              name: 'Joe'
-            }
-          }
-        ]
+              name: 'Joe',
+            },
+          },
+        ],
       });
     });
   }
@@ -327,17 +333,17 @@ test('push-without-materialize => unloadAll => push-without-materialize works as
             type: 'person',
             id: '1',
             attributes: {
-              name: 'John'
-            }
+              name: 'John',
+            },
           },
           {
             type: 'person',
             id: '2',
             attributes: {
-              name: 'Joe'
-            }
-          }
-        ]
+              name: 'Joe',
+            },
+          },
+        ],
       });
     });
   }
@@ -374,4 +380,3 @@ test('push-without-materialize => unloadAll => push-without-materialize works as
     'RecordArray state now has records again'
   );
 });
-

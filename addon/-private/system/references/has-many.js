@@ -61,10 +61,10 @@ export default class HasManyReference extends Reference {
   */
   remoteType() {
     if (this.hasManyRelationship.link) {
-      return "link";
+      return 'link';
     }
 
-    return "ids";
+    return 'ids';
   }
 
   /**
@@ -232,20 +232,25 @@ export default class HasManyReference extends Reference {
      @return {DS.ManyArray}
   */
   push(objectOrPromise) {
-    return resolve(objectOrPromise).then((payload) => {
+    return resolve(objectOrPromise).then(payload => {
       let array = payload;
 
-      if (typeof payload === "object" && payload.data) {
+      if (typeof payload === 'object' && payload.data) {
         array = payload.data;
       }
 
       let internalModels;
-      internalModels = array.map((obj) => {
+      internalModels = array.map(obj => {
         let record = this.store.push(obj);
 
         if (DEBUG) {
           let relationshipMeta = this.hasManyRelationship.relationshipMeta;
-          assertPolymorphicType(this.internalModel, relationshipMeta, record._internalModel, this.store);
+          assertPolymorphicType(
+            this.internalModel,
+            relationshipMeta,
+            record._internalModel,
+            this.store
+          );
         }
 
         return record._internalModel;
@@ -398,5 +403,4 @@ export default class HasManyReference extends Reference {
   reload() {
     return this.hasManyRelationship.reload();
   }
-
 }

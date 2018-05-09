@@ -61,7 +61,6 @@ import EmberObject from '@ember/object';
 */
 
 export default EmberObject.extend({
-
   /**
     If you would like your adapter to use a custom serializer you can
     set the `defaultSerializer` property to be the name of the custom
@@ -282,7 +281,7 @@ export default EmberObject.extend({
     @return {Object} serialized snapshot
   */
   serialize(snapshot, options) {
-    return snapshot.serialize(options)
+    return snapshot.serialize(options);
   },
 
   /**
@@ -493,7 +492,6 @@ export default EmberObject.extend({
     return [snapshots];
   },
 
-
   /**
     This method is used by the store to determine if the store should
     reload a record from the adapter when a record is requested by
@@ -677,5 +675,5 @@ export default EmberObject.extend({
   */
   shouldBackgroundReloadAll(store, snapshotRecordArray) {
     return true;
-  }
+  },
 });

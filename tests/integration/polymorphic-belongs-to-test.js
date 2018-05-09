@@ -11,15 +11,15 @@ let store;
 
 const Book = DS.Model.extend({
   title: attr(),
-  author: belongsTo('person', { polymorphic: true, async: false })
+  author: belongsTo('person', { polymorphic: true, async: false }),
 });
 
 const Author = DS.Model.extend({
-  name: attr()
+  name: attr(),
 });
 
 const AsyncBook = DS.Model.extend({
-  author: belongsTo('person', { polymorphic: true })
+  author: belongsTo('person', { polymorphic: true }),
 });
 
 module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
@@ -28,18 +28,17 @@ module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
       book: Book,
       author: Author,
       'async-book': AsyncBook,
-      person: DS.Model.extend()
+      person: DS.Model.extend(),
     });
     store = env.store;
   },
 
   afterEach() {
     run(store, 'destroy');
-  }
+  },
 });
 
-
-test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', (assert) => {
+test('using store.push with a null value for a payload in relationships sets the Models relationship to null - sync relationship', assert => {
   let payload = {
     data: {
       type: 'book',
@@ -49,18 +48,18 @@ test('using store.push with a null value for a payload in relationships sets the
         author: {
           data: {
             type: 'author',
-            id: 1
-          }
-        }
-      }
+            id: 1,
+          },
+        },
+      },
     },
     included: [
       {
         id: 1,
         name: 'Amy Poehler',
-        type: 'author'
-      }
-    ]
+        type: 'author',
+      },
+    ],
   };
 
   let book = run(() => {
@@ -77,17 +76,17 @@ test('using store.push with a null value for a payload in relationships sets the
       title: 'Yes, Please',
       relationships: {
         author: {
-          data: null
-        }
-      }
-    }
+          data: null,
+        },
+      },
+    },
   };
 
   run(() => store.push(payloadThatResetsBelongToRelationship));
   assert.strictEqual(book.get('author'), null);
 });
 
-test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', (assert) => {
+test('using store.push with a null value for a payload in relationships sets the Models relationship to null - async relationship', assert => {
   let payload = {
     data: {
       type: 'async-book',
@@ -97,18 +96,18 @@ test('using store.push with a null value for a payload in relationships sets the
         author: {
           data: {
             type: 'author',
-            id: 1
-          }
-        }
-      }
+            id: 1,
+          },
+        },
+      },
     },
     included: [
       {
         id: 1,
         name: 'Amy Poehler',
-        type: 'author'
-      }
-    ]
+        type: 'author',
+      },
+    ],
   };
 
   let book = run(() => {
@@ -123,17 +122,20 @@ test('using store.push with a null value for a payload in relationships sets the
       title: 'Yes, Please',
       relationships: {
         author: {
-          data: null
-        }
-      }
-    }
+          data: null,
+        },
+      },
+    },
   };
 
-  return book.get('author').then(author => {
-    assert.equal(author.get('id'), 1);
-    run(() => store.push(payloadThatResetsBelongToRelationship));
-    return book.get('author');
-  }).then(author => {
-    assert.strictEqual(author, null);
-  });
+  return book
+    .get('author')
+    .then(author => {
+      assert.equal(author.get('id'), 1);
+      run(() => store.push(payloadThatResetsBelongToRelationship));
+      return book.get('author');
+    })
+    .then(author => {
+      assert.strictEqual(author, null);
+    });
 });

@@ -10,7 +10,7 @@ import { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
-import Adapter from "../adapter";
+import Adapter from '../adapter';
 import {
   parseResponseHeaders,
   BuildURLMixin,
@@ -23,7 +23,7 @@ import {
   ServerError,
   TimeoutError,
   AbortError,
-  MapWithDefault
+  MapWithDefault,
 } from '../-private';
 import { instrument } from 'ember-data/-debug';
 import { warn } from '@ember/debug';
@@ -644,7 +644,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findHasMany(store, snapshot, url, relationship) {
-    let id   = snapshot.id;
+    let id = snapshot.id;
     let type = snapshot.modelName;
 
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findHasMany'));
@@ -689,7 +689,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findBelongsTo(store, snapshot, url, relationship) {
-    let id   = snapshot.id;
+    let id = snapshot.id;
     let type = snapshot.modelName;
 
     url = this.urlPrefix(url, this.buildURL(type, id, snapshot, 'findBelongsTo'));
@@ -719,7 +719,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-    return this.ajax(url, "POST", { data: data });
+    return this.ajax(url, 'POST', { data: data });
   },
 
   /**
@@ -747,7 +747,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let id = snapshot.id;
     let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
-    return this.ajax(url, "PUT", { data: data });
+    return this.ajax(url, 'PUT', { data: data });
   },
 
   /**
@@ -764,7 +764,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   deleteRecord(store, type, snapshot) {
     let id = snapshot.id;
 
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
+    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
   },
 
   _stripIDFromURL(store, snapshot) {
@@ -779,10 +779,13 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let lastSegment = expandedURL[expandedURL.length - 1];
     let id = snapshot.id;
     if (decodeURIComponent(lastSegment) === id) {
-      expandedURL[expandedURL.length - 1] = "";
+      expandedURL[expandedURL.length - 1] = '';
     } else if (endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
-      expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
+      expandedURL[expandedURL.length - 1] = lastSegment.substring(
+        0,
+        lastSegment.length - id.length - 1
+      );
     }
 
     return expandedURL.join('/');
@@ -814,11 +817,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany(store, snapshots) {
-    let groups = new MapWithDefault({ defaultValue() { return []; } });
+    let groups = new MapWithDefault({
+      defaultValue() {
+        return [];
+      },
+    });
     let adapter = this;
     let maxURLLength = this.maxURLLength;
 
-    snapshots.forEach((snapshot) => {
+    snapshots.forEach(snapshot => {
       let baseUrl = adapter._stripIDFromURL(store, snapshot);
       groups.get(baseUrl).push(snapshot);
     });
@@ -828,7 +835,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       let baseUrl = adapter._stripIDFromURL(store, group[0]);
       let splitGroups = [[]];
 
-      group.forEach((snapshot) => {
+      group.forEach(snapshot => {
         let additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
         if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
           idsSize = 0;
@@ -849,7 +856,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       let paramNameLength = '&ids%5B%5D='.length;
       let splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
 
-      splitGroups.forEach((splitGroup) => groupsArray.push(splitGroup));
+      splitGroups.forEach(splitGroup => groupsArray.push(splitGroup));
     });
 
     return groupsArray;
@@ -891,7 +898,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       return new InvalidError(payload.errors);
     }
 
-    let errors          = this.normalizeErrorResponse(status, headers, payload);
+    let errors = this.normalizeErrorResponse(status, headers, payload);
     let detailedMessage = this.generatedDetailedMessage(status, headers, payload, requestData);
 
     switch (status) {
@@ -924,7 +931,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Boolean}
   */
   isSuccess(status, headers, payload) {
-    return status >= 200 && status < 300 || status === 304;
+    return (status >= 200 && status < 300) || status === 304;
   },
 
   /**
@@ -971,8 +978,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let adapter = this;
 
     let requestData = {
-      url:    url,
-      method: type
+      url: url,
+      method: type,
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
@@ -1010,7 +1017,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     if (typeof najax !== 'undefined') {
       najax(options);
     } else {
-      throw new Error('najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?');
+      throw new Error(
+        'najax does not seem to be defined in your app. Did you override it via `addOrOverrideSandboxGlobals` in the fastboot server?'
+      );
     }
   },
 
@@ -1048,7 +1057,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           }
           heimdall.stop(token);
           return json;
-        }
+        },
       };
     });
 
@@ -1059,8 +1068,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      hash.beforeSend = function (xhr) {
-        Object.keys(headers).forEach((key) =>  xhr.setRequestHeader(key, headers[key]));
+      hash.beforeSend = function(xhr) {
+        Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
       };
     }
 
@@ -1082,7 +1091,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
         try {
           return `${protocol}//${host}${url}`;
         } catch (fbError) {
-          throw new Error('You are using Ember Data with no host defined in your adapter. This will attempt to use the host of the FastBoot request, which is not configured for the current host of this request. Please set the hostWhitelist property for in your environment.js. FastBoot Error: ' + fbError.message);
+          throw new Error(
+            'You are using Ember Data with no host defined in your adapter. This will attempt to use the host of the FastBoot request, which is not configured for the current host of this request. Please set the hostWhitelist property for in your environment.js. FastBoot Error: ' +
+              fbError.message
+          );
         }
       }
     }
@@ -1123,9 +1135,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       return [
         {
           status: `${status}`,
-          title: "The backend responded with an error",
-          detail: `${payload}`
-        }
+          title: 'The backend responded with an error',
+          detail: `${payload}`,
+        },
       ];
     }
   },
@@ -1144,10 +1156,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
     let shortenedPayload;
-    let payloadContentType = headers["Content-Type"] || "Empty Content-Type";
+    let payloadContentType = headers['Content-Type'] || 'Empty Content-Type';
 
-    if (payloadContentType === "text/html" && payload.length > 250) {
-      shortenedPayload = "[Omitted Lengthy HTML]";
+    if (payloadContentType === 'text/html' && payload.length > 250) {
+      shortenedPayload = '[Omitted Lengthy HTML]';
     } else {
       shortenedPayload = payload;
     }
@@ -1155,9 +1167,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let requestDescription = requestData.method + ' ' + requestData.url;
     let payloadDescription = 'Payload (' + payloadContentType + ')';
 
-    return ['Ember Data Request ' + requestDescription + ' returned a ' + status,
-            payloadDescription,
-            shortenedPayload].join('\n');
+    return [
+      'Ember Data Request ' + requestDescription + ' returned a ' + status,
+      payloadDescription,
+      shortenedPayload,
+    ].join('\n');
   },
 
   // @since 2.5.0
@@ -1173,7 +1187,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return query;
-  }
+  },
 });
 
 function ajaxSuccess(adapter, payload, requestData, responseData) {
@@ -1198,10 +1212,12 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 
 function ajaxError(adapter, payload, requestData, responseData) {
   if (DEBUG) {
-    let message = `The server returned an empty string for ${requestData.method} ${requestData.url}, which cannot be parsed into a valid JSON. Return either null or {}.`;
-    let validJSONString = !(responseData.textStatus === "parsererror" && payload === "");
+    let message = `The server returned an empty string for ${requestData.method} ${
+      requestData.url
+    }, which cannot be parsed into a valid JSON. Return either null or {}.`;
+    let validJSONString = !(responseData.textStatus === 'parsererror' && payload === '');
     warn(message, validJSONString, {
-      id: 'ds.adapter.returned-empty-string-as-JSON'
+      id: 'ds.adapter.returned-empty-string-as-JSON',
     });
   }
 
@@ -1254,7 +1270,7 @@ function ajaxResponseData(jqXHR) {
   return {
     status: jqXHR.status,
     textStatus: jqXHR.textStatus,
-    headers: parseResponseHeaders(jqXHR.getAllResponseHeaders())
+    headers: parseResponseHeaders(jqXHR.getAllResponseHeaders()),
   };
 }
 

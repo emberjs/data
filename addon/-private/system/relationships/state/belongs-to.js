@@ -1,10 +1,8 @@
 import { Promise as EmberPromise } from 'rsvp';
 import { assert } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-import {
-  PromiseBelongsTo
-} from "../../promise-proxies";
-import Relationship from "./relationship";
+import { PromiseBelongsTo } from '../../promise-proxies';
+import Relationship from './relationship';
 
 export default class BelongsToRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
@@ -36,7 +34,9 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   setInitialCanonicalInternalModel(internalModel) {
-    if (!internalModel) { return; }
+    if (!internalModel) {
+      return;
+    }
 
     // When we initialize a belongsTo relationship, we want to avoid work like
     // notifying our internalModel that we've "changed" and excessive thrash on
@@ -48,7 +48,9 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   addCanonicalInternalModel(internalModel) {
-    if (this.canonicalMembers.has(internalModel)) { return;}
+    if (this.canonicalMembers.has(internalModel)) {
+      return;
+    }
 
     if (this.canonicalState) {
       this.removeCanonicalInternalModel(this.canonicalState);
@@ -76,7 +78,6 @@ export default class BelongsToRelationship extends Relationship {
     }
   }
 
-
   removeCompletelyFromInverse() {
     super.removeCompletelyFromInverse();
 
@@ -98,7 +99,9 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   addInternalModel(internalModel) {
-    if (this.members.has(internalModel)) { return; }
+    if (this.members.has(internalModel)) {
+      return;
+    }
 
     assertPolymorphicType(this.internalModel, this.relationshipMeta, internalModel, this.store);
 
@@ -113,12 +116,17 @@ export default class BelongsToRelationship extends Relationship {
 
   setRecordPromise(newPromise) {
     let content = newPromise.get && newPromise.get('content');
-    assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+      content !== undefined
+    );
     this.setInternalModel(content ? content._internalModel : content);
   }
 
   removeInternalModelFromOwn(internalModel) {
-    if (!this.members.has(internalModel)) { return;}
+    if (!this.members.has(internalModel)) {
+      return;
+    }
     this.inverseInternalModel = null;
     super.removeInternalModelFromOwn(internalModel);
     this.notifyBelongsToChanged();
@@ -135,7 +143,9 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   removeCanonicalInternalModelFromOwn(internalModel) {
-    if (!this.canonicalMembers.has(internalModel)) { return;}
+    if (!this.canonicalMembers.has(internalModel)) {
+      return;
+    }
     this.canonicalState = null;
     super.removeCanonicalInternalModelFromOwn(internalModel);
   }
@@ -154,12 +164,14 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   fetchLink() {
-    return this.store.findBelongsTo(this.internalModel, this.link, this.relationshipMeta).then((internalModel) => {
-      if (internalModel) {
-        this.addInternalModel(internalModel);
-      }
-      return internalModel;
-    });
+    return this.store
+      .findBelongsTo(this.internalModel, this.link, this.relationshipMeta)
+      .then(internalModel => {
+        if (internalModel) {
+          this.addInternalModel(internalModel);
+        }
+        return internalModel;
+      });
   }
 
   getRecord() {
@@ -173,7 +185,7 @@ export default class BelongsToRelationship extends Relationship {
         promise = this.findRecord();
       }
 
-      let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null
+      let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
 
       return this._updateLoadingPromise(promise, record);
     } else {
@@ -181,7 +193,16 @@ export default class BelongsToRelationship extends Relationship {
         return null;
       }
       let toReturn = this.inverseInternalModel.getRecord();
-      assert("You looked up the '" + this.key + "' relationship on a '" + this.internalModel.modelName + "' with id " + this.internalModel.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+      assert(
+        "You looked up the '" +
+          this.key +
+          "' relationship on a '" +
+          this.internalModel.modelName +
+          "' with id " +
+          this.internalModel.id +
+          ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
+        toReturn === null || !toReturn.get('isEmpty')
+      );
       return toReturn;
     }
   }
@@ -189,14 +210,14 @@ export default class BelongsToRelationship extends Relationship {
   _updateLoadingPromise(promise, content) {
     if (this._loadingPromise) {
       if (content !== undefined) {
-        this._loadingPromise.set('content', content)
+        this._loadingPromise.set('content', content);
       }
-      this._loadingPromise.set('promise', promise)
+      this._loadingPromise.set('promise', promise);
     } else {
       this._loadingPromise = PromiseBelongsTo.create({
         _belongsToState: this,
         promise,
-        content
+        content,
       });
     }
 
@@ -229,7 +250,7 @@ export default class BelongsToRelationship extends Relationship {
   localStateIsEmpty() {
     let internalModel = this.inverseInternalModel;
 
-    return !internalModel  || internalModel.isEmpty();
+    return !internalModel || internalModel.isEmpty();
   }
 
   updateData(data, initial) {

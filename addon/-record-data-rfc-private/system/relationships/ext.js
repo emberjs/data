@@ -3,14 +3,13 @@ import { computed, get } from '@ember/object';
 import MapWithDefault from '../map-with-default';
 import Map from '../map';
 import { assert } from '@ember/debug';
-import {
-  typeForRelationshipMeta,
-  relationshipFromMeta
-} from "../relationship-meta";
+import { typeForRelationshipMeta, relationshipFromMeta } from '../relationship-meta';
 
 export const relationshipsDescriptor = computed(function() {
   let map = new MapWithDefault({
-    defaultValue() { return []; }
+    defaultValue() {
+      return [];
+    },
   });
 
   let relationshipsByName = get(this, 'relationshipsByName');
@@ -36,10 +35,18 @@ export const relatedTypesDescriptor = computed(function() {
       meta.key = name;
       modelName = typeForRelationshipMeta(meta);
 
-      assert(`You specified a hasMany (${meta.type}) on ${meta.parentType} but ${meta.type} was not found.`, modelName);
+      assert(
+        `You specified a hasMany (${meta.type}) on ${meta.parentType} but ${
+          meta.type
+        } was not found.`,
+        modelName
+      );
 
       if (!types.includes(modelName)) {
-        assert(`Trying to sideload ${name} on ${this.toString()} but the type doesn't exist.`, !!modelName);
+        assert(
+          `Trying to sideload ${name} on ${this.toString()} but the type doesn't exist.`,
+          !!modelName
+        );
         types.push(modelName);
       }
     }
@@ -65,7 +72,7 @@ export const relationshipsByNameDescriptor = computed(function() {
   let rels = get(this, 'relationshipsObject');
   let relationships = Object.keys(rels);
 
-  for (let i=0; i < relationships.length; i++) {
+  for (let i = 0; i < relationships.length; i++) {
     let key = relationships[i];
     let value = rels[key];
 

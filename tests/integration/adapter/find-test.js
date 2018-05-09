@@ -9,27 +9,27 @@ const { attr } = DS;
 
 let Person, store, env;
 
-module("integration/adapter/find - Finding Records", {
+module('integration/adapter/find - Finding Records', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
       firstName: attr('string'),
-      lastName: attr('string')
+      lastName: attr('string'),
     });
 
     env = setupStore({
-      person: Person
+      person: Person,
     });
     store = env.store;
   },
 
   afterEach() {
     run(store, 'destroy');
-  }
+  },
 });
 
-testInDebug("It raises an assertion when `undefined` is passed as id (#1705)", function(assert) {
+testInDebug('It raises an assertion when `undefined` is passed as id (#1705)', function(assert) {
   assert.expectAssertion(() => {
     store.find('person', undefined);
   }, `You cannot pass 'undefined' as id to the store's find method`);
@@ -44,23 +44,26 @@ test("When a single record is requested, the adapter's find method should be cal
 
   let count = 0;
 
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord(_, type) {
-      assert.equal(type, Person, "the find method is called with the correct type");
-      assert.equal(count, 0, "the find method is only called once");
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord(_, type) {
+        assert.equal(type, Person, 'the find method is called with the correct type');
+        assert.equal(count, 0, 'the find method is only called once');
 
-      count++;
-      return {
-        data: {
-          id: 1,
-          type: "person",
-          attributes: {
-            name: "Braaaahm Dale"
-          }
-        }
-      };
-    }
-  }));
+        count++;
+        return {
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: {
+              name: 'Braaaahm Dale',
+            },
+          },
+        };
+      },
+    })
+  );
 
   run(() => {
     store.findRecord('person', 1);
@@ -68,26 +71,29 @@ test("When a single record is requested, the adapter's find method should be cal
   });
 });
 
-test("When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved", function(assert) {
+test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', function(assert) {
   let deferred = defer();
 
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord() {
-      return deferred.promise;
-    }
-  }));
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord() {
+        return deferred.promise;
+      },
+    })
+  );
 
   let requestOne = run(() => {
     return store.findRecord('person', 1).then(person => {
-      assert.equal(person.get('id'), "1");
-      assert.equal(person.get('name'), "Braaaahm Dale");
+      assert.equal(person.get('id'), '1');
+      assert.equal(person.get('name'), 'Braaaahm Dale');
     });
   });
 
   let requestTwo = run(() => {
     return store.findRecord('person', 1).then(post => {
-      assert.equal(post.get('id'), "1");
-      assert.equal(post.get('name'), "Braaaahm Dale");
+      assert.equal(post.get('id'), '1');
+      assert.equal(post.get('name'), 'Braaaahm Dale');
     });
   });
 
@@ -95,26 +101,26 @@ test("When a single record is requested multiple times, all .findRecord() calls 
     deferred.resolve({
       data: {
         id: 1,
-        type: "person",
+        type: 'person',
         attributes: {
-          name: "Braaaahm Dale"
-        }
-      }
+          name: 'Braaaahm Dale',
+        },
+      },
     });
   });
 
-  return Promise.all([
-    requestOne,
-    requestTwo
-  ])
+  return Promise.all([requestOne, requestTwo]);
 });
 
-test("When a single record is requested, and the promise is rejected, .findRecord() is rejected.", function(assert) {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord() {
-      return reject();
-    }
-  }));
+test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', function(assert) {
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord() {
+        return reject();
+      },
+    })
+  );
 
   return run(() => {
     return store.findRecord('person', 1).catch(() => {
@@ -123,27 +129,33 @@ test("When a single record is requested, and the promise is rejected, .findRecor
   });
 });
 
-test("When a single record is requested, and the promise is rejected, the record should be unloaded.", function(assert) {
+test('When a single record is requested, and the promise is rejected, the record should be unloaded.', function(assert) {
   assert.expect(2);
 
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord() {
-      return reject();
-    }
-  }));
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord() {
+        return reject();
+      },
+    })
+  );
 
   return run(() => {
     return store.findRecord('person', 1).catch(reason => {
-      assert.ok(true, "The rejection handler was called");
-      assert.ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
+      assert.ok(true, 'The rejection handler was called');
+      assert.ok(!store.hasRecordForId('person', 1), 'The record has been unloaded');
     });
   });
 });
 
 testInDebug('When a single record is requested, and the payload is blank', function(assert) {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord: () => resolve({})
-  }));
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord: () => resolve({}),
+    })
+  );
 
   assert.expectAssertion(() => {
     run(() => store.findRecord('person', 'the-id'));
@@ -151,10 +163,13 @@ testInDebug('When a single record is requested, and the payload is blank', funct
 });
 
 testInDebug('When multiple records are requested, and the payload is blank', function(assert) {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    coalesceFindRequests: true,
-    findMany: () => resolve({})
-  }));
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      coalesceFindRequests: true,
+      findMany: () => resolve({}),
+    })
+  );
 
   assert.expectAssertion(() => {
     run(() => {
@@ -164,22 +179,26 @@ testInDebug('When multiple records are requested, and the payload is blank', fun
   }, /You made a 'findMany' request for 'person' records with ids '\[1,2\]', but the adapter's response did not have any data/);
 });
 
-testInDebug("warns when returned record has different id", function(assert) {
-  env.registry.register('adapter:person', DS.Adapter.extend({
-    findRecord() {
-      return {
-        data: {
-          id: 1,
-          type: "person",
-          attributes: {
-            name: "Braaaahm Dale"
-          }
-        }
-      };
-    }
-  }));
+testInDebug('warns when returned record has different id', function(assert) {
+  env.registry.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord() {
+        return {
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: {
+              name: 'Braaaahm Dale',
+            },
+          },
+        };
+      },
+    })
+  );
 
   assert.expectWarning(
     () => run(() => env.store.findRecord('person', 'me')),
-      /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/);
+    /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/
+  );
 });

@@ -12,12 +12,22 @@ import EmberArray from '@ember/array';
   `Array.isArray` hence removing the "array-like" part.
  */
 export default function isArrayLike(obj) {
-  if (!obj || obj.setInterval) { return false; }
-  if (Array.isArray(obj)) { return true; }
-  if (EmberArray.detect(obj)) { return true; }
+  if (!obj || obj.setInterval) {
+    return false;
+  }
+  if (Array.isArray(obj)) {
+    return true;
+  }
+  if (EmberArray.detect(obj)) {
+    return true;
+  }
 
   let type = typeOf(obj);
-  if ('array' === type) { return true; }
-  if ((obj.length !== undefined) && 'object' === type) { return true; }
+  if ('array' === type) {
+    return true;
+  }
+  if (obj.length !== undefined && 'object' === type) {
+    return true;
+  }
   return false;
 }

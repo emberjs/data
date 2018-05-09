@@ -14,29 +14,29 @@ module('unit/many_array - DS.ManyArray', {
   beforeEach() {
     Post = DS.Model.extend({
       title: attr('string'),
-      tags: hasMany('tag', { async: false })
+      tags: hasMany('tag', { async: false }),
     });
 
     Post.reopenClass({
       toString() {
         return 'Post';
-      }
+      },
     });
 
     Tag = DS.Model.extend({
       name: attr('string'),
-      post: belongsTo('post', { async: false })
+      post: belongsTo('post', { async: false }),
     });
 
     Tag.reopenClass({
       toString() {
         return 'Tag';
-      }
+      },
     });
 
     env = setupStore({
       post: Post,
-      tag: Tag
+      tag: Tag,
     });
 
     store = env.store;
@@ -44,7 +44,7 @@ module('unit/many_array - DS.ManyArray', {
 
   afterEach() {
     run(store, 'destroy');
-  }
+  },
 });
 
 test('manyArray.save() calls save() on all records', function(assert) {
@@ -54,7 +54,7 @@ test('manyArray.save() calls save() on all records', function(assert) {
     save() {
       assert.ok(true, 'record.save() was called');
       return resolve();
-    }
+    },
   });
 
   return run(() => {
@@ -64,38 +64,39 @@ test('manyArray.save() calls save() on all records', function(assert) {
           type: 'tag',
           id: '1',
           attributes: {
-            name: 'Ember.js'
-          }
+            name: 'Ember.js',
+          },
         },
         {
           type: 'tag',
           id: '2',
           attributes: {
-            name: 'Tomster'
-          }
+            name: 'Tomster',
+          },
         },
         {
           type: 'post',
           id: '3',
           attributes: {
-            title: 'A framework for creating ambitious web applications'
+            title: 'A framework for creating ambitious web applications',
           },
           relationships: {
             tags: {
-              data: [
-                { type: 'tag', id: '1' },
-                { type: 'tag', id: '2' }
-              ]
-            }
-          }
-        }]
+              data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+            },
+          },
+        },
+      ],
     });
 
     let post = store.peekRecord('post', 3);
 
-    return post.get('tags').save().then(() => {
-      assert.ok(true, 'manyArray.save() promise resolved');
-    });
+    return post
+      .get('tags')
+      .save()
+      .then(() => {
+        assert.ok(true, 'manyArray.save() promise resolved');
+      });
   });
 });
 
@@ -111,7 +112,7 @@ test('manyArray trigger arrayContentChange functions with the correct values', f
 
   // override DS.ManyArray temp (cleanup occures in afterTest);
 
-  DS.ManyArray.proto().arrayContentWillChange = function(startIdx, removeAmt, addAmt)  {
+  DS.ManyArray.proto().arrayContentWillChange = function(startIdx, removeAmt, addAmt) {
     willChangeStartIdx = startIdx;
     willChangeRemoveAmt = removeAmt;
     willChangeAddAmt = addAmt;
@@ -135,31 +136,29 @@ test('manyArray trigger arrayContentChange functions with the correct values', f
             type: 'tag',
             id: '1',
             attributes: {
-              name: 'Ember.js'
-            }
+              name: 'Ember.js',
+            },
           },
           {
             type: 'tag',
             id: '2',
             attributes: {
-              name: 'Tomster'
-            }
+              name: 'Tomster',
+            },
           },
           {
             type: 'post',
             id: '3',
             attributes: {
-              title: 'A framework for creating ambitious web applications'
+              title: 'A framework for creating ambitious web applications',
             },
             relationships: {
               tags: {
-                data: [
-                  { type: 'tag', id: '1' }
-                ]
-              }
-            }
-          }
-        ]
+                data: [{ type: 'tag', id: '1' }],
+              },
+            },
+          },
+        ],
       });
 
       store.peekRecord('post', 3).get('tags');
@@ -169,17 +168,14 @@ test('manyArray trigger arrayContentChange functions with the correct values', f
           type: 'post',
           id: '3',
           attributes: {
-            title: 'A framework for creating ambitious web applications'
+            title: 'A framework for creating ambitious web applications',
           },
           relationships: {
             tags: {
-              data: [
-                { type: 'tag', id: '1' },
-                { type: 'tag', id: '2' }
-              ]
-            }
-          }
-        }
+              data: [{ type: 'tag', id: '1' }, { type: 'tag', id: '2' }],
+            },
+          },
+        },
       });
     });
   } finally {

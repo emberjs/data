@@ -49,5 +49,5 @@ export default Transform.extend({
 
       return isNumber(transformed) ? transformed : null;
     }
-  }
+  },
 });

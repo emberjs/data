@@ -10,10 +10,10 @@ const { hasMany } = DS;
 
 let Post, Comment, env;
 
-module("integration/load - Loading Records", {
+module('integration/load - Loading Records', {
   beforeEach() {
     Post = DS.Model.extend({
-      comments: hasMany({ async: true })
+      comments: hasMany({ async: true }),
     });
 
     Comment = DS.Model.extend();
@@ -23,10 +23,10 @@ module("integration/load - Loading Records", {
 
   afterEach() {
     run(env.container, 'destroy');
-  }
+  },
 });
 
-test("When loading a record fails, the record is not left behind", function(assert) {
+test('When loading a record fails, the record is not left behind', function(assert) {
   env.adapter.findRecord = function(store, type, id, snapshot) {
     return reject();
   };

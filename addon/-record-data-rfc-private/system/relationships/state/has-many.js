@@ -44,7 +44,12 @@ export default class ManyRelationship extends Relationship {
   notifyManyArrayIsStale() {
     let storeWrapper = this.modelData.storeWrapper;
     let modelData = this.modelData;
-    storeWrapper.notifyPropertyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
+    storeWrapper.notifyPropertyChange(
+      modelData.modelName,
+      modelData.id,
+      modelData.clientId,
+      this.key
+    );
   }
 
   addModelData(modelData, idx) {
@@ -112,7 +117,7 @@ export default class ManyRelationship extends Relationship {
       // been 'acknowleged' to be in the relationship via a store.push)
 
       //TODO Igor deal with this
-      (modelData) => modelData.isNew() && toSet.indexOf(modelData) === -1
+      modelData => modelData.isNew() && toSet.indexOf(modelData) === -1
     );
     toSet = toSet.concat(newModelDatas);
 
@@ -140,7 +145,7 @@ export default class ManyRelationship extends Relationship {
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
     this.notifyHasManyChanged();
-   // this.manyArray.flushCanonical(this.currentState);
+    // this.manyArray.flushCanonical(this.currentState);
   }
 
   notifyRecordRelationshipAdded() {
@@ -153,7 +158,9 @@ export default class ManyRelationship extends Relationship {
     let modelDatasSet = setForArray(modelDatas);
 
     members.forEach(member => {
-      if (modelDatasSet.has(member)) { return; }
+      if (modelDatasSet.has(member)) {
+        return;
+      }
 
       modelDatasToRemove.push(member);
     });
@@ -172,7 +179,7 @@ export default class ManyRelationship extends Relationship {
       return;
     }
 
-    for (let i = 0; i< modelDatas.length; i++) {
+    for (let i = 0; i < modelDatas.length; i++) {
       let modelData = modelDatas[i];
       if (this.canonicalMembers.has(modelData)) {
         continue;
@@ -189,18 +196,23 @@ export default class ManyRelationship extends Relationship {
   notifyHasManyChanged() {
     let modelData = this.modelData;
     let storeWrapper = this.modelData.storeWrapper;
-    storeWrapper.notifyHasManyChange(modelData.modelName, modelData.id, modelData.clientId, this.key);
+    storeWrapper.notifyHasManyChange(
+      modelData.modelName,
+      modelData.id,
+      modelData.clientId,
+      this.key
+    );
   }
 
   getData() {
     let payload = {};
     if (this.hasAnyRelationshipData) {
-      payload.data = this.currentState.map((modelData) => modelData.getResourceIdentifier());
+      payload.data = this.currentState.map(modelData => modelData.getResourceIdentifier());
     }
     if (this.link) {
       payload.links = {
-        related: this.link
-      }
+        related: this.link,
+      };
     }
     if (this.meta) {
       payload.meta = this.meta;
@@ -248,7 +260,7 @@ function setForArray(array) {
   var set = new OrderedSet();
 
   if (array) {
-    for (var i=0, l=array.length; i<l; i++) {
+    for (var i = 0, l = array.length; i < l; i++) {
       set.add(array[i]);
     }
   }

@@ -36,7 +36,7 @@ import { assert } from '@ember/debug';
   @uses Ember.PromiseProxyMixin
 */
 export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
-  meta: reads('content.meta')
+  meta: reads('content.meta'),
 });
 
 /**
@@ -72,41 +72,44 @@ export let PromiseObject = ObjectProxy.extend(PromiseProxyMixin);
 
 export function promiseObject(promise, label) {
   return PromiseObject.create({
-    promise: Promise.resolve(promise, label)
+    promise: Promise.resolve(promise, label),
   });
 }
 
 export function promiseArray(promise, label) {
   return PromiseArray.create({
-    promise: Promise.resolve(promise, label)
+    promise: Promise.resolve(promise, label),
   });
 }
 
 export const PromiseBelongsTo = PromiseObject.extend({
-
   // we don't proxy meta because we would need to proxy it to the relationship state container
   //  however, meta on relationships does not trigger change notifications.
   //  if you need relationship meta, you should do `record.belongsTo(relationshipName).meta()`
   meta: computed(function() {
     assert(
       'You attempted to access meta on the promise for the async belongsTo relationship ' +
-      `${this.get('_belongsToState').internalModel.modelName}:${this.get('_belongsToState').key}'.` +
-       '\nUse `record.belongsTo(relationshipName).meta()` instead.',
+        `${this.get('_belongsToState').internalModel.modelName}:${
+          this.get('_belongsToState').key
+        }'.` +
+        '\nUse `record.belongsTo(relationshipName).meta()` instead.',
       false
     );
   }),
 
   reload() {
-    assert('You are trying to reload an async belongsTo before it has been created', this.get('content') !== undefined);
+    assert(
+      'You are trying to reload an async belongsTo before it has been created',
+      this.get('content') !== undefined
+    );
     let state = this.get('_belongsToState');
     let key = state.key;
     let store = state.store;
     let resource = state.modelData.getResourceIdentifier();
     let internalModel = store._internalModelForResource(resource);
 
-    return store.reloadBelongsTo(this, internalModel, key)
-      .then(() => this);
-  }
+    return store.reloadBelongsTo(this, internalModel, key).then(() => this);
+  },
 });
 
 /**
@@ -135,7 +138,10 @@ export function proxyToContent(method) {
 
 export const PromiseManyArray = PromiseArray.extend({
   reload() {
-    assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
+    assert(
+      'You are trying to reload an async manyArray before it has been created',
+      get(this, 'content')
+    );
     this.set('promise', this.get('content').reload());
     return this;
   },
@@ -150,11 +156,11 @@ export const PromiseManyArray = PromiseArray.extend({
 
   off: proxyToContent('off'),
 
-  has: proxyToContent('has')
+  has: proxyToContent('has'),
 });
 
 export function promiseManyArray(promise, label) {
   return PromiseManyArray.create({
-    promise: Promise.resolve(promise, label)
+    promise: Promise.resolve(promise, label),
   });
 }

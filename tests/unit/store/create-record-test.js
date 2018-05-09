@@ -12,40 +12,40 @@ let store, Record, Storage;
 module('unit/store/createRecord - Store creating records', {
   beforeEach() {
     Record = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
     });
 
     Storage = DS.Model.extend({
       name: DS.attr('name'),
-      records: DS.hasMany('record', { async: false })
+      records: DS.hasMany('record', { async: false }),
     });
 
     store = createStore({
       adapter: DS.Adapter.extend(),
       record: Record,
-      storage: Storage
+      storage: Storage,
     });
-  }
+  },
 });
 
 test(`doesn't modify passed in properties hash`, function(assert) {
   const Post = Model.extend({
     title: attr(),
     author: belongsTo('author', { async: false, inverse: 'post' }),
-    comments: hasMany('comment', { async: false, inverse: 'post' })
+    comments: hasMany('comment', { async: false, inverse: 'post' }),
   });
   const Comment = Model.extend({
     text: attr(),
-    post: belongsTo('post', { async: false, inverse: 'comments' })
+    post: belongsTo('post', { async: false, inverse: 'comments' }),
   });
   const Author = Model.extend({
     name: attr(),
-    post: belongsTo('post', { async: false, inverse: 'author' })
+    post: belongsTo('post', { async: false, inverse: 'author' }),
   });
   let env = setupStore({
     post: Post,
     comment: Comment,
-    author: Author
+    author: Author,
   });
   let store = env.store;
   let comment, author;
@@ -56,18 +56,18 @@ test(`doesn't modify passed in properties hash`, function(assert) {
         type: 'comment',
         id: '1',
         attributes: {
-          text: 'Hello darkness my old friend'
-        }
-      }
+          text: 'Hello darkness my old friend',
+        },
+      },
     });
     author = store.push({
       data: {
         type: 'author',
         id: '1',
         attributes: {
-          name: '@runspired'
-        }
-      }
+          name: '@runspired',
+        },
+      },
     });
   });
 
@@ -75,13 +75,13 @@ test(`doesn't modify passed in properties hash`, function(assert) {
     title: 'My Post',
     randomProp: 'An unknown prop',
     comments: [comment],
-    author
+    author,
   };
   let propertiesClone = {
     title: 'My Post',
     randomProp: 'An unknown prop',
     comments: [comment],
-    author
+    author,
   };
 
   store.createRecord('post', properties);
@@ -99,17 +99,17 @@ test('allow passing relationships as well as attributes', function(assert) {
           type: 'record',
           id: '1',
           attributes: {
-            title: "it's a beautiful day"
-          }
+            title: "it's a beautiful day",
+          },
         },
         {
           type: 'record',
           id: '2',
           attributes: {
-            title: "it's a beautiful day"
-          }
-        }
-      ]
+            title: "it's a beautiful day",
+          },
+        },
+      ],
     });
 
     records = store.peekAll('record');
@@ -117,19 +117,27 @@ test('allow passing relationships as well as attributes', function(assert) {
   });
 
   assert.equal(storage.get('name'), 'Great store', 'The attribute is well defined');
-  assert.equal(storage.get('records').findBy('id', '1'), A(records).findBy('id', '1'), 'Defined relationships are allowed in createRecord');
-  assert.equal(storage.get('records').findBy('id', '2'), A(records).findBy('id', '2'), 'Defined relationships are allowed in createRecord');
+  assert.equal(
+    storage.get('records').findBy('id', '1'),
+    A(records).findBy('id', '1'),
+    'Defined relationships are allowed in createRecord'
+  );
+  assert.equal(
+    storage.get('records').findBy('id', '2'),
+    A(records).findBy('id', '2'),
+    'Defined relationships are allowed in createRecord'
+  );
 });
 
 module('unit/store/createRecord - Store with models by dash', {
   beforeEach() {
     let env = setupStore({
       someThing: DS.Model.extend({
-        foo: DS.attr('string')
-      })
+        foo: DS.attr('string'),
+      }),
     });
     store = env.store;
-  }
+  },
 });
 
 test('creating a record by dasherize string finds the model', function(assert) {

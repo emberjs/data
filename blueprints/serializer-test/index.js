@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 var testInfo = require('ember-cli-test-info');
 var useTestFrameworkDetector = require('../test-framework-detector');
 
@@ -8,7 +6,7 @@ module.exports = useTestFrameworkDetector({
 
   locals: function(options) {
     return {
-      friendlyTestDescription: testInfo.description(options.entity.name, "Unit", "Serializer")
+      friendlyTestDescription: testInfo.description(options.entity.name, 'Unit', 'Serializer'),
     };
-  }
+  },
 });

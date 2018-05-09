@@ -25,3 +25,5 @@ testem.js
 *.gemspec
 **/*.rb
 node-tests/
+lib/yuidoc.js
+lib/version-replace.js
