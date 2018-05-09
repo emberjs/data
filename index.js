@@ -106,19 +106,19 @@ module.exports = {
     ]);
 
     let corePrivate = new Funnel(tree, {
-      include: ['-private/**']
+      include: ['-private/**'],
     });
     let withPrivate;
 
     if (USE_RECORD_DATA_RFC) {
       withPrivate = new Funnel(tree, {
         srcDir: '-record-data-private',
-        destDir: '-private'
+        destDir: '-private',
       });
     } else {
       withPrivate = new Funnel(tree, {
         srcDir: '-legacy-private',
-        destDir: '-private'
+        destDir: '-private',
       });
     }
 
