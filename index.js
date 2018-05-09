@@ -105,20 +105,33 @@ module.exports = {
       version(), // compile the VERSION into the build
     ]);
 
+    let corePrivate = new Funnel(tree, {
+      include: ['-private/**']
+    });
     let withPrivate;
 
     if (USE_RECORD_DATA_RFC) {
       withPrivate = new Funnel(tree, {
-        include: ['-record-data-rfc-private/**'],
+        srcDir: '-record-data-private',
+        destDir: '-private'
       });
     } else {
-      withPrivate = new Funnel(tree, { include: ['-private/**'] });
+      withPrivate = new Funnel(tree, {
+        srcDir: '-legacy-private',
+        destDir: '-private'
+      });
     }
+
+    // do not allow overwrite, conflicts should error
+    //  overwrite: false is default, but we are being explicit here
+    //  since this is very important
+    withPrivate = merge([corePrivate, withPrivate], { overwrite: false });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
       exclude: [
         '-private',
-        '-record-data-rfc-private',
+        '-record-data-private',
+        '-legacy-private',
         isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
       ].filter(Boolean),
 
@@ -141,7 +154,7 @@ module.exports = {
 
     privateTree = new Rollup(privateTree, {
       rollup: {
-        input: USE_RECORD_DATA_RFC ? '-record-data-rfc-private/index.js' : '-private/index.js',
+        input: '-private/index.js',
         output: [
           {
             file: 'ember-data/-private.js',
