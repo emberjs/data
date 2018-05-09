@@ -10,6 +10,7 @@
   "scripts": {
     "build": "ember build",
     "build:production": "ember build --environment=production",
+    "lint:js": "eslint .",
     "start": "ember server",
     "test": "ember test && ember test --record-data-rfc-build",
     "test:all": "ember try:each",
