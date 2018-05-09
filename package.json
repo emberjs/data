@@ -121,7 +121,6 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config",
-    "after": "ember-cli-mocha"
+    "configPath": "tests/dummy/config"
   }
 }
