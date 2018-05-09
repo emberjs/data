@@ -103,28 +103,6 @@ export default class ModelData {
           continue;
         }
 
-        // eslint-disable-next-line no-inner-declarations
-        function assertRelationshipData(store, modelData, data, meta) {
-          assert(
-            `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier with type '${meta.type}'.`,
-            data === null || (typeof data.type === 'string' && data.type.length)
-          );
-          assert(
-            `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier.`,
-            data === null || data.id || data.id === 0
-          );
-          assert(
-            `Encountered a relationship identifier with type '${
-                data.type
-              }' for the ${meta.kind} relationship '${meta.key}' on ${
-                modelData
-              }, Expected a json-api identifier with type '${
-                meta.type
-              }'. No model was found for '${data.type}'.`,
-            data === null || !data.type || store._hasModelFor(data.type)
-          );
-        }
-
         if (relationshipData.links) {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
           warn(`You pushed a record of type '${this.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
@@ -666,6 +644,28 @@ if (isEnabled('ds-rollback-attribute')) {
       return this._data[key];
     }
   };
+}
+
+function assertRelationshipData(store, modelData, data, meta) {
+  assert(`A ${modelData.modelName} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(data)}', but ${meta.key} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(data));
+  assert(
+    `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier with type '${meta.type}' but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    data === null || (typeof data.type === 'string' && data.type.length)
+  );
+  assert(
+    `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${meta.key}' on ${modelData}, expected a json-api identifier but found '${JSON.stringify(data)}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+    data === null || coerceId(data.id)
+  );
+  assert(
+    `Encountered a relationship identifier with type '${
+      data.type
+      }' for the ${meta.kind} relationship '${meta.key}' on ${
+      modelData
+      }, Expected a json-api identifier with type '${
+      meta.type
+      }'. No model was found for '${data.type}'.`,
+    data === null || !data.type || store._hasModelFor(data.type)
+  );
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the

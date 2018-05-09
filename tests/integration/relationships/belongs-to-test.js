@@ -207,6 +207,59 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 });
 
+testInDebug("Invalid belongsTo relationship identifiers throw errors", function(assert) {
+  assert.expect(2);
+  let { store } = env;
+
+  // test null id
+  assert.expectAssertion(
+    () => {
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '1',
+            type: 'post',
+            relationships: {
+              user: {
+                data: {
+                  id: null,
+                  type: 'user'
+                }
+              }
+            }
+          }
+        });
+        post.get('user');
+      });
+    },
+    `Assertion Failed: Encountered a relationship identifier without an id for the belongsTo relationship 'user' on <post:1>, expected a json-api identifier but found '{"id":null,"type":"user"}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
+  );
+
+  // test missing type
+  assert.expectAssertion(
+    () => {
+      run(() => {
+        let post = store.push({
+          data: {
+            id: '2',
+            type: 'post',
+            relationships: {
+              user: {
+                data: {
+                  id: '1',
+                  type: null
+                }
+              }
+            }
+          }
+        });
+        post.get('user');
+      });
+    },
+    `Assertion Failed: Encountered a relationship identifier without a type for the belongsTo relationship 'user' on <post:2>, expected a json-api identifier with type 'user' but found '{"id":"1","type":null}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`
+  );
+});
+
 testInDebug("Only a record of the same modelClass can be used with a monomorphic belongsTo relationship", function(assert) {
   assert.expect(1);
   env.adapter.shouldBackgroundReloadRecord = () => false;
