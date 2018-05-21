@@ -37,6 +37,14 @@
   dependencies:
     "@types/estree" "*"
 
+"@types/ember@^2.8.23":
+  version "2.8.23"
+  resolved "https://registry.yarnpkg.com/@types/ember/-/ember-2.8.23.tgz#d224c9b9292e2c2735674dfcecf64ab4a7aa9722"
+  dependencies:
+    "@types/handlebars" "*"
+    "@types/jquery" "*"
+    "@types/rsvp" "*"
+
 "@types/estree@*":
   version "0.0.39"
   resolved "https://registry.npmjs.org/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
@@ -44,6 +52,14 @@
 "@types/estree@0.0.38":
   version "0.0.38"
   resolved "https://registry.npmjs.org/@types/estree/-/estree-0.0.38.tgz#c1be40aa933723c608820a99a373a16d215a1ca2"
+
+"@types/handlebars@*":
+  version "4.0.37"
+  resolved "https://registry.yarnpkg.com/@types/handlebars/-/handlebars-4.0.37.tgz#a3bc3eba0c0f03f753cac00841a5b21e26a02c03"
+
+"@types/jquery@*":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.2.tgz#8700226bdde24b6f98e3a60126dbaab3b2a3ab41"
 
 "@types/node@^9.6.0":
   version "9.6.12"
@@ -53,7 +69,7 @@
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@types/qunit/-/qunit-2.5.1.tgz#ee39feefb9ee33f6761a046c563cd3c2caacfcf3"
 
-"@types/rsvp@^4.0.1":
+"@types/rsvp@*", "@types/rsvp@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@types/rsvp/-/rsvp-4.0.1.tgz#82956bc8d0a8151ec3b7e9cae64fd06808a1c714"
 

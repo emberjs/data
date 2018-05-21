@@ -1,10 +1,15 @@
 'use strict';
 
+const Funnel = require('broccoli-funnel');
+const MergeTrees = require('broccoli-merge-trees');
+
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
-const merge = require('broccoli-merge-trees');
+
+
 const yuidoc = require('./lib/yuidoc');
 
-const { getAddonES } = require('./broccoli/packages');
+const typescript = require('broccoli-typescript-compiler').typescript;
+
 
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {});
@@ -16,14 +21,42 @@ module.exports = function(defaults) {
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
 
+  function typescriptTree() {
+    let input = new Funnel(`.`, {
+      destDir: `.`,
+    });
 
-  let appTree = merge([
-    getAddonES(),
+    let nonTypeScriptContents = new Funnel(input, {
+      srcDir: '.',
+      exclude: ['**/*.ts'],
+    });
+
+    let typescriptContents = new Funnel(input, {
+      include: ['**/*.ts'],
+    });
+
+    let typescriptCompiled = typescript(typescriptContents);
+
+
+    let mergedFinalOutput = new MergeTrees([
+      nonTypeScriptContents, 
+      typescriptCompiled
+    ], {
+      overwrite: true,
+    });
+
+    return mergedFinalOutput;
+  };
+
+
+
+  let appTree = MergeTrees([
+    typescriptTree(),
     app.toTree()
   ]);
 
   if (process.env.EMBER_ENV === 'production') {
-    return merge([appTree, yuidoc()]);
+    return MergeTrees([appTree, yuidoc()]);
   } else {
     return appTree;
   }

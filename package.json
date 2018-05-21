@@ -54,6 +54,7 @@
     "silent-error": "^1.0.0"
   },
   "devDependencies": {
+    "@types/ember": "^2.8.23",
     "@types/qunit": "^2.5.1",
     "@types/rsvp": "^4.0.1",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",

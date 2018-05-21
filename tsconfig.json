@@ -4,8 +4,8 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "addon",
-    "rootDir": "addon",
+    "baseUrl": ".",
+    "rootDir": ".",
 
     // Environment Configuration
     "experimentalDecorators": true,
@@ -24,8 +24,19 @@
     "allowJs": false
   },
 
+  "paths": {
+    "ember-data/*": [
+      "lib/*",
+      "addon/*"
+    ],
+    "@ember": ["node_modules/@types/ember/index.d.ts"]
+  },
+
   "include": [
-    "addon/**/*.ts"
+    "addon/**/*.ts",
+    "addon/*.ts",
+    "./lib/**/*.ts",
+    "lib/*.ts"    
   ],
 
   "exclude": [
