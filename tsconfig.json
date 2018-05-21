@@ -4,8 +4,8 @@
     "target": "es2017",
     "sourceMap": true,
     "outDir": "dist",
-    "baseUrl": "packages",
-    "rootDir": "packages",
+    "baseUrl": "addon",
+    "rootDir": "addon",
 
     // Environment Configuration
     "experimentalDecorators": true,
@@ -25,7 +25,7 @@
   },
 
   "include": [
-    "packages/**/*.ts"
+    "addon/**/*.ts"
   ],
 
   "exclude": [

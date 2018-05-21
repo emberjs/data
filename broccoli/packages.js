@@ -16,11 +16,8 @@ const debugTree = BroccoliDebug.buildDebugCallback('ember-source');
 
 module.exports.getAddonES = function getAddonES() {
   let input = new Funnel(`addon`, {
-    exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
     destDir: `addon`,
   });
-
-  let debuggedInput = debugTree(input, `get-addon-es:input`);
 
   let nonTypeScriptContents = new Funnel(input, {
     srcDir: 'addon',
