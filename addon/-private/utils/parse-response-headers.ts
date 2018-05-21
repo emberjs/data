@@ -1,6 +1,6 @@
 const CLRF = '\u000d\u000a';
 
-export default function parseResponseHeaders(headersString) {
+export default function parseResponseHeaders(headersString: string): object {
   let headers = Object.create(null);
 
   if (!headersString) {

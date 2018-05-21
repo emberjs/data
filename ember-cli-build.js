@@ -4,6 +4,8 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 const merge = require('broccoli-merge-trees');
 const yuidoc = require('./lib/yuidoc');
 
+const { getAddonES } = require('./broccoli/packages');
+
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {});
 
@@ -14,7 +16,11 @@ module.exports = function(defaults) {
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
 
-  let appTree = app.toTree();
+
+  let appTree = merge([
+    getAddonES(),
+    app.toTree()
+  ]);
 
   if (process.env.EMBER_ENV === 'production') {
     return merge([appTree, yuidoc()]);
