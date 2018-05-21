@@ -1,13 +1,11 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(ada)" }]*/
 
 import { resolve, Promise as EmberPromise } from 'rsvp';
-
 import { run } from '@ember/runloop';
-
+import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-
 import { module, test } from 'qunit';
-
+import todo from '../../helpers/todo';
 import DS from 'ember-data';
 
 const { attr, hasMany } = DS;
@@ -552,82 +550,100 @@ test('Deleting an unpersisted record via rollbackAttributes that has a hasMany r
   assert.equal(user.get('accounts.length'), 0, 'Accounts got rolledback correctly');
 });
 
-test('Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship', function(assert) {
-  let account, ada, byron;
+todo(
+  'Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship',
+  function(assert) {
+    assert.expect(4);
+    let account, ada, byron;
 
-  run(() => {
-    account = store.push({
-      data: {
-        id: '2',
-        type: 'account',
-        attributes: {
-          state: 'account 1',
-        },
-      },
-    });
-    ada = store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        attributes: {
-          name: 'Ada Lovelace',
-        },
-        relationships: {
-          accounts: {
-            data: [
-              {
-                id: '2',
-                type: 'account',
-              },
-            ],
+    run(() => {
+      account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
           },
         },
-      },
-    });
-    byron = store.push({
-      data: {
-        id: '2',
-        type: 'user',
-        attributes: {
-          name: 'Lord Byron',
-        },
-        relationships: {
-          accounts: {
-            data: [
-              {
-                id: '2',
-                type: 'account',
-              },
-            ],
+      });
+      ada = store.push({
+        data: {
+          id: '1',
+          type: 'user',
+          attributes: {
+            name: 'Ada Lovelace',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
+            },
           },
         },
-      },
-    });
-    account.get('users').removeObject(byron);
-    account = store.push({
-      data: {
-        id: '2',
-        type: 'account',
-        attributes: {
-          state: 'account 1',
-        },
-        relationships: {
-          users: {
-            data: [
-              {
-                id: '1',
-                type: 'user',
-              },
-              {
-                id: '2',
-                type: 'user',
-              },
-            ],
+      });
+      byron = store.push({
+        data: {
+          id: '2',
+          type: 'user',
+          attributes: {
+            name: 'Lord Byron',
+          },
+          relationships: {
+            accounts: {
+              data: [
+                {
+                  id: '2',
+                  type: 'account',
+                },
+              ],
+            },
           },
         },
-      },
+      });
+      account.get('users').removeObject(byron);
+      account = store.push({
+        data: {
+          id: '2',
+          type: 'account',
+          attributes: {
+            state: 'account 1',
+          },
+          relationships: {
+            users: {
+              data: [
+                {
+                  id: '1',
+                  type: 'user',
+                },
+                {
+                  id: '2',
+                  type: 'user',
+                },
+              ],
+            },
+          },
+        },
+      });
     });
-  });
 
-  assert.equal(account.get('users.length'), 2, 'Accounts were updated correctly');
-});
+    let state = account.hasMany('users').hasManyRelationship.canonicalMembers.list;
+    let users = account.get('users');
+
+    assert.todo.equal(users.get('length'), 1, 'Accounts were updated correctly (ui state)');
+    assert.todo.deepEqual(
+      users.map(r => get(r, 'id')),
+      ['1'],
+      'Accounts were updated correctly (ui state)'
+    );
+    assert.equal(state.length, 2, 'Accounts were updated correctly (server state)');
+    assert.deepEqual(
+      state.map(r => r.id),
+      ['1', '2'],
+      'Accounts were updated correctly (server state)'
+    );
+  }
+);
