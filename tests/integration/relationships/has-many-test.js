@@ -2898,6 +2898,166 @@ test('adding and removing records from hasMany relationship #2666', function(ass
   });
 });
 
+test('destroying records in a hasMany relationship that loaded via links', function(assert) {
+  assert.expect(2);
+
+  let Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true }),
+  });
+  Post.reopenClass({ toString: () => 'Post' });
+
+  let Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: true }),
+  });
+  Comment.reopenClass({ toString: () => 'Comment' });
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter.extend({
+      shouldBackgroundReloadRecord: () => false,
+      findHasMany: () =>  {
+        return {
+          comments: [
+            {
+              type: 'comment',
+              id: '1'
+            },
+            {
+              type: 'comment',
+              id: '2'
+            },
+            {
+              type: 'comment',
+              id: '3'
+            }
+          ]
+        };
+      }
+    })
+  });
+
+  env.registry.register(
+    'adapter:comment',
+    DS.RESTAdapter.extend({
+      deleteRecord(record) {
+        return resolve();
+      }
+    })
+  );
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              links: {
+                related: '/comments'
+              }
+            }
+          }
+        }
+      ]
+    });
+  });
+
+  return run(() => {
+    return env.store.findRecord('post', 1).then(post => {
+      return post.get('comments').then((comments) => {
+        assert.equal(comments.get('length'), 3, 'Initial comments count');
+
+        return comments.get('lastObject').destroyRecord()
+        .then(() => {
+          let comments = post.get('comments');
+          let length = comments.get('length');
+
+          assert.equal(length, 2, 'Comments count after destroy');
+        });
+      });
+    });
+  });
+});
+
+test('destroying records in a hasMany relationship that loaded via sideloading', function(assert) {
+  assert.expect(2);
+
+  let Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true }),
+  });
+  Post.reopenClass({ toString: () => 'Post' });
+
+  let Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: true }),
+  });
+  Comment.reopenClass({ toString: () => 'Comment' });
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter.extend({
+      shouldBackgroundReloadRecord: () => false
+    })
+  });
+
+  env.registry.register(
+    'adapter:comment',
+    DS.RESTAdapter.extend({
+      deleteRecord(record) {
+        return resolve();
+      }
+    })
+  );
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'post',
+          id: '1',
+          relationships: {
+            comments: {
+              data: [
+                { type: 'comment', id: '1' },
+                { type: 'comment', id: '2' },
+                { type: 'comment', id: '3' },
+              ],
+            },
+          },
+        },
+        {
+          type: 'comment',
+          id: '1',
+        },
+        {
+          type: 'comment',
+          id: '2',
+        },
+        {
+          type: 'comment',
+          id: '3',
+        },
+      ],
+    });
+  });
+
+  return run(() => {
+    return env.store.findRecord('post', 1).then(post => {
+      return post.get('comments').then((comments) => {
+        assert.equal(comments.get('length'), 3, 'Initial comments count');
+
+        return comments.get('lastObject').destroyRecord()
+        .then(() => {
+          let comments = post.get('comments');
+          let length = comments.get('length');
+
+          assert.equal(length, 2, 'Comments count after destroy');
+        });
+      });
+    });
+  });
+});
+
 test('hasMany hasAnyRelationshipData async loaded', function(assert) {
   assert.expect(1);
 

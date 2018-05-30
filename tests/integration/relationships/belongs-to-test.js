@@ -29,15 +29,13 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   class Person extends Model {
     @belongsTo('pet', { inverse: 'bestHuman', async: true })
     bestDog;
-    @attr
-    name;
+    @attr name;
   }
 
   class Pet extends Model {
     @belongsTo('person', { inverse: 'bestDog', async: false })
     bestHuman;
-    @attr
-    name;
+    @attr name;
   }
 
   hooks.beforeEach(function() {
@@ -953,6 +951,214 @@ test('Destroying a record with an unloaded aync belongsTo association does not f
   };
 
   run(post, 'destroyRecord');
+});
+
+test('destroying records in a belongsTo relationship that loaded via links', function(assert) {
+  assert.expect(2);
+
+  let Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true }),
+  });
+  Post.reopenClass({ toString: () => 'Post' });
+
+  let Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: true }),
+  });
+  Comment.reopenClass({ toString: () => 'Comment' });
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter.extend({
+      shouldBackgroundReloadRecord: () => false,
+    }),
+  });
+
+  env.registry.register(
+    'adapter:post',
+    DS.RESTAdapter.extend({
+      deleteRecord() {
+        return RSVP.resolve();
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:comment',
+    DS.RESTAdapter.extend({
+      findBelongsTo() {
+        return {
+          post: {
+            id: '1',
+            type: 'post',
+          },
+        };
+      },
+    })
+  );
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+          relationships: {
+            post: {
+              links: {
+                related: '/comments/1/post',
+              },
+            },
+          },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          relationships: {
+            post: {
+              links: {
+                related: '/comments/2/post',
+              },
+            },
+          },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          relationships: {
+            post: {
+              links: {
+                related: '/comments/3/post',
+              },
+            },
+          },
+        },
+      ],
+    });
+  });
+
+  return run(() => {
+    let comments = env.store.peekAll('comment').toArray();
+    let posts = RSVP.map(comments, cc => {
+      return cc.get('post');
+    });
+
+    return posts
+      .then(posts => {
+        assert.deepEqual(Ember.A(posts).mapBy('id'), ['1', '1', '1']);
+        let post = env.store.peekRecord('post', '1');
+        return post.destroyRecord();
+      })
+      .then(() => {
+        let comment = env.store.peekRecord('comment', '1');
+        assert.equal(comment.get('post.content'), null);
+      });
+  });
+});
+
+test('destroying records in a belongsTo relationship that loaded via sideloading', function(assert) {
+  assert.expect(2);
+
+  let Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true }),
+  });
+  Post.reopenClass({ toString: () => 'Post' });
+
+  let Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: true }),
+  });
+  Comment.reopenClass({ toString: () => 'Comment' });
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter.extend(),
+  });
+
+  env.registry.register(
+    'adapter:post',
+    DS.RESTAdapter.extend({
+      deleteRecord() {
+        return RSVP.resolve();
+      },
+      shouldBackgroundReloadRecord: () => false,
+    })
+  );
+
+  env.registry.register(
+    'adapter:comment',
+    DS.RESTAdapter.extend({
+      findBelongsTo() {
+        return {
+          post: {
+            id: '1',
+            type: 'post',
+          },
+        };
+      },
+    })
+  );
+
+  run(() => {
+    env.store.push({
+      data: [
+        {
+          type: 'comment',
+          id: '1',
+          relationships: {
+            post: {
+              data: {
+                type: 'post',
+                id: '1',
+              },
+            },
+          },
+        },
+        {
+          type: 'comment',
+          id: '2',
+          relationships: {
+            post: {
+              data: {
+                type: 'post',
+                id: '1',
+              },
+            },
+          },
+        },
+        {
+          type: 'comment',
+          id: '3',
+          relationships: {
+            post: {
+              data: {
+                type: 'post',
+                id: '1',
+              },
+            },
+          },
+        },
+      ],
+      included: [{ type: 'post', id: '1' }],
+    });
+  });
+
+  return run(() => {
+    let comments = env.store.peekAll('comment').toArray();
+    let posts = RSVP.map(comments, cc => {
+      return cc.get('post');
+    });
+
+    return posts
+      .then(posts => {
+        console.log('posts', posts);
+        assert.deepEqual(Ember.A(posts).mapBy('id'), ['1', '1', '1']);
+        let post = env.store.peekRecord('post', '1');
+        return post.destroyRecord();
+      })
+      .then(() => {
+        let comment = env.store.peekRecord('comment', '1');
+        assert.equal(comment.get('post.content'), null);
+      });
+  });
 });
 
 testInDebug('A sync belongsTo errors out if the record is unloaded', function(assert) {
