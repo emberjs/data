@@ -97,20 +97,21 @@ module.exports = {
   },
 
 
-  typescriptTree(input) {
-    // let input = new Funnel(`packages`, {
-    //   exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
-    //   destDir: `dist`,
-    // });
+  typescriptTree(tree) {
+    let input = new Funnel(`.`, {
+      exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
+      destDir: `dist`,
+    });
 
     let debuggedInput = this.debugTree(input, `get-source-es:input`);
 
     let nonTypeScriptContents = new Funnel(debuggedInput, {
-      srcDir: './',
+      srcDir: '.',
       exclude: ['**/*.ts'],
     });
 
     let typescriptContents = new Funnel(debuggedInput, {
+      srcDir: '.',
       include: ['**/*.ts'],
     });
 
@@ -122,7 +123,9 @@ module.exports = {
       overwrite: true,
     });
 
-    return this.debugTree(mergedFinalOutput, `get-source-es:output`);
+    let tsTree = this.debugTree(mergedFinalOutput, `get-source-es:output`);
+
+    return merge([tree, tsTree])
   },
 
 
