@@ -7,6 +7,7 @@ const merge = require('broccoli-merge-trees');
 const version = require('./lib/version');
 const BroccoliDebug = require('broccoli-debug');
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
+const typescript = require('broccoli-typescript-compiler').typescript;
 
 // allow toggling of heimdall instrumentation
 let INSTRUMENT_HEIMDALL = false;
@@ -95,8 +96,39 @@ module.exports = {
     return path.join(__dirname, 'blueprints');
   },
 
+
+  typescriptTree(input) {
+    // let input = new Funnel(`packages`, {
+    //   exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
+    //   destDir: `dist`,
+    // });
+
+    let debuggedInput = this.debugTree(input, `get-source-es:input`);
+
+    let nonTypeScriptContents = new Funnel(debuggedInput, {
+      srcDir: './',
+      exclude: ['**/*.ts'],
+    });
+
+    let typescriptContents = new Funnel(debuggedInput, {
+      include: ['**/*.ts'],
+    });
+
+    let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`));
+
+    let debuggedCompiledTypescript = this.debugTree(typescriptCompiled, `get-source-es:ts:output`);
+
+    let mergedFinalOutput = merge([nonTypeScriptContents, debuggedCompiledTypescript], {
+      overwrite: true,
+    });
+
+    return this.debugTree(mergedFinalOutput, `get-source-es:output`);
+  },
+
+
   treeForAddon(tree) {
     tree = this.debugTree(tree, 'input');
+    tree = this.typescriptTree(tree);
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 

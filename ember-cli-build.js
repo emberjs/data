@@ -21,37 +21,8 @@ module.exports = function(defaults) {
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
 
-  function typescriptTree() {
-    let input = new Funnel(`.`, {
-      destDir: `.`,
-    });
-
-    let nonTypeScriptContents = new Funnel(input, {
-      srcDir: '.',
-      exclude: ['**/*.ts'],
-    });
-
-    let typescriptContents = new Funnel(input, {
-      include: ['**/*.ts'],
-    });
-
-    let typescriptCompiled = typescript(typescriptContents);
-
-
-    let mergedFinalOutput = new MergeTrees([
-      nonTypeScriptContents, 
-      typescriptCompiled
-    ], {
-      overwrite: true,
-    });
-
-    return mergedFinalOutput;
-  };
-
-
 
   let appTree = MergeTrees([
-    typescriptTree(),
     app.toTree()
   ]);
 
