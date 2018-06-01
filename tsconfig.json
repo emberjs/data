@@ -35,8 +35,12 @@
   "include": [
     "addon/**/*.ts",
     "addon/*.ts",
+    "app/**/*.ts",
+    "app/*.ts",
+    "config/**/*.ts",
+    "cnfig/*.ts",
     "./lib/**/*.ts",
-    "lib/*.ts"    
+    "lib/*.ts"
   ],
 
   "exclude": [
