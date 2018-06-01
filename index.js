@@ -107,14 +107,18 @@ module.exports = {
     let debuggedInput = this.debugTree(input, `get-source-es:input`);
 
     let nonTypeScriptContents = new Funnel(debuggedInput, {
-      srcDir: '.',
-      exclude: ['**/**/**/*.ts'],
+      // srcDir: '.',
+      exclude: ['**/*.ts'],
     });
 
-    let typescriptContents = new Funnel(debuggedInput, {
-      srcDir: '.',
-      include: ['**/**/**/*.ts'],
-    });
+    console.log(require('broccoli-typescript-compiler'));
+    var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
+    console.log(    filterTypeScript(debuggedInput))
+    let typescriptContents = filterTypeScript(debuggedInput);
+    // let typescriptContents = new Funnel(debuggedInput, {
+    //   // srcDir: '.',
+    //   include: ['**/*.ts'],
+    // });
 
     let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`));
 
@@ -126,15 +130,14 @@ module.exports = {
 
     let tsTree = this.debugTree(mergedFinalOutput, `get-source-es:output`);
 
-    return merge([tsTree])
+    return tsTree;
   },
 
 
   treeForAddon(tree) {
     tree = this.debugTree(tree, 'input');
     tree = this.typescriptTree(tree);
-    // var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
-    // tree = filterTypeScript(tree);
+
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
