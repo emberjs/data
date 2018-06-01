@@ -128,7 +128,9 @@ module.exports = {
 
   treeForAddon(tree) {
     tree = this.debugTree(tree, 'input');
-    tree = this.typescriptTree(tree);
+    // tree = this.typescriptTree(tree);
+    var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
+    tree = filterTypeScript(tree);
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
