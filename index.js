@@ -113,7 +113,6 @@ module.exports = {
 
     console.log(require('broccoli-typescript-compiler'));
     var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
-    console.log(    filterTypeScript(debuggedInput))
     let typescriptContents = filterTypeScript(debuggedInput);
     // let typescriptContents = new Funnel(debuggedInput, {
     //   // srcDir: '.',

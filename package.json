@@ -10,6 +10,7 @@
   "scripts": {
     "build": "ember build",
     "build:production": "ember build --environment=production",
+    "build:debug": "EMBER_CLI_PACKAGER=true BROCCOLI_DEBUG=* yarn build",
     "lint:js": "eslint .",
     "start": "ember server",
     "test": "ember test && ember test --record-data-rfc-build",
