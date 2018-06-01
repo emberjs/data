@@ -112,12 +112,12 @@ module.exports = {
     });
 
     console.log(require('broccoli-typescript-compiler'));
-    var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
-    let typescriptContents = filterTypeScript(debuggedInput);
-    // let typescriptContents = new Funnel(debuggedInput, {
-    //   // srcDir: '.',
-    //   include: ['**/*.ts'],
-    // });
+    // var filterTypeScript = require('broccoli-typescript-compiler').filterTypeScript;
+    // let typescriptContents = filterTypeScript(debuggedInput);
+    let typescriptContents = new Funnel(debuggedInput, {
+      // srcDir: '.',
+      include: ['**/*.ts'],
+    });
 
     let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`));
 
