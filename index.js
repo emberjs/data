@@ -98,21 +98,22 @@ module.exports = {
 
 
   typescriptTree(tree) {
-    let input = new Funnel(`.`, {
-      exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
-      destDir: `dist`,
-    });
+    let input = tree;
+    // let input = new Funnel(`.`, {
+    //   exclude: ['node-module/**', 'loader/**', 'external-helpers/**'],
+    //   destDir: `dist`,
+    // });
 
     let debuggedInput = this.debugTree(input, `get-source-es:input`);
 
     let nonTypeScriptContents = new Funnel(debuggedInput, {
       srcDir: '.',
-      exclude: ['**/*.ts'],
+      exclude: ['**/**/**/*.ts'],
     });
 
     let typescriptContents = new Funnel(debuggedInput, {
       srcDir: '.',
-      include: ['**/*.ts'],
+      include: ['**/**/**/*.ts'],
     });
 
     let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`));
@@ -125,7 +126,7 @@ module.exports = {
 
     let tsTree = this.debugTree(mergedFinalOutput, `get-source-es:output`);
 
-    return merge([tree, tsTree])
+    return merge([tsTree])
   },
 
 
