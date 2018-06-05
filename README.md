@@ -119,7 +119,7 @@ By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON
 
 To learn more about adapters, including what conventions the
 various adapters follow and how to build your own, see the Ember.js
-Guides: [Customizing Adapters](https://emberjs.com/guides/models/customizing-adapters).
+Guides: [Customizing Adapters](https://guides.emberjs.com/release/models/customizing-adapters/).
 
 ### Fetching a Collection of Models
 
