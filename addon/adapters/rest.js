@@ -1518,6 +1518,9 @@ function ajaxError(adapter, jqXHR, requestData, responseData) {
 
   if (responseData.errorThrown instanceof Error) {
     error = responseData.errorThrown;
+  } else if (responseData.errorThrown === "" && responseData.textStatus === "error") {
+    // e.g. a DNS resolve failure, this is what you get in chrome
+    error = new TimeoutError();
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
   } else if (responseData.textStatus === 'abort' || jqXHR.status === 0) {
