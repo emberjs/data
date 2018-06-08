@@ -158,7 +158,7 @@ export default class Relationship {
 
       TODO, consider changing the conditional here from !isEmpty to !hiddenFromRecordArrays
     */
-    // this.hasRelatedResources = false;
+    // this.allInverseRecordsAreLoaded = false;
 
     // TODO do we want this anymore? Seems somewhat useful
     //   especially if we rename to `hasUpdatedLink`
@@ -167,7 +167,7 @@ export default class Relationship {
     // this.updatedLink = false;
   }
 
-  get hasRelatedResources() {
+  get allInverseRecordsAreLoaded() {
     return !this.localStateIsEmpty();
   }
 
@@ -643,7 +643,7 @@ export default class Relationship {
       hasAnyRelationshipData -> true
       hasDematerializedInverse -> false
       relationshipIsStale -> false
-      hasRelatedResources -> run-check-to-determine
+      allInverseRecordsAreLoaded -> run-check-to-determine
 
      IF contains only links
       relationshipIsStale -> true

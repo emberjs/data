@@ -5,7 +5,7 @@
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
-import { run as emberRun } from '@ember/runloop';
+import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, Promise } from 'rsvp';
@@ -52,7 +52,7 @@ import InternalModel from './model/internal-model';
 import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
-
+const emberRun = emberRunLoop.backburner;
 const { ENV } = Ember;
 
 //Get the materialized model from the internalModel/promise that returns
@@ -749,7 +749,7 @@ Store = Service.extend({
 
     //TODO double check about reloading
     if (internalModel.isLoading()) {
-      return internalModel._loadingPromise;
+      return internalModel._promiseProxy;
     }
 
     return Promise.resolve(internalModel);
@@ -819,8 +819,8 @@ Store = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
-    if (internalModel._loadingPromise) {
-      return internalModel._loadingPromise;
+    if (internalModel._promiseProxy) {
+      return internalModel._promiseProxy;
     }
 
     let { id, modelName } = internalModel;
@@ -1871,7 +1871,7 @@ Store = Service.extend({
       snapshot: snapshot,
       resolver: resolver,
     });
-    emberRun.once(this, this.flushPendingSave);
+    emberRun.scheduleOnce('actions', this, this.flushPendingSave);
   },
 
   /**

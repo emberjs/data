@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import hasEmberVersion from 'ember-test-helpers/has-ember-version';
+import hasEmberVersion from '@ember/test-helpers/has-ember-version';
 
 const ORIGINAL_MODEL_FACTORY_INJECTIONS = Ember.MODEL_FACTORY_INJECTIONS;
 

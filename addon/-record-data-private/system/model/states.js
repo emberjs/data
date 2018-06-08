@@ -494,7 +494,7 @@ const RootState = {
 
     // EVENTS
     loadingData(internalModel, promise) {
-      internalModel._loadingPromise = promise;
+      internalModel._promiseProxy = promise;
       internalModel.transitionTo('loading');
     },
 
@@ -521,7 +521,7 @@ const RootState = {
     isLoading: true,
 
     exit(internalModel) {
-      internalModel._loadingPromise = null;
+      internalModel._promiseProxy = null;
     },
 
     // EVENTS

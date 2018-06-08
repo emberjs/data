@@ -754,7 +754,7 @@ Store = Service.extend({
 
     //TODO double check about reloading
     if (internalModel.isLoading()) {
-      return internalModel._loadingPromise;
+      return internalModel._promiseProxy;
     }
 
     return Promise.resolve(internalModel);
@@ -824,8 +824,8 @@ Store = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
-    if (internalModel._loadingPromise) {
-      return internalModel._loadingPromise;
+    if (internalModel._promiseProxy) {
+      return internalModel._promiseProxy;
     }
 
     let { id, modelName } = internalModel;
@@ -1270,7 +1270,7 @@ Store = Service.extend({
 
     let {
       relationshipIsStale,
-      hasRelatedResources,
+      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
@@ -1281,7 +1281,7 @@ Store = Service.extend({
       resource.links.related &&
       (hasDematerializedInverse ||
         relationshipIsStale ||
-        (!hasRelatedResources && !relationshipIsEmpty));
+        (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
 
     // fetch via link
     if (shouldFindViaLink) {
@@ -1299,7 +1299,7 @@ Store = Service.extend({
 
     let preferLocalCache =
       hasAnyRelationshipData &&
-      // hasRelatedResources &&
+      // allInverseRecordsAreLoaded &&
       !relationshipIsEmpty;
     let hasLocalPartialData =
       hasDematerializedInverse ||
@@ -1384,7 +1384,7 @@ Store = Service.extend({
 
     let {
       relationshipIsStale,
-      hasRelatedResources,
+      allInverseRecordsAreLoaded,
       hasDematerializedInverse,
       hasAnyRelationshipData,
       relationshipIsEmpty,
@@ -1395,14 +1395,15 @@ Store = Service.extend({
       resource.links.related &&
       (hasDematerializedInverse ||
         relationshipIsStale ||
-        (!hasRelatedResources && !relationshipIsEmpty));
+        (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
 
     // fetch via link
     if (shouldFindViaLink) {
       return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta);
     }
 
-    let preferLocalCache = hasAnyRelationshipData && hasRelatedResources && !relationshipIsEmpty;
+    let preferLocalCache =
+      hasAnyRelationshipData && allInverseRecordsAreLoaded && !relationshipIsEmpty;
     let hasLocalPartialData = hasDematerializedInverse || (relationshipIsEmpty && resource.data);
 
     // fetch using data, pulling from local cache if possible

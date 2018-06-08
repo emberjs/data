@@ -145,12 +145,12 @@ export default function hasMany(type, options) {
 
   return computed({
     get(key) {
-      return this._internalModel._relationships.get(key).getRecords();
+      return this._internalModel._relationships.get(key).getData();
     },
     set(key, records) {
       this._internalModel.setDirtyHasMany(key, records);
 
-      return this._internalModel._relationships.get(key).getRecords();
+      return this._internalModel._relationships.get(key).getData();
     },
   }).meta(meta);
 }

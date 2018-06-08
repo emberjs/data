@@ -9,8 +9,11 @@ module.exports = {
     Chrome: {
       mode: 'ci',
       args: [
-        '--disable-gpu',
         '--headless',
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-software-rasterizer',
+        '--mute-audio',
         '--remote-debugging-port=0',
         '--window-size=1440,900',
         '--no-sandbox',

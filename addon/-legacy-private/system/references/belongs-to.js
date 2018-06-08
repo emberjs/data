@@ -350,15 +350,17 @@ export default class BelongsToReference extends Reference {
      @return {Promise} a promise that resolves with the record in this belongs-to relationship.
   */
   load() {
-    if (this.remoteType() === 'id') {
-      return this.belongsToRelationship.getRecord();
-    }
+    let rel = this.belongsToRelationship;
 
-    if (this.remoteType() === 'link') {
-      return this.belongsToRelationship.findLink().then(internalModel => {
+    rel.getData();
+
+    if (rel.fetchPromise !== null) {
+      return rel.fetchPromise.then(() => {
         return this.value();
       });
     }
+
+    return resolve(this.value());
   }
 
   /**

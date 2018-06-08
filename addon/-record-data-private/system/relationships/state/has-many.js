@@ -16,8 +16,8 @@ export default class ManyRelationship extends Relationship {
     super.removeInverseRelationships();
 
     /* TODO Igor make sure this is still working
-    if (this._loadingPromise) {
-      this._loadingPromise.destroy();
+    if (this._promiseProxy) {
+      this._promiseProxy.destroy();
     }
     */
   }

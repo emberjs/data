@@ -136,7 +136,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
     });
   });
 
-  describe('module unification', function() {
+  describe.skip('module unification', function() {
     beforeEach(function() {
       return emberNew().then(() => fs.ensureDirSync('src'));
     });

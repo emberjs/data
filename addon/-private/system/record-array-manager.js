@@ -4,10 +4,12 @@
 
 import { A } from '@ember/array';
 import { set, get } from '@ember/object';
-import { run as emberRun } from '@ember/runloop';
+import { run as emberRunloop } from '@ember/runloop';
 import { assert } from '@ember/debug';
 import cloneNull from './clone-null';
 import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
+
+const emberRun = emberRunloop.backburner;
 
 const {
   _flush,

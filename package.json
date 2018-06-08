@@ -54,6 +54,9 @@
     "silent-error": "^1.0.0"
   },
   "devDependencies": {
+    "@ember-decorators/babel-transforms": "^2.0.0",
+    "@ember-decorators/data": "^2.1.0",
+    "babel-eslint": "^8.0.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-classes": "^6.23.0",
     "babel-plugin-transform-es2015-computed-properties": "^6.22.0",
@@ -73,7 +76,7 @@
     "broccoli-yuidoc": "^3.0.0",
     "co": "^4.6.0",
     "common-tags": "^1.4.0",
-    "ember-cli": "https://github.com/ember-cli/ember-cli#f724919b2d0455899411908531c9179240f5ef41",
+    "ember-cli": "^3.1.4",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-blueprint-test-helpers": "^0.18.3",
     "ember-cli-dependency-checker": "^2.1.0",
@@ -88,6 +91,7 @@
     "ember-cli-sri": "^2.1.0",
     "ember-cli-test-loader": "^1.1.0",
     "ember-cli-uglify": "2.0.0-beta.1",
+    "ember-decorators": "^2.1.0",
     "ember-disable-prototype-extensions": "^1.1.0",
     "ember-disable-proxy-controllers": "^1.0.0",
     "ember-export-application-global": "^1.0.5",
