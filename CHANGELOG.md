@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 3.2.0-beta.4 (June 13, 2018)
+
+- [#5432](https://github.com/emberjs/data/pull/5432) [CHORE] Remove `exists-sync` dependency.
+- [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] Remove all usage of `Ember.copy` to avoid future deprecation.
+- [#5437](https://github.com/emberjs/data/pull/5437) / [#5459](https://github.com/emberjs/data/pull/5459) [CHORE] Removes deprecated `store.filter` feature, must migrate to `ember-data-filter@2.0.0` for similar API usage.
+- [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] Update content of proxy for async belongs-to relationships when null data received
+- [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] Avoid unnecessary work during destruction process.
+
 ### Release 3.2.0-beta.3 (April 25, 2018)
 - [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
 
