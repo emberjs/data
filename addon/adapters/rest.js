@@ -1156,7 +1156,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
     let shortenedPayload;
-    let payloadContentType = headers['Content-Type'] || 'Empty Content-Type';
+    let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
     if (payloadContentType === 'text/html' && payload.length > 250) {
       shortenedPayload = '[Omitted Lengthy HTML]';
