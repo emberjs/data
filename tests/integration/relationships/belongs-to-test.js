@@ -1771,14 +1771,15 @@ testRecordData(
     }
 
     Chapter.reopen({
-      book1: DS.belongsTo({ async: false }),
+      // book is still an inverse from prior to the reopen
       sections: DS.hasMany('section', { async: false }),
-      book: DS.belongsTo({ async: false, inverse: 'book' }),
+      book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
+      book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
     });
 
     const createModelDataFor = env.store.createModelDataFor;
     env.store.createModelDataFor = function(modelName, id, clientId, storeWrapper) {
-      if (modelName === 'book1' || modelName === 'book' || modelName === 'section') {
+      if (modelName === 'book1' || modelName === 'section') {
         return new TestModelData(modelName, id, clientId, storeWrapper, this);
       }
       return createModelDataFor.call(this, modelName, id, clientId, storeWrapper);
@@ -1791,6 +1792,9 @@ testRecordData(
         relationships: {
           book1: {
             data: { type: 'book1', id: '1' },
+          },
+          book2: {
+            data: { type: 'book1', id: '2' },
           },
           book: {
             data: { type: 'book', id: '1' },
@@ -1811,13 +1815,14 @@ testRecordData(
       },
       included: [
         { type: 'book1', id: '1' },
+        { type: 'book1', id: '2' },
         { type: 'section', id: '1' },
         { type: 'book', id: '1' },
         { type: 'section', id: '2' },
       ],
     };
 
-    // Expect assertion failure as Book Model Data
+    // Expect assertion failure as Book1 ModelData
     // doesn't have relationship attribute
     // and inverse is not set to null in
     // belongsTo
@@ -1825,7 +1830,7 @@ testRecordData(
       run(() => {
         env.store.push(data);
       });
-    }, `Assertion Failed: We found no inverse relationships by the name of 'book' on the 'book' model. This is most likely due to a missing attribute on your model definition.`);
+    }, `Assertion Failed: We found no inverse relationships by the name of 'chapters' on the 'book1' model. This is most likely due to a missing attribute on your model definition.`);
 
     //Update setup
     // with inverse set to null
@@ -1842,6 +1847,7 @@ testRecordData(
 
     let chapter = env.store.peekRecord('chapter', '1');
     let book1 = env.store.peekRecord('book1', '1');
+    let book2 = env.store.peekRecord('book1', '2');
     let book = env.store.peekRecord('book', '1');
     let section1 = env.store.peekRecord('section', '1');
     let section2 = env.store.peekRecord('section', '2');
@@ -1849,20 +1855,22 @@ testRecordData(
     let sections = chapter.get('sections');
 
     assert.equal(chapter.get('book1.id'), '1');
+    assert.equal(chapter.get('book2.id'), '2');
     assert.equal(chapter.get('book.id'), '1');
 
     // No inverse setup created for book1
     // as Model-Data of book1 doesn't support this
     // functionality.
     assert.notOk(book1.get('chapter'));
+    assert.notOk(book2.get('chapter'));
     assert.notOk(book.get('chapter'));
     assert.notOk(
       book1._internalModel._modelData._implicitRelationships,
-      'no support for implicit relationship in Model Data'
+      'no support for implicit relationship in custom RecordData'
     );
-    assert.notOk(
+    assert.ok(
       book._internalModel._modelData._implicitRelationships,
-      'no support for implicit relationship in Model Data'
+      'support for implicit relationship in default RecordData'
     );
 
     // No inverse setup is created for section
