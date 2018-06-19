@@ -1868,6 +1868,10 @@ testRecordData(
       book1._internalModel._modelData._implicitRelationships,
       'no support for implicit relationship in custom RecordData'
     );
+    assert.notOk(
+      book2._internalModel._modelData._implicitRelationships,
+      'no support for implicit relationship in custom RecordData'
+    );
     assert.ok(
       book._internalModel._modelData._implicitRelationships,
       'support for implicit relationship in default RecordData'
