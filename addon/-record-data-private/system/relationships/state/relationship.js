@@ -179,6 +179,16 @@ export default class Relationship {
     return this.inverseKey && !this.inverseIsAsync;
   }
 
+  _hasSupportForImplicitRelationships(modelData) {
+    return (
+      modelData._implicitRelationships !== undefined && modelData._implicitRelationships !== null
+    );
+  }
+
+  _hasSupportForRelationships(modelData) {
+    return modelData._relationships !== undefined && modelData._relationships !== null;
+  }
+
   get _inverseMeta() {
     if (this.__inverseMeta === undefined) {
       let inverseMeta = null;
@@ -205,6 +215,9 @@ export default class Relationship {
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     this.forAllMembers(inverseModelData => {
+      if (!this._hasSupportForRelationships(inverseModelData)) {
+        return;
+      }
       let relationship = inverseModelData._relationships.get(this.inverseKey);
       relationship.inverseDidDematerialize(this.modelData);
     });
@@ -313,6 +326,9 @@ export default class Relationship {
 
   setupInverseRelationship(modelData) {
     if (this.inverseKey) {
+      if (!this._hasSupportForRelationships(modelData)) {
+        return;
+      }
       let relationships = modelData._relationships;
       let relationship = relationships.get(this.inverseKey);
       // if we have only just initialized the inverse relationship, then it
@@ -322,6 +338,9 @@ export default class Relationship {
       // relationships cannot efficiently find their inverse payloads.
       relationship.addCanonicalModelData(this.modelData);
     } else {
+      if (!this._hasSupportForImplicitRelationships(modelData)) {
+        return;
+      }
       let relationships = modelData._implicitRelationships;
       let relationship = relationships[this.inverseKeyForImplicit];
       if (!relationship) {
@@ -354,7 +373,10 @@ export default class Relationship {
       if (this.inverseKey) {
         this.removeCanonicalModelDataFromInverse(modelData);
       } else {
-        if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+        if (
+          this._hasSupportForImplicitRelationships(modelData) &&
+          modelData._implicitRelationships[this.inverseKeyForImplicit]
+        ) {
           modelData._implicitRelationships[this.inverseKeyForImplicit].removeCanonicalModelData(
             this.modelData
           );
@@ -369,19 +391,21 @@ export default class Relationship {
     if (!this.members.has(modelData)) {
       this.members.addWithIndex(modelData, idx);
       this.notifyRecordRelationshipAdded(modelData, idx);
-      if (this.inverseKey) {
+      if (this._hasSupportForRelationships(modelData) && this.inverseKey) {
         modelData._relationships.get(this.inverseKey).addModelData(this.modelData);
       } else {
-        if (!modelData._implicitRelationships[this.inverseKeyForImplicit]) {
-          modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
-            this.store,
-            this.key,
-            { options: { async: this.isAsync } },
-            modelData,
-            this.isAsync
-          );
+        if (this._hasSupportForImplicitRelationships(modelData)) {
+          if (!modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+            modelData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
+              this.store,
+              this.key,
+              { options: { async: this.isAsync } },
+              modelData,
+              this.isAsync
+            );
+          }
+          modelData._implicitRelationships[this.inverseKeyForImplicit].addModelData(this.modelData);
         }
-        modelData._implicitRelationships[this.inverseKeyForImplicit].addModelData(this.modelData);
       }
     }
     this.setHasAnyRelationshipData(true);
@@ -394,7 +418,10 @@ export default class Relationship {
       if (this.inverseKey) {
         this.removeModelDataFromInverse(modelData);
       } else {
-        if (modelData._implicitRelationships[this.inverseKeyForImplicit]) {
+        if (
+          this._hasSupportForImplicitRelationships(modelData) &&
+          modelData._implicitRelationships[this.inverseKeyForImplicit]
+        ) {
           modelData._implicitRelationships[this.inverseKeyForImplicit].removeModelData(
             this.modelData
           );
@@ -405,6 +432,9 @@ export default class Relationship {
 
   removeModelDataFromInverse(modelData) {
     heimdall.increment(removeModelDataFromInverse);
+    if (!this._hasSupportForRelationships(modelData)) {
+      return;
+    }
     let inverseRelationship = modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -419,6 +449,9 @@ export default class Relationship {
 
   removeCanonicalModelDataFromInverse(modelData) {
     heimdall.increment(removeCanonicalModelDataFromInverse);
+    if (!this._hasSupportForRelationships(modelData)) {
+      return;
+    }
     let inverseRelationship = modelData._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -453,7 +486,7 @@ export default class Relationship {
     const unload = inverseModelData => {
       const id = guidFor(inverseModelData);
 
-      if (seen[id] === undefined) {
+      if (this._hasSupportForRelationships(inverseModelData) && seen[id] === undefined) {
         const relationship = inverseModelData._relationships.get(this.inverseKey);
         relationship.removeCompletelyFromOwn(modelData);
         seen[id] = true;
