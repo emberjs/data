@@ -120,7 +120,7 @@
     "testem": "^1.15.0"
   },
   "engines": {
-    "node": ">= 4.0.0"
+    "node": ">= 6.0.0"
   },
   "keywords": [
     "ember-addon"

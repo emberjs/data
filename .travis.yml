@@ -3,7 +3,7 @@ language: node_js
 sudo: false
 dist: trusty
 node_js:
-  - "4"
+  - "6"
 
 addons:
   chrome: stable
