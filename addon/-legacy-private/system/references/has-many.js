@@ -359,8 +359,9 @@ export default class HasManyReference extends Reference {
      this has-many relationship.
   */
   load() {
+    // TODO this can be simplified
     if (!this._isLoaded()) {
-      return this.hasManyRelationship.getRecords();
+      return this.hasManyRelationship.getData();
     }
 
     return resolve(this.hasManyRelationship.manyArray);

@@ -330,13 +330,21 @@ test('find a single record with belongsTo link as object { related }', function(
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
-      assert.equal(passedUrl[0], '/posts/1');
+      assert.equal(
+        passedUrl[0],
+        '/posts/1',
+        'The primary record post:1 was fetched by the correct url'
+      );
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
       return post.get('author').then(author => {
-        assert.equal(passedUrl[1], 'http://example.com/user/2');
+        assert.equal(
+          passedUrl[1],
+          'http://example.com/user/2',
+          'The relationship user:2 was fetched by the correct url'
+        );
 
         assert.equal(author.get('id'), '2');
         assert.equal(author.get('firstName'), 'Yehuda');
@@ -378,13 +386,21 @@ test('find a single record with belongsTo link as object { data }', function(ass
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
-      assert.equal(passedUrl[0], '/posts/1');
+      assert.equal(
+        passedUrl[0],
+        '/posts/1',
+        'The primary record post:1 was fetched by the correct url'
+      );
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');
 
       return post.get('author').then(author => {
-        assert.equal(passedUrl[1], '/users/2');
+        assert.equal(
+          passedUrl[1],
+          '/users/2',
+          'The relationship user:2 was fetched by the correct url'
+        );
 
         assert.equal(author.get('id'), '2');
         assert.equal(author.get('firstName'), 'Yehuda');
@@ -476,7 +492,11 @@ test('find a single record with sideloaded belongsTo link as object { data }', f
 
   return run(() => {
     return store.findRecord('post', 1).then(post => {
-      assert.equal(passedUrl[0], '/posts/1');
+      assert.equal(
+        passedUrl[0],
+        '/posts/1',
+        'The primary record post:1 was fetched by the correct url'
+      );
 
       assert.equal(post.get('id'), '1');
       assert.equal(post.get('title'), 'Ember.js rocks');

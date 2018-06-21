@@ -5,17 +5,14 @@ import {
   reset as resetModelFactoryInjections,
 } from 'dummy/tests/helpers/model-factory-injection';
 import { A } from '@ember/array';
-
 import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
-
 import setupStore from 'dummy/tests/helpers/store';
-
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test } from 'qunit';
-
+import { module, test, skip } from 'qunit';
 import DS from 'ember-data';
+import { skipRecordData } from '../../helpers/test-in-debug';
 
 let env, store, User, Contact, Email, Phone, Message, Post, Comment;
 let Book, Chapter, Page;
@@ -963,73 +960,75 @@ test('A hasMany relationship can be reloaded if it was fetched via ids', functio
   });
 });
 
-test('A hasMany relationship can be reloaded even if it failed at the first time', function(assert) {
-  assert.expect(4);
+skipRecordData(
+  'A hasMany relationship can be reloaded even if it failed at the first time',
+  async function(assert) {
+    assert.expect(6);
 
-  Post.reopen({
-    comments: DS.hasMany('comment', { async: true }),
-  });
+    const { store, adapter } = env;
 
-  env.adapter.findRecord = function(store, type, id) {
-    return resolve({
-      data: {
-        id: 1,
-        type: 'post',
-        relationships: {
-          comments: {
-            links: { related: '/posts/1/comments' },
+    Post.reopen({
+      comments: DS.hasMany('comment', { async: true }),
+    });
+
+    adapter.findRecord = function(store, type, id) {
+      return resolve({
+        data: {
+          id: 1,
+          type: 'post',
+          relationships: {
+            comments: {
+              links: { related: '/posts/1/comments' },
+            },
           },
         },
-      },
-    });
-  };
-
-  let loadingCount = -1;
-  env.adapter.findHasMany = function(store, record, link, relationship) {
-    loadingCount++;
-    if (loadingCount % 2 === 0) {
-      return reject();
-    } else {
-      return resolve({
-        data: [
-          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
-        ],
       });
-    }
-  };
-  run(function() {
-    env.store.findRecord('post', 1).then(function(post) {
-      let comments = post.get('comments');
-      return comments
-        .catch(function() {
-          return comments.reload();
-        })
-        .then(function(manyArray) {
-          assert.equal(
-            manyArray.get('isLoaded'),
-            true,
-            'the reload worked, comments are now loaded'
-          );
-          return manyArray.reload().catch(function() {
-            assert.equal(
-              manyArray.get('isLoaded'),
-              true,
-              'the second reload failed, comments are still loaded though'
-            );
-            return manyArray.reload().then(function(reloadedManyArray) {
-              assert.equal(
-                reloadedManyArray.get('isLoaded'),
-                true,
-                'the third reload worked, comments are loaded again'
-              );
-              assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
-            });
-          });
+    };
+
+    let loadingCount = -1;
+    adapter.findHasMany = function(store, record, link, relationship) {
+      loadingCount++;
+      if (loadingCount % 2 === 0) {
+        return reject({ data: null });
+      } else {
+        return resolve({
+          data: [
+            { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
+            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          ],
         });
+      }
+    };
+
+    let post = await store.findRecord('post', 1);
+    let comments = post.get('comments');
+    let manyArray = await comments.catch(() => {
+      assert.ok(true, 'An error was thrown on the first reload of comments');
+      return comments.reload();
     });
-  });
-});
+
+    assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
+
+    await manyArray.reload().catch(() => {
+      assert.ok(true, 'An error was thrown on the second reload via manyArray');
+    });
+
+    assert.equal(
+      manyArray.get('isLoaded'),
+      true,
+      'the second reload failed, comments are still loaded though'
+    );
+
+    let reloadedManyArray = await manyArray.reload();
+
+    assert.equal(
+      reloadedManyArray.get('isLoaded'),
+      true,
+      'the third reload worked, comments are loaded again'
+    );
+    assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+  }
+);
 
 test('A hasMany relationship can be directly reloaded if it was fetched via links', function(assert) {
   assert.expect(6);
@@ -2070,16 +2069,18 @@ test('dual non-async HM <-> BT', function(assert) {
   });
 });
 
-test('When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched', function(assert) {
+test('When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched', async function(assert) {
   assert.expect(6);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true }),
   });
 
+  const { store, adapter } = env;
+
   let findManyCalls = 0;
   let findRecordCalls = 0;
 
-  env.adapter.findMany = function(store, type, ids, snapshots) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     assert.ok(true, `findMany called ${++findManyCalls}x`);
     return resolve({
       data: [
@@ -2089,69 +2090,60 @@ test('When an unloaded record is added to the hasMany, it gets fetched once the 
     });
   };
 
-  env.adapter.findRecord = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     assert.ok(true, `findRecord called ${++findRecordCalls}x`);
+
     return resolve({ data: { id: 3, type: 'comment', attributes: { body: 'third' } } });
   };
-  let post;
 
-  run(() => {
-    env.store.push({
-      data: {
-        type: 'post',
-        id: '1',
-        relationships: {
-          comments: {
-            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
-          },
+  let post = store.push({
+    data: {
+      type: 'post',
+      id: '1',
+      relationships: {
+        comments: {
+          data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
         },
       },
-    });
-    post = env.store.peekRecord('post', 1);
+    },
   });
 
-  return run(() => {
-    return post.get('comments').then(fetchedComments => {
-      assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
-      assert.equal(
-        fetchedComments.objectAt(0).get('body'),
-        'first',
-        'first comment loaded successfully'
-      );
+  let fetchedComments = await post.get('comments');
 
-      env.store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [
-                { type: 'comment', id: '1' },
-                { type: 'comment', id: '2' },
-                { type: 'comment', id: '3' },
-              ],
-            },
-          },
+  assert.equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
+  assert.equal(
+    fetchedComments.objectAt(0).get('body'),
+    'first',
+    'first comment loaded successfully'
+  );
+
+  store.push({
+    data: {
+      type: 'post',
+      id: '1',
+      relationships: {
+        comments: {
+          data: [
+            { type: 'comment', id: '1' },
+            { type: 'comment', id: '2' },
+            { type: 'comment', id: '3' },
+          ],
         },
-      });
-
-      return post.get('comments').then(newlyFetchedComments => {
-        assert.equal(
-          newlyFetchedComments.get('length'),
-          3,
-          'all three comments fetched successfully'
-        );
-        assert.equal(
-          newlyFetchedComments.objectAt(2).get('body'),
-          'third',
-          'third comment loaded successfully'
-        );
-      });
-    });
+      },
+    },
   });
+
+  let newlyFetchedComments = await post.get('comments');
+
+  assert.equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
+  assert.equal(
+    newlyFetchedComments.objectAt(2).get('body'),
+    'third',
+    'third comment loaded successfully'
+  );
 });
 
-testInDebug('A sync hasMany errors out if there are unlaoded records in it', function(assert) {
+skip('A sync hasMany errors out if there are unloaded records in it', function(assert) {
   let post = run(() => {
     env.store.push({
       data: {
@@ -2169,7 +2161,7 @@ testInDebug('A sync hasMany errors out if there are unlaoded records in it', fun
 
   assert.expectAssertion(() => {
     run(post, 'get', 'comments');
-  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \('DS.hasMany\({ async: true }\)'\)/);
+  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
 });
 
 test('After removing and unloading a record, a hasMany relationship should still be valid', function(assert) {

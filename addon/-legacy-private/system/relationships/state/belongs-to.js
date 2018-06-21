@@ -1,7 +1,7 @@
-import { Promise as EmberPromise } from 'rsvp';
+import { resolve } from 'rsvp';
 import { assert } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
-import { PromiseBelongsTo } from '../../promise-proxies';
+import { PromiseBelongsTo, PromiseObject } from '../../promise-proxies';
 import Relationship from './relationship';
 
 export default class BelongsToRelationship extends Relationship {
@@ -9,7 +9,23 @@ export default class BelongsToRelationship extends Relationship {
     super(store, internalModel, inverseKey, relationshipMeta);
     this.inverseInternalModel = null;
     this.canonicalState = null;
-    this._loadingPromise = null;
+    this._promiseProxy = null;
+  }
+
+  /**
+   * Flag indicating whether all inverse records are available
+   *
+   * true if the inverse exists and is loaded (not empty)
+   * true if there is no inverse
+   * false if the inverse exists and is not loaded (empty)
+   *
+   * @returns {boolean}
+   */
+  get allInverseRecordsAreLoaded() {
+    let internalModel = this.inverseInternalModel;
+    let isEmpty = internalModel !== null && internalModel.isEmpty();
+
+    return !isEmpty;
   }
 
   setInternalModel(internalModel) {
@@ -21,7 +37,6 @@ export default class BelongsToRelationship extends Relationship {
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsStale(false);
     this.setRelationshipIsEmpty(false);
-    this.setHasRelatedResources(!this.localStateIsEmpty());
   }
 
   setCanonicalInternalModel(internalModel) {
@@ -92,6 +107,7 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseInternalModel !== this.canonicalState) {
       this.inverseInternalModel = this.canonicalState;
+      this._promiseProxy = null;
       this.notifyBelongsToChanged();
     }
 
@@ -114,13 +130,17 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
-  setRecordPromise(newPromise) {
-    let content = newPromise.get && newPromise.get('content');
+  setRecordPromise(belongsToPromise) {
     assert(
       'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
+      belongsToPromise instanceof PromiseObject
     );
+
+    let content = belongsToPromise.get('content');
+    let promise = belongsToPromise.get('promise');
+
     this.setInternalModel(content ? content._internalModel : content);
+    this._updateLoadingPromise(promise, content);
   }
 
   removeInternalModelFromOwn(internalModel) {
@@ -128,6 +148,7 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.inverseInternalModel = null;
+    this._promiseProxy = null;
     super.removeInternalModelFromOwn(internalModel);
     this.notifyBelongsToChanged();
   }
@@ -135,6 +156,7 @@ export default class BelongsToRelationship extends Relationship {
   removeAllInternalModelsFromOwn() {
     super.removeAllInternalModelsFromOwn();
     this.inverseInternalModel = null;
+    this._promiseProxy = null;
     this.notifyBelongsToChanged();
   }
 
@@ -155,15 +177,32 @@ export default class BelongsToRelationship extends Relationship {
     this.canonicalState = null;
   }
 
-  findRecord() {
-    if (this.inverseInternalModel) {
-      return this.store._findByInternalModel(this.inverseInternalModel);
-    } else {
-      return EmberPromise.resolve(null);
+  // called by `getData()` when a request is needed
+  //   but no link is available
+  _fetchRecord() {
+    let { inverseInternalModel, shouldForceReload } = this;
+
+    if (inverseInternalModel) {
+      let promise;
+
+      if (shouldForceReload && !inverseInternalModel.isEmpty() && inverseInternalModel.hasRecord) {
+        // reload record, if it is already loaded
+        //   if we have a link, we would already be in `findLink()`
+        promise = inverseInternalModel.getRecord().reload();
+      } else {
+        promise = this.store._findByInternalModel(inverseInternalModel);
+      }
+
+      return promise;
     }
+
+    // TODO is this actually an error case?
+    return resolve(null);
   }
 
-  fetchLink() {
+  // called by `getData()` when a request is needed
+  //   and a link is available
+  _fetchLink() {
     return this.store
       .findBelongsTo(this.internalModel, this.link, this.relationshipMeta)
       .then(internalModel => {
@@ -174,25 +213,39 @@ export default class BelongsToRelationship extends Relationship {
       });
   }
 
-  getRecord() {
+  getData() {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
-    if (this.isAsync) {
+    let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
+
+    if (this.shouldMakeRequest()) {
       let promise;
 
-      if (this._shouldFindViaLink()) {
-        promise = this.findLink().then(() => this.findRecord());
+      if (this.link) {
+        promise = this._fetchLink();
       } else {
-        promise = this.findRecord();
+        promise = this._fetchRecord();
       }
 
-      let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
+      promise = promise.then(() => handleCompletedFind(this), e => handleCompletedFind(this, e));
 
-      return this._updateLoadingPromise(promise, record);
+      promise = promise.then(internalModel => {
+        return internalModel ? internalModel.getRecord() : null;
+      });
+
+      this.fetchPromise = promise;
+      this._updateLoadingPromise(promise);
+    }
+
+    if (this.isAsync) {
+      if (this._promiseProxy === null) {
+        let promise = resolve(this.inverseInternalModel).then(internalModel => {
+          return internalModel ? internalModel.getRecord() : null;
+        });
+        this._updateLoadingPromise(promise, record);
+      }
+
+      return this._promiseProxy;
     } else {
-      if (this.inverseInternalModel === null) {
-        return null;
-      }
-      let toReturn = this.inverseInternalModel.getRecord();
       assert(
         "You looked up the '" +
           this.key +
@@ -201,56 +254,18 @@ export default class BelongsToRelationship extends Relationship {
           "' with id " +
           this.internalModel.id +
           ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
-        toReturn === null || !toReturn.get('isEmpty')
+        record === null || !record.get('isEmpty')
       );
-      return toReturn;
+      return record;
     }
   }
 
-  _updateLoadingPromise(promise, content) {
-    if (this._loadingPromise) {
-      if (content !== undefined) {
-        this._loadingPromise.set('content', content);
-      }
-      this._loadingPromise.set('promise', promise);
-    } else {
-      this._loadingPromise = PromiseBelongsTo.create({
-        _belongsToState: this,
-        promise,
-        content,
-      });
-    }
-
-    return this._loadingPromise;
-  }
-
-  reload() {
-    // we've already fired off a request
-    if (this._loadingPromise) {
-      if (this._loadingPromise.get('isPending')) {
-        return this._loadingPromise;
-      }
-    }
-
-    let promise;
-    this.setRelationshipIsStale(true);
-
-    if (this.link) {
-      promise = this.fetchLink();
-    } else if (this.inverseInternalModel && this.inverseInternalModel.hasRecord) {
-      // reload record, if it is already loaded
-      promise = this.inverseInternalModel.getRecord().reload();
-    } else {
-      promise = this.findRecord();
-    }
-
-    return this._updateLoadingPromise(promise);
-  }
-
-  localStateIsEmpty() {
-    let internalModel = this.inverseInternalModel;
-
-    return !internalModel || internalModel.isEmpty();
+  _createProxy(promise, content) {
+    return PromiseBelongsTo.create({
+      _belongsToState: this,
+      promise,
+      content,
+    });
   }
 
   updateData(data, initial) {
@@ -261,4 +276,22 @@ export default class BelongsToRelationship extends Relationship {
       this.setCanonicalInternalModel(internalModel);
     }
   }
+}
+
+function handleCompletedFind(relationship, error) {
+  let internalModel = relationship.inverseInternalModel;
+
+  relationship.fetchPromise = null;
+  relationship.setShouldForceReload(false);
+
+  if (error) {
+    relationship.setHasFailedLoadAttempt(true);
+    throw error;
+  }
+
+  relationship.setHasFailedLoadAttempt(false);
+  // only set to not stale if no error is thrown
+  relationship.setRelationshipIsStale(false);
+
+  return internalModel;
 }

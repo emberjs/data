@@ -4,6 +4,7 @@ import { PromiseManyArray } from '../../promise-proxies';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import ManyArray from '../../many-array';
+import { resolve } from 'rsvp';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, internalModel, inverseKey, relationshipMeta) {
@@ -16,25 +17,45 @@ export default class ManyRelationship extends Relationship {
     // we create a new many array, but in the interim it will be updated if
     // inverse internal models are unloaded.
     this._retainedManyArray = null;
-    this._loadingPromise = null;
+    this._promiseProxy = null;
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
   }
 
-  _updateLoadingPromise(promise, content) {
-    if (this._loadingPromise) {
-      if (content) {
-        this._loadingPromise.set('content', content);
-      }
-      this._loadingPromise.set('promise', promise);
-    } else {
-      this._loadingPromise = PromiseManyArray.create({
-        promise,
-        content,
-      });
+  get currentState() {
+    return this.members.list;
+  }
+
+  /**
+   * Flag indicating whether all inverse records are available
+   *
+   * true if inverse records exist and are all loaded (all not empty)
+   * true if there are no inverse records
+   * false if the inverse records exist and any are not loaded (any empty)
+   *
+   * @returns {boolean}
+   */
+  get allInverseRecordsAreLoaded() {
+    // check currentState for unloaded records
+    let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
+      return hasEmptyModel || i.isEmpty();
+    }, false);
+
+    // check un-synced state for unloaded records
+    if (!hasEmptyRecords && this.willSync) {
+      hasEmptyRecords = this.canonicalState.reduce((hasEmptyModel, i) => {
+        return hasEmptyModel || !i.isEmpty();
+      }, false);
     }
 
-    return this._loadingPromise;
+    return !hasEmptyRecords;
+  }
+
+  _createProxy(promise, content) {
+    return PromiseManyArray.create({
+      promise,
+      content,
+    });
   }
 
   get manyArray() {
@@ -46,6 +67,8 @@ export default class ManyRelationship extends Relationship {
     );
 
     if (!this._manyArray && !this.isDestroying) {
+      let isLoaded = this.hasFailedLoadAttempt || this.isNew || this.allInverseRecordsAreLoaded;
+
       this._manyArray = ManyArray.create({
         canonicalState: this.canonicalState,
         store: this.store,
@@ -54,6 +77,7 @@ export default class ManyRelationship extends Relationship {
         record: this.internalModel,
         meta: this.meta,
         isPolymorphic: this.isPolymorphic,
+        isLoaded,
       });
 
       if (this._retainedManyArray !== null) {
@@ -72,8 +96,8 @@ export default class ManyRelationship extends Relationship {
       this._manyArray = null;
     }
 
-    if (this._loadingPromise) {
-      this._loadingPromise.destroy();
+    if (this._promiseProxy) {
+      this._promiseProxy.destroy();
     }
   }
 
@@ -246,28 +270,6 @@ export default class ManyRelationship extends Relationship {
     this.internalModel.notifyHasManyAdded(this.key, internalModel, idx);
   }
 
-  reload() {
-    let manyArray = this.manyArray;
-
-    if (this._loadingPromise) {
-      if (this._loadingPromise.get('isPending')) {
-        return this._loadingPromise;
-      }
-    }
-
-    this.setRelationshipIsStale(true);
-
-    let promise;
-    if (this.link) {
-      promise = this.fetchLink();
-    } else {
-      promise = this.store._scheduleFetchMany(manyArray.currentState).then(() => manyArray);
-    }
-
-    this._updateLoadingPromise(promise);
-    return this._loadingPromise;
-  }
-
   computeChanges(internalModels = []) {
     let members = this.canonicalMembers;
     let internalModelsToRemove = [];
@@ -309,7 +311,25 @@ export default class ManyRelationship extends Relationship {
     this.canonicalState = this.canonicalMembers.toArray();
   }
 
-  fetchLink() {
+  // called by `getData()` when a request is needed
+  //   but no link is available
+  _fetchRecords() {
+    let internalModels = this.currentState;
+    let { shouldForceReload } = this;
+    let promise;
+
+    if (shouldForceReload === true) {
+      promise = this.store._scheduleFetchMany(internalModels);
+    } else {
+      promise = this.store.findMany(internalModels);
+    }
+
+    return promise;
+  }
+
+  // called by `getData()` when a request is needed
+  //   and a link is available
+  _fetchLink() {
     return this.store
       .findHasMany(this.internalModel, this.link, this.relationshipMeta)
       .then(records => {
@@ -318,58 +338,55 @@ export default class ManyRelationship extends Relationship {
         }
         this.store._backburner.join(() => {
           this.updateInternalModelsFromAdapter(records);
-          this.manyArray.set('isLoaded', true);
         });
-        return this.manyArray;
+        return records;
       });
   }
 
-  findRecords() {
-    let manyArray = this.manyArray;
-    let internalModels = manyArray.currentState;
-
-    //TODO CLEANUP
-    return this.store.findMany(internalModels).then(() => {
-      if (!manyArray.get('isDestroyed')) {
-        //Goes away after the manyArray refactor
-        manyArray.set('isLoaded', true);
-      }
-      return manyArray;
-    });
-  }
-
-  notifyHasManyChanged() {
-    this.internalModel.notifyHasManyAdded(this.key);
-  }
-
-  getRecords() {
+  getData() {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
 
-    if (this.isAsync) {
+    if (this.shouldMakeRequest()) {
       let promise;
 
-      if (this._shouldFindViaLink()) {
-        promise = this.findLink().then(() => this.findRecords());
+      if (this.link) {
+        promise = this._fetchLink();
       } else {
-        promise = this.findRecords();
+        promise = this._fetchRecords();
       }
 
-      return this._updateLoadingPromise(promise, manyArray);
+      promise = promise.then(
+        () => handleCompletedRequest(this),
+        e => handleCompletedRequest(this, e)
+      );
+
+      this.fetchPromise = promise;
+      this._updateLoadingPromise(promise, manyArray);
+    }
+
+    if (this.isAsync) {
+      if (this._promiseProxy === null) {
+        this._updateLoadingPromise(resolve(manyArray), manyArray);
+      }
+
+      return this._promiseProxy;
     } else {
       assert(
         `You looked up the '${this.key}' relationship on a '${
           this.internalModel.type.modelName
         }' with id ${
           this.internalModel.id
-        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
-        manyArray.isEvery('isEmpty', false)
+        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`DS.hasMany({ async: true })\`)`,
+        this.allInverseRecordsAreLoaded
       );
-
-      manyArray.set('isLoaded', true);
 
       return manyArray;
     }
+  }
+
+  notifyHasManyChanged() {
+    this.internalModel.notifyHasManyAdded(this.key);
   }
 
   updateData(data, initial) {
@@ -381,20 +398,6 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  localStateIsEmpty() {
-    let manyArray = this.manyArray;
-    let internalModels = manyArray.currentState;
-    let manyArrayIsLoaded = manyArray.get('isLoaded');
-
-    if (!manyArrayIsLoaded && internalModels.length) {
-      manyArrayIsLoaded = internalModels.reduce((hasNoEmptyModel, i) => {
-        return hasNoEmptyModel && !i.isEmpty();
-      }, true);
-    }
-
-    return !manyArrayIsLoaded;
-  }
-
   destroy() {
     this.isDestroying = true;
     super.destroy();
@@ -404,14 +407,37 @@ export default class ManyRelationship extends Relationship {
       this._manyArray = null;
     }
 
-    let proxy = this._loadingPromise;
+    let proxy = this._promiseProxy;
 
     if (proxy) {
       proxy.destroy();
-      this._loadingPromise = null;
+      this._promiseProxy = null;
     }
     this.isDestroyed = true;
   }
+}
+
+function handleCompletedRequest(relationship, error) {
+  let manyArray = relationship.manyArray;
+
+  //Goes away after the manyArray refactor
+  if (!manyArray.get('isDestroyed')) {
+    relationship.manyArray.set('isLoaded', true);
+  }
+
+  relationship.fetchPromise = null;
+  relationship.setShouldForceReload(false);
+
+  if (error) {
+    relationship.setHasFailedLoadAttempt(true);
+    throw error;
+  }
+
+  relationship.setHasFailedLoadAttempt(false);
+  // only set to not stale if no error is thrown
+  relationship.setRelationshipIsStale(false);
+
+  return manyArray;
 }
 
 function setForArray(array) {

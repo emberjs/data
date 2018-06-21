@@ -28,7 +28,9 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   }
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;
-  let promise = Promise.resolve().then(() => adapter.findRecord(store, modelClass, id, snapshot));
+  let promise = Promise.resolve().then(() => {
+    return adapter.findRecord(store, modelClass, id, snapshot);
+  });
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
   promise = guardDestroyedStore(promise, store, label);

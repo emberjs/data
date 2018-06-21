@@ -63,7 +63,7 @@ export default EmberObject.extend(MutableArray, Evented, {
 
     @property {Boolean} isLoaded
     */
-    this.isLoaded = false;
+    this.isLoaded = this.isLoaded || false;
     this.length = 0;
 
     /**

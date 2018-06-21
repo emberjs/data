@@ -96,7 +96,7 @@ export default class InternalModel {
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
 
-    this._loadingPromise = null;
+    this._promiseProxy = null;
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;

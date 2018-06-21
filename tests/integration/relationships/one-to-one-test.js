@@ -440,10 +440,18 @@ test('Setting a BelongsTo to a promise unwraps the promise before setting- async
   run(function() {
     newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
     stanley.get('bestFriend').then(function(fetchedUser) {
-      assert.equal(fetchedUser, newFriend, 'User relationship was updated correctly');
+      assert.equal(
+        fetchedUser,
+        newFriend,
+        `Stanley's bestFriend relationship was updated correctly to newFriend`
+      );
     });
     newFriend.get('bestFriend').then(function(fetchedUser) {
-      assert.equal(fetchedUser, stanley, 'User relationship was updated correctly');
+      assert.equal(
+        fetchedUser,
+        stanley,
+        `newFriend's bestFriend relationship was updated correctly to be Stanley`
+      );
     });
   });
 });
