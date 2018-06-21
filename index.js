@@ -84,9 +84,15 @@ module.exports = {
   },
 
   config() {
+    let optionFlag =
+      this.app &&
+      this.app.options &&
+      this.app.options.emberData &&
+      this.app.options.emberData.enableRecordDataRFCBuild;
+
     return {
       emberData: {
-        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC || this.app.options.emberData.enableRecordDataRFCBuild,
+        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC || optionFlag || false,
       },
     };
   },
