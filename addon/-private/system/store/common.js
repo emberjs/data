@@ -1,7 +1,7 @@
 import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import Ember from 'ember';
-import { Promise } from 'rsvp';
+import { resolve } from 'rsvp';
 
 const {
   __bind,
@@ -23,7 +23,7 @@ export function _bind(fn, ...args) {
 
 export function _guard(promise, test) {
   heimdall.increment(__guard);
-  let guarded = promise['finally'](function() {
+  let guarded = promise.finally(() => {
     if (!test()) {
       guarded._subscribers.length = 0;
     }
@@ -49,7 +49,12 @@ if (DEBUG) {
 }
 
 export function guardDestroyedStore(promise, store, label) {
-  promise = Promise.resolve(promise, label);
+  let wrapperPromise = resolve(promise, label).then(v => promise);
 
-  return _guard(promise, () => { if (DEBUG) { ASYNC_REQUEST_COUNT--; } return _objectIsAlive(store); });
+  return _guard(wrapperPromise, () => {
+    if (DEBUG) {
+      ASYNC_REQUEST_COUNT--;
+    }
+    return _objectIsAlive(store);
+  });
 }

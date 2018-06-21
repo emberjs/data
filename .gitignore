@@ -4,6 +4,7 @@ tmp/
 tests/source/
 dist/
 *.iml
+yarn-error.log
 
 benchmarks/results/*.json
 

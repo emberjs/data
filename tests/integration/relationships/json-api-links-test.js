@@ -1638,31 +1638,35 @@ test(`get+unload+get hasMany with missing data setup from the other side, no lin
       attributes: {
         name: '@runspired'
       },
-      relationships: {}
+      relationships: {},
     },
     included: [
       {
         type: 'pet',
         id: '1',
         attributes: {
-          name: 'Shen'
+          name: 'Shen',
         },
         relationships: {
           owner: {
             data: {
               type: 'user',
-              id: '1'
-            }
-          }
-        }
-      }
-    ]
+              id: '1',
+            },
+          },
+        },
+      },
+    ],
   }));
+
+  // should trigger a fetch bc we don't consider `pets` to have complete knowledge
   let pets = run(() => user.get('pets'));
 
   assert.ok(!!pets, 'We found our pets');
 
   run(() => pets.objectAt(0).unloadRecord());
+
+  // should trigger a findRecord for the unloaded pet
   run(() => user.get('pets'));
 });
 test(`get+reload belongsTo with missing data setup from the other side, no links`, function(assert) {
@@ -1912,12 +1916,12 @@ test('We should not fetch a hasMany relationship with links that we know is empt
 
   // should not fire a request
   requestedUser = null;
-  failureDescription = 'We fetched the link for a known empty relationship';
+  failureDescription = 'We improperly fetched the link for a known empty relationship';
   run(() => user1.get('pets'));
 
   // still should not fire a request
   requestedUser = null;
-  failureDescription = 'We fetched the link (again) for a known empty relationship';
+  failureDescription = 'We improperly fetched the link (again) for a known empty relationship';
   run(() => user1.get('pets'));
 
   // should fire a request
@@ -1926,6 +1930,7 @@ test('We should not fetch a hasMany relationship with links that we know is empt
 
   // should not fire a request
   requestedUser = null;
-  failureDescription = 'We fetched the link for a previously fetched and found to be empty relationship';
+  failureDescription =
+    'We improperly fetched the link for a previously fetched and found to be empty relationship';
   run(() => user2.get('pets'));
 });

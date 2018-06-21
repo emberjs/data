@@ -5,6 +5,7 @@ module.exports = {
     ecmaVersion: 6,
     sourceType: 'module',
   },
+  parser: 'babel-eslint',
   extends: 'eslint:recommended',
   env: {
     'browser': true,
@@ -41,7 +42,7 @@ module.exports = {
     'curly': ['error', 'all'],
     'eol-last': 'error',
     'no-trailing-spaces': 'error',
-    'comma-dangle': ['error', 'never'],
+    'comma-dangle': ['off', 'never'],
     'space-before-blocks': ['error', 'always'],
     'indent': ['error', 2, {
       'SwitchCase': 1,
