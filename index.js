@@ -86,7 +86,7 @@ module.exports = {
   config() {
     return {
       emberData: {
-        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC,
+        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC || this.app.options.emberData.enableRecordDataRFCBuild,
       },
     };
   },
@@ -99,6 +99,7 @@ module.exports = {
     tree = this.debugTree(tree, 'input');
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
+    let config = this.config();
 
     let treeWithVersion = merge([
       tree,
@@ -110,7 +111,7 @@ module.exports = {
     });
     let withPrivate;
 
-    if (USE_RECORD_DATA_RFC) {
+    if (config.emberData.enableRecordDataRFCBuild) {
       withPrivate = new Funnel(tree, {
         srcDir: '-record-data-private',
         destDir: '-private',
