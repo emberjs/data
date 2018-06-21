@@ -12,7 +12,6 @@ const {
   addInternalModel,
   addInternalModels,
   clear,
-  findLink,
   flushCanonical,
   flushCanonicalLater,
   newRelationship,
@@ -34,7 +33,6 @@ const {
   'addInternalModel',
   'addInternalModels',
   'clear',
-  'findLink',
   'flushCanonical',
   'flushCanonicalLater',
   'newRelationship',
@@ -69,14 +67,33 @@ export default class Relationship {
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames
     this.inverseKeyForImplicit = this.internalModel.modelName + this.key;
-    this.linkPromise = null;
+    this.fetchPromise = null;
+    this._promiseProxy = null;
     this.meta = null;
     this.__inverseMeta = undefined;
+
+    /*
+      This flag forces fetch. `true` for a single request once `reload()`
+        has been called `false` at all other times.
+     */
+    this.shouldForceReload = false;
 
     /*
        This flag indicates whether we should
         re-fetch the relationship the next time
         it is accessed.
+
+        The difference between this flag and `shouldForceReload`
+        is in how we treat the presence of partially missing data:
+          - for a forced reload, we will reload the link or EVERY record
+          - for a stale reload, we will reload the link (if present) else only MISSING records
+
+        Ideally these flags could be merged, but because we don't give the
+        request layer the option of deciding how to resolve the data being queried
+        we are forced to differentiate for now.
+
+        It is also possible for a relationship to remain stale after a forced reload; however,
+        in this case `hasFailedLoadAttempt` ought to be `true`.
 
       false when
         => internalModel.isNew() on initial setup
@@ -86,10 +103,9 @@ export default class Relationship {
       true when
         => !internalModel.isNew() on initial setup
         => an inverse has been unloaded
-        => relationship.reload() has been called
         => we get a new link for the relationship
      */
-    this.relationshipIsStale = !internalModel.isNew();
+    this.relationshipIsStale = !this.isNew;
 
     /*
       This flag indicates whether we should consider the content
@@ -138,6 +154,12 @@ export default class Relationship {
     this.relationshipIsEmpty = true;
 
     /*
+      Flag that indicates whether we have explicitly attempted a load for the relationship
+      (which may have failed)
+     */
+    this.hasFailedLoadAttempt = false;
+
+    /*
       true when
         => hasAnyRelationshipData is true
         AND
@@ -145,7 +167,10 @@ export default class Relationship {
 
       TODO, consider changing the conditional here from !isEmpty to !hiddenFromRecordArrays
      */
-    this.hasRelatedResources = false;
+  }
+
+  get isNew() {
+    return this.internalModel.isNew();
   }
 
   _inverseIsSync() {
@@ -188,7 +213,7 @@ export default class Relationship {
   }
 
   inverseDidDematerialize(inverseInternalModel) {
-    this.linkPromise = null;
+    this.fetchPromise = null;
     this.setRelationshipIsStale(true);
 
     if (!this.isAsync) {
@@ -489,7 +514,7 @@ export default class Relationship {
     assert(`You have pushed a record of type '${this.internalModel.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
 
     this.link = link;
-    this.linkPromise = null;
+    this.fetchPromise = null;
     this.setRelationshipIsStale(true);
 
     if (!initial) {
@@ -497,24 +522,99 @@ export default class Relationship {
     }
   }
 
-  _shouldFindViaLink() {
-    if (!this.link) {
+  reload() {
+    if (this._promiseProxy) {
+      if (this._promiseProxy.get('isPending')) {
+        return this._promiseProxy;
+      }
+    }
+
+    this.setHasFailedLoadAttempt(false);
+    this.setShouldForceReload(true);
+    this.getData();
+
+    return this._promiseProxy;
+  }
+
+  shouldMakeRequest() {
+    let {
+      relationshipIsStale,
+      hasFailedLoadAttempt,
+      allInverseRecordsAreLoaded,
+      hasAnyRelationshipData,
+      shouldForceReload,
+      relationshipIsEmpty,
+      isAsync,
+      isNew,
+      fetchPromise,
+    } = this;
+
+    // never make a request if this record doesn't exist server side yet
+    if (isNew === true) {
       return false;
     }
 
-    return this.relationshipIsStale ||
-      !this.hasRelatedResources;
+    // do not re-request if we are already awaiting a request
+    if (fetchPromise !== null) {
+      return false;
+    }
+
+    // Always make a request when forced
+    //  failed attempts must call `reload()`.
+    //
+    // For legacy reasons, when a relationship is missing only
+    //   some of it's data we rely on individual `findRecord`
+    //   calls which may resolve from cache in the non-link case.
+    //   This determination is made elsewhere.
+    //
+    if (shouldForceReload === true || relationshipIsStale === true) {
+      return !hasFailedLoadAttempt;
+    }
+
+    // never make a request if we've explicitly attempted to at least once
+    // since the last update to canonical state
+    // this includes failed attempts
+    //  e.g. to re-attempt `reload()` must be called force the attempt.
+    if (hasFailedLoadAttempt === true) {
+      return false;
+    }
+
+    // we were explicitly told that there is no inverse relationship
+    if (relationshipIsEmpty === true) {
+      return false;
+    }
+
+    // we were explicitly told what the inverse is, and we have the inverse records available
+    if (hasAnyRelationshipData === true && allInverseRecordsAreLoaded === true) {
+      return false;
+    }
+
+    // if this is a sync relationship, we should not need to fetch, so getting here is an error
+    assert(
+      `You looked up the '${this.key}' relationship on a '${
+        this.internalModel.type.modelName
+      }' with id ${
+        this.internalModel.id
+      } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`DS.${
+        this.relationshipMeta.kind
+      }({ async: true })\`)`,
+      isAsync === true
+    );
+
+    return true;
   }
 
-  findLink() {
-    heimdall.increment(findLink);
-    if (this.linkPromise) {
-      return this.linkPromise;
+  _updateLoadingPromise(promise, content) {
+    if (this._promiseProxy) {
+      if (content !== undefined) {
+        this._promiseProxy.set('content', content);
+      }
+      this._promiseProxy.set('promise', promise);
     } else {
-      let promise = this.fetchLink();
-      this.linkPromise = promise;
-      return promise.then((result) => result);
+      this._promiseProxy = this._createProxy(promise, content);
     }
+
+    return this._promiseProxy;
   }
 
   updateInternalModelsFromAdapter(internalModels) {
@@ -531,8 +631,8 @@ export default class Relationship {
     this.hasAnyRelationshipData = value;
   }
 
-  setHasRelatedResources(v) {
-    this.hasRelatedResources = v;
+  setHasFailedLoadAttempt(value) {
+    this.hasFailedLoadAttempt = value;
   }
 
   setRelationshipIsStale(value) {
@@ -541,6 +641,10 @@ export default class Relationship {
 
   setRelationshipIsEmpty(value) {
     this.relationshipIsEmpty = value;
+  }
+
+  setShouldForceReload(value) {
+    this.shouldForceReload = value;
   }
 
   /*
@@ -585,12 +689,12 @@ export default class Relationship {
       relationshipIsEmpty -> true if is empty array (has-many) or is null (belongs-to)
       hasAnyRelationshipData -> true
       relationshipIsStale -> false
-      hasRelatedResources -> run-check-to-determine
+      allInverseRecordsAreLoaded -> run-check-to-determine
 
      IF contains only links
       relationshipIsStale -> true
      */
-
+    this.setHasFailedLoadAttempt(false);
     if (hasRelationshipDataProperty) {
       let relationshipIsEmpty = payload.data === null ||
         (Array.isArray(payload.data) && payload.data.length === 0);
@@ -598,13 +702,14 @@ export default class Relationship {
       this.setHasAnyRelationshipData(true);
       this.setRelationshipIsStale(false);
       this.setRelationshipIsEmpty(relationshipIsEmpty);
-      this.setHasRelatedResources(
-        relationshipIsEmpty || !this.localStateIsEmpty()
-      );
     } else if (hasLink) {
       this.setRelationshipIsStale(true);
     }
   }
+
+  getData() {}
+
+  _createProxy() {}
 
   updateData() {}
 

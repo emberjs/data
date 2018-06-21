@@ -137,7 +137,7 @@ export default class InternalModel {
 
     this.store = store;
     this.modelName = modelName;
-    this._loadingPromise = null;
+    this._promiseProxy = null;
     this._record = null;
     this._isDestroyed = false;
     this.isError = false;
@@ -538,11 +538,11 @@ export default class InternalModel {
     this.dematerializeRecord();
 
     if (this._scheduledDestroy === null) {
-      // TODO: use run.schedule once we drop 1.13
-      if (!run.currentRunLoop) {
-        assert('You have turned on testing mode, which disabled the run-loop\'s autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run', Ember.testing);
-      }
-      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_checkForOrphanedInternalModels')
+      this._scheduledDestroy = run.backburner.schedule(
+        'destroy',
+        this,
+        '_checkForOrphanedInternalModels'
+      );
     }
   }
 
