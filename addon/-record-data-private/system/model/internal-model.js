@@ -1,4 +1,3 @@
-import { A } from '@ember/array';
 import { set, get } from '@ember/object';
 import EmberError from '@ember/error';
 import { setOwner } from '@ember/application';
@@ -10,7 +9,6 @@ import { assert, inspect } from '@ember/debug';
 import RootState from './states';
 import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
-import isArrayLike from '../is-array-like';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
@@ -248,40 +246,14 @@ export default class InternalModel {
           `You passed '${properties}' as properties for record creation instead of an object.`,
           typeof properties === 'object' && properties !== null
         );
-        let classFields = this.getFields();
-        // TODO disentangle post-rebase
-        let relationships = this._modelData._relationships;
-        let propertyNames = Object.keys(properties);
 
-        for (let i = 0; i < propertyNames.length; i++) {
-          let name = propertyNames[i];
-          let fieldType = classFields.get(name);
-          let propertyValue = properties[name];
-
-          if (name === 'id') {
-            this.setId(propertyValue);
-            continue;
-          }
-
-          switch (fieldType) {
-            case 'attribute':
-              this.setDirtyAttribute(name, propertyValue);
-              break;
-            case 'belongsTo':
-              this.setDirtyBelongsTo(name, propertyValue);
-              relationships.get(name).setHasAnyRelationshipData(true);
-              relationships.get(name).setRelationshipIsEmpty(false);
-              break;
-            case 'hasMany':
-              this.setDirtyHasMany(name, propertyValue);
-              relationships.get(name).setHasAnyRelationshipData(true);
-              relationships.get(name).setRelationshipIsEmpty(false);
-              break;
-            default:
-              createOptions[name] = propertyValue;
-          }
+        if ('id' in properties) {
+          this.setId(properties.id);
         }
       }
+
+      let additionalCreateOptions = this._modelData._initRecordCreateOptions(properties);
+      Object.assign(createOptions, additionalCreateOptions);
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
@@ -297,10 +269,6 @@ export default class InternalModel {
     }
 
     return this._record;
-  }
-
-  getFields() {
-    return get(this.modelClass, 'fields');
   }
 
   resetRecord() {
@@ -697,25 +665,10 @@ export default class InternalModel {
   }
 
   setDirtyHasMany(key, records) {
-    assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-    assert(
-      `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
-        records
-      )}`,
-      (function() {
-        return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
-      })()
-    );
-
-    // TODO this seems like unnecessary churn
-    this._modelData.setDirtyHasMany(
-      key,
-      records.map(record => record.get('_internalModel._modelData').getResourceIdentifier())
-    );
+    this._modelData.setDirtyHasMany(key, records);
   }
 
   setDirtyBelongsTo(key, value) {
-    // TODO this seems like a digression from the pattern in setDirtyHasMany
     return this._modelData.setDirtyBelongsTo(key, value);
   }
 

@@ -1,11 +1,14 @@
-import isEnabled from '../../features';
 import { DEBUG } from '@glimmer/env';
-import Relationships from '../relationships/state/create';
+import { A } from '@ember/array';
 import { assign } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
-import coerceId from '../coerce-id';
 import { run } from '@ember/runloop';
+import { get } from '@ember/object';
+import isEnabled from '../../features';
+import Relationships from '../relationships/state/create';
+import isArrayLike from '../is-array-like';
+import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
 export default class ModelData {
@@ -253,14 +256,20 @@ export default class ModelData {
 
   // set a new "current state" via ResourceIdentifiers
   //   TODO should this take in ModelDatas for API consistency?
-  setDirtyHasMany(key, resources) {
+  setDirtyHasMany(key, records) {
+    assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
+    assert(
+      `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
+        records
+      )}`,
+      (function() {
+        return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
+      })()
+    );
+
     let relationship = this._relationships.get(key);
     relationship.clear();
-    relationship.addModelDatas(
-      resources.map(resource =>
-        this.storeWrapper.modelDataFor(resource.type, resource.id, resource.clientId)
-      )
-    );
+    relationship.addModelDatas(records.map(record => record.get('_internalModel._modelData')));
   }
 
   // append to "current state" via ModelDatas
@@ -512,6 +521,58 @@ export default class ModelData {
 
   set _inFlightAttributes(v) {
     this.__inFlightAttributes = v;
+  }
+
+  /**
+   * Receives options passed to `store.createRecord` and is given the opportunity
+   * to handle them.
+   *
+   * The return value is an object of options to pass to `Record.create()`
+   *
+   * @param options
+   * @private
+   */
+  _initRecordCreateOptions(options) {
+    let createOptions = {};
+
+    if (options !== undefined) {
+      let modelClass = this.store.modelFor(this.modelName);
+      let classFields = get(modelClass, 'fields');
+      // TODO disentangle post-rebase
+      let relationships = this._relationships;
+      let propertyNames = Object.keys(options);
+
+      for (let i = 0; i < propertyNames.length; i++) {
+        let name = propertyNames[i];
+        let fieldType = classFields.get(name);
+        let propertyValue = options[name];
+
+        if (name === 'id') {
+          this.id = propertyValue;
+          continue;
+        }
+
+        switch (fieldType) {
+          case 'attribute':
+            this.setDirtyAttribute(name, propertyValue);
+            break;
+          case 'belongsTo':
+            this.setDirtyBelongsTo(name, propertyValue);
+            relationships.get(name).setHasAnyRelationshipData(true);
+            relationships.get(name).setRelationshipIsEmpty(false);
+            break;
+          case 'hasMany':
+            this.setDirtyHasMany(name, propertyValue);
+            relationships.get(name).setHasAnyRelationshipData(true);
+            relationships.get(name).setRelationshipIsEmpty(false);
+            break;
+          default:
+            createOptions[name] = propertyValue;
+        }
+      }
+    }
+
+    return createOptions;
   }
 
   /*
