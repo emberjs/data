@@ -109,12 +109,16 @@ test('works with only line feeds', function(assert) {
   let headersString = [
     'Content-Encoding: gzip',
     'content-type: application/json; charset=utf-8',
-    'date: Fri, 05 Feb 2016 21:47:56 GMT'
+    'date: Fri, 05 Feb 2016 21:47:56 GMT',
   ].join(LF);
 
   let headers = parseResponseHeaders(headersString);
 
   assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
-  assert.equal(headers['content-type'], 'application/json; charset=utf-8', 'parses header with complex value');
+  assert.equal(
+    headers['content-type'],
+    'application/json; charset=utf-8',
+    'parses header with complex value'
+  );
   assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
 });
