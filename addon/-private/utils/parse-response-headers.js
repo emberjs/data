@@ -1,4 +1,4 @@
-const CLRF = '\u000d\u000a';
+const newline = /\r?\n/;
 
 export default function parseResponseHeaders(headersString) {
   let headers = Object.create(null);
@@ -7,7 +7,8 @@ export default function parseResponseHeaders(headersString) {
     return headers;
   }
 
-  let headerPairs = headersString.split(CLRF);
+  let headerPairs = headersString.split(newline);
+
   for (let i = 0; i < headerPairs.length; i++) {
     let header = headerPairs[i];
     let j = 0;
