@@ -770,7 +770,7 @@ testInDebug(
     let env = setupStore({ user: User });
 
     assert.expectAssertion(() => {
-      env.store.createRecord('user', { post: {} });
+      env.store.createRecord('user', { post: null });
     }, /No model was found for/);
 
     // but don't error if the relationship is not used

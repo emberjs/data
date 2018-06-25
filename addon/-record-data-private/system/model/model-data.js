@@ -1,13 +1,10 @@
 import { DEBUG } from '@glimmer/env';
-import { A } from '@ember/array';
 import { assign } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
-import { get } from '@ember/object';
 import isEnabled from '../../features';
 import Relationships from '../relationships/state/create';
-import isArrayLike from '../is-array-like';
 import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
@@ -249,37 +246,23 @@ export default class ModelData {
   }
 
   // get ResourceIdentifiers for "current state"
-  //   TODO should this return ModelDatas for API consistency?
   getHasMany(key) {
     return this._relationships.get(key).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
-  //   TODO should this take in ModelDatas for API consistency?
-  setDirtyHasMany(key, records) {
-    assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
-    assert(
-      `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
-        records
-      )}`,
-      (function() {
-        return A(records).every(record => record.hasOwnProperty('_internalModel') === true);
-      })()
-    );
-
+  setDirtyHasMany(key, modelDatas) {
     let relationship = this._relationships.get(key);
     relationship.clear();
-    relationship.addModelDatas(records.map(record => record.get('_internalModel._modelData')));
+    relationship.addModelDatas(modelDatas);
   }
 
   // append to "current state" via ModelDatas
-  //   TODO should this take in ResourceIdentifiers for API consistency?
   addToHasMany(key, modelDatas, idx) {
     this._relationships.get(key).addModelDatas(modelDatas, idx);
   }
 
   // remove from "current state" via ModelDatas
-  //   TODO should this take in ResourceIdentifiers for API consistency?
   removeFromHasMany(key, modelDatas) {
     this._relationships.get(key).removeModelDatas(modelDatas);
   }
@@ -301,17 +284,15 @@ export default class ModelData {
     return this._relationships.get(key).getData();
   }
 
-  setDirtyBelongsTo(key, value) {
-    if (value === undefined) {
-      value = null;
+  setDirtyBelongsTo(key, modelDataOrPromise) {
+    if (modelDataOrPromise === undefined) {
+      modelDataOrPromise = null;
     }
 
-    if (value && value.then) {
-      this._relationships.get(key).setRecordPromise(value);
-    } else if (value) {
-      this._relationships.get(key).setModelData(value._internalModel._modelData);
+    if (modelDataOrPromise && modelDataOrPromise.then) {
+      this._relationships.get(key).setRecordPromise(modelDataOrPromise);
     } else {
-      this._relationships.get(key).setModelData(value);
+      this._relationships.get(key).setModelData(modelDataOrPromise);
     }
   }
 
@@ -536,15 +517,14 @@ export default class ModelData {
     let createOptions = {};
 
     if (options !== undefined) {
-      let modelClass = this.store.modelFor(this.modelName);
-      let classFields = get(modelClass, 'fields');
-      // TODO disentangle post-rebase
+      let { modelName, storeWrapper } = this;
+      let attributeDefs = storeWrapper.attributesDefinitionFor(modelName);
+      let relationshipDefs = storeWrapper.relationshipsDefinitionFor(modelName);
       let relationships = this._relationships;
       let propertyNames = Object.keys(options);
 
       for (let i = 0; i < propertyNames.length; i++) {
         let name = propertyNames[i];
-        let fieldType = classFields.get(name);
         let propertyValue = options[name];
 
         if (name === 'id') {
@@ -552,21 +532,28 @@ export default class ModelData {
           continue;
         }
 
-        switch (fieldType) {
+        let fieldType = relationshipDefs[name] || attributeDefs[name];
+        let kind = fieldType !== undefined ? fieldType.kind : null;
+        let relationship;
+
+        switch (kind) {
           case 'attribute':
             this.setDirtyAttribute(name, propertyValue);
             break;
           case 'belongsTo':
             this.setDirtyBelongsTo(name, propertyValue);
-            relationships.get(name).setHasAnyRelationshipData(true);
-            relationships.get(name).setRelationshipIsEmpty(false);
+            relationship = relationships.get(name);
+            relationship.setHasAnyRelationshipData(true);
+            relationship.setRelationshipIsEmpty(false);
             break;
           case 'hasMany':
             this.setDirtyHasMany(name, propertyValue);
-            relationships.get(name).setHasAnyRelationshipData(true);
-            relationships.get(name).setRelationshipIsEmpty(false);
+            relationship = relationships.get(name);
+            relationship.setHasAnyRelationshipData(true);
+            relationship.setRelationshipIsEmpty(false);
             break;
           default:
+            // reflect back (pass-thru) unknown properties
             createOptions[name] = propertyValue;
         }
       }

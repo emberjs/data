@@ -1,10 +1,6 @@
-import { get } from '@ember/object';
-
 export default class ModelDataWrapper {
   constructor(store) {
     this.store = store;
-    this._relationshipsDefCache = Object.create(null);
-    this._attributesDefCache = Object.create(null);
     this._willUpdateManyArrays = false;
     this._pendingManyArrayUpdates = null;
   }
@@ -46,22 +42,11 @@ export default class ModelDataWrapper {
   }
 
   attributesDefinitionFor(modelName) {
-    let attributes = this._attributesDefCache[modelName];
-    if (attributes) {
-      return attributes;
-    } else {
-      // TODO IGOR DAVID
-    }
+    return this.store._attributesDefinitionFor(modelName);
   }
 
   relationshipsDefinitionFor(modelName) {
-    let relationships = this._relationshipsDefCache[modelName];
-    if (!relationships) {
-      let modelClass = this.store.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject');
-      this._relationshipsDefCache[modelName] = relationships;
-    }
-    return relationships;
+    return this.store._relationshipsDefinitionFor(modelName);
   }
 
   inverseForRelationship(modelName, key) {
