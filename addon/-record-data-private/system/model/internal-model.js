@@ -1240,12 +1240,12 @@ function extractRecordDatasFromRecords(records) {
   return records.map(extractRecordDataFromRecord);
 }
 
-function extractRecordDataFromRecord(record) {
+function extractRecordDataFromRecord(recordOrPromiseProxy) {
   // TODO @runspired async createRecord would resolve this issue
   // we leak record promises to ModelData by necessity :'(
-  if (!record || (record && record.then)) {
-    return record;
+  if (!recordOrPromiseProxy || (recordOrPromiseProxy && recordOrPromiseProxy.then)) {
+    return recordOrPromiseProxy;
   }
 
-  return record._internalModel._modelData;
+  return recordOrPromiseProxy._internalModel._modelData;
 }
