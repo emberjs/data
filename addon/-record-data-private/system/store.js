@@ -2729,7 +2729,7 @@ Store = Service.extend({
       let modelClass = this.modelFor(modelName);
       relationships = get(modelClass, 'relationshipsObject');
 
-      this._relationshipsDefCache[modelName] = relationships;
+      this._relationshipsDefCache[modelName] = relationships || null;
     }
 
     return relationships;
