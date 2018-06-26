@@ -256,24 +256,27 @@ export default class InternalModel {
 
         // convert relationship Records to ModelDatas before passing to ModelData
         let defs = store._relationshipsDefinitionFor(this.modelName);
-        let keys = Object.keys(properties);
-        let relationshipValue;
 
-        for (let i = 0; i < keys.length; i++) {
-          let prop = keys[i];
-          let def = defs[prop];
+        if (defs !== null) {
+          let keys = Object.keys(properties);
+          let relationshipValue;
 
-          if (def !== undefined) {
-            if (def.kind === 'hasMany') {
-              if (DEBUG) {
-                assertRecordsPassedToHasMany(properties[prop]);
+          for (let i = 0; i < keys.length; i++) {
+            let prop = keys[i];
+            let def = defs[prop];
+
+            if (def !== undefined) {
+              if (def.kind === 'hasMany') {
+                if (DEBUG) {
+                  assertRecordsPassedToHasMany(properties[prop]);
+                }
+                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
+              } else {
+                relationshipValue = extractRecordDataFromRecord(properties[prop]);
               }
-              relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-            } else {
-              relationshipValue = extractRecordDataFromRecord(properties[prop]);
-            }
 
-            properties[prop] = relationshipValue;
+              properties[prop] = relationshipValue;
+            }
           }
         }
       }
