@@ -2727,9 +2727,9 @@ Store = Service.extend({
 
     if (relationships === undefined) {
       let modelClass = this.modelFor(modelName);
-      relationships = get(modelClass, 'relationshipsObject');
+      relationships = get(modelClass, 'relationshipsObject') || null;
 
-      this._relationshipsDefCache[modelName] = relationships || null;
+      this._relationshipsDefCache[modelName] = relationships;
     }
 
     return relationships;
