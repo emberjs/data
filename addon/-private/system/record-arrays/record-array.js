@@ -242,8 +242,7 @@ export default ArrayProxy.extend(Evented, {
     //   * the exception being: if an dominator has a reference to this object,
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
-    set(this, 'content', null);
-    set(this, 'length', 0);
+    set(this, 'content', []);
     this._super(...arguments);
   },
 
