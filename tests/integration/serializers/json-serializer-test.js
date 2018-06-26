@@ -39,7 +39,10 @@ module('integration/serializer/json - JSONSerializer', {
 });
 
 test("serialize doesn't include ID when includeId is false", function(assert) {
-  let post = env.store.createRecord('post', { title: 'Rails is omakase', comments: [] });
+  let post = env.store.createRecord('post', {
+    title: 'Rails is omakase',
+    comments: [],
+  });
   let json = serializer.serialize(post._createSnapshot(), { includeId: false });
 
   assert.deepEqual(json, {

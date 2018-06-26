@@ -841,6 +841,8 @@ test('create record', function(assert) {
       return user.save().then(() => {
         assert.equal(passedUrl[0], '/users');
         assert.equal(passedVerb[0], 'POST');
+
+        // TODO @runspired seems mega-bad that we expect an extra `data` key
         assert.deepEqual(passedHash[0], {
           data: {
             data: {
@@ -915,6 +917,7 @@ test('update record', function(assert) {
       return user.save().then(() => {
         assert.equal(passedUrl[0], '/users/1');
         assert.equal(passedVerb[0], 'PATCH');
+        // TODO @runspired seems mega-bad that we expect an extra `data` key
         assert.deepEqual(passedHash[0], {
           data: {
             data: {
@@ -999,6 +1002,7 @@ test('update record - serialize hasMany', function(assert) {
       return user.save().then(() => {
         assert.equal(passedUrl[0], '/users/1');
         assert.equal(passedVerb[0], 'PATCH');
+        // TODO @runspired seems mega-bad that we expect an extra `data` key
         assert.deepEqual(passedHash[0], {
           data: {
             data: {

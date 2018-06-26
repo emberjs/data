@@ -199,6 +199,8 @@ Store = Service.extend({
     this._newlyCreated = new IdentityMap();
     this._pendingSave = [];
     this._modelFactoryCache = Object.create(null);
+    this._relationshipsDefCache = Object.create(null);
+    this._attributesDefCache = Object.create(null);
 
     /*
       Ember Data uses several specialized micro-queues for organizing
@@ -2703,6 +2705,34 @@ Store = Service.extend({
     let modelClass = this.modelFor(modelName);
     let relationshipsByName = get(modelClass, 'relationshipsByName');
     return relationshipsByName.get(key);
+  },
+
+  _attributesDefinitionFor(modelName) {
+    let attributes = this._attributesDefCache[modelName];
+
+    if (attributes === undefined) {
+      let modelClass = this.modelFor(modelName);
+      let attributeMap = get(modelClass, 'attributes');
+
+      attributes = Object.create(null);
+      attributeMap.forEach((meta, name) => (attributes[name] = meta));
+      this._attributesDefCache[modelName] = attributes;
+    }
+
+    return attributes;
+  },
+
+  _relationshipsDefinitionFor(modelName) {
+    let relationships = this._relationshipsDefCache[modelName];
+
+    if (relationships === undefined) {
+      let modelClass = this.modelFor(modelName);
+      relationships = get(modelClass, 'relationshipsObject');
+
+      this._relationshipsDefCache[modelName] = relationships;
+    }
+
+    return relationships;
   },
 
   _internalModelForResource(resource) {
