@@ -32,7 +32,7 @@
     "broccoli-babel-transpiler": "^6.0.0",
     "broccoli-debug": "^0.6.2",
     "broccoli-file-creator": "^1.0.0",
-    "broccoli-funnel": "^1.2.0",
+    "broccoli-funnel": "^2.0.1",
     "broccoli-merge-trees": "^2.0.0",
     "broccoli-rollup": "^1.2.0",
     "calculate-cache-key-for-tree": "^1.1.0",
