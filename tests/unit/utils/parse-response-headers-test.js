@@ -2,6 +2,7 @@ import { parseResponseHeaders } from 'ember-data/-private';
 import { module, test } from 'qunit';
 
 const CRLF = '\u000d\u000a';
+const LF = '\u000a';
 
 module('unit/adapters/parse-response-headers');
 
@@ -102,4 +103,22 @@ test('tollerate extra new-lines', function(assert) {
 
   assert.deepEqual(headers['foo'], 'bar', 'parses basic header pair');
   assert.equal(Object.keys(headers).length, 1, 'only has the one valid header');
+});
+
+test('works with only line feeds', function(assert) {
+  let headersString = [
+    'Content-Encoding: gzip',
+    'content-type: application/json; charset=utf-8',
+    'date: Fri, 05 Feb 2016 21:47:56 GMT',
+  ].join(LF);
+
+  let headers = parseResponseHeaders(headersString);
+
+  assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+  assert.equal(
+    headers['content-type'],
+    'application/json; charset=utf-8',
+    'parses header with complex value'
+  );
+  assert.equal(headers['date'], 'Fri, 05 Feb 2016 21:47:56 GMT', 'parses header with date value');
 });
