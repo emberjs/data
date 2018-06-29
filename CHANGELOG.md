@@ -2,18 +2,17 @@
 
 ### Master
 
-### Release 3.2.0-beta.4 (June 13, 2018)
+### Release 3.2.0 (June 29, 2018)
 
+- [#5497](https://github.com/emberjs/data/pull/5497) [BUGFIX] Make snapshot lazier and fix defaultValue.
+- [#5499](https://github.com/emberjs/data/pull/5499) [BUGFIX] Backport fix infinite relationship retry issue from #5492.
+- [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies to avoid `broccoli-funnel` deprecation.
 - [#5432](https://github.com/emberjs/data/pull/5432) [CHORE] Remove `exists-sync` dependency.
 - [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] Remove all usage of `Ember.copy` to avoid future deprecation.
 - [#5437](https://github.com/emberjs/data/pull/5437) / [#5459](https://github.com/emberjs/data/pull/5459) [CHORE] Removes deprecated `store.filter` feature, must migrate to `ember-data-filter@2.0.0` for similar API usage.
 - [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] Update content of proxy for async belongs-to relationships when null data received
 - [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] Avoid unnecessary work during destruction process.
-
-### Release 3.2.0-beta.3 (April 25, 2018)
 - [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
-
-### Release 3.2.0-beta.2 (April 6, 2018)
 - [#5412](https://github.com/emberjs/data/pull/5412) Fix npmignore and cleanup test artifacts before publishing
 - [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods
 - [#4856](https://github.com/emberjs/data/pull/4856) [BUGFIX #4497] query/queryRecord/filter now support adapter options
@@ -33,8 +32,6 @@
 - [#5416](https://github.com/emberjs/data/pull/5416) adds a more robust test around reload
 - [#5418](https://github.com/emberjs/data/pull/5418) Limit CI runs on branches to master, beta, release
 - [#5422](https://github.com/emberjs/data/pull/5422) [FEAT] Prevent async test leakage (feat. adds test waiters)
-
-### Release 3.2.0-beta.1 (March 26, 2018)
 - [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods and reject the (#4977)
 - [#5379](https://github.com/emberjs/data/pull/5379) minor typo
 - [#5382](https://github.com/emberjs/data/pull/5382) [FIX] update ember-cli-dependency-checker to avoid deprecation warning
