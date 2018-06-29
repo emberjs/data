@@ -2,6 +2,27 @@
 
 ### Master
 
+### Release 3.3.0-beta.1 (June 29, 2018)
+
+- [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
+- [#5411](https://github.com/emberjs/data/pull/5411) Remove deprecations scheduled for 3.0
+- [#5117](https://github.com/emberjs/data/pull/5117) Give Model a static toString method
+- [#5429](https://github.com/emberjs/data/pull/5429) improve tests for unloading relationships
+- [#5469](https://github.com/emberjs/data/pull/5469) Revamp eslint configuration.
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+- [#5432](https://github.com/emberjs/data/pull/5432) Remove exists-sync dependency
+- [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] remove all usage of Ember.copy
+- [#5438](https://github.com/emberjs/data/pull/5438) [BUGFIX] ensure destroy-sync cleanup is correct
+- [#5437](https://github.com/emberjs/data/pull/5437) [CHORE] removes deprecated Store.filter feature
+- [#5462](https://github.com/emberjs/data/pull/5462) [BUGFIX] ensure ManyArray state is in-sync with relationship state
+- [#5446](https://github.com/emberjs/data/pull/5446) [CLEANUP] fix model and factory lookup
+- [#5466](https://github.com/emberjs/data/pull/5466) Serialize empty hasMany relationships
+- [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] update content of proxy for async belongs-to relationships when null data received
+- [#5471](https://github.com/emberjs/data/pull/5471) [CHORE] cull unnecessary files left from previous build setups
+- [#5476](https://github.com/emberjs/data/pull/5476) [Feature] added module-unification adapter and adapter-test blueprints
+- [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies
+
+
 ### Release 3.2.0 (June 29, 2018)
 
 - [#5497](https://github.com/emberjs/data/pull/5497) [BUGFIX] Make snapshot lazier and fix defaultValue.
