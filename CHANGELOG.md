@@ -2,6 +2,47 @@
 
 ### Master
 
+### Release 3.2.0 (June 29, 2018)
+
+- [#5497](https://github.com/emberjs/data/pull/5497) [BUGFIX] Make snapshot lazier and fix defaultValue.
+- [#5499](https://github.com/emberjs/data/pull/5499) [BUGFIX] Backport fix infinite relationship retry issue from #5492.
+- [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies to avoid `broccoli-funnel` deprecation.
+- [#5432](https://github.com/emberjs/data/pull/5432) [CHORE] Remove `exists-sync` dependency.
+- [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] Remove all usage of `Ember.copy` to avoid future deprecation.
+- [#5437](https://github.com/emberjs/data/pull/5437) / [#5459](https://github.com/emberjs/data/pull/5459) [CHORE] Removes deprecated `store.filter` feature, must migrate to `ember-data-filter@2.0.0` for similar API usage.
+- [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] Update content of proxy for async belongs-to relationships when null data received
+- [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] Avoid unnecessary work during destruction process.
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+- [#5412](https://github.com/emberjs/data/pull/5412) Fix npmignore and cleanup test artifacts before publishing
+- [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods
+- [#4856](https://github.com/emberjs/data/pull/4856) [BUGFIX #4497] query/queryRecord/filter now support adapter options
+- [#5408](https://github.com/emberjs/data/pull/5408) [FEAT BUGFIX] enable canonical state updates to deleted records
+- [#5336](https://github.com/emberjs/data/pull/5336) [CHORE] remove all benchmark related code
+- [#5324](https://github.com/emberjs/data/pull/5324) Don't serialize new has many relationships
+- [#5405](https://github.com/emberjs/data/pull/5405) [CHORE] remove dead methods left behind from ff removal
+- [#5406](https://github.com/emberjs/data/pull/5406) [BUGFIX release] Fix `Model.modelName` inheritance with Ember 3.2+.
+- [#5366](https://github.com/emberjs/data/pull/5366) fix initial polymorphic attribute
+- [#5345](https://github.com/emberjs/data/pull/5345) Check if adapter#query is a wrapped function
+- [#5385](https://github.com/emberjs/data/pull/5385) Use `najax` in `fastboot` and some refactoring to isolate `jQuery.ajax`
+- [#5399](https://github.com/emberjs/data/pull/5399) Remove unneeded feature flagged tests
+- [#5410](https://github.com/emberjs/data/pull/5410) [FEAT BUGFIX] resolves issues with links and data in relationships (#5410)
+- [#5413](https://github.com/emberjs/data/pull/5413) [BUGFIX] Fix availability of properties in createRecord init
+- [#5414](https://github.com/emberjs/data/pull/5414) [FEAT BUGFIX] adds adapterOptions ability to model.reload()
+- [#5415](https://github.com/emberjs/data/pull/5415) make createRecord sync and remove unnecessary run usage in tests
+- [#5416](https://github.com/emberjs/data/pull/5416) adds a more robust test around reload
+- [#5418](https://github.com/emberjs/data/pull/5418) Limit CI runs on branches to master, beta, release
+- [#5422](https://github.com/emberjs/data/pull/5422) [FEAT] Prevent async test leakage (feat. adds test waiters)
+- [#4977](https://github.com/emberjs/data/pull/4977) Trap exceptions that are thrown from adapter methods and reject the (#4977)
+- [#5379](https://github.com/emberjs/data/pull/5379) minor typo
+- [#5382](https://github.com/emberjs/data/pull/5382) [FIX] update ember-cli-dependency-checker to avoid deprecation warning
+- [#5371](https://github.com/emberjs/data/pull/5371) Upgrade to ember-cli-qunit 4.0 and replace ember-dev with ember-qunit… (#5371)
+- [#5369](https://github.com/emberjs/data/pull/5369) [BUGFIX beta] Fix createRecord creating two records
+- [#5375](https://github.com/emberjs/data/pull/5375) Remove jQuery usage from tests (#5375)
+- [#5378](https://github.com/emberjs/data/pull/5378) [BUGFIX] resolve issues with RecordArray sync for peekAll (#5378)
+- [#5381](https://github.com/emberjs/data/pull/5381) [FEAT BREAKING] remove globals build for 3.x (#5381)
+- [#5383](https://github.com/emberjs/data/pull/5383) fix external ordered set dependency
+- [#5384](https://github.com/emberjs/data/pull/5384) [FEAT] remove all stale feature flags (#5384)
+
 ### Release 3.1.1 (March 27, 2018)
 - [#5383](https://github.com/emberjs/data/pull/5383) Remove '@ember/ordered-set' warning when building Ember Data
 
