@@ -1421,6 +1421,19 @@ broccoli-caching-writer@^3.0.3:
     rsvp "^3.0.17"
     walk-sync "^0.3.0"
 
+broccoli-caching-writer@~2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/broccoli-caching-writer/-/broccoli-caching-writer-2.0.4.tgz#d995d7d1977292e498f78df05887230fcb4a5e2c"
+  dependencies:
+    broccoli-kitchen-sink-helpers "^0.2.5"
+    broccoli-plugin "1.1.0"
+    debug "^2.1.1"
+    lodash-node "^3.2.0"
+    rimraf "^2.2.8"
+    rsvp "^3.0.17"
+    symlink-or-copy "^1.0.0"
+    walk-sync "^0.2.0"
+
 broccoli-clean-css@^1.1.0:
   version "1.1.0"
   resolved "https://registry.npmjs.org/broccoli-clean-css/-/broccoli-clean-css-1.1.0.tgz#9db143d9af7e0ae79c26e3ac5a9bb2d720ea19fa"
@@ -1561,7 +1574,7 @@ broccoli-lint-eslint@^4.2.1:
     lodash.defaultsdeep "^4.6.0"
     md5-hex "^2.0.0"
 
-broccoli-merge-trees@^1.0.0, broccoli-merge-trees@^1.2.1:
+broccoli-merge-trees@^1.0.0, broccoli-merge-trees@^1.1.1, broccoli-merge-trees@^1.2.1:
   version "1.2.4"
   resolved "https://registry.npmjs.org/broccoli-merge-trees/-/broccoli-merge-trees-1.2.4.tgz#a001519bb5067f06589d91afa2942445a2d0fdb5"
   dependencies:
@@ -1734,16 +1747,6 @@ broccoli-uglify-sourcemap@^2.0.0-beta.1:
     terser "^3.7.5"
     walk-sync "^0.3.2"
     workerpool "^2.3.0"
-
-broccoli-yuidoc@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/broccoli-yuidoc/-/broccoli-yuidoc-3.0.0.tgz#e436588ddfb6ae81ce82d87e894333d0fdd10487"
-  dependencies:
-    broccoli-caching-writer "^3.0.3"
-    broccoli-merge-trees "^2.0.0"
-    merge "~1.2.0"
-    rsvp "^3.5.0"
-    yuidocjs "^0.10.2"
 
 broccoli@^1.1.0:
   version "1.1.4"
@@ -2873,6 +2876,16 @@ ember-cli-version-checker@^2.0.0, ember-cli-version-checker@^2.1.0, ember-cli-ve
   dependencies:
     resolve "^1.3.3"
     semver "^5.3.0"
+
+ember-cli-yuidoc@^0.8.8:
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/ember-cli-yuidoc/-/ember-cli-yuidoc-0.8.8.tgz#3858baaf85388a976024f9de40f1075fea58f606"
+  dependencies:
+    broccoli-caching-writer "~2.0.4"
+    broccoli-merge-trees "^1.1.1"
+    git-repo-version "0.2.0"
+    rsvp "3.0.14"
+    yuidocjs "^0.10.0"
 
 ember-cli@^3.1.4:
   version "3.1.4"
@@ -4033,9 +4046,15 @@ get-value@^2.0.3, get-value@^2.0.6:
   version "2.0.6"
   resolved "https://registry.npmjs.org/get-value/-/get-value-2.0.6.tgz#dc15ca1c672387ca76bd37ac0a395ba2042a2c28"
 
-git-repo-info@^1.1.2, git-repo-info@^1.4.1:
+git-repo-info@^1.0.4, git-repo-info@^1.1.2, git-repo-info@^1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/git-repo-info/-/git-repo-info-1.4.1.tgz#2a072823254aaf62fcf0766007d7b6651bd41943"
+
+git-repo-version@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/git-repo-version/-/git-repo-version-0.2.0.tgz#9a1d0019a50fc9e623c43d1c0fcc437391207d0d"
+  dependencies:
+    git-repo-info "^1.0.4"
 
 git-repo-version@^1.0.2:
   version "1.0.2"
@@ -5030,6 +5049,10 @@ locate-path@^2.0.0:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
 
+lodash-node@^3.2.0:
+  version "3.10.2"
+  resolved "https://registry.yarnpkg.com/lodash-node/-/lodash-node-3.10.2.tgz#2598d5b1b54e6a68b4cb544e5c730953cbf632f7"
+
 lodash._baseassign@^3.0.0:
   version "3.2.0"
   resolved "https://registry.npmjs.org/lodash._baseassign/-/lodash._baseassign-3.2.0.tgz#8c38a099500f215ad09e59f1722fd0c52bfe0a4e"
@@ -5533,7 +5556,7 @@ merge-trees@^1.0.1:
     rimraf "^2.4.3"
     symlink-or-copy "^1.0.0"
 
-merge@^1.1.3, merge@^1.2.0, merge@~1.2.0:
+merge@^1.1.3, merge@^1.2.0:
   version "1.2.0"
   resolved "https://registry.npmjs.org/merge/-/merge-1.2.0.tgz#7531e39d4949c281a66b8c5a6e0265e8b05894da"
 
@@ -6732,6 +6755,10 @@ route-recognizer@^0.3.3:
   version "0.3.3"
   resolved "https://registry.npmjs.org/route-recognizer/-/route-recognizer-0.3.3.tgz#1d365e27fa6995e091675f7dc940a8c00353bd29"
 
+rsvp@3.0.14:
+  version "3.0.14"
+  resolved "https://registry.yarnpkg.com/rsvp/-/rsvp-3.0.14.tgz#9d2968cf36d878d3bb9a9a5a4b8e1ff55a76dd31"
+
 rsvp@4.8.0:
   version "4.8.0"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-4.8.0.tgz#dc1dc400e2d48bcf3b1991f2a3b714f038fc432e"
@@ -7821,7 +7848,7 @@ walk-sync@^0.1.3:
   version "0.1.3"
   resolved "https://registry.npmjs.org/walk-sync/-/walk-sync-0.1.3.tgz#8a07261a00bda6cfb1be25e9f100fad57546f583"
 
-walk-sync@^0.2.5, walk-sync@^0.2.7:
+walk-sync@^0.2.0, walk-sync@^0.2.5, walk-sync@^0.2.7:
   version "0.2.7"
   resolved "https://registry.npmjs.org/walk-sync/-/walk-sync-0.2.7.tgz#b49be4ee6867657aeb736978b56a29d10fa39969"
   dependencies:
@@ -8043,7 +8070,7 @@ yui@^3.18.1:
   dependencies:
     request "~2.40.0"
 
-yuidocjs@^0.10.2:
+yuidocjs@^0.10.0:
   version "0.10.2"
   resolved "https://registry.npmjs.org/yuidocjs/-/yuidocjs-0.10.2.tgz#33924967ce619024cd70ef694e267d2f988f73f6"
   dependencies:
