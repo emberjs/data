@@ -182,3 +182,25 @@ test('Will reject save on invalid', function(assert) {
     );
   });
 });
+
+test('Will error when saving after unloading record via the store', function(assert) {
+  assert.expect(1);
+  let post = env.store.createRecord('post', { title: 'toto' });
+  run(function() {
+    env.store.unloadAll('post');
+    assert.throws(function() {
+      post.save();
+    }, 'Attempting to save the unloaded record threw an error');
+  });
+});
+
+test('Will error when saving after unloading record', function(assert) {
+  assert.expect(1);
+  let post = env.store.createRecord('post', { title: 'toto' });
+  run(function() {
+    post.unloadRecord();
+    assert.throws(function() {
+      post.save();
+    }, 'Attempting to save the unloaded record threw an error');
+  });
+});
