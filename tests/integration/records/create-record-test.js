@@ -57,8 +57,6 @@ module('Store.createRecord() coverage', function(hooks) {
 
     pet.unloadRecord();
 
-    debugger;
-
     assert.ok(pet.get('owner') === null, 'Shen no longer has an owner');
 
     // check that the relationship has been dissolved
@@ -67,6 +65,39 @@ module('Store.createRecord() coverage', function(hooks) {
   });
 
   test('unloading a record related to a newly created record', function (assert) {
+    let chris = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'Chris'
+        },
+        relationships: {
+          pets: {
+            data: []
+          }
+        }
+      }
+    });
+
+    let pet = store.createRecord('pet', {
+      name: 'Shen',
+      owner: chris
+    });
+
+    // check that we are properly configured
+    assert.ok(pet.get('owner') === chris, 'Precondition: Our owner is Chris');
+
+    let pets = chris.get('pets').toArray().map((pet => pet.get('name')));
+    assert.deepEqual(pets, ['Shen'], 'Precondition: Chris has Shen as a pet');
+
+    chris.unloadRecord();
+
+    assert.ok(pet.get('owner') === null, 'Shen no longer has an owner');
+
+    // check that the relationship has been dissolved
+    pets = chris.get('pets').toArray().map((pet => pet.get('name')));
+    assert.deepEqual(pets, [], 'Chris no longer has any pets');
 
   });
 });
