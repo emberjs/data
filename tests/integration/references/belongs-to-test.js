@@ -316,7 +316,7 @@ testInDebug('push(record) asserts for invalid modelClass', function(assert) {
     run(function() {
       familyReference.push(anotherPerson);
     });
-  }, "You cannot add a record of modelClass 'person' to the 'person.family' relationship (only 'family' allowed)");
+  }, "The 'person' type does not implement 'family' and thus cannot be assigned to the 'family' relationship in 'person'. Make it a descendant of 'family' or use a mixin of the same name.");
 });
 
 testInDebug('push(record) works with polymorphic modelClass', function(assert) {

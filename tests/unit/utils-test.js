@@ -88,7 +88,7 @@ testInDebug('assertPolymorphicType works for subclasses', function(assert) {
 
   assert.expectAssertion(() => {
     assertPolymorphicType(user, relationship, person, env.store);
-  }, "You cannot add a record of modelClass 'person' to the 'user.messages' relationship (only 'message' allowed)");
+  }, "The 'person' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message' or use a mixin of the same name.");
 });
 
 test('modelHasAttributeOrRelationshipNamedType', function(assert) {
@@ -147,5 +147,5 @@ testInDebug('assertPolymorphicType works for mixins', function(assert) {
 
   assert.expectAssertion(() => {
     assertPolymorphicType(post, relationship, person, env.store);
-  }, "You cannot add a record of modelClass 'person' to the 'post.medias' relationship (only 'medium' allowed)");
+  }, "The 'person' type does not implement 'medium' and thus cannot be assigned to the 'medias' relationship in 'post'. Make it a descendant of 'medium' or use a mixin of the same name.");
 });

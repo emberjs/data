@@ -184,7 +184,7 @@ testInDebug(
       user.get('messages').then(function(fetchedMessages) {
         assert.expectAssertion(function() {
           fetchedMessages.pushObject(notMessage);
-        }, /You cannot add a record of modelClass 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
+        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message/);
       });
     });
   }
@@ -278,7 +278,7 @@ testInDebug(
         user.get('messages').then(function(fetchedMessages) {
           assert.expectAssertion(function() {
             fetchedMessages.pushObject(notMessage);
-          }, /You cannot add a record of modelClass 'not-message' to the 'user.messages' relationship \(only 'message' allowed\)/);
+          }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
         });
       });
     } finally {

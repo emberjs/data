@@ -245,7 +245,7 @@ testInDebug('push(array) asserts polymorphic type', function(assert) {
 
       personsReference.push(data);
     });
-  }, "You cannot add a record of modelClass 'family' to the 'family.persons' relationship (only 'person' allowed)");
+  }, "The 'family' type does not implement 'person' and thus cannot be assigned to the 'persons' relationship in 'family'. Make it a descendant of 'person' or use a mixin of the same name.");
 });
 
 testInDebug('push(object) supports legacy, non-JSON-API-conform payload', function(assert) {
