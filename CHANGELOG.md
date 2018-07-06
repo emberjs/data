@@ -2,7 +2,10 @@
 
 ### Master
 
-### Release 2.18.1 (March 1, 2018)
+### Release 2.18.3 (July 6, 2018)
+- [#5519](https://github.com/emberjs/data/pull/5519) Do not publish `.node_modules.ember-try` folder to npm
+
+### Release 2.18.2 (March 1, 2018)
 - [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
 ### Release 2.18.1 (February 13, 2018)
