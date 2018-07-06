@@ -121,6 +121,9 @@
 - [#5305](https://github.com/emberjs/data/pull/5305) Serializers and adapters should be unique per store
 - [#5308](https://github.com/emberjs/data/pull/5308) Simplify the getDescriptor test helper
 
+### Release 2.18.3 (July 6, 2018)
+- [#5519](https://github.com/emberjs/data/pull/5519) Do not publish `.node_modules.ember-try` folder to npm
+
 ### Release 2.18.2 (March 1, 2018)
 - [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
 
