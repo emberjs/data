@@ -119,7 +119,11 @@ module.exports = {
       include: ['**/*.ts'],
     });
 
-    let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`));
+    let typescriptCompiled = typescript(this.debugTree(typescriptContents, `get-source-es:ts:input`), {
+      // tsconfig: `./tsconfig.json`
+      throwOnError: false,
+      annotation: 'compile typescript',
+    });
 
     let debuggedCompiledTypescript = this.debugTree(typescriptCompiled, `get-source-es:ts:output`);
 
