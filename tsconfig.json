@@ -5,7 +5,12 @@
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "addon/-private",
+      "addon/-record-data-private",
+      "addon/-legacy-private"
+    ],
 
     // Environment Configuration
     "experimentalDecorators": true,
@@ -29,7 +34,8 @@
       "lib/*",
       "addon/*"
     ],
-    "@ember": ["node_modules/@types/ember/index.d.ts"]
+    "@ember": ["node_modules/@types/ember/index.d.ts"],
+    "*": ["*"]
   },
 
   "include": [
