@@ -167,7 +167,7 @@ testInDebug(
     run(function() {
       assert.expectAssertion(function() {
         user.set('bestMessage', video);
-      }, /You cannot add a record of modelClass 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
+      }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
     });
   }
 );
@@ -248,7 +248,7 @@ testInDebug(
       run(function() {
         assert.expectAssertion(function() {
           user.set('bestMessage', video);
-        }, /You cannot add a record of modelClass 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
+        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
       });
     } finally {
       resetModelFactoryInjections();

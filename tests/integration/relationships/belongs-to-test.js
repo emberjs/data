@@ -317,7 +317,7 @@ testInDebug(
       }).then(records => {
         assert.expectAssertion(() => {
           records.post.set('user', records.comment);
-        }, /You cannot add a record of modelClass 'comment' to the 'post.user' relationship/);
+        }, /The 'comment' type does not implement 'user' and thus cannot be assigned to the 'user' relationship in 'post'/);
       });
     });
   }
@@ -372,7 +372,7 @@ testInDebug(
 
         assert.expectAssertion(() => {
           comment.set('message', records.user);
-        }, /You cannot add a record of modelClass 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
+        }, /The 'user' type does not implement 'message' and thus cannot be assigned to the 'message' relationship in 'comment'. Make it a descendant of 'message'/);
       });
     });
   }
