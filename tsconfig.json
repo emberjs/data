@@ -34,10 +34,18 @@
   "paths": {
     "ember-data/*": [
       "lib/*",
-      "addon/*"
+      "addon/*",
+      "addon/-legacy-private/*",
+      "addon/-record-data-private/*",
+      "addon/-private/*"
     ],
     "@ember": ["node_modules/@types/ember/index.d.ts"],
-    "*": ["*"]
+    "*": [
+      "*",
+      "addon/-legacy-private/*",
+      "addon/-record-data-private/*",
+      "addon/-private/*"
+    ]
   },
 
   "include": [
