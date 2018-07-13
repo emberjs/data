@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.4.0-beta.1 (July 13, 2018)
+
+- Re-release of Ember Data 3.3.0-beta.1
+
 ### Release 3.3.0-beta.1 (June 29, 2018)
 
 - [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
