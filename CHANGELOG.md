@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.3.0 (July 13, 2018)
+
+- Re-release of Ember Data 3.2.0
+
 ### Release 3.2.0 (June 29, 2018)
 
 - [#5497](https://github.com/emberjs/data/pull/5497) [BUGFIX] Make snapshot lazier and fix defaultValue.
