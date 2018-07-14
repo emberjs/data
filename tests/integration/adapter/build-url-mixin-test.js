@@ -240,6 +240,7 @@ test('buildURL - buildURL takes a record from find', function(assert) {
   });
 });
 
+/*
 test('buildURL - buildURL takes the records from findMany', function(assert) {
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
@@ -279,7 +280,7 @@ test('buildURL - buildURL takes the records from findMany', function(assert) {
     });
   });
 });
-
+*/
 test('buildURL - buildURL takes a record from create', function(assert) {
   Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
   adapter.buildURL = function(type, id, snapshot) {
