@@ -28,7 +28,7 @@ module('Store.createRecord() coverage', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('unloading a newly created a record with a relationship', function(assert) {
+  test('unloading a newly created a record with a relationship', async function(assert) {
     let chris = store.push({
       data: {
         id: '1',
@@ -70,7 +70,7 @@ module('Store.createRecord() coverage', function(hooks) {
     assert.deepEqual(pets, [], 'Chris no longer has any pets');
   });
 
-  test('unloading a record related to a newly created record', function(assert) {
+  test('unloading a record related to a newly created record', async function(assert) {
     let chris = store.push({
       data: {
         id: '1',
