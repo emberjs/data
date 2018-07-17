@@ -280,6 +280,7 @@ export default class Relationship {
   }
 
   removeAllModelDatasFromOwn() {
+    this.setRelationshipIsStale(true);
     this.members.clear();
   }
 

@@ -1299,10 +1299,8 @@ Store = Service.extend({
       );
     }
 
-    let preferLocalCache =
-      hasAnyRelationshipData &&
-      // allInverseRecordsAreLoaded &&
-      !relationshipIsEmpty;
+    let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
+
     let hasLocalPartialData =
       hasDematerializedInverse ||
       (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);

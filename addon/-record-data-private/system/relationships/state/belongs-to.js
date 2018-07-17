@@ -57,6 +57,8 @@ export default class BelongsToRelationship extends Relationship {
 
     this.canonicalState = modelData;
     super.addCanonicalModelData(modelData);
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(false);
   }
 
   inverseDidDematerialize() {
@@ -155,6 +157,17 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.canonicalState = null;
+    /*
+      This isn't exactly correct because another record's payload
+      may tell us that this relationship is no longer correct
+      but that is not enough to tell us that this relationship is
+      now empty for sure. Likely we should be stale here but
+      that is probably a breaking change.
+
+        - @runspired
+    */
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(true);
     super.removeCanonicalModelDataFromOwn(modelData);
   }
 
@@ -188,10 +201,20 @@ export default class BelongsToRelationship extends Relationship {
     return payload;
   }
 
-  localStateIsEmpty() {
+  /**
+   * Flag indicating whether all inverse records are available
+   *
+   * true if the inverse exists and is loaded (not empty)
+   * true if there is no inverse
+   * false if the inverse exists and is not loaded (empty)
+   *
+   * @returns {boolean}
+   */
+  get allInverseRecordsAreLoaded() {
     let modelData = this.inverseModelData;
+    let isEmpty = modelData !== null && modelData.isEmpty();
 
-    return !modelData || modelData.isEmpty();
+    return !isEmpty;
   }
 
   updateData(data, initial) {
