@@ -328,9 +328,20 @@ export default class InternalModel {
       }
       delete this._relationshipPromisesCache[key];
     });
+    // if the manyArray is for a sync relationship
+    //   we should clear it
     Object.keys(this._manyArrayCache).forEach(key => {
-      this._retainedManyArrayCache[key] = this._manyArrayCache[key];
+      let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
       delete this._manyArrayCache[key];
+
+      /*
+          It is likely in this case instead of retaining we should destroy
+
+          - @runspired
+        */
+      if (manyArray && !manyArray._inverseIsAsync) {
+        manyArray.clear();
+      }
     });
 
     // move to an empty never-loaded state
@@ -539,6 +550,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
+        _inverseIsAsync: jsonApi._relationship._inverseIsAsync(),
         internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
