@@ -315,24 +315,24 @@ export default class InternalModel {
     this._doNotDestroy = false;
 
     if (this._record) {
-      Object.keys(this._relationshipPromisesCache).forEach(key => {
-        // TODO Igor cleanup the guard
-        // TODO there is probably relationship cleanup to do outside of the _record check
-        if (this._relationshipPromisesCache[key].destroy) {
-          this._relationshipPromisesCache[key].destroy();
-        }
-        delete this._relationshipPromisesCache[key];
-      });
-      Object.keys(this._manyArrayCache).forEach(key => {
-        this._retainedManyArrayCache[key] = this._manyArrayCache[key];
-        delete this._manyArrayCache[key];
-      });
       this._record.destroy();
     }
 
+    Object.keys(this._relationshipPromisesCache).forEach(key => {
+      // TODO Igor cleanup the guard
+      if (this._relationshipPromisesCache[key].destroy) {
+        this._relationshipPromisesCache[key].destroy();
+      }
+      delete this._relationshipPromisesCache[key];
+    });
+    Object.keys(this._manyArrayCache).forEach(key => {
+      this._retainedManyArrayCache[key] = this._manyArrayCache[key];
+      delete this._manyArrayCache[key];
+    });
+
     // move to an empty never-loaded state
-    this.resetRecord();
     this._modelData.unloadRecord();
+    this.resetRecord();
     this.updateRecordArrays();
   }
 
