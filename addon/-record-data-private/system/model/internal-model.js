@@ -827,7 +827,7 @@ export default class InternalModel {
     }
   }
 
-  notifyHasManyChange(key, record, idx) {
+  notifyHasManyChanged(key, record, idx) {
     if (this.hasRecord) {
       let manyArray = this._manyArrayCache[key];
       if (manyArray) {
@@ -849,7 +849,7 @@ export default class InternalModel {
     }
   }
 
-  notifyBelongsToChange(key, record) {
+  notifyBelongsToChanged(key, record) {
     if (this.hasRecord) {
       this._record.notifyBelongsToChanged(key, record);
       this.updateRecordArrays();

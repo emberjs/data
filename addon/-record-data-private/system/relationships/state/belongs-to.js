@@ -144,7 +144,7 @@ export default class BelongsToRelationship extends Relationship {
   notifyBelongsToChanged() {
     let modelData = this.modelData;
     let storeWrapper = this.modelData.storeWrapper;
-    storeWrapper.notifyBelongsToChange(
+    storeWrapper.notifyBelongsToChanged(
       modelData.modelName,
       modelData.id,
       modelData.clientId,
