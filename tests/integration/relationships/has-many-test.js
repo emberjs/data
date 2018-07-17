@@ -2915,25 +2915,25 @@ test('destroying records in a hasMany relationship that loaded via links', funct
     comment: Comment,
     adapter: DS.RESTAdapter.extend({
       shouldBackgroundReloadRecord: () => false,
-      findHasMany: () =>  {
+      findHasMany: () => {
         return {
           comments: [
             {
               type: 'comment',
-              id: '1'
+              id: '1',
             },
             {
               type: 'comment',
-              id: '2'
+              id: '2',
             },
             {
               type: 'comment',
-              id: '3'
-            }
-          ]
+              id: '3',
+            },
+          ],
         };
-      }
-    })
+      },
+    }),
   });
 
   env.registry.register(
@@ -2941,7 +2941,7 @@ test('destroying records in a hasMany relationship that loaded via links', funct
     DS.RESTAdapter.extend({
       deleteRecord(record) {
         return resolve();
-      }
+      },
     })
   );
 
@@ -2954,27 +2954,29 @@ test('destroying records in a hasMany relationship that loaded via links', funct
           relationships: {
             comments: {
               links: {
-                related: '/comments'
-              }
-            }
-          }
-        }
-      ]
+                related: '/comments',
+              },
+            },
+          },
+        },
+      ],
     });
   });
 
   return run(() => {
     return env.store.findRecord('post', 1).then(post => {
-      return post.get('comments').then((comments) => {
+      return post.get('comments').then(comments => {
         assert.equal(comments.get('length'), 3, 'Initial comments count');
 
-        return comments.get('lastObject').destroyRecord()
-        .then(() => {
-          let comments = post.get('comments');
-          let length = comments.get('length');
+        return comments
+          .get('lastObject')
+          .destroyRecord()
+          .then(() => {
+            let comments = post.get('comments');
+            let length = comments.get('length');
 
-          assert.equal(length, 2, 'Comments count after destroy');
-        });
+            assert.equal(length, 2, 'Comments count after destroy');
+          });
       });
     });
   });
@@ -2996,8 +2998,8 @@ test('destroying records in a hasMany relationship that loaded via sideloading',
     post: Post,
     comment: Comment,
     adapter: DS.RESTAdapter.extend({
-      shouldBackgroundReloadRecord: () => false
-    })
+      shouldBackgroundReloadRecord: () => false,
+    }),
   });
 
   env.registry.register(
@@ -3005,7 +3007,7 @@ test('destroying records in a hasMany relationship that loaded via sideloading',
     DS.RESTAdapter.extend({
       deleteRecord(record) {
         return resolve();
-      }
+      },
     })
   );
 
@@ -3043,16 +3045,18 @@ test('destroying records in a hasMany relationship that loaded via sideloading',
 
   return run(() => {
     return env.store.findRecord('post', 1).then(post => {
-      return post.get('comments').then((comments) => {
+      return post.get('comments').then(comments => {
         assert.equal(comments.get('length'), 3, 'Initial comments count');
 
-        return comments.get('lastObject').destroyRecord()
-        .then(() => {
-          let comments = post.get('comments');
-          let length = comments.get('length');
+        return comments
+          .get('lastObject')
+          .destroyRecord()
+          .then(() => {
+            let comments = post.get('comments');
+            let length = comments.get('length');
 
-          assert.equal(length, 2, 'Comments count after destroy');
-        });
+            assert.equal(length, 2, 'Comments count after destroy');
+          });
       });
     });
   });
