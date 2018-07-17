@@ -41,17 +41,6 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  notifyManyArrayIsStale() {
-    let storeWrapper = this.modelData.storeWrapper;
-    let modelData = this.modelData;
-    storeWrapper.notifyPropertyChange(
-      modelData.modelName,
-      modelData.id,
-      modelData.clientId,
-      this.key
-    );
-  }
-
   addModelData(modelData, idx) {
     if (this.members.has(modelData)) {
       return;
@@ -193,9 +182,27 @@ export default class ManyRelationship extends Relationship {
     this.canonicalState = this.canonicalMembers.toArray();
   }
 
+  /*
+    This is essentially a "sync" version of
+      notifyHasManyChanged. We should work to unify
+      these worlds
+
+      - @runspired
+  */
+  notifyManyArrayIsStale() {
+    let modelData = this.modelData;
+    let storeWrapper = modelData.storeWrapper;
+    storeWrapper.notifyPropertyChange(
+      modelData.modelName,
+      modelData.id,
+      modelData.clientId,
+      this.key
+    );
+  }
+
   notifyHasManyChanged() {
     let modelData = this.modelData;
-    let storeWrapper = this.modelData.storeWrapper;
+    let storeWrapper = modelData.storeWrapper;
     storeWrapper.notifyHasManyChanged(
       modelData.modelName,
       modelData.id,
