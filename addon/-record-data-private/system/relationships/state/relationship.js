@@ -212,6 +212,9 @@ export default class Relationship {
     if (!this.inverseKey) {
       return;
     }
+    // TODO @runspired fairly sure we need to become stale here
+    // this.setRelationshipIsStale(true);
+
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     this.forAllMembers(inverseModelData => {
