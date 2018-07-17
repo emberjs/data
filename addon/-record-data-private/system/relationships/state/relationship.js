@@ -149,7 +149,7 @@ export default class Relationship {
     this.relationshipIsEmpty = true;
 
     /*
-      Flag def here for reference, defined as getter below
+      Flag def here for reference, defined as getter in has-many.js / belongs-to.js
 
       true when
         => hasAnyRelationshipData is true
@@ -158,17 +158,12 @@ export default class Relationship {
 
       TODO, consider changing the conditional here from !isEmpty to !hiddenFromRecordArrays
     */
-    // this.allInverseRecordsAreLoaded = false;
 
     // TODO do we want this anymore? Seems somewhat useful
     //   especially if we rename to `hasUpdatedLink`
     //   which would tell us slightly more about why the
     //   relationship is stale
     // this.updatedLink = false;
-  }
-
-  get allInverseRecordsAreLoaded() {
-    return !this.localStateIsEmpty();
   }
 
   _inverseIsAsync() {
