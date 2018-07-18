@@ -319,30 +319,30 @@ export default class InternalModel {
 
     if (this._record) {
       this._record.destroy();
+
+      Object.keys(this._relationshipPromisesCache).forEach(key => {
+        // TODO Igor cleanup the guard
+        if (this._relationshipPromisesCache[key].destroy) {
+          this._relationshipPromisesCache[key].destroy();
+        }
+        delete this._relationshipPromisesCache[key];
+      });
+      Object.keys(this._manyArrayCache).forEach(key => {
+        let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
+        delete this._manyArrayCache[key];
+
+        if (manyArray && !manyArray._inverseIsAsync) {
+          /*
+            If the manyArray is for a sync relationship, we should clear it
+              to preserve the semantics of client-side delete.
+
+            It is likely in this case instead of retaining we should destroy
+              - @runspired
+          */
+          manyArray.clear();
+        }
+      });
     }
-
-    Object.keys(this._relationshipPromisesCache).forEach(key => {
-      // TODO Igor cleanup the guard
-      if (this._relationshipPromisesCache[key].destroy) {
-        this._relationshipPromisesCache[key].destroy();
-      }
-      delete this._relationshipPromisesCache[key];
-    });
-    // if the manyArray is for a sync relationship
-    //   we should clear it
-    Object.keys(this._manyArrayCache).forEach(key => {
-      let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
-      delete this._manyArrayCache[key];
-
-      /*
-          It is likely in this case instead of retaining we should destroy
-
-          - @runspired
-        */
-      if (manyArray && !manyArray._inverseIsAsync) {
-        manyArray.clear();
-      }
-    });
 
     // move to an empty never-loaded state
     this._modelData.unloadRecord();
