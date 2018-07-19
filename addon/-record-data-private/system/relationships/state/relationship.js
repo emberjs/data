@@ -73,18 +73,39 @@ export default class Relationship {
     this.__inverseMeta = undefined;
 
     /*
+     This flag forces fetch. `true` for a single request once `reload()`
+       has been called `false` at all other times.
+    */
+    this.shouldForceReload = false;
+
+    /*
        This flag indicates whether we should
         re-fetch the relationship the next time
         it is accessed.
 
+        The difference between this flag and `shouldForceReload`
+        is in how we treat the presence of partially missing data:
+          - for a forced reload, we will reload the link or EVERY record
+          - for a stale reload, we will reload the link (if present) else only MISSING records
+
+        Ideally these flags could be merged, but because we don't give the
+        request layer the option of deciding how to resolve the data being queried
+        we are forced to differentiate for now.
+
+        It is also possible for a relationship to remain stale after a forced reload; however,
+        in this case `hasFailedLoadAttempt` ought to be `true`.
+
       false when
-        => initial setup
+        => modelData.isNew() on initial setup
         => a previously triggered request has resolved
         => we get relationship data via push
 
       true when
-        => relationship.reload() has been called
+        => !modelData.isNew() on initial setup
+        => an inverse has been unloaded
         => we get a new link for the relationship
+
+      TODO @runspired unskip the acceptance tests and fix these flags
      */
     this.relationshipIsStale = false;
 
@@ -149,7 +170,7 @@ export default class Relationship {
     this.relationshipIsEmpty = true;
 
     /*
-      Flag def here for reference, defined as getter below
+      Flag def here for reference, defined as getter in has-many.js / belongs-to.js
 
       true when
         => hasAnyRelationshipData is true
@@ -158,7 +179,6 @@ export default class Relationship {
 
       TODO, consider changing the conditional here from !isEmpty to !hiddenFromRecordArrays
     */
-    // this.allInverseRecordsAreLoaded = false;
 
     // TODO do we want this anymore? Seems somewhat useful
     //   especially if we rename to `hasUpdatedLink`
@@ -167,8 +187,8 @@ export default class Relationship {
     // this.updatedLink = false;
   }
 
-  get allInverseRecordsAreLoaded() {
-    return !this.localStateIsEmpty();
+  get isNew() {
+    return this.modelData.isNew();
   }
 
   _inverseIsAsync() {
@@ -212,6 +232,9 @@ export default class Relationship {
     if (!this.inverseKey) {
       return;
     }
+    // TODO @runspired fairly sure we need to become stale here
+    // this.setRelationshipIsStale(true);
+
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
     this.forAllMembers(inverseModelData => {
@@ -280,6 +303,7 @@ export default class Relationship {
   }
 
   removeAllModelDatasFromOwn() {
+    this.setRelationshipIsStale(true);
     this.members.clear();
   }
 
