@@ -212,5 +212,30 @@ module('async belongs-to rendering tests', function(hooks) {
         .destroyRecord();
       assert.equal(this.element.textContent.trim(), '');
     });
+
+    // failing test for https://github.com/emberjs/data/issues/5517
+    test('Re-rendering an async belongsTo does not cause a new fetch', async function(assert) {
+      let people = makePeopleWithRelationshipData();
+      let sedona = store.push({
+        data: people.dict['5:has-parent-no-children'],
+      });
+
+      adapter.setupPayloads(assert, [{ data: people.dict['3:has-2-children-and-parent'] }]);
+
+      // render
+      this.set('sedona', sedona);
+
+      await render(hbs`
+      <p>{{sedona.parent.name}}</p>
+      `);
+
+      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+
+      this.set('sedona.parent', null);
+      assert.equal(this.element.textContent.trim(), '');
+
+      this.set('sedona.parent', { data: people.dict['3:has-2-children-and-parent'] });
+      assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
+    });
   });
 });
