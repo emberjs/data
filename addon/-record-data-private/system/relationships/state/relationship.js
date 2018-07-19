@@ -73,18 +73,39 @@ export default class Relationship {
     this.__inverseMeta = undefined;
 
     /*
+     This flag forces fetch. `true` for a single request once `reload()`
+       has been called `false` at all other times.
+    */
+    this.shouldForceReload = false;
+
+    /*
        This flag indicates whether we should
         re-fetch the relationship the next time
         it is accessed.
 
+        The difference between this flag and `shouldForceReload`
+        is in how we treat the presence of partially missing data:
+          - for a forced reload, we will reload the link or EVERY record
+          - for a stale reload, we will reload the link (if present) else only MISSING records
+
+        Ideally these flags could be merged, but because we don't give the
+        request layer the option of deciding how to resolve the data being queried
+        we are forced to differentiate for now.
+
+        It is also possible for a relationship to remain stale after a forced reload; however,
+        in this case `hasFailedLoadAttempt` ought to be `true`.
+
       false when
-        => initial setup
+        => modelData.isNew() on initial setup
         => a previously triggered request has resolved
         => we get relationship data via push
 
       true when
-        => relationship.reload() has been called
+        => !modelData.isNew() on initial setup
+        => an inverse has been unloaded
         => we get a new link for the relationship
+
+      TODO @runspired unskip the acceptance tests and fix these flags
      */
     this.relationshipIsStale = false;
 
@@ -164,6 +185,10 @@ export default class Relationship {
     //   which would tell us slightly more about why the
     //   relationship is stale
     // this.updatedLink = false;
+  }
+
+  get isNew() {
+    return this.modelData.isNew();
   }
 
   _inverseIsAsync() {

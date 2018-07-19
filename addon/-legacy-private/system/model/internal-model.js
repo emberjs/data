@@ -883,9 +883,9 @@ export default class InternalModel {
     }
   }
 
-  notifyBelongsToChanged(key, record) {
+  notifyBelongsToChange(key, record) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChanged(key, record);
+      this._record.notifyBelongsToChange(key, record);
     }
   }
 

@@ -56,7 +56,7 @@ export default class ManyRelationship extends Relationship {
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
     // this.manyArray.flushCanonical(this.currentState);
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   removeCanonicalModelDataFromOwn(modelData, idx) {
@@ -118,7 +118,7 @@ export default class ManyRelationship extends Relationship {
     this.currentState = toSet;
     super.flushCanonical();
     // Once we clean up all the flushing, we will be left with at least the notifying part
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   //TODO(Igor) idx not used currently, fix
@@ -133,12 +133,12 @@ export default class ManyRelationship extends Relationship {
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
     // this.manyArray.flushCanonical(this.currentState);
   }
 
   notifyRecordRelationshipAdded() {
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   computeChanges(modelDatas = []) {
@@ -184,7 +184,7 @@ export default class ManyRelationship extends Relationship {
 
   /*
     This is essentially a "sync" version of
-      notifyHasManyChanged. We should work to unify
+      notifyHasManyChange. We should work to unify
       these worlds
 
       - @runspired
@@ -200,10 +200,10 @@ export default class ManyRelationship extends Relationship {
     );
   }
 
-  notifyHasManyChanged() {
+  notifyHasManyChange() {
     let modelData = this.modelData;
     let storeWrapper = modelData.storeWrapper;
-    storeWrapper.notifyHasManyChanged(
+    storeWrapper.notifyHasManyChange(
       modelData.modelName,
       modelData.id,
       modelData.clientId,

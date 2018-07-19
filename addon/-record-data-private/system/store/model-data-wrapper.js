@@ -37,7 +37,7 @@ export default class ModelDataWrapper {
       let clientId = pending[i + 2];
       let key = pending[i + 3];
       let internalModel = store._getInternalModelForId(modelName, id, clientId);
-      internalModel.notifyHasManyChanged(key);
+      internalModel.notifyHasManyChange(key);
     }
   }
 
@@ -65,13 +65,13 @@ export default class ModelDataWrapper {
     internalModel.notifyPropertyChange(key);
   }
 
-  notifyHasManyChanged(modelName, id, clientId, key) {
+  notifyHasManyChange(modelName, id, clientId, key) {
     this._scheduleManyArrayUpdate(modelName, id, clientId, key);
   }
 
-  notifyBelongsToChanged(modelName, id, clientId, key) {
+  notifyBelongsToChange(modelName, id, clientId, key) {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyBelongsToChanged(key);
+    internalModel.notifyBelongsToChange(key);
   }
 
   modelDataFor(modelName, id, clientId) {

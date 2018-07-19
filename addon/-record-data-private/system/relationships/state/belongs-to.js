@@ -63,7 +63,7 @@ export default class BelongsToRelationship extends Relationship {
 
   inverseDidDematerialize() {
     super.inverseDidDematerialize(this.inverseModelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeCompletelyFromOwn(modelData) {
@@ -75,7 +75,7 @@ export default class BelongsToRelationship extends Relationship {
 
     if (this.inverseModelData === modelData) {
       this.inverseModelData = null;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
   }
 
@@ -94,7 +94,7 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseModelData !== this.canonicalState) {
       this.inverseModelData = this.canonicalState;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
     super.flushCanonical();
   }
@@ -113,7 +113,7 @@ export default class BelongsToRelationship extends Relationship {
 
     this.inverseModelData = modelData;
     super.addModelData(modelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   setRecordPromise(newPromise) {
@@ -132,19 +132,19 @@ export default class BelongsToRelationship extends Relationship {
     }
     this.inverseModelData = null;
     super.removeModelDataFromOwn(modelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeAllModelDatasFromOwn() {
     super.removeAllModelDatasFromOwn();
     this.inverseModelData = null;
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
-  notifyBelongsToChanged() {
+  notifyBelongsToChange() {
     let modelData = this.modelData;
     let storeWrapper = this.modelData.storeWrapper;
-    storeWrapper.notifyBelongsToChanged(
+    storeWrapper.notifyBelongsToChange(
       modelData.modelName,
       modelData.id,
       modelData.clientId,
@@ -157,15 +157,6 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.canonicalState = null;
-    /*
-      This isn't exactly correct because another record's payload
-      may tell us that this relationship is no longer correct
-      but that is not enough to tell us that this relationship is
-      now empty for sure. Likely we should be stale here but
-      that is probably a breaking change.
-
-        - @runspired
-    */
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsEmpty(true);
     super.removeCanonicalModelDataFromOwn(modelData);

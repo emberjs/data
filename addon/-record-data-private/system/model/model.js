@@ -1064,7 +1064,7 @@ const Model = EmberObject.extend(Evented, {
     };
   },
 
-  notifyBelongsToChanged(key) {
+  notifyBelongsToChange(key) {
     this.notifyPropertyChange(key);
   },
   /**
