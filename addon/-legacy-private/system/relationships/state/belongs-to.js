@@ -72,12 +72,14 @@ export default class BelongsToRelationship extends Relationship {
     }
 
     this.canonicalState = internalModel;
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(false);
     super.addCanonicalInternalModel(internalModel);
   }
 
   inverseDidDematerialize() {
     super.inverseDidDematerialize(this.inverseInternalModel);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeCompletelyFromOwn(internalModel) {
@@ -89,7 +91,7 @@ export default class BelongsToRelationship extends Relationship {
 
     if (this.inverseInternalModel === internalModel) {
       this.inverseInternalModel = null;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
   }
 
@@ -108,7 +110,7 @@ export default class BelongsToRelationship extends Relationship {
     if (this.inverseInternalModel !== this.canonicalState) {
       this.inverseInternalModel = this.canonicalState;
       this._promiseProxy = null;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
 
     super.flushCanonical();
@@ -127,7 +129,7 @@ export default class BelongsToRelationship extends Relationship {
 
     this.inverseInternalModel = internalModel;
     super.addInternalModel(internalModel);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   setRecordPromise(belongsToPromise) {
@@ -150,18 +152,18 @@ export default class BelongsToRelationship extends Relationship {
     this.inverseInternalModel = null;
     this._promiseProxy = null;
     super.removeInternalModelFromOwn(internalModel);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeAllInternalModelsFromOwn() {
     super.removeAllInternalModelsFromOwn();
     this.inverseInternalModel = null;
     this._promiseProxy = null;
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
-  notifyBelongsToChanged() {
-    this.internalModel.notifyBelongsToChanged(this.key);
+  notifyBelongsToChange() {
+    this.internalModel.notifyBelongsToChange(this.key);
   }
 
   removeCanonicalInternalModelFromOwn(internalModel) {
@@ -169,6 +171,8 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.canonicalState = null;
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(true);
     super.removeCanonicalInternalModelFromOwn(internalModel);
   }
 

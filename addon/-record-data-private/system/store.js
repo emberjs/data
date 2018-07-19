@@ -1299,10 +1299,8 @@ Store = Service.extend({
       );
     }
 
-    let preferLocalCache =
-      hasAnyRelationshipData &&
-      // allInverseRecordsAreLoaded &&
-      !relationshipIsEmpty;
+    let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
+
     let hasLocalPartialData =
       hasDematerializedInverse ||
       (relationshipIsEmpty && Array.isArray(resource.data) && resource.data.length > 0);
@@ -1407,16 +1405,23 @@ Store = Service.extend({
     let preferLocalCache =
       hasAnyRelationshipData && allInverseRecordsAreLoaded && !relationshipIsEmpty;
     let hasLocalPartialData = hasDematerializedInverse || (relationshipIsEmpty && resource.data);
+    // null is explicit empty, undefined is "we don't know anything"
+    let localDataIsEmpty = resource.data === undefined || resource.data === null;
 
     // fetch using data, pulling from local cache if possible
     if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
+      /*
+        We have canonical data, but our local state is empty
+       */
+      if (localDataIsEmpty) {
+        return RSVP.resolve(null);
+      }
+
       let internalModel = this._internalModelForResource(resource.data);
 
       return this._findByInternalModel(internalModel);
     }
 
-    // null is explicit empty, undefined is "we don't know anything"
-    let localDataIsEmpty = resource.data === undefined || resource.data === null;
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (resourceIsLocal) {

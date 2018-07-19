@@ -57,11 +57,13 @@ export default class BelongsToRelationship extends Relationship {
 
     this.canonicalState = modelData;
     super.addCanonicalModelData(modelData);
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(false);
   }
 
   inverseDidDematerialize() {
     super.inverseDidDematerialize(this.inverseModelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeCompletelyFromOwn(modelData) {
@@ -73,7 +75,7 @@ export default class BelongsToRelationship extends Relationship {
 
     if (this.inverseModelData === modelData) {
       this.inverseModelData = null;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
   }
 
@@ -92,7 +94,7 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseModelData !== this.canonicalState) {
       this.inverseModelData = this.canonicalState;
-      this.notifyBelongsToChanged();
+      this.notifyBelongsToChange();
     }
     super.flushCanonical();
   }
@@ -111,7 +113,7 @@ export default class BelongsToRelationship extends Relationship {
 
     this.inverseModelData = modelData;
     super.addModelData(modelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   setRecordPromise(newPromise) {
@@ -130,16 +132,16 @@ export default class BelongsToRelationship extends Relationship {
     }
     this.inverseModelData = null;
     super.removeModelDataFromOwn(modelData);
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
   removeAllModelDatasFromOwn() {
     super.removeAllModelDatasFromOwn();
     this.inverseModelData = null;
-    this.notifyBelongsToChanged();
+    this.notifyBelongsToChange();
   }
 
-  notifyBelongsToChanged() {
+  notifyBelongsToChange() {
     let modelData = this.modelData;
     let storeWrapper = this.modelData.storeWrapper;
     storeWrapper.notifyBelongsToChange(
@@ -155,6 +157,8 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.canonicalState = null;
+    this.setHasAnyRelationshipData(true);
+    this.setRelationshipIsEmpty(true);
     super.removeCanonicalModelDataFromOwn(modelData);
   }
 
@@ -188,10 +192,20 @@ export default class BelongsToRelationship extends Relationship {
     return payload;
   }
 
-  localStateIsEmpty() {
+  /**
+   * Flag indicating whether all inverse records are available
+   *
+   * true if the inverse exists and is loaded (not empty)
+   * true if there is no inverse
+   * false if the inverse exists and is not loaded (empty)
+   *
+   * @returns {boolean}
+   */
+  get allInverseRecordsAreLoaded() {
     let modelData = this.inverseModelData;
+    let isEmpty = modelData !== null && modelData.isEmpty();
 
-    return !modelData || modelData.isEmpty();
+    return !isEmpty;
   }
 
   updateData(data, initial) {
