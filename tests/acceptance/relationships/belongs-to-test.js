@@ -212,6 +212,5 @@ module('async belongs-to rendering tests', function(hooks) {
         .destroyRecord();
       assert.equal(this.element.textContent.trim(), '');
     });
-
   });
 });
