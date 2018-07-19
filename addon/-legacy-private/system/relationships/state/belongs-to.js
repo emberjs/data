@@ -163,6 +163,7 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   notifyBelongsToChange() {
+    debugger;
     this.internalModel.notifyBelongsToChange(this.key);
   }
 
