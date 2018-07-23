@@ -55,6 +55,7 @@ export default class Relationship {
   constructor(store, inverseKey, relationshipMeta, modelData, inverseIsAsync) {
     heimdall.increment(newRelationship);
     this.inverseIsAsync = inverseIsAsync;
+    this.kind = relationshipMeta.kind;
     let async = relationshipMeta.options.async;
     let polymorphic = relationshipMeta.options.polymorphic;
     this.modelData = modelData;
@@ -572,7 +573,7 @@ export default class Relationship {
     warn(
       `You pushed a record of type '${this.modelData.modelName}' with a relationship '${
         this.key
-      }' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`,
+      }' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
       this.isAsync || this.hasAnyRelationshipData,
       {
         id: 'ds.store.push-link-for-sync-relationship',
@@ -647,6 +648,11 @@ export default class Relationship {
     if (payload.data !== undefined) {
       hasRelationshipDataProperty = true;
       this.updateData(payload.data, initial);
+    } else if (this.isAsync === false) {
+      hasRelationshipDataProperty = true;
+      let data = this.kind === 'hasMany' ? [] : null;
+
+      this.updateData(data, initial);
     }
 
     if (payload.links && payload.links.related) {

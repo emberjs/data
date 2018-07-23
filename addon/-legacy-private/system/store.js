@@ -3162,7 +3162,7 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
         warn(
           `You pushed a record of type '${
             internalModel.modelName
-          }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`,
+          }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
           isAsync || relationshipData.data,
           {
             id: 'ds.store.push-link-for-sync-relationship',
