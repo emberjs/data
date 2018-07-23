@@ -133,7 +133,8 @@ module('Store.createRecord() coverage', function(hooks) {
               id: '2',
               attributes: { name: 'Shen' },
               relationships: {
-                'best-friend': { // ugh serializer format
+                'best-friend': {
+                  // ugh serializer format
                   data: { type: 'person', id: '1' },
                 },
               },

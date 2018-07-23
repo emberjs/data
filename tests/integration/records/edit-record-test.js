@@ -55,10 +55,10 @@ module('Editing a Record', function(hooks) {
             attributes: { name: 'Shen' },
             relationships: {
               owner: {
-                data: null
-              }
-            }
-          }
+                data: null,
+              },
+            },
+          },
         });
 
         // check that we are properly configured
@@ -85,7 +85,7 @@ module('Editing a Record', function(hooks) {
       test('We can add a new record to a record', async function(assert) {
         let chris = store.createRecord('person', {
           name: 'Chris',
-          pets: []
+          pets: [],
         });
 
         let pet = store.push({
@@ -95,10 +95,10 @@ module('Editing a Record', function(hooks) {
             attributes: { name: 'Shen' },
             relationships: {
               owner: {
-                data: null
-              }
-            }
-          }
+                data: null,
+              },
+            },
+          },
         });
 
         // check that we are properly configured
@@ -125,12 +125,12 @@ module('Editing a Record', function(hooks) {
       test('We can add a new record to a new record', async function(assert) {
         let chris = store.createRecord('person', {
           name: 'Chris',
-          pets: []
+          pets: [],
         });
 
         let pet = store.createRecord('pet', {
           name: 'Shen',
-          owner: null
+          owner: null,
         });
 
         // check that we are properly configured
@@ -170,7 +170,7 @@ module('Editing a Record', function(hooks) {
 
         let pet = store.createRecord('pet', {
           name: 'Shen',
-          owner: null
+          owner: null,
         });
 
         // check that we are properly configured
@@ -256,7 +256,7 @@ module('Editing a Record', function(hooks) {
 
         let james = store.createRecord('person', {
           name: 'James',
-          bestFriend: null
+          bestFriend: null,
         });
 
         // check that we are properly configured
@@ -279,12 +279,12 @@ module('Editing a Record', function(hooks) {
       test('We can add a new record to a new record', async function(assert) {
         let chris = store.createRecord('person', {
           name: 'Chris',
-          bestFriend: null
+          bestFriend: null,
         });
 
         let james = store.createRecord('person', {
           name: 'James',
-          bestFriend: null
+          bestFriend: null,
         });
 
         // check that we are properly configured
@@ -307,7 +307,7 @@ module('Editing a Record', function(hooks) {
       test('We can add to a new record', async function(assert) {
         let chris = store.createRecord('person', {
           name: 'Chris',
-          bestFriend: null
+          bestFriend: null,
         });
 
         let james = store.push({

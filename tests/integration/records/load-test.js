@@ -18,7 +18,7 @@ module('integration/load - Loading Records', function(hooks) {
   let store;
   setupTest(hooks);
 
-  hooks.beforeEach(function () {
+  hooks.beforeEach(function() {
     let { owner } = this;
     owner.register('service:store', Store);
     owner.register('model:person', Person);
@@ -26,28 +26,33 @@ module('integration/load - Loading Records', function(hooks) {
   });
 
   test('When loading a record fails, the record is not left behind', async function(assert) {
-    this.owner.register('adapter:application', JSONAPIAdapter.extend({
-      findRecord() {
-        return reject();
-      }
-    }));
+    this.owner.register(
+      'adapter:application',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          return reject();
+        },
+      })
+    );
 
-    await store.findRecord('person', '1')
-      .catch(() => {
-        assert.equal(store.hasRecordForId('person', '1'), false);
-      });
+    await store.findRecord('person', '1').catch(() => {
+      assert.equal(store.hasRecordForId('person', '1'), false);
+    });
   });
 
   test('Empty records remain in the empty state while data is being fetched', async function(assert) {
     let deferredResolve;
 
-    this.owner.register('adapter:application', JSONAPIAdapter.extend({
-      findRecord() {
-        return new Promise(resolve => {
-          deferredResolve = resolve;
-        })
-      }
-    }));
+    this.owner.register(
+      'adapter:application',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          return new Promise(resolve => {
+            deferredResolve = resolve;
+          });
+        },
+      })
+    );
 
     let internalModel = store._internalModelForId('person', '1');
 
@@ -68,9 +73,9 @@ module('integration/load - Loading Records', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           bestFriend: {
-            data: { type: 'person', id: '2' }
-          }
-        }
+            data: { type: 'person', id: '2' },
+          },
+        },
       },
       included: [
         {
@@ -79,11 +84,11 @@ module('integration/load - Loading Records', function(hooks) {
           attributes: { name: 'Shen' },
           relationships: {
             bestFriend: {
-              data: { type: 'person', id: '1' }
-            }
-          }
-        }
-      ]
+              data: { type: 'person', id: '1' },
+            },
+          },
+        },
+      ],
     });
 
     let record = await recordPromise;
@@ -131,10 +136,10 @@ module('integration/load - Loading Records', function(hooks) {
         attributes: { name: 'Chris' },
         relationships: {
           bestFriend: {
-            data: { type: 'person', id: '2' }
-          }
-        }
-      }
+            data: { type: 'person', id: '2' },
+          },
+        },
+      },
     });
 
     await recordPromise;
