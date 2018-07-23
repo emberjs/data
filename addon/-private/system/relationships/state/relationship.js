@@ -507,7 +507,7 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link, initial) {
+  updateLink(link) {
     heimdall.increment(updateLink);
     warn(
       `You pushed a record of type '${this.internalModel.modelName}' with a relationship '${
@@ -528,10 +528,6 @@ export default class Relationship {
     this.link = link;
     this.fetchPromise = null;
     this.setRelationshipIsStale(true);
-
-    if (!initial) {
-      this.internalModel.notifyPropertyChange(this.key);
-    }
   }
 
   reload() {
@@ -693,7 +689,7 @@ export default class Relationship {
       let relatedLink = _normalizeLink(payload.links.related);
       if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
         hasLink = true;
-        this.updateLink(relatedLink.href, initial);
+        this.updateLink(relatedLink.href);
       }
     }
 
@@ -721,6 +717,10 @@ export default class Relationship {
       this.setRelationshipIsEmpty(relationshipIsEmpty);
     } else if (hasLink) {
       this.setRelationshipIsStale(true);
+
+      if (!initial) {
+        this.internalModel.notifyPropertyChange(this.key);
+      }
     }
   }
 
