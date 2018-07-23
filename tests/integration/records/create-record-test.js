@@ -1,5 +1,6 @@
 import { module, test } from 'qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { setupTest } from 'ember-qunit';
 import Store from 'ember-data/store';
 import Model from 'ember-data/model';
@@ -9,14 +10,16 @@ import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
   pets;
-  @belongsTo('person', { inverse: 'bestFriend', async: false })
-  bestFriend;
+  @belongsTo('pet', { inverse: 'bestHuman', async: true })
+  bestDog;
   @attr name;
 }
 
 class Pet extends Model {
   @belongsTo('person', { inverse: 'pets', async: false })
   owner;
+  @belongsTo('person', { inverse: 'bestDog', async: false })
+  bestHuman;
   @attr name;
 }
 
@@ -118,24 +121,35 @@ module('Store.createRecord() coverage', function(hooks) {
 
   test('creating and saving a record with relationships puts them into the correct state', async function(assert) {
     this.owner.register(
+      'serializer:application',
+      JSONAPISerializer.extend({
+        normalizeResponse(_, __, data) {
+          return data;
+        },
+      })
+    );
+    this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReload() {
           return false;
         },
         findRecord() {
-          assert.ok(false, 'Adapter should not make any findRequests');
+          assert.ok(false, 'Adapter should not make any findRecord Requests');
+        },
+        findBelongsTo() {
+          assert.ok(false, 'Adapter should not make any findBelongsTo Requests');
         },
         createRecord() {
           return resolve({
             data: {
-              type: 'person',
+              type: 'pet',
               id: '2',
               attributes: { name: 'Shen' },
               relationships: {
-                'best-friend': {
-                  // ugh serializer format
+                bestHuman: {
                   data: { type: 'person', id: '1' },
+                  links: { self: './person', related: './person' },
                 },
               },
             },
@@ -152,26 +166,33 @@ module('Store.createRecord() coverage', function(hooks) {
           name: 'Chris',
         },
         relationships: {
-          bestFriend: {
+          bestDog: {
             data: null,
+            links: { self: './dog', related: './dog' },
           },
         },
       },
     });
 
-    let shen = store.createRecord('person', {
+    let shen = store.createRecord('pet', {
       name: 'Shen',
-      bestFriend: chris,
+      bestHuman: chris,
     });
 
+    let bestHuman = shen.get('bestHuman');
+    let bestDog = await chris.get('bestDog');
+
     // check that we are properly configured
-    assert.ok(shen.get('bestFriend') === chris, 'Precondition: Shen has bestFriend as Chris');
-    assert.ok(chris.get('bestFriend') === shen, 'Precondition: Chris has Shen as his bestFriend');
+    assert.ok(bestHuman === chris, 'Precondition: Shen has bestHuman as Chris');
+    assert.ok(bestDog === shen, 'Precondition: Chris has Shen as his bestDog');
 
     await shen.save();
 
+    bestHuman = shen.get('bestHuman');
+    bestDog = await chris.get('bestDog');
+
     // check that the relationship has remained established
-    assert.ok(shen.get('bestFriend') === chris, 'Shen bestFriend is still Chris');
-    assert.ok(chris.get('bestFriend') === shen, 'Chris still has Shen as bestFriend');
+    assert.ok(bestHuman === chris, 'Shen bestHuman is still Chris');
+    assert.ok(bestDog === shen, 'Chris still has Shen as bestDog');
   });
 });
