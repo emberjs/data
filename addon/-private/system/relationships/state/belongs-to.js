@@ -34,6 +34,7 @@ export default class BelongsToRelationship extends Relationship {
     } else if (this.inverseInternalModel) {
       this.removeInternalModel(this.inverseInternalModel);
     }
+
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsStale(false);
     this.setRelationshipIsEmpty(false);
@@ -153,8 +154,14 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChanged();
   }
 
-  notifyBelongsToChanged() {
-    this.internalModel.notifyBelongsToChanged(this.key);
+  notifyBelongsToChange() {
+    if (this._promiseProxy !== null) {
+      let iM = this.inverseInternalModel;
+
+      this._updateLoadingPromise(proxyRecord(iM), iM ? iM.getRecord() : null);
+    }
+
+    this.internalModel.notifyBelongsToChange(this.key);
   }
 
   removeCanonicalInternalModelFromOwn(internalModel) {
@@ -229,9 +236,7 @@ export default class BelongsToRelationship extends Relationship {
 
     if (this.isAsync) {
       if (this._promiseProxy === null) {
-        let promise = resolve(this.inverseInternalModel).then(internalModel => {
-          return internalModel ? internalModel.getRecord() : null;
-        });
+        let promise = proxyRecord(this.inverseInternalModel);
         this._updateLoadingPromise(promise, record);
       }
 
@@ -268,6 +273,12 @@ export default class BelongsToRelationship extends Relationship {
       this.setCanonicalInternalModel(internalModel);
     }
   }
+}
+
+function proxyRecord(internalModel) {
+  return resolve(internalModel).then(resolvedInternalModel => {
+    return resolvedInternalModel ? resolvedInternalModel.getRecord() : null;
+  });
 }
 
 function handleCompletedFind(relationship, error) {

@@ -541,6 +541,15 @@ testInDebug('Calling push with a link for a non async relationship should warn i
           }
         }
       });
+    }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty./);
+  }
+);
+
+testInDebug(
+  'Calling push with a link for a non async relationship should not warn when data is present',
+  function(assert) {
+    Person.reopen({
+      phoneNumbers: hasMany('phone-number', { async: false }),
     });
   }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload./);
 });
