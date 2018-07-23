@@ -2920,9 +2920,15 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
 
       if (relationshipData.links) {
         let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-        warn(`You pushed a record of type '${internalModel.type.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, isAsync || relationshipData.data , {
-          id: 'ds.store.push-link-for-sync-relationship'
-        });
+        warn(
+          `You pushed a record of type '${
+            internalModel.modelName
+          }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+          isAsync || relationshipData.data,
+          {
+            id: 'ds.store.push-link-for-sync-relationship',
+          }
+        );
       } else if (relationshipData.data) {
         if (relationshipMeta.kind === 'belongsTo') {
           assert(`A ${internalModel.type.modelName} record was pushed into the store with the value of ${relationshipName} being ${inspect(relationshipData.data)}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`, !Array.isArray(relationshipData.data));
