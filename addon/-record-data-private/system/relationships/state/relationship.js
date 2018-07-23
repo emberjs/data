@@ -568,7 +568,7 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link, initial) {
+  updateLink(link) {
     heimdall.increment(updateLink);
     warn(
       `You pushed a record of type '${this.modelData.modelName}' with a relationship '${
@@ -587,18 +587,6 @@ export default class Relationship {
     );
 
     this.link = link;
-    this.setRelationshipIsStale(true);
-
-    if (!initial) {
-      let modelData = this.modelData;
-      let storeWrapper = this.modelData.storeWrapper;
-      storeWrapper.notifyPropertyChange(
-        modelData.modelName,
-        modelData.id,
-        modelData.clientId,
-        this.key
-      );
-    }
   }
 
   updateModelDatasFromAdapter(modelDatas) {
@@ -659,7 +647,7 @@ export default class Relationship {
       let relatedLink = _normalizeLink(payload.links.related);
       if (relatedLink && relatedLink.href && relatedLink.href !== this.link) {
         hasLink = true;
-        this.updateLink(relatedLink.href, initial);
+        this.updateLink(relatedLink.href);
       }
     }
 
@@ -688,6 +676,17 @@ export default class Relationship {
       this.setRelationshipIsEmpty(relationshipIsEmpty);
     } else if (hasLink) {
       this.setRelationshipIsStale(true);
+
+      if (!initial) {
+        let modelData = this.modelData;
+        let storeWrapper = this.modelData.storeWrapper;
+        storeWrapper.notifyPropertyChange(
+          modelData.modelName,
+          modelData.id,
+          modelData.clientId,
+          this.key
+        );
+      }
     }
   }
 
