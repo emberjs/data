@@ -518,6 +518,7 @@ const RootState = {
   // XHR to retrieve the data.
   loading: {
     // FLAGS
+    isEmpty: true,
     isLoading: true,
 
     exit(internalModel) {

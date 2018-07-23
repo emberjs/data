@@ -4,7 +4,7 @@
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
-import { run as emberRun } from '@ember/runloop';
+import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, Promise } from 'rsvp';
@@ -52,6 +52,7 @@ import ModelData from './model/model-data';
 import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
+const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
 let globalClientIdCounter = 1;
@@ -2033,7 +2034,7 @@ Store = Service.extend({
       snapshot: snapshot,
       resolver: resolver,
     });
-    emberRun.once(this, this.flushPendingSave);
+    emberRun.scheduleOnce('actions', this, this.flushPendingSave);
   },
 
   /**
