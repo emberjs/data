@@ -7,6 +7,7 @@ import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { attr, belongsTo } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
+import todo from '../../helpers/todo';
 
 class Person extends Model {
   @attr name;
@@ -40,7 +41,7 @@ module('integration/load - Loading Records', function(hooks) {
     });
   });
 
-  test('Empty records remain in the empty state while data is being fetched', async function(assert) {
+  todo('Empty records remain in the empty state while data is being fetched', async function(assert) {
     let payloads = [
       {
         data: {
@@ -125,7 +126,7 @@ module('integration/load - Loading Records', function(hooks) {
     let recordPromise = store.findRecord('person', '1');
 
     // test that during the initial load our state is correct
-    assert.equal(
+    assert.todo.equal(
       internalModel.isEmpty(),
       true,
       'awaiting first fetch: We remain in the empty state'
@@ -180,7 +181,7 @@ module('integration/load - Loading Records', function(hooks) {
 
     // test that during a reload-due-to-unload our state is correct
     //   This requires a retainer (the async bestFriend relationship)
-    assert.equal(internalModel.isEmpty(), true, 'awaiting second find: We remain empty');
+    assert.todo.equal(internalModel.isEmpty(), true, 'awaiting second find: We remain empty');
     assert.equal(internalModel.isLoading(), true, 'awaiting second find: We are loading again');
     assert.equal(internalModel.isReloading, false, 'awaiting second find: We are not reloading');
 
