@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.18.4 (July 24, 2018)
+- [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
+
 ### Release 2.18.3 (July 6, 2018)
 - [#5519](https://github.com/emberjs/data/pull/5519) Do not publish `.node_modules.ember-try` folder to npm
 
