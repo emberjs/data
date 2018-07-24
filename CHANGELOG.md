@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 2.18.4 (July 24, 2018)
+- [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
+
 ### Release 3.3.0 (July 13, 2018)
 
 - Re-release of Ember Data 3.2.0
