@@ -3061,7 +3061,9 @@ Store = Service.extend({
 
     this.unloadAll();
 
-    Ember.Test.unregisterWaiter(this.__asyncWaiter);
+    if (DEBUG) {
+      Ember.Test.unregisterWaiter(this.__asyncWaiter);
+    }
   },
 
   _updateRelationshipState(relationship) {
