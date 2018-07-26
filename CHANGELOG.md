@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.3.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
 ### Release 3.3.0 (July 13, 2018)
 
 - Re-release of Ember Data 3.2.0
