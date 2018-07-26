@@ -41,7 +41,9 @@ module('integration/load - Loading Records', function(hooks) {
     });
   });
 
-  todo('Empty records remain in the empty state while data is being fetched', async function(assert) {
+  todo('Empty records remain in the empty state while data is being fetched', async function(
+    assert
+  ) {
     let payloads = [
       {
         data: {
