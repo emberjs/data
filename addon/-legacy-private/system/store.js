@@ -11,7 +11,6 @@ import { assign } from '@ember/polyfills';
 import { default as RSVP, Promise } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
-
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
@@ -28,7 +27,6 @@ import {
   _guard,
   _objectIsAlive,
   guardDestroyedStore,
-  incrementRequestCount,
 } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
@@ -225,6 +223,14 @@ Store = Service.extend({
 
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
+
+    if (DEBUG) {
+      this.__asyncRequestCount = 0;
+
+      Ember.Test.registerWaiter(() => {
+        return this.__asyncRequestCount === 0;
+      });
+    }
   },
 
   /**
@@ -2930,7 +2936,7 @@ function _commit(adapter, store, operation, snapshot) {
   );
 
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));

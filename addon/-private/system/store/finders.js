@@ -8,7 +8,6 @@ import {
   _guard,
   _objectIsAlive,
   guardDestroyedStore,
-  incrementRequestCount,
 } from './common';
 
 import { normalizeResponseHelper } from './serializer-response';
@@ -24,7 +23,7 @@ function payloadIsNotBlank(adapterPayload) {
 
 export function _find(adapter, store, modelClass, id, internalModel, options) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;
@@ -81,7 +80,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 
 export function _findMany(adapter, store, modelName, ids, internalModels) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let snapshots = A(internalModels).invoke('createSnapshot');
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
@@ -118,7 +117,7 @@ export function _findMany(adapter, store, modelName, ids, internalModels) {
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let snapshot = internalModel.createSnapshot();
   let modelClass = store.modelFor(relationship.type);
@@ -159,7 +158,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let snapshot = internalModel.createSnapshot();
   let modelClass = store.modelFor(relationship.type);
@@ -196,7 +195,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 
 export function _findAll(adapter, store, modelName, sinceToken, options) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
@@ -236,7 +235,7 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
 
 export function _query(adapter, store, modelName, query, recordArray, options) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
@@ -299,7 +298,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
 
 export function _queryRecord(adapter, store, modelName, query, options) {
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
   let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
   let promise = Promise.resolve().then(() =>

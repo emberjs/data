@@ -28,7 +28,6 @@ import {
   _guard,
   _objectIsAlive,
   guardDestroyedStore,
-  incrementRequestCount,
 } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
@@ -230,6 +229,14 @@ Store = Service.extend({
     this._serializerCache = Object.create(null);
 
     this.modelDataWrapper = new ModelDataWrapper(this);
+
+    if (DEBUG) {
+      this.__asyncRequestCount = 0;
+
+      Ember.Test.registerWaiter(() => {
+        return this.__asyncRequestCount === 0;
+      });
+    }
   },
 
   /**
@@ -3155,7 +3162,7 @@ function _commit(adapter, store, operation, snapshot) {
   );
 
   if (DEBUG) {
-    incrementRequestCount();
+    store.__asyncRequestCount++;
   }
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
