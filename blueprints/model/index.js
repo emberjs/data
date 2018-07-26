@@ -1,11 +1,30 @@
 var inflection = require('inflection');
 var stringUtils = require('ember-cli-string-utils');
 var EOL = require('os').EOL;
+const isModuleUnificationProject = require('../../lib/utilities/module-unification')
+  .isModuleUnificationProject;
+const path = require('path');
 
 module.exports = {
   description: 'Generates an ember-data model.',
 
   anonymousOptions: ['name', 'attr:type'],
+
+  fileMapTokens(options) {
+    if (isModuleUnificationProject(this.project)) {
+      return {
+        __root__() {
+          return 'src';
+        },
+        __path__(options) {
+          return path.join('data', 'models', options.dasherizedModuleName);
+        },
+        __name__() {
+          return 'adapter';
+        },
+      };
+    }
+  },
 
   locals: function(options) {
     var attrs = [];
