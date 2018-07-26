@@ -226,10 +226,9 @@ Store = Service.extend({
 
     if (DEBUG) {
       this.__asyncRequestCount = 0;
+      this.__asyncWaiter = () => { return this.__asyncRequestCount === 0 };
 
-      Ember.Test.registerWaiter(() => {
-        return this.__asyncRequestCount === 0;
-      });
+      Ember.Test.registerWaiter(this.__asyncWaiter);
     }
   },
 
@@ -2841,6 +2840,8 @@ Store = Service.extend({
     this._serializerCache = null;
 
     this.unloadAll();
+
+    Ember.Test.unregisterWaiter(this.__asyncWaiter);
   },
 
   _updateRelationshipState(relationship) {
