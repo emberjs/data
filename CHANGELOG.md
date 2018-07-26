@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.2.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
 ### Release 3.2.0 (June 29, 2018)
 
 - [#5497](https://github.com/emberjs/data/pull/5497) [BUGFIX] Make snapshot lazier and fix defaultValue.
