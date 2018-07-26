@@ -20,7 +20,7 @@ module.exports = {
           return path.join('data', 'models', options.dasherizedModuleName);
         },
         __name__() {
-          return 'adapter';
+          return 'model';
         },
       };
     }
