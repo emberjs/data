@@ -22,12 +22,7 @@ import IdentityMap from './identity-map';
 
 import { promiseArray, promiseObject } from './promise-proxies';
 
-import {
-  _bind,
-  _guard,
-  _objectIsAlive,
-  guardDestroyedStore,
-} from './store/common';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
@@ -226,7 +221,9 @@ Store = Service.extend({
 
     if (DEBUG) {
       this.__asyncRequestCount = 0;
-      this.__asyncWaiter = () => { return this.__asyncRequestCount === 0 };
+      this.__asyncWaiter = () => {
+        return this.__asyncRequestCount === 0;
+      };
 
       Ember.Test.registerWaiter(this.__asyncWaiter);
     }
@@ -2937,10 +2934,6 @@ function _commit(adapter, store, operation, snapshot) {
     `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
     typeof adapter[operation] === 'function'
   );
-
-  if (DEBUG) {
-    store.__asyncRequestCount++;
-  }
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = serializerForAdapter(store, adapter, modelName);

@@ -34,6 +34,9 @@ export function _objectIsAlive(object) {
 }
 
 export function guardDestroyedStore(promise, store, label) {
+  if (DEBUG) {
+    store.__asyncRequestCount++;
+  }
   let wrapperPromise = resolve(promise, label).then(v => promise);
 
   return _guard(wrapperPromise, () => {
