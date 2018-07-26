@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.3.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
 ### Release 2.18.4 (July 24, 2018)
 - [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
 
