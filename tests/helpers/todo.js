@@ -6,7 +6,7 @@ export default function todo(description, callback) {
     let todos = [];
     hijackAssert(assert, todos);
 
-    await callback(assert);
+    await callback.call(this, assert);
 
     assertTestStatus(assert, todos);
   });

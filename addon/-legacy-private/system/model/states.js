@@ -521,7 +521,6 @@ const RootState = {
   loading: {
     // FLAGS
     isLoading: true,
-    isEmpty: true,
 
     exit(internalModel) {
       internalModel._promiseProxy = null;
