@@ -1,15 +1,8 @@
 import { A } from '@ember/array';
 import { Promise } from 'rsvp';
 import { assert, warn } from '@ember/debug';
-import { DEBUG } from '@glimmer/env';
 
-import {
-  _bind,
-  _guard,
-  _objectIsAlive,
-  guardDestroyedStore,
-  incrementRequestCount,
-} from './common';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 
 import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
@@ -23,9 +16,6 @@ function payloadIsNotBlank(adapterPayload) {
 }
 
 export function _find(adapter, store, modelClass, id, internalModel, options) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;
   let promise = Promise.resolve().then(() => {
@@ -80,9 +70,6 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
 }
 
 export function _findMany(adapter, store, modelName, ids, internalModels) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let snapshots = A(internalModels).invoke('createSnapshot');
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
@@ -117,9 +104,6 @@ export function _findMany(adapter, store, modelName, ids, internalModels) {
 }
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let snapshot = internalModel.createSnapshot();
   let modelClass = store.modelFor(relationship.type);
   let promise = adapter.findHasMany(store, snapshot, link, relationship);
@@ -158,9 +142,6 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let snapshot = internalModel.createSnapshot();
   let modelClass = store.modelFor(relationship.type);
   let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
@@ -195,9 +176,6 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 }
 
 export function _findAll(adapter, store, modelName, sinceToken, options) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
   let snapshotArray = recordArray._createSnapshot(options);
@@ -235,9 +213,6 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
 }
 
 export function _query(adapter, store, modelName, query, recordArray, options) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let modelClass = store.modelFor(modelName); // adapter.query needs the class
 
   let promise;
@@ -298,9 +273,6 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
 }
 
 export function _queryRecord(adapter, store, modelName, query, options) {
-  if (DEBUG) {
-    incrementRequestCount();
-  }
   let modelClass = store.modelFor(modelName); // adapter.queryRecord needs the class
   let promise = Promise.resolve().then(() =>
     adapter.queryRecord(store, modelClass, query, options)
