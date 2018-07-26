@@ -53,7 +53,7 @@ function areAllModelsUnloaded(internalModels) {
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
-// relatinoship of the dematerialization: this is done so the relationship can
+// relationship of the dematerialization: this is done so the relationship can
 // notify its inverse which needs to update state
 //
 // If the inverse is sync, unloading this record is treated as a client-side
@@ -883,9 +883,9 @@ export default class InternalModel {
     }
   }
 
-  notifyBelongsToChanged(key, record) {
+  notifyBelongsToChange(key, record) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChanged(key, record);
+      this._record.notifyBelongsToChange(key, record);
     }
   }
 

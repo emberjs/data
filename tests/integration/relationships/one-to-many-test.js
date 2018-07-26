@@ -437,7 +437,7 @@ test('Fetching a belongsTo that is not defined does not remove the record from a
 });
 
 test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - async", function(assert) {
-  var user, message, message2;
+  let user, message, message2;
   run(function() {
     user = store.push({
       data: {

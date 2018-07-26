@@ -25,9 +25,7 @@ STEPS:
   * `npm publish` or `npm publish --tag beta` or `npm publish --tag release-1-13`
 * Update the `/builds/` page on the website
   * `cd ../website`
-  * Edit [lastRelease, futureVersion and date](https://github.com/emberjs/website/blob/master/source/javascripts/app/builds/app.js#L238-L241) values for the release channel we are releasing.
-  * Commit updated `javascripts/app/builds/app.js` file
-  * `rake deploy`
+  * Edit `lastRelease`, `futureVersion` and `date` values for the release channel we are releasing ([beta](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/beta.js) or [release](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/release.js).
 * Write a Release Blog Post (Does not happen for beta releases)
   * Commits since last release: `git log --oneline release..beta | wc -l`.
   * Contributors since last release: `git shortlog -s -n release...beta | wc -l`

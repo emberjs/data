@@ -678,6 +678,7 @@ module('integration/relationship/json-api-links | Relationship fetching', {
     const Pet = Model.extend({
       name: attr(),
       owner: belongsTo('user', { async: false, inverse: 'pets' }),
+      friends: hasMany('pet', { async: false, inverse: 'friends' }),
     });
     const Adapter = JSONAPIAdapter.extend();
 
@@ -1964,4 +1965,93 @@ test('We should not fetch a hasMany relationship with links that we know is empt
   failureDescription =
     'We improperly fetched the link for a previously fetched and found to be empty relationship';
   run(() => user2.get('pets'));
+});
+
+test('We should not fetch a sync hasMany relationship with a link that is missing the data member', function(assert) {
+  assert.expect(1);
+  let { store, adapter } = env;
+
+  let petPayload = {
+    data: {
+      type: 'pet',
+      id: '1',
+      attributes: {
+        name: 'Shen',
+      },
+      relationships: {
+        friends: {
+          links: {
+            related: './shen/friends',
+          },
+        },
+      },
+    },
+  };
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.findRecord = () => {
+    assert.ok(false, 'We should not call findRecord');
+  };
+  adapter.findMany = () => {
+    assert.ok(false, 'We should not call findMany');
+  };
+  adapter.findHasMany = () => {
+    assert.ok(false, 'We should not call findHasMany');
+  };
+  adapter.findBelongsTo = () => {
+    assert.ok(false, 'We should not call findBelongsTo');
+  };
+
+  // setup users
+  let shen = run(() => store.push(petPayload));
+
+  // should not fire a request
+  run(() => shen.get('pets'));
+
+  assert.ok(true, 'We reached the end of the test');
+});
+
+test('We should not fetch a sync belongsTo relationship with a link that is missing the data member', function(assert) {
+  assert.expect(1);
+  let { store, adapter } = env;
+
+  let petPayload = {
+    data: {
+      type: 'pet',
+      id: '1',
+      attributes: {
+        name: 'Shen',
+      },
+      relationships: {
+        owner: {
+          links: {
+            related: './shen/owner',
+            self: './owner/a',
+          },
+        },
+      },
+    },
+  };
+
+  adapter.shouldBackgroundReloadRecord = () => false;
+  adapter.findRecord = () => {
+    assert.ok(false, 'We should not call findRecord');
+  };
+  adapter.findMany = () => {
+    assert.ok(false, 'We should not call findMany');
+  };
+  adapter.findHasMany = () => {
+    assert.ok(false, 'We should not call findHasMany');
+  };
+  adapter.findBelongsTo = () => {
+    assert.ok(false, 'We should not call findBelongsTo');
+  };
+
+  // setup users
+  let shen = run(() => store.push(petPayload));
+
+  // should not fire a request
+  run(() => shen.get('owner'));
+
+  assert.ok(true, 'We reached the end of the test');
 });

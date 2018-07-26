@@ -41,17 +41,6 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  notifyManyArrayIsStale() {
-    let storeWrapper = this.modelData.storeWrapper;
-    let modelData = this.modelData;
-    storeWrapper.notifyPropertyChange(
-      modelData.modelName,
-      modelData.id,
-      modelData.clientId,
-      this.key
-    );
-  }
-
   addModelData(modelData, idx) {
     if (this.members.has(modelData)) {
       return;
@@ -67,7 +56,7 @@ export default class ManyRelationship extends Relationship {
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
     // this.manyArray.flushCanonical(this.currentState);
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   removeCanonicalModelDataFromOwn(modelData, idx) {
@@ -129,7 +118,7 @@ export default class ManyRelationship extends Relationship {
     this.currentState = toSet;
     super.flushCanonical();
     // Once we clean up all the flushing, we will be left with at least the notifying part
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   //TODO(Igor) idx not used currently, fix
@@ -144,12 +133,12 @@ export default class ManyRelationship extends Relationship {
     this.currentState.splice(index, 1);
     // TODO Igor consider making direct to remove the indirection
     // We are not lazily accessing the manyArray here because the change is coming from app side
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
     // this.manyArray.flushCanonical(this.currentState);
   }
 
   notifyRecordRelationshipAdded() {
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   computeChanges(modelDatas = []) {
@@ -193,9 +182,27 @@ export default class ManyRelationship extends Relationship {
     this.canonicalState = this.canonicalMembers.toArray();
   }
 
-  notifyHasManyChanged() {
+  /*
+    This is essentially a "sync" version of
+      notifyHasManyChange. We should work to unify
+      these worlds
+
+      - @runspired
+  */
+  notifyManyArrayIsStale() {
     let modelData = this.modelData;
-    let storeWrapper = this.modelData.storeWrapper;
+    let storeWrapper = modelData.storeWrapper;
+    storeWrapper.notifyPropertyChange(
+      modelData.modelName,
+      modelData.id,
+      modelData.clientId,
+      this.key
+    );
+  }
+
+  notifyHasManyChange() {
+    let modelData = this.modelData;
+    let storeWrapper = modelData.storeWrapper;
     storeWrapper.notifyHasManyChange(
       modelData.modelName,
       modelData.id,
@@ -242,17 +249,28 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  localStateIsEmpty() {
-    let modelDatas = this.canonicalState;
-    let isLoaded = false;
-
-    if (modelDatas.length) {
-      isLoaded = modelDatas.reduce((hasNoEmptyModel, i) => {
-        return hasNoEmptyModel && !i.isEmpty();
-      }, true);
+  /**
+   * Flag indicating whether all inverse records are available
+   *
+   * true if inverse records exist and are all loaded (all not empty)
+   * true if there are no inverse records
+   * false if the inverse records exist and any are not loaded (any empty)
+   *
+   * @returns {boolean}
+   */
+  get allInverseRecordsAreLoaded() {
+    // check currentState for unloaded records
+    let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
+      return hasEmptyModel || i.isEmpty();
+    }, false);
+    // check un-synced state for unloaded records
+    if (!hasEmptyRecords && this.willSync) {
+      hasEmptyRecords = this.canonicalState.reduce((hasEmptyModel, i) => {
+        return hasEmptyModel || !i.isEmpty();
+      }, false);
     }
 
-    return !isLoaded;
+    return !hasEmptyRecords;
   }
 }
 

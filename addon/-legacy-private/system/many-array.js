@@ -166,7 +166,7 @@ export default EmberObject.extend(MutableArray, Evented, {
       if (isInitialized && diff.addedCount > 0) {
         //notify only on additions
         //TODO only notify if unloaded
-        this.relationship.notifyHasManyChanged();
+        this.relationship.notifyHasManyChange();
       }
     }
   },

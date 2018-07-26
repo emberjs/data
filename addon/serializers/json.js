@@ -135,8 +135,8 @@ const JSONSerializer = Serializer.extend({
     });
     ```
 
-    You can also remove attributes by setting the `serialize` key to
-    `false` in your mapping object.
+    You can also remove attributes and relationships by setting the `serialize`
+    key to `false` in your mapping object.
 
     Example
 
@@ -162,6 +162,10 @@ const JSONSerializer = Serializer.extend({
     ```
 
     Note that the `admin` is now not included in the payload.
+
+    Setting `serialize` to `true` enforces serialization for hasMany
+    relationships even if it's neither a many-to-many nor many-to-none
+    relationship.
 
     @property attrs
     @type {Object}
@@ -844,6 +848,9 @@ const JSONSerializer = Serializer.extend({
 
   /**
     Check if the given hasMany relationship should be serialized
+
+    By default only many-to-many and many-to-none relationships are serialized.
+    This could be configured per relationship by Serializer's `attrs` object.
 
     @method shouldSerializeHasMany
     @param {DS.Snapshot} snapshot

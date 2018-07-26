@@ -66,3 +66,53 @@ test('eachRelatedType() iterates over relations without duplication', function(a
 
   assert.deepEqual(relations, ['occupation', 'person']);
 });
+
+test('normalizing belongsTo relationship names', function(assert) {
+  const UserProfile = DS.Model.extend({
+    user: DS.belongsTo(),
+  });
+
+  let User = DS.Model.extend({
+    userProfile: DS.belongsTo(),
+  });
+
+  store = createStore({
+    user: User,
+    userProfile: UserProfile,
+  });
+
+  User = store.modelFor('user');
+
+  const relationships = get(User, 'relationships');
+
+  assert.ok(relationships.has('user-profile'), 'relationship key has been normalized');
+
+  const relationship = relationships.get('user-profile')[0];
+
+  assert.equal(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
+});
+
+test('normalizing hasMany relationship names', function(assert) {
+  const StreamItem = DS.Model.extend({
+    user: DS.belongsTo(),
+  });
+
+  let User = DS.Model.extend({
+    streamItems: DS.hasMany(),
+  });
+
+  store = createStore({
+    user: User,
+    streamItem: StreamItem,
+  });
+
+  User = store.modelFor('user');
+
+  const relationships = get(User, 'relationships');
+
+  assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
+
+  const relationship = relationships.get('stream-item')[0];
+
+  assert.equal(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
+});

@@ -120,6 +120,9 @@ export default class InternalModel {
     this._recordReference = null;
 
     this._manyArrayCache = Object.create(null);
+    // The previous ManyArrays for this relationship which will be destroyed when
+    // we create a new ManyArray, but in the interim the retained version will be
+    // updated if inverse internal models are unloaded.
     this._retainedManyArrayCache = Object.create(null);
     this._relationshipPromisesCache = Object.create(null);
   }
@@ -315,24 +318,35 @@ export default class InternalModel {
     this._doNotDestroy = false;
 
     if (this._record) {
+      this._record.destroy();
+
       Object.keys(this._relationshipPromisesCache).forEach(key => {
         // TODO Igor cleanup the guard
-        // TODO there is probably relationship cleanup to do outside of the _record check
         if (this._relationshipPromisesCache[key].destroy) {
           this._relationshipPromisesCache[key].destroy();
         }
         delete this._relationshipPromisesCache[key];
       });
       Object.keys(this._manyArrayCache).forEach(key => {
-        this._retainedManyArrayCache[key] = this._manyArrayCache[key];
+        let manyArray = (this._retainedManyArrayCache[key] = this._manyArrayCache[key]);
         delete this._manyArrayCache[key];
+
+        if (manyArray && !manyArray._inverseIsAsync) {
+          /*
+            If the manyArray is for a sync relationship, we should clear it
+              to preserve the semantics of client-side delete.
+
+            It is likely in this case instead of retaining we should destroy
+              - @runspired
+          */
+          manyArray.clear();
+        }
       });
-      this._record.destroy();
     }
 
     // move to an empty never-loaded state
-    this.resetRecord();
     this._modelData.unloadRecord();
+    this.resetRecord();
     this.updateRecordArrays();
   }
 
@@ -412,13 +426,6 @@ export default class InternalModel {
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
-      // TODO: use run.schedule once we drop 1.13
-      if (!run.currentRunLoop) {
-        assert(
-          "You have turned on testing mode, which disabled the run-loop's autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run",
-          Ember.testing
-        );
-      }
       this._scheduledDestroy = run.backburner.schedule(
         'destroy',
         this,
@@ -543,6 +550,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
+        _inverseIsAsync: jsonApi._relationship._inverseIsAsync(),
         internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
@@ -855,7 +863,7 @@ export default class InternalModel {
 
   notifyBelongsToChange(key, record) {
     if (this.hasRecord) {
-      this._record.notifyBelongsToChanged(key, record);
+      this._record.notifyBelongsToChange(key, record);
       this.updateRecordArrays();
     }
   }

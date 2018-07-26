@@ -2,6 +2,19 @@
 
 ### Master
 
+### Release 3.3.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
+### Release 3.2.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
+### Release 2.18.4 (July 24, 2018)
+- [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
+
+### Release 3.3.0 (July 13, 2018)
+
+- Re-release of Ember Data 3.2.0
+
 ### Release 3.3.0-beta.1 (June 29, 2018)
 
 - [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
@@ -21,7 +34,6 @@
 - [#5471](https://github.com/emberjs/data/pull/5471) [CHORE] cull unnecessary files left from previous build setups
 - [#5476](https://github.com/emberjs/data/pull/5476) [Feature] added module-unification adapter and adapter-test blueprints
 - [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies
-
 
 ### Release 3.2.0 (June 29, 2018)
 
@@ -120,6 +132,9 @@
 - [#5300](https://github.com/emberjs/data/pull/5300) Simplify `store.adapterFor` and `store.serializerFor`.
 - [#5305](https://github.com/emberjs/data/pull/5305) Serializers and adapters should be unique per store
 - [#5308](https://github.com/emberjs/data/pull/5308) Simplify the getDescriptor test helper
+
+### Release 2.18.3 (July 6, 2018)
+- [#5519](https://github.com/emberjs/data/pull/5519) Do not publish `.node_modules.ember-try` folder to npm
 
 ### Release 2.18.2 (March 1, 2018)
 - [#5230](https://github.com/emberjs/data/pull/5230) [BUGFIX] enable lazy-relationship payloads to work with polymorphic relationships
