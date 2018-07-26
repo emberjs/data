@@ -5,6 +5,9 @@
 ### Release 3.3.1 (July 26, 2018)
 - [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
 
+### Release 3.2.1 (July 26, 2018)
+- [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
+
 ### Release 2.18.4 (July 24, 2018)
 - [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
 
@@ -31,7 +34,6 @@
 - [#5471](https://github.com/emberjs/data/pull/5471) [CHORE] cull unnecessary files left from previous build setups
 - [#5476](https://github.com/emberjs/data/pull/5476) [Feature] added module-unification adapter and adapter-test blueprints
 - [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies
-
 
 ### Release 3.2.0 (June 29, 2018)
 
