@@ -23,13 +23,7 @@ import ModelDataWrapper from './store/model-data-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
 
-import {
-  _bind,
-  _guard,
-  _objectIsAlive,
-  guardDestroyedStore,
-  incrementRequestCount,
-} from './store/common';
+import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/common';
 
 import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
@@ -230,6 +224,15 @@ Store = Service.extend({
     this._serializerCache = Object.create(null);
 
     this.modelDataWrapper = new ModelDataWrapper(this);
+
+    if (DEBUG) {
+      this.__asyncRequestCount = 0;
+      this.__asyncWaiter = () => {
+        return this.__asyncRequestCount === 0;
+      };
+
+      Ember.Test.registerWaiter(this.__asyncWaiter);
+    }
   },
 
   /**
@@ -3054,6 +3057,10 @@ Store = Service.extend({
     this._serializerCache = null;
 
     this.unloadAll();
+
+    if (DEBUG) {
+      Ember.Test.unregisterWaiter(this.__asyncWaiter);
+    }
   },
 
   _updateRelationshipState(relationship) {
@@ -3153,10 +3160,6 @@ function _commit(adapter, store, operation, snapshot) {
     `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
     typeof adapter[operation] === 'function'
   );
-
-  if (DEBUG) {
-    incrementRequestCount();
-  }
 
   let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
   let serializer = serializerForAdapter(store, adapter, modelName);
