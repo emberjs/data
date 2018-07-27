@@ -20,6 +20,7 @@
 bower.json
 ember-cli-build.js
 testem.js
+yarn.lock
 
 *.gem
 *.gemspec
