@@ -19,7 +19,8 @@ export default class BelongsToRelationship extends Relationship {
    * true if there is no inverse
    * false if the inverse exists and is not loaded (empty)
    *
-   * @returns {boolean}
+   * @property
+   * @return {boolean}
    */
   get allInverseRecordsAreLoaded() {
     let internalModel = this.inverseInternalModel;

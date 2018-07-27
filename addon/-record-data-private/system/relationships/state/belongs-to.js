@@ -199,7 +199,7 @@ export default class BelongsToRelationship extends Relationship {
    * true if there is no inverse
    * false if the inverse exists and is not loaded (empty)
    *
-   * @returns {boolean}
+   * @return {boolean}
    */
   get allInverseRecordsAreLoaded() {
     let modelData = this.inverseModelData;

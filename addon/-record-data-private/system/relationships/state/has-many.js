@@ -256,7 +256,7 @@ export default class ManyRelationship extends Relationship {
    * true if there are no inverse records
    * false if the inverse records exist and any are not loaded (any empty)
    *
-   * @returns {boolean}
+   * @return {boolean}
    */
   get allInverseRecordsAreLoaded() {
     // check currentState for unloaded records
