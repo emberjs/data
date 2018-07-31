@@ -11,13 +11,15 @@ class Person extends Model {
   friends;
   @belongsTo('person', { inverse: 'bestFriend', async: true })
   bestFriend;
-  @attr name;
+  @attr
+  name;
 }
 
 class Pet extends Model {
   @belongsTo('person', { inverse: 'pets', async: false })
   owner;
-  @attr name;
+  @attr
+  name;
 }
 
 module('Editing a Record', function(hooks) {
