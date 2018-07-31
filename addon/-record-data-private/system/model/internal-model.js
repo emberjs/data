@@ -3,6 +3,7 @@ import EmberError from '@ember/error';
 import { A } from '@ember/array';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
+import { assign } from '@ember/polyfills';
 import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
@@ -285,7 +286,7 @@ export default class InternalModel {
       }
 
       let additionalCreateOptions = this._modelData._initRecordCreateOptions(properties);
-      Object.assign(createOptions, additionalCreateOptions);
+      assign(createOptions, additionalCreateOptions);
 
       if (setOwner) {
         // ensure that `getOwner(this)` works inside a model instance
