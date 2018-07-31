@@ -10,7 +10,8 @@ import { run } from '@ember/runloop';
 import todo from '../../helpers/todo';
 
 class Person extends Model {
-  @attr name;
+  @attr
+  name;
   @belongsTo('person', { async: true, inverse: 'bestFriend' })
   bestFriend;
 }

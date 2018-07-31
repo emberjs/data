@@ -114,7 +114,7 @@
     "loader.js": "^4.5.0",
     "mocha": "^2.4.5",
     "mocha-only-detector": "0.0.2",
-    "prettier": "^1.13.6",
+    "prettier": "^1.14.0",
     "rimraf": "2.5.2",
     "rsvp": "4.8.0",
     "testdouble": "^3.2.6",

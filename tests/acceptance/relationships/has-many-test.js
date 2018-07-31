@@ -17,7 +17,8 @@ function domListToArray(domList) {
 }
 
 class Person extends Model {
-  @attr name;
+  @attr
+  name;
   @hasMany('person', { async: true, inverse: 'parent' })
   children;
   @belongsTo('person', { async: true, inverse: 'children' })
