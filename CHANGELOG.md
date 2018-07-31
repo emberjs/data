@@ -2,6 +2,12 @@
 
 ### Master
 
+### Release 3.4.0-beta.3 (July 31, 2018)
+- [#5549](https://github.com/emberjs/data/pull/5549) [BUGFIX beta] Replace Object.assign with Ember polyfill assign (#5549)
+- [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
+- [#5544](https://github.com/emberjs/data/pull/5544) remove test waiter (#5544)
+- [#5543](https://github.com/emberjs/data/pull/5543) Do not publish yarn.lock to npm
+
 ### Release 3.4.0-beta.2 (July 26, 2018)
 - [#5477](https://github.com/emberjs/data/pull/5477) [BUGFIX] normalize model name for belongs to relationships (#5477)
 - [#5518](https://github.com/emberjs/data/pull/5518) [BUGFIX] Clarifying error message for polymorphic types (#5518)
