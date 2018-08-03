@@ -110,7 +110,11 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseInternalModel !== this.canonicalState) {
       this.inverseInternalModel = this.canonicalState;
-      this._promiseProxy = null;
+      const proxy = this._promiseProxy;
+      if (proxy) {
+        proxy.destroy();
+        this._promiseProxy = null;
+      }
       this.notifyBelongsToChange();
     }
 
@@ -151,7 +155,11 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
     this.inverseInternalModel = null;
-    this._promiseProxy = null;
+    const proxy = this._promiseProxy;
+    if (proxy) {
+      proxy.destroy();
+      this._promiseProxy = null;
+    }
     super.removeInternalModelFromOwn(internalModel);
     this.notifyBelongsToChange();
   }
@@ -159,7 +167,11 @@ export default class BelongsToRelationship extends Relationship {
   removeAllInternalModelsFromOwn() {
     super.removeAllInternalModelsFromOwn();
     this.inverseInternalModel = null;
-    this._promiseProxy = null;
+    const proxy = this._promiseProxy;
+    if (proxy) {
+      proxy.destroy();
+      this._promiseProxy = null;
+    }
     this.notifyBelongsToChange();
   }
 
