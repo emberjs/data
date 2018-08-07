@@ -187,7 +187,7 @@ export default class InternalModel {
 
   get _recordArrays() {
     if (this.__recordArrays === null) {
-      this.__recordArrays = OrderedSet.create();
+      this.__recordArrays = new OrderedSet();
     }
     return this.__recordArrays;
   }
