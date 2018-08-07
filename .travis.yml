@@ -51,6 +51,11 @@ jobs:
       install: yarn install --no-lockfile --non-interactive
       script: yarn test
 
+    - name: "Max Transpilation"
+      install: yarn install
+      env: TARGET_IE11=true
+      script: yarn test
+
     - env: NAME=production            # used only to make Travis UI show description
       install: yarn install
       script: yarn test:production
