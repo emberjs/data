@@ -177,9 +177,9 @@ test("destroying the store correctly cleans everything up", function(assert) {
     };
   };
 
-  let adapterPopulatedPeople =run(() => {
-    return adapterPopulatedPeople = store.query('person', {
-      someCrazy: 'query'
+  let adapterPopulatedPeople = run(() => {
+    return store.query('person', {
+      someCrazy: 'query',
     });
   });
 
