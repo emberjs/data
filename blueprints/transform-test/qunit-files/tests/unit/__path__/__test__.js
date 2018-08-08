@@ -1,7 +1,7 @@
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
-module('transform:<%= dasherizedModuleName %>', '<%= friendlyTestDescription %>', function(hooks) {
+module('<%= friendlyTestDescription %>', function(hooks) {
   setupTest(hooks);
 
   // Replace this with your real tests.
