@@ -29,13 +29,15 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   class Person extends Model {
     @belongsTo('pet', { inverse: 'bestHuman', async: true })
     bestDog;
-    @attr name;
+    @attr
+    name;
   }
 
   class Pet extends Model {
     @belongsTo('person', { inverse: 'bestDog', async: false })
     bestHuman;
-    @attr name;
+    @attr
+    name;
   }
 
   hooks.beforeEach(function() {
@@ -76,7 +78,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
         },
         findBelongsTo() {
           return this.store.adapterFor('person').findRecord();
-        }
+        },
       })
     );
     let personFindRecordCalls = 0;
@@ -94,8 +96,8 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
                 bestDog: {
                   data: { type: 'pet', id: '1' },
                   links: {
-                    related: './pet/1'
-                  }
+                    related: './pet/1',
+                  },
                 },
               },
             },
@@ -103,8 +105,8 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
         },
         findBelongsTo() {
           return this.store.adapterFor('pet').findRecord();
-        }
-      }),
+        },
+      })
     );
 
     let person = await store.findRecord('person', '1');
