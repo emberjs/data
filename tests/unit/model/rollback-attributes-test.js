@@ -28,7 +28,9 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', {
 });
 
 test('changes to attributes can be rolled back', function(assert) {
-  let person = run(() => {
+  let person;
+
+  run(() => {
     store.push({
       data: {
         type: 'person',
@@ -55,7 +57,9 @@ test('changes to attributes can be rolled back', function(assert) {
 });
 
 test('changes to unassigned attributes can be rolled back', function(assert) {
-  let person = run(() => {
+  let person;
+
+  run(() => {
     store.push({
       data: {
         type: 'person',
