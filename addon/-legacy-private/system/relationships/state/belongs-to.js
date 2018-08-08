@@ -110,11 +110,6 @@ export default class BelongsToRelationship extends Relationship {
     }
     if (this.inverseInternalModel !== this.canonicalState) {
       this.inverseInternalModel = this.canonicalState;
-      const proxy = this._promiseProxy;
-      if (proxy) {
-        proxy.destroy();
-        this._promiseProxy = null;
-      }
       this.notifyBelongsToChange();
     }
 
