@@ -889,10 +889,10 @@ test(`a DS.model can define 'setUnknownProperty'`, function(assert) {
   });
 
   let tag = run(() => {
-    tag = store.createRecord('tag', { name: 'old' });
-    set(tag, 'title', 'new');
+    let record = store.createRecord('tag', { name: 'old' });
+    set(record, 'title', 'new');
 
-    return tag;
+    return record;
   });
 
   assert.equal(get(tag, 'name'), 'new', 'setUnknownProperty not triggered');
@@ -963,12 +963,12 @@ test('setting a property to undefined on a newly created record should not impac
   });
 
   let tag = run(() => {
-    tag = store.createRecord('tag');
+    let record = store.createRecord('tag');
 
-    set(tag, 'name', 'testing');
-    set(tag, 'name', undefined);
+    set(record, 'name', 'testing');
+    set(record, 'name', undefined);
 
-    return tag;
+    return record;
   });
 
   assert.equal(get(tag, 'currentState.stateName'), 'root.loaded.created.uncommitted');
