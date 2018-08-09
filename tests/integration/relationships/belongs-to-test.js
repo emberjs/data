@@ -2,38 +2,139 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-
+import { module, test } from 'qunit';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { setupTest } from 'ember-qunit';
+import Store from 'ember-data/store';
+import Model from 'ember-data/model';
+import { attr, belongsTo } from '@ember-decorators/data';
 import testInDebug, { testRecordData } from 'dummy/tests/helpers/test-in-debug';
 import {
   setup as setupModelFactoryInjections,
   reset as resetModelFactoryInjection,
 } from 'dummy/tests/helpers/model-factory-injection';
-import { module, test } from 'qunit';
-
 import DS from 'ember-data';
 import { ModelData } from 'ember-data/-private';
 
-const { attr, hasMany, belongsTo } = DS;
+const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
 
 let env, store, User, Message, Post, Comment, Book, Book1, Chapter, Author, NewMessage, Section;
 
+module('integration/relationship/belongs-to BelongsTo Relationships (new-style)', function(hooks) {
+  let store;
+  setupTest(hooks);
+
+  class Person extends Model {
+    @belongsTo('pet', { inverse: 'bestHuman', async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @belongsTo('person', { inverse: 'bestDog', async: false })
+    bestHuman;
+    @attr
+    name;
+  }
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('service:store', Store);
+    owner.register('model:person', Person);
+    owner.register('model:pet', Pet);
+    owner.register(
+      'serializer:application',
+      JSONAPISerializer.extend({
+        normalizeResponse(_, __, payload) {
+          return payload;
+        },
+      })
+    );
+    store = owner.lookup('service:store');
+  });
+
+  test("async belongsTo chains the related record's loading promise when present", async function(assert) {
+    let petFindRecordCalls = 0;
+    this.owner.register(
+      'adapter:pet',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          assert.equal(++petFindRecordCalls, 1, 'We call findRecord only once for our pet');
+          return resolve({
+            data: {
+              type: 'pet',
+              id: '1',
+              attributes: { name: 'Shen' },
+              relationships: {
+                bestHuman: {
+                  data: { type: 'person', id: '1' },
+                },
+              },
+            },
+          });
+        },
+        findBelongsTo() {
+          return this.store.adapterFor('person').findRecord();
+        },
+      })
+    );
+    let personFindRecordCalls = 0;
+    this.owner.register(
+      'adapter:person',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          assert.equal(++personFindRecordCalls, 1, 'We call findRecord only once for our person');
+          return resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: { name: 'Chris' },
+              relationships: {
+                bestDog: {
+                  data: { type: 'pet', id: '1' },
+                  links: {
+                    related: './pet/1',
+                  },
+                },
+              },
+            },
+          });
+        },
+        findBelongsTo() {
+          return this.store.adapterFor('pet').findRecord();
+        },
+      })
+    );
+
+    let person = await store.findRecord('person', '1');
+    let petRequest = store.findRecord('pet', '1');
+    let personPetRequest = person.get('bestDog');
+    let personPet = await personPetRequest;
+    let pet = await petRequest;
+
+    assert.ok(personPet === pet, 'We ended up in the same state');
+  });
+});
+
 module('integration/relationship/belongs_to Belongs-To Relationships', {
   beforeEach() {
     User = DS.Model.extend({
-      name: attr('string'),
-      messages: hasMany('message', { polymorphic: true, async: false }),
-      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false }),
+      name: DSattr('string'),
+      messages: DShasMany('message', { polymorphic: true, async: false }),
+      favouriteMessage: DSbelongsTo('message', { polymorphic: true, inverse: null, async: false }),
     });
 
     Message = DS.Model.extend({
-      user: belongsTo('user', { inverse: 'messages', async: false }),
-      created_at: attr('date'),
+      user: DSbelongsTo('user', { inverse: 'messages', async: false }),
+      created_at: DSattr('date'),
     });
 
     Post = Message.extend({
-      title: attr('string'),
-      comments: hasMany('comment', { async: false, inverse: null }),
+      title: DSattr('string'),
+      comments: DShasMany('comment', { async: false, inverse: null }),
     });
 
     Comment = Message.extend({
@@ -42,27 +143,27 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
     });
 
     Book = DS.Model.extend({
-      name: attr('string'),
-      author: belongsTo('author', { async: false }),
-      chapters: hasMany('chapters', { async: false, inverse: 'book' }),
+      name: DSattr('string'),
+      author: DSbelongsTo('author', { async: false }),
+      chapters: DShasMany('chapters', { async: false, inverse: 'book' }),
     });
 
     Book1 = DS.Model.extend({
-      name: attr('string'),
+      name: DSattr('string'),
     });
 
     Chapter = DS.Model.extend({
-      title: attr('string'),
-      book: belongsTo('book', { async: false, inverse: 'chapters' }),
+      title: DSattr('string'),
+      book: DSbelongsTo('book', { async: false, inverse: 'chapters' }),
     });
 
     Author = DS.Model.extend({
-      name: attr('string'),
-      books: hasMany('books', { async: false }),
+      name: DSattr('string'),
+      books: DShasMany('books', { async: false }),
     });
 
     Section = DS.Model.extend({
-      name: attr('string'),
+      name: DSattr('string'),
     });
 
     env = setupStore({
@@ -110,14 +211,14 @@ test('returning a null relationship from payload sets the relationship to null o
   env.registry.register(
     'model:app',
     DS.Model.extend({
-      name: attr('string'),
-      team: belongsTo('team', { async: true }),
+      name: DSattr('string'),
+      team: DSbelongsTo('team', { async: true }),
     })
   );
   env.registry.register(
     'model:team',
     DS.Model.extend({
-      apps: hasMany('app', { async: true }),
+      apps: DShasMany('app', { async: true }),
     })
   );
   run(() => {
@@ -854,7 +955,7 @@ test('Destroying a record with an unloaded aync belongsTo association does not f
   run(post, 'destroyRecord');
 });
 
-testInDebug('A sync belongsTo errors out if the record is unlaoded', function(assert) {
+testInDebug('A sync belongsTo errors out if the record is unloaded', function(assert) {
   let message;
   run(() => {
     message = env.store.push({
@@ -969,7 +1070,7 @@ testInDebug('Passing a model as type to belongsTo should not work', function(ass
     User = DS.Model.extend();
 
     DS.Model.extend({
-      user: belongsTo(User, { async: false }),
+      user: DSbelongsTo(User, { async: false }),
     });
   }, /The first argument to DS.belongsTo must be a string/);
 });
@@ -978,7 +1079,7 @@ test('belongsTo hasAnyRelationshipData async loaded', function(assert) {
   assert.expect(1);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -1030,7 +1131,7 @@ test('belongsTo hasAnyRelationshipData async not loaded', function(assert) {
   assert.expect(1);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -1079,7 +1180,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
   assert.expect(2);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   run(() => {
@@ -1825,7 +1926,7 @@ testRecordData(
     // Expect assertion failure as Book1 ModelData
     // doesn't have relationship attribute
     // and inverse is not set to null in
-    // belongsTo
+    // DSbelongsTo
     assert.expectAssertion(() => {
       run(() => {
         env.store.push(data);

@@ -1386,6 +1386,7 @@ Store = Service.extend({
       return RSVP.resolve(null);
     }
 
+    let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
     let {
       relationshipIsStale,
       allInverseRecordsAreLoaded,
@@ -1400,6 +1401,13 @@ Store = Service.extend({
       (hasDematerializedInverse ||
         relationshipIsStale ||
         (!allInverseRecordsAreLoaded && !relationshipIsEmpty));
+
+    // short circuit if we are already loading
+    if (internalModel && internalModel.isLoading()) {
+      return internalModel._promiseProxy.then(() => {
+        return internalModel.getRecord();
+      });
+    }
 
     // fetch via link
     if (shouldFindViaLink) {
@@ -1421,23 +1429,17 @@ Store = Service.extend({
         return RSVP.resolve(null);
       }
 
-      let internalModel = this._internalModelForResource(resource.data);
-
       return this._findByInternalModel(internalModel);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (resourceIsLocal) {
-      let internalModel = this._internalModelForResource(resource.data);
-
       return RSVP.resolve(internalModel.getRecord());
     }
 
     // fetch by data
     if (!localDataIsEmpty) {
-      let internalModel = this._internalModelForResource(resource.data);
-
       return this._fetchRecord(internalModel).then(() => {
         return internalModel.getRecord();
       });
