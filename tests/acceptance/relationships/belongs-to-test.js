@@ -13,7 +13,8 @@ import { skipRecordData as test } from '../../helpers/test-in-debug';
 import Ember from 'ember';
 
 class Person extends Model {
-  @attr name;
+  @attr
+  name;
   @hasMany('person', { async: true, inverse: 'parent' })
   children;
   @belongsTo('person', { async: true, inverse: 'children' })
@@ -167,9 +168,14 @@ module('async belongs-to rendering tests', function(hooks) {
     let { owner } = this;
     owner.register('model:person', Person);
     owner.register('adapter:application', TestAdapter);
-    owner.register('serializer:application', JSONAPISerializer.extend({
-      normalizeResponse(_, __, jsonApi) { return jsonApi }
-    }));
+    owner.register(
+      'serializer:application',
+      JSONAPISerializer.extend({
+        normalizeResponse(_, __, jsonApi) {
+          return jsonApi;
+        },
+      })
+    );
     owner.register('service:store', Store);
     store = owner.lookup('service:store');
     adapter = store.adapterFor('application');
@@ -200,9 +206,7 @@ module('async belongs-to rendering tests', function(hooks) {
         data: people.dict['5:has-parent-no-children'],
       });
 
-      adapter.setupPayloads(assert, [
-        { data: people.dict['3:has-2-children-and-parent'] }
-      ]);
+      adapter.setupPayloads(assert, [{ data: people.dict['3:has-2-children-and-parent'] }]);
 
       // render
       this.set('sedona', sedona);
@@ -219,8 +223,11 @@ module('async belongs-to rendering tests', function(hooks) {
       await settled();
 
       assert.ok(newParent === null, 'We no longer have a parent');
-      assert.equal(this.element.textContent.trim(), '', "We no longer render our parent's name because we no longer have a parent");
-
+      assert.equal(
+        this.element.textContent.trim(),
+        '',
+        "We no longer render our parent's name because we no longer have a parent"
+      );
     });
 
     test('Re-rendering an async belongsTo does not cause a new fetch', async function(assert) {
@@ -229,9 +236,7 @@ module('async belongs-to rendering tests', function(hooks) {
         data: people.dict['5:has-parent-no-children'],
       });
 
-      adapter.setupPayloads(assert, [
-        { data: people.dict['3:has-2-children-and-parent'] }
-      ]);
+      adapter.setupPayloads(assert, [{ data: people.dict['3:has-2-children-and-parent'] }]);
 
       // render
       this.set('sedona', sedona);
@@ -248,7 +253,6 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('sedona', sedona);
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
-
 
     test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(15);
@@ -326,7 +330,11 @@ module('async belongs-to rendering tests', function(hooks) {
         'The relationship has a loadingPromise'
       );
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
-      assert.equal(relationshipState.shouldMakeRequest(), false, 'The relationship does not need to make a request');
+      assert.equal(
+        relationshipState.shouldMakeRequest(),
+        false,
+        'The relationship does not need to make a request'
+      );
       let result = await sedona.get('parent');
       assert.ok(result === null, 're-access is safe');
 
