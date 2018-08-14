@@ -3,7 +3,7 @@ language: node_js
 sudo: false
 dist: trusty
 node_js:
-  - "6"
+  - "10"
 
 addons:
   chrome: stable
@@ -24,7 +24,8 @@ branches:
 stages:
   - test
   - additional tests
-  - older version tests
+  - ember version tests
+  - external partner tests
   - name: deploy
     if: type = push AND (branch IN (master, beta, release) OR tag IS present)
 
@@ -34,18 +35,18 @@ jobs:
   include:
     # runs tests with current locked deps and linting
     - stage: test
-      env: NAME=test                  # used only to make Travis UI show description
+      name: "Basic Tests"
       script:
         - ./bin/lint-features
         - yarn lint:js
         - yarn test
 
     - stage: additional tests
-      env: NAME=optional-features     # used only to make Travis UI show description
+      name: "Optional Features"
       install: yarn install
       script: yarn test:optional-features
 
-    - env: NAME=floating dependencies # used only to make Travis UI show description
+    - name: "Floating Dependencies"
       install: yarn install --no-lockfile --non-interactive
       script: yarn test
 
@@ -54,24 +55,48 @@ jobs:
       env: TARGET_IE11=true
       script: yarn test
 
-    - env: NAME=production            # used only to make Travis UI show description
+    - name: "Production"
       install: yarn install
       script: yarn test:production
 
-    - env: NAME=node-tests            # used only to make Travis UI show description
+    - name: "Node Tests"
       install: yarn install
       script: yarn test:node
 
     # runs tests against each supported Ember version
-    - stage: older version tests
+    - stage: ember version tests
+      name: "Ember LTS 2.16"
       env: EMBER_TRY_SCENARIO=ember-lts-2.16
-    - env: EMBER_TRY_SCENARIO=ember-lts-2.18
-    - env: EMBER_TRY_SCENARIO=ember-release
-    - env: EMBER_TRY_SCENARIO=ember-beta
-    - env: EMBER_TRY_SCENARIO=ember-canary
+    - name: "Ember LTS 2.18"
+      env: EMBER_TRY_SCENARIO=ember-lts-2.18
+    - name: "Ember Release"
+      env: EMBER_TRY_SCENARIO=ember-release
+    - name: "Ember Beta"
+      env: EMBER_TRY_SCENARIO=ember-beta
+    - name: "Ember Canary"
+      env: EMBER_TRY_SCENARIO=ember-canary
+
+    # runs tests against various open-source projects for early-warning regression analysis
+    - stage: external partner tests
+      name: "Ember Data Model Fragments"
+      script: yarn test-external:model-fragments
+    - name: "Ember Observer"
+      script: yarn test-external:ember-observer
+    - name: "Travis Web"
+      script: yarn test-external:travis-web
+    - name: "emberaddons.com"
+      script: yarn test-external:emberaddons.com
+    - name: "Ember Data Change Tracker"
+      script: yarn test-external:ember-data-change-tracker
+    - name: "ember-m3"
+      script: yarn test-external:ember-m3
+    - name: "Ember Data Storefront"
+      script: yarn test-external:storefront
+    - name: "Ember Data Factory Guy"
+      script: yarn test-external:factory-guy
 
     - stage: deploy
-      env: NAME=publish                # used only to make Travis UI show description
+      name: "Publish"
       install: yarn install
       script:
         - node_modules/.bin/ember try:reset
@@ -85,6 +110,7 @@ before_install:
 
 install:
   - yarn install
+  - yarn add global bower
 
 script:
   - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
