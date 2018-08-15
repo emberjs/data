@@ -67,7 +67,11 @@ function intersection(array1, array2) {
 const RESERVED_MODEL_PROPS = ['currentState', 'data', 'store'];
 
 const retrieveFromCurrentState = computed('currentState', function(key) {
-  return get(this._internalModel.currentState, key);
+  let ret = this._internalModel.currentState[key];
+  if (key === 'isDeleted') {
+    debugger;
+  }
+  return ret;
 }).readOnly();
 
 /**

@@ -6,6 +6,7 @@ import { run } from '@ember/runloop';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { setupTest } from 'ember-qunit';
+import { settled } from '@ember/test-helpers';
 import { module, test } from 'qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
@@ -236,7 +237,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(allPeople.objectAt(0), null, "can't get any records");
   });
 
-  todo('Deleting an invalid newly created record should remove it from the store', async function(
+  test('Deleting an invalid newly created record should remove it from the store', async function(
     assert
   ) {
     adapter.createRecord = function() {
@@ -272,11 +273,14 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
 
     let internalModel = record._internalModel;
 
-    await record.destroyRecord();
+    record.deleteRecord();
+    await settled();
 
+    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
+    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
     assert.equal(
       internalModel.currentState.stateName,
-      'root.deleted.saved',
+      'root.empty',
       'We reached the correct persisted saved state'
     );
     assert.equal(
@@ -286,12 +290,9 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     );
 
     let cache = store._identityMap._map.person._models;
-    assert.todo.ok(
-      cache.indexOf(internalModel) === -1,
-      'The internal model is removed from the cache'
-    );
-    assert.todo.equal(internalModel.isDestroying, true, 'The internal model is destroyed');
-    assert.todo.equal(internalModel._isDematerializing, true, 'The internal model is unloaded');
+
+    assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
+    assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
   });
 
   test('Destroying an invalid newly created record should remove it from the store', async function(assert) {
@@ -351,6 +352,107 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
 
     assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
     assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
+  });
+
+  test('Calling save on a newly created then deleted record should not error', async function(
+    assert
+  ) {
+    adapter.createRecord = function() {
+      assert.ok(false, 'We should not call adapter.createRecord on save');
+      return resolve({ data: null });
+    };
+    adapter.updateRecord = function() {
+      assert.ok(false, 'We should not call adapter.updateRecord on save');
+      return resolve({ data: null });
+    };
+    adapter.deleteRecord = function() {
+      assert.ok(false, 'We should not call adapter.deleteRecord on save');
+      return resolve({ data: null });
+    };
+
+    let record = store.createRecord('person', { name: 'pablobm' });
+
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      1,
+      'The new person should be in the store'
+    );
+
+    let internalModel = record._internalModel;
+
+    record.deleteRecord();
+    await settled();
+
+    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
+    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
+    assert.equal(
+      internalModel.currentState.stateName,
+      'root.empty',
+      'We reached the correct persisted saved state'
+    );
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      0,
+      'The new person should be removed from the store'
+    );
+
+    let cache = store._identityMap._map.person._models;
+
+    assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
+    assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
+
+    await record.save();
+  });
+
+  test('Calling unloadRecord on a newly created then deleted record should not error', async function(
+    assert
+  ) {
+    adapter.createRecord = function() {
+      assert.ok(false, 'We should not call adapter.createRecord on save');
+      return resolve({ data: null });
+    };
+    adapter.updateRecord = function() {
+      assert.ok(false, 'We should not call adapter.updateRecord on save');
+      return resolve({ data: null });
+    };
+    adapter.deleteRecord = function() {
+      assert.ok(false, 'We should not call adapter.deleteRecord on save');
+      return resolve({ data: null });
+    };
+
+    let record = store.createRecord('person', { name: 'pablobm' });
+
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      1,
+      'The new person should be in the store'
+    );
+
+    let internalModel = record._internalModel;
+
+    record.deleteRecord();
+    await settled();
+
+    // it is uncertain that `root.empty` vs `root.deleted.saved` afterwards is correct
+    //   but this is the expected result of `unloadRecord`. We may want a `root.deleted.saved.unloaded` state?
+    assert.equal(
+      internalModel.currentState.stateName,
+      'root.empty',
+      'We reached the correct persisted saved state'
+    );
+    assert.equal(
+      get(store.peekAll('person'), 'length'),
+      0,
+      'The new person should be removed from the store'
+    );
+
+    let cache = store._identityMap._map.person._models;
+
+    assert.ok(cache.indexOf(internalModel) === -1, 'The internal model is removed from the cache');
+    assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
+
+    record.unloadRecord();
+    await settled();
   });
 
   todo('Will resolve destroy and save in same loop', async function(assert) {
