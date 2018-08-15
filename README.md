@@ -144,7 +144,7 @@ promise will be rejected.
 ### Even More Documentation
 
 For much more detail on how to use Ember Data, see the [Ember.js Guides
-on models](https://emberjs.com/guides/models/).
+on models](https://guides.emberjs.com/release/models/).
 
 # Building Ember Data
 
