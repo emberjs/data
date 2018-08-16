@@ -1099,6 +1099,7 @@ test('deleteRecord - a payload with sidloaded updates pushes the updates when th
 
 test('deleteRecord - deleting a newly created record should not throw an error', async function(assert) {
   let post = store.createRecord('post');
+  let internalModel = post._internalModel;
 
   post.deleteRecord();
 
@@ -1120,9 +1121,12 @@ test('deleteRecord - deleting a newly created record should not throw an error',
     'There is no ajax call to delete a record that has never been saved.'
   );
 
-  debugger;
-  assert.equal(post.get('isDeleted'), true, 'the post is now deleted');
-  assert.equal(post.get('isError'), false, 'the post is not an error');
+  // destroyed objects do not allow computed properties to be accessed
+  //   so to check this state we need to go through the internalModel.
+  assert.equal(internalModel.currentState.isEmpty, true, 'the post is now deleted');
+  // TODO ideally we would transition to some sort of `root.deleted.empty` or `root.deleted.unloaded` form of state
+  // assert.equal(internalModel.currentState.isDeleted, true, 'the post is now deleted');
+  // assert.equal(internalModel.currentState.isError, false, 'the post is not an error');
 });
 
 test('findAll - returning an array populates the array', function(assert) {

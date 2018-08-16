@@ -4,7 +4,7 @@ import { A } from '@ember/array';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
-import RSVP, { Promise } from 'rsvp';
+import { defer, resolve, Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
@@ -352,12 +352,31 @@ export default class InternalModel {
   }
 
   deleteRecord() {
-    this.send('deleteRecord');
+    if (this.isNew()) {
+      // deleteRecord will mark us as `root.deleted.saved` which is not new
+      // this could be replaced by updating the state machine to transition
+      //   records that persist their deletion and are then unloaded into
+      //   root.deleted.saved.empty or root.deleted.empty
+      //   since we know these records no longer exist remotely and should not
+      //   be fetched again.
+      this._deletedRecordWasNew = true;
+      run(() => {
+        this.send('deleteRecord');
+        this._triggerDeferredTriggers();
+        this.unloadRecord();
+      });
+    } else {
+      this.send('deleteRecord');
+    }
   }
 
   save(options) {
+    if (this._deletedRecordWasNew) {
+      return resolve();
+    }
+
     let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer(promiseLabel);
+    let resolver = defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver, options);
     return resolver.promise;
