@@ -15,7 +15,8 @@ import { attr, hasMany } from '@ember-decorators/data';
 import todo from '../../helpers/todo';
 
 class Person extends Model {
-  @attr name;
+  @attr
+  name;
 
   static toString() {
     return 'Person';
@@ -151,7 +152,8 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
 
   test('We properly unload a record when destroyRecord is called', async function(assert) {
     class Group extends Model {
-      @attr name;
+      @attr
+      name;
 
       static toString() {
         return 'Group';
@@ -237,9 +239,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(allPeople.objectAt(0), null, "can't get any records");
   });
 
-  test('Deleting an invalid newly created record should remove it from the store', async function(
-    assert
-  ) {
+  test('Deleting an invalid newly created record should remove it from the store', async function(assert) {
     adapter.createRecord = function() {
       return reject(
         new InvalidError([
@@ -354,9 +354,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     assert.equal(internalModel.isDestroyed, true, 'The internal model is destroyed');
   });
 
-  test('Calling save on a newly created then deleted record should not error', async function(
-    assert
-  ) {
+  test('Calling save on a newly created then deleted record should not error', async function(assert) {
     adapter.createRecord = function() {
       assert.ok(false, 'We should not call adapter.createRecord on save');
       return resolve({ data: null });
@@ -404,9 +402,7 @@ module('integration/deletedRecord - Deleting Records', function(hooks) {
     await record.save();
   });
 
-  test('Calling unloadRecord on a newly created then deleted record should not error', async function(
-    assert
-  ) {
+  test('Calling unloadRecord on a newly created then deleted record should not error', async function(assert) {
     adapter.createRecord = function() {
       assert.ok(false, 'We should not call adapter.createRecord on save');
       return resolve({ data: null });
