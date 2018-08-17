@@ -796,9 +796,12 @@ const Model = EmberObject.extend(Evented, {
     successfully or rejected if the adapter returns with an error.
   */
   save(options) {
+    return this._internalModel.save(options).then(() => this);
+    /*
     return PromiseObject.create({
       promise: this._internalModel.save(options).then(() => this),
     });
+    */
   },
 
   /**

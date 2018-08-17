@@ -233,6 +233,7 @@ export default class BelongsToRelationship extends Relationship {
    */
   getData(isForcedReload = false) {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
+    // TODO @runspired I suspect our syncing is now "good enough"™
     let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
 
     if (this.shouldMakeRequest()) {

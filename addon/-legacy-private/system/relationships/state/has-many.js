@@ -346,6 +346,7 @@ export default class ManyRelationship extends Relationship {
 
   getData(isForcedReload = false) {
     //TODO(Igor) sync server here, once our syncing is not stupid
+    // TODO @runspired I suspect our syncing is now "good enough"™
     let manyArray = this.manyArray;
 
     if (this.shouldMakeRequest()) {

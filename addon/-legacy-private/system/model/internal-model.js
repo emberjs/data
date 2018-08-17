@@ -447,7 +447,7 @@ export default class InternalModel {
 
   save(options) {
     if (this._deletedRecordWasNew) {
-      return resolve();
+      return resolve(null);
     }
 
     let promiseLabel = 'DS: Model#save ' + this;
