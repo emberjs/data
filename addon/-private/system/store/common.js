@@ -34,14 +34,15 @@ export function _objectIsAlive(object) {
 }
 
 export function guardDestroyedStore(promise, store, label) {
+  let token;
   if (DEBUG) {
-    store.__asyncRequestCount++;
+    token = store._trackAsyncRequestStart(label);
   }
   let wrapperPromise = resolve(promise, label).then(v => promise);
 
   return _guard(wrapperPromise, () => {
     if (DEBUG) {
-      store.__asyncRequestCount--;
+      store._trackAsyncRequestEnd(token);
     }
     return _objectIsAlive(store);
   });

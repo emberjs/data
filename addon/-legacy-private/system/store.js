@@ -220,9 +220,52 @@ Store = Service.extend({
     this._serializerCache = Object.create(null);
 
     if (DEBUG) {
-      this.__asyncRequestCount = 0;
+      if (this.shouldTrackAsyncRequests === undefined) {
+        this.shouldTrackAsyncRequests = false;
+      }
+      if (this.generateStackTracesForTrackedRequests === undefined) {
+        this.generateStackTracesForTrackedRequests = false;
+      }
+
+      this._trackedAsyncRequests = [];
+      this._trackAsyncRequestStart = label => {
+        let trace =
+          'set `store.generateStackTracesForTrackedRequests = true;` to get a detailed trace for where this request originated';
+
+        if (this.generateStackTracesForTrackedRequests) {
+          try {
+            throw new Error(`EmberData TrackedRequest: ${label}`);
+          } catch (e) {
+            trace = e;
+          }
+        }
+
+        let token = Object.freeze({
+          label,
+          trace,
+        });
+
+        this._trackedAsyncRequests.push(token);
+        return token;
+      };
+      this._trackAsyncRequestEnd = token => {
+        let index = this._trackedAsyncRequests.indexOf(token);
+
+        if (index === -1) {
+          throw new Error(
+            `Attempted to end tracking for the following request but it was not being tracked:\n${token}`
+          );
+        }
+
+        this._trackedAsyncRequests.splice(index, 1);
+      };
+
       this.__asyncWaiter = () => {
-        return this.__asyncRequestCount === 0;
+        let shouldTrack = this.shouldTrackAsyncRequests;
+        let tracked = this._trackedAsyncRequests;
+        let isSettled = tracked.length === 0;
+
+        return shouldTrack !== true || isSettled;
       };
 
       Ember.Test.registerWaiter(this.__asyncWaiter);
@@ -832,6 +875,24 @@ Store = Service.extend({
       resolver,
       options,
     };
+
+    if (DEBUG) {
+      if (this.generateStackTracesForTrackedRequests === true) {
+        let trace;
+
+        try {
+          throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
+        } catch (e) {
+          trace = e;
+        }
+
+        // enable folks to discover the origin of this findRecord call when
+        // debugging. Ideally we would have a tracked queue for requests with
+        // labels or local IDs that could be used to merge this trace with
+        // the trace made available when we detect an async leak
+        pendingFetchItem.trace = trace;
+      }
+    }
 
     let promise = resolver.promise;
 
@@ -2840,6 +2901,27 @@ Store = Service.extend({
 
     if (DEBUG) {
       Ember.Test.unregisterWaiter(this.__asyncWaiter);
+      let shouldTrack = this.shouldTrackAsyncRequests;
+      let tracked = this._trackedAsyncRequests;
+      let isSettled = tracked.length === 0;
+
+      if (!isSettled) {
+        if (shouldTrack) {
+          throw new Error(
+            'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
+              tracked.map(o => o.label).join('\n\t - ')
+          );
+        } else {
+          warn(
+            'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
+              tracked.map(o => o.label).join('\n\t - '),
+            false,
+            {
+              id: 'ds.async.leak.detected',
+            }
+          );
+        }
+      }
     }
   },
 
@@ -3043,11 +3125,11 @@ function isInverseRelationshipInitialized(store, internalModel, data, key, model
 }
 
 /**
- *
+ * @function
  * @param store
  * @param cache modelFactoryCache
  * @param normalizedModelName already normalized modelName
- * @returns {*}
+ * @return {*}
  */
 function getModelFactory(store, cache, normalizedModelName) {
   let factory = cache[normalizedModelName];
