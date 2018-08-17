@@ -49,6 +49,18 @@ Boat.toString = function() {
   return 'Boat';
 };
 
+let Listable = Model.extend({
+  listItems: hasMany('list-item', { inverse: 'listable' }),
+});
+let List = Model.extend({
+  listItems: hasMany('list-item', { async: false, inverse: 'list' }),
+});
+
+let ListItem = Model.extend({
+  listable: belongsTo('listable', { async: true }),
+  list: belongsTo('list', { async: false, inverse: 'listItems' }),
+});
+
 module('integration/unload - Rematerializing Unloaded Records', {
   beforeEach() {
     env = setupStore({
@@ -57,6 +69,9 @@ module('integration/unload - Rematerializing Unloaded Records', {
       car: Car,
       group: Group,
       boat: Boat,
+      listable: Listable,
+      list: List,
+      listItem: ListItem,
     });
   },
 
@@ -90,7 +105,7 @@ test('a sync belongs to relationship to an unloaded record can restore that reco
     return env.store.peekRecord('person', 1);
   });
 
-  let bob = run(() => {
+  let lotus = run(() => {
     env.store.push({
       data: {
         type: 'car',
@@ -146,11 +161,75 @@ test('a sync belongs to relationship to an unloaded record can restore that reco
     });
   });
 
-  let rematerializedPerson = bob.get('person');
+  let rematerializedPerson = lotus.get('person');
   assert.equal(rematerializedPerson.get('id'), '1');
   assert.equal(rematerializedPerson.get('name'), 'Adam Sunderland');
   // the person is rematerialized; the previous person is *not* re-used
   assert.notEqual(rematerializedPerson, adam, 'the person is rematerialized, not recycled');
+});
+
+test('a sync hasMany relationship with unloaded records who have a not-unloaded belongsTo relationship can be restored properly via pushPayload', async function(assert) {
+  env.store.pushPayload('listable', {
+    data: [{ type: 'listables', id: '1' }, { type: 'listables', id: '2' }],
+  });
+
+  function pushRecords(store) {
+    env.store.pushPayload('list', {
+      data: {
+        type: 'lists',
+        id: '1',
+      },
+    });
+    env.store.pushPayload('list-item', {
+      data: {
+        type: 'list-items',
+        id: '1',
+        relationships: {
+          list: {
+            data: { type: 'lists', id: '1' },
+          },
+          listable: {
+            data: { type: 'listables', id: '1' },
+          },
+        },
+      },
+    });
+    env.store.pushPayload('list-item', {
+      data: {
+        type: 'list-items',
+        id: '2',
+        relationships: {
+          list: {
+            data: { type: 'lists', id: '1' },
+          },
+          listable: {
+            data: { type: 'listables', id: '2' },
+          },
+        },
+      },
+    });
+    return store.peekRecord('list', '1');
+  }
+
+  let list = await run(() => {
+    return pushRecords(env.store);
+  });
+  env.store.peekRecord('list-item', '1').listable;
+  env.store.peekRecord('list-item', '2').listable;
+
+  assert.equal(env.store.peekAll('list-item').length, 2, 'store listItems length correct');
+  assert.equal(list.listItems.length, 2, 'listItems relationship length correct');
+
+  await run(() => {
+    env.store.unloadAll('list-item');
+    env.store.unloadAll('list');
+  });
+
+  list = await run(() => {
+    return pushRecords(env.store);
+  });
+  assert.equal(env.store.peekAll('list-item').length, 2, 'store listItems length correct');
+  assert.equal(list.listItems.length, 2, 'listItems relationship length correct');
 });
 
 test('an async has many relationship to an unloaded record can restore that record', function(assert) {
