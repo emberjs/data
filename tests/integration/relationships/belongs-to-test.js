@@ -1,5 +1,6 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
+import { A } from '@ember/array';
 import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
@@ -1044,7 +1045,7 @@ test('destroying records in a belongsTo relationship that loaded via links', fun
 
     return posts
       .then(posts => {
-        assert.deepEqual(Ember.A(posts).mapBy('id'), ['1', '1', '1']);
+        assert.deepEqual(A(posts).mapBy('id'), ['1', '1', '1']);
         let post = env.store.peekRecord('post', '1');
         return post.destroyRecord();
       })
@@ -1150,7 +1151,7 @@ test('destroying records in a belongsTo relationship that loaded via sideloading
     return posts
       .then(posts => {
         console.log('posts', posts);
-        assert.deepEqual(Ember.A(posts).mapBy('id'), ['1', '1', '1']);
+        assert.deepEqual(A(posts).mapBy('id'), ['1', '1', '1']);
         let post = env.store.peekRecord('post', '1');
         return post.destroyRecord();
       })
