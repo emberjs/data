@@ -264,7 +264,7 @@ export default class BelongsToRelationship extends Relationship {
           "' with id " +
           this.internalModel.id +
           ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
-        record === null || !record.get('isEmpty')
+        record === null || !record.get('isEmpty') || this.shouldForceReload
       );
       return record;
     }
