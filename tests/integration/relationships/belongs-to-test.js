@@ -1838,6 +1838,64 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   assert.equal(count, 0);
 });
 
+test("async belongsTo returns new object to trigger real change - #5575", function(assert) {
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true }),
+  });
+  let book, author1, author2;
+  run(() => {
+    book = env.store.push({
+      data: {
+        id: '1',
+        type: 'book',
+        attributes: {
+          name: "Stanley's Amazing Adventures",
+        },
+      },
+    });
+    author1 = env.store.push({
+      data: {
+        id: '1',
+        type: 'author',
+        attributes: {
+          name: 'Stanley 1',
+        },
+      },
+    });
+    author2 = env.store.push({
+      data: {
+        id: '2',
+        type: 'author',
+        attributes: {
+          name: 'Stanley 2',
+        },
+      },
+    });
+  });
+
+  let lastAuthor;
+
+  return run(() => {
+    lastAuthor = book.get('author');
+    
+    return lastAuthor.then((cur) => {
+      assert.ok(cur == null, 'author should start empty');
+      run(() => { book.set('author', author1) });
+      assert.ok(book.get('author') !== lastAuthor, "belongsTo promise should be changed");
+      lastAuthor = book.get('author');
+      return lastAuthor;
+    }).then((cur) => {
+      assert.ok(cur == author1, 'correct author after step 1');
+      run(() => { book.set('author', author2) });
+      assert.ok(book.get('author') !== lastAuthor, "belongsTo promise should be changed again");
+      lastAuthor = book.get('author');
+      return lastAuthor;
+    }).then((cur) => {
+      assert.ok(cur == author2, 'correct author after step 2');
+    });
+  });
+});
+
 testRecordData(
   "belongsTo relationship doesn't trigger when model data doesn't support implicit relationship",
   function(assert) {
