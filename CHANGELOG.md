@@ -2,6 +2,57 @@
 
 ### Master
 
+### Release 3.4.0-beta.4 (August 23, 2018)
+- [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
+- [#5545](https://github.com/emberjs/data/pull/5545) [FEAT] TrackableRequests for when async leakage is detected
+- [#5551](https://github.com/emberjs/data/pull/5551) Fix `floating dependencies` test suite (#5551)
+- [#5557](https://github.com/emberjs/data/pull/5557) Fixup transpilation issues with @ember/ordered-set. (#5557)
+- [#5559](https://github.com/emberjs/data/pull/5559) Dependency roundup!
+- [#5562](https://github.com/emberjs/data/pull/5562) [BUGFIX] use internalModel promise if already loading (#5562)
+- [#5566](https://github.com/emberjs/data/pull/5566) Acceptance Tests for belongsTo
+- [#5567](https://github.com/emberjs/data/pull/5567) [FEAT] enable external partner testing
+
+### Release 3.4.0-beta.3 (July 31, 2018)
+- [#5549](https://github.com/emberjs/data/pull/5549) [BUGFIX beta] Replace Object.assign with Ember polyfill assign (#5549)
+- [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
+- [#5544](https://github.com/emberjs/data/pull/5544) remove test waiter (#5544)
+- [#5543](https://github.com/emberjs/data/pull/5543) Do not publish yarn.lock to npm
+
+### Release 3.4.0-beta.2 (July 26, 2018)
+- [#5477](https://github.com/emberjs/data/pull/5477) [BUGFIX] normalize model name for belongs to relationships (#5477)
+- [#5518](https://github.com/emberjs/data/pull/5518) [BUGFIX] Clarifying error message for polymorphic types (#5518)
+- [#5520](https://github.com/emberjs/data/pull/5520) Add 2.18.3 release to the changelog on master
+- [#5526](https://github.com/emberjs/data/pull/5526) Update links to builds page fixtures
+- [#5528](https://github.com/emberjs/data/pull/5528) Add tests for createRecord+unloadRecord
+- [#5531](https://github.com/emberjs/data/pull/5531) broccoli-babel-transpiler appears only used in tests, otherwise it uses
+- [#5531](https://github.com/emberjs/data/pull/5531) broccoli-babel-transpiler appears only used in tests, otherwise it uses
+- [#5533](https://github.com/emberjs/data/pull/5533) [BUGFIX] fix and tests for belongs-to proxy not properly updating (#5533)
+- [#5536](https://github.com/emberjs/data/pull/5536) [BUGFIX beta] Upgrading ember-inflector to v3.3.0
+
+### Release 3.4.0-beta.1 (July 13, 2018)
+
+- Re-release of Ember Data 3.3.0-beta.1
+
+### Release 3.3.0-beta.1 (June 29, 2018)
+
+- [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
+- [#5411](https://github.com/emberjs/data/pull/5411) Remove deprecations scheduled for 3.0
+- [#5117](https://github.com/emberjs/data/pull/5117) Give Model a static toString method
+- [#5429](https://github.com/emberjs/data/pull/5429) improve tests for unloading relationships
+- [#5469](https://github.com/emberjs/data/pull/5469) Revamp eslint configuration.
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+- [#5432](https://github.com/emberjs/data/pull/5432) Remove exists-sync dependency
+- [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] remove all usage of Ember.copy
+- [#5438](https://github.com/emberjs/data/pull/5438) [BUGFIX] ensure destroy-sync cleanup is correct
+- [#5437](https://github.com/emberjs/data/pull/5437) [CHORE] removes deprecated Store.filter feature
+- [#5462](https://github.com/emberjs/data/pull/5462) [BUGFIX] ensure ManyArray state is in-sync with relationship state
+- [#5446](https://github.com/emberjs/data/pull/5446) [CLEANUP] fix model and factory lookup
+- [#5466](https://github.com/emberjs/data/pull/5466) Serialize empty hasMany relationships
+- [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] update content of proxy for async belongs-to relationships when null data received
+- [#5471](https://github.com/emberjs/data/pull/5471) [CHORE] cull unnecessary files left from previous build setups
+- [#5476](https://github.com/emberjs/data/pull/5476) [Feature] added module-unification adapter and adapter-test blueprints
+- [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies
+
 ### Release 3.3.1 (July 26, 2018)
 - [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
 
