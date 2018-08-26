@@ -725,6 +725,7 @@ Store = Service.extend({
     @method findRecord
     @param {String} modelName
     @param {(String|Integer)} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @param {Object} options
     @return {Promise} promise
   */
