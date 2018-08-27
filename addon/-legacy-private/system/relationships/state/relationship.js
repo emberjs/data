@@ -554,7 +554,7 @@ export default class Relationship {
 
     this.setHasFailedLoadAttempt(false);
     this.setShouldForceReload(true);
-    this.getData();
+    this.getData(true);
 
     return this._promiseProxy;
   }
