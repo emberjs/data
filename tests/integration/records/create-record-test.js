@@ -133,7 +133,7 @@ module('Store.createRecord() coverage', function(hooks) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReload() {
+        shouldBackgroundReloadRecord() {
           return false;
         },
         findRecord() {

@@ -225,7 +225,13 @@ export default class BelongsToRelationship extends Relationship {
       });
   }
 
-  getData() {
+  /*
+    While the `shouldForceReload` flag will also be true when `isForcedReload` is true,
+    `isForcedReload` is only `true` for an initial `getData` call during a forced reload.
+    Other calls must conform to the typical expectations, for instance, sync relationships
+    expect that their data is already loaded.
+   */
+  getData(isForcedReload = false) {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
 
@@ -264,7 +270,7 @@ export default class BelongsToRelationship extends Relationship {
           "' with id " +
           this.internalModel.id +
           ' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)',
-        record === null || !record.get('isEmpty')
+        record === null || !record.get('isEmpty') || isForcedReload
       );
       return record;
     }
