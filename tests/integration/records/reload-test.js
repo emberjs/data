@@ -1,5 +1,4 @@
 import { resolve, reject } from 'rsvp';
-import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
@@ -265,7 +264,8 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr name;
+        @attr
+        name;
       }
 
       this.owner.register('model:pet', Pet);
