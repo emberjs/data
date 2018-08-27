@@ -77,7 +77,7 @@ import { warn } from '@ember/debug';
 
   To successfully extract and serialize embedded records the model relationships
   must be setup correcty. See the
-  [defining relationships](/guides/models/defining-models/#toc_defining-relationships)
+  [defining relationships](/guides/models/relationships)
   section of the **Defining Models** guide page.
 
   Records without an `id` property are not considered embedded records, model
