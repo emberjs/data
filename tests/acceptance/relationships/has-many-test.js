@@ -30,7 +30,7 @@ class TestAdapter extends JSONAPIAdapter {
     this._payloads = arr;
   }
 
-  shouldBackgroundReload() {
+  shouldBackgroundReloadRecord() {
     return false;
   }
 
