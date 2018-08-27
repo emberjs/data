@@ -7,7 +7,7 @@ import { deprecate } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
- A BelongsToReference is a low level API that allows users and
+ A BelongsToReference is a low-level API that allows users and
  addon author to perform meta-operations on a belongs-to
  relationship.
 

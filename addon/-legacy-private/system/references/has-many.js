@@ -5,7 +5,7 @@ import { DEBUG } from '@glimmer/env';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
-   A HasManyReference is a low level API that allows users and addon
+   A HasManyReference is a low-level API that allows users and addon
    author to perform meta-operations on a has-many relationship.
 
    @class HasManyReference
@@ -107,7 +107,7 @@ export default class HasManyReference extends Reference {
   }
 
   /**
-     `ids()` returns an array of the record ids in this relationship.
+     `ids()` returns an array of the record IDs in this relationship.
 
      Example
 
@@ -147,7 +147,7 @@ export default class HasManyReference extends Reference {
   }
 
   /**
-     The meta data for the has-many relationship.
+     The metadata for the has-many relationship.
 
      Example
 

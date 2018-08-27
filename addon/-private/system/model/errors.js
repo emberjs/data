@@ -390,7 +390,7 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Checks if there is error messages for the given attribute.
+    Checks if there are error messages for the given attribute.
 
     ```app/routes/user/edit.js
     import Route from '@ember/routing/route';

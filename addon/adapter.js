@@ -7,7 +7,7 @@ import EmberObject from '@ember/object';
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
-  persistence layer. The persistence layer is usually an HTTP API, but
+  persistence layer. The persistence layer is usually an HTTP API but
   may be anything, such as the browser's local storage. Typically the
   adapter is not invoked directly instead its functionality is accessed
   through the `store`.
@@ -52,7 +52,7 @@ import EmberObject from '@ember/object';
     * `findMany()`
 
 
-  For an example implementation, see `DS.RESTAdapter`, the
+  For an example of the implementation, see `DS.RESTAdapter`, the
   included REST adapter.
 
   @class Adapter
@@ -90,7 +90,7 @@ export default EmberObject.extend({
     method should return a promise that will resolve to a JavaScript object that will be
     normalized by the serializer.
 
-    Here is an example `findRecord` implementation:
+    Here is an example of the `findRecord` implementation:
 
     ```app/adapters/application.js
     import DS from 'ember-data';
@@ -477,7 +477,7 @@ export default EmberObject.extend({
     Organize records into groups, each of which is to be passed to separate
     calls to `findMany`.
 
-    For example, if your api has nested URLs that depend on the parent, you will
+    For example, if your API has nested URLs that depend on the parent, you will
     want to group records by their parent.
 
     The default implementation returns the records as a single group.
@@ -578,9 +578,9 @@ export default EmberObject.extend({
     case a cached version is more than 20 minutes old, `findAll` will not
     resolve until you fetched the latest versions.
 
-    By default this methods returns `true` if the passed `snapshotRecordArray`
+    By default, this method returns `true` if the passed `snapshotRecordArray`
     is empty (meaning that there are no records locally available yet),
-    otherwise it returns `false`.
+    otherwise, it returns `false`.
 
     Note that, with default settings, `shouldBackgroundReloadAll` will always
     re-fetch all the records in the background even if `shouldReloadAll` returns
@@ -624,7 +624,7 @@ export default EmberObject.extend({
     }
     ```
 
-    By default this hook returns `true` so the data for the record is updated
+    By default, this hook returns `true` so the data for the record is updated
     in the background.
 
     @since 1.13.0

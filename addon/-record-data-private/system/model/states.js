@@ -16,7 +16,7 @@ import { assert } from '@ember/debug';
   it would be in the `root.loaded.created.uncommitted` state.  If a
   record has had local modifications made to it that are in the
   process of being saved, the record would be in the
-  `root.loaded.updated.inFlight` state. (This state paths will be
+  `root.loaded.updated.inFlight` state. (This state path will be
   explained in more detail below.)
 
   Events are sent by the record or its store to the record's
@@ -24,9 +24,9 @@ import { assert } from '@ember/debug';
   dependent on which state it is in. In some states, certain events
   will be invalid and will cause an exception to be raised.
 
-  States are hierarchical and every state is a substate of the
+  States are hierarchical and every state is a sub-state of the
   `RootState`. For example, a record can be in the
-  `root.deleted.uncommitted` state, then transition into the
+  `root.deleted.uncommitted` state then transitions into the
   `root.deleted.inFlight` state. If a child state does not implement
   an event handler, the state manager will attempt to invoke the event
   on all parent states until the root state is reached. The state

@@ -5,7 +5,7 @@ import Reference from './reference';
 import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
-   A BelongsToReference is a low level API that allows users and
+   A BelongsToReference is a low-level API that allows users and
    addon author to perform meta-operations on a belongs-to
    relationship.
 
@@ -314,7 +314,7 @@ export default class BelongsToReference extends Reference {
   }
 
   /**
-     Loads a record in a belongs to relationship if it is not already
+     Loads a record in a belongs to-relationship if it is not already
      loaded. If the relationship is already loaded this method does not
      trigger a new load.
 
@@ -366,7 +366,7 @@ export default class BelongsToReference extends Reference {
   /**
      Triggers a reload of the value in this relationship. If the
      remoteType is `"link"` Ember Data will use the relationship link to
-     reload the relationship. Otherwise it will reload the record by its
+     reload the relationship. Otherwise, it will reload the record by its
      id.
 
      Example

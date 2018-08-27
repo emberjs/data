@@ -19,7 +19,7 @@ import Transform from './transform';
   });
   ```
 
-  By default the boolean transform only allows for values of `true` or
+  By default, the boolean transform only allows for values of `true` or
   `false`. You can opt into allowing `null` values for
   boolean attributes via `DS.attr('boolean', { allowNull: true })`
 

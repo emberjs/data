@@ -154,7 +154,7 @@ const {
   [createRecord](#method_createRecord) is used for creating new
   records on the client side. This will return a new record in the
   `created.uncommitted` state. In order to persist this record to the
-  backend you will need to call `record.save()`.
+  backend, you will need to call `record.save()`.
 
   [push](#method_push) is used to notify Ember Data's store of new or
   updated records that exist in the backend. This will return a record
