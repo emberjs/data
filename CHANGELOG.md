@@ -2,7 +2,7 @@
 
 ### Master
 
-### Release 3.4.0-beta.4 (August 23, 2018)
+### Release 3.4.0 (August 27, 2018)
 - [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
 - [#5545](https://github.com/emberjs/data/pull/5545) [FEAT] TrackableRequests for when async leakage is detected
 - [#5551](https://github.com/emberjs/data/pull/5551) Fix `floating dependencies` test suite (#5551)
@@ -11,14 +11,10 @@
 - [#5562](https://github.com/emberjs/data/pull/5562) [BUGFIX] use internalModel promise if already loading (#5562)
 - [#5566](https://github.com/emberjs/data/pull/5566) Acceptance Tests for belongsTo
 - [#5567](https://github.com/emberjs/data/pull/5567) [FEAT] enable external partner testing
-
-### Release 3.4.0-beta.3 (July 31, 2018)
 - [#5549](https://github.com/emberjs/data/pull/5549) [BUGFIX beta] Replace Object.assign with Ember polyfill assign (#5549)
 - [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
 - [#5544](https://github.com/emberjs/data/pull/5544) remove test waiter (#5544)
 - [#5543](https://github.com/emberjs/data/pull/5543) Do not publish yarn.lock to npm
-
-### Release 3.4.0-beta.2 (July 26, 2018)
 - [#5477](https://github.com/emberjs/data/pull/5477) [BUGFIX] normalize model name for belongs to relationships (#5477)
 - [#5518](https://github.com/emberjs/data/pull/5518) [BUGFIX] Clarifying error message for polymorphic types (#5518)
 - [#5520](https://github.com/emberjs/data/pull/5520) Add 2.18.3 release to the changelog on master
@@ -28,13 +24,6 @@
 - [#5531](https://github.com/emberjs/data/pull/5531) broccoli-babel-transpiler appears only used in tests, otherwise it uses
 - [#5533](https://github.com/emberjs/data/pull/5533) [BUGFIX] fix and tests for belongs-to proxy not properly updating (#5533)
 - [#5536](https://github.com/emberjs/data/pull/5536) [BUGFIX beta] Upgrading ember-inflector to v3.3.0
-
-### Release 3.4.0-beta.1 (July 13, 2018)
-
-- Re-release of Ember Data 3.3.0-beta.1
-
-### Release 3.3.0-beta.1 (June 29, 2018)
-
 - [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
 - [#5411](https://github.com/emberjs/data/pull/5411) Remove deprecations scheduled for 3.0
 - [#5117](https://github.com/emberjs/data/pull/5117) Give Model a static toString method
