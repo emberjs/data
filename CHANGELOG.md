@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.5.0-beta.1 (August 27, 2018)
+- [#5589](https://github.com/emberjs/data/pull/5589) fix broken link because the new API website does not support the anchor
+- [#5592](https://github.com/emberjs/data/pull/5592) Grammar fixes
+
 ### Release 3.4.0 (August 27, 2018)
 - [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
 - [#5545](https://github.com/emberjs/data/pull/5545) [FEAT] TrackableRequests for when async leakage is detected
