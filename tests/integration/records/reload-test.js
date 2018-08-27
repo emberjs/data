@@ -50,7 +50,9 @@ module('integration/reload - Reloading Records', function(hooks) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord() { return false; },
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
 
         findRecord(store, type, id, snapshot) {
           if (count === 0) {
@@ -63,11 +65,13 @@ module('integration/reload - Reloading Records', function(hooks) {
               'We passed adapterOptions via reload'
             );
             count++;
-            return resolve({ data: { id: id, type: 'person', attributes: { name: 'Braaaahm Dale' } } });
+            return resolve({
+              data: { id: id, type: 'person', attributes: { name: 'Braaaahm Dale' } },
+            });
           } else {
             assert.ok(false, 'Should not get here');
           }
-        }
+        },
       })
     );
 
@@ -108,16 +112,20 @@ module('integration/reload - Reloading Records', function(hooks) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord() { return true; },
+        shouldBackgroundReloadRecord() {
+          return true;
+        },
 
         findRecord() {
           assert.equal(tom.get('isReloading'), true, 'Tom is reloading');
           if (count++ === 0) {
             return reject();
           } else {
-            return resolve({ data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } } });
+            return resolve({
+              data: { id: 1, type: 'person', attributes: { name: 'Thomas Dale' } },
+            });
           }
-        }
+        },
       })
     );
 
@@ -147,18 +155,20 @@ module('integration/reload - Reloading Records', function(hooks) {
             name: 'Tom Dale',
           },
         },
-      }
-    };
+      };
+    }
 
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord() { return true; },
+        shouldBackgroundReloadRecord() {
+          return true;
+        },
 
         findRecord(store, type, id, snapshot) {
           assert.ok(true, 'We should call findRecord');
           return resolve(getTomDale());
-        }
+        },
       })
     );
 
@@ -205,7 +215,9 @@ module('integration/reload - Reloading Records', function(hooks) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReloadRecord() { return false; },
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
 
         findRecord(store, type, id, snapshot) {
           switch (type.modelName) {
@@ -225,7 +237,7 @@ module('integration/reload - Reloading Records', function(hooks) {
             case 'tag':
               return resolve({ data: { id: id, type: 'tag', attributes: { name: tagsById[id] } } });
           }
-        }
+        },
       })
     );
 
@@ -253,25 +265,27 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr
-        name;
+        @attr name;
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findRecord() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findRecord() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -280,19 +294,19 @@ module('integration/reload - Reloading Records', function(hooks) {
           attributes: { name: 'Shen' },
           relationships: {
             owner: {
-              data: { type: 'person', id: '1' }
-            }
-          }
+              data: { type: 'person', id: '1' },
+            },
+          },
         },
         included: [
           {
             type: 'person',
             id: '1',
             attributes: {
-              name: 'Chris'
-            }
-          }
-        ]
+              name: 'Chris',
+            },
+          },
+        ],
       });
 
       let ownerRef = shen.belongsTo('owner');
@@ -312,20 +326,23 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findRecord() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findRecord() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -334,10 +351,10 @@ module('integration/reload - Reloading Records', function(hooks) {
           attributes: { name: 'Shen' },
           relationships: {
             owner: {
-              data: { type: 'person', id: '1' }
-            }
-          }
-        }
+              data: { type: 'person', id: '1' },
+            },
+          },
+        },
       });
 
       let ownerRef = shen.belongsTo('owner');
@@ -357,20 +374,23 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findRecord() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findRecord() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -379,26 +399,29 @@ module('integration/reload - Reloading Records', function(hooks) {
           attributes: { name: 'Shen' },
           relationships: {
             owners: {
-              data: [{ type: 'person', id: '1' }]
-            }
-          }
+              data: [{ type: 'person', id: '1' }],
+            },
+          },
         },
         included: [
           {
             type: 'person',
             id: '1',
             attributes: {
-              name: 'Chris'
-            }
-          }
-        ]
+              name: 'Chris',
+            },
+          },
+        ],
       });
 
       let ownersRef = shen.hasMany('owners');
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.ok(
+        owners.objectAt(0) === ownersViaRef.objectAt(0),
+        'We received the same reference via reload'
+      );
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
@@ -411,20 +434,23 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findRecord() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findRecord() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -433,17 +459,20 @@ module('integration/reload - Reloading Records', function(hooks) {
           attributes: { name: 'Shen' },
           relationships: {
             owners: {
-              data: [{ type: 'person', id: '1' }]
-            }
-          }
-        }
+              data: [{ type: 'person', id: '1' }],
+            },
+          },
+        },
       });
 
       let ownersRef = shen.hasMany('owners');
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.ok(
+        owners.objectAt(0) === ownersViaRef.objectAt(0),
+        'We received the same reference via reload'
+      );
     });
   });
 
@@ -458,20 +487,23 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findBelongsTo() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findBelongsTo() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -482,20 +514,20 @@ module('integration/reload - Reloading Records', function(hooks) {
             owner: {
               data: { type: 'person', id: '1' },
               links: {
-                related: './owner'
-              }
-            }
-          }
+                related: './owner',
+              },
+            },
+          },
         },
         included: [
           {
             type: 'person',
             id: '1',
             attributes: {
-              name: 'Chris'
-            }
-          }
-        ]
+              name: 'Chris',
+            },
+          },
+        ],
       });
 
       let ownerRef = shen.belongsTo('owner');
@@ -515,20 +547,23 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findBelongsTo() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: {
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findBelongsTo() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: {
+                type: 'person',
+                id: '1',
+                attributes: {
+                  name: 'Chris',
+                },
+              },
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -539,11 +574,11 @@ module('integration/reload - Reloading Records', function(hooks) {
             owner: {
               data: { type: 'person', id: '1' },
               links: {
-                related: './owner'
-              }
-            }
-          }
-        }
+                related: './owner',
+              },
+            },
+          },
+        },
       });
 
       let ownerRef = shen.belongsTo('owner');
@@ -563,20 +598,25 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findHasMany() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: [{
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }]
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findHasMany() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: [
+                {
+                  type: 'person',
+                  id: '1',
+                  attributes: {
+                    name: 'Chris',
+                  },
+                },
+              ],
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -587,27 +627,30 @@ module('integration/reload - Reloading Records', function(hooks) {
             owners: {
               data: [{ type: 'person', id: '1' }],
               links: {
-                related: './owners'
-              }
-            }
-          }
+                related: './owners',
+              },
+            },
+          },
         },
         included: [
           {
             type: 'person',
             id: '1',
             attributes: {
-              name: 'Chris'
-            }
-          }
-        ]
+              name: 'Chris',
+            },
+          },
+        ],
       });
 
       let ownersRef = shen.hasMany('owners');
       let owners = shen.get('owners');
       let ownersViaRef = await ownersRef.reload();
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.ok(
+        owners.objectAt(0) === ownersViaRef.objectAt(0),
+        'We received the same reference via reload'
+      );
     });
 
     test('When a sync hasMany relationship has not been loaded, it can still be reloaded via the reference', async function(assert) {
@@ -620,20 +663,25 @@ module('integration/reload - Reloading Records', function(hooks) {
       }
 
       this.owner.register('model:pet', Pet);
-      this.owner.register('adapter:application', JSONAPIAdapter.extend({
-        findHasMany() {
-          assert.ok('We called findRecord');
-          return resolve({
-            data: [{
-              type: 'person',
-              id: '1',
-              attributes: {
-                name: 'Chris'
-              }
-            }]
-          });
-        }
-      }));
+      this.owner.register(
+        'adapter:application',
+        JSONAPIAdapter.extend({
+          findHasMany() {
+            assert.ok('We called findRecord');
+            return resolve({
+              data: [
+                {
+                  type: 'person',
+                  id: '1',
+                  attributes: {
+                    name: 'Chris',
+                  },
+                },
+              ],
+            });
+          },
+        })
+      );
 
       let shen = store.push({
         data: {
@@ -644,18 +692,21 @@ module('integration/reload - Reloading Records', function(hooks) {
             owners: {
               data: [{ type: 'person', id: '1' }],
               links: {
-                related: './owners'
-              }
-            }
-          }
-        }
+                related: './owners',
+              },
+            },
+          },
+        },
       });
 
       let ownersRef = shen.hasMany('owners');
       let ownersViaRef = await ownersRef.reload();
       let owners = shen.get('owners');
 
-      assert.ok(owners.objectAt(0) === ownersViaRef.objectAt(0), 'We received the same reference via reload');
+      assert.ok(
+        owners.objectAt(0) === ownersViaRef.objectAt(0),
+        'We received the same reference via reload'
+      );
     });
   });
 });

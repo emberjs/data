@@ -344,7 +344,7 @@ export default class ManyRelationship extends Relationship {
       });
   }
 
-  getData() {
+  getData(isForcedReload = false) {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
 
@@ -379,7 +379,7 @@ export default class ManyRelationship extends Relationship {
         }' with id ${
           this.internalModel.id
         } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (\`DS.hasMany({ async: true })\`)`,
-        this.allInverseRecordsAreLoaded || this.shouldForceReload
+        this.allInverseRecordsAreLoaded || isForcedReload
       );
 
       return manyArray;
