@@ -90,7 +90,7 @@ export default EmberObject.extend({
   serialize: null,
 
   /**
-    When given a serialize value from a JSON object this method must
+    When given a serialized value from a JSON object this method must
     return the deserialized value for the record attribute.
 
     Example

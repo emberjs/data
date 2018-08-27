@@ -15,7 +15,7 @@ import { pluralize } from 'ember-inflector';
 
   ## JSON API Conventions
 
-  The JSONAPIAdapter uses JSON API conventions for building the url
+  The JSONAPIAdapter uses JSON API conventions for building the URL
   for a record and selecting the HTTP verb to use with a request. The
   actions you can take on a record map onto the following URLs in the
   JSON API adapter:

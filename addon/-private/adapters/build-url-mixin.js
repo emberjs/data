@@ -5,11 +5,11 @@ import { pluralize } from 'ember-inflector';
 
 /**
 
-  WARNING: This interface is likely to change in order to accomodate https://github.com/emberjs/rfcs/pull/4
+  WARNING: This interface is likely to change in order to accommodate [RFC: Ember Data url templates](https://github.com/emberjs/rfcs/pull/4)
 
   ## Using BuildURLMixin
 
-  To use url building, include the mixin when extending an adapter, and call `buildURL` where needed.
+  To use URL building, include the mixin when extending an adapter, and call `buildURL` where needed.
   The default behaviour is designed for RESTAdapter.
 
   ### Example
@@ -41,7 +41,7 @@ export default Mixin.create({
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
 
-    When called by RESTAdapter.findMany() the `id` and `snapshot` parameters
+    When called by `RESTAdapter.findMany()` the `id` and `snapshot` parameters
     will be arrays of ids and snapshots.
 
     @method buildURL
@@ -221,9 +221,9 @@ export default Mixin.create({
   },
 
   /**
-   Builds a URL for coalesceing multiple `store.findRecord(type, id)`
+   Builds a URL for coalescing multiple `store.findRecord(type, id)`
    records into 1 request when the adapter's `coalesceFindRequests`
-   property is true.
+   property is `true`.
 
    Example:
 
@@ -249,7 +249,7 @@ export default Mixin.create({
   },
 
   /**
-   Builds a URL for fetching a async hasMany relationship when a url
+   Builds a URL for fetching an async `hasMany` relationship when a URL
    is not provided by the server.
 
    Example:
@@ -276,7 +276,7 @@ export default Mixin.create({
   },
 
   /**
-   Builds a URL for fetching a async belongsTo relationship when a url
+   Builds a URL for fetching an async `belongsTo` relationship when a url
    is not provided by the server.
 
    Example:
@@ -328,7 +328,7 @@ export default Mixin.create({
   },
 
   /**
-   Builds a URL for a `record.save()` call when the record has been update locally.
+   Builds a URL for a `record.save()` call when the record has been updated locally.
 
    Example:
 
@@ -426,8 +426,8 @@ export default Mixin.create({
 
     ### Pathname customization
 
-    For example if you have an object LineItem with an
-    endpoint of "/line_items/".
+    For example, if you have an object `LineItem` with an
+    endpoint of `/line_items/`.
 
     ```app/adapters/application.js
     import DS from 'ember-data';

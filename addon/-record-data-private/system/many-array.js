@@ -46,7 +46,7 @@ import diffArray from './diff-array';
   property to be set to the post that contained
   the has-many.
 
-  We call the record to which a relationship belongs the
+  We call the record to which a relationship belongs-to the
   relationship's _owner_.
 
   @class ManyArray

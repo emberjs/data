@@ -2,7 +2,7 @@ import { resolve } from 'rsvp';
 import Reference from './reference';
 
 /**
-   An RecordReference is a low level API that allows users and
+   An RecordReference is a low-level API that allows users and
    addon author to perform meta-operations on a record.
 
    @class RecordReference

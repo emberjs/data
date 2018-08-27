@@ -21,7 +21,7 @@ import {
   Normally, applications will use the `RESTSerializer` by implementing
   the `normalize` method.
 
-  This allows you to do whatever kind of munging you need, and is
+  This allows you to do whatever kind of munging you need and is
   especially useful if your server is inconsistent and you need to
   do munging differently for many different kinds of responses.
 

@@ -161,9 +161,9 @@ const Promise = EmberPromise;
   ```
 
   If the records in the relationship are not known when the response
-  is serialized its also possible to represent the relationship as a
-  url using the `links` key in the response. Ember Data will fetch
-  this url to resolve the relationship when it is accessed for the
+  is serialized it's also possible to represent the relationship as a
+  URL using the `links` key in the response. Ember Data will fetch
+  this URL to resolve the relationship when it is accessed for the
   first time.
 
   ```js
