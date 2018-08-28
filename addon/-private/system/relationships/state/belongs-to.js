@@ -282,7 +282,11 @@ export default class BelongsToRelationship extends Relationship {
 }
 
 function proxyRecord(internalModel) {
-  return resolve(internalModel).then(resolvedInternalModel => {
+  let promise = internalModel;
+  if (internalModel && internalModel.isLoading()) {
+    promise = internalModel._promiseProxy;
+  }
+  return resolve(promise).then(resolvedInternalModel => {
     return resolvedInternalModel ? resolvedInternalModel.getRecord() : null;
   });
 }
