@@ -1838,7 +1838,7 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   assert.equal(count, 0);
 });
 
-test("async belongsTo returns new object to trigger real change - #5575", function(assert) {
+test('async belongsTo returns new object to trigger real change - #5575', function(assert) {
   Book.reopen({
     author: DS.belongsTo('author', { async: true }),
   });
@@ -1877,22 +1877,29 @@ test("async belongsTo returns new object to trigger real change - #5575", functi
 
   return run(() => {
     lastAuthor = book.get('author');
-    
-    return lastAuthor.then((cur) => {
-      assert.ok(cur == null, 'author should start empty');
-      run(() => { book.set('author', author1) });
-      assert.ok(book.get('author') !== lastAuthor, "belongsTo promise should be changed");
-      lastAuthor = book.get('author');
-      return lastAuthor;
-    }).then((cur) => {
-      assert.ok(cur == author1, 'correct author after step 1');
-      run(() => { book.set('author', author2) });
-      assert.ok(book.get('author') !== lastAuthor, "belongsTo promise should be changed again");
-      lastAuthor = book.get('author');
-      return lastAuthor;
-    }).then((cur) => {
-      assert.ok(cur == author2, 'correct author after step 2');
-    });
+
+    return lastAuthor
+      .then(cur => {
+        assert.ok(cur === null, 'author should start empty');
+        run(() => {
+          book.set('author', author1);
+        });
+        assert.ok(book.get('author') !== lastAuthor, 'belongsTo promise should be changed');
+        lastAuthor = book.get('author');
+        return lastAuthor;
+      })
+      .then(cur => {
+        assert.ok(cur === author1, 'correct author after step 1');
+        run(() => {
+          book.set('author', author2);
+        });
+        assert.ok(book.get('author') !== lastAuthor, 'belongsTo promise should be changed again');
+        lastAuthor = book.get('author');
+        return lastAuthor;
+      })
+      .then(cur => {
+        assert.ok(cur === author2, 'correct author after step 2');
+      });
   });
 });
 
