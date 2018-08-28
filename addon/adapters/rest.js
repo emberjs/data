@@ -1269,7 +1269,7 @@ function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
 function ajaxResponseData(jqXHR) {
   return {
     status: jqXHR.status,
-    textStatus: jqXHR.textStatus,
+    textStatus: jqXHR.statusText,
     headers: parseResponseHeaders(jqXHR.getAllResponseHeaders()),
   };
 }
