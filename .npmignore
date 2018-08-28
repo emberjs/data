@@ -1,12 +1,17 @@
 /bower_components
 /config/ember-try.js
-/dist
 /node-tests
 /tests
 /tmp
 /bin
 /docs
 /.node_modules.ember-try
+
+# Ignore all assets except /dist/docs folder
+/dist/assets/
+/dist/crossdomain.xml
+/dist/index.html
+/dist/robots.txt
 
 **/.gitkeep
 .appveyor.yml

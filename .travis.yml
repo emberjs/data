@@ -101,7 +101,6 @@ jobs:
       script:
         - node_modules/.bin/ember try:reset
         - yarn build:production
-        - "./bin/publish-builds"
 
 
 before_install:
