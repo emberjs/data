@@ -19,6 +19,7 @@ module('unit/model - DS.Model', {
       name: DS.attr('string'),
       isDrugAddict: DS.attr('boolean')
     });
+    Person.toString =  () => 'person';
 
     env = setupStore({
       person: Person
@@ -269,7 +270,7 @@ test("a record's id is included in its toString representation", function(assert
     });
 
     return store.findRecord('person', 1).then(record => {
-      assert.equal(record.toString(), `<(subclass of DS.Model):${guidFor(record)}:1>`, 'reports id in toString');
+      assert.equal(record.toString(), `<person:${guidFor(record)}:1>`, 'reports id in toString');
     });
   });
 });
