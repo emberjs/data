@@ -1,13 +1,9 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "(adam|bob|dudu)" }]*/
 
 import { Promise as EmberPromise } from 'rsvp';
-
 import { run } from '@ember/runloop';
-
 import setupStore from 'dummy/tests/helpers/store';
-
-import { module, test } from 'qunit';
-
+import { module, skip, test } from 'qunit';
 import DS from 'ember-data';
 
 let attr = DS.attr;
@@ -2009,12 +2005,14 @@ test('1 sync : many async unload sync side', function(assert) {
   );
 });
 
-test('unload invalidates link promises', function(assert) {
+skip('unload invalidates link promises', function(assert) {
+  assert.expect(9);
   let isUnloaded = false;
   env.adapter.coalesceFindRequests = false;
 
+  env.adapter.shouldBackgroundReloadRecord = () => false;
   env.adapter.findRecord = (/* store, type, id */) => {
-    assert.notOk('Records only expected to be loaded via link');
+    assert.ok(false, 'Records only expected to be loaded via link');
   };
 
   env.adapter.findHasMany = (store, snapshot, link) => {
