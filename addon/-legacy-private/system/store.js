@@ -352,6 +352,9 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   createRecord(modelName, inputProperties) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'createRecord');
+    }
     assert(
       `You need to pass a model name to the store's createRecord method`,
       isPresent(modelName)
@@ -432,6 +435,9 @@ Store = Service.extend({
     @param {DS.Model} record
   */
   deleteRecord(record) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'deleteRecord');
+    }
     record.deleteRecord();
   },
 
@@ -451,6 +457,9 @@ Store = Service.extend({
     @param {DS.Model} record
   */
   unloadRecord(record) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'unloadRecord');
+    }
     record.unloadRecord();
   },
 
@@ -467,6 +476,9 @@ Store = Service.extend({
     @private
   */
   find(modelName, id, options) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'find');
+    }
     // The default `model` hook in Route calls `find(modelName, id)`,
     // that's why we have to keep this method around even though `findRecord` is
     // the public way to get a record by modelName and id.
@@ -720,6 +732,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findRecord(modelName, id, options) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findRecord');
+    }
     assert(`You need to pass a model name to the store's findRecord method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -811,6 +826,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findByIds(modelName, ids) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findByIds');
+    }
     assert(`You need to pass a model name to the store's findByIds method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -1102,6 +1120,9 @@ Store = Service.extend({
     @return {RecordReference}
   */
   getReference(modelName, id) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'getReference');
+    }
     let normalizedModelName = normalizeModelName(modelName);
 
     return this._internalModelForId(normalizedModelName, id).recordReference;
@@ -1131,6 +1152,9 @@ Store = Service.extend({
     @return {DS.Model|null} record
   */
   peekRecord(modelName, id) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'peekRecord');
+    }
     heimdall.increment(peekRecord);
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
     assert(
@@ -1197,6 +1221,9 @@ Store = Service.extend({
     @return {Boolean}
   */
   hasRecordForId(modelName, id) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'hasRecordForId');
+    }
     assert(
       `You need to pass a model name to the store's hasRecordForId method`,
       isPresent(modelName)
@@ -1225,6 +1252,9 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   recordForId(modelName, id) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'recordForId');
+    }
     assert(`You need to pass a model name to the store's recordForId method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -1275,6 +1305,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findMany(internalModels) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findMany');
+    }
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
@@ -1303,6 +1336,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findHasMany(internalModel, link, relationship) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findHasMany');
+    }
     let adapter = this.adapterFor(internalModel.modelName);
 
     assert(
@@ -1328,6 +1364,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo(internalModel, link, relationship) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findBelongsTo');
+    }
     let adapter = this.adapterFor(internalModel.modelName);
 
     assert(
@@ -1398,6 +1437,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   query(modelName, query, options) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'query');
+    }
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -1544,6 +1586,9 @@ Store = Service.extend({
     @return {Promise} promise which resolves with the found record or `null`
   */
   queryRecord(modelName, query, options) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'queryRecord');
+    }
     assert(`You need to pass a model name to the store's queryRecord method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's queryRecord method`, query);
     assert(
@@ -1770,6 +1815,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findAll(modelName, options) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'findAll');
+    }
     assert(`You need to pass a model name to the store's findAll method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -1865,6 +1913,9 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   peekAll(modelName) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'peekAll');
+    }
     heimdall.increment(peekAll);
     assert(`You need to pass a model name to the store's peekAll method`, isPresent(modelName));
     assert(
@@ -1890,6 +1941,9 @@ Store = Service.extend({
     @param {String} modelName
   */
   unloadAll(modelName) {
+    if (DEBUG) {
+      assertDestroyedStoreOnly(this, 'unloadAll');
+    }
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       !modelName || typeof modelName === 'string'
@@ -1985,6 +2039,9 @@ Store = Service.extend({
     @param {Object} data optional data (see above)
   */
   didSaveRecord(internalModel, dataArg) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'didSaveRecord');
+    }
     let data;
     if (dataArg) {
       data = dataArg.data;
@@ -2018,6 +2075,9 @@ Store = Service.extend({
     @param {Object} errors
   */
   recordWasInvalid(internalModel, errors) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'recordWasInvalid');
+    }
     internalModel.adapterDidInvalidate(errors);
   },
 
@@ -2032,6 +2092,9 @@ Store = Service.extend({
     @param {Error} error
   */
   recordWasError(internalModel, error) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'recordWasError');
+    }
     internalModel.adapterDidError(error);
   },
 
@@ -2046,6 +2109,9 @@ Store = Service.extend({
     @param {Object} data
   */
   updateId(internalModel, data) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'updateId');
+    }
     let oldId = internalModel.id;
     let modelName = internalModel.modelName;
     let id = coerceId(data.id);
@@ -2165,6 +2231,9 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor(modelName) {
+    if (DEBUG) {
+      assertDestroyedStoreOnly(this, 'modelFor');
+    }
     assert(`You need to pass a model name to the store's modelFor method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -2190,6 +2259,9 @@ Store = Service.extend({
   },
 
   _modelFactoryFor(modelName) {
+    if (DEBUG) {
+      assertDestroyedStoreOnly(this, '_modelFactoryFor');
+    }
     assert(
       `You need to pass a model name to the store's _modelFactoryFor method`,
       isPresent(modelName)
@@ -2232,6 +2304,9 @@ Store = Service.extend({
   @private
  */
   _hasModelFor(modelName) {
+    if (DEBUG) {
+      assertDestroyingStore(this, '_hasModelFor');
+    }
     assert(`You need to pass a model name to the store's hasModelFor method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -2394,6 +2469,9 @@ Store = Service.extend({
       updated.
   */
   push(data) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'push');
+    }
     let token = heimdall.start('store.push');
     let pushed = this._push(data);
 
@@ -2423,6 +2501,9 @@ Store = Service.extend({
     @return {DS.InternalModel|Array<DS.InternalModel>} pushed InternalModel(s)
   */
   _push(jsonApiDoc) {
+    if (DEBUG) {
+      assertDestroyingStore(this, '_push');
+    }
     let token = heimdall.start('store._push');
     let internalModelOrModels = this._backburner.join(() => {
       let included = jsonApiDoc.included;
@@ -2601,11 +2682,14 @@ Store = Service.extend({
     @param {Object} inputPayload
   */
   pushPayload(modelName, inputPayload) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'pushPayload');
+    }
     let serializer;
     let payload;
     if (!inputPayload) {
       payload = modelName;
-      serializer = defaultSerializer(this);
+      serializer = this.serializerFor('application');
       assert(
         `You cannot use 'store#pushPayload' without a modelName unless your default serializer defines 'pushPayload'`,
         typeof serializer.pushPayload === 'function'
@@ -2642,6 +2726,9 @@ Store = Service.extend({
     @return {Object} The normalized payload
   */
   normalize(modelName, payload) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'normalize');
+    }
     heimdall.increment(normalize);
     assert(`You need to pass a model name to the store's normalize method`, isPresent(modelName));
     assert(
@@ -2709,6 +2796,9 @@ Store = Service.extend({
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
   recordWasLoaded(record) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'recordWasLoaded');
+    }
     this.recordArrayManager.recordWasLoaded(record);
   },
 
@@ -2753,6 +2843,9 @@ Store = Service.extend({
     @return DS.Adapter
   */
   adapterFor(modelName) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'adapterFor');
+    }
     heimdall.increment(adapterFor);
     assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
     assert(
@@ -2831,6 +2924,9 @@ Store = Service.extend({
     @return {DS.Serializer}
   */
   serializerFor(modelName) {
+    if (DEBUG) {
+      assertDestroyingStore(this, 'serializerFor');
+    }
     heimdall.increment(serializerFor);
     assert(
       `You need to pass a model name to the store's serializerFor method`,
@@ -3000,12 +3096,6 @@ Store = Service.extend({
     return _internalModels;
   },
 });
-
-// Delegation to the adapter and promise management
-
-function defaultSerializer(store) {
-  return store.serializerFor('application');
-}
 
 function _commit(adapter, store, operation, snapshot) {
   let internalModel = snapshot._internalModel;
@@ -3280,42 +3370,59 @@ function setupRelationships(store, internalModel, data, modelNameToInverseMap) {
   });
 }
 
-function assertRelationshipData(store, internalModel, data, meta) {
-  assert(
-    `A ${internalModel.modelName} record was pushed into the store with the value of ${
-      meta.key
-    } being '${JSON.stringify(data)}', but ${
-      meta.key
-    } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
-    !Array.isArray(data)
-  );
-  assert(
-    `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
-      meta.key
-    }' on ${internalModel}, expected a json-api identifier with type '${
-      meta.type
-    }' but found '${JSON.stringify(
-      data
-    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || (typeof data.type === 'string' && data.type.length)
-  );
-  assert(
-    `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${
-      meta.key
-    }' on ${internalModel}, expected a json-api identifier but found '${JSON.stringify(
-      data
-    )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || coerceId(data.id)
-  );
-  assert(
-    `Encountered a relationship identifier with type '${data.type}' for the ${
-      meta.kind
-    } relationship '${meta.key}' on ${internalModel}, Expected a json-api identifier with type '${
-      meta.type
-    }'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store._hasModelFor(data.type)
-  );
+let assertRelationshipData;
+let assertDestroyingStore;
+let assertDestroyedStoreOnly;
+
+if (DEBUG) {
+  assertRelationshipData = function assertRelationshipData(store, internalModel, data, meta) {
+    assert(
+      `A ${internalModel.modelName} record was pushed into the store with the value of ${
+        meta.key
+      } being '${JSON.stringify(data)}', but ${
+        meta.key
+      } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
+      !Array.isArray(data)
+    );
+    assert(
+      `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
+        meta.key
+      }' on ${internalModel}, expected a json-api identifier with type '${
+        meta.type
+      }' but found '${JSON.stringify(
+        data
+      )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+      data === null || (typeof data.type === 'string' && data.type.length)
+    );
+    assert(
+      `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${
+        meta.key
+      }' on ${internalModel}, expected a json-api identifier but found '${JSON.stringify(
+        data
+      )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
+      data === null || coerceId(data.id)
+    );
+    assert(
+      `Encountered a relationship identifier with type '${data.type}' for the ${
+        meta.kind
+      } relationship '${meta.key}' on ${internalModel}, Expected a json-api identifier with type '${
+        meta.type
+      }'. No model was found for '${data.type}'.`,
+      data === null || !data.type || store._hasModelFor(data.type)
+    );
+  };
+  assertDestroyingStore = function assertDestroyedStore(store, method) {
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !(store.isDestroying || store.isDestroyed)
+    );
+  };
+  assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
+    assert(
+      `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+      !store.isDestroyed
+    );
+  };
 }
 
-export { Store };
 export default Store;
