@@ -3063,12 +3063,14 @@ Store = Service.extend({
     if (isNone(resourceIdentifier)) {
       return;
     }
-    assertRelationshipData(
-      this,
-      relationship.internalModel,
-      resourceIdentifier,
-      relationship.relationshipMeta
-    );
+    if (DEBUG) {
+      assertRelationshipData(
+        this,
+        relationship.internalModel,
+        resourceIdentifier,
+        relationship.relationshipMeta
+      );
+    }
 
     return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
   },
