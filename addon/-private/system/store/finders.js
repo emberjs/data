@@ -105,6 +105,96 @@ export function _findMany(adapter, store, modelName, ids, internalModels, option
   );
 }
 
+function ensureInverseRelationshipDataOnHasManyResponse(
+  store,
+  payload,
+  leftHandSideRelationshipModel,
+  relationship
+) {
+  if (payload.data.length === 0) {
+    return payload;
+  }
+
+  let inverseRelationshipInfo = getInverseRelationshipInfo(
+    store,
+    leftHandSideRelationshipModel,
+    relationship
+  );
+  if (inverseRelationshipInfo) {
+    let relationshipIdentifier = buildInverseRelationshipIdentifier(
+      inverseRelationshipInfo,
+      leftHandSideRelationshipModel,
+      relationship
+    );
+
+    payload.data.forEach(record => {
+      pushInverseRelationshipInfo(store, record, relationshipIdentifier);
+    });
+  }
+
+  return payload;
+}
+
+// TODO: should we modify the payload or use the store._relationshipsPayload manager?
+function ensureInverseRelationshipDataOnBelongsToResponse(
+  store,
+  payload,
+  leftHandSideRelationshipModel,
+  relationship
+) {
+  let inverseRelationshipInfo = getInverseRelationshipInfo(
+    store,
+    leftHandSideRelationshipModel,
+    relationship
+  );
+  if (inverseRelationshipInfo) {
+    let relationshipIdentifier = buildInverseRelationshipIdentifier(
+      inverseRelationshipInfo,
+      leftHandSideRelationshipModel,
+      relationship
+    );
+    pushInverseRelationshipInfo(store, payload.data, relationshipIdentifier);
+  }
+  return payload;
+}
+
+function getInverseRelationshipInfo(store, leftHandSideRelationshipModel, relationship) {
+  const { modelName: parentModelName } = leftHandSideRelationshipModel;
+
+  let info = store._relationshipsPayloads.getRelationshipInfo(
+    parentModelName,
+    relationship.meta.name
+  );
+
+  return info.hasInverse ? info : null;
+}
+
+function buildInverseRelationshipIdentifier(
+  inverseRelationshipInfo,
+  leftHandSideRelationshipModel
+) {
+  const { modelName: parentModelName, id: parentModelID } = leftHandSideRelationshipModel;
+
+  let relationshipInfo = {
+    id: parentModelID,
+    type: parentModelName,
+  };
+
+  if (inverseRelationshipInfo.rhs_relationshipMeta.kind === 'hasMany') {
+    relationshipInfo = [relationshipInfo];
+  }
+
+  return {
+    [inverseRelationshipInfo.rhs_relationshipName]: {
+      data: relationshipInfo,
+    },
+  };
+}
+
+function pushInverseRelationshipInfo(store, jsonApiDoc, relationshipIdentifier) {
+  store._relationshipsPayloads.push(jsonApiDoc.type, jsonApiDoc.id, relationshipIdentifier);
+}
+
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
   let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
@@ -133,6 +223,14 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
         null,
         'findHasMany'
       );
+
+      payload = ensureInverseRelationshipDataOnHasManyResponse(
+        store,
+        payload,
+        internalModel,
+        relationship
+      );
+
       let internalModelArray = store._push(payload);
 
       internalModelArray.meta = payload.meta;
@@ -169,6 +267,13 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
       if (!payload.data) {
         return null;
       }
+
+      payload = ensureInverseRelationshipDataOnBelongsToResponse(
+        store,
+        payload,
+        internalModel,
+        relationship
+      );
 
       return store._push(payload);
     },
