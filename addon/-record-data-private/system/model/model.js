@@ -9,6 +9,7 @@ import { assert, warn } from '@ember/debug';
 import { PromiseObject } from '../promise-proxies';
 import Errors from '../model/errors';
 import RootState from '../model/states';
+import { run } from '@ember/runloop';
 import {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
@@ -616,7 +617,7 @@ const Model = EmberObject.extend(Evented, {
   destroyRecord(options) {
     this.deleteRecord();
     return this.save(options).then(() => {
-      Ember.run(() => this.unloadRecord());
+      run(() => this.unloadRecord());
       return this;
     });
   },
