@@ -117,6 +117,78 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
 
     assert.ok(personPet === pet, 'We ended up in the same state');
   });
+
+  test('async belongsTo returns correct new value after a local change', async function(assert) {
+    let chris = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: { name: 'Chris' },
+        relationships: {
+          bestDog: {
+            data: null,
+          },
+        },
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: { name: 'Shen' },
+          relationships: {
+            bestHuman: {
+              data: null,
+            },
+          },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: { name: 'Pirate' },
+          relationships: {
+            bestHuman: {
+              data: null,
+            },
+          },
+        },
+      ],
+    });
+
+    let shen = store.peekRecord('pet', '1');
+    let pirate = store.peekRecord('pet', '2');
+    let bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === null, 'precond - Shen has no best human');
+    assert.ok(pirate.get('bestHuman') === null, 'precond - pirate has no best human');
+    assert.ok(bestDog === null, 'precond - Chris has no best dog');
+
+    chris.set('bestDog', shen);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === chris, "scene 1 - Chris is Shen's best human");
+    assert.ok(pirate.get('bestHuman') === null, 'scene 1 - pirate has no best human');
+    assert.ok(bestDog === shen, "scene 1 - Shen is Chris's best dog");
+
+    chris.set('bestDog', pirate);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === null, "scene 2 - Chris is no longer Shen's best human");
+    assert.ok(pirate.get('bestHuman') === chris, 'scene 2 - pirate now has Chris as best human');
+    assert.ok(bestDog === pirate, "scene 2 - Pirate is now Chris's best dog");
+
+    chris.set('bestDog', null);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(
+      shen.get('bestHuman') === null,
+      "scene 3 - Chris remains no longer Shen's best human"
+    );
+    assert.ok(
+      pirate.get('bestHuman') === null,
+      'scene 3 - pirate no longer has Chris as best human'
+    );
+    assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
+  });
 });
 
 module('integration/relationship/belongs_to Belongs-To Relationships', {
