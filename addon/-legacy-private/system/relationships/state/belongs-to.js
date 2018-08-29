@@ -39,10 +39,6 @@ export default class BelongsToRelationship extends Relationship {
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsStale(false);
     this.setRelationshipIsEmpty(false);
-
-    if (this.isAsync) {
-      // this._updateLoadingPromise(proxyRecord(internalModel), internalModel);
-    }
   }
 
   setCanonicalInternalModel(internalModel) {
