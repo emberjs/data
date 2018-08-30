@@ -44,6 +44,7 @@
     "chalk": "^2.4.1",
     "ember-cli-babel": "^6.16.0",
     "ember-cli-path-utils": "^1.0.0",
+    "ember-cli-sauce": "^2.2.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-version-checker": "^2.1.2",
