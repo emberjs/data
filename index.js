@@ -90,7 +90,7 @@ module.exports = {
       this.app.options.emberData &&
       this.app.options.emberData.enableRecordDataRFCBuild;
     let isEmberDataItself = this.isDevelopingAddon();
-    let useLegacyBuild = (isEmberDataItself && (USE_RECORD_DATA_RFC || optionFlag === false));
+    let useLegacyBuild = isEmberDataItself && (USE_RECORD_DATA_RFC || optionFlag === false);
 
     return {
       emberData: {
