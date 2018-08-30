@@ -503,7 +503,7 @@ test('Calling pushPayload allows partial updates with raw JSON', function(assert
   assert.equal(person.get('lastName'), 'Jackson', 'existing fields are untouched');
 });
 
-test('calling push without data argument as an object raises an error', function(assert) {
+testInDebug('calling push without data argument as an object raises an error', function(assert) {
   let invalidValues = [
     null,
     1,
