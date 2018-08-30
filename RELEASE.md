@@ -9,6 +9,11 @@ release.
 STEPS:
 ------
 
+* ensure that the `ember-source` version in `package.json` matches only the minor range for the `ember-data` version we are releasing
+  * E.G. `"ember-data": "3.4.1"` should have `"ember-source": "~3.4.0"`. For betas/canary, pointing at the last minor release is OK.
+  * See https://github.com/emberjs/data/issues/5607 for the importance of this step.
+* ensure that the last two LTS releases of Ember (and only the last two) are included in `travis.yml`.
+  * See https://github.com/emberjs/data/issues/5607 for the importance of this step.
 * generate changelog (`PRIOR_VERSION=v2.0.0 HEAD=release ./bin/changelog`)
 * prepend changelog output to `CHANGELOG.md`
 * edit changelog output to be as user-friendly as possible (drop [INTERNAL] changes, non-code changes, etc.)
