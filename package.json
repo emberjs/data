@@ -96,9 +96,9 @@
     "ember-load-initializers": "^0.6.0",
     "ember-publisher": "0.0.7",
     "ember-resolver": "^4.1.0",
-    "ember-source": "~2.11.0",
-    "ember-source-channel-url": "^1.0.1",
-    "ember-try": "^0.2.23",
+    "ember-source": "~3.1.4",
+    "ember-source-channel-url": "^1.1.0",
+    "ember-try": "^1.0.0-beta.3",
     "ember-watson": "^0.7.0",
     "express": "^4.14.0",
     "faker": "^3.1.0",
@@ -113,10 +113,10 @@
     "rimraf": "2.5.2",
     "rsvp": "4.8.0",
     "testdouble": "^3.2.6",
-    "testem": "^1.15.0"
+    "testem": "^2.10.0"
   },
   "engines": {
-    "node": ">= 4.0.0"
+    "node": ">= 6.0.0"
   },
   "keywords": [
     "ember-addon"
