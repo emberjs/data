@@ -220,7 +220,8 @@ Store = Service.extend({
     this._serializerCache = Object.create(null);
 
     if (DEBUG) {
-      this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
+      this.shouldAssertMethodCallsOnDestroyedStore =
+        this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
       }
@@ -3416,12 +3417,14 @@ if (DEBUG) {
   };
   assertDestroyingStore = function assertDestroyedStore(store, method) {
     if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(`Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        false,
+      deprecate(
+        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+        !(store.isDestroying || store.isDestroyed),
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
-        });
+        }
+      );
     } else {
       assert(
         `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
@@ -3431,12 +3434,14 @@ if (DEBUG) {
   };
   assertDestroyedStoreOnly = function assertDestroyedStoreOnly(store, method) {
     if (!store.shouldAssertMethodCallsOnDestroyedStore) {
-      deprecate(`Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        false,
+      deprecate(
+        `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
+        !(store.isDestroying || store.isDestroyed),
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
-        });
+        }
+      );
     } else {
       assert(
         `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
