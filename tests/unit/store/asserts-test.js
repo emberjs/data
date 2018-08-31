@@ -80,6 +80,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
   ];
 
   test('Calling Store methods after the store has been destroyed asserts', function(assert) {
+    store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length);
     run(() => store.destroy());
 
@@ -93,6 +94,7 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
   const STORE_TEARDOWN_METHODS = ['unloadAll', 'modelFor', '_modelFactoryFor'];
 
   test('Calling Store teardown methods during destroy does not assert, but calling other methods does', function(assert) {
+    store.shouldAssertMethodCallsOnDestroyedStore = true;
     assert.expect(STORE_ENTRY_METHODS.length - STORE_TEARDOWN_METHODS.length);
 
     run(() => {
