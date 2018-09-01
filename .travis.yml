@@ -94,6 +94,8 @@ jobs:
       script: yarn test-external:storefront
     - name: "Ember Data Factory Guy"
       script: yarn test-external:factory-guy
+    - name: "Ilios Frontend"
+      script: yarn test-external:ilios-frontend
 
     - stage: deploy
       name: "Publish"

@@ -24,7 +24,8 @@
     "test-external:ember-observer": "node ./lib/scripts/test-external ember-observer https://github.com/emberobserver/client.git",
     "test-external:travis-web": "node ./lib/scripts/test-external travis-web https://github.com/travis-ci/travis-web.git",
     "test-external:storefront": "node ./lib/scripts/test-external storefront https://github.com/embermap/ember-data-storefront.git",
-    "test-external:factory-guy": "node ./lib/scripts/test-external factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git"
+    "test-external:factory-guy": "node ./lib/scripts/test-external factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
+    "test-external:ilios-frontend": "node ./lib/scripts/test-external ilios-frontend https://github.com/ilios/frontend.git"
   },
   "author": "",
   "license": "MIT",
