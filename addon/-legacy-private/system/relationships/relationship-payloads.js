@@ -172,7 +172,7 @@ export default class RelationshipPayloads {
     this._flushPending();
 
     if (this._isLHS(modelName, relationshipName)) {
-      delete this.lhs_payloads.delete(modelName, id);
+      this.lhs_payloads.delete(modelName, id);
     } else {
       assert(
         `${modelName}:${relationshipName} is not either side of this relationship, ${
@@ -182,7 +182,7 @@ export default class RelationshipPayloads {
         }`,
         this._isRHS(modelName, relationshipName)
       );
-      delete this.rhs_payloads.delete(modelName, id);
+      this.rhs_payloads.delete(modelName, id);
     }
   }
 
