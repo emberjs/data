@@ -302,7 +302,7 @@ const RESTAdapter = Adapter.extend(AdapterFetch, BuildURLMixin, {
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
     
-    return (ENV && ENV._JQUERY_INTEGRATION) === false;
+    return ((ENV && ENV._JQUERY_INTEGRATION) === false) || (Ember.$ === undefined);
   }),
     
 
