@@ -302,7 +302,7 @@ const RESTAdapter = Adapter.extend(AdapterFetch, BuildURLMixin, {
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
     
-    return (ENV && ENV._JQUERY_INTEGRATION) === false || true;
+    return (ENV && ENV._JQUERY_INTEGRATION) === false;
   }),
     
 
@@ -1210,10 +1210,6 @@ const RESTAdapter = Adapter.extend(AdapterFetch, BuildURLMixin, {
 });
 
 function ajaxSuccess(adapter, payload, requestData, responseData) {
-  if (get(this, 'useFetch')) {
-    return this._super(...arguments);
-  }
-
   let response;
   try {
     response = adapter.handleResponse(
@@ -1234,10 +1230,6 @@ function ajaxSuccess(adapter, payload, requestData, responseData) {
 }
 
 function ajaxError(adapter, payload, requestData, responseData) {
-  if (get(this, 'useFetch')) {
-    return this._super(...arguments);
-  }
-  
   if (DEBUG) {
     let message = `The server returned an empty string for ${requestData.method} ${
       requestData.url
