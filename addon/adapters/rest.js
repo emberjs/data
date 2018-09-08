@@ -4,7 +4,7 @@
   @module ember-data
 */
 
-import $ from 'jquery';
+import AdapterFetch, { serializeQueryParams } from 'ember-fetch/mixins/adapter-fetch';
 
 import { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
@@ -292,12 +292,19 @@ const Promise = EmberPromise;
   @extends DS.Adapter
   @uses DS.BuildURLMixin
 */
-const RESTAdapter = Adapter.extend(BuildURLMixin, {
+const RESTAdapter = Adapter.extend(AdapterFetch, BuildURLMixin, {
   defaultSerializer: '-rest',
 
   fastboot: computed(function() {
     return getOwner(this).lookup('service:fastboot');
   }),
+
+  useFetch: computed(function() {
+    let ENV = getOwner(this).resolveRegistration('config:environment');
+    
+    return ((ENV && ENV._JQUERY_INTEGRATION) === false) || (Ember.$ === undefined);
+  }),
+    
 
   /**
     By default, the RESTAdapter will send the query params sorted alphabetically to the
@@ -974,6 +981,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   ajax(url, type, options) {
+    if (get(this, 'useFetch')) {
+      return this._super(...arguments);
+    }
+
     let token = heimdall.start('adapter.ajax');
     let adapter = this;
 
@@ -1005,7 +1016,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options) {
-    $.ajax(options);
+    if (get(this, 'useFetch')) {
+      return this._super(...arguments);
+    }
+
+    Ember.$.ajax(options);
   },
 
   /**
@@ -1040,6 +1055,10 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   ajaxOptions(url, type, options) {
+    if (get(this, 'useFetch')) {
+      return this._super(...arguments);
+    }
+
     let hash = options || {};
     hash.type = type;
     hash.dataType = 'json';
