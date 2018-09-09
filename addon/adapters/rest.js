@@ -4,13 +4,17 @@
   @module ember-data
 */
 
-import $ from 'jquery';
+import Ember from 'ember';
+import fetch, { Response } from 'fetch';
+//FIXME: We need to add a direct export of `serializeQueryParams`
+import { serializeQueryParams } from 'ember-fetch/mixins/adapter-fetch';
 
-import { Promise as EmberPromise } from 'rsvp';
+import RSVP, { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import Adapter from '../adapter';
+import { assign } from '@ember/polyfills';
 import {
   parseResponseHeaders,
   BuildURLMixin,
@@ -25,7 +29,6 @@ import {
   AbortError,
   MapWithDefault,
 } from '../-private';
-import { instrument } from 'ember-data/-debug';
 import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
@@ -297,6 +300,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   fastboot: computed(function() {
     return getOwner(this).lookup('service:fastboot');
+  }),
+
+  useFetch: computed(function() {
+    let ENV = getOwner(this).resolveRegistration('config:environment');
+    return (ENV && ENV._JQUERY_INTEGRATION) === false || Ember.$ === undefined;
   }),
 
   /**
@@ -983,12 +991,35 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
+    if (get(this, 'useFetch')) {
+      return this._fetchRequest(hash)
+        .catch(() => {
+          heimdall.stop(token);
+        })
+        .then(response => {
+          heimdall.stop(token);
+
+          return RSVP.hash({
+            response,
+            payload: determineBodyPromise(response, requestData),
+          });
+        })
+        .then(({ response, payload }) => {
+          if (response.ok) {
+            return fetchSuccessHandler(adapter, payload, response, requestData);
+          } else {
+            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+          }
+        });
+    }
+
     return new Promise(function(resolve, reject) {
       hash.success = function(payload, textStatus, jqXHR) {
         heimdall.stop(token);
         let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
         run.join(null, resolve, response);
       };
+
       hash.error = function(jqXHR, textStatus, errorThrown) {
         heimdall.stop(token);
         let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
@@ -1005,7 +1036,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options) {
-    $.ajax(options);
+    Ember.$.ajax(options);
   },
 
   /**
@@ -1023,8 +1054,22 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
   },
 
+  _fetchRequest(options) {
+    fetch(options.url, options)
+      .then(response => {
+        if (response.ok) {
+          options.success(response);
+        } else {
+          options.error(response);
+        }
+      })
+      .catch(error => options.error(new Response(), error));
+  },
+
   _ajax(options) {
-    if (get(this, 'fastboot.isFastBoot')) {
+    if (get(this, 'useFetch')) {
+      this._fetchRequest(options);
+    } else if (get(this, 'fastboot.isFastBoot')) {
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
@@ -1039,43 +1084,37 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions(url, type, options) {
-    let hash = options || {};
-    hash.type = type;
-    hash.dataType = 'json';
-    hash.context = this;
-
-    instrument(function() {
-      hash.converters = {
-        'text json': function(payload) {
-          let token = heimdall.start('json.parse');
-          let json;
-          try {
-            json = JSON.parse(payload);
-          } catch (e) {
-            json = payload;
-          }
-          heimdall.stop(token);
-          return json;
-        },
-      };
-    });
-
-    if (hash.data && type !== 'GET') {
-      hash.contentType = 'application/json; charset=utf-8';
-      hash.data = JSON.stringify(hash.data);
-    }
+  ajaxOptions(url, method, options) {
+    options = assign(
+      {
+        url,
+        method,
+        type: method,
+      },
+      options
+    );
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
-      hash.beforeSend = function(xhr) {
-        Object.keys(headers).forEach(key => xhr.setRequestHeader(key, headers[key]));
-      };
+      options.headers = assign({}, options.headers, headers);
+    } else if (!options.headers) {
+      options.headers = {};
     }
 
-    hash.url = this._ajaxURL(url);
+    if (options.data && options.type !== 'GET') {
+      let contentType = options.contentType || 'application/json; charset=utf-8';
+      options.headers['content-type'] = contentType;
+    }
 
-    return hash;
+    if (get(this, 'useFetch')) {
+      options = fetchOptions(options, this);
+    } else {
+      options = ajaxOptions(options, this);
+    }
+
+    options.url = this._ajaxURL(options.url);
+
+    return options;
   },
 
   _ajaxURL(url) {
@@ -1254,6 +1293,17 @@ function endsWith(string, suffix) {
   }
 }
 
+function fetchSuccessHandler(adapter, payload, response, requestData) {
+  let responseData = fetchResponseData(response);
+  return ajaxSuccess(adapter, payload, requestData, responseData);
+}
+
+function fetchErrorHandler(adapter, payload, response, errorThrown, requestData) {
+  let responseData = fetchResponseData(response);
+  responseData.errorThrown = errorThrown;
+  return ajaxError(adapter, payload, requestData, responseData);
+}
+
 function ajaxSuccessHandler(adapter, payload, jqXHR, requestData) {
   let responseData = ajaxResponseData(jqXHR);
   return ajaxSuccess(adapter, payload, requestData, responseData);
@@ -1266,12 +1316,93 @@ function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
   return ajaxError(adapter, payload, requestData, responseData);
 }
 
+function fetchResponseData(response) {
+  return {
+    status: response.status,
+    textStatus: response.textStatus,
+    headers: headersToObject(response.headers),
+  };
+}
+
 function ajaxResponseData(jqXHR) {
   return {
     status: jqXHR.status,
     textStatus: jqXHR.statusText,
     headers: parseResponseHeaders(jqXHR.getAllResponseHeaders()),
   };
+}
+
+function determineBodyPromise(response, requestData) {
+  return response.text().then(function(payload) {
+    try {
+      payload = JSON.parse(payload);
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) {
+        throw error;
+      }
+      const status = response.status;
+      if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
+        payload = { data: null };
+      } else {
+        warn('This response was unable to be parsed as json.', payload);
+      }
+    }
+    return payload;
+  });
+}
+
+function headersToObject(headers) {
+  let headersObject = {};
+
+  if (headers) {
+    headers.forEach((value, key) => (headersObject[key] = value));
+  }
+
+  return headersObject;
+}
+
+/**
+ * Helper function that translates the options passed to `jQuery.ajax` into a format that `fetch` expects.
+ * @param {Object} _options
+ * @param {DS.Adapter} adapter
+ * @returns {Object}
+ */
+export function fetchOptions(options, adapter) {
+  options.credentials = 'same-origin';
+
+  if (options.data) {
+    // GET and HEAD requests can't have a `body`
+    if (options.method === 'GET' || options.method === 'HEAD') {
+      // If no options are passed, Ember Data sets `data` to an empty object, which we test for.
+      if (Object.keys(options.data).length) {
+        // Test if there are already query params in the url (mimics jQuey.ajax).
+        const queryParamDelimiter = options.url.indexOf('?') > -1 ? '&' : '?';
+        options.url += `${queryParamDelimiter}${serializeQueryParams(options.data)}`;
+      }
+    } else {
+      // NOTE: a request's body cannot be an object, so we stringify it if it is.
+      // JSON.stringify removes keys with values of `undefined` (mimics jQuery.ajax).
+      options.body = JSON.stringify(options.data);
+    }
+  }
+
+  return options;
+}
+
+function ajaxOptions(options, adapter) {
+  options.dataType = 'json';
+  options.context = adapter;
+
+  if (options.data && options.type !== 'GET') {
+    options.data = JSON.stringify(options.data);
+    options.contentType = 'application/json; charset=utf-8';
+  }
+
+  options.beforeSend = function(xhr) {
+    Object.keys(options.headers).forEach(key => xhr.setRequestHeader(key, options.headers[key]));
+  };
+
+  return options;
 }
 
 export default RESTAdapter;

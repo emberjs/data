@@ -7,6 +7,10 @@ import DS from 'ember-data';
 
 let Person, Place, store, adapter, env;
 
+function alphabetize(headers) {
+  return headers.sort((a, b) => (a[0] > b[0] ? 1 : -1));
+}
+
 module('unit/adapters/json-api-adapter/ajax - building requests', {
   beforeEach() {
     Person = { modelName: 'person' };
@@ -35,7 +39,11 @@ test('ajaxOptions() adds Accept when no other headers exist', function(assert) {
     },
   };
   ajaxOptions.beforeSend(fakeXHR);
-  assert.deepEqual(receivedHeaders, [['Accept', 'application/vnd.api+json']], 'headers assigned');
+  assert.deepEqual(
+    alphabetize(receivedHeaders),
+    [['Accept', 'application/vnd.api+json']],
+    'headers assigned'
+  );
 });
 
 test('ajaxOptions() adds Accept header to existing headers', function(assert) {
@@ -51,7 +59,7 @@ test('ajaxOptions() adds Accept header to existing headers', function(assert) {
   };
   ajaxOptions.beforeSend(fakeXHR);
   assert.deepEqual(
-    receivedHeaders,
+    alphabetize(receivedHeaders),
     [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
     'headers assigned'
   );
@@ -69,8 +77,9 @@ test('ajaxOptions() adds Accept header to existing computed properties headers',
     },
   };
   ajaxOptions.beforeSend(fakeXHR);
+
   assert.deepEqual(
-    receivedHeaders,
+    alphabetize(receivedHeaders),
     [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
     'headers assigned'
   );

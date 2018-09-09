@@ -87,6 +87,7 @@ test('ajaxOptions() do not serializes data when GET', function(assert) {
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+  delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
     context: adapter,
@@ -95,6 +96,8 @@ test('ajaxOptions() do not serializes data when GET', function(assert) {
     },
     dataType: 'json',
     type: 'GET',
+    method: 'GET',
+    headers: {},
     url: 'example.com',
   });
 });
@@ -103,6 +106,7 @@ test('ajaxOptions() serializes data when not GET', function(assert) {
   let url = 'example.com';
   let type = 'POST';
   let ajaxOptions = adapter.ajaxOptions(url, type, { data: { key: 'value' } });
+  delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
     contentType: 'application/json; charset=utf-8',
@@ -110,6 +114,10 @@ test('ajaxOptions() serializes data when not GET', function(assert) {
     data: '{"key":"value"}',
     dataType: 'json',
     type: 'POST',
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+    },
     url: 'example.com',
   });
 });
@@ -118,11 +126,14 @@ test('ajaxOptions() empty data', function(assert) {
   let url = 'example.com';
   let type = 'POST';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
+  delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
     context: adapter,
     dataType: 'json',
     type: 'POST',
+    method: 'POST',
+    headers: {},
     url: 'example.com',
   });
 });
