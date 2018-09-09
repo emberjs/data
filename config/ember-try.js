@@ -24,9 +24,9 @@ module.exports = function() {
           npm: {
             devDependencies: {
               '@ember/jquery': '^0.5.1',
-              'ember-source': '~2.16.0'
-            }
-          }
+              'ember-source': '~2.16.0',
+            },
+          },
         },
 
         {
@@ -45,9 +45,9 @@ module.exports = function() {
           npm: {
             devDependencies: {
               '@ember/jquery': '^0.5.1',
-              'ember-source': '~2.18.0'
-            }
-          }
+              'ember-source': '~2.18.0',
+            },
+          },
         },
         {
           name: 'ember-lts-2.18',
