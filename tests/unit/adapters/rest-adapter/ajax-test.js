@@ -116,7 +116,7 @@ test('ajaxOptions() serializes data when not GET', function(assert) {
     type: 'POST',
     method: 'POST',
     headers: {
-      'content-type': 'application/json; charset=utf-8'
+      'content-type': 'application/json; charset=utf-8',
     },
     url: 'example.com',
   });

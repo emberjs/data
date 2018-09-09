@@ -1,4 +1,3 @@
-import Ember from 'ember';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 
@@ -9,7 +8,7 @@ import DS from 'ember-data';
 let Person, Place, store, adapter, env;
 
 function alphabetize(headers) {
-  return headers.sort((a, b) => (a[0] > b[0] ? 1 : -1))
+  return headers.sort((a, b) => (a[0] > b[0] ? 1 : -1));
 }
 
 module('unit/adapters/json-api-adapter/ajax - building requests', {
@@ -42,7 +41,7 @@ test('ajaxOptions() adds Accept when no other headers exist', function(assert) {
   ajaxOptions.beforeSend(fakeXHR);
   assert.deepEqual(
     alphabetize(receivedHeaders),
-    [['Accept', 'application/vnd.api+json']], 
+    [['Accept', 'application/vnd.api+json']],
     'headers assigned'
   );
 });

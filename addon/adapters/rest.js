@@ -303,7 +303,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
-    return ((ENV && ENV._JQUERY_INTEGRATION) === false) || (Ember.$ === undefined);
+    return (ENV && ENV._JQUERY_INTEGRATION) === false || Ember.$ === undefined;
   }),
 
   /**
@@ -994,22 +994,21 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       return this._fetchRequest(hash)
         .catch(() => {
           heimdall.stop(token);
-
         })
-        .then((response) => {
+        .then(response => {
           heimdall.stop(token);
 
           return RSVP.hash({
             response,
-            payload: determineBodyPromise(response, requestData)
-          })
+            payload: determineBodyPromise(response, requestData),
+          });
         })
         .then(({ response, payload }) => {
           if (response.ok) {
             return fetchSuccessHandler(adapter, payload, response, requestData);
           } else {
-            throw fetchErrorHandler(adapter, payload, response, errorThrown, requestData);
-          }          
+            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+          }
         });
     }
 
@@ -1055,13 +1054,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    fetch(options.url, options).then(response => {
-      if (response.ok) {
-        options.success(response);
-      } else {
-        options.error(response);
-      }
-    }).catch(error => options.error(response, error));
+    fetch(options.url, options)
+      .then(response => {
+        if (response.ok) {
+          options.success(response);
+        } else {
+          options.error(response);
+        }
+      })
+      .catch(error => options.error(new Response(), error));
   },
 
   _ajax(options) {
@@ -1083,11 +1084,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   ajaxOptions(url, method, options) {
-    options = assign({
-      url,
-      method,
-      type: method
-    }, options);
+    options = assign(
+      {
+        url,
+        method,
+        type: method,
+      },
+      options
+    );
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
@@ -1324,7 +1328,7 @@ function fetchResponseData(response) {
   return {
     status: response.status,
     textStatus: response.textStatus,
-    headers: headersToObject(response.headers)
+    headers: headersToObject(response.headers),
   };
 }
 
@@ -1359,7 +1363,7 @@ function headersToObject(headers) {
   let headersObject = {};
 
   if (headers) {
-    headers.forEach((value, key) => headersObject[key] = value);
+    headers.forEach((value, key) => (headersObject[key] = value));
   }
 
   return headersObject;
@@ -1376,7 +1380,7 @@ export function fetchOptions(options, adapter) {
 
   if (options.data) {
     // GET and HEAD requests can't have a `body`
-    if ((options.method === 'GET' || options.method === 'HEAD')) {
+    if (options.method === 'GET' || options.method === 'HEAD') {
       // If no options are passed, Ember Data sets `data` to an empty object, which we test for.
       if (Object.keys(options.data).length) {
         // Test if there are already query params in the url (mimics jQuey.ajax).
@@ -1403,9 +1407,8 @@ function ajaxOptions(options, adapter) {
   }
 
   options.beforeSend = function(xhr) {
-    Object.keys(options.headers)
-      .forEach(key => xhr.setRequestHeader(key, options.headers[key]));
-  };  
+    Object.keys(options.headers).forEach(key => xhr.setRequestHeader(key, options.headers[key]));
+  };
 
   return options;
 }
