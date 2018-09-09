@@ -7,17 +7,14 @@ import DS from 'ember-data';
 
 let Person, Place, store, adapter, env;
 
-function alphabetize(headers) {
-  return headers.sort((a, b) => (a[0] > b[0] ? 1 : -1));
-}
-
-module('unit/adapters/json-api-adapter/ajax - building requests', {
+module('unit/adapters/json-api-adapter/fetch - building requests', {
   beforeEach() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.JSONAPIAdapter, person: Person, place: Place });
     store = env.store;
     adapter = env.adapter;
+    adapter.set('useFetch', true);
   },
 
   afterEach() {
@@ -32,16 +29,13 @@ test('ajaxOptions() adds Accept when no other headers exist', function(assert) {
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
-  let receivedHeaders = [];
-  let fakeXHR = {
-    setRequestHeader(key, value) {
-      receivedHeaders.push([key, value]);
-    },
-  };
-  ajaxOptions.beforeSend(fakeXHR);
+  let receivedHeaders = ajaxOptions.headers;
+
   assert.deepEqual(
-    alphabetize(receivedHeaders),
-    [['Accept', 'application/vnd.api+json']],
+    receivedHeaders,
+    {
+      Accept: 'application/vnd.api+json',
+    },
     'headers assigned'
   );
 });
@@ -51,16 +45,14 @@ test('ajaxOptions() adds Accept header to existing headers', function(assert) {
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
-  let receivedHeaders = [];
-  let fakeXHR = {
-    setRequestHeader(key, value) {
-      receivedHeaders.push([key, value]);
-    },
-  };
-  ajaxOptions.beforeSend(fakeXHR);
+  let receivedHeaders = ajaxOptions.headers;
+
   assert.deepEqual(
-    alphabetize(receivedHeaders),
-    [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
+    receivedHeaders,
+    {
+      Accept: 'application/vnd.api+json',
+      'Other-key': 'Other Value',
+    },
     'headers assigned'
   );
 });
@@ -70,17 +62,14 @@ test('ajaxOptions() adds Accept header to existing computed properties headers',
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
-  let receivedHeaders = [];
-  let fakeXHR = {
-    setRequestHeader(key, value) {
-      receivedHeaders.push([key, value]);
-    },
-  };
-  ajaxOptions.beforeSend(fakeXHR);
+  let receivedHeaders = ajaxOptions.headers;
 
   assert.deepEqual(
-    alphabetize(receivedHeaders),
-    [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
+    receivedHeaders,
+    {
+      Accept: 'application/vnd.api+json',
+      'Other-key': 'Other Value',
+    },
     'headers assigned'
   );
 });

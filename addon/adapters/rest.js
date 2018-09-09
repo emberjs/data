@@ -9,7 +9,7 @@ import fetch, { Response } from 'fetch';
 //FIXME: We need to add a direct export of `serializeQueryParams`
 import { serializeQueryParams } from 'ember-fetch/mixins/adapter-fetch';
 
-import { Promise as EmberPromise } from 'rsvp';
+import RSVP, { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
@@ -303,7 +303,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
-    return ((ENV && ENV._JQUERY_INTEGRATION) === false) || (Ember.$ === undefined);
+    return (ENV && ENV._JQUERY_INTEGRATION) === false || Ember.$ === undefined;
   }),
 
   /**
@@ -990,34 +990,40 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
+    if (get(this, 'useFetch')) {
+      return this._fetchRequest(hash)
+        .catch(() => {
+          heimdall.stop(token);
+        })
+        .then(response => {
+          heimdall.stop(token);
+
+          return RSVP.hash({
+            response,
+            payload: determineBodyPromise(response, requestData),
+          });
+        })
+        .then(({ response, payload }) => {
+          if (response.ok) {
+            return fetchSuccessHandler(adapter, payload, response, requestData);
+          } else {
+            throw fetchErrorHandler(adapter, payload, response, null, requestData);
+          }
+        });
+    }
+
     return new Promise(function(resolve, reject) {
-      if (get(this, 'useFetch')) {
-        hash.success = function(response) {
-          heimdall.stop(token);
-          determineBodyPromise(response, requestData).then(payload => {
-            let response = fetchSuccessHandler(adapter, payload, response, requestData);
-            run.join(null, resolve, response);
-          });
-        };
-        hash.error = function(response, errorThrown) {
-          heimdall.stop(token);
-          determineBodyPromise(response, requestData).then(payload => {
-            let error = fetchErrorHandler(adapter, payload, response, errorThrown, requestData);
-            run.join(null, reject, error);
-          });
-        };
-      } else {
-        hash.success = function(payload, textStatus, jqXHR) {
-          heimdall.stop(token);
-          let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-          run.join(null, resolve, response);
-        };
-        hash.error = function(jqXHR, textStatus, errorThrown) {
-          heimdall.stop(token);
-          let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-          run.join(null, reject, error);
-        };
-      }
+      hash.success = function(payload, textStatus, jqXHR) {
+        heimdall.stop(token);
+        let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
+        run.join(null, resolve, response);
+      };
+
+      hash.error = function(jqXHR, textStatus, errorThrown) {
+        heimdall.stop(token);
+        let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
+        run.join(null, reject, error);
+      };
 
       adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
@@ -1048,13 +1054,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    fetch(options.url, options).then(response => {
-      if (response.ok) {
-        options.success(response);
-      } else {
-        options.error(response);
-      }
-    }).catch(error => options.error(new Response(), error));
+    fetch(options.url, options)
+      .then(response => {
+        if (response.ok) {
+          options.success(response);
+        } else {
+          options.error(response);
+        }
+      })
+      .catch(error => options.error(new Response(), error));
   },
 
   _ajax(options) {
@@ -1076,11 +1084,14 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Object}
   */
   ajaxOptions(url, method, options) {
-    options = assign({
-      url,
-      method,
-      type: method
-    }, options);
+    options = assign(
+      {
+        url,
+        method,
+        type: method,
+      },
+      options
+    );
 
     let headers = get(this, 'headers');
     if (headers !== undefined) {
@@ -1088,6 +1099,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     } else if (!options.headers) {
       options.headers = {};
     }
+
     if (options.data && options.type !== 'GET') {
       let contentType = options.contentType || 'application/json; charset=utf-8';
       options.headers['content-type'] = contentType;
@@ -1316,7 +1328,7 @@ function fetchResponseData(response) {
   return {
     status: response.status,
     textStatus: response.textStatus,
-    headers: headersToObject(response.headers)
+    headers: headersToObject(response.headers),
   };
 }
 
@@ -1351,7 +1363,7 @@ function headersToObject(headers) {
   let headersObject = {};
 
   if (headers) {
-    headers.forEach((value, key) => headersObject[key] = value);
+    headers.forEach((value, key) => (headersObject[key] = value));
   }
 
   return headersObject;
@@ -1368,7 +1380,7 @@ export function fetchOptions(options, adapter) {
 
   if (options.data) {
     // GET and HEAD requests can't have a `body`
-    if ((options.method === 'GET' || options.method === 'HEAD')) {
+    if (options.method === 'GET' || options.method === 'HEAD') {
       // If no options are passed, Ember Data sets `data` to an empty object, which we test for.
       if (Object.keys(options.data).length) {
         // Test if there are already query params in the url (mimics jQuey.ajax).
@@ -1391,7 +1403,12 @@ function ajaxOptions(options, adapter) {
 
   if (options.data && options.type !== 'GET') {
     options.data = JSON.stringify(options.data);
+    options.contentType = 'application/json; charset=utf-8';
   }
+
+  options.beforeSend = function(xhr) {
+    Object.keys(options.headers).forEach(key => xhr.setRequestHeader(key, options.headers[key]));
+  };
 
   return options;
 }
