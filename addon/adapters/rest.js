@@ -1399,12 +1399,13 @@ function ajaxOptions(options, adapter) {
 
   if (options.data && options.type !== 'GET') {
     options.data = JSON.stringify(options.data);
+    options.contentType = 'application/json; charset=utf-8';
   }
 
   options.beforeSend = function(xhr) {
     Object.keys(options.headers)
       .forEach(key => xhr.setRequestHeader(key, options.headers[key]));
-  };
+  };  
 
   return options;
 }
