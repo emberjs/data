@@ -1095,6 +1095,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     } else if (!options.headers) {
       options.headers = {};
     }
+
     if (options.data && options.type !== 'GET') {
       let contentType = options.contentType || 'application/json; charset=utf-8';
       options.headers['content-type'] = contentType;
@@ -1399,6 +1400,11 @@ function ajaxOptions(options, adapter) {
   if (options.data && options.type !== 'GET') {
     options.data = JSON.stringify(options.data);
   }
+
+  options.beforeSend = function(xhr) {
+    Object.keys(options.headers)
+      .forEach(key => xhr.setRequestHeader(key, options.headers[key]));
+  };
 
   return options;
 }
