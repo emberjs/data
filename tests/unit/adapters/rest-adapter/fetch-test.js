@@ -8,13 +8,14 @@ import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 
-module('unit/adapters/rest-adapter/ajax - building requests', {
+module('unit/adapters/rest-adapter/fetch - building requests', {
   beforeEach() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
     store = env.store;
     adapter = env.adapter;
+    adapter.set('useFetch', true);
   },
 
   afterEach() {
@@ -69,16 +70,14 @@ test('ajaxOptions() headers are set', function(assert) {
   let url = 'example.com';
   let type = 'GET';
   let ajaxOptions = adapter.ajaxOptions(url, type, {});
-  let receivedHeaders = [];
-  let fakeXHR = {
-    setRequestHeader(key, value) {
-      receivedHeaders.push([key, value]);
-    },
-  };
-  ajaxOptions.beforeSend(fakeXHR);
+  let receivedHeaders = ajaxOptions.headers;
+
   assert.deepEqual(
     receivedHeaders,
-    [['Content-Type', 'application/json'], ['Other-key', 'Other Value']],
+    {
+      'Content-Type': 'application/json',
+      'Other-key': 'Other Value',
+    },
     'headers assigned'
   );
 });
@@ -90,15 +89,14 @@ test('ajaxOptions() do not serializes data when GET', function(assert) {
   delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
-    context: adapter,
+    credentials: 'same-origin',
     data: {
       key: 'value',
     },
-    dataType: 'json',
     type: 'GET',
     method: 'GET',
     headers: {},
-    url: 'example.com',
+    url: 'example.com?key=value',
   });
 });
 
@@ -109,10 +107,9 @@ test('ajaxOptions() serializes data when not GET', function(assert) {
   delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
-    contentType: 'application/json; charset=utf-8',
-    context: adapter,
-    data: '{"key":"value"}',
-    dataType: 'json',
+    credentials: 'same-origin',
+    data: { key: 'value' },
+    body: '{"key":"value"}',
     type: 'POST',
     method: 'POST',
     headers: {
@@ -129,8 +126,7 @@ test('ajaxOptions() empty data', function(assert) {
   delete ajaxOptions.beforeSend;
 
   assert.deepEqual(ajaxOptions, {
-    context: adapter,
-    dataType: 'json',
+    credentials: 'same-origin',
     type: 'POST',
     method: 'POST',
     headers: {},
