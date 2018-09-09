@@ -9,7 +9,7 @@ import fetch, { Response } from 'fetch';
 //FIXME: We need to add a direct export of `serializeQueryParams`
 import { serializeQueryParams } from 'ember-fetch/mixins/adapter-fetch';
 
-import { Promise as EmberPromise } from 'rsvp';
+import RSVP, { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
@@ -990,34 +990,41 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
+    if (get(this, 'useFetch')) {
+      return this._fetchRequest(hash)
+        .catch(() => {
+          heimdall.stop(token);
+
+        })
+        .then((response) => {
+          heimdall.stop(token);
+
+          return RSVP.hash({
+            response,
+            payload: determineBodyPromise(response, requestData)
+          })
+        })
+        .then(({ response, payload }) => {
+          if (response.ok) {
+            return fetchSuccessHandler(adapter, payload, response, requestData);
+          } else {
+            throw fetchErrorHandler(adapter, payload, response, errorThrown, requestData);
+          }          
+        });
+    }
+
     return new Promise(function(resolve, reject) {
-      if (get(this, 'useFetch')) {
-        hash.success = function(response) {
-          heimdall.stop(token);
-          determineBodyPromise(response, requestData).then(payload => {
-            let response = fetchSuccessHandler(adapter, payload, response, requestData);
-            run.join(null, resolve, response);
-          });
-        };
-        hash.error = function(response, errorThrown) {
-          heimdall.stop(token);
-          determineBodyPromise(response, requestData).then(payload => {
-            let error = fetchErrorHandler(adapter, payload, response, errorThrown, requestData);
-            run.join(null, reject, error);
-          });
-        };
-      } else {
-        hash.success = function(payload, textStatus, jqXHR) {
-          heimdall.stop(token);
-          let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
-          run.join(null, resolve, response);
-        };
-        hash.error = function(jqXHR, textStatus, errorThrown) {
-          heimdall.stop(token);
-          let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
-          run.join(null, reject, error);
-        };
-      }
+      hash.success = function(payload, textStatus, jqXHR) {
+        heimdall.stop(token);
+        let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
+        run.join(null, resolve, response);
+      };
+
+      hash.error = function(jqXHR, textStatus, errorThrown) {
+        heimdall.stop(token);
+        let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
+        run.join(null, reject, error);
+      };
 
       adapter._ajax(hash);
     }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
@@ -1054,7 +1061,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
       } else {
         options.error(response);
       }
-    }).catch(error => options.error(new Response(), error));
+    }).catch(error => options.error(response, error));
   },
 
   _ajax(options) {
