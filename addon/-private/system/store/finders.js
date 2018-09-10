@@ -6,6 +6,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 
 import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
+import { ensureRelationshipIsSetToParent } from 'ember-data/-debug';
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -105,94 +106,38 @@ export function _findMany(adapter, store, modelName, ids, internalModels, option
   );
 }
 
-function ensureInverseRelationshipDataOnHasManyResponse(
-  store,
-  payload,
-  leftHandSideRelationshipModel,
-  relationship
-) {
-  if (payload.data.length === 0) {
-    return payload;
+function iterateData(data, fn) {
+  if (Array.isArray(data)) {
+    return data.map(fn);
+  } else {
+    return fn(data);
   }
-
-  let inverseRelationshipInfo = getInverseRelationshipInfo(
-    store,
-    leftHandSideRelationshipModel,
-    relationship
-  );
-  if (inverseRelationshipInfo) {
-    let relationshipIdentifier = buildInverseRelationshipIdentifier(
-      inverseRelationshipInfo,
-      leftHandSideRelationshipModel,
-      relationship
-    );
-
-    payload.data.forEach(record => {
-      pushInverseRelationshipInfo(store, record, relationshipIdentifier);
-    });
-  }
-
-  return payload;
 }
 
-// TODO: should we modify the payload or use the store._relationshipsPayload manager?
-function ensureInverseRelationshipDataOnBelongsToResponse(
-  store,
-  payload,
-  leftHandSideRelationshipModel,
-  relationship
-) {
-  let inverseRelationshipInfo = getInverseRelationshipInfo(
-    store,
-    leftHandSideRelationshipModel,
-    relationship
-  );
-  if (inverseRelationshipInfo) {
-    let relationshipIdentifier = buildInverseRelationshipIdentifier(
-      inverseRelationshipInfo,
-      leftHandSideRelationshipModel,
-      relationship
-    );
-    pushInverseRelationshipInfo(store, payload.data, relationshipIdentifier);
-  }
-  return payload;
-}
+// sync
+// iterate over records in payload.data
+// for each record
+//   assert that record.relationships[inverse] is either undefined (so we can fix it)
+//     or provide a data: {id, type} that matches the record that requested it
+//   return the relationship data for the parent
 
-function getInverseRelationshipInfo(store, leftHandSideRelationshipModel, relationship) {
-  const { modelName: parentModelName } = leftHandSideRelationshipModel;
-
-  let info = store._relationshipsPayloads.getRelationshipInfo(
-    parentModelName,
-    relationship.meta.name
-  );
-
-  return info.hasInverse ? info : null;
-}
-
-function buildInverseRelationshipIdentifier(
-  inverseRelationshipInfo,
-  leftHandSideRelationshipModel
-) {
-  const { modelName: parentModelName, id: parentModelID } = leftHandSideRelationshipModel;
-
-  let relationshipInfo = {
-    id: parentModelID,
-    type: parentModelName,
-  };
-
-  if (inverseRelationshipInfo.rhs_relationshipMeta.kind === 'hasMany') {
-    relationshipInfo = [relationshipInfo];
-  }
-
-  return {
-    [inverseRelationshipInfo.rhs_relationshipName]: {
-      data: relationshipInfo,
+function syncRelationshipDataFromLink(store, payload, internalModel, relationship) {
+  let relationshipData = iterateData(payload.data, (data, index) => {
+    const { id, type } = data;
+    ensureRelationshipIsSetToParent(data, internalModel, store, relationship, index);
+    return { id, type };
+  });
+  store.push({
+    data: {
+      id: internalModel.id,
+      type: internalModel.modelName,
+      relationships: {
+        [relationship.key]: {
+          data: relationshipData,
+        },
+      },
     },
-  };
-}
-
-function pushInverseRelationshipInfo(store, jsonApiDoc, relationshipIdentifier) {
-  store._relationshipsPayloads.push(jsonApiDoc.type, jsonApiDoc.id, relationshipIdentifier);
+  });
 }
 
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
@@ -224,15 +169,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
         'findHasMany'
       );
 
-      payload = ensureInverseRelationshipDataOnHasManyResponse(
-        store,
-        payload,
-        internalModel,
-        relationship
-      );
+      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       let internalModelArray = store._push(payload);
-
       internalModelArray.meta = payload.meta;
       return internalModelArray;
     },
@@ -268,12 +207,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      payload = ensureInverseRelationshipDataOnBelongsToResponse(
-        store,
-        payload,
-        internalModel,
-        relationship
-      );
+      syncRelationshipDataFromLink(store, payload, internalModel, relationship);
 
       return store._push(payload);
     },
