@@ -69,8 +69,10 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   );
 }
 
-export function _findMany(adapter, store, modelName, ids, internalModels) {
-  let snapshots = A(internalModels).invoke('createSnapshot');
+export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
+  let snapshots = A(
+    internalModels.map(internalModel => internalModel.createSnapshot(optionsMap.get(internalModel)))
+  );
   let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
   let promise = adapter.findMany(store, modelClass, ids, snapshots);
   let label = `DS: Handle Adapter#findMany of '${modelName}'`;
@@ -103,8 +105,8 @@ export function _findMany(adapter, store, modelName, ids, internalModels) {
   );
 }
 
-export function _findHasMany(adapter, store, internalModel, link, relationship) {
-  let snapshot = internalModel.createSnapshot();
+export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
+  let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
   let promise = adapter.findHasMany(store, snapshot, link, relationship);
   let label = `DS: Handle Adapter#findHasMany of '${internalModel.modelName}' : '${
