@@ -4,11 +4,11 @@
 
 import { A } from '@ember/array';
 
-import { copy } from '@ember/object/internals';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
 import { run as emberRun } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
+import { assign } from '@ember/polyfills';
 import RSVP from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
@@ -342,7 +342,7 @@ Store = Service.extend({
     assert(`You need to pass a model name to the store's createRecord method`, isPresent(modelName));
     assert(`Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`, typeof modelName === 'string');
     let normalizedModelName = normalizeModelName(modelName);
-    let properties = copy(inputProperties) || Object.create(null);
+    let properties = assign({}, inputProperties);
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,

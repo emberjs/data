@@ -1,5 +1,4 @@
 import { underscore } from '@ember/string';
-import { copy } from '@ember/object/internals';
 import RSVP, { resolve, reject } from 'rsvp';
 import $ from 'jquery';
 import { run } from '@ember/runloop';
@@ -8,6 +7,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import { singularize } from 'ember-inflector';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 
 import Pretender from "pretender";
@@ -61,7 +61,7 @@ function ajaxResponse(value) {
       passedVerb = request.method;
       passedHash = request.data ? { data: request.data } : undefined;
 
-      return run(RSVP, 'resolve', copy(value, true));
+      return run(RSVP, 'resolve', deepCopy(value, true));
     };
   } else {
     adapter.ajax = function(url, verb, hash) {
@@ -69,7 +69,7 @@ function ajaxResponse(value) {
       passedVerb = verb;
       passedHash = hash;
 
-      return run(RSVP, 'resolve', copy(value, true));
+      return run(RSVP, 'resolve', deepCopy(value, true));
     };
   }
 }
