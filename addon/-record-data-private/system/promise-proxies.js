@@ -137,12 +137,12 @@ export function proxyToContent(method) {
 }
 
 export const PromiseManyArray = PromiseArray.extend({
-  reload() {
+  reload(options) {
     assert(
       'You are trying to reload an async manyArray before it has been created',
       get(this, 'content')
     );
-    this.set('promise', this.get('content').reload());
+    this.set('promise', this.get('content').reload(options));
     return this;
   },
 

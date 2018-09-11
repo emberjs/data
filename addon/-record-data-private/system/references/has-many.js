@@ -286,12 +286,35 @@ export default class HasManyReference extends Reference {
    });
    ```
 
+   You may also pass in an options object whose properties will be
+   fed forward. This enables you to pass `adapterOptions` into a
+   a reference.
+
+   Example
+
+   ```javascript
+   commentsRef.load({ adapterOptions: { isPrivate: true } })
+     .then(function(comments) {
+       //...
+     });
+   ```
+
+   ```app/adapters/comment.js
+   export default ApplicationAdapter.extend({
+     findMany(store, type, id, snapshots) {
+       // In the adapter you will have access to adapterOptions.
+       let adapterOptions = snapshots[0].adapterOptions;
+     }
+   });
+   ```
+
    @method load
+   @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in
    this has-many relationship.
    */
-  load() {
-    return this.internalModel.getHasMany(this.key);
+  load(options) {
+    return this.internalModel.getHasMany(this.key, options);
   }
 
   /**
@@ -325,10 +348,21 @@ export default class HasManyReference extends Reference {
    });
    ```
 
+   You may also pass in an options object whose properties will be
+   fed forward. This enables you to pass `adapterOptions` into a
+   a reference. A full example can be found in the `load` method.
+
+   Example
+
+   ```javascript
+   commentsRef.reload({ adapterOptions: { isPrivate: true } })
+   ```
+
    @method reload
+   @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the ManyArray in this has-many relationship.
    */
-  reload() {
-    return this.internalModel.reloadHasMany(this.key);
+  reload(options) {
+    return this.internalModel.reloadHasMany(this.key, options);
   }
 }
