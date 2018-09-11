@@ -1453,7 +1453,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship) {
+  findBelongsTo(internalModel, link, relationship, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1470,28 +1470,31 @@ Store = Service.extend({
       typeof adapter.findBelongsTo === 'function'
     );
 
-    return _findBelongsTo(adapter, this, internalModel, link, relationship);
+    return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   },
 
-  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
       return RSVP.resolve(null);
     }
-    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then(
-      internalModel => {
-        let response = internalModel && internalModel._modelData.getResourceIdentifier();
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
-        if (internalModel === null) {
-          return null;
-        }
-        // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
-        return internalModel.getRecord();
+    return this.findBelongsTo(
+      parentInternalModel,
+      resource.links.related,
+      relationshipMeta,
+      options
+    ).then(internalModel => {
+      let response = internalModel && internalModel._modelData.getResourceIdentifier();
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
+      if (internalModel === null) {
+        return null;
       }
-    );
+      // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
+      return internalModel.getRecord();
+    });
   },
 
-  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
       return RSVP.resolve(null);
     }
@@ -1521,7 +1524,12 @@ Store = Service.extend({
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta);
+      return this._fetchBelongsToLinkFromResource(
+        resource,
+        parentInternalModel,
+        relationshipMeta,
+        options
+      );
     }
 
     let preferLocalCache =
@@ -1539,7 +1547,7 @@ Store = Service.extend({
         return RSVP.resolve(null);
       }
 
-      return this._findByInternalModel(internalModel);
+      return this._findByInternalModel(internalModel, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
@@ -1550,7 +1558,7 @@ Store = Service.extend({
 
     // fetch by data
     if (!localDataIsEmpty) {
-      return this._fetchRecord(internalModel).then(() => {
+      return this._fetchRecord(internalModel, options).then(() => {
         return internalModel.getRecord();
       });
     }
@@ -2866,8 +2874,8 @@ Store = Service.extend({
     return internalModel.reloadHasMany(key, options);
   },
 
-  reloadBelongsTo(belongsToProxy, internalModel, key) {
-    return internalModel.reloadBelongsTo(key);
+  reloadBelongsTo(belongsToProxy, internalModel, key, options) {
+    return internalModel.reloadBelongsTo(key, options);
   },
 
   _relationshipMetaFor(modelName, id, key) {

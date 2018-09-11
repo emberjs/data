@@ -97,7 +97,7 @@ export const PromiseBelongsTo = PromiseObject.extend({
     );
   }),
 
-  reload() {
+  reload(options) {
     assert(
       'You are trying to reload an async belongsTo before it has been created',
       this.get('content') !== undefined
@@ -108,7 +108,7 @@ export const PromiseBelongsTo = PromiseObject.extend({
     let resource = state.modelData.getResourceIdentifier();
     let internalModel = store._internalModelForResource(resource);
 
-    return store.reloadBelongsTo(this, internalModel, key).then(() => this);
+    return store.reloadBelongsTo(this, internalModel, key, options).then(() => this);
   },
 });
 
