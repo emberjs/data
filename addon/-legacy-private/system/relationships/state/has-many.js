@@ -314,15 +314,15 @@ export default class ManyRelationship extends Relationship {
 
   // called by `getData()` when a request is needed
   //   but no link is available
-  _fetchRecords() {
+  _fetchRecords(options) {
     let internalModels = this.currentState;
     let { shouldForceReload } = this;
     let promise;
 
     if (shouldForceReload === true) {
-      promise = this.store._scheduleFetchMany(internalModels);
+      promise = this.store._scheduleFetchMany(internalModels, options);
     } else {
-      promise = this.store.findMany(internalModels);
+      promise = this.store.findMany(internalModels, options);
     }
 
     return promise;
@@ -330,9 +330,9 @@ export default class ManyRelationship extends Relationship {
 
   // called by `getData()` when a request is needed
   //   and a link is available
-  _fetchLink() {
+  _fetchLink(options) {
     return this.store
-      .findHasMany(this.internalModel, this.link, this.relationshipMeta)
+      .findHasMany(this.internalModel, this.link, this.relationshipMeta, options)
       .then(records => {
         if (records.hasOwnProperty('meta')) {
           this.updateMeta(records.meta);
@@ -344,7 +344,7 @@ export default class ManyRelationship extends Relationship {
       });
   }
 
-  getData(isForcedReload = false) {
+  getData(options, isForcedReload = false) {
     //TODO(Igor) sync server here, once our syncing is not stupid
     let manyArray = this.manyArray;
 
@@ -352,9 +352,9 @@ export default class ManyRelationship extends Relationship {
       let promise;
 
       if (this.link) {
-        promise = this._fetchLink();
+        promise = this._fetchLink(options);
       } else {
-        promise = this._fetchRecords();
+        promise = this._fetchRecords(options);
       }
 
       promise = promise.then(

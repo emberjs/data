@@ -545,7 +545,7 @@ export default class Relationship {
     this.setRelationshipIsStale(true);
   }
 
-  reload() {
+  reload(options) {
     if (this._promiseProxy) {
       if (this._promiseProxy.get('isPending')) {
         return this._promiseProxy;
@@ -554,7 +554,7 @@ export default class Relationship {
 
     this.setHasFailedLoadAttempt(false);
     this.setShouldForceReload(true);
-    this.getData(true);
+    this.getData(options, true);
 
     return this._promiseProxy;
   }

@@ -79,6 +79,7 @@ module.exports = {
       globals: {
         heimdall: true,
         Map: false,
+        WeakMap: true,
       }
     },
 
