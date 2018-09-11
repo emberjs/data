@@ -488,7 +488,7 @@ export default class InternalModel {
     return this.modelClass.eachRelationship(callback, binding);
   }
 
-  getBelongsTo(key) {
+  getBelongsTo(key, options) {
     let resource = this._modelData.getBelongsTo(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
@@ -504,7 +504,8 @@ export default class InternalModel {
         promise: store._findBelongsToByJsonApiResource(
           resource,
           parentInternalModel,
-          relationshipMeta
+          relationshipMeta,
+          options
         ),
         content: internalModel ? internalModel.getRecord() : null,
       });
@@ -655,12 +656,12 @@ export default class InternalModel {
     return promise;
   }
 
-  reloadBelongsTo(key) {
+  reloadBelongsTo(key, options) {
     let resource = this._modelData.getBelongsTo(key);
     resource._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
-    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta);
+    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);
   }
 
   destroyFromModelData() {
