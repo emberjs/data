@@ -969,7 +969,7 @@ Store = Service.extend({
       let recordFetch = store._fetchRecord(
         recordResolverPair.internalModel,
         recordResolverPair.options
-      ); // TODO adapter options
+      );
 
       recordResolverPair.resolver.resolve(recordFetch);
     }
@@ -1369,7 +1369,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship) {
+  findBelongsTo(internalModel, link, relationship, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1386,7 +1386,7 @@ Store = Service.extend({
       typeof adapter.findBelongsTo === 'function'
     );
 
-    return _findBelongsTo(adapter, this, internalModel, link, relationship);
+    return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   },
 
   /**

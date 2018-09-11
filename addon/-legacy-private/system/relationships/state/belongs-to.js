@@ -191,7 +191,7 @@ export default class BelongsToRelationship extends Relationship {
 
   // called by `getData()` when a request is needed
   //   but no link is available
-  _fetchRecord() {
+  _fetchRecord(options) {
     let { inverseInternalModel, shouldForceReload } = this;
 
     if (inverseInternalModel) {
@@ -200,9 +200,9 @@ export default class BelongsToRelationship extends Relationship {
       if (shouldForceReload && !inverseInternalModel.isEmpty() && inverseInternalModel.hasRecord) {
         // reload record, if it is already loaded
         //   if we have a link, we would already be in `findLink()`
-        promise = inverseInternalModel.getRecord().reload();
+        promise = inverseInternalModel.getRecord().reload(options);
       } else {
-        promise = this.store._findByInternalModel(inverseInternalModel);
+        promise = this.store._findByInternalModel(inverseInternalModel, options);
       }
 
       return promise;
@@ -214,9 +214,9 @@ export default class BelongsToRelationship extends Relationship {
 
   // called by `getData()` when a request is needed
   //   and a link is available
-  _fetchLink() {
+  _fetchLink(options) {
     return this.store
-      .findBelongsTo(this.internalModel, this.link, this.relationshipMeta)
+      .findBelongsTo(this.internalModel, this.link, this.relationshipMeta, options)
       .then(internalModel => {
         if (internalModel) {
           this.addInternalModel(internalModel);
@@ -231,7 +231,7 @@ export default class BelongsToRelationship extends Relationship {
     Other calls must conform to the typical expectations, for instance, sync relationships
     expect that their data is already loaded.
    */
-  getData(isForcedReload = false) {
+  getData(options, isForcedReload = false) {
     //TODO(Igor) flushCanonical here once our syncing is not stupid
     let record = this.inverseInternalModel ? this.inverseInternalModel.getRecord() : null;
 
@@ -239,9 +239,9 @@ export default class BelongsToRelationship extends Relationship {
       let promise;
 
       if (this.link) {
-        promise = this._fetchLink();
+        promise = this._fetchLink(options);
       } else {
-        promise = this._fetchRecord();
+        promise = this._fetchRecord(options);
       }
 
       promise = promise.then(() => handleCompletedFind(this), e => handleCompletedFind(this, e));

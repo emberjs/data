@@ -346,13 +346,35 @@ export default class BelongsToReference extends Reference {
       });
       ```
 
+      You may also pass in an options object whose properties will be
+      fed forward. This enables you to pass `adapterOptions` into a
+      a reference.
+
+      Example
+
+      ```javascript
+      userRef.load({ adapterOptions: { isPrivate: true } }).then(function(user) {
+        userRef.value() === user;
+      });
+      ```
+
+      ```app/adapters/user.js
+      export default ApplicationAdapter.extend({
+        findRecord(store, type, id, snapshot) {
+          // In the adapter you will have access to adapterOptions.
+          let adapterOptions = snapshot.adapterOptions;
+        }
+      });
+      ```
+
      @method load
+     @param {Object} options the options to pass in.
      @return {Promise} a promise that resolves with the record in this belongs-to relationship.
   */
-  load() {
+  load(options) {
     let rel = this.belongsToRelationship;
 
-    rel.getData();
+    rel.getData(options);
 
     if (rel.fetchPromise !== null) {
       return rel.fetchPromise.then(() => {
@@ -395,11 +417,22 @@ export default class BelongsToReference extends Reference {
       });
       ```
 
+      You may also pass in an options object whose properties will be
+      fed forward. This enables you to pass `adapterOptions` into a
+      a reference. A full example can be found in the `load` method.
+
+      Example
+
+      ```javascript
+      userRef.reload({ adapterOptions: { isPrivate: true } })
+      ```
+
      @method reload
+     @param {Object} options the options to pass in.
      @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
   */
-  reload() {
-    return this.belongsToRelationship.reload().then(internalModel => {
+  reload(options) {
+    return this.belongsToRelationship.reload(options).then(internalModel => {
       return this.value();
     });
   }
