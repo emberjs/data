@@ -143,8 +143,8 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
   );
 }
 
-export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
-  let snapshot = internalModel.createSnapshot();
+export function _findBelongsTo(adapter, store, internalModel, link, relationship, options) {
+  let snapshot = internalModel.createSnapshot(options);
   let modelClass = store.modelFor(relationship.type);
   let promise = adapter.findBelongsTo(store, snapshot, link, relationship);
   let label = `DS: Handle Adapter#findBelongsTo of ${internalModel.modelName} : ${
