@@ -1784,15 +1784,17 @@ Store = Service.extend({
     );
 
     return promiseObject(
-      _queryRecord(adapter, this, modelName, query, adapterOptionsWrapper).then(internalModel => {
-        // the promise returned by store.queryRecord is expected to resolve with
-        // an instance of DS.Model
-        if (internalModel) {
-          return internalModel.getRecord();
-        }
+      _queryRecord(adapter, this, normalizedModelName, query, adapterOptionsWrapper).then(
+        internalModel => {
+          // the promise returned by store.queryRecord is expected to resolve with
+          // an instance of DS.Model
+          if (internalModel) {
+            return internalModel.getRecord();
+          }
 
-        return null;
-      })
+          return null;
+        }
+      )
     );
   },
 
