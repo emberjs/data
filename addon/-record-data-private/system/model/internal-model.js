@@ -488,7 +488,7 @@ export default class InternalModel {
     return this.modelClass.eachRelationship(callback, binding);
   }
 
-  getBelongsTo(key) {
+  getBelongsTo(key, options) {
     let resource = this._modelData.getBelongsTo(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
@@ -504,7 +504,8 @@ export default class InternalModel {
         promise: store._findBelongsToByJsonApiResource(
           resource,
           parentInternalModel,
-          relationshipMeta
+          relationshipMeta,
+          options
         ),
         content: internalModel ? internalModel.getRecord() : null,
       });
@@ -565,8 +566,13 @@ export default class InternalModel {
     return manyArray;
   }
 
-  fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray) {
-    let promise = this.store._findHasManyByJsonApiResource(jsonApi, this, relationshipMeta);
+  fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options) {
+    let promise = this.store._findHasManyByJsonApiResource(
+      jsonApi,
+      this,
+      relationshipMeta,
+      options
+    );
     promise = promise.then(initialState => {
       // TODO why don't we do this in the store method
       manyArray.retrieveLatest();
@@ -577,7 +583,7 @@ export default class InternalModel {
     return promise;
   }
 
-  getHasMany(key) {
+  getHasMany(key, options) {
     let jsonApi = this._modelData.getHasMany(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
@@ -589,7 +595,7 @@ export default class InternalModel {
 
       if (!promiseArray) {
         promiseArray = PromiseManyArray.create({
-          promise: this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray),
+          promise: this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options),
           content: manyArray,
         });
         this._relationshipPromisesCache[key] = promiseArray;
@@ -626,7 +632,7 @@ export default class InternalModel {
     return this._relationshipPromisesCache[key];
   }
 
-  reloadHasMany(key) {
+  reloadHasMany(key, options) {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
       if (loadingPromise.get('isPending')) {
@@ -643,19 +649,19 @@ export default class InternalModel {
     jsonApi._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
-    let promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray);
+    let promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options);
 
     // TODO igor Seems like this would mess with promiseArray wrapping, investigate
     this._updateLoadingPromiseForHasMany(key, promise);
     return promise;
   }
 
-  reloadBelongsTo(key) {
+  reloadBelongsTo(key, options) {
     let resource = this._modelData.getBelongsTo(key);
     resource._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
-    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta);
+    return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);
   }
 
   destroyFromModelData() {

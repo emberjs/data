@@ -853,11 +853,11 @@ Store = Service.extend({
     return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
   },
 
-  _scheduleFetchMany(internalModels) {
+  _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      fetches[i] = this._scheduleFetch(internalModels[i]);
+      fetches[i] = this._scheduleFetch(internalModels[i], options);
     }
 
     return Promise.all(fetches);
@@ -923,10 +923,13 @@ Store = Service.extend({
     let internalModels = new Array(totalItems);
     let seeking = Object.create(null);
 
+    let optionsMap = new WeakMap();
+
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
+      optionsMap.set(internalModel, pendingItem.options);
       seeking[internalModel.id] = pendingItem;
     }
 
@@ -946,7 +949,7 @@ Store = Service.extend({
       let recordFetch = store._fetchRecord(
         recordResolverPair.internalModel,
         recordResolverPair.options
-      ); // TODO adapter options
+      );
 
       recordResolverPair.resolver.resolve(recordFetch);
     }
@@ -1019,7 +1022,8 @@ Store = Service.extend({
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot();
+        let internalModel = internalModels[i];
+        snapshots[i] = internalModel.createSnapshot(optionsMap.get(internalModel));
       }
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
@@ -1039,7 +1043,7 @@ Store = Service.extend({
 
         if (totalInGroup > 1) {
           (function(groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels)
+            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
               .then(function(foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
@@ -1274,11 +1278,11 @@ Store = Service.extend({
     @param {Array} internalModels
     @return {Promise} promise
   */
-  findMany(internalModels) {
+  findMany(internalModels, options) {
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      finds[i] = this._findEmptyInternalModel(internalModels[i]);
+      finds[i] = this._findEmptyInternalModel(internalModels[i], options);
     }
 
     return Promise.all(finds);
@@ -1302,7 +1306,7 @@ Store = Service.extend({
     @param {(Relationship)} relationship
     @return {Promise} promise
   */
-  findHasMany(internalModel, link, relationship) {
+  findHasMany(internalModel, link, relationship, options) {
     let adapter = this.adapterFor(internalModel.modelName);
 
     assert(
@@ -1316,7 +1320,7 @@ Store = Service.extend({
       typeof adapter.findHasMany === 'function'
     );
 
-    return _findHasMany(adapter, this, internalModel, link, relationship);
+    return _findHasMany(adapter, this, internalModel, link, relationship, options);
   },
 
   /**
@@ -1327,7 +1331,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship) {
+  findBelongsTo(internalModel, link, relationship, options) {
     let adapter = this.adapterFor(internalModel.modelName);
 
     assert(
@@ -1341,7 +1345,7 @@ Store = Service.extend({
       typeof adapter.findBelongsTo === 'function'
     );
 
-    return _findBelongsTo(adapter, this, internalModel, link, relationship);
+    return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   },
 
   /**
