@@ -249,8 +249,8 @@ export default class BelongsToReference extends Reference {
    ```
 
    You may also pass in an options object whose properties will be
-   fed forward. This enables you to pass `adapterOptions` into a
-   a reference.
+   fed forward. This enables you to pass `adapterOptions` into the
+   request given to the adapter via the reference.
 
    Example
 
@@ -310,8 +310,9 @@ export default class BelongsToReference extends Reference {
    ```
 
    You may also pass in an options object whose properties will be
-   fed forward. This enables you to pass `adapterOptions` into a
-   a reference. A full example can be found in the `load` method.
+   fed forward. This enables you to pass `adapterOptions` into the
+   request given to the adapter via the reference. A full example
+   can be found in the `load` method.
 
    Example
 
