@@ -231,8 +231,8 @@ export default EmberObject.extend(MutableArray, Evented, {
     @method reload
     @public
   */
-  reload() {
-    return this.relationship.reload();
+  reload(options) {
+    return this.relationship.reload(options);
   },
 
   /**

@@ -246,9 +246,14 @@ export default EmberObject.extend(MutableArray, Evented, {
     @method reload
     @public
   */
-  reload() {
+  reload(options) {
     // TODO this is odd, we don't ask the store for anything else like this?
-    return this.get('store').reloadManyArray(this, this.get('internalModel'), this.get('key'));
+    return this.get('store').reloadManyArray(
+      this,
+      this.get('internalModel'),
+      this.get('key'),
+      options
+    );
   },
 
   /**

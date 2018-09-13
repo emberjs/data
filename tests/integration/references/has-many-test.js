@@ -429,7 +429,10 @@ test('_isLoaded() returns an true array when the reference is loaded and empty',
 test('load() fetches the referenced records', function(assert) {
   var done = assert.async();
 
-  env.adapter.findMany = function(store, type, id) {
+  const adapterOptions = { thing: 'one' };
+
+  env.adapter.findMany = function(store, type, id, snapshots) {
+    assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
     return resolve({
       data: [
         { id: 1, type: 'person', attributes: { name: 'Vito' } },
@@ -456,7 +459,7 @@ test('load() fetches the referenced records', function(assert) {
   var personsReference = family.hasMany('persons');
 
   run(function() {
-    personsReference.load().then(function(records) {
+    personsReference.load({ adapterOptions }).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), 'Vito');
@@ -470,7 +473,10 @@ test('load() fetches the referenced records', function(assert) {
 test('load() fetches link when remoteType is link', function(assert) {
   var done = assert.async();
 
+  const adapterOptions = { thing: 'one' };
+
   env.adapter.findHasMany = function(store, snapshot, link) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
     assert.equal(link, '/families/1/persons');
 
     return resolve({
@@ -500,7 +506,7 @@ test('load() fetches link when remoteType is link', function(assert) {
   assert.equal(personsReference.remoteType(), 'link');
 
   run(function() {
-    personsReference.load().then(function(records) {
+    personsReference.load({ adapterOptions }).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), 'Vito');
@@ -512,7 +518,10 @@ test('load() fetches link when remoteType is link', function(assert) {
 });
 
 test('load() fetches link when remoteType is link but an empty set of records is returned', function(assert) {
+  const adapterOptions = { thing: 'one' };
+
   env.adapter.findHasMany = function(store, snapshot, link) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
     assert.equal(link, '/families/1/persons');
 
     return resolve({ data: [] });
@@ -537,7 +546,7 @@ test('load() fetches link when remoteType is link but an empty set of records is
   assert.equal(personsReference.remoteType(), 'link');
 
   return run(() => {
-    return personsReference.load().then(records => {
+    return personsReference.load({ adapterOptions }).then(records => {
       assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
       assert.equal(get(records, 'length'), 0);
       assert.equal(get(personsReference.value(), 'length'), 0);
@@ -603,7 +612,10 @@ test('load() - only a single find is triggered', function(assert) {
 test('reload()', function(assert) {
   var done = assert.async();
 
-  env.adapter.findMany = function(store, type, id) {
+  const adapterOptions = { thing: 'one' };
+
+  env.adapter.findMany = function(store, type, id, snapshots) {
+    assert.equal(snapshots[0].adapterOptions, adapterOptions, 'adapterOptions are passed in');
     return resolve({
       data: [
         { id: 1, type: 'person', attributes: { name: 'Vito Coreleone' } },
@@ -632,7 +644,7 @@ test('reload()', function(assert) {
   var personsReference = family.hasMany('persons');
 
   run(function() {
-    personsReference.reload().then(function(records) {
+    personsReference.reload({ adapterOptions }).then(function(records) {
       assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');
       assert.equal(get(records, 'length'), 2);
       assert.equal(records.objectAt(0).get('name'), 'Vito Coreleone');
@@ -645,9 +657,11 @@ test('reload()', function(assert) {
 
 test('reload() fetches link when remoteType is link', function(assert) {
   var done = assert.async();
+  const adapterOptions = { thing: 'one' };
 
   var count = 0;
   env.adapter.findHasMany = function(store, snapshot, link) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
     count++;
     assert.equal(link, '/families/1/persons');
 
@@ -688,9 +702,9 @@ test('reload() fetches link when remoteType is link', function(assert) {
 
   run(function() {
     personsReference
-      .load()
+      .load({ adapterOptions })
       .then(function() {
-        return personsReference.reload();
+        return personsReference.reload({ adapterOptions });
       })
       .then(function(records) {
         assert.ok(records instanceof DS.ManyArray, 'push resolves with the referenced records');

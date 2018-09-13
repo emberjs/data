@@ -248,11 +248,33 @@ export default class BelongsToReference extends Reference {
     });
    ```
 
+   You may also pass in an options object whose properties will be
+   fed forward. This enables you to pass `adapterOptions` into the
+   request given to the adapter via the reference.
+
+   Example
+
+   ```javascript
+   userRef.load({ adapterOptions: { isPrivate: true } }).then(function(user) {
+     userRef.value() === user;
+   });
+   ```
+
+   ```app/adapters/user.js
+   export default ApplicationAdapter.extend({
+     findRecord(store, type, id, snapshot) {
+       // In the adapter you will have access to adapterOptions.
+       let adapterOptions = snapshot.adapterOptions;
+     }
+   });
+   ```
+
    @method load
+   @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship.
    */
-  load() {
-    return this.parentInternalModel.getBelongsTo(this.key);
+  load(options) {
+    return this.parentInternalModel.getBelongsTo(this.key, options);
   }
 
   /**
@@ -287,31 +309,44 @@ export default class BelongsToReference extends Reference {
     });
    ```
 
+   You may also pass in an options object whose properties will be
+   fed forward. This enables you to pass `adapterOptions` into the
+   request given to the adapter via the reference. A full example
+   can be found in the `load` method.
+
+   Example
+
+   ```javascript
+   userRef.reload({ adapterOptions: { isPrivate: true } })
+   ```
+
    @method reload
+   @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
   // TODO IGOR CHECK FOR OBJECT PROXIES
-  reload() {
+  reload(options) {
     let resource = this._resource();
     if (resource && resource.links && resource.links.related) {
       return this.store._fetchBelongsToLinkFromResource(
         resource,
         this.parentInternalModel,
-        this.belongsToRelationship.relationshipMeta
+        this.belongsToRelationship.relationshipMeta,
+        options
       );
     }
     if (resource && resource.data) {
       if (resource.data && (resource.data.id || resource.data.clientId)) {
         let internalModel = this.store._internalModelForResource(resource.data);
         if (internalModel.isLoaded()) {
-          return internalModel.reload().then(internalModel => {
+          return internalModel.reload(options).then(internalModel => {
             if (internalModel) {
               return internalModel.getRecord();
             }
             return null;
           });
         } else {
-          return this.store._findByInternalModel(internalModel);
+          return this.store._findByInternalModel(internalModel, options);
         }
       }
     }

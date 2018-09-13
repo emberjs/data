@@ -49,6 +49,7 @@ const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty 
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
+
 let globalClientIdCounter = 1;
 
 //Get the materialized model from the internalModel/promise that returns
@@ -883,11 +884,11 @@ Store = Service.extend({
     return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
   },
 
-  _scheduleFetchMany(internalModels) {
+  _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      fetches[i] = this._scheduleFetch(internalModels[i]);
+      fetches[i] = this._scheduleFetch(internalModels[i], options);
     }
 
     return Promise.all(fetches);
@@ -953,10 +954,13 @@ Store = Service.extend({
     let internalModels = new Array(totalItems);
     let seeking = Object.create(null);
 
+    let optionsMap = new WeakMap();
+
     for (let i = 0; i < totalItems; i++) {
       let pendingItem = pendingFetchItems[i];
       let internalModel = pendingItem.internalModel;
       internalModels[i] = internalModel;
+      optionsMap.set(internalModel, pendingItem.options);
       seeking[internalModel.id] = pendingItem;
     }
 
@@ -976,7 +980,7 @@ Store = Service.extend({
       let recordFetch = store._fetchRecord(
         recordResolverPair.internalModel,
         recordResolverPair.options
-      ); // TODO adapter options
+      );
 
       recordResolverPair.resolver.resolve(recordFetch);
     }
@@ -1049,7 +1053,7 @@ Store = Service.extend({
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot();
+        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
       }
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
@@ -1069,7 +1073,7 @@ Store = Service.extend({
 
         if (totalInGroup > 1) {
           (function(groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels)
+            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
               .then(function(foundInternalModels) {
                 handleFoundRecords(foundInternalModels, groupedInternalModels);
               })
@@ -1318,14 +1322,14 @@ Store = Service.extend({
     @param {Array} internalModels
     @return {Promise} promise
   */
-  findMany(internalModels) {
+  findMany(internalModels, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findMany');
     }
     let finds = new Array(internalModels.length);
 
     for (let i = 0; i < internalModels.length; i++) {
-      finds[i] = this._findEmptyInternalModel(internalModels[i]);
+      finds[i] = this._findEmptyInternalModel(internalModels[i], options);
     }
 
     return Promise.all(finds);
@@ -1349,7 +1353,7 @@ Store = Service.extend({
     @param {(Relationship)} relationship
     @return {Promise} promise
   */
-  findHasMany(internalModel, link, relationship) {
+  findHasMany(internalModel, link, relationship, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findHasMany');
     }
@@ -1366,10 +1370,10 @@ Store = Service.extend({
       typeof adapter.findHasMany === 'function'
     );
 
-    return _findHasMany(adapter, this, internalModel, link, relationship);
+    return _findHasMany(adapter, this, internalModel, link, relationship, options);
   },
 
-  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+  _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
       return RSVP.resolve([]);
     }
@@ -1391,16 +1395,19 @@ Store = Service.extend({
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this.findHasMany(parentInternalModel, resource.links.related, relationshipMeta).then(
-        internalModels => {
-          let payload = { data: internalModels.map(im => im._modelData.getResourceIdentifier()) };
-          if (internalModels.meta !== undefined) {
-            payload.meta = internalModels.meta;
-          }
-          parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
-          return internalModels;
+      return this.findHasMany(
+        parentInternalModel,
+        resource.links.related,
+        relationshipMeta,
+        options
+      ).then(internalModels => {
+        let payload = { data: internalModels.map(im => im._modelData.getResourceIdentifier()) };
+        if (internalModels.meta !== undefined) {
+          payload.meta = internalModels.meta;
         }
-      );
+        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, payload);
+        return internalModels;
+      });
     }
 
     let preferLocalCache = hasAnyRelationshipData && !relationshipIsEmpty;
@@ -1413,7 +1420,7 @@ Store = Service.extend({
     if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
       let internalModels = resource.data.map(json => this._internalModelForResource(json));
 
-      return this.findMany(internalModels);
+      return this.findMany(internalModels, options);
     }
 
     let hasData = hasAnyRelationshipData && !relationshipIsEmpty;
@@ -1422,7 +1429,7 @@ Store = Service.extend({
     if (hasData || hasLocalPartialData) {
       let internalModels = resource.data.map(json => this._internalModelForResource(json));
 
-      return this._scheduleFetchMany(internalModels);
+      return this._scheduleFetchMany(internalModels, options);
     }
 
     // we were explicitly told we have no data and no links.
@@ -1446,7 +1453,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo(internalModel, link, relationship) {
+  findBelongsTo(internalModel, link, relationship, options) {
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
@@ -1463,28 +1470,31 @@ Store = Service.extend({
       typeof adapter.findBelongsTo === 'function'
     );
 
-    return _findBelongsTo(adapter, this, internalModel, link, relationship);
+    return _findBelongsTo(adapter, this, internalModel, link, relationship, options);
   },
 
-  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta) {
+  _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
       return RSVP.resolve(null);
     }
-    return this.findBelongsTo(parentInternalModel, resource.links.related, relationshipMeta).then(
-      internalModel => {
-        let response = internalModel && internalModel._modelData.getResourceIdentifier();
-        parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
-        if (internalModel === null) {
-          return null;
-        }
-        // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
-        return internalModel.getRecord();
+    return this.findBelongsTo(
+      parentInternalModel,
+      resource.links.related,
+      relationshipMeta,
+      options
+    ).then(internalModel => {
+      let response = internalModel && internalModel._modelData.getResourceIdentifier();
+      parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
+      if (internalModel === null) {
+        return null;
       }
-    );
+      // TODO Igor this doesn't seem like the right boundary, probably the caller method should extract the record out
+      return internalModel.getRecord();
+    });
   },
 
-  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta) {
+  _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
       return RSVP.resolve(null);
     }
@@ -1514,7 +1524,12 @@ Store = Service.extend({
 
     // fetch via link
     if (shouldFindViaLink) {
-      return this._fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta);
+      return this._fetchBelongsToLinkFromResource(
+        resource,
+        parentInternalModel,
+        relationshipMeta,
+        options
+      );
     }
 
     let preferLocalCache =
@@ -1532,7 +1547,7 @@ Store = Service.extend({
         return RSVP.resolve(null);
       }
 
-      return this._findByInternalModel(internalModel);
+      return this._findByInternalModel(internalModel, options);
     }
 
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
@@ -1543,7 +1558,7 @@ Store = Service.extend({
 
     // fetch by data
     if (!localDataIsEmpty) {
-      return this._fetchRecord(internalModel).then(() => {
+      return this._fetchRecord(internalModel, options).then(() => {
         return internalModel.getRecord();
       });
     }
@@ -2857,12 +2872,12 @@ Store = Service.extend({
     serializer.pushPayload(this, payload);
   },
 
-  reloadManyArray(manyArray, internalModel, key) {
-    return internalModel.reloadHasMany(key);
+  reloadManyArray(manyArray, internalModel, key, options) {
+    return internalModel.reloadHasMany(key, options);
   },
 
-  reloadBelongsTo(belongsToProxy, internalModel, key) {
-    return internalModel.reloadBelongsTo(key);
+  reloadBelongsTo(belongsToProxy, internalModel, key, options) {
+    return internalModel.reloadBelongsTo(key, options);
   },
 
   _relationshipMetaFor(modelName, id, key) {
