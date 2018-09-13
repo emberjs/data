@@ -286,8 +286,8 @@ test('a Record Array can update its filter and notify array observers', function
 
   run(() => store.push({ data }));
 
-  let dickens = run(() => {
-    dickens = store.createRecord('person', { id: 4, name: 'Scumbag Dickens' });
+  run(() => {
+    let dickens = store.createRecord('person', { id: 4, name: 'Scumbag Dickens' });
     dickens.deleteRecord();
     return dickens;
   });
