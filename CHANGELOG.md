@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 3.1.2 (September 14, 2018)
+- [#5601](https://github.com/emberjs/data/pull/5601) Backport modelName fix from #5406 to 3.1 (#5601)
+- [#5630](https://github.com/emberjs/data/pull/5630) Backport copy usage removal to 3.1
+- [#5633](https://github.com/emberjs/data/pull/5633) Backport @ember/ordered-set fix to 3.1
+
 ### Release 3.1.1 (March 27, 2018)
 - [#5383](https://github.com/emberjs/data/pull/5383) Remove '@ember/ordered-set' warning when building Ember Data
 
