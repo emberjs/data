@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.0.4 (September 14, 2018)
+- [#5600](https://github.com/emberjs/data/pull/5600) Backport modelName fix from #5406 to 3.0 (#5600)
+
 ### Release 3.0.3 (April 29, 2018)
 - New release with ember canary tests disabled to publish the API docs
 
