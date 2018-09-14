@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.3.2 (September 14, 2018)
+- [#5582](https://github.com/emberjs/data/pull/5582) [BUGFIX] Reference.reload should not cause sync-relationship assertion (#5582)
+- [#5636](https://github.com/emberjs/data/pull/5636) Update appveyor config for release branch 3.3
+
 ### Release 3.3.1 (July 26, 2018)
 - [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
 
