@@ -1228,7 +1228,7 @@ function ajaxError(adapter, payload, requestData, responseData) {
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
   } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
-    error = new AbortError();
+    error = handleAbort(requestData, responseData);
   } else {
     try {
       error = adapter.handleResponse(
@@ -1243,6 +1243,15 @@ function ajaxError(adapter, payload, requestData, responseData) {
   }
 
   return error;
+}
+
+// Adapter abort error to include any relevent info, e.g. request/response:
+function handleAbort(requestData, responseData) {
+  let { method, url, errorThrown } = requestData;
+  let { status } = responseData;
+  let msg = `Request failed: ${method} ${url} ${errorThrown || ''}`;
+  let errors = [{ title: 'Adapter Error', detail: msg.trim(), status }];
+  return new AbortError(errors);
 }
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
