@@ -2,6 +2,19 @@
 
 ### Master
 
+### Release 3.4.1 (September 14, 2018)
+- [#5621](https://github.com/emberjs/data/pull/5621) Add partner test for the ilios frontend
+- [#5589](https://github.com/emberjs/data/pull/5589) fix broken link because the new API website does not support the anchor
+- [#5582](https://github.com/emberjs/data/pull/5582) [BUGFIX] Reference.reload should not cause sync-relationship assertion (#5582)
+- [#5584](https://github.com/emberjs/data/pull/5584) Additional test coverage for async belongsTo mutation (#5584)
+- [#5592](https://github.com/emberjs/data/pull/5592) Grammar fixes
+- [#5602](https://github.com/emberjs/data/pull/5602) Publish docs to npm (#5602)
+- [#5620](https://github.com/emberjs/data/pull/5620) [DOC release] Change misleading documentation for AdapterPopulatedRecordArray
+- [#5622](https://github.com/emberjs/data/pull/5622) remove deletes (#5622)
+- [#5624](https://github.com/emberjs/data/pull/5624) [BUGFIX] fix promise labels
+- [#5627](https://github.com/emberjs/data/pull/5627) [FEAT adapterOptions] Ensure adapterOptions use is possible throughout (#5627)
+- [#5632](https://github.com/emberjs/data/pull/5632) cleanup code climate config
+
 ### Release 3.4.0 (August 27, 2018)
 - [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
 - [#5545](https://github.com/emberjs/data/pull/5545) [FEAT] TrackableRequests for when async leakage is detected
