@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.5.0-beta.2 (September 14, 2018)
+- [#5616](https://github.com/emberjs/data/pull/5616) [FEAT RecordData] turn on the build-flag by default
+
 ### Release 3.4.1 (September 14, 2018)
 - [#5621](https://github.com/emberjs/data/pull/5621) Add partner test for the ilios frontend
 - [#5589](https://github.com/emberjs/data/pull/5589) fix broken link because the new API website does not support the anchor
