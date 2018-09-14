@@ -2,6 +2,14 @@
 
 ### Master
 
+### Release 2.18.5 (September 14, 2018)
+
+- [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
+- [#5586](https://github.com/emberjs/data/pull/5586) [BUGFIX Backport] #5467 to 2.18
+- [#5599](https://github.com/emberjs/data/pull/5599) Backport modelName fix from #5406 to 2.18 (#5599)
+- [#5611](https://github.com/emberjs/data/pull/5611) backport #5408 to ember data 2.18 (#5611)
+- [#5614](https://github.com/emberjs/data/pull/5614) [FEAT #5607] ensure release builds only perform necessary jobs (#5614)
+
 ### Release 2.18.4 (July 24, 2018)
 - [#5376](https://github.com/emberjs/data/pull/5376) [bugfix beta] Fetch cancels unload
 
