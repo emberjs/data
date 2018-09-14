@@ -129,7 +129,7 @@ export default class ManyRelationship extends Relationship {
       }
       this._removeInternalModelFromManyArray(this._retainedManyArray, inverseInternalModel);
     }
-    this.notifyHasManyChanged();
+    this.notifyHasManyChange();
   }
 
   addInternalModel(internalModel, idx) {
@@ -385,7 +385,7 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  notifyHasManyChanged() {
+  notifyHasManyChange() {
     this.internalModel.notifyHasManyAdded(this.key);
   }
 

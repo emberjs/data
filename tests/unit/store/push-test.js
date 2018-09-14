@@ -541,8 +541,8 @@ testInDebug('Calling push with a link for a non async relationship should warn i
           }
         }
       });
-    });
-  }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload./);
+    })
+  }, /You pushed a record of type 'person' with a relationship 'phoneNumbers' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty./);
 });
 
 testInDebug('Calling push with a link for a non async relationship should not warn when data is present', function(assert) {
@@ -808,7 +808,6 @@ test('_push returns an array of InternalModels if an array is pushed', function(
   assert.notOk(pushResult[0].record, 'InternalModel is not materialized');
 });
 
-
 test('_push returns null if no data is pushed', function(assert) {
   let pushResult;
 
@@ -877,7 +876,6 @@ test('Should support pushing multiple models into the store', function(assert) {
   let tomster = store.peekRecord('person', 2);
   assert.equal(tomster.get('name'), 'Tomster', 'Tomster should be in the store');
 });
-
 
 test('Should support pushing included models into the store', function(assert) {
   assert.expect(2);

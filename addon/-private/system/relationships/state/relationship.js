@@ -59,6 +59,7 @@ export default class Relationship {
     this.canonicalMembers = new OrderedSet();
     this.store = store;
     this.key = relationshipMeta.key;
+    this.kind = relationshipMeta.kind;
     this.inverseKey = inverseKey;
     this.internalModel = internalModel;
     this.isAsync = typeof async === 'undefined' ? true : async;
@@ -508,10 +509,21 @@ export default class Relationship {
 
   updateLink(link, initial) {
     heimdall.increment(updateLink);
-    warn(`You pushed a record of type '${this.internalModel.modelName}' with a relationship '${this.key}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload.`, this.isAsync || this.hasAnyRelationshipData , {
-      id: 'ds.store.push-link-for-sync-relationship'
-    });
-    assert(`You have pushed a record of type '${this.internalModel.modelName}' with '${this.key}' as a link, but the value of that link is not a string.`, typeof link === 'string' || link === null);
+    warn(
+      `You pushed a record of type '${this.internalModel.modelName}' with a relationship '${
+        this.key
+      }' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+      this.isAsync || this.hasAnyRelationshipData,
+      {
+        id: 'ds.store.push-link-for-sync-relationship',
+      }
+    );
+    assert(
+      `You have pushed a record of type '${this.internalModel.modelName}' with '${
+        this.key
+      }' as a link, but the value of that link is not a string.`,
+      typeof link === 'string' || link === null
+    );
 
     this.link = link;
     this.fetchPromise = null;
@@ -670,6 +682,11 @@ export default class Relationship {
       this.updateData(payload.data, initial);
     } else if (payload._partialData !== undefined) {
       this.updateData(payload._partialData, initial);
+    } else if (this.isAsync === false) {
+      hasRelationshipDataProperty = true;
+      let data = this.kind === 'hasMany' ? [] : null;
+
+      this.updateData(data, initial);
     }
 
     if (payload.links && payload.links.related) {
