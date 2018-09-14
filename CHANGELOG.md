@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 3.2.2 (September 14, 2018)
+- [#5593](https://github.com/emberjs/data/pull/5593) [BUGFIX Backport] fix createRecord re-fetch
+- [#5597](https://github.com/emberjs/data/pull/5597) [BUGFIX] Reference.reload should not cause sync-relationship assertion (#5582) (#5597)
+- [#5634](https://github.com/emberjs/data/pull/5634) Backport @ember/ordered-set fix to 3.2
+
 ### Release 3.2.1 (July 26, 2018)
 - [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
 
