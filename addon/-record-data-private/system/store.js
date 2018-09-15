@@ -3538,7 +3538,7 @@ if (DEBUG) {
     if (!store.shouldAssertMethodCallsOnDestroyedStore) {
       deprecate(
         `Attempted to call store.${method}(), but the store instance has already been destroyed.`,
-        !(store.isDestroying || store.isDestroyed),
+        !store.isDestroyed,
         {
           id: 'ember-data:method-calls-on-destroyed-store',
           until: '3.8',
