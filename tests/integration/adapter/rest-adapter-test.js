@@ -2551,7 +2551,7 @@ test('gracefully handles exceptions in handleResponse where the ajax request err
 });
 
 test('treats status code 0 as an abort', function(assert) {
-  assert.expect(1);
+  assert.expect(3);
 
   adapter._ajaxRequest = function(hash) {
     hash.error({
@@ -2568,6 +2568,21 @@ test('treats status code 0 as an abort', function(assert) {
   return run(() => {
     return store.findRecord('post', '1').catch(err => {
       assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
+      assert.equal(
+        err.errors.length,
+        1,
+        'AbortError includes errors with request/response details'
+      );
+      let expectedError = {
+        title: 'Adapter Error',
+        detail: 'Request failed: GET /posts/1',
+        status: 0,
+      };
+      assert.deepEqual(
+        err.errors[0],
+        expectedError,
+        'method, url and, status are captured as details'
+      );
     });
   });
 });
