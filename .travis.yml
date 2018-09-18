@@ -103,6 +103,10 @@ jobs:
       script: yarn test-external:factory-guy
     - name: "Ilios Frontend"
       script: yarn test-external:ilios-frontend
+    - name: "Ember Resource Metadata"
+      script: yarn test-external:ember-resource-metadata
+    - name: "Ember Data Relationship Tracker"
+      script: yarn test-external:ember-data-relationship-tracker
 
     - stage: deploy
       name: "Publish"
