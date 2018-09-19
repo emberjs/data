@@ -85,10 +85,9 @@ jobs:
 
     # runs tests against various open-source projects for early-warning regression analysis
     # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
+    # By running longer jobs first, we allow the shorter jobs to complete within the same time block in parallel
     - stage: external partner tests
       name: "Ilios Frontend" # ~30min job
-      # We run Ilios first because it takes significantly longer to complete
-      # This allows our other jobs to complete in parallel instead of other jobs completing and then Ilios running long
       script: yarn test-external:ilios-frontend
     - name: "Travis Web" # ~10min job
       script: yarn test-external:travis-web
@@ -98,6 +97,10 @@ jobs:
       script: yarn test-external:factory-guy
     - name: "Ember Observer" # ~5min job
       script: yarn test-external:ember-observer
+    - name: "Ember Resource Metadata" # ~4.25min job
+      script: yarn test-external:ember-resource-metadata
+    - name: "Ember Data Relationship Tracker" # ~4.25min job
+      script: yarn test-external:ember-data-relationship-tracker
     - name: "Ember Data Model Fragments" # ~3.5min job
       script: yarn test-external:model-fragments
     - name: "emberaddons.com" # ~3.5min job
@@ -106,10 +109,6 @@ jobs:
       script: yarn test-external:ember-data-change-tracker
     - name: "ember-m3" # ~3.5min job
       script: yarn test-external:ember-m3
-    - name: "Ember Resource Metadata"
-      script: yarn test-external:ember-resource-metadata
-    - name: "Ember Data Relationship Tracker"
-      script: yarn test-external:ember-data-relationship-tracker
 
     - stage: deploy
       name: "Publish"
