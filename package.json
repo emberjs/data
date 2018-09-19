@@ -25,7 +25,9 @@
     "test-external:travis-web": "node ./lib/scripts/test-external travis-web https://github.com/travis-ci/travis-web.git",
     "test-external:storefront": "node ./lib/scripts/test-external storefront https://github.com/embermap/ember-data-storefront.git",
     "test-external:factory-guy": "node ./lib/scripts/test-external factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
-    "test-external:ilios-frontend": "node ./lib/scripts/test-external ilios-frontend https://github.com/ilios/frontend.git"
+    "test-external:ilios-frontend": "node ./lib/scripts/test-external ilios-frontend https://github.com/ilios/frontend.git",
+    "test-external:ember-resource-metadata": "node ./lib/scripts/test-external ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git",
+    "test-external:ember-data-relationship-tracker": "node ./lib/scripts/test-external ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "author": "",
   "license": "MIT",
