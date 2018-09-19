@@ -1,3 +1,4 @@
+import Namespace from '@ember/application/namespace';
 import Ember from 'ember';
 import VERSION from 'ember-data/version';
 
@@ -17,7 +18,7 @@ import VERSION from 'ember-data/version';
   @type String
   @static
 */
-const DS = Ember.Namespace.create({
+const DS = Namespace.create({
   VERSION: VERSION,
   name: 'DS',
 });

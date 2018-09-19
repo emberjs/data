@@ -1,3 +1,4 @@
+import Namespace from '@ember/application/namespace';
 import Service, { inject as service } from '@ember/service';
 import Controller from '@ember/controller';
 import Application from '@ember/application';
@@ -9,7 +10,6 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 
 const Store = DS.Store;
-const Namespace = Ember.Namespace;
 
 let app, App, container;
 
@@ -43,7 +43,6 @@ module('integration/application - Injecting a Custom Store', {
 
   afterEach() {
     run(app, app.destroy);
-    Ember.BOOTED = false;
   },
 });
 
@@ -83,7 +82,6 @@ module('integration/application - Injecting the Default Store', {
 
   afterEach() {
     run(app, 'destroy');
-    Ember.BOOTED = false;
   },
 });
 
@@ -118,7 +116,6 @@ if (Ember.inject && service) {
 
     afterEach() {
       run(app, 'destroy');
-      Ember.BOOTED = false;
     },
   });
 
@@ -139,7 +136,6 @@ module('integration/application - Attaching initializer', {
     if (app) {
       run(app, app.destroy);
     }
-    Ember.BOOTED = false;
   },
 });
 

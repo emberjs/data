@@ -1,5 +1,5 @@
+import { VERSION } from '@ember/version';
 import EmberError from '@ember/error';
-import Ember from 'ember';
 
 /**
   Ember Data
@@ -7,10 +7,10 @@ import Ember from 'ember';
   @main ember-data
 */
 
-if (Ember.VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
+if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
   throw new EmberError(
     'Ember Data requires at least Ember 1.13.0, but you have ' +
-      Ember.VERSION +
+      VERSION +
       '. Please upgrade your version of Ember, then upgrade Ember Data.'
   );
 }

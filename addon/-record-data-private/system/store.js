@@ -1,6 +1,8 @@
 /**
   @module ember-data
 */
+import { registerWaiter, unregisterWaiter } from '@ember/test';
+
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
@@ -277,7 +279,7 @@ Store = Service.extend({
         return shouldTrack !== true || isSettled;
       };
 
-      Ember.Test.registerWaiter(this.__asyncWaiter);
+      registerWaiter(this.__asyncWaiter);
     }
   },
 
@@ -3241,7 +3243,7 @@ Store = Service.extend({
     this.unloadAll();
 
     if (DEBUG) {
-      Ember.Test.unregisterWaiter(this.__asyncWaiter);
+      unregisterWaiter(this.__asyncWaiter);
       let shouldTrack = this.shouldTrackAsyncRequests;
       let tracked = this._trackedAsyncRequests;
       let isSettled = tracked.length === 0;
