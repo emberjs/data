@@ -85,7 +85,11 @@ jobs:
 
     # runs tests against various open-source projects for early-warning regression analysis
     - stage: external partner tests
-      name: "Ember Data Model Fragments"
+      name: "Ilios Frontend"
+      # We run Ilios first because it takes significantly longer (~30min) to complete
+      # This allows our other jobs to complete in parallel instead of other jobs completing and then Ilios running long
+      script: yarn test-external:ilios-frontend
+    - name: "Ember Data Model Fragments"
       script: yarn test-external:model-fragments
     - name: "Ember Observer"
       script: yarn test-external:ember-observer
@@ -101,8 +105,6 @@ jobs:
       script: yarn test-external:storefront
     - name: "Ember Data Factory Guy"
       script: yarn test-external:factory-guy
-    - name: "Ilios Frontend"
-      script: yarn test-external:ilios-frontend
     - name: "Ember Resource Metadata"
       script: yarn test-external:ember-resource-metadata
     - name: "Ember Data Relationship Tracker"
