@@ -84,27 +84,28 @@ jobs:
       env: EMBER_TRY_SCENARIO=ember-canary
 
     # runs tests against various open-source projects for early-warning regression analysis
+    # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
     - stage: external partner tests
-      name: "Ilios Frontend"
-      # We run Ilios first because it takes significantly longer (~30min) to complete
+      name: "Ilios Frontend" # ~30min job
+      # We run Ilios first because it takes significantly longer to complete
       # This allows our other jobs to complete in parallel instead of other jobs completing and then Ilios running long
       script: yarn test-external:ilios-frontend
-    - name: "Ember Data Model Fragments"
-      script: yarn test-external:model-fragments
-    - name: "Ember Observer"
-      script: yarn test-external:ember-observer
-    - name: "Travis Web"
+    - name: "Travis Web" # ~10min job
       script: yarn test-external:travis-web
-    - name: "emberaddons.com"
-      script: yarn test-external:emberaddons.com
-    - name: "Ember Data Change Tracker"
-      script: yarn test-external:ember-data-change-tracker
-    - name: "ember-m3"
-      script: yarn test-external:ember-m3
-    - name: "Ember Data Storefront"
+    - name: "Ember Data Storefront" # ~5min job
       script: yarn test-external:storefront
-    - name: "Ember Data Factory Guy"
+    - name: "Ember Data Factory Guy" # ~5min job
       script: yarn test-external:factory-guy
+    - name: "Ember Observer" # ~5min job
+      script: yarn test-external:ember-observer
+    - name: "Ember Data Model Fragments" # ~3.5min job
+      script: yarn test-external:model-fragments
+    - name: "emberaddons.com" # ~3.5min job
+      script: yarn test-external:emberaddons.com
+    - name: "Ember Data Change Tracker" # ~3.5min job
+      script: yarn test-external:ember-data-change-tracker
+    - name: "ember-m3" # ~3.5min job
+      script: yarn test-external:ember-m3
     - name: "Ember Resource Metadata"
       script: yarn test-external:ember-resource-metadata
     - name: "Ember Data Relationship Tracker"
