@@ -672,7 +672,7 @@ test('supports canonical updates via pushedData in root.deleted.saved', function
 
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = () => {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   let record = run(() =>
@@ -733,7 +733,7 @@ test('Does not support dirtying in root.deleted.saved', function(assert) {
 
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.deleteRecord = () => {
-    return Ember.RSVP.resolve();
+    return resolve();
   };
 
   let record = run(() =>
@@ -1640,8 +1640,8 @@ test('ID mutation (complicated)', function(assert) {
   let idChange = 0;
   const Person = DS.Model.extend({
     name: DS.attr('string'),
-    idComputed: Ember.computed('id', function() {}),
-    idDidChange: Ember.observer('id', () => idChange++),
+    idComputed: computed('id', function() {}),
+    idDidChange: observer('id', () => idChange++),
   });
 
   let { store } = setupStore({
