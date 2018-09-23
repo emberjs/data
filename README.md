@@ -47,110 +47,17 @@ on [https://emberjs.com/builds/#/beta](https://emberjs.com/builds/#/beta)
 Or build ember-data.js yourself. Clone the repository and run `npm run production`
 after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
-#### Internet Explorer 8
+### Documentation
 
-**Internet Explorer 8 is no longer supported by Ember Data on versions
-2.0 and later.**
-
-If you require IE8 support, you can use the `1.13` series of releases.
-The source code is available on the `release-1-13` branch.
-
-Internet Explorer 8 support requires Ember 1.8.1 (which provides a polyfill for `Object.create`).
-
-### Instantiating the Store
-
-In Ember Data, the _store_ is responsible for managing the lifecycle of
-your models. Every time you need a model or a collection of models,
-you'll ask the store for it.
-
-To create a store, you don't need to do anything. Just by loading the
-Ember Data library, all of the routes and controllers in your
-application will get a new `store` property. This property is an
-instance of `DS.Store` that will be shared across all of the routes and
-controllers in your app.
-
-### Defining Your Models
-
-First things first: tell Ember Data about the models in your
-application. For example, imagine we're writing a blog reader app.
-
-Here's what your model definition would look like if you're using
-ES6 modules (via ember-cli):
-
-```js
-// app/models/blog-post.js
-import DS from 'ember-data';
-
-const { attr, hasMany } = DS;
-
-export default DS.Model.extend({
-  title: attr('string'),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-// app/models/comment.js
-import DS from 'ember-data';
-
-const { attr, belongsTo } = DS;
-
-export default DS.Model.extend({
-  body: attr('string'),
-  username: attr('string'),
-
-  post: belongsTo('blog-post')
-});
-```
-
-### A Brief Note on Adapters
-
-Without immediately diving in to the depths of the architecture, one
-thing you _should_ know is that Ember Data uses an object called an
-_adapter_ to know how to talk to your server.
-
-An adapter is just an object that knows how to translate requests from
-Ember Data into requests on your server. For example, if I ask the Ember
-Data store for a record of type `person` with an ID of `123`, the
-adapter translates that into an XHR request to (for example)
-`api.example.com/v3/person/123.json`.
-
-By default, Ember Data will use the `JSONAPIAdapter`, which adheres to the [JSON-API spec](http://jsonapi.org/).
-
-To learn more about adapters, including what conventions the
-various adapters follow and how to build your own, see the Ember.js
-Guides: [Customizing Adapters](https://guides.emberjs.com/release/models/customizing-adapters/).
-
-### Fetching a Collection of Models
-
-From your route or controller:
-
-```js
-this.store.findAll('blog-post');
-```
-
-This returns a promise that resolves to the collection of records.
-
-### Fetching a Single Model
-
-```js
-this.store.findRecord('blog-post', 123);
-```
-
-This returns a promise that resolves to the requested record. If the
-record can't be found or there was an error during the request, the
-promise will be rejected.
-
-### Even More Documentation
-
-For much more detail on how to use Ember Data, see the [Ember.js Guides
+For documentation on how to use Ember Data, see the [Ember.js Guides
 on models](https://guides.emberjs.com/release/models/).
 
 # Building Ember Data
 
 1. Ensure that [Node.js](http://nodejs.org/) and [yarn](https://yarnpkg.com/en/docs/install) are installed.
-2. Run `yarn install` to ensure the required dependencies are installed.
-3. Run `npm run production` to build Ember Data. The builds will be placed in the `dist/` directory.
+2. Install Ember CLI. `npm install -g ember-cli`
+3. Run `yarn install` to ensure the required dependencies are installed.
+4. Run `ember b -e production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
 
@@ -166,14 +73,9 @@ See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.m
 
 3. Run `yarn install` inside the project root to install the JS dependencies.
 
-### In Your Browser
+4. Run `ember test`
 
-1. To start the development server, run `npm start`.
+### Partners
 
-2. Visit `http://localhost:4200/tests`
-
-### From the CLI
-
-1. Install phantomjs from http://phantomjs.org
-
-2. Run `npm test`
+[![Saucelabs](./images/saucelabs.png "Browser Testing by Saucelabs")
+](https://saucelabs.com/)
