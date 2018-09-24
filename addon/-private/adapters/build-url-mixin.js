@@ -259,7 +259,7 @@ export default Mixin.create({
 
    export default DS.JSONAPIAdapter.extend({
      urlForFindHasMany(id, modelName, snapshot) {
-       let baseUrl = this.buildURL(id, modelName);
+       let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
    });
@@ -286,7 +286,7 @@ export default Mixin.create({
 
    export default DS.JSONAPIAdapter.extend({
      urlForFindBelongsTo(id, modelName, snapshot) {
-       let baseUrl = this.buildURL(id, modelName);
+       let baseUrl = this.buildURL(modelName, id);
        return `${baseUrl}/relationships`;
      }
    });
