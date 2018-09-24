@@ -1,29 +1,29 @@
 import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
 
-function createRelationshipFor(relationshipMeta, store, modelData, key) {
-  let inverseKey = modelData.storeWrapper.inverseForRelationship(modelData.modelName, key);
-  let inverseIsAsync = modelData.storeWrapper.inverseIsAsyncForRelationship(
-    modelData.modelName,
+function createRelationshipFor(relationshipMeta, store, recordData, key) {
+  let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
+  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
+    recordData.modelName,
     key
   );
 
   if (relationshipMeta.kind === 'hasMany') {
-    return new ManyRelationship(store, inverseKey, relationshipMeta, modelData, inverseIsAsync);
+    return new ManyRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
   } else {
     return new BelongsToRelationship(
       store,
       inverseKey,
       relationshipMeta,
-      modelData,
+      recordData,
       inverseIsAsync
     );
   }
 }
 
 export default class Relationships {
-  constructor(modelData) {
-    this.modelData = modelData;
+  constructor(recordData) {
+    this.recordData = recordData;
     this.initializedRelationships = Object.create(null);
   }
 
@@ -43,16 +43,16 @@ export default class Relationships {
     let relationship = relationships[key];
 
     if (!relationship) {
-      let modelData = this.modelData;
-      let rel = this.modelData.storeWrapper.relationshipsDefinitionFor(this.modelData.modelName)[
+      let recordData = this.recordData;
+      let rel = this.recordData.storeWrapper.relationshipsDefinitionFor(this.recordData.modelName)[
         key
       ];
 
       if (rel) {
         relationship = relationships[key] = createRelationshipFor(
           rel,
-          modelData.store,
-          modelData,
+          recordData.store,
+          recordData,
           key
         );
       }

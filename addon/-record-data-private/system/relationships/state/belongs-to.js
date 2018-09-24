@@ -4,18 +4,18 @@ import { isNone } from '@ember/utils';
 import Relationship from './relationship';
 
 export default class BelongsToRelationship extends Relationship {
-  constructor(store, inverseKey, relationshipMeta, modelData, inverseIsAsync) {
-    super(store, inverseKey, relationshipMeta, modelData, inverseIsAsync);
+  constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
+    super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.key = relationshipMeta.key;
-    this.inverseModelData = null;
+    this.inverseRecordData = null;
     this.canonicalState = null;
   }
 
-  setModelData(modelData) {
-    if (modelData) {
-      this.addModelData(modelData);
-    } else if (this.inverseModelData) {
-      this.removeModelData(this.inverseModelData);
+  setRecordData(recordData) {
+    if (recordData) {
+      this.addRecordData(recordData);
+    } else if (this.inverseRecordData) {
+      this.removeRecordData(this.inverseRecordData);
     }
 
     this.setHasAnyRelationshipData(true);
@@ -23,58 +23,58 @@ export default class BelongsToRelationship extends Relationship {
     this.setRelationshipIsEmpty(false);
   }
 
-  setCanonicalModelData(modelData) {
-    if (modelData) {
-      this.addCanonicalModelData(modelData);
+  setCanonicalRecordData(recordData) {
+    if (recordData) {
+      this.addCanonicalRecordData(recordData);
     } else if (this.canonicalState) {
-      this.removeCanonicalModelData(this.canonicalState);
+      this.removeCanonicalRecordData(this.canonicalState);
     }
     this.flushCanonicalLater();
   }
 
-  setInitialCanonicalModelData(modelData) {
-    if (!modelData) {
+  setInitialCanonicalRecordData(recordData) {
+    if (!recordData) {
       return;
     }
 
     // When we initialize a belongsTo relationship, we want to avoid work like
     // notifying our internalModel that we've "changed" and excessive thrash on
     // setting up inverse relationships
-    this.canonicalMembers.add(modelData);
-    this.members.add(modelData);
-    this.inverseModelData = this.canonicalState = modelData;
-    this.setupInverseRelationship(modelData);
+    this.canonicalMembers.add(recordData);
+    this.members.add(recordData);
+    this.inverseRecordData = this.canonicalState = recordData;
+    this.setupInverseRelationship(recordData);
   }
 
-  addCanonicalModelData(modelData) {
-    if (this.canonicalMembers.has(modelData)) {
+  addCanonicalRecordData(recordData) {
+    if (this.canonicalMembers.has(recordData)) {
       return;
     }
 
     if (this.canonicalState) {
-      this.removeCanonicalModelData(this.canonicalState);
+      this.removeCanonicalRecordData(this.canonicalState);
     }
 
-    this.canonicalState = modelData;
-    super.addCanonicalModelData(modelData);
+    this.canonicalState = recordData;
+    super.addCanonicalRecordData(recordData);
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsEmpty(false);
   }
 
   inverseDidDematerialize() {
-    super.inverseDidDematerialize(this.inverseModelData);
+    super.inverseDidDematerialize(this.inverseRecordData);
     this.notifyBelongsToChange();
   }
 
-  removeCompletelyFromOwn(modelData) {
-    super.removeCompletelyFromOwn(modelData);
+  removeCompletelyFromOwn(recordData) {
+    super.removeCompletelyFromOwn(recordData);
 
-    if (this.canonicalState === modelData) {
+    if (this.canonicalState === recordData) {
       this.canonicalState = null;
     }
 
-    if (this.inverseModelData === modelData) {
-      this.inverseModelData = null;
+    if (this.inverseRecordData === recordData) {
+      this.inverseRecordData = null;
       this.notifyBelongsToChange();
     }
   }
@@ -82,37 +82,37 @@ export default class BelongsToRelationship extends Relationship {
   removeCompletelyFromInverse() {
     super.removeCompletelyFromInverse();
 
-    this.inverseModelData = null;
+    this.inverseRecordData = null;
   }
 
   flushCanonical() {
     //temporary fix to not remove newly created records if server returned null.
     //TODO remove once we have proper diffing
-    if (this.inverseModelData && this.inverseModelData.isNew() && !this.canonicalState) {
+    if (this.inverseRecordData && this.inverseRecordData.isNew() && !this.canonicalState) {
       this.willSync = false;
       return;
     }
-    if (this.inverseModelData !== this.canonicalState) {
-      this.inverseModelData = this.canonicalState;
+    if (this.inverseRecordData !== this.canonicalState) {
+      this.inverseRecordData = this.canonicalState;
       this.notifyBelongsToChange();
     }
     super.flushCanonical();
   }
 
-  addModelData(modelData) {
-    if (this.members.has(modelData)) {
+  addRecordData(recordData) {
+    if (this.members.has(recordData)) {
       return;
     }
 
     // TODO Igor cleanup
-    assertPolymorphicType(this.modelData, this.relationshipMeta, modelData, this.store);
+    assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
 
-    if (this.inverseModelData) {
-      this.removeModelData(this.inverseModelData);
+    if (this.inverseRecordData) {
+      this.removeRecordData(this.inverseRecordData);
     }
 
-    this.inverseModelData = modelData;
-    super.addModelData(modelData);
+    this.inverseRecordData = recordData;
+    super.addRecordData(recordData);
     this.notifyBelongsToChange();
   }
 
@@ -123,57 +123,57 @@ export default class BelongsToRelationship extends Relationship {
       content !== undefined
     );
     // TODO Igor deal with this
-    this.setModelData(content ? content._internalModel._modelData : content);
+    this.setRecordData(content ? content._internalModel._recordData : content);
   }
 
-  removeModelDataFromOwn(modelData) {
-    if (!this.members.has(modelData)) {
+  removeRecordDataFromOwn(recordData) {
+    if (!this.members.has(recordData)) {
       return;
     }
-    this.inverseModelData = null;
-    super.removeModelDataFromOwn(modelData);
+    this.inverseRecordData = null;
+    super.removeRecordDataFromOwn(recordData);
     this.notifyBelongsToChange();
   }
 
-  removeAllModelDatasFromOwn() {
-    super.removeAllModelDatasFromOwn();
-    this.inverseModelData = null;
+  removeAllRecordDatasFromOwn() {
+    super.removeAllRecordDatasFromOwn();
+    this.inverseRecordData = null;
     this.notifyBelongsToChange();
   }
 
   notifyBelongsToChange() {
-    let modelData = this.modelData;
-    let storeWrapper = this.modelData.storeWrapper;
+    let recordData = this.recordData;
+    let storeWrapper = this.recordData.storeWrapper;
     storeWrapper.notifyBelongsToChange(
-      modelData.modelName,
-      modelData.id,
-      modelData.clientId,
+      recordData.modelName,
+      recordData.id,
+      recordData.clientId,
       this.key
     );
   }
 
-  removeCanonicalModelDataFromOwn(modelData) {
-    if (!this.canonicalMembers.has(modelData)) {
+  removeCanonicalRecordDataFromOwn(recordData) {
+    if (!this.canonicalMembers.has(recordData)) {
       return;
     }
     this.canonicalState = null;
     this.setHasAnyRelationshipData(true);
     this.setRelationshipIsEmpty(true);
-    super.removeCanonicalModelDataFromOwn(modelData);
+    super.removeCanonicalRecordDataFromOwn(recordData);
   }
 
-  removeAllCanonicalModelDatasFromOwn() {
-    super.removeAllCanonicalModelDatasFromOwn();
+  removeAllCanonicalRecordDatasFromOwn() {
+    super.removeAllCanonicalRecordDatasFromOwn();
     this.canonicalState = null;
   }
 
   getData() {
     let data;
     let payload = {};
-    if (this.inverseModelData) {
-      data = this.inverseModelData.getResourceIdentifier();
+    if (this.inverseRecordData) {
+      data = this.inverseRecordData.getResourceIdentifier();
     }
-    if (this.inverseModelData === null && this.hasAnyRelationshipData) {
+    if (this.inverseRecordData === null && this.hasAnyRelationshipData) {
       data = null;
     }
     if (this.link) {
@@ -202,33 +202,33 @@ export default class BelongsToRelationship extends Relationship {
    * @return {boolean}
    */
   get allInverseRecordsAreLoaded() {
-    let modelData = this.inverseModelData;
-    let isEmpty = modelData !== null && modelData.isEmpty();
+    let recordData = this.inverseRecordData;
+    let isEmpty = recordData !== null && recordData.isEmpty();
 
     return !isEmpty;
   }
 
   updateData(data, initial) {
-    let modelData;
+    let recordData;
     if (isNone(data)) {
-      modelData = null;
+      recordData = null;
     }
     assert(
       `Ember Data expected the data for the ${
         this.key
-      } relationship on a ${this.modelData.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${inspect(
+      } relationship on a ${this.recordData.toString()} to be in a JSON API format and include an \`id\` and \`type\` property but it found ${inspect(
         data
       )}. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
       data === null || (data.id !== undefined && data.type !== undefined)
     );
 
-    if (modelData !== null) {
-      modelData = this.modelData.storeWrapper.modelDataFor(data.type, data.id);
+    if (recordData !== null) {
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
     }
     if (initial) {
-      this.setInitialCanonicalModelData(modelData);
+      this.setInitialCanonicalRecordData(recordData);
     } else {
-      this.setCanonicalModelData(modelData);
+      this.setCanonicalRecordData(recordData);
     }
   }
 }

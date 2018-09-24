@@ -32,7 +32,7 @@ export { default as isEnabled } from './features';
 // `ember-data-model-fragments` relies on `RootState` and `InternalModel`
 export { default as RootState } from './system/model/states';
 export { default as InternalModel } from './system/model/internal-model';
-export { default as ModelData } from './system/model/model-data';
+export { default as RecordData } from './system/model/record-data';
 
 export { PromiseArray, PromiseObject, PromiseManyArray } from './system/promise-proxies';
 

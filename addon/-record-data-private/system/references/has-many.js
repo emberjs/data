@@ -24,7 +24,7 @@ export default class HasManyReference extends Reference {
   }
 
   _resource() {
-    return this.modelData.getHasMany(this.key);
+    return this.recordData.getHasMany(this.key);
   }
 
   /**
@@ -180,7 +180,7 @@ export default class HasManyReference extends Reference {
             this.store
           );
         }
-        return record._internalModel._modelData;
+        return record._internalModel._recordData;
       });
 
       this.hasManyRelationship.computeChanges(internalModels);
@@ -200,9 +200,9 @@ export default class HasManyReference extends Reference {
     let members = this.hasManyRelationship.members.toArray();
 
     //TODO Igor cleanup
-    return members.every(modelData => {
+    return members.every(recordData => {
       let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForModelData(modelData);
+      let internalModel = store._internalModelForRecordData(recordData);
       return internalModel.isLoaded() === true;
     });
   }

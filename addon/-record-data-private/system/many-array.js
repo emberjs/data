@@ -195,15 +195,15 @@ export default EmberObject.extend(MutableArray, Evented, {
     let internalModels;
     if (amt > 0) {
       internalModels = this.currentState.slice(idx, idx + amt);
-      this.get('modelData').removeFromHasMany(
+      this.get('recordData').removeFromHasMany(
         this.get('key'),
-        internalModels.map(im => im._modelData)
+        internalModels.map(im => im._recordData)
       );
     }
     if (objects) {
-      this.get('modelData').addToHasMany(
+      this.get('recordData').addToHasMany(
         this.get('key'),
-        objects.map(obj => obj._internalModel._modelData),
+        objects.map(obj => obj._internalModel._recordData),
         idx
       );
       //this.get('relationship').addInternalModels(objects.map(obj => obj._internalModel), idx);
@@ -214,7 +214,7 @@ export default EmberObject.extend(MutableArray, Evented, {
   // Ok this is kinda funky because if buggy we might lose positions, etc.
   // but current code is this way so shouldn't be too big of a problem
   retrieveLatest() {
-    let jsonApi = this.get('modelData').getHasMany(this.get('key'));
+    let jsonApi = this.get('recordData').getHasMany(this.get('key'));
     // TODO this is odd, why should ManyArray ever tell itself to resync?
     let internalModels = this.store._getHasManyByJsonApiResource(jsonApi);
     if (jsonApi.meta) {

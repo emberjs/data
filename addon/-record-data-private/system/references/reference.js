@@ -1,7 +1,7 @@
 var Reference = function(store, internalModel) {
   this.store = store;
   this.internalModel = internalModel;
-  this.modelData = internalModel._modelData;
+  this.recordData = internalModel._recordData;
 };
 
 Reference.prototype = {

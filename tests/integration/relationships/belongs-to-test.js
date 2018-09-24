@@ -15,7 +15,7 @@ import {
   reset as resetModelFactoryInjection,
 } from 'dummy/tests/helpers/model-factory-injection';
 import DS from 'ember-data';
-import { ModelData } from 'ember-data/-private';
+import { RecordData } from 'ember-data/-private';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -1913,7 +1913,7 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
 testRecordData(
   "belongsTo relationship doesn't trigger when model data doesn't support implicit relationship",
   function(assert) {
-    class TestModelData extends ModelData {
+    class TestRecordData extends RecordData {
       constructor(modelName, id, clientId, storeWrapper, store) {
         super(modelName, id, clientId, storeWrapper, store);
         delete this.__implicitRelationships;
@@ -1922,11 +1922,11 @@ testRecordData(
 
       _destroyRelationships() {}
 
-      _allRelatedModelDatas() {}
+      _allRelatedRecordDatas() {}
 
-      _cleanupOrphanedModelDatas() {}
+      _cleanupOrphanedRecordDatas() {}
 
-      _directlyRelatedModelDatas() {
+      _directlyRelatedRecordDatas() {
         return [];
       }
 
@@ -1950,12 +1950,12 @@ testRecordData(
       book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
     });
 
-    const createModelDataFor = env.store.createModelDataFor;
-    env.store.createModelDataFor = function(modelName, id, clientId, storeWrapper) {
+    const createRecordDataFor = env.store.createRecordDataFor;
+    env.store.createRecordDataFor = function(modelName, id, clientId, storeWrapper) {
       if (modelName === 'book1' || modelName === 'section') {
-        return new TestModelData(modelName, id, clientId, storeWrapper, this);
+        return new TestRecordData(modelName, id, clientId, storeWrapper, this);
       }
-      return createModelDataFor.call(this, modelName, id, clientId, storeWrapper);
+      return createRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
     };
 
     const data = {
@@ -1995,7 +1995,7 @@ testRecordData(
       ],
     };
 
-    // Expect assertion failure as Book1 ModelData
+    // Expect assertion failure as Book1 RecordData
     // doesn't have relationship attribute
     // and inverse is not set to null in
     // DSbelongsTo
@@ -2038,15 +2038,15 @@ testRecordData(
     assert.notOk(book2.get('chapter'));
     assert.notOk(book.get('chapter'));
     assert.notOk(
-      book1._internalModel._modelData._implicitRelationships,
+      book1._internalModel._recordData._implicitRelationships,
       'no support for implicit relationship in custom RecordData'
     );
     assert.notOk(
-      book2._internalModel._modelData._implicitRelationships,
+      book2._internalModel._recordData._implicitRelationships,
       'no support for implicit relationship in custom RecordData'
     );
     assert.ok(
-      book._internalModel._modelData._implicitRelationships,
+      book._internalModel._recordData._implicitRelationships,
       'support for implicit relationship in default RecordData'
     );
 
@@ -2060,10 +2060,10 @@ testRecordData(
     // doesn't support implicit Relationship
     run(() => {
       chapter.get('sections').removeObject(section1);
-      assert.notOk(section1._internalModel._modelData._implicitRelationships);
+      assert.notOk(section1._internalModel._recordData._implicitRelationships);
 
       chapter.get('sections').removeObject(section2);
-      assert.notOk(section2._internalModel._modelData._implicitRelationships);
+      assert.notOk(section2._internalModel._recordData._implicitRelationships);
     });
 
     assert.equal(chapter.get('sections.length'), 0);
@@ -2078,6 +2078,6 @@ testRecordData(
       sections.addObject(env.store.createRecord('section', { id: 5 }));
     });
     assert.equal(chapter.get('sections.length'), 3);
-    assert.notOk(sections.get('firstObject')._internalModel._modelData._implicitRelationships);
+    assert.notOk(sections.get('firstObject')._internalModel._recordData._implicitRelationships);
   }
 );

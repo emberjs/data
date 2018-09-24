@@ -19,7 +19,7 @@ function getDefaultValue(record, options, key) {
 }
 
 function hasValue(internalModel, key) {
-  return internalModel._modelData.hasAttr(key);
+  return internalModel._recordData.hasAttr(key);
 }
 
 /**

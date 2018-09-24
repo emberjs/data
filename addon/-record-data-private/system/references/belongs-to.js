@@ -74,7 +74,7 @@ export default class BelongsToReference extends Reference {
   }
 
   _resource() {
-    return this.modelData.getBelongsTo(this.key);
+    return this.recordData.getBelongsTo(this.key);
   }
 
   /**
@@ -149,7 +149,7 @@ export default class BelongsToReference extends Reference {
       );
 
       //TODO Igor cleanup, maybe move to relationship push
-      this.belongsToRelationship.setCanonicalModelData(record._internalModel._modelData);
+      this.belongsToRelationship.setCanonicalRecordData(record._internalModel._recordData);
 
       return record;
     });

@@ -798,17 +798,17 @@ testRecordData('unloading a disconnected subgraph clears the relevant internal m
     let internalModel = record._internalModel;
     let origCheck = internalModel._checkForOrphanedInternalModels;
 
-    let modelData = internalModel._modelData;
-    let origCleanup = modelData._cleanupOrphanedModelDatas;
+    let recordData = internalModel._recordData;
+    let origCleanup = recordData._cleanupOrphanedRecordDatas;
 
     internalModel._checkForOrphanedInternalModels = function() {
       ++checkOrphanCalls;
       return origCheck.apply(record._internalModel, arguments);
     };
 
-    modelData._cleanupOrphanedModelDatas = function() {
+    recordData._cleanupOrphanedRecordDatas = function() {
       ++cleanupOrphanCalls;
-      return origCleanup.apply(modelData, arguments);
+      return origCleanup.apply(recordData, arguments);
     };
   }
   countOrphanCalls(env.store.peekRecord('person', 1));

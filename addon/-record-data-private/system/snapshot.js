@@ -240,7 +240,7 @@ export default class Snapshot {
       );
     }
 
-    relationship = this._internalModel._modelData._relationships.get(keyName);
+    relationship = this._internalModel._recordData._relationships.get(keyName);
 
     let value = relationship.getData();
     let data = value && value.data;
@@ -322,7 +322,7 @@ export default class Snapshot {
       );
     }
 
-    relationship = this._internalModel._modelData._relationships.get(keyName);
+    relationship = this._internalModel._recordData._relationships.get(keyName);
 
     let value = relationship.getData();
 
