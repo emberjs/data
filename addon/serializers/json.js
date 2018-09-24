@@ -1482,7 +1482,10 @@ const JSONSerializer = Serializer.extend({
   transformFor(attributeType, skipAssertion) {
     let transform = getOwner(this).lookup('transform:' + attributeType);
 
-    assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
+    assert(
+      `Unable to find the transform for \`attr('${attributeType}')\``,
+      skipAssertion || !!transform
+    );
 
     return transform;
   },
