@@ -429,7 +429,9 @@ export default class Relationship {
               this.isAsync
             );
           }
-          recordData._implicitRelationships[this.inverseKeyForImplicit].addRecordData(this.recordData);
+          recordData._implicitRelationships[this.inverseKeyForImplicit].addRecordData(
+            this.recordData
+          );
         }
       }
     }
