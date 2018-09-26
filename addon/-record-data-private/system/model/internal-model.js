@@ -92,7 +92,7 @@ export default class InternalModel {
     this.modelName = modelName;
     this.clientId = clientId;
 
-    this._modelData = store._createModelData(modelName, id, clientId, this);
+    this._recordData = store._createRecordData(modelName, id, clientId, this);
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -224,12 +224,12 @@ export default class InternalModel {
 
   // DO NOT USE : purely to ease the transition in tests
   get _attributes() {
-    return this._modelData._attributes;
+    return this._recordData._attributes;
   }
 
   // DO NOT USE : purely to ease the transition in tests
   get _relationships() {
-    return this._modelData._relationships;
+    return this._recordData._relationships;
   }
 
   getRecord(properties) {
@@ -258,7 +258,7 @@ export default class InternalModel {
           this.setId(properties.id);
         }
 
-        // convert relationship Records to ModelDatas before passing to ModelData
+        // convert relationship Records to RecordDatas before passing to RecordData
         let defs = store._relationshipsDefinitionFor(this.modelName);
 
         if (defs !== null) {
@@ -285,7 +285,7 @@ export default class InternalModel {
         }
       }
 
-      let additionalCreateOptions = this._modelData._initRecordCreateOptions(properties);
+      let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
       assign(createOptions, additionalCreateOptions);
 
       if (setOwner) {
@@ -346,7 +346,7 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
-    this._modelData.unloadRecord();
+    this._recordData.unloadRecord();
     this.resetRecord();
     this.updateRecordArrays();
   }
@@ -373,7 +373,7 @@ export default class InternalModel {
   linkWasLoadedForRelationship(key, data) {
     let relationships = {};
     relationships[key] = data;
-    this._modelData.pushData({ id: this.id, type: this.modelName, relationships });
+    this._recordData.pushData({ id: this.id, type: this.modelName, relationships });
   }
 
   finishedReloading() {
@@ -489,7 +489,7 @@ export default class InternalModel {
   }
 
   getBelongsTo(key, options) {
-    let resource = this._modelData.getBelongsTo(key);
+    let resource = this._recordData.getBelongsTo(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;
@@ -533,7 +533,7 @@ export default class InternalModel {
   // TODO Igor consider getting rid of initial state
   getManyArray(key) {
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let jsonApi = this._modelData.getHasMany(key);
+    let jsonApi = this._recordData.getHasMany(key);
     let manyArray = this._manyArrayCache[key];
 
     assert(
@@ -547,7 +547,7 @@ export default class InternalModel {
       manyArray = ManyArray.create({
         store: this.store,
         type: this.store.modelFor(relationshipMeta.type),
-        modelData: this._modelData,
+        recordData: this._recordData,
         meta: jsonApi.meta,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
@@ -584,7 +584,7 @@ export default class InternalModel {
   }
 
   getHasMany(key, options) {
-    let jsonApi = this._modelData.getHasMany(key);
+    let jsonApi = this._recordData.getHasMany(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
@@ -645,7 +645,7 @@ export default class InternalModel {
       */
     }
 
-    let jsonApi = this._modelData.getHasMany(key);
+    let jsonApi = this._recordData.getHasMany(key);
     jsonApi._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
@@ -657,14 +657,14 @@ export default class InternalModel {
   }
 
   reloadBelongsTo(key, options) {
-    let resource = this._modelData.getBelongsTo(key);
+    let resource = this._recordData.getBelongsTo(key);
     resource._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);
   }
 
-  destroyFromModelData() {
+  destroyFromRecordData() {
     if (this._doNotDestroy) {
       this._doNotDestroy = false;
       return;
@@ -697,7 +697,7 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    let changedKeys = this._modelData.pushData(data, this.hasRecord);
+    let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
@@ -705,19 +705,19 @@ export default class InternalModel {
   }
 
   getAttributeValue(key) {
-    return this._modelData.getAttr(key);
+    return this._recordData.getAttr(key);
   }
 
   setDirtyHasMany(key, records) {
     assertRecordsPassedToHasMany(records);
-    return this._modelData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
+    return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
   }
 
   setDirtyBelongsTo(key, value) {
     if (value && !value.then) {
       value = extractRecordDataFromRecord(value);
     }
-    return this._modelData.setDirtyBelongsTo(key, value);
+    return this._recordData.setDirtyBelongsTo(key, value);
   }
 
   setDirtyAttribute(key, value) {
@@ -727,8 +727,8 @@ export default class InternalModel {
 
     let currentValue = this.getAttributeValue(key);
     if (currentValue !== value) {
-      this._modelData.setDirtyAttribute(key, value);
-      let isDirty = this._modelData.isAttrDirty(key);
+      this._recordData.setDirtyAttribute(key, value);
+      let isDirty = this._recordData.isAttrDirty(key);
       this.send('didSetProperty', {
         name: key,
         isDirty: isDirty,
@@ -790,7 +790,7 @@ export default class InternalModel {
 
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
-    return this._modelData.hasChangedAttributes();
+    return this._recordData.hasChangedAttributes();
   }
 
   /*
@@ -802,7 +802,7 @@ export default class InternalModel {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
-    return this._modelData.changedAttributes();
+    return this._recordData.changedAttributes();
   }
 
   /*
@@ -810,7 +810,7 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
-    this._modelData.willCommit();
+    this._recordData.willCommit();
     this.send('willCommit');
   }
 
@@ -895,11 +895,11 @@ export default class InternalModel {
   }
 
   didCreateRecord() {
-    this._modelData.clientDidCreate();
+    this._recordData.clientDidCreate();
   }
 
   rollbackAttributes() {
-    let dirtyKeys = this._modelData.rollbackAttributes();
+    let dirtyKeys = this._recordData.rollbackAttributes();
     if (get(this, 'isError')) {
       this.didCleanError();
     }
@@ -1017,7 +1017,7 @@ export default class InternalModel {
   }
 
   removeFromInverseRelationships(isNew = false) {
-    this._modelData.removeFromInverseRelationships(isNew);
+    this._recordData.removeFromInverseRelationships(isNew);
   }
 
   /*
@@ -1053,7 +1053,7 @@ export default class InternalModel {
         jsonPayload.attributes[key] = preloadValue;
       }
     });
-    this._modelData.pushData(jsonPayload);
+    this._recordData.pushData(jsonPayload);
   }
 
   _preloadRelationship(key, preloadValue) {
@@ -1143,7 +1143,7 @@ export default class InternalModel {
   adapterDidCommit(data) {
     this.didCleanError();
 
-    let changedKeys = this._modelData.didCommit(data);
+    let changedKeys = this._recordData.didCommit(data);
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -1190,7 +1190,7 @@ export default class InternalModel {
 
     this.send('becameInvalid');
 
-    this._modelData.commitWasRejected();
+    this._recordData.commitWasRejected();
   }
 
   /*
@@ -1201,7 +1201,7 @@ export default class InternalModel {
     this.send('becameError');
     this.didError(error);
 
-    this._modelData.commitWasRejected();
+    this._recordData.commitWasRejected();
   }
 
   toString() {
@@ -1213,7 +1213,7 @@ export default class InternalModel {
 
     if (!reference) {
       // TODO IGOR AND DAVID REFACTOR
-      let relationship = this._modelData._relationships.get(name);
+      let relationship = this._recordData._relationships.get(name);
 
       if (DEBUG) {
         let modelName = this.modelName;
@@ -1260,10 +1260,10 @@ function extractRecordDatasFromRecords(records) {
 
 function extractRecordDataFromRecord(recordOrPromiseProxy) {
   // TODO @runspired async createRecord would resolve this issue
-  // we leak record promises to ModelData by necessity :'(
+  // we leak record promises to RecordData by necessity :'(
   if (!recordOrPromiseProxy || (recordOrPromiseProxy && recordOrPromiseProxy.then)) {
     return recordOrPromiseProxy;
   }
 
-  return recordOrPromiseProxy._internalModel._modelData;
+  return recordOrPromiseProxy._internalModel._recordData;
 }

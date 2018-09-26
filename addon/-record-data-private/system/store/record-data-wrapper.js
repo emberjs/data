@@ -1,4 +1,4 @@
-export default class ModelDataWrapper {
+export default class RecordDataWrapper {
   constructor(store) {
     this.store = store;
     this._willUpdateManyArrays = false;
@@ -74,8 +74,8 @@ export default class ModelDataWrapper {
     internalModel.notifyBelongsToChange(key);
   }
 
-  modelDataFor(modelName, id, clientId) {
-    return this.store.modelDataFor(modelName, id, clientId);
+  recordDataFor(modelName, id, clientId) {
+    return this.store.recordDataFor(modelName, id, clientId);
   }
 
   setRecordId(modelName, id, clientId) {
@@ -93,7 +93,7 @@ export default class ModelDataWrapper {
   disconnectRecord(modelName, id, clientId) {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     if (internalModel) {
-      internalModel.destroyFromModelData();
+      internalModel.destroyFromRecordData();
     }
   }
 }

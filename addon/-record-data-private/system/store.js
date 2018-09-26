@@ -21,7 +21,7 @@ import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
 import IdentityMap from './identity-map';
-import ModelDataWrapper from './store/model-data-wrapper';
+import RecordDataWrapper from './store/record-data-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
 
@@ -44,7 +44,7 @@ import { getOwner } from '../utils';
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
-import ModelData from './model/model-data';
+import RecordData from './model/record-data';
 import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -226,7 +226,7 @@ Store = Service.extend({
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
 
-    this.modelDataWrapper = new ModelDataWrapper(this);
+    this.recordDataWrapper = new RecordDataWrapper(this);
 
     if (DEBUG) {
       this.shouldAssertMethodCallsOnDestroyedStore =
@@ -399,7 +399,7 @@ Store = Service.extend({
 
         let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
         internalModel.loadedData();
-        // TODO this exists just to proxy `isNew` to ModelData which is weird
+        // TODO this exists just to proxy `isNew` to RecordData which is weird
         internalModel.didCreateRecord();
 
         return internalModel.getRecord(properties);
@@ -1403,7 +1403,7 @@ Store = Service.extend({
         relationshipMeta,
         options
       ).then(internalModels => {
-        let payload = { data: internalModels.map(im => im._modelData.getResourceIdentifier()) };
+        let payload = { data: internalModels.map(im => im._recordData.getResourceIdentifier()) };
         if (internalModels.meta !== undefined) {
           payload.meta = internalModels.meta;
         }
@@ -1486,7 +1486,7 @@ Store = Service.extend({
       relationshipMeta,
       options
     ).then(internalModel => {
-      let response = internalModel && internalModel._modelData.getResourceIdentifier();
+      let response = internalModel && internalModel._recordData.getResourceIdentifier();
       parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
       if (internalModel === null) {
         return null;
@@ -2927,21 +2927,21 @@ Store = Service.extend({
     return internalModel;
   },
 
-  _createModelData(modelName, id, clientId, internalModel) {
-    return this.createModelDataFor(modelName, id, clientId, this.modelDataWrapper);
+  _createRecordData(modelName, id, clientId, internalModel) {
+    return this.createRecordDataFor(modelName, id, clientId, this.recordDataWrapper);
   },
 
-  createModelDataFor(modelName, id, clientId, storeWrapper) {
-    return new ModelData(modelName, id, clientId, storeWrapper, this);
+  createRecordDataFor(modelName, id, clientId, storeWrapper) {
+    return new RecordData(modelName, id, clientId, storeWrapper, this);
   },
 
-  modelDataFor(modelName, id, clientId) {
+  recordDataFor(modelName, id, clientId) {
     let internalModel = this._internalModelForId(modelName, id, clientId);
-    return internalModel._modelData;
+    return internalModel._recordData;
   },
 
-  _internalModelForModelData(modelData) {
-    let resource = modelData.getResourceIdentifier();
+  _internalModelForRecordData(recordData) {
+    let resource = recordData.getResourceIdentifier();
     return this._internalModelForId(resource.type, resource.id, resource.clientId);
   },
   /**

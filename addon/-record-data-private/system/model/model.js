@@ -1152,7 +1152,7 @@ Object.defineProperty(Model.prototype, 'data', {
   configurable: false,
   get() {
     // TODO deprecate this!!!!!!!!!!! it's private but intimate
-    return this._internalModel._modelData._data;
+    return this._internalModel._recordData._data;
   },
 });
 

@@ -987,7 +987,7 @@ test('setting a property back to its original value removes the property from th
   return run(() => {
     return store.findRecord('person', 1).then(person => {
       let internalModel = person._internalModel;
-      let dataSource = internalModel._modelData || internalModel;
+      let dataSource = internalModel._recordData || internalModel;
       assert.equal(dataSource._attributes.name, undefined, 'the `_attributes` hash is clean');
 
       set(person, 'name', 'Niceguy Dale');

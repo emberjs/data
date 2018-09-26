@@ -8,7 +8,7 @@ import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
-export default class ModelData {
+export default class RecordData {
   constructor(modelName, id, clientId, storeWrapper, store) {
     this.store = store;
     this.modelName = modelName;
@@ -95,7 +95,7 @@ export default class ModelData {
       let relationshipData = data.relationships[relationshipName];
       if (DEBUG) {
         let store = this.store;
-        let modelData = this;
+        let recordData = this;
         let relationshipMeta = relationships[relationshipName];
         if (!relationshipData || !relationshipMeta) {
           continue;
@@ -122,7 +122,7 @@ export default class ModelData {
               )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
               !Array.isArray(relationshipData.data)
             );
-            assertRelationshipData(store, modelData, relationshipData.data, relationshipMeta);
+            assertRelationshipData(store, recordData, relationshipData.data, relationshipMeta);
           } else if (relationshipMeta.kind === 'hasMany') {
             assert(
               `A ${
@@ -136,7 +136,7 @@ export default class ModelData {
               for (let i = 0; i < relationshipData.data.length; i++) {
                 assertRelationshipData(
                   store,
-                  modelData,
+                  recordData,
                   relationshipData.data[i],
                   relationshipMeta
                 );
@@ -251,20 +251,20 @@ export default class ModelData {
   }
 
   // set a new "current state" via ResourceIdentifiers
-  setDirtyHasMany(key, modelDatas) {
+  setDirtyHasMany(key, recordDatas) {
     let relationship = this._relationships.get(key);
     relationship.clear();
-    relationship.addModelDatas(modelDatas);
+    relationship.addRecordDatas(recordDatas);
   }
 
-  // append to "current state" via ModelDatas
-  addToHasMany(key, modelDatas, idx) {
-    this._relationships.get(key).addModelDatas(modelDatas, idx);
+  // append to "current state" via RecordDatas
+  addToHasMany(key, recordDatas, idx) {
+    this._relationships.get(key).addRecordDatas(recordDatas, idx);
   }
 
-  // remove from "current state" via ModelDatas
-  removeFromHasMany(key, modelDatas) {
-    this._relationships.get(key).removeModelDatas(modelDatas);
+  // remove from "current state" via RecordDatas
+  removeFromHasMany(key, recordDatas) {
+    this._relationships.get(key).removeRecordDatas(recordDatas);
   }
 
   commitWasRejected() {
@@ -284,15 +284,15 @@ export default class ModelData {
     return this._relationships.get(key).getData();
   }
 
-  setDirtyBelongsTo(key, modelDataOrPromise) {
-    if (modelDataOrPromise === undefined) {
-      modelDataOrPromise = null;
+  setDirtyBelongsTo(key, recordDataOrPromise) {
+    if (recordDataOrPromise === undefined) {
+      recordDataOrPromise = null;
     }
 
-    if (modelDataOrPromise && modelDataOrPromise.then) {
-      this._relationships.get(key).setRecordPromise(modelDataOrPromise);
+    if (recordDataOrPromise && recordDataOrPromise.then) {
+      this._relationships.get(key).setRecordPromise(recordDataOrPromise);
     } else {
-      this._relationships.get(key).setModelData(modelDataOrPromise);
+      this._relationships.get(key).setRecordData(recordDataOrPromise);
     }
   }
 
@@ -336,18 +336,18 @@ export default class ModelData {
       this._scheduledDestroy = run.backburner.schedule(
         'destroy',
         this,
-        '_cleanupOrphanedModelDatas'
+        '_cleanupOrphanedRecordDatas'
       );
     }
   }
 
-  _cleanupOrphanedModelDatas() {
-    let relatedModelDatas = this._allRelatedModelDatas();
-    if (areAllModelsUnloaded(relatedModelDatas)) {
-      for (let i = 0; i < relatedModelDatas.length; ++i) {
-        let modelData = relatedModelDatas[i];
-        if (!modelData.isDestroyed) {
-          modelData.destroy();
+  _cleanupOrphanedRecordDatas() {
+    let relatedRecordDatas = this._allRelatedRecordDatas();
+    if (areAllModelsUnloaded(relatedRecordDatas)) {
+      for (let i = 0; i < relatedRecordDatas.length; ++i) {
+        let recordData = relatedRecordDatas[i];
+        if (!recordData.isDestroyed) {
+          recordData.destroy();
         }
       }
     }
@@ -372,7 +372,7 @@ export default class ModelData {
     to or has many.
 
   */
-  _directlyRelatedModelDatas() {
+  _directlyRelatedRecordDatas() {
     let array = [];
 
     this._relationships.forEach((name, rel) => {
@@ -393,7 +393,7 @@ export default class ModelData {
     @return {Array} An array including `this` and all internal models reachable
     from `this`.
   */
-  _allRelatedModelDatas() {
+  _allRelatedRecordDatas() {
     let array = [];
     let queue = [];
     let bfsId = nextBfsId++;
@@ -402,13 +402,13 @@ export default class ModelData {
     while (queue.length > 0) {
       let node = queue.shift();
       array.push(node);
-      let related = node._directlyRelatedModelDatas();
+      let related = node._directlyRelatedRecordDatas();
       for (let i = 0; i < related.length; ++i) {
-        let modelData = related[i];
-        assert('Internal Error: seen a future bfs iteration', modelData._bfsId <= bfsId);
-        if (modelData._bfsId < bfsId) {
-          queue.push(modelData);
-          modelData._bfsId = bfsId;
+        let recordData = related[i];
+        assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
+        if (recordData._bfsId < bfsId) {
+          queue.push(recordData);
+          recordData._bfsId = bfsId;
         }
       }
     }
@@ -710,7 +710,7 @@ if (isEnabled('ds-rollback-attribute')) {
      @method lastAcknowledgedValue
      @private
   */
-  ModelData.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
+  RecordData.prototype.lastAcknowledgedValue = function lastAcknowledgedValue(key) {
     if (key in this._inFlightAttributes) {
       return this._inFlightAttributes[key];
     } else {
@@ -719,9 +719,9 @@ if (isEnabled('ds-rollback-attribute')) {
   };
 }
 
-function assertRelationshipData(store, modelData, data, meta) {
+function assertRelationshipData(store, recordData, data, meta) {
   assert(
-    `A ${modelData.modelName} record was pushed into the store with the value of ${
+    `A ${recordData.modelName} record was pushed into the store with the value of ${
       meta.key
     } being '${JSON.stringify(data)}', but ${
       meta.key
@@ -731,7 +731,7 @@ function assertRelationshipData(store, modelData, data, meta) {
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
       meta.key
-    }' on ${modelData}, expected a json-api identifier with type '${
+    }' on ${recordData}, expected a json-api identifier with type '${
       meta.type
     }' but found '${JSON.stringify(
       data
@@ -741,7 +741,7 @@ function assertRelationshipData(store, modelData, data, meta) {
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${
       meta.key
-    }' on ${modelData}, expected a json-api identifier but found '${JSON.stringify(
+    }' on ${recordData}, expected a json-api identifier but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || coerceId(data.id)
@@ -749,7 +749,7 @@ function assertRelationshipData(store, modelData, data, meta) {
   assert(
     `Encountered a relationship identifier with type '${data.type}' for the ${
       meta.kind
-    } relationship '${meta.key}' on ${modelData}, Expected a json-api identifier with type '${
+    } relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${
       meta.type
     }'. No model was found for '${data.type}'.`,
     data === null || !data.type || store._hasModelFor(data.type)
@@ -767,17 +767,17 @@ function assertRelationshipData(store, modelData, data, meta) {
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
 function destroyRelationship(rel) {
-  rel.modelDataDidDematerialize();
+  rel.recordDataDidDematerialize();
 
   if (rel._inverseIsSync()) {
-    rel.removeAllModelDatasFromOwn();
-    rel.removeAllCanonicalModelDatasFromOwn();
+    rel.removeAllRecordDatasFromOwn();
+    rel.removeAllCanonicalRecordDatasFromOwn();
   }
 }
 
-function areAllModelsUnloaded(modelDatas) {
-  for (let i = 0; i < modelDatas.length; ++i) {
-    if (modelDatas[i].isRecordInUse()) {
+function areAllModelsUnloaded(recordDatas) {
+  for (let i = 0; i < recordDatas.length; ++i) {
+    if (recordDatas[i].isRecordInUse()) {
       return false;
     }
   }
