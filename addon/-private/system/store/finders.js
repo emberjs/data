@@ -127,6 +127,7 @@ function syncRelationshipDataFromLink(store, payload, internalModel, relationshi
     ensureRelationshipIsSetToParent(data, internalModel, store, relationship, index);
     return { id, type };
   });
+  console.log('relData', relationship.key, relationshipData);
   store.push({
     data: {
       id: internalModel.id,
