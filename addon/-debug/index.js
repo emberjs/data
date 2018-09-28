@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { assert, deprecate } from '@ember/debug';
+import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 export function instrument(method) {
@@ -59,75 +59,4 @@ if (DEBUG) {
   };
 }
 
-function ensureRelationshipIsSetToParent({ relationships, id, type }, internalModel, store, relationship, index) {
-  if (!relationships) {
-    return;
-  }
-
-  let inverse = getInverseKey(store, internalModel, relationship);
-  if (inverse) {
-    let relationshipData = relationships[inverse] && relationships[inverse].data;
-    if (relationshipData && !relationshipDataPointsToParent(relationshipData, internalModel)) {
-      let quotedType = Ember.inspect(type);
-      let quotedInverse = Ember.inspect(inverse);
-      let expected = Ember.inspect({ id: internalModel.id, type: internalModel.modelName });
-      let expectedModel = Ember.inspect(internalModel);
-      let got = Ember.inspect(relationshipData);
-      let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
-      let path = `${prefix}.relationships.${inverse}.data`;
-      let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
-      let relationshipFetched = `${Ember.inspect(internalModel)}.${relationship.kind}("${relationship.name}")`;
-      let includedRecord = `<${type}:${id}>`;
-      let message = [
-      `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,
-      `The ${includedRecord} record loaded at ${prefix} in the payload specified ${other} as its ${quotedInverse}, but should have specified ${expectedModel} (the record the relationship is being loaded from) as its ${quotedInverse} instead.`,
-      `This could mean that the response for ${relationshipFetched} may have accidentally returned ${quotedType} records that aren't related to ${expectedModel} and could be related to a different ${internalModel.modelName} record instead.`,
-      `Ember Data has corrected the ${includedRecord} record's ${quotedInverse} relationship to ${expectedModel} so that ${relationshipFetched} will include ${includedRecord}.`,
-      `Please update the response from the server or change your serializer to either ensure that the response for only includes ${quotedType} records that specify ${expectedModel} as their ${quotedInverse}, or omit the ${quotedInverse} relationship from the response.`,
-      ].join('\n');
-
-      // this should eventually throw instead of deprecating.
-      deprecate(message + '\n', false, {
-        id: 'mismatched-inverse-relationship-data-from-payload',
-        until: '3.8',
-      });
-    }
-  }
-}
-
-function getInverseKey(store, { modelName }, { name: lhs_relationshipName }) {
-  if (store.modelDataWrapper) {
-    return store.modelDataWrapper.inverseForRelationship(modelName, lhs_relationshipName);
-  } else {
-    return store._relationshipsPayloads.getRelationshipInfo(modelName, lhs_relationshipName)
-      .rhs_relationshipName;
-  }
-}
-
-function relationshipDataPointsToParent(relationshipData, internalModel) {
-  if (relationshipData === null) {
-    return false;
-  }
-
-  if (Array.isArray(relationshipData)) {
-    if (relationshipData.length === 0) {
-      return false;
-    }
-    for (let i = 0; i < relationshipData.length; i++) {
-      let entry = relationshipData[i];
-      if (validateRelationshipEntry(entry, internalModel)) {
-        return true;
-      }
-    }
-  } else {
-    return validateRelationshipEntry(relationshipData, internalModel);
-  }
-
-  return false;
-}
-
-function validateRelationshipEntry({ id }, { id: parentModelID }) {
-  return id && id.toString() === parentModelID;
-}
-
-export { assertPolymorphicType, ensureRelationshipIsSetToParent };
+export { assertPolymorphicType };

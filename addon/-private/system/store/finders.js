@@ -1,12 +1,14 @@
 import { A } from '@ember/array';
 import { Promise } from 'rsvp';
-import { assert, warn } from '@ember/debug';
+import { assert, warn, deprecate } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
+import Ember from 'ember';
 
 import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 
 import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
-import { ensureRelationshipIsSetToParent } from 'ember-data/-debug';
+import { merge } from '@ember/polyfills';
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -120,18 +122,21 @@ function iterateData(data, fn) {
 //   assert that record.relationships[inverse] is either undefined (so we can fix it)
 //     or provide a data: {id, type} that matches the record that requested it
 //   return the relationship data for the parent
-
-function syncRelationshipDataFromLink(store, payload, internalModel, relationship) {
+function syncRelationshipDataFromLink(store, payload, parentInternalModel, relationship) {
+  // ensure the right hand side (incoming payload) points to the parent record that
+  // requested this relationship
   let relationshipData = iterateData(payload.data, (data, index) => {
     const { id, type } = data;
-    ensureRelationshipIsSetToParent(data, internalModel, store, relationship, index);
+    ensureRelationshipIsSetToParent(data, parentInternalModel, store, relationship, index);
     return { id, type };
   });
-  console.log('relData', relationship.key, relationshipData);
+
+  // now, push the left hand side (the parent record) to ensure things are in sync, since
+  // the payload will be pushed with store._push
   store.push({
     data: {
-      id: internalModel.id,
-      type: internalModel.modelName,
+      id: parentInternalModel.id,
+      type: parentInternalModel.modelName,
       relationships: {
         [relationship.key]: {
           data: relationshipData,
@@ -139,6 +144,166 @@ function syncRelationshipDataFromLink(store, payload, internalModel, relationshi
       },
     },
   });
+}
+
+function ensureRelationshipIsSetToParent(
+  payload,
+  parentInternalModel,
+  store,
+  parentRelationship,
+  index
+) {
+  let { id, type } = payload;
+
+  if (!payload.relationships) {
+    payload.relationships = {};
+  }
+  let { relationships } = payload;
+
+  let inverse = getInverse(store, parentInternalModel, parentRelationship, type);
+  if (inverse) {
+    let { inverseKey, kind } = inverse;
+
+    let relationshipData = relationships[inverseKey] && relationships[inverseKey].data;
+
+    if (
+      DEBUG &&
+      typeof relationshipData !== 'undefined' &&
+      !relationshipDataPointsToParent(relationshipData, parentInternalModel)
+    ) {
+      let quotedType = Ember.inspect(type);
+      let quotedInverse = Ember.inspect(inverseKey);
+      let expected = Ember.inspect({
+        id: parentInternalModel.id,
+        type: parentInternalModel.modelName,
+      });
+      let expectedModel = Ember.inspect(parentInternalModel);
+      let got = Ember.inspect(relationshipData);
+      let prefix = typeof index === 'number' ? `data[${index}]` : `data`;
+      let path = `${prefix}.relationships.${inverse}.data`;
+      let other = relationshipData ? `<${relationshipData.type}:${relationshipData.id}>` : null;
+      let relationshipFetched = `${Ember.inspect(parentInternalModel)}.${
+        parentRelationship.kind
+      }("${parentRelationship.name}")`;
+      let includedRecord = `<${type}:${id}>`;
+      let message = [
+        `Encountered mismatched relationship: Ember Data expected ${path} in the payload from ${relationshipFetched} to include ${expected} but got ${got} instead.\n`,
+        `The ${includedRecord} record loaded at ${prefix} in the payload specified ${other} as its ${quotedInverse}, but should have specified ${expectedModel} (the record the relationship is being loaded from) as its ${quotedInverse} instead.`,
+        `This could mean that the response for ${relationshipFetched} may have accidentally returned ${quotedType} records that aren't related to ${expectedModel} and could be related to a different ${
+          parentInternalModel.modelName
+        } record instead.`,
+        `Ember Data has corrected the ${includedRecord} record's ${quotedInverse} relationship to ${expectedModel} so that ${relationshipFetched} will include ${includedRecord}.`,
+        `Please update the response from the server or change your serializer to either ensure that the response for only includes ${quotedType} records that specify ${expectedModel} as their ${quotedInverse}, or omit the ${quotedInverse} relationship from the response.`,
+      ].join('\n');
+
+      // this should eventually throw instead of deprecating.
+      deprecate(message + '\n', false, {
+        id: 'mismatched-inverse-relationship-data-from-payload',
+        until: '3.8',
+      });
+    }
+    relationships[inverseKey] = relationships[inverseKey] || {};
+    relationships[inverseKey].data = fixRelationshipData(
+      relationshipData,
+      kind,
+      parentInternalModel
+    );
+  }
+}
+
+function getInverse(store, parentInternalModel, parentRelationship, type) {
+  if (store.recordDataWrapper) {
+    return recordDataFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship, type);
+  } else {
+    return legacyFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship);
+  }
+}
+
+function recordDataFindInverseRelationshipInfo(
+  { recordDataWrapper },
+  parentInternalModel,
+  parentRelationship,
+  type
+) {
+  let { name: lhs_relationshipName } = parentRelationship;
+  let { modelName } = parentInternalModel;
+  let inverseKey = recordDataWrapper.inverseForRelationship(modelName, lhs_relationshipName);
+
+  if (inverseKey) {
+    let {
+      meta: { kind },
+    } = recordDataWrapper.relationshipsDefinitionFor(type)[inverseKey];
+    return {
+      inverseKey,
+      kind,
+    };
+  }
+}
+
+function legacyFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship) {
+  let { name: lhs_relationshipName } = parentRelationship;
+  let { modelName } = parentInternalModel;
+
+  let relationshipInfo = store._relationshipsPayloads.getRelationshipInfo(
+    modelName,
+    lhs_relationshipName
+  );
+  let { hasInverse, rhs_relationshipName: inverseKey, rhs_relationshipMeta } = relationshipInfo;
+
+  if (hasInverse) {
+    let {
+      meta: { kind },
+    } = rhs_relationshipMeta;
+    return {
+      inverseKey,
+      kind,
+    };
+  }
+}
+
+function relationshipDataPointsToParent(relationshipData, internalModel) {
+  if (relationshipData === null) {
+    return false;
+  }
+
+  if (Array.isArray(relationshipData)) {
+    if (relationshipData.length === 0) {
+      return false;
+    }
+    for (let i = 0; i < relationshipData.length; i++) {
+      let entry = relationshipData[i];
+      if (validateRelationshipEntry(entry, internalModel)) {
+        return true;
+      }
+    }
+  } else {
+    return validateRelationshipEntry(relationshipData, internalModel);
+  }
+
+  return false;
+}
+
+function fixRelationshipData(relationshipData, relationshipKind, { id, modelName }) {
+  let parentRelationshipData = {
+    id,
+    type: modelName,
+  };
+
+  let payload;
+
+  if (relationshipKind === 'hasMany') {
+    payload = relationshipData || [];
+    payload.push(parentRelationshipData);
+  } else {
+    payload = relationshipData || {};
+    merge(payload, parentRelationshipData);
+  }
+
+  return payload;
+}
+
+function validateRelationshipEntry({ id }, { id: parentModelID }) {
+  return id && id.toString() === parentModelID;
 }
 
 export function _findHasMany(adapter, store, internalModel, link, relationship, options) {
