@@ -6,6 +6,7 @@
 /bin
 /docs
 /.node_modules.ember-try
+/notes
 
 # Ignore all assets except /dist/docs folder
 /dist/assets/
