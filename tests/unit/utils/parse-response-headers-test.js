@@ -21,7 +21,7 @@ test('header parsing', function(assert) {
 
   let headers = parseResponseHeaders(headersString);
 
-  assert.equal(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+  assert.equal(headers['content-encoding'], 'gzip', 'parses basic header pair');
   assert.equal(
     headers['content-type'],
     'application/json; charset=utf-8',
@@ -34,6 +34,7 @@ test('field-name parsing', function(assert) {
   let headersString = [
     '  name-with-leading-whitespace: some value',
     'name-with-whitespace-before-colon : another value',
+    'Uppercase-Name: yet another value',
   ].join(CRLF);
 
   let headers = parseResponseHeaders(headersString);
@@ -48,6 +49,7 @@ test('field-name parsing', function(assert) {
     'another value',
     'strips whitespace before colon from field-name'
   );
+  assert.equal(headers['uppercase-name'], 'yet another value', 'lowercases the field-name');
 });
 
 test('field-value parsing', function(assert) {
@@ -92,9 +94,9 @@ test('ignores headers that do not contain a colon', function(assert) {
 
   let headers = parseResponseHeaders(headersString);
 
-  assert.deepEqual(headers['Content-Encoding'], 'gzip', 'parses basic header pair');
+  assert.deepEqual(headers['content-encoding'], 'gzip', 'parses basic header pair');
   assert.deepEqual(headers['apple'], 'pie', 'parses basic header pair');
-  assert.equal(Object.keys(headers).length, 2, 'only has the one valid header');
+  assert.equal(Object.keys(headers).length, 3, 'only has the three valid headers');
 });
 
 test('tollerate extra new-lines', function(assert) {
