@@ -515,7 +515,7 @@ test('if a deleted record errors, it enters the error state', function(assert) {
   });
 });
 
-test('if a created record is marked as invalid by the server, it enters an error state', function(assert) {
+test('if a created record is marked as invalid by the server, it enters an error state', async function(assert) {
   adapter.createRecord = function(store, type, snapshot) {
     assert.equal(type, Person, 'the type is correct');
 
@@ -537,37 +537,28 @@ test('if a created record is marked as invalid by the server, it enters an error
   };
 
   let yehuda = store.createRecord('person', { id: 1, name: 'Yehuda Katz' });
+
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
-  return run(function() {
-    return yehuda
-      .save()
-      .catch(error => {
-        assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
-        assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
+  await yehuda.save().catch(error => {
+    assert.equal(get(yehuda, 'isValid'), false, 'the record is invalid');
+    assert.ok(get(yehuda, 'errors.name'), 'The errors.name property exists');
 
-        set(yehuda, 'updatedAt', true);
-        assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
+    set(yehuda, 'updatedAt', true);
+    assert.equal(get(yehuda, 'isValid'), false, 'the record is still invalid');
 
-        set(yehuda, 'name', 'Brohuda Brokatz');
+    set(yehuda, 'name', 'Brohuda Brokatz');
 
-        assert.equal(
-          get(yehuda, 'isValid'),
-          true,
-          'the record is no longer invalid after changing'
-        );
-        assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+    assert.equal(get(yehuda, 'isValid'), true, 'the record is no longer invalid after changing');
+    assert.equal(get(yehuda, 'hasDirtyAttributes'), true, 'the record has outstanding changes');
+    assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+  });
 
-        assert.equal(get(yehuda, 'isNew'), true, 'precond - record is still new');
+  await yehuda.save().then(person => {
+    assert.strictEqual(person, yehuda, 'The promise resolves with the saved record');
 
-        return yehuda.save();
-      })
-      .then(person => {
-        assert.strictEqual(person, yehuda, 'The promise resolves with the saved record');
-
-        assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
-        assert.equal(get(yehuda, 'isNew'), false, 'record is no longer new');
-      });
+    assert.equal(get(yehuda, 'isValid'), true, 'record remains valid after committing');
+    assert.equal(get(yehuda, 'isNew'), false, 'record is no longer new');
   });
 });
 
