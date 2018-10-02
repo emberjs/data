@@ -1,5 +1,5 @@
 import { mapBy, not } from '@ember/object/computed';
-import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../../deprecated-evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
@@ -85,18 +85,7 @@ import { warn } from '@ember/debug';
   @uses Ember.Enumerable
   @uses Ember.Evented
  */
-export default ArrayProxy.extend(Evented, {
-  /**
-    Register with target handler
-
-    @method _registerHandlers
-    @private
-  */
-  _registerHandlers(target, becameInvalid, becameValid) {
-    this.on('becameInvalid', target, becameInvalid);
-    this.on('becameValid', target, becameValid);
-  },
-
+export default ArrayProxy.extend(DeprecatedEvented, {
   /**
     @property errorsByAttributeName
     @type {MapWithDefault}
@@ -186,8 +175,7 @@ export default ArrayProxy.extend(Evented, {
   isEmpty: not('length').readOnly(),
 
   /**
-    Adds error messages to a given attribute and sends
-    `becameInvalid` event to the record.
+    Adds error messages to a given attribute
 
     Example:
 
@@ -200,31 +188,11 @@ export default ArrayProxy.extend(Evented, {
     @method add
     @param {String} attribute
     @param {(Array|String)} messages
-    @deprecated
   */
   add(attribute, messages) {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.add',
-    });
-
-    let wasEmpty = get(this, 'isEmpty');
-
-    this._add(attribute, messages);
-
-    if (wasEmpty && !get(this, 'isEmpty')) {
-      this.trigger('becameInvalid');
-    }
-  },
-
-  /**
-    Adds error messages to a given attribute without sending event.
-
-    @method _add
-    @private
-  */
-  _add(attribute, messages) {
     messages = this._findOrCreateMessages(attribute, messages);
     this.addObjects(messages);
+
     get(this, 'errorsByAttributeName')
       .get(attribute)
       .addObjects(messages);
@@ -258,8 +226,7 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Removes all error messages from the given attribute and sends
-    `becameValid` event to the record if there no more errors left.
+    Removes all error messages from the given attribute
 
     Example:
 
@@ -290,35 +257,8 @@ export default ArrayProxy.extend(Evented, {
 
     @method remove
     @param {String} attribute
-    @deprecated
   */
   remove(attribute) {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.remove',
-    });
-
-    if (get(this, 'isEmpty')) {
-      return;
-    }
-
-    this._remove(attribute);
-
-    if (get(this, 'isEmpty')) {
-      this.trigger('becameValid');
-    }
-  },
-
-  /**
-    Removes all error messages from the given attribute without sending event.
-
-    @method _remove
-    @private
-  */
-  _remove(attribute) {
-    if (get(this, 'isEmpty')) {
-      return;
-    }
-
     let content = this.rejectBy('attribute', attribute);
     set(this, 'content', content);
     get(this, 'errorsByAttributeName').delete(attribute);
@@ -328,8 +268,7 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Removes all error messages and sends `becameValid` event
-    to the record.
+    Removes all error messages.
 
     Example:
 
@@ -347,29 +286,8 @@ export default ArrayProxy.extend(Evented, {
     ```
 
     @method clear
-    @deprecated
   */
   clear() {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.clear',
-    });
-
-    if (get(this, 'isEmpty')) {
-      return;
-    }
-
-    this._clear();
-    this.trigger('becameValid');
-  },
-
-  /**
-    Removes all error messages.
-    to the record.
-
-    @method _clear
-    @private
-  */
-  _clear() {
     if (get(this, 'isEmpty')) {
       return;
     }
@@ -386,7 +304,7 @@ export default ArrayProxy.extend(Evented, {
       this.notifyPropertyChange(attribute);
     }, this);
 
-    ArrayProxy.prototype.clear.call(this);
+    this._super();
   },
 
   /**
