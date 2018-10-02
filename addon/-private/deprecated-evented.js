@@ -7,10 +7,15 @@ let DeprecatedEvented = Evented;
 
 if (DEBUG) {
   function printDeprecation(ctx) {
-    deprecate(`Use of event functionality provided by Ember.Evented with ${ctx._debugContainerKey} has been deprecated.`, {
-      id: 'ember-data:no-longer-evented',
-      until: '3.8',
-    });
+    deprecate(
+      `Use of event functionality provided by Ember.Evented with ${
+        ctx._debugContainerKey
+      } has been deprecated.`,
+      {
+        id: 'ember-data:no-longer-evented',
+        until: '3.8',
+      }
+    );
   }
 
   DeprecatedEvented = Mixin.create(Evented, {
@@ -33,7 +38,7 @@ if (DEBUG) {
     trigger() {
       printDeprecation(this);
       return this._super(...arguments);
-    }
+    },
   });
 }
 
