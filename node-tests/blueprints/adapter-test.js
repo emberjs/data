@@ -133,6 +133,24 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
         });
       });
     });
+
+    describe.only('with ember-mocha v0.14+', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.14.0');
+      });
+
+      it('adapter-test for mocha v0.14+', function() {
+        return emberGenerateDestroy(['adapter-test', 'foo'], _file => {
+          expect(_file('tests/unit/adapters/foo-test.js')).to.equal(
+            fixture('adapter-test/mocha-rfc232.js')
+          );
+        });
+      });
+    });
   });
 
   describe('module unification', function() {
