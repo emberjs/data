@@ -8,7 +8,7 @@ detailing how to become involved to best ensure your contributions are successfu
 ### Reporting Bugs
 
 Report issues you've discovered via the [issue tracker](https://github.com/emberjs/data/issues).
-We have provided an [issue template](./.github/ISSUE_TEMPLATE/bug.md) what will help guide you through the process.
+We have provided an [issue template](.github/bug.md) what will help guide you through the process.
 If you are unsure if something is a bug, the `#ember-data` channel on [Discord](https://discord.gg/zT3asNS) is
 a great place to ask for help!
 
