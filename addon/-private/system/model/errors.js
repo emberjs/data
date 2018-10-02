@@ -4,7 +4,6 @@ import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
 import MapWithDefault from '../map-with-default';
-import { warn } from '@ember/debug';
 
 /**
 @module ember-data

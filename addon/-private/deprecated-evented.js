@@ -6,7 +6,7 @@ import { DEBUG } from '@glimmer/env';
 let DeprecatedEvented = Evented;
 
 if (DEBUG) {
-  function printDeprecation(ctx) {
+  const printDeprecation = function(ctx) {
     deprecate(
       `Use of event functionality provided by Ember.Evented with ${
         ctx._debugContainerKey
@@ -16,7 +16,7 @@ if (DEBUG) {
         until: '3.8',
       }
     );
-  }
+  };
 
   DeprecatedEvented = Mixin.create(Evented, {
     has() {
