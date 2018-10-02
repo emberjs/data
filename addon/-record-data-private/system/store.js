@@ -2848,6 +2848,7 @@ Store = Service.extend({
     @method pushPayload
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
     @param {Object} inputPayload
+    @return {Undefined}
   */
   pushPayload(modelName, inputPayload) {
     if (DEBUG) {
