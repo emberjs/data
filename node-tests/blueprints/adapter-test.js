@@ -134,7 +134,7 @@ describe('Acceptance: generate and destroy adapter blueprints', function() {
       });
     });
 
-    describe.only('with ember-mocha v0.14+', function() {
+    describe('with ember-mocha v0.14+', function() {
       beforeEach(function() {
         modifyPackages([
           { name: 'ember-cli-qunit', delete: true },
