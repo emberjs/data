@@ -133,6 +133,26 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
         });
       });
     });
+
+    describe('with ember-mocha v0.14+', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.14.0');
+      });
+
+      it('serializer-test for mocha v0.14+', function() {
+        let args = ['serializer-test', 'foo'];
+
+        return emberGenerateDestroy(args, _file => {
+          expect(_file('tests/unit/serializers/foo-test.js')).to.equal(
+            fixture('serializer-test/mocha-rfc232.js')
+          );
+        });
+      });
+    });
   });
 
   describe('module unification', function() {
@@ -272,6 +292,30 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           _file => {
             expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
               fixture('serializer-test/foo-mocha-0.12.js')
+            );
+          },
+          { isModuleUnification: true }
+        );
+      });
+    });
+
+    describe('with ember-mocha v0.14+', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-mocha', '0.14.0');
+      });
+
+      it('serializer-test for mocha v0.14+', function() {
+        let args = ['serializer-test', 'foo'];
+
+        return emberGenerateDestroy(
+          args,
+          _file => {
+            expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+              fixture('serializer-test/mocha-rfc232.js')
             );
           },
           { isModuleUnification: true }
