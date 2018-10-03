@@ -213,7 +213,12 @@ function ensureRelationshipIsSetToParent(
 
 function getInverse(store, parentInternalModel, parentRelationship, type) {
   if (store.recordDataWrapper) {
-    return recordDataFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship, type);
+    return recordDataFindInverseRelationshipInfo(
+      store,
+      parentInternalModel,
+      parentRelationship,
+      type
+    );
   } else {
     return legacyFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship);
   }

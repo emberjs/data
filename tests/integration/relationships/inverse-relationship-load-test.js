@@ -6,22 +6,7 @@ import Store from 'ember-data/store';
 import Model from 'ember-data/model';
 import { resolve } from 'rsvp';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
-
-class Person extends Model {
-  @attr('string')
-  updateAt;
-  @attr('string')
-  name;
-  @attr('string')
-  firstName;
-  @attr('string')
-  lastName;
-}
-
-class Dog extends Model {
-  @attr('string')
-  name;
-}
+import { testInDebug } from '../../helpers/test-in-debug';
 
 module('inverse relationship load test', function(hooks) {
   let store;
@@ -254,7 +239,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -345,7 +330,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -353,8 +338,8 @@ module('inverse relationship load test', function(hooks) {
 
     class Dog extends Model {
       @belongsTo('person', {
-        async: true,
-        async: false
+        async: false,
+        inverse: 'dogs'
       })
       pal;
     }
@@ -1079,7 +1064,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pals'
+        inverse: 'pals',
       })
       dogs;
     }
@@ -1185,7 +1170,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pals'
+        inverse: 'pals',
       })
       dogs;
     }
@@ -1436,7 +1421,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -1514,7 +1499,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: false,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -1568,7 +1553,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record deleted removed from belongsTo relationship');
   });
 
-  test('one-to-many - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-many - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -1671,7 +1656,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2');
   });
 
-  test('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -1774,7 +1759,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2');
   });
 
-  test('one-to-many - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-many - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -1871,7 +1856,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2');
   });
 
-  test('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-many (left hand async, right hand sync) - findHasMany/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -1968,7 +1953,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogs.get('firstObject.id'), '2');
   });
 
-  test('one-to-one - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-one - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2039,9 +2024,6 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dogFromStore.belongsTo('person').id(), '1');
     assert.equal(person.belongsTo('dog').id(), '1');
     assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
-
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
-    debugger;
     assert.equal(
       person.belongsTo('dog').belongsToRelationship.relationshipIsEmpty,
       false,
@@ -2060,7 +2042,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2132,8 +2114,6 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(person.belongsTo('dog').id(), '1');
     assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
 
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
-    debugger;
     assert.equal(
       person.belongsTo('dog').belongsToRelationship.relationshipIsEmpty,
       false,
@@ -2152,7 +2132,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('one-to-one - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-one - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2221,8 +2201,6 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(person.belongsTo('dog').id(), '1');
     assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
 
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
-    debugger;
     assert.equal(
       person.belongsTo('dog').belongsToRelationship.relationshipIsEmpty,
       false,
@@ -2241,7 +2219,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('one-to-one (left hand async, right hand sync) - findBelongsTo/implicit inverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2310,8 +2288,6 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(person.belongsTo('dog').id(), '1');
     assert.equal(dog.id, '1', 'dog.person relationship loaded correctly');
 
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
-    debugger;
     assert.equal(
       person.belongsTo('dog').belongsToRelationship.relationshipIsEmpty,
       false,
@@ -2330,7 +2306,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('many-to-one - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-one - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2398,7 +2374,6 @@ module('inverse relationship load test', function(hooks) {
     assert.expectDeprecation(/Encountered mismatched relationship/);
     let dogFromStore = await store.peekRecord('dog', '1');
 
-    // TODO: weirdly these pass...
     assert.equal(
       dogFromStore.belongsTo('person').id(),
       '1',
@@ -2410,7 +2385,6 @@ module('inverse relationship load test', function(hooks) {
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
     assert.equal(
       person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty,
       false,
@@ -2422,7 +2396,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2490,7 +2464,6 @@ module('inverse relationship load test', function(hooks) {
     assert.expectDeprecation(/Encountered mismatched relationship/);
     let dogFromStore = await store.peekRecord('dog', '1');
 
-    // TODO: weirdly these pass...
     assert.equal(
       dogFromStore.belongsTo('person').id(),
       '1',
@@ -2502,7 +2475,6 @@ module('inverse relationship load test', function(hooks) {
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
     assert.equal(
       person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty,
       false,
@@ -2514,7 +2486,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('many-to-one - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-one - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2577,7 +2549,6 @@ module('inverse relationship load test', function(hooks) {
     assert.expectDeprecation(/Encountered mismatched relationship/);
     let dogFromStore = await store.peekRecord('dog', '1');
 
-    // TODO: weirdly these pass...
     assert.equal(
       dogFromStore.belongsTo('person').id(),
       '1',
@@ -2589,7 +2560,6 @@ module('inverse relationship load test', function(hooks) {
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
     assert.equal(
       person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty,
       false,
@@ -2601,7 +2571,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-one (left hand async, right hand sync) - findBelongsTo/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2664,7 +2634,6 @@ module('inverse relationship load test', function(hooks) {
     assert.expectDeprecation(/Encountered mismatched relationship/);
     let dogFromStore = await store.peekRecord('dog', '1');
 
-    // TODO: weirdly these pass...
     assert.equal(
       dogFromStore.belongsTo('person').id(),
       '1',
@@ -2676,7 +2645,6 @@ module('inverse relationship load test', function(hooks) {
       '1',
       'dog.person inverse relationship is set up correctly when adapter does not include parent relationships in data.relationships'
     );
-    // TODO: but this assertion fails. I don't think the relationship is empty considering the above and below assertions.
     assert.equal(
       person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty,
       false,
@@ -2688,7 +2656,7 @@ module('inverse relationship load test', function(hooks) {
     assert.equal(dog, null, 'record was removed from belongsTo relationship');
   });
 
-  test('many-to-many - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -2884,7 +2852,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes mismatched parent relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -3080,7 +3048,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('many-to-many - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -3153,7 +3121,7 @@ module('inverse relationship load test', function(hooks) {
       },
     });
 
-    let person1Dogs = await person.get('dogs');
+    await person.get('dogs');
 
     assert.expectDeprecation(/Encountered mismatched relationship/);
     assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
@@ -3219,7 +3187,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes empty relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -3292,7 +3260,7 @@ module('inverse relationship load test', function(hooks) {
       },
     });
 
-    let person1Dogs = await person.get('dogs');
+    await person.get('dogs');
 
     assert.expectDeprecation(/Encountered mismatched relationship/);
     assert.equal(person.hasMany('dogs').hasManyRelationship.relationshipIsEmpty, false);
@@ -3358,7 +3326,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('many-to-many - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -3496,7 +3464,7 @@ module('inverse relationship load test', function(hooks) {
     );
   });
 
-  test('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
+  testInDebug('many-to-many (left hand async, right hand sync) - findHasMany/implicitInverse - fixes null relationship information from the payload and deprecates', async function(assert) {
     let { owner } = this;
 
     owner.register(
@@ -3867,7 +3835,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -3967,7 +3935,7 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: 'pal'
+        inverse: 'pal',
       })
       dogs;
     }
@@ -4067,14 +4035,13 @@ module('inverse relationship load test', function(hooks) {
     class Person extends Model {
       @hasMany('dog', {
         async: true,
-        inverse: null
+        inverse: null,
       })
       dogs;
     }
     owner.register('model:person', Person);
 
-    class Dog extends Model {
-    }
+    class Dog extends Model {}
     owner.register('model:dog', Dog);
 
     let person = store.push({
@@ -4401,8 +4368,8 @@ module('inverse relationship load test', function(hooks) {
       },
       relationships: {
         person: {
-          data: null
-        }
+          data: null,
+        },
       },
     };
 
@@ -4414,7 +4381,7 @@ module('inverse relationship load test', function(hooks) {
       },
       relationships: {
         person: {
-          data: null
+          data: null,
         },
       },
     };
@@ -4483,11 +4450,7 @@ module('inverse relationship load test', function(hooks) {
 
     for (let dog of store.peekAll('dogs').toArray()) {
       let dogPerson = await dog.get('person');
-      assert.equal(
-        dogPerson,
-        null,
-        'right hand side has correct belongsTo value'
-      );
+      assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
@@ -4507,8 +4470,8 @@ module('inverse relationship load test', function(hooks) {
       },
       relationships: {
         person: {
-          data: null
-        }
+          data: null,
+        },
       },
     };
 
@@ -4520,7 +4483,7 @@ module('inverse relationship load test', function(hooks) {
       },
       relationships: {
         person: {
-          data: null
+          data: null,
         },
       },
     };
@@ -4589,11 +4552,7 @@ module('inverse relationship load test', function(hooks) {
 
     for (let dog of store.peekAll('dogs').toArray()) {
       let dogPerson = await dog.get('person');
-      assert.equal(
-        dogPerson,
-        null,
-        'right hand side has correct belongsTo value'
-      );
+      assert.equal(dogPerson, null, 'right hand side has correct belongsTo value');
     }
 
     let dog1 = store.peekRecord('dog', '1');
@@ -4732,11 +4691,7 @@ module('inverse relationship load test', function(hooks) {
       1,
       'record removed from hasMany relationship after deletion'
     );
-    assert.equal(
-      pal2Dogs.get('firstObject.id'),
-      '2',
-      'hasMany relationship has correct records'
-    );
+    assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 
   test('one-to-many (left hand async, right hand sync) - ids/non-link/explicit inverse - records loaded through ids/findRecord do not get associated with the parent if the server specifies another resource as the relationship value in the response', async function(assert) {
@@ -4869,10 +4824,6 @@ module('inverse relationship load test', function(hooks) {
       1,
       'record removed from hasMany relationship after deletion'
     );
-    assert.equal(
-      pal2Dogs.get('firstObject.id'),
-      '2',
-      'hasMany relationship has correct records'
-    );
+    assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
 });
