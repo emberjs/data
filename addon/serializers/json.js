@@ -686,9 +686,20 @@ const JSONSerializer = Serializer.extend({
         } else if (relationshipMeta.kind === 'hasMany') {
           if (!isNone(relationshipHash)) {
             data = new Array(relationshipHash.length);
-            for (let i = 0, l = relationshipHash.length; i < l; i++) {
-              let item = relationshipHash[i];
-              data[i] = this.extractRelationship(relationshipMeta.type, item);
+            if (relationshipMeta.options.polymorphic) {
+              for (let i = 0, l = relationshipHash.length; i < l; i++) {
+                let item = relationshipHash[i];
+                data[i] = this.extractPolymorphicRelationship(relationshipMeta.type, item, {
+                  key,
+                  resourceHash,
+                  relationshipMeta,
+                });
+              }
+            } else {
+              for (let i = 0, l = relationshipHash.length; i < l; i++) {
+                let item = relationshipHash[i];
+                data[i] = this.extractRelationship(relationshipMeta.type, item);
+              }
             }
           }
         }
