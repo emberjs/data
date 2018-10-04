@@ -1156,15 +1156,15 @@ export default class InternalModel {
   }
 
   addErrorMessageToAttribute(attribute, message) {
-    get(this.getRecord(), 'errors')._add(attribute, message);
+    get(this.getRecord(), 'errors').add(attribute, message);
   }
 
   removeErrorMessageFromAttribute(attribute) {
-    get(this.getRecord(), 'errors')._remove(attribute);
+    get(this.getRecord(), 'errors').remove(attribute);
   }
 
   clearErrorMessages() {
-    get(this.getRecord(), 'errors')._clear();
+    get(this.getRecord(), 'errors').clear();
   }
 
   hasErrors() {

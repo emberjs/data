@@ -396,18 +396,7 @@ const Model = EmberObject.extend(Evented, {
     @type {DS.Errors}
   */
   errors: computed(function() {
-    let errors = Errors.create();
-
-    errors._registerHandlers(
-      this._internalModel,
-      function() {
-        this.send('becameInvalid');
-      },
-      function() {
-        this.send('becameValid');
-      }
-    );
-    return errors;
+    return Errors.create();
   }).readOnly(),
 
   /**
