@@ -1910,174 +1910,171 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   assert.equal(count, 0);
 });
 
-test(
-  "belongsTo relationship doesn't trigger when model data doesn't support implicit relationship",
-  function(assert) {
-    class TestRecordData extends RecordData {
-      constructor(modelName, id, clientId, storeWrapper, store) {
-        super(modelName, id, clientId, storeWrapper, store);
-        delete this.__implicitRelationships;
-        delete this.__relationships;
-      }
-
-      _destroyRelationships() {}
-
-      _allRelatedRecordDatas() {}
-
-      _cleanupOrphanedRecordDatas() {}
-
-      _directlyRelatedRecordDatas() {
-        return [];
-      }
-
-      destroy() {
-        this.isDestroyed = true;
-        this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
-      }
-
-      get _implicitRelationships() {
-        return undefined;
-      }
-      get _relationships() {
-        return undefined;
-      }
+test("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
+  class TestRecordData extends RecordData {
+    constructor(modelName, id, clientId, storeWrapper, store) {
+      super(modelName, id, clientId, storeWrapper, store);
+      delete this.__implicitRelationships;
+      delete this.__relationships;
     }
 
-    Chapter.reopen({
-      // book is still an inverse from prior to the reopen
-      sections: DS.hasMany('section', { async: false }),
-      book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
-      book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
-    });
+    _destroyRelationships() {}
 
-    const createRecordDataFor = env.store.createRecordDataFor;
-    env.store.createRecordDataFor = function(modelName, id, clientId, storeWrapper) {
-      if (modelName === 'book1' || modelName === 'section') {
-        return new TestRecordData(modelName, id, clientId, storeWrapper, this);
-      }
-      return createRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
-    };
+    _allRelatedRecordDatas() {}
 
-    const data = {
-      data: {
-        type: 'chapter',
-        id: '1',
-        relationships: {
-          book1: {
-            data: { type: 'book1', id: '1' },
-          },
-          book2: {
-            data: { type: 'book1', id: '2' },
-          },
-          book: {
-            data: { type: 'book', id: '1' },
-          },
-          sections: {
-            data: [
-              {
-                type: 'section',
-                id: 1,
-              },
-              {
-                type: 'section',
-                id: 2,
-              },
-            ],
-          },
+    _cleanupOrphanedRecordDatas() {}
+
+    _directlyRelatedRecordDatas() {
+      return [];
+    }
+
+    destroy() {
+      this.isDestroyed = true;
+      this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    }
+
+    get _implicitRelationships() {
+      return undefined;
+    }
+    get _relationships() {
+      return undefined;
+    }
+  }
+
+  Chapter.reopen({
+    // book is still an inverse from prior to the reopen
+    sections: DS.hasMany('section', { async: false }),
+    book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
+    book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
+  });
+
+  const createRecordDataFor = env.store.createRecordDataFor;
+  env.store.createRecordDataFor = function(modelName, id, clientId, storeWrapper) {
+    if (modelName === 'book1' || modelName === 'section') {
+      return new TestRecordData(modelName, id, clientId, storeWrapper, this);
+    }
+    return createRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
+  };
+
+  const data = {
+    data: {
+      type: 'chapter',
+      id: '1',
+      relationships: {
+        book1: {
+          data: { type: 'book1', id: '1' },
+        },
+        book2: {
+          data: { type: 'book1', id: '2' },
+        },
+        book: {
+          data: { type: 'book', id: '1' },
+        },
+        sections: {
+          data: [
+            {
+              type: 'section',
+              id: 1,
+            },
+            {
+              type: 'section',
+              id: 2,
+            },
+          ],
         },
       },
-      included: [
-        { type: 'book1', id: '1' },
-        { type: 'book1', id: '2' },
-        { type: 'section', id: '1' },
-        { type: 'book', id: '1' },
-        { type: 'section', id: '2' },
-      ],
-    };
+    },
+    included: [
+      { type: 'book1', id: '1' },
+      { type: 'book1', id: '2' },
+      { type: 'section', id: '1' },
+      { type: 'book', id: '1' },
+      { type: 'section', id: '2' },
+    ],
+  };
 
-    // Expect assertion failure as Book1 RecordData
-    // doesn't have relationship attribute
-    // and inverse is not set to null in
-    // DSbelongsTo
-    assert.expectAssertion(() => {
-      run(() => {
-        env.store.push(data);
-      });
-    }, `Assertion Failed: We found no inverse relationships by the name of 'chapters' on the 'book1' model. This is most likely due to a missing attribute on your model definition.`);
-
-    //Update setup
-    // with inverse set to null
-    // no errors thrown
-    Chapter.reopen({
-      book1: DS.belongsTo({ async: false }),
-      sections: DS.hasMany('section', { async: false }),
-      book: DS.belongsTo({ async: false, inverse: null }),
-    });
-
+  // Expect assertion failure as Book1 RecordData
+  // doesn't have relationship attribute
+  // and inverse is not set to null in
+  // DSbelongsTo
+  assert.expectAssertion(() => {
     run(() => {
       env.store.push(data);
     });
+  }, `Assertion Failed: We found no inverse relationships by the name of 'chapters' on the 'book1' model. This is most likely due to a missing attribute on your model definition.`);
 
-    let chapter = env.store.peekRecord('chapter', '1');
-    let book1 = env.store.peekRecord('book1', '1');
-    let book2 = env.store.peekRecord('book1', '2');
-    let book = env.store.peekRecord('book', '1');
-    let section1 = env.store.peekRecord('section', '1');
-    let section2 = env.store.peekRecord('section', '2');
+  //Update setup
+  // with inverse set to null
+  // no errors thrown
+  Chapter.reopen({
+    book1: DS.belongsTo({ async: false }),
+    sections: DS.hasMany('section', { async: false }),
+    book: DS.belongsTo({ async: false, inverse: null }),
+  });
 
-    let sections = chapter.get('sections');
+  run(() => {
+    env.store.push(data);
+  });
 
-    assert.equal(chapter.get('book1.id'), '1');
-    assert.equal(chapter.get('book2.id'), '2');
-    assert.equal(chapter.get('book.id'), '1');
+  let chapter = env.store.peekRecord('chapter', '1');
+  let book1 = env.store.peekRecord('book1', '1');
+  let book2 = env.store.peekRecord('book1', '2');
+  let book = env.store.peekRecord('book', '1');
+  let section1 = env.store.peekRecord('section', '1');
+  let section2 = env.store.peekRecord('section', '2');
 
-    // No inverse setup created for book1
-    // as Model-Data of book1 doesn't support this
-    // functionality.
-    assert.notOk(book1.get('chapter'));
-    assert.notOk(book2.get('chapter'));
-    assert.notOk(book.get('chapter'));
-    assert.notOk(
-      book1._internalModel._recordData._implicitRelationships,
-      'no support for implicit relationship in custom RecordData'
-    );
-    assert.notOk(
-      book2._internalModel._recordData._implicitRelationships,
-      'no support for implicit relationship in custom RecordData'
-    );
-    assert.ok(
-      book._internalModel._recordData._implicitRelationships,
-      'support for implicit relationship in default RecordData'
-    );
+  let sections = chapter.get('sections');
 
-    // No inverse setup is created for section
-    assert.notOk(section1.get('chapter'));
-    assert.notOk(section2.get('chapter'));
+  assert.equal(chapter.get('book1.id'), '1');
+  assert.equal(chapter.get('book2.id'), '2');
+  assert.equal(chapter.get('book.id'), '1');
 
-    // Removing the sections
-    // shouldnot throw error
-    // as Model-data of section
-    // doesn't support implicit Relationship
-    run(() => {
-      chapter.get('sections').removeObject(section1);
-      assert.notOk(section1._internalModel._recordData._implicitRelationships);
+  // No inverse setup created for book1
+  // as Model-Data of book1 doesn't support this
+  // functionality.
+  assert.notOk(book1.get('chapter'));
+  assert.notOk(book2.get('chapter'));
+  assert.notOk(book.get('chapter'));
+  assert.notOk(
+    book1._internalModel._recordData._implicitRelationships,
+    'no support for implicit relationship in custom RecordData'
+  );
+  assert.notOk(
+    book2._internalModel._recordData._implicitRelationships,
+    'no support for implicit relationship in custom RecordData'
+  );
+  assert.ok(
+    book._internalModel._recordData._implicitRelationships,
+    'support for implicit relationship in default RecordData'
+  );
 
-      chapter.get('sections').removeObject(section2);
-      assert.notOk(section2._internalModel._recordData._implicitRelationships);
-    });
+  // No inverse setup is created for section
+  assert.notOk(section1.get('chapter'));
+  assert.notOk(section2.get('chapter'));
 
-    assert.equal(chapter.get('sections.length'), 0);
+  // Removing the sections
+  // shouldnot throw error
+  // as Model-data of section
+  // doesn't support implicit Relationship
+  run(() => {
+    chapter.get('sections').removeObject(section1);
+    assert.notOk(section1._internalModel._recordData._implicitRelationships);
 
-    // Update the current state of chapter by
-    // adding new sections
-    // shouldnot throw error during
-    // setup of implicit inverse
-    run(() => {
-      sections.addObject(env.store.createRecord('section', { id: 3 }));
-      sections.addObject(env.store.createRecord('section', { id: 4 }));
-      sections.addObject(env.store.createRecord('section', { id: 5 }));
-    });
-    assert.equal(chapter.get('sections.length'), 3);
-    assert.notOk(sections.get('firstObject')._internalModel._recordData._implicitRelationships);
-  }
-);
+    chapter.get('sections').removeObject(section2);
+    assert.notOk(section2._internalModel._recordData._implicitRelationships);
+  });
+
+  assert.equal(chapter.get('sections.length'), 0);
+
+  // Update the current state of chapter by
+  // adding new sections
+  // shouldnot throw error during
+  // setup of implicit inverse
+  run(() => {
+    sections.addObject(env.store.createRecord('section', { id: 3 }));
+    sections.addObject(env.store.createRecord('section', { id: 4 }));
+    sections.addObject(env.store.createRecord('section', { id: 5 }));
+  });
+  assert.equal(chapter.get('sections.length'), 3);
+  assert.notOk(sections.get('firstObject')._internalModel._recordData._implicitRelationships);
+});

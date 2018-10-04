@@ -78,10 +78,9 @@ module.exports = {
     });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
-      exclude: [
-        '-private',
-        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
-      ].filter(Boolean),
+      exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(
+        Boolean
+      ),
 
       destDir: 'ember-data',
     });

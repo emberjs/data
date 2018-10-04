@@ -1528,59 +1528,53 @@ test('setting the id after model creation should correctly update the id', funct
   });
 });
 
-test(
-  'updating the id with store.setRecordId should correctly when the id property is watched',
-  function(assert) {
-    assert.expect(2);
+test('updating the id with store.setRecordId should correctly when the id property is watched', function(assert) {
+  assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      idComputed: computed('id', function() {}),
-    });
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    idComputed: computed('id', function() {}),
+  });
 
-    let { store } = setupStore({
-      person: Person,
-    });
+  let { store } = setupStore({
+    person: Person,
+  });
 
-    run(() => {
-      let person = store.createRecord('person');
-      person.get('idComputed');
+  run(() => {
+    let person = store.createRecord('person');
+    person.get('idComputed');
 
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
+    assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-      store.setRecordId('person', 'john', person._internalModel.clientId);
+    store.setRecordId('person', 'john', person._internalModel.clientId);
 
-      assert.equal(person.id, 'john', 'new id should be correctly set.');
-    });
-  }
-);
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
+  });
+});
 
-test(
-  'accessing the model id without the get function should work when id is watched',
-  function(assert) {
-    assert.expect(2);
+test('accessing the model id without the get function should work when id is watched', function(assert) {
+  assert.expect(2);
 
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      idComputed: computed('id', function() {}),
-    });
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    idComputed: computed('id', function() {}),
+  });
 
-    let { store } = setupStore({
-      person: Person,
-    });
+  let { store } = setupStore({
+    person: Person,
+  });
 
-    run(() => {
-      let person = store.createRecord('person');
-      person.get('idComputed');
+  run(() => {
+    let person = store.createRecord('person');
+    person.get('idComputed');
 
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
+    assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-      store.setRecordId('person', 'john', person._internalModel.clientId);
+    store.setRecordId('person', 'john', person._internalModel.clientId);
 
-      assert.equal(person.id, 'john', 'new id should be correctly set.');
-    });
-  }
-);
+    assert.equal(person.id, 'john', 'new id should be correctly set.');
+  });
+});
 
 test('ID mutation (complicated)', function(assert) {
   assert.expect(5);
