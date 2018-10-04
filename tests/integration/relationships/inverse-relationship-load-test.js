@@ -6,7 +6,7 @@ import Store from 'ember-data/store';
 import Model from 'ember-data/model';
 import { resolve } from 'rsvp';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
-import { testInDebug } from '../../helpers/test-in-debug';
+import testInDebug from '../../helpers/test-in-debug';
 
 module('inverse relationship load test', function(hooks) {
   let store;

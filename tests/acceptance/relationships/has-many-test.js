@@ -1,4 +1,4 @@
-import { module } from 'qunit';
+import { module, skip as test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import Model from 'ember-data/model';
@@ -10,7 +10,6 @@ import Store from 'ember-data/store';
 import { resolve, reject } from 'rsvp';
 import { ServerError } from 'ember-data/adapters/errors';
 import Ember from 'ember';
-import { skipRecordData as test } from '../../helpers/test-in-debug';
 
 function domListToArray(domList) {
   return Array.prototype.slice.call(domList);

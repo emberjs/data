@@ -9,7 +9,7 @@ import { setupTest } from 'ember-qunit';
 import Store from 'ember-data/store';
 import Model from 'ember-data/model';
 import { attr, belongsTo } from '@ember-decorators/data';
-import testInDebug, { testRecordData } from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import {
   setup as setupModelFactoryInjections,
   reset as resetModelFactoryInjection,
@@ -1910,7 +1910,7 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   assert.equal(count, 0);
 });
 
-testRecordData(
+test(
   "belongsTo relationship doesn't trigger when model data doesn't support implicit relationship",
   function(assert) {
     class TestRecordData extends RecordData {

@@ -5,7 +5,7 @@ import { run } from '@ember/runloop';
 import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import Ember from 'ember';
-import { testInDebug, testRecordData, skipRecordData } from 'dummy/tests/helpers/test-in-debug';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import { getOwner } from 'ember-data/-private';
@@ -1528,7 +1528,7 @@ test('setting the id after model creation should correctly update the id', funct
   });
 });
 
-testRecordData(
+test(
   'updating the id with store.setRecordId should correctly when the id property is watched',
   function(assert) {
     assert.expect(2);
@@ -1555,33 +1555,7 @@ testRecordData(
   }
 );
 
-skipRecordData(
-  'updating the id with store.updateId should correctly when the id property is watched',
-  function(assert) {
-    assert.expect(2);
-
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      idComputed: computed('id', function() {}),
-    });
-
-    let { store } = setupStore({
-      person: Person,
-    });
-
-    run(() => {
-      let person = store.createRecord('person');
-      person.get('idComputed');
-
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
-
-      store.updateId(person._internalModel, { id: 'john' });
-      assert.equal(person.id, 'john', 'new id should be correctly set.');
-    });
-  }
-);
-
-testRecordData(
+test(
   'accessing the model id without the get function should work when id is watched',
   function(assert) {
     assert.expect(2);
@@ -1602,33 +1576,6 @@ testRecordData(
       assert.equal(person.get('id'), null, 'initial created model id should be null');
 
       store.setRecordId('person', 'john', person._internalModel.clientId);
-
-      assert.equal(person.id, 'john', 'new id should be correctly set.');
-    });
-  }
-);
-
-skipRecordData(
-  'accessing the model id without the get function should work when id is watched',
-  function(assert) {
-    assert.expect(2);
-
-    const Person = DS.Model.extend({
-      name: DS.attr('string'),
-      idComputed: computed('id', function() {}),
-    });
-
-    let { store } = setupStore({
-      person: Person,
-    });
-
-    run(() => {
-      let person = store.createRecord('person');
-      person.get('idComputed');
-
-      assert.equal(person.get('id'), null, 'initial created model id should be null');
-
-      store.updateId(person._internalModel, { id: 'john' });
 
       assert.equal(person.id, 'john', 'new id should be correctly set.');
     });

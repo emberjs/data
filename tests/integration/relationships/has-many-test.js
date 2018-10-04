@@ -12,7 +12,6 @@ import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test, skip } from 'qunit';
 import DS from 'ember-data';
-import { skipRecordData } from '../../helpers/test-in-debug';
 
 let env, store, User, Contact, Email, Phone, Message, Post, Comment;
 let Book, Chapter, Page;
@@ -960,7 +959,7 @@ test('A hasMany relationship can be reloaded if it was fetched via ids', functio
   });
 });
 
-skipRecordData(
+skip(
   'A hasMany relationship can be reloaded even if it failed at the first time',
   async function(assert) {
     assert.expect(6);
