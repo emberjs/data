@@ -8,7 +8,7 @@ import { Promise } from 'rsvp';
 import { attr } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
-import { testInDebug as test } from '../../helpers/test-in-debug';
+import test from '../../helpers/test-in-debug';
 
 class Person extends Model {
   @attr

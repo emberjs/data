@@ -5,7 +5,6 @@ var path = require('path');
 var featuresJsonPath = path.join(__dirname, '../../../config/features.json');
 var featuresJson = fs.readFileSync(featuresJsonPath, { encoding: 'utf8' });
 var featureFlags = JSON.parse(featuresJson);
-let { useRecordData } = require('../../../lib/cli-flags');
 
 module.exports = function(environment) {
   var ENV = {
@@ -47,10 +46,6 @@ module.exports = function(environment) {
 
     ENV.APP.rootElement = '#ember-testing';
   }
-
-  ENV.emberData = {
-    enableRecordDataRFCBuild: useRecordData(),
-  };
 
   return ENV;
 };

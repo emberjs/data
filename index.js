@@ -5,7 +5,7 @@ const Funnel = require('broccoli-funnel');
 const Rollup = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
 const version = require('./lib/version');
-const { isInstrumentedBuild, useRecordData } = require('./lib/cli-flags');
+const { isInstrumentedBuild } = require('./lib/cli-flags');
 const BroccoliDebug = require('broccoli-debug');
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 
@@ -73,35 +73,14 @@ module.exports = {
       version(), // compile the VERSION into the build
     ]);
 
-    let corePrivate = new Funnel(tree, {
+    let withPrivate = new Funnel(tree, {
       include: ['-private/**'],
     });
-    let withPrivate;
-
-    if (useRecordData()) {
-      withPrivate = new Funnel(tree, {
-        srcDir: '-record-data-private',
-        destDir: '-private',
-      });
-    } else {
-      withPrivate = new Funnel(tree, {
-        srcDir: '-legacy-private',
-        destDir: '-private',
-      });
-    }
-
-    // do not allow overwrite, conflicts should error
-    //  overwrite: false is default, but we are being explicit here
-    //  since this is very important
-    withPrivate = merge([corePrivate, withPrivate], { overwrite: false });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
-      exclude: [
-        '-private',
-        '-record-data-private',
-        '-legacy-private',
-        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
-      ].filter(Boolean),
+      exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(
+        Boolean
+      ),
 
       destDir: 'ember-data',
     });
