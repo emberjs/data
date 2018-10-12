@@ -2,6 +2,25 @@
 
 ### Master
 
+### Release 3.5.0 (October 12, 2018)
+
+- [#5491](https://github.com/emberjs/data/pull/5491) [Feature] Add MU support for model and model-test blueprints
+- [#5616](https://github.com/emberjs/data/pull/5616) [FEAT RecordData] turn on the build-flag by default
+- [#5608](https://github.com/emberjs/data/pull/5608) [BUGFIX] Add inverse relationship on payload when missing (#5608)
+- [#5489](https://github.com/emberjs/data/pull/5489) [BUGFIX] Lowercase header names in parseResponseHeaders
+- [#5494](https://github.com/emberjs/data/pull/5494) [Feature] Add MU support for serializer and serializer-test blueprints
+- [#5495](https://github.com/emberjs/data/pull/5495) [Feature] Add MU transform{,-test} blueprints
+- [#5657](https://github.com/emberjs/data/pull/5657) [BUGFIX blueprints] remove second string argument from transform tests
+- [#5652](https://github.com/emberjs/data/pull/5652) [Docs] Update buildUrl syntax in docs
+- [#5639](https://github.com/emberjs/data/pull/5639) Include request/response info with Abort error
+- [#5646](https://github.com/emberjs/data/pull/5646) [CHORE] update contribution guidelines
+- [#5623](https://github.com/emberjs/data/pull/5623) Added conditional check to extract polymorphic relationship for hasMany (#5623)
+- [#5650](https://github.com/emberjs/data/pull/5650) [FEAT transforms] makes the assertion for missing transforms clearer
+- [#5640](https://github.com/emberjs/data/pull/5640) [BUGFIX] fix deprecation for store entry methods
+- [#5654](https://github.com/emberjs/data/pull/5654)  add mocha rfc232 blueprints
+- [#5665](https://github.com/emberjs/data/pull/5665) add remaining mocha rfc 232 blueprints (#5665)
+- [#5667](https://github.com/emberjs/data/pull/5667) Added check to extract polymorphic relationship for hasMany (#5623)
+
 ### Release 3.4.1 (September 14, 2018)
 - [#5621](https://github.com/emberjs/data/pull/5621) Add partner test for the ilios frontend
 - [#5589](https://github.com/emberjs/data/pull/5589) fix broken link because the new API website does not support the anchor
