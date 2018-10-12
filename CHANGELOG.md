@@ -2,6 +2,9 @@
 
 ### Master
 
+### Release 3.4.3 (September 14, 2018)
+- Release 3.4 at LTS
+
 ### Release 3.4.2 (September 14, 2018)
 - [#5641](https://github.com/emberjs/data/pull/5641) [BUGFIX] fix deprecation for store entry methods
 
