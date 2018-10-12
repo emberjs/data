@@ -1,4 +1,4 @@
-import { module } from 'qunit';
+import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import Model from 'ember-data/model';
@@ -9,7 +9,6 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import Store from 'ember-data/store';
 import { resolve, reject } from 'rsvp';
 import { ServerError } from 'ember-data/adapters/errors';
-import { skipRecordData as test } from '../../helpers/test-in-debug';
 import Ember from 'ember';
 
 class Person extends Model {

@@ -6,7 +6,6 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
-import { testRecordData, skipRecordData } from 'dummy/tests/helpers/test-in-debug';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
@@ -721,120 +720,7 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   );
 });
 
-testRecordData('unloading a disconnected subgraph clears the relevant internal models', function(
-  assert
-) {
-  env.adapter.shouldBackgroundReloadRecord = () => false;
-
-  run(() => {
-    env.store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Could be Anybody',
-        },
-        relationships: {
-          boats: {
-            data: [{ type: 'boat', id: '1' }, { type: 'boat', id: '2' }],
-          },
-        },
-      },
-    });
-  });
-
-  run(() => {
-    env.store.push({
-      data: {
-        type: 'boat',
-        id: '1',
-        attributes: {
-          name: 'Boaty McBoatface',
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' },
-          },
-        },
-      },
-    });
-  });
-
-  run(() => {
-    env.store.push({
-      data: {
-        type: 'boat',
-        id: '2',
-        attributes: {
-          name: 'The jackson',
-        },
-        relationships: {
-          person: {
-            data: { type: 'person', id: '1' },
-          },
-        },
-      },
-    });
-  });
-
-  assert.equal(
-    env.store._internalModelsFor('person').models.length,
-    1,
-    'one person record is loaded'
-  );
-  assert.equal(
-    env.store._internalModelsFor('boat').models.length,
-    2,
-    'two boat records are loaded'
-  );
-  assert.equal(env.store.hasRecordForId('person', 1), true);
-  assert.equal(env.store.hasRecordForId('boat', 1), true);
-  assert.equal(env.store.hasRecordForId('boat', 2), true);
-
-  let checkOrphanCalls = 0;
-  let cleanupOrphanCalls = 0;
-
-  function countOrphanCalls(record) {
-    let internalModel = record._internalModel;
-    let origCheck = internalModel._checkForOrphanedInternalModels;
-
-    let modelData = internalModel._modelData;
-    let origCleanup = modelData._cleanupOrphanedModelDatas;
-
-    internalModel._checkForOrphanedInternalModels = function() {
-      ++checkOrphanCalls;
-      return origCheck.apply(record._internalModel, arguments);
-    };
-
-    modelData._cleanupOrphanedModelDatas = function() {
-      ++cleanupOrphanCalls;
-      return origCleanup.apply(modelData, arguments);
-    };
-  }
-  countOrphanCalls(env.store.peekRecord('person', 1));
-  countOrphanCalls(env.store.peekRecord('boat', 1));
-  countOrphanCalls(env.store.peekRecord('boat', 2));
-
-  // make sure relationships are initialized
-  return env.store
-    .peekRecord('person', 1)
-    .get('boats')
-    .then(() => {
-      run(() => {
-        env.store.peekRecord('person', 1).unloadRecord();
-        env.store.peekRecord('boat', 1).unloadRecord();
-        env.store.peekRecord('boat', 2).unloadRecord();
-      });
-
-      assert.equal(env.store._internalModelsFor('person').models.length, 0);
-      assert.equal(env.store._internalModelsFor('boat').models.length, 0);
-
-      assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
-      assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');
-    });
-});
-
-skipRecordData('unloading a disconnected subgraph clears the relevant internal models', function(
+test('unloading a disconnected subgraph clears the relevant internal models', function(
   assert
 ) {
   env.adapter.shouldBackgroundReloadRecord = () => false;

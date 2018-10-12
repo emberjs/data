@@ -2309,7 +2309,6 @@ test('DS.hasMany proxy is destroyed', function(assert) {
 
   return peopleProxy.then(people => {
     run(() => {
-      let isRecordDataBuild = people.modelData !== undefined;
       tag.unloadRecord();
       // TODO Check all unloading behavior
       assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');
@@ -2321,7 +2320,7 @@ test('DS.hasMany proxy is destroyed', function(assert) {
       //  be cancelled were an unload to be aborted.
       assert.equal(
         peopleProxy.isDestroying,
-        isRecordDataBuild,
+        false,
         'peopleProxy is not destroying sync after unloadRecord'
       );
       assert.equal(
