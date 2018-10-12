@@ -959,75 +959,72 @@ test('A hasMany relationship can be reloaded if it was fetched via ids', functio
   });
 });
 
-test(
-  'A hasMany relationship can be reloaded even if it failed at the first time',
-  async function(assert) {
-    assert.expect(6);
+test('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
+  assert.expect(6);
 
-    const { store, adapter } = env;
+  const { store, adapter } = env;
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
-    });
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true }),
+  });
 
-    adapter.findRecord = function(store, type, id) {
-      return resolve({
-        data: {
-          id: 1,
-          type: 'post',
-          relationships: {
-            comments: {
-              links: { related: '/posts/1/comments' },
-            },
+  adapter.findRecord = function(store, type, id) {
+    return resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: '/posts/1/comments' },
           },
         },
+      },
+    });
+  };
+
+  let loadingCount = -1;
+  adapter.findHasMany = function(store, record, link, relationship) {
+    loadingCount++;
+    if (loadingCount % 2 === 0) {
+      return reject({ data: null });
+    } else {
+      return resolve({
+        data: [
+          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+        ],
       });
-    };
+    }
+  };
 
-    let loadingCount = -1;
-    adapter.findHasMany = function(store, record, link, relationship) {
-      loadingCount++;
-      if (loadingCount % 2 === 0) {
-        return reject({ data: null });
-      } else {
-        return resolve({
-          data: [
-            { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          ],
-        });
-      }
-    };
+  let post = await store.findRecord('post', 1);
+  let comments = post.get('comments');
+  let manyArray = await comments.catch(() => {
+    assert.ok(true, 'An error was thrown on the first reload of comments');
+    return comments.reload();
+  });
 
-    let post = await store.findRecord('post', 1);
-    let comments = post.get('comments');
-    let manyArray = await comments.catch(() => {
-      assert.ok(true, 'An error was thrown on the first reload of comments');
-      return comments.reload();
-    });
+  assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
 
-    assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
+  await manyArray.reload().catch(() => {
+    assert.ok(true, 'An error was thrown on the second reload via manyArray');
+  });
 
-    await manyArray.reload().catch(() => {
-      assert.ok(true, 'An error was thrown on the second reload via manyArray');
-    });
+  assert.equal(
+    manyArray.get('isLoaded'),
+    true,
+    'the second reload failed, comments are still loaded though'
+  );
 
-    assert.equal(
-      manyArray.get('isLoaded'),
-      true,
-      'the second reload failed, comments are still loaded though'
-    );
+  let reloadedManyArray = await manyArray.reload();
 
-    let reloadedManyArray = await manyArray.reload();
-
-    assert.equal(
-      reloadedManyArray.get('isLoaded'),
-      true,
-      'the third reload worked, comments are loaded again'
-    );
-    assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
-  }
-);
+  assert.equal(
+    reloadedManyArray.get('isLoaded'),
+    true,
+    'the third reload worked, comments are loaded again'
+  );
+  assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+});
 
 test('A hasMany relationship can be directly reloaded if it was fetched via links', function(assert) {
   assert.expect(6);

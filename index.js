@@ -83,7 +83,6 @@ module.exports = {
     tree = this.debugTree(tree, 'input');
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
-    let config = this.config();
 
     let treeWithVersion = merge([
       tree,
@@ -95,10 +94,9 @@ module.exports = {
     });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
-      exclude: [
-        '-private',
-        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
-      ].filter(Boolean),
+      exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(
+        Boolean
+      ),
 
       destDir: 'ember-data',
     });

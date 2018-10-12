@@ -720,9 +720,7 @@ test('(regression) unloadRecord followed by push in the same run-loop', function
   );
 });
 
-test('unloading a disconnected subgraph clears the relevant internal models', function(
-  assert
-) {
+test('unloading a disconnected subgraph clears the relevant internal models', function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   run(() => {
