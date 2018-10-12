@@ -2,7 +2,10 @@
 
 ### Master
 
-### Release 3.4.3 (September 14, 2018)
+### Release 3.4.4 (October 12, 2018)
+- Re-release for docs
+
+### Release 3.4.3 (October 12, 2018)
 - Release 3.4 at LTS
 
 ### Release 3.4.2 (September 14, 2018)
