@@ -3,7 +3,6 @@ import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
-import Map from '../map';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
 import { PromiseObject } from '../promise-proxies';

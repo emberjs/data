@@ -42,7 +42,6 @@ export { default as ManyArray } from './system/many-array';
 export { default as RecordArrayManager } from './system/record-array-manager';
 export { default as Relationship } from './system/relationships/state/relationship';
 
-export { default as Map } from './system/map';
 export { default as MapWithDefault } from './system/map-with-default';
 
 // Should be a different Repo ?

@@ -1,5 +1,3 @@
-import Map from './map';
-
 export default class MapWithDefault extends Map {
   constructor(options) {
     super();

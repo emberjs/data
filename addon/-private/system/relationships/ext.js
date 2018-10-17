@@ -1,7 +1,6 @@
 import { A } from '@ember/array';
 import { computed, get } from '@ember/object';
 import MapWithDefault from '../map-with-default';
-import Map from '../map';
 import { assert } from '@ember/debug';
 import { typeForRelationshipMeta, relationshipFromMeta } from '../relationship-meta';
 

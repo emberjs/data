@@ -125,17 +125,8 @@ export default class BelongsToReference extends Reference {
     return resolve(objectOrPromise).then(data => {
       let record;
 
+      // TODO deprecate data as Model
       if (data instanceof Model) {
-        if (isEnabled('ds-overhaul-references')) {
-          deprecate(
-            "BelongsToReference#push(DS.Model) is deprecated. Update relationship via `model.set('relationshipName', value)` instead.",
-            false,
-            {
-              id: 'ds.references.belongs-to.push-record',
-              until: '4.0.0',
-            }
-          );
-        }
         record = data;
       } else {
         record = this.store.push(data);
