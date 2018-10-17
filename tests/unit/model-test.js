@@ -1596,7 +1596,7 @@ test('ID mutation (complicated)', function(assert) {
 
     assert.equal(person.get('id'), null, 'initial created model id should be null');
     assert.equal(idChange, 0);
-    store.updateId(person._internalModel, { id: 'john' });
+    store._setRecordId(person._internalModel, 'john');
     assert.equal(idChange, 1);
     assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
   });
