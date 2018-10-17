@@ -1,5 +1,6 @@
 import setupStore from 'dummy/tests/helpers/store';
 import DS from 'ember-data';
+import { run } from '@ember/runloop';
 
 import { module, test } from 'qunit';
 
@@ -23,6 +24,10 @@ module('unit/adapters/build-url-mixin/build-url - DS.BuildURLMixin#buildURL', {
     });
 
     adapter = env.adapter;
+  },
+  afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
   },
 });
 

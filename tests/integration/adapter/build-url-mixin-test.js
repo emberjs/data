@@ -40,6 +40,10 @@ module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', {
 
     passedUrl = null;
   },
+  afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
+  },
 });
 
 function ajaxResponse(value) {

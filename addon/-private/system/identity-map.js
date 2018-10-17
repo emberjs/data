@@ -4,11 +4,14 @@ import InternalModelMap from './internal-model-map';
  `IdentityMap` is a custom storage map for records by modelName
  used by `DS.Store`.
 
+ // TODO eliminate this and provide iterators for internalModels and recordData
+
  @class IdentityMap
  @private
  */
 export default class IdentityMap {
-  constructor() {
+  constructor(index) {
+    this.index = index;
     this._map = Object.create(null);
   }
 
@@ -25,7 +28,7 @@ export default class IdentityMap {
     let map = this._map[modelName];
 
     if (map === undefined) {
-      map = this._map[modelName] = new InternalModelMap(modelName);
+      map = this._map[modelName] = new InternalModelMap(modelName, this.index);
     }
 
     return map;

@@ -1,5 +1,7 @@
 import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
+import {recordIdentifierFor} from "./cache/identifier-index";
+import {internalModelFor, setInternalModelFor} from "./cache/internal-model-for";
 
 /**
  `InternalModelMap` is a custom storage map for internalModels of a given modelName
@@ -12,11 +14,19 @@ import InternalModel from './model/internal-model';
  @private
  */
 export default class InternalModelMap {
-  constructor(modelName) {
+  constructor(modelName, index) {
+    this.index = index;
     this.modelName = modelName;
-    this._idToModel = Object.create(null);
     this._models = [];
     this._metadata = null;
+  }
+
+  get _identifiers() {
+    return this.index.cache['json-api-identifier'][this.modelName];
+  }
+
+  get _idToModel() {
+    throw new Error('dont use me');
   }
 
   /**
@@ -25,11 +35,13 @@ export default class InternalModelMap {
    * @return {InternalModel}
    */
   get(id) {
-    return this._idToModel[id];
+    let identifier = this._identifiers[id];
+
+    return internalModelFor(identifier);
   }
 
   has(id) {
-    return !!this._idToModel[id];
+    return !!this.get(id);
   }
 
   get length() {
@@ -51,7 +63,10 @@ export default class InternalModelMap {
       !this.has(id) || this.get(id) === internalModel
     );
 
-    this._idToModel[id] = internalModel;
+    let identifier = this._identifiers[id];
+
+    throw new Error('hrmmmmm unsure this should exist');
+    setInternalModelFor(identifier, internalModel);
   }
 
   add(internalModel, id) {
@@ -70,16 +85,14 @@ export default class InternalModelMap {
     }
 
     this._models.push(internalModel);
+    throw new Error('hrrmmmmmmm hrm hrm');
   }
 
-  remove(internalModel, id) {
-    delete this._idToModel[id];
+  remove(internalModel) {
+    let identifier = recordIdentifierFor({ lid: internalModel.clientId });
 
-    let loc = this._models.indexOf(internalModel);
-
-    if (loc !== -1) {
-      this._models.splice(loc, 1);
-    }
+    // fallback for internalModels that don't have ids
+    setInternalModelFor(identifier, null);
   }
 
   contains(internalModel) {

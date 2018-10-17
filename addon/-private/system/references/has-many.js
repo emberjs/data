@@ -3,6 +3,7 @@ import { get } from '@ember/object';
 import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
 import { assertPolymorphicType } from 'ember-data/-debug';
+import {internalModelFor} from "../cache/internal-model-for";
 
 /**
  A HasManyReference is a low-level API that allows users and addon
@@ -201,8 +202,7 @@ export default class HasManyReference extends Reference {
 
     //TODO Igor cleanup
     return members.every(recordData => {
-      let store = this.parentInternalModel.store;
-      let internalModel = store._internalModelForRecordData(recordData);
+      let internalModel = internalModelFor(recordData);
       return internalModel.isLoaded() === true;
     });
   }

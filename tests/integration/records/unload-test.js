@@ -484,8 +484,8 @@ test('unloadAll(type) does not leave stranded internalModels in relationships (r
   let knownBoats = store._internalModelsFor('boat');
 
   // ensure we loaded the people and boats
-  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.equal(knownPeople.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.length, 1, 'one boat record is loaded');
   assert.equal(env.store.hasRecordForId('person', '1'), true);
   assert.equal(env.store.hasRecordForId('boat', '1'), true);
 
@@ -504,8 +504,8 @@ test('unloadAll(type) does not leave stranded internalModels in relationships (r
   });
 
   // ensure that our new state is correct
-  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-  assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
+  assert.equal(knownPeople.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.length, 0, 'no boat records are loaded');
   assert.equal(
     relationshipState.canonicalMembers.size,
     1,
@@ -567,8 +567,8 @@ test('unloadAll(type) does not leave stranded internalModels in relationships (r
   let knownBoats = store._internalModelsFor('boat');
 
   // ensure we loaded the people and boats
-  assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-  assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+  assert.equal(knownPeople.length, 1, 'one person record is loaded');
+  assert.equal(knownBoats.length, 1, 'one boat record is loaded');
   assert.equal(env.store.hasRecordForId('person', '1'), true);
   assert.equal(env.store.hasRecordForId('boat', '1'), true);
 
@@ -775,12 +775,12 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
   });
 
   assert.equal(
-    env.store._internalModelsFor('person').models.length,
+    env.store._internalModelsFor('person').length,
     1,
     'one person record is loaded'
   );
   assert.equal(
-    env.store._internalModelsFor('boat').models.length,
+    env.store._internalModelsFor('boat').length,
     2,
     'two boat records are loaded'
   );
@@ -823,8 +823,8 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
         env.store.peekRecord('boat', 2).unloadRecord();
       });
 
-      assert.equal(env.store._internalModelsFor('person').models.length, 0);
-      assert.equal(env.store._internalModelsFor('boat').models.length, 0);
+      assert.equal(env.store._internalModelsFor('person').length, 0);
+      assert.equal(env.store._internalModelsFor('boat').length, 0);
 
       assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
       assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');

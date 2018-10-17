@@ -2,7 +2,6 @@
   @module ember-data
 */
 import { registerWaiter, unregisterWaiter } from '@ember/test';
-
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import MapWithDefault from './map-with-default';
@@ -20,7 +19,15 @@ import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
-import IdentityMap from './identity-map';
+import { recordDataFor, setRecordDataFor } from './cache/record-data-for';
+import {
+  internalModelsFor, setInternalModelFor, internalModelFor,
+  clearInternalModels
+} from './cache/internal-model-for';
+import {
+  recordIdentifierFor, RecordIdentifier,
+  createIdentifierIndex, clearIdentifierIndex
+} from './cache/identifier-index';
 import RecordDataWrapper from './store/record-data-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
@@ -46,13 +53,12 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordData from './model/record-data';
 import edBackburner from './backburner';
+import IdentityMap from "./identity-map";
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
-
-let globalClientIdCounter = 1;
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -192,9 +198,8 @@ Store = Service.extend({
     this._backburner = edBackburner;
     // internal bookkeeping; not observable
     this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._identityMap = new IdentityMap();
-    // To keep track of clientIds for newly created records
-    this._newlyCreated = new IdentityMap();
+    this._index = createIdentifierIndex();
+    this._identityMap = new IdentityMap(this._index);
     this._pendingSave = [];
     this._modelFactoryCache = Object.create(null);
     this._relationshipsDefCache = Object.create(null);
@@ -396,8 +401,13 @@ Store = Service.extend({
 
         // Coerce ID to a string
         properties.id = coerceId(properties.id);
+        let identifier = recordIdentifierFor({
+          type: normalizedModelName,
+          id: properties.id,
+          lid: properties.lid
+        });
 
-        let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
+        let internalModel = this._buildInternalModel(identifier);
         internalModel.loadedData();
         // TODO this exists just to proxy `isNew` to RecordData which is weird
         internalModel.didCreateRecord();
@@ -761,8 +771,8 @@ Store = Service.extend({
     );
 
     let normalizedModelName = normalizeModelName(modelName);
-
-    let internalModel = this._internalModelForId(normalizedModelName, id);
+    let identifier = recordIdentifierFor({ type: normalizedModelName, id: id });
+    let internalModel = this._internalModelForIdentifier(identifier);
     options = options || {};
 
     if (!this.hasRecordForId(normalizedModelName, id)) {
@@ -1132,18 +1142,20 @@ Store = Service.extend({
     ```
 
     @method getReference
-    @param {String} modelName
-    @param {String|Integer} id
+    @param {String} modelName - the modelName for this resource
+    @param {String|Integer} id - the id for this resource
+    @param {String} lid - the lid for this resource
     @since 2.5.0
     @return {RecordReference}
   */
-  getReference(modelName, id) {
+  getReference(modelName, id, lid) {
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
-    let normalizedModelName = normalizeModelName(modelName);
+    let type = normalizeModelName(modelName);
+    let identifier = recordIdentifierFor({ type, id, lid });
 
-    return this._internalModelForId(normalizedModelName, id).recordReference;
+    return this._internalModelForIdentifier(identifier).recordReference;
   },
 
   /**
@@ -1183,10 +1195,11 @@ Store = Service.extend({
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let type = normalizeModelName(modelName);
+    let identifier = recordIdentifierFor({ type, id });
 
-    if (this.hasRecordForId(normalizedModelName, id)) {
-      return this._internalModelForId(normalizedModelName, id).getRecord();
+    if (this.hasRecordForId(type, id)) {
+      return this._internalModelForIdentifier(identifier).getRecord();
     } else {
       return null;
     }
@@ -1251,12 +1264,12 @@ Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-
+    let type = normalizeModelName(modelName);
     let trueId = coerceId(id);
-    let internalModel = this._internalModelsFor(normalizedModelName).get(trueId);
+    let identifier = recordIdentifierFor({ type, id: trueId });
+    let internalModel = internalModelFor(identifier);
 
-    return !!internalModel && internalModel.isLoaded();
+    return internalModel !== undefined && internalModel.isLoaded();
   },
 
   /**
@@ -1265,41 +1278,45 @@ Store = Service.extend({
 
     @method recordForId
     @private
-    @param {String} modelName
+    @param {String} type
     @param {(String|Integer)} id
     @return {DS.Model} record
   */
-  recordForId(modelName, id) {
+  // TODO deprecate, this is unused
+  recordForId(type, id) {
     if (DEBUG) {
       assertDestroyingStore(this, 'recordForId');
     }
-    assert(`You need to pass a model name to the store's recordForId method`, isPresent(modelName));
+    assert(`You need to pass a model name to the store's recordForId method`, isPresent(type));
     assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
+      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${type}`,
+      typeof type === 'string'
     );
 
-    return this._internalModelForId(modelName, id).getRecord();
+    let identifier = recordIdentifierFor({ type, id });
+
+    return this._internalModelForIdentifier(identifier).getRecord();
   },
 
-  // directly get an internal model from ID map if it is there, without doing any
-  // processing
-  _getInternalModelForId(modelName, id, clientId) {
-    let internalModel;
-    if (clientId) {
-      internalModel = this._newlyCreatedModelsFor(modelName).get(clientId);
-    }
+  // TODO deprecate, this is no longer needed except for tests
+  _internalModelForId(type, id, lid) {
+    let identifier = recordIdentifierFor({ type, id, lid });
 
-    if (!internalModel) {
-      internalModel = this._internalModelsFor(modelName).get(id);
-    }
-    return internalModel;
+    return this._internalModelForIdentifier(identifier);
   },
 
-  _internalModelForId(modelName, id, clientId) {
+  _internalModelForIdentifier(identifier) {
     heimdall.increment(_internalModelForId);
-    let trueId = coerceId(id);
-    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
+
+    // this is to ease the fact that `RecordData`
+    //   would need to be updated to manage relationship
+    //   membership by `RecordIdentifier`
+    //   TODO RecordData RecordIdentifier RFC
+    if (! identifier instanceof RecordIdentifier) {
+      identifier = recordIdentifierFor(identifier);
+    }
+
+    let internalModel = internalModelFor(identifier);
 
     if (internalModel) {
       // unloadRecord is async, if one attempts to unload + then sync push,
@@ -1315,7 +1332,7 @@ Store = Service.extend({
       return internalModel;
     }
 
-    return this._buildInternalModel(modelName, trueId, null, clientId);
+    return this._buildInternalModel(identifier);
   },
 
   /**
@@ -1420,7 +1437,11 @@ Store = Service.extend({
 
     // fetch using data, pulling from local cache if possible
     if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map(json => {
+        let identifier = recordIdentifierFor(json);
+
+        return this._internalModelForIdentifier(identifier);
+      });
 
       return this.findMany(internalModels, options);
     }
@@ -1429,7 +1450,11 @@ Store = Service.extend({
 
     // fetch by data
     if (hasData || hasLocalPartialData) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map(json => {
+        let identifier = recordIdentifierFor(json);
+
+        return this._internalModelForIdentifier(identifier);
+      });
 
       return this._scheduleFetchMany(internalModels, options);
     }
@@ -1440,11 +1465,17 @@ Store = Service.extend({
   },
 
   _getHasManyByJsonApiResource(resource) {
-    let internalModels = [];
+    let internalModels;
+
     if (resource && resource.data) {
-      internalModels = resource.data.map(reference => this._internalModelForResource(reference));
+      internalModels = resource.data.map(json => {
+        let identifier = recordIdentifierFor(json);
+
+        return this._internalModelForIdentifier(identifier);
+      });
     }
-    return internalModels;
+
+    return internalModels || [];
   },
 
   /**
@@ -1501,7 +1532,7 @@ Store = Service.extend({
       return RSVP.resolve(null);
     }
 
-    let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
+    let internalModel = resource.data ? this._internalModelForIdentifier(recordIdentifierFor(resource.data)) : null;
     let {
       relationshipIsStale,
       allInverseRecordsAreLoaded,
@@ -2035,7 +2066,6 @@ Store = Service.extend({
   */
   _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
-    let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -2045,14 +2075,14 @@ Store = Service.extend({
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, null, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, null, options));
     }
 
     if (options.backgroundReload === false) {
@@ -2061,7 +2091,7 @@ Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelName, sinceToken, options);
+      _findAll(adapter, this, modelName, null, options);
     }
 
     return promiseArray(Promise.resolve(array));
@@ -2139,10 +2169,10 @@ Store = Service.extend({
     );
 
     if (arguments.length === 0) {
-      this._identityMap.clear();
+      clearInternalModels(this._index);
     } else {
       let normalizedModelName = normalizeModelName(modelName);
-      this._internalModelsFor(normalizedModelName).clear();
+      clearInternalModels(this._index, normalizedModelName);
     }
   },
 
@@ -2294,8 +2324,12 @@ Store = Service.extend({
    */
   setRecordId(modelName, newId, clientId) {
     let trueId = coerceId(newId);
-    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
-    this._setRecordId(internalModel, newId, clientId);
+
+    // TODO just pass in lid
+    let lid = recordIdentifierFor({ type: modelName, id: trueId, lid: clientId });
+    let internalModel = internalModelFor(lid);
+
+    this._setRecordId(internalModel, newId, lid);
   },
 
   updateId(internalModel, data) {
@@ -2306,10 +2340,17 @@ Store = Service.extend({
       id: 'ds.store.updateId',
       until: '3.5',
     });
-    this._setRecordId(internalModel, coerceId(data.id));
+
+    let lid = recordIdentifierFor({
+      type: internalModel.modelName,
+      id: internalModel.id,
+      lid: internalModel.clientId
+    });
+
+    this._setRecordId(internalModel, coerceId(data.id), lid);
   },
 
-  _setRecordId(internalModel, id, clientId) {
+  _setRecordId(internalModel, id, lid) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
     }
@@ -2338,15 +2379,19 @@ Store = Service.extend({
       return;
     }
 
-    let existingInternalModel = this._existingInternalModelForId(modelName, id);
+    // TODO don't accidentally populate cache
+    // TODO update indexes
+    // TODO check that existingLid is a thing
+    // TODO check that existing ID is a thing
+    let existingLid = recordIdentifierFor({ type: modelName, id });
+    let existingInternalModel = internalModelFor(existingLid);
 
     assert(
       `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
       isNone(existingInternalModel) || existingInternalModel === internalModel
     );
 
-    this._internalModelsFor(internalModel.modelName).set(id, internalModel);
-    this._newlyCreatedModelsFor(internalModel.modelName).remove(internalModel, clientId);
+    setInternalModelFor(lid, internalModel);
 
     internalModel.setId(id);
   },
@@ -2361,11 +2406,8 @@ Store = Service.extend({
   */
   _internalModelsFor(modelName) {
     heimdall.increment(_internalModelsFor);
-    return this._identityMap.retrieve(modelName);
-  },
 
-  _newlyCreatedModelsFor(modelName) {
-    return this._newlyCreated.retrieve(modelName);
+    return internalModelsFor(this._index, modelName);
   },
 
   // ................
@@ -2381,9 +2423,11 @@ Store = Service.extend({
   */
   _load(data) {
     heimdall.increment(_load);
+    // TODO just pass `data` to `recordIdentifierFor` and remove whatver need for
+    //   normalizeModelName there is here
     let modelName = normalizeModelName(data.type);
-    let internalModel = this._internalModelForId(modelName, data.id);
-
+    let identifier = recordIdentifierFor({ type: modelName, id: coerceId(data.id), lid: data.lid });
+    let internalModel = this._internalModelForIdentifier(identifier);
     let isUpdate = internalModel.currentState.isEmpty === false;
 
     internalModel.setupData(data);
@@ -2395,32 +2439,6 @@ Store = Service.extend({
     }
 
     return internalModel;
-  },
-
-  /*
-    @deprecated
-    @private
-   */
-  _modelForMixin(modelName) {
-    deprecate(
-      '_modelForMixin is private and deprecated and should never be used directly, use modelFor instead',
-      false,
-      {
-        id: 'ember-data:_modelForMixin',
-        until: '3.5',
-      }
-    );
-    assert(
-      `You need to pass a model name to the store's _modelForMixin method`,
-      isPresent(modelName)
-    );
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return _modelForMixin(this, normalizedModelName);
   },
 
   /**
@@ -2451,18 +2469,6 @@ Store = Service.extend({
     return maybeFactory.class ? maybeFactory.class : maybeFactory;
   },
 
-  /*
-    @deprecated
-    @private
-  */
-  _modelFor(modelName) {
-    deprecate('_modelFor is private and deprecated, you should use modelFor instead', false, {
-      id: 'ember-data:_modelFor',
-      until: '3.5',
-    });
-    return this.modelFor(modelName);
-  },
-
   _modelFactoryFor(modelName) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
@@ -2483,18 +2489,6 @@ Store = Service.extend({
     }
 
     return factory;
-  },
-
-  /*
-    @deprecated
-    @private
-  */
-  modelFactoryFor(modelName) {
-    deprecate('modelFactoryFor is private and deprecated', false, {
-      id: 'ember-data:modelFactoryFor',
-      until: '3.5',
-    });
-    return this._modelFactoryFor(modelName);
   },
 
   /*
@@ -2916,34 +2910,29 @@ Store = Service.extend({
     return relationships;
   },
 
-  _internalModelForResource(resource) {
-    let internalModel;
-    if (resource.clientId) {
-      internalModel = this._newlyCreatedModelsFor(resource.type).get(resource.clientId);
-    }
-    if (!internalModel) {
-      internalModel = this._internalModelForId(resource.type, resource.id);
-    }
-    return internalModel;
+  _createRecordData(identifier) {
+    return this.createRecordDataFor(identifier.type, identifier.id, identifier.lid, this.recordDataWrapper);
   },
 
-  _createRecordData(modelName, id, clientId, internalModel) {
-    return this.createRecordDataFor(modelName, id, clientId, this.recordDataWrapper);
-  },
-
+  // TODO RFC update this API to expect RecordIdentifier
   createRecordDataFor(modelName, id, clientId, storeWrapper) {
     return new RecordData(modelName, id, clientId, storeWrapper, this);
   },
 
+  // TODO RFC update this API to expect Resource|RecordIdentifier
   recordDataFor(modelName, id, clientId) {
-    let internalModel = this._internalModelForId(modelName, id, clientId);
-    return internalModel._recordData;
+    let identifier = recordIdentifierFor({
+      type: modelName,
+      id: id,
+      lid: clientId
+    });
+
+    // ensure we create an internalModel and recordData
+    this._internalModelForIdentifier(identifier);
+
+    return recordDataFor(identifier);
   },
 
-  _internalModelForRecordData(recordData) {
-    let resource = recordData.getResourceIdentifier();
-    return this._internalModelForId(resource.type, resource.id, resource.clientId);
-  },
   /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
@@ -2981,57 +2970,44 @@ Store = Service.extend({
     return serializer.normalize(model, payload);
   },
 
-  newClientId() {
-    return globalClientIdCounter++;
-  },
   /**
     Build a brand new record for a given type, ID, and
     initial data.
 
     @method _buildInternalModel
     @private
-    @param {String} modelName
-    @param {String} id
-    @param {Object} data
+    @param {RecordIdentifier} identifier
     @return {InternalModel} internal model
   */
-  _buildInternalModel(modelName, id, data, clientId) {
+  _buildInternalModel(identifier) {
     heimdall.increment(_buildInternalModel);
 
-    assert(
-      `You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`,
-      typeof modelName === 'string'
-    );
-
-    let existingInternalModel = this._existingInternalModelForId(modelName, id);
+    let existingInternalModel = internalModelFor(identifier);
 
     assert(
-      `The id ${id} has already been used with another record for modelClass '${modelName}'.`,
+      `The id ${identifier.id} has already been used with another record for modelClass '${identifier.type}'.`,
       !existingInternalModel
     );
-
-    if (id === null && !clientId) {
-      clientId = this.newClientId();
-    }
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    let internalModel = new InternalModel(modelName, id, this, data, clientId);
-    if (clientId) {
-      this._newlyCreatedModelsFor(modelName).add(internalModel, clientId);
-    }
-
-    this._internalModelsFor(modelName).add(internalModel, id);
+    let internalModel = new InternalModel(identifier, this);
+    setInternalModelFor(identifier, internalModel);
+    let recordData = this._createRecordData(identifier);
+    internalModel._recordData = recordData; // legacy prop
+    setRecordDataFor(identifier, recordData);
+    setRecordDataFor(internalModel, recordData);
 
     return internalModel;
   },
 
   _existingInternalModelForId(modelName, id) {
-    let internalModel = this._internalModelsFor(modelName).get(id);
+    let identifier = recordIdentifierFor({ type: modelName, id });
+    let internalModel = internalModelFor(identifier);
 
     if (internalModel && internalModel.hasScheduledDestroy()) {
       // unloadRecord is async, if one attempts to unload + then sync create,
       //   we must ensure the unload is complete before starting the create
-      //   The push path will take _internalModelForId()
+      //   The push path will take _internalModelForIdentifier()
       //   which will call `cancelDestroy` instead for this unload + then
       //   sync push scenario. Once we have true client-side
       //   delete signaling, we should never call destroySync
@@ -3062,11 +3038,8 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _removeFromIdMap(internalModel) {
-    let recordMap = this._internalModelsFor(internalModel.modelName);
-    let id = internalModel.id;
-
-    recordMap.remove(internalModel, id);
-    //TODO IGOR DAVID remove from client id map
+    let identifier = recordIdentifierFor({ lid: internalModel.clientId });
+    setInternalModelFor(identifier, null);
   },
 
   // ......................
@@ -3266,6 +3239,9 @@ Store = Service.extend({
         }
       }
     }
+
+    this._index = null;
+    clearIdentifierIndex();
   },
 
   _updateRelationshipState(relationship) {
@@ -3323,7 +3299,9 @@ Store = Service.extend({
     );
 
     //TODO:Better asserts
-    return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
+    let recordIdentifier = recordIdentifierFor(resourceIdentifier);
+
+    return this._internalModelForIdentifier(recordIdentifier);
   },
 
   _pushResourceIdentifiers(relationship, resourceIdentifiers) {

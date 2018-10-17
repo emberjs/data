@@ -5,6 +5,7 @@ import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 
 import DS from 'ember-data';
 
@@ -48,6 +49,8 @@ module('integration/store - destroy', {
     initializeStore(DS.Adapter.extend());
   },
   afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
     store = null;
     env = null;
   },
@@ -258,7 +261,12 @@ function ajaxResponse(value) {
   };
 }
 
-module('integration/store - findRecord');
+module('integration/store - findRecord', {
+  afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
+  }
+});
 
 test('store#findRecord fetches record from server when cached record is not present', function(assert) {
   assert.expect(2);
@@ -581,264 +589,55 @@ testInDebug(
   }
 );
 
-module('integration/store - findAll', {
-  beforeEach() {
-    initializeStore(DS.RESTAdapter.extend());
-  },
-});
+module('integration/store - findAll', function(hooks) {
+  setupTest(hooks);
+  let store;
 
-test('Using store#findAll with no records triggers a query', function(assert) {
-  assert.expect(2);
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('adapter:application', DS.RESTAdapter.extend());
+    owner.register('model:car', Car);
+    owner.register('model:person', Person);
 
-  ajaxResponse({
-    cars: [
-      {
-        id: 1,
-        make: 'BMC',
-        model: 'Mini',
-      },
-      {
-        id: 2,
-        make: 'BMCW',
-        model: 'Isetta',
-      },
-    ],
+    store = owner.lookup('service:store');
   });
 
-  let cars = store.peekAll('car');
-  assert.ok(!cars.get('length'), 'There is no cars in the store');
+  test('Using store#findAll with no records triggers a query', function(assert) {
+    assert.expect(2);
+    let adapter = store.adapterFor('application');
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 1,
+            make: 'BMC',
+            model: 'Mini',
+          },
+          {
+            id: 2,
+            make: 'BMCW',
+            model: 'Isetta',
+          },
+        ],
+      });
+    };
 
-  return run(() => {
-    return store.findAll('car').then(cars => {
-      assert.equal(cars.get('length'), 2, 'Two car were fetched');
-    });
-  });
-});
-
-test('Using store#findAll with existing records performs a query in the background, updating existing records and returning new ones', function(assert) {
-  assert.expect(4);
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini',
-        },
-      },
-    });
-  });
-
-  ajaxResponse({
-    cars: [
-      {
-        id: 1,
-        make: 'BMC',
-        model: 'New Mini',
-      },
-      {
-        id: 2,
-        make: 'BMCW',
-        model: 'Isetta',
-      },
-    ],
-  });
-
-  let cars = store.peekAll('car');
-  assert.equal(cars.get('length'), 1, 'There is one car in the store');
-
-  let waiter = run(() => {
-    return store.findAll('car').then(cars => {
-      assert.equal(cars.get('length'), 1, 'Store resolves with the existing records');
-    });
-  });
-
-  run(() => {
     let cars = store.peekAll('car');
-    assert.equal(cars.get('length'), 2, 'There is 2 cars in the store now');
-    let mini = cars.findBy('id', '1');
-    assert.equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
-  });
+    assert.ok(!cars.get('length'), 'There is no cars in the store');
 
-  return waiter;
-});
-
-test('store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background', function(assert) {
-  assert.expect(4);
-
-  let testAdapter = DS.RESTAdapter.extend({
-    shouldBackgroundReloadAll() {
-      assert.ok(
-        false,
-        'shouldBackgroundReloadAll should not be called when { backgroundReload: false }'
-      );
-    },
-
-    findAll() {
-      assert.ok(false, 'findAll() should not be called when { backgroundReload: true }');
-    },
-  });
-
-  initializeStore(testAdapter);
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini',
-        },
-      },
+    return run(() => {
+      return store.findAll('car').then(cars => {
+        assert.equal(cars.get('length'), 2, 'Two car were fetched');
+      });
     });
   });
 
-  run(() => {
-    store.findAll('car', { backgroundReload: false }).then(cars => {
-      assert.equal(cars.get('length'), 1, 'single cached car record is returned');
-      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
-    });
-  });
+  test('Using store#findAll with existing records performs a query in the background, updating existing records and returning new ones', function(assert) {
+    assert.expect(4);
 
-  run(() => {
-    let cars = store.peekAll('car');
-    assert.equal(cars.get('length'), 1, 'single cached car record is returned again');
-    assert.equal(
-      cars.get('firstObject.model'),
-      'Mini',
-      'correct cached car record is returned again'
-    );
-  });
-});
-
-test('store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background', function(assert) {
-  assert.expect(5);
-
-  let testAdapter = DS.RESTAdapter.extend({
-    shouldBackgroundReloadAll() {
-      assert.ok(
-        false,
-        'shouldBackgroundReloadAll should not be called when { backgroundReload: true }'
-      );
-    },
-  });
-
-  initializeStore(testAdapter);
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini',
-        },
-      },
-    });
-  });
-
-  ajaxResponse({
-    cars: [
-      {
-        id: 1,
-        make: 'BMC',
-        model: 'New Mini',
-      },
-      {
-        id: 2,
-        make: 'BMCW',
-        model: 'Isetta',
-      },
-    ],
-  });
-
-  run(() => {
-    store.findAll('car', { backgroundReload: true }).then(cars => {
-      assert.equal(cars.get('length'), 1, 'single cached car record is returned');
-      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
-    });
-  });
-
-  run(() => {
-    let cars = store.peekAll('car');
-    assert.equal(cars.get('length'), 2, 'multiple cars now in the store');
-    assert.equal(cars.get('firstObject.model'), 'New Mini', 'existing record updated correctly');
-    assert.equal(cars.get('lastObject.model'), 'Isetta', 'new record added to the store');
-  });
-});
-
-test('store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true', function(assert) {
-  assert.expect(5);
-
-  let testAdapter = DS.RESTAdapter.extend({
-    shouldReloadAll() {
-      return true;
-    },
-
-    shouldBackgroundReloadAll() {
-      assert.ok(
-        false,
-        'shouldBackgroundReloadAll should not be called when adapter.shouldReloadAll = true'
-      );
-    },
-  });
-
-  initializeStore(testAdapter);
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'car',
-        id: '1',
-        attributes: {
-          make: 'BMC',
-          model: 'Mini',
-        },
-      },
-    });
-  });
-
-  ajaxResponse({
-    cars: [
-      {
-        id: 1,
-        make: 'BMC',
-        model: 'New Mini',
-      },
-      {
-        id: 2,
-        make: 'BMCW',
-        model: 'Isetta',
-      },
-    ],
-  });
-
-  run(() => {
-    let cars = store.peekAll('car');
-    assert.equal(cars.get('length'), 1, 'one car in the store');
-    assert.equal(cars.get('firstObject.model'), 'Mini', 'correct car is in the store');
-  });
-
-  return run(() => {
-    return store.findAll('car', { backgroundReload: false }).then(cars => {
-      assert.equal(cars.get('length'), 2, 'multiple car records are returned');
-      assert.equal(cars.get('firstObject.model'), 'New Mini', 'initial car record was updated');
-      assert.equal(cars.get('lastObject.model'), 'Isetta', 'second car record was loaded');
-    });
-  });
-});
-
-test('store#findAll should eventually return all known records even if they are not in the adapter response', function(assert) {
-  assert.expect(5);
-
-  run(() => {
-    store.push({
-      data: [
-        {
+    run(() => {
+      store.push({
+        data: {
           type: 'car',
           id: '1',
           attributes: {
@@ -846,107 +645,310 @@ test('store#findAll should eventually return all known records even if they are 
             model: 'Mini',
           },
         },
-        {
-          type: 'car',
-          id: '2',
-          attributes: {
+      });
+    });
+
+    let adapter = store.adapterFor('application');
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 1,
+            make: 'BMC',
+            model: 'New Mini',
+          },
+          {
+            id: 2,
             make: 'BMCW',
             model: 'Isetta',
           },
+        ],
+      });
+    };
+
+    let cars = store.peekAll('car');
+    assert.equal(cars.get('length'), 1, 'There is one car in the store');
+
+    let waiter = run(() => {
+      return store.findAll('car').then(cars => {
+        assert.equal(cars.get('length'), 1, 'Store resolves with the existing records');
+      });
+    });
+
+    run(() => {
+      let cars = store.peekAll('car');
+      assert.equal(cars.get('length'), 2, 'There is 2 cars in the store now');
+      let mini = cars.findBy('id', '1');
+      assert.equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+    });
+
+    return waiter;
+  });
+
+  test('store#findAll { backgroundReload: false } skips shouldBackgroundReloadAll, returns cached records & does not reload in the background', function(assert) {
+    assert.expect(4);
+
+    let testAdapter = DS.RESTAdapter.extend({
+      shouldBackgroundReloadAll() {
+        assert.ok(
+          false,
+          'shouldBackgroundReloadAll should not be called when { backgroundReload: false }'
+        );
+      },
+
+      findAll() {
+        assert.ok(false, 'findAll() should not be called when { backgroundReload: true }');
+      },
+    });
+
+    this.owner.unregister('adapter:application');
+    this.owner.register('adapter:application', testAdapter);
+
+    run(() => {
+      store.push({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini',
+          },
         },
-      ],
+      });
+    });
+
+    run(() => {
+      store.findAll('car', { backgroundReload: false }).then(cars => {
+        assert.equal(cars.get('length'), 1, 'single cached car record is returned');
+        assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
+      });
+    });
+
+    run(() => {
+      let cars = store.peekAll('car');
+      assert.equal(cars.get('length'), 1, 'single cached car record is returned again');
+      assert.equal(
+        cars.get('firstObject.model'),
+        'Mini',
+        'correct cached car record is returned again'
+      );
     });
   });
 
-  ajaxResponse({
-    cars: [
-      {
-        id: 1,
-        make: 'BMC',
-        model: 'New Mini',
-      },
-    ],
+  test('store#findAll { backgroundReload: true } skips shouldBackgroundReloadAll, returns cached records, & reloads in background', function(assert) {
+    assert.expect(5);
+
+    let adapter = store.adapterFor('application');
+    adapter.shouldBackgroundReloadAll = () => {
+      assert.ok(
+        false,
+        'shouldBackgroundReloadAll should not be called when { backgroundReload: true }'
+      );
+    };
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 1,
+            make: 'BMC',
+            model: 'New Mini',
+          },
+          {
+            id: 2,
+            make: 'BMCW',
+            model: 'Isetta',
+          },
+        ],
+      });
+    };
+
+    run(() => {
+      store.push({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini',
+          },
+        },
+      });
+    });
+
+    run(() => {
+      store.findAll('car', { backgroundReload: true }).then(cars => {
+        assert.equal(cars.get('length'), 1, 'single cached car record is returned');
+        assert.equal(cars.get('firstObject.model'), 'Mini', 'correct cached car record is returned');
+      });
+    });
+
+    run(() => {
+      let cars = store.peekAll('car');
+      assert.equal(cars.get('length'), 2, 'multiple cars now in the store');
+      assert.equal(cars.get('firstObject.model'), 'New Mini', 'existing record updated correctly');
+      assert.equal(cars.get('lastObject.model'), 'Isetta', 'new record added to the store');
+    });
   });
 
-  let cars = store.peekAll('car');
-  assert.equal(cars.get('length'), 2, 'There is two cars in the store');
+  test('store#findAll { backgroundReload: false } is ignored if adapter.shouldReloadAll is true', function(assert) {
+    assert.expect(5);
+    let adapter = store.adapterFor('application');
+    adapter.shouldReloadAll = () => true;
+    adapter.shouldBackgroundReloadAll = () => {
+      assert.ok(
+        false,
+        'shouldBackgroundReloadAll should not be called when { backgroundReload: true }'
+      );
+    };
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 1,
+            make: 'BMC',
+            model: 'New Mini',
+          },
+          {
+            id: 2,
+            make: 'BMCW',
+            model: 'Isetta',
+          },
+        ],
+      });
+    };
 
-  let waiter = run(() => {
-    return store.findAll('car').then(cars => {
-      assert.equal(cars.get('length'), 2, 'It returns all cars');
+    run(() => {
+      store.push({
+        data: {
+          type: 'car',
+          id: '1',
+          attributes: {
+            make: 'BMC',
+            model: 'Mini',
+          },
+        },
+      });
+    });
+
+    run(() => {
+      let cars = store.peekAll('car');
+      assert.equal(cars.get('length'), 1, 'one car in the store');
+      assert.equal(cars.get('firstObject.model'), 'Mini', 'correct car is in the store');
+    });
+
+    return run(() => {
+      return store.findAll('car', { backgroundReload: false }).then(cars => {
+        assert.equal(cars.get('length'), 2, 'multiple car records are returned');
+        assert.equal(cars.get('firstObject.model'), 'New Mini', 'initial car record was updated');
+        assert.equal(cars.get('lastObject.model'), 'Isetta', 'second car record was loaded');
+      });
+    });
+  });
+
+  test('store#findAll should eventually return all known records even if they are not in the adapter response', function(assert) {
+    assert.expect(5);
+
+    run(() => {
+      store.push({
+        data: [
+          {
+            type: 'car',
+            id: '1',
+            attributes: {
+              make: 'BMC',
+              model: 'Mini',
+            },
+          },
+          {
+            type: 'car',
+            id: '2',
+            attributes: {
+              make: 'BMCW',
+              model: 'Isetta',
+            },
+          },
+        ],
+      });
+    });
+
+    let adapter = store.adapterFor('application');
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 1,
+            make: 'BMC',
+            model: 'New Mini',
+          },
+        ],
+      });
+    };
+
+    let cars = store.peekAll('car');
+    assert.equal(cars.get('length'), 2, 'There is two cars in the store');
+
+    let waiter = run(() => {
+      return store.findAll('car').then(cars => {
+        assert.equal(cars.get('length'), 2, 'It returns all cars');
+
+        let carsInStore = store.peekAll('car');
+        assert.equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
+      });
+    });
+
+    run(() => {
+      let cars = store.peekAll('car');
+      let mini = cars.findBy('id', '1');
+      assert.equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
 
       let carsInStore = store.peekAll('car');
       assert.equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
     });
+
+    return waiter;
   });
 
-  run(() => {
-    let cars = store.peekAll('car');
-    let mini = cars.findBy('id', '1');
-    assert.equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+  test('Using store#fetch on an empty record calls find', function(assert) {
+    assert.expect(2);
 
-    let carsInStore = store.peekAll('car');
-    assert.equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
-  });
+    let adapter = store.adapterFor('application');
+    adapter.ajax = function() {
+      return resolve({
+        cars: [
+          {
+            id: 20,
+            make: 'BMCW',
+            model: 'Mini',
+          }
+        ],
+      });
+    };
 
-  return waiter;
-});
-
-test('Using store#fetch on an empty record calls find', function(assert) {
-  assert.expect(2);
-
-  ajaxResponse({
-    cars: [
-      {
-        id: 20,
-        make: 'BMCW',
-        model: 'Mini',
-      },
-    ],
-  });
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: '1',
-        attributes: {
-          name: 'Tom Dale',
-        },
-        relationships: {
-          cars: {
-            data: [{ type: 'car', id: '20' }],
+    run(() => {
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            cars: {
+              data: [{ type: 'car', id: '20' }],
+            },
           },
         },
-      },
+      });
     });
-  });
 
-  let car = store.recordForId('car', 20);
-  assert.ok(car.get('isEmpty'), 'Car with id=20 should be empty');
+    let car = store.recordForId('car', 20);
+    assert.ok(car.get('isEmpty'), 'Car with id=20 should be empty');
 
-  return run(() => {
-    return store.findRecord('car', 20, { reload: true }).then(car => {
-      assert.equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    return run(() => {
+      return store.findRecord('car', 20, { reload: true }).then(car => {
+        assert.equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+      });
     });
-  });
-});
-
-test('Using store#adapterFor should not throw an error when looking up the application adapter', function(assert) {
-  assert.expect(1);
-
-  run(() => {
-    let applicationAdapter = store.adapterFor('application');
-    assert.ok(applicationAdapter);
-  });
-});
-
-test('Using store#serializerFor should not throw an error when looking up the application serializer', function(assert) {
-  assert.expect(1);
-
-  run(() => {
-    let applicationSerializer = store.serializerFor('application');
-    assert.ok(applicationSerializer);
   });
 });
 
@@ -954,6 +956,10 @@ module('integration/store - deleteRecord', {
   beforeEach() {
     initializeStore(DS.RESTAdapter.extend());
   },
+  afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
+  }
 });
 
 test('Using store#deleteRecord should mark the model for removal', function(assert) {
@@ -1033,6 +1039,10 @@ module('integration/store - queryRecord', {
   beforeEach() {
     initializeStore(DS.Adapter.extend());
   },
+  afterEach() {
+    run(env.container, 'destroy');
+    run(env.store, 'destroy');
+  }
 });
 
 testInDebug(
@@ -1120,5 +1130,29 @@ test('The store should trap exceptions that are thrown from adapter#createRecord
     car.save().catch(error => {
       assert.equal(error.message, 'Refusing to serialize');
     });
+  });
+});
+
+module('integration/store - adapter/serializerFor', function(hooks) {
+  setupTest(hooks);
+  let store;
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    // ensure we have none in dummy app
+    owner.unregister('adapter:application');
+    owner.unregister('serializer:application');
+
+    store = owner.lookup('service:store');
+  });
+
+  test('Using store#adapterFor should not throw an error when looking up the application adapter', async function(assert) {
+    let applicationAdapter = store.adapterFor('application');
+    assert.ok(applicationAdapter);
+  });
+
+  test('Using store#serializerFor should not throw an error when looking up the application serializer', async function(assert) {
+    let applicationSerializer = store.serializerFor('application');
+    assert.ok(applicationSerializer);
   });
 });

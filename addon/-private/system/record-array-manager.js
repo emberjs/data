@@ -130,8 +130,10 @@ export default class RecordArrayManager {
     let pending = this._pending[modelName];
     let hasPendingChanges = Array.isArray(pending);
     let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
-    let map = this.store._internalModelsFor(modelName);
-    let hasNoInsertionsOrRemovals = get(map, 'length') === get(array, 'length');
+
+    // TODO This is preventing us from removing internalModelsFor
+    let allInternalModels = this.store._internalModelsFor(modelName);
+    let hasNoInsertionsOrRemovals = allInternalModels.length === get(array, 'length');
 
     /*
       Ideally the recordArrayManager has knowledge of the changes to be applied to
@@ -204,7 +206,8 @@ export default class RecordArrayManager {
   }
 
   _visibleInternalModelsByType(modelName) {
-    let all = this.store._internalModelsFor(modelName)._models;
+    // TODO This is preventing us from removing internalModelsFor
+    let all = this.store._internalModelsFor(modelName);
     let visible = [];
     for (let i = 0; i < all.length; i++) {
       let model = all[i];

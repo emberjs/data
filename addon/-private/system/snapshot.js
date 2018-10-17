@@ -5,6 +5,7 @@ import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
+import {recordIdentifierFor} from "./cache/identifier-index";
 
 /**
   @class Snapshot
@@ -245,7 +246,10 @@ export default class Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data && store._internalModelForResource(data);
+    if (data) {
+      let recordIdentifier = recordIdentifierFor(data);
+      inverseInternalModel = data && store._internalModelForIdentifier(recordIdentifier);
+    }
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -329,7 +333,9 @@ export default class Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach(member => {
-        let internalModel = store._internalModelForResource(member);
+        let recordIdentifier = recordIdentifierFor(member);
+        let internalModel = store._internalModelForIdentifier(recordIdentifier);
+
         if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);

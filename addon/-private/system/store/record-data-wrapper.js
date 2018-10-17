@@ -1,3 +1,6 @@
+import { recordIdentifierFor } from "../cache/identifier-index";
+import { internalModelFor } from "../cache/internal-model-for";
+
 export default class RecordDataWrapper {
   constructor(store) {
     this.store = store;
@@ -5,9 +8,9 @@ export default class RecordDataWrapper {
     this._pendingManyArrayUpdates = null;
   }
 
-  _scheduleManyArrayUpdate(modelName, id, clientId, key) {
+  _scheduleManyArrayUpdate(lid, key) {
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(modelName, id, clientId, key);
+    pending.push(lid, key);
 
     if (this._willUpdateManyArrays === true) {
       return;
@@ -29,14 +32,13 @@ export default class RecordDataWrapper {
     let pending = this._pendingManyArrayUpdates;
     this._pendingManyArrayUpdates = [];
     this._willUpdateManyArrays = false;
-    let store = this.store;
 
-    for (let i = 0; i < pending.length; i += 4) {
-      let modelName = pending[i];
-      let id = pending[i + 1];
-      let clientId = pending[i + 2];
-      let key = pending[i + 3];
-      let internalModel = store._getInternalModelForId(modelName, id, clientId);
+    for (let i = 0; i < pending.length; i += 2) {
+      let lid = pending[i];
+      let key = pending[i + 1];
+      let internalModel = internalModelFor(lid);
+
+      // TODO refactor this to either the default `RecordData` or the `Store`
       internalModel.notifyHasManyChange(key);
     }
   }
@@ -61,16 +63,25 @@ export default class RecordDataWrapper {
   }
 
   notifyPropertyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    // TODO just pass in `lid`
+    let lid = recordIdentifierFor({ type: modelName, id, lid: clientId });
+    let internalModel = internalModelFor(lid);
+
+    // TODO notify via the store
     internalModel.notifyPropertyChange(key);
   }
 
   notifyHasManyChange(modelName, id, clientId, key) {
-    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+    // TODO just pass in the lid
+    let lid = recordIdentifierFor({ type: modelName, id, lid: clientId });
+    this._scheduleManyArrayUpdate(lid, key);
   }
 
   notifyBelongsToChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    // TODO just pass in lid
+    let lid = recordIdentifierFor({ type: modelName, id, lid: clientId });
+    let internalModel = internalModelFor(lid);
+
     internalModel.notifyBelongsToChange(key);
   }
 
@@ -79,11 +90,19 @@ export default class RecordDataWrapper {
   }
 
   setRecordId(modelName, id, clientId) {
+    // TODO deprecate in favor of updating indexes
     this.store.setRecordId(modelName, id, clientId);
   }
 
   isRecordInUse(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    if (this.store.isDestroying) {
+      return false;
+    }
+
+    // TODO just pass in lid
+    let lid = recordIdentifierFor({ type: modelName, id, lid: clientId });
+    let internalModel = internalModelFor(lid);
+
     if (!internalModel) {
       return false;
     }
@@ -91,7 +110,14 @@ export default class RecordDataWrapper {
   }
 
   disconnectRecord(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    if (this.store.isDestroying) {
+      return;
+    }
+
+    // TODO just pass in lid
+    let lid = recordIdentifierFor({ type: modelName, id, lid: clientId });
+    let internalModel = internalModelFor(lid);
+
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }

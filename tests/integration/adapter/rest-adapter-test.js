@@ -626,12 +626,12 @@ test("createRecord - response can contain relationships the client doesn't yet k
         'the comments are related to the correct post model'
       );
       assert.equal(
-        store._internalModelsFor('post').models.length,
+        store._internalModelsFor('post').length,
         1,
         'There should only be one post record in the store'
       );
 
-      let postRecords = store._internalModelsFor('post').models;
+      let postRecords = store._internalModelsFor('post');
       for (var i = 0; i < postRecords.length; i++) {
         assert.equal(
           post,

@@ -15,7 +15,7 @@ import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
 import isArrayLike from '../is-array-like';
-
+import { recordDataFor } from '../cache/record-data-for';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 
 /*
@@ -85,17 +85,16 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data, clientId) {
+  constructor(identifier, store) {
     heimdall.increment(new_InternalModel);
-    this.id = id;
+    this.id = identifier.id;
     this.store = store;
-    this.modelName = modelName;
-    this.clientId = clientId;
-
-    this._recordData = store._createRecordData(modelName, id, clientId, this);
+    this.modelName = identifier.type;
+    this.clientId = identifier.lid;
+    this._recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
-    this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
+    this[Ember.GUID_KEY] = this.clientId;
 
     this._promiseProxy = null;
     this._record = null;
@@ -224,12 +223,12 @@ export default class InternalModel {
 
   // DO NOT USE : purely to ease the transition in tests
   get _attributes() {
-    return this._recordData._attributes;
+    return recordDataFor(this)._attributes;
   }
 
   // DO NOT USE : purely to ease the transition in tests
   get _relationships() {
-    return this._recordData._relationships;
+    return recordDataFor(this)._relationships;
   }
 
   getRecord(properties) {
@@ -285,7 +284,7 @@ export default class InternalModel {
         }
       }
 
-      let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
+      let additionalCreateOptions = recordDataFor(this)._initRecordCreateOptions(properties);
       assign(createOptions, additionalCreateOptions);
 
       if (setOwner) {
@@ -346,7 +345,7 @@ export default class InternalModel {
     }
 
     // move to an empty never-loaded state
-    this._recordData.unloadRecord();
+    recordDataFor(this).unloadRecord();
     this.resetRecord();
     this.updateRecordArrays();
   }
@@ -373,7 +372,7 @@ export default class InternalModel {
   linkWasLoadedForRelationship(key, data) {
     let relationships = {};
     relationships[key] = data;
-    this._recordData.pushData({ id: this.id, type: this.modelName, relationships });
+    recordDataFor(this).pushData({ id: this.id, type: this.modelName, relationships });
   }
 
   finishedReloading() {
@@ -489,7 +488,7 @@ export default class InternalModel {
   }
 
   getBelongsTo(key, options) {
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = recordDataFor(this).getBelongsTo(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;
@@ -498,7 +497,7 @@ export default class InternalModel {
 
     if (isAsync) {
       let internalModel =
-        resource && resource.data ? store._internalModelForResource(resource.data) : null;
+        resource && resource.data ? store._internalModelForIdentifier(resource.data) : null;
       return PromiseBelongsTo.create({
         _belongsToState: resource._relationship,
         promise: store._findBelongsToByJsonApiResource(
@@ -513,7 +512,7 @@ export default class InternalModel {
       if (!resource || !resource.data) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(resource.data);
+        let internalModel = store._internalModelForIdentifier(resource.data);
         let toReturn = internalModel.getRecord();
         assert(
           "You looked up the '" +
@@ -533,7 +532,7 @@ export default class InternalModel {
   // TODO Igor consider getting rid of initial state
   getManyArray(key) {
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = recordDataFor(this).getHasMany(key);
     let manyArray = this._manyArrayCache[key];
 
     assert(
@@ -547,7 +546,7 @@ export default class InternalModel {
       manyArray = ManyArray.create({
         store: this.store,
         type: this.store.modelFor(relationshipMeta.type),
-        recordData: this._recordData,
+        recordData: recordDataFor(this),
         meta: jsonApi.meta,
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
@@ -584,7 +583,7 @@ export default class InternalModel {
   }
 
   getHasMany(key, options) {
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = recordDataFor(this).getHasMany(key);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
@@ -645,7 +644,7 @@ export default class InternalModel {
       */
     }
 
-    let jsonApi = this._recordData.getHasMany(key);
+    let jsonApi = recordDataFor(this).getHasMany(key);
     jsonApi._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
@@ -657,7 +656,7 @@ export default class InternalModel {
   }
 
   reloadBelongsTo(key, options) {
-    let resource = this._recordData.getBelongsTo(key);
+    let resource = recordDataFor(this).getBelongsTo(key);
     resource._relationship.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
@@ -697,7 +696,7 @@ export default class InternalModel {
 
   setupData(data) {
     heimdall.increment(setupData);
-    let changedKeys = this._recordData.pushData(data, this.hasRecord);
+    let changedKeys = recordDataFor(this).pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
     }
@@ -705,19 +704,19 @@ export default class InternalModel {
   }
 
   getAttributeValue(key) {
-    return this._recordData.getAttr(key);
+    return recordDataFor(this).getAttr(key);
   }
 
   setDirtyHasMany(key, records) {
     assertRecordsPassedToHasMany(records);
-    return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
+    return recordDataFor(this).setDirtyHasMany(key, extractRecordDatasFromRecords(records));
   }
 
   setDirtyBelongsTo(key, value) {
     if (value && !value.then) {
       value = extractRecordDataFromRecord(value);
     }
-    return this._recordData.setDirtyBelongsTo(key, value);
+    return recordDataFor(this).setDirtyBelongsTo(key, value);
   }
 
   setDirtyAttribute(key, value) {
@@ -727,8 +726,8 @@ export default class InternalModel {
 
     let currentValue = this.getAttributeValue(key);
     if (currentValue !== value) {
-      this._recordData.setDirtyAttribute(key, value);
-      let isDirty = this._recordData.isAttrDirty(key);
+      recordDataFor(this).setDirtyAttribute(key, value);
+      let isDirty = recordDataFor(this).isAttrDirty(key);
       this.send('didSetProperty', {
         name: key,
         isDirty: isDirty,
@@ -790,7 +789,7 @@ export default class InternalModel {
 
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
-    return this._recordData.hasChangedAttributes();
+    return recordDataFor(this).hasChangedAttributes();
   }
 
   /*
@@ -802,7 +801,7 @@ export default class InternalModel {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
-    return this._recordData.changedAttributes();
+    return recordDataFor(this).changedAttributes();
   }
 
   /*
@@ -810,7 +809,7 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
-    this._recordData.willCommit();
+    recordDataFor(this).willCommit();
     this.send('willCommit');
   }
 
@@ -895,11 +894,11 @@ export default class InternalModel {
   }
 
   didCreateRecord() {
-    this._recordData.clientDidCreate();
+    recordDataFor(this).clientDidCreate();
   }
 
   rollbackAttributes() {
-    let dirtyKeys = this._recordData.rollbackAttributes();
+    let dirtyKeys = recordDataFor(this).rollbackAttributes();
     if (get(this, 'isError')) {
       this.didCleanError();
     }
@@ -1017,7 +1016,7 @@ export default class InternalModel {
   }
 
   removeFromInverseRelationships(isNew = false) {
-    this._recordData.removeFromInverseRelationships(isNew);
+    recordDataFor(this).removeFromInverseRelationships(isNew);
   }
 
   /*
@@ -1053,7 +1052,7 @@ export default class InternalModel {
         jsonPayload.attributes[key] = preloadValue;
       }
     });
-    this._recordData.pushData(jsonPayload);
+    recordDataFor(this).pushData(jsonPayload);
   }
 
   _preloadRelationship(key, preloadValue) {
@@ -1143,7 +1142,7 @@ export default class InternalModel {
   adapterDidCommit(data) {
     this.didCleanError();
 
-    let changedKeys = this._recordData.didCommit(data);
+    let changedKeys = recordDataFor(this).didCommit(data);
 
     this.send('didCommit');
     this.updateRecordArrays();
@@ -1190,7 +1189,7 @@ export default class InternalModel {
 
     this.send('becameInvalid');
 
-    this._recordData.commitWasRejected();
+    recordDataFor(this).commitWasRejected();
   }
 
   /*
@@ -1201,7 +1200,7 @@ export default class InternalModel {
     this.send('becameError');
     this.didError(error);
 
-    this._recordData.commitWasRejected();
+    recordDataFor(this).commitWasRejected();
   }
 
   toString() {
@@ -1213,7 +1212,7 @@ export default class InternalModel {
 
     if (!reference) {
       // TODO IGOR AND DAVID REFACTOR
-      let relationship = this._recordData._relationships.get(name);
+      let relationship = recordDataFor(this)._relationships.get(name);
 
       if (DEBUG) {
         let modelName = this.modelName;
@@ -1265,5 +1264,5 @@ function extractRecordDataFromRecord(recordOrPromiseProxy) {
     return recordOrPromiseProxy;
   }
 
-  return recordOrPromiseProxy._internalModel._recordData;
+  return recordDataFor(recordOrPromiseProxy._internalModel);
 }
