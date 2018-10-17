@@ -1,14 +1,13 @@
-var Reference = function(store, internalModel) {
-  this.store = store;
-  this.internalModel = internalModel;
-  this.recordData = internalModel._recordData;
-};
+export default class Reference {
+  constructor(store, internalModel) {
+    this.store = store;
+    this.internalModel = internalModel;
+    this.recordData = internalModel._recordData;
+  }
 
-Reference.prototype = {
-  constructor: Reference,
-};
+  _resource() {}
 
-/**
+  /**
    This returns a string that represents how the reference will be
    looked up when it is loaded. If the relationship has a link it will
    use the "link" otherwise it defaults to "id".
@@ -46,29 +45,29 @@ Reference.prototype = {
 
    @method remoteType
    @return {String} The name of the remote type. This should either be "link" or "ids"
-*/
-Reference.prototype.remoteType = function() {
-  let value = this._resource();
-  if (value && value.links && value.links.related) {
-    return 'link';
+   */
+  remoteType() {
+    let value = this._resource();
+    if (value && value.links && value.links.related) {
+      return 'link';
+    }
+
+    return 'id';
   }
 
-  return 'id';
-};
-
-/**
+  /**
    The link Ember Data will use to fetch or reload this belongs-to
    relationship.
 
    Example
 
    ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
+   // models/blog.js
+   export default DS.Model.extend({
       user: DS.belongsTo({ async: true })
     });
 
-    let blog = store.push({
+   let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -81,39 +80,39 @@ Reference.prototype.remoteType = function() {
         }
       }
     });
-    let userRef = blog.belongsTo('user');
+   let userRef = blog.belongsTo('user');
 
-    // get the identifier of the reference
-    if (userRef.remoteType() === "link") {
+   // get the identifier of the reference
+   if (userRef.remoteType() === "link") {
       let link = userRef.link();
     }
-    ```
+   ```
 
    @method link
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
-*/
-Reference.prototype.link = function() {
-  let link = null;
-  let resource = this._resource();
+   */
+  link() {
+    let link = null;
+    let resource = this._resource();
 
-  if (resource && resource.links && resource.links.related) {
-    link = resource.links.related;
+    if (resource && resource.links && resource.links.related) {
+      link = resource.links.related;
+    }
+    return link;
   }
-  return link;
-};
 
-/**
+  /**
    The meta data for the belongs-to relationship.
 
    Example
 
    ```javascript
-    // models/blog.js
-    export default DS.Model.extend({
+   // models/blog.js
+   export default DS.Model.extend({
       user: DS.belongsTo({ async: true })
     });
 
-    let blog = store.push({
+   let blog = store.push({
       data: {
         type: 'blog',
         id: 1,
@@ -132,21 +131,20 @@ Reference.prototype.link = function() {
       }
     });
 
-    let userRef = blog.belongsTo('user');
+   let userRef = blog.belongsTo('user');
 
-    userRef.meta() // { lastUpdated: 1458014400000 }
-    ```
+   userRef.meta() // { lastUpdated: 1458014400000 }
+   ```
 
    @method meta
    @return {Object} The meta information for the belongs-to relationship.
-*/
-Reference.prototype.meta = function() {
-  let meta = null;
-  let resource = this._resource();
-  if (resource && resource.meta) {
-    meta = resource.meta;
+   */
+  meta() {
+    let meta = null;
+    let resource = this._resource();
+    if (resource && resource.meta) {
+      meta = resource.meta;
+    }
+    return meta;
   }
-  return meta;
-};
-
-export default Reference;
+}
