@@ -1,10 +1,7 @@
 import { resolve } from 'rsvp';
+import { assertPolymorphicType } from 'ember-data/-debug';
 import Model from '../model/model';
 import Reference from './reference';
-
-import isEnabled from '../../features';
-import { deprecate } from '@ember/debug';
-import { assertPolymorphicType } from 'ember-data/-debug';
 
 /**
  A BelongsToReference is a low-level API that allows users and
