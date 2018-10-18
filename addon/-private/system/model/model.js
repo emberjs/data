@@ -31,15 +31,17 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   }
 
   let relationshipsForType = relationshipMap.get(type.modelName);
-  let relationships = Array.isArray(relationshipsForType) ? relationshipsForType.filter(relationship => {
-    let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+  let relationships = Array.isArray(relationshipsForType)
+    ? relationshipsForType.filter(relationship => {
+        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
-    if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
-      return true;
-    }
+        if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
+          return true;
+        }
 
-    return name === optionsForRelationship.inverse;
-  }) : null;
+        return name === optionsForRelationship.inverse;
+      })
+    : null;
 
   if (relationships) {
     possibleRelationships.push.apply(possibleRelationships, relationships);

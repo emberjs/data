@@ -382,7 +382,7 @@ export default ArrayProxy.extend(Evented, {
     });
 
     errorsByAttributeName.clear();
-    attributes.forEach((attribute) => {
+    attributes.forEach(attribute => {
       this.notifyPropertyChange(attribute);
     });
 
