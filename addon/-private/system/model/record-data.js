@@ -402,16 +402,22 @@ export default class RecordData {
     while (queue.length > 0) {
       let node = queue.shift();
       array.push(node);
+
       let related = node._directlyRelatedRecordDatas();
+
       for (let i = 0; i < related.length; ++i) {
         let recordData = related[i];
-        assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
-        if (recordData._bfsId < bfsId) {
-          queue.push(recordData);
-          recordData._bfsId = bfsId;
+
+        if (recordData instanceof RecordData) {
+          assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
+          if (recordData._bfsId < bfsId) {
+            queue.push(recordData);
+            recordData._bfsId = bfsId;
+          }
         }
       }
     }
+
     return array;
   }
 
