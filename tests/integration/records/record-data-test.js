@@ -44,6 +44,7 @@ module('RecordData Compatibility', function(hooks) {
       this.attributes = null;
       this.relationships = null;
     }
+
     pushData(jsonApiResource, shouldCalculateChanges) {
       let oldAttrs = this.attributes;
       let changedKeys;
@@ -57,8 +58,38 @@ module('RecordData Compatibility', function(hooks) {
       return changedKeys || [];
     }
 
-    adapterDidCommit(jsonAPiData) {}
-    didCreateLocally(properties) {}
+    getAttr(member) {
+      return this.attributes !== null ? this.attributes[member] : undefined;
+    }
+
+    hasAttr(key) {
+      return key in this.attributes;
+    }
+
+    // TODO missing from RFC but required to implement
+    _initRecordCreateOptions(options) {
+      return options !== undefined ? options : {};
+    }
+    // TODO missing from RFC but required to implement
+    getResourceIdentifier() {
+      return {
+        id: this.id,
+        type: this.type,
+        clientId: this.clientId,
+      };
+    }
+    // TODO missing from RFC but required to implement
+    unloadRecord() {
+      this.attributes = null;
+      this.relationships = null;
+    }
+    // TODO missing from RFC but required to implement
+    isNew() {
+      return this.id === null;
+    }
+
+    adapterDidCommit() {}
+    didCreateLocally() {}
     adapterWillCommit() {}
     saveWasRejected() {}
     adapterDidDelete() {}
@@ -68,38 +99,12 @@ module('RecordData Compatibility', function(hooks) {
     changedAttributes() {}
     hasChangedAttributes() {}
     setAttr() {}
-    getAttr(member) {
-      return this.attributes !== null ? this.attributes[member] : undefined;
-    }
-    hasAttr(key) {
-      return key in this.attributes;
-    }
     setHasMany() {}
     getHasMany() {}
     addToHasMany() {}
     removeFromHasMany() {}
     setBelongsTo() {}
     getBelongsTo() {}
-
-    // missing from RFC
-    _initRecordCreateOptions(options) {
-      return options !== undefined ? options : {};
-    }
-
-    getResourceIdentifier() {
-      return {
-        id: this.id,
-        type: this.type,
-        clientId: this.clientId,
-      };
-    }
-    unloadRecord() {
-      this.attributes = null;
-      this.relationships = null;
-    }
-    isNew() {
-      return this.id === null;
-    }
   }
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function(assert) {
