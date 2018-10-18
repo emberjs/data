@@ -3,7 +3,6 @@ import Evented from '@ember/object/evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
-import MapWithDefault from '../map-with-default';
 import { warn } from '@ember/debug';
 
 /**
@@ -103,11 +102,7 @@ export default ArrayProxy.extend(Evented, {
     @private
   */
   errorsByAttributeName: computed(function() {
-    return new MapWithDefault({
-      defaultValue() {
-        return A();
-      },
-    });
+    return new Map();
   }),
 
   /**
@@ -129,7 +124,13 @@ export default ArrayProxy.extend(Evented, {
     @return {Array}
   */
   errorsFor(attribute) {
-    return get(this, 'errorsByAttributeName').get(attribute);
+    let map = get(this, 'errorsByAttributeName');
+
+    if (!map.has(attribute)) {
+      map.set(attribute, new A());
+    }
+
+    return map.get(attribute);
   },
 
   /**
@@ -225,9 +226,8 @@ export default ArrayProxy.extend(Evented, {
   _add(attribute, messages) {
     messages = this._findOrCreateMessages(attribute, messages);
     this.addObjects(messages);
-    get(this, 'errorsByAttributeName')
-      .get(attribute)
-      .addObjects(messages);
+
+    this.errorsFor(attribute).addObjects(messages);
 
     this.notifyPropertyChange(attribute);
   },
@@ -375,16 +375,16 @@ export default ArrayProxy.extend(Evented, {
     }
 
     let errorsByAttributeName = get(this, 'errorsByAttributeName');
-    let attributes = A();
+    let attributes = [];
 
     errorsByAttributeName.forEach(function(_, attribute) {
       attributes.push(attribute);
     });
 
     errorsByAttributeName.clear();
-    attributes.forEach(function(attribute) {
+    attributes.forEach((attribute) => {
       this.notifyPropertyChange(attribute);
-    }, this);
+    });
 
     ArrayProxy.prototype.clear.call(this);
   },

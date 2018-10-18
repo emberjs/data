@@ -5,7 +5,6 @@ import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
-import MapWithDefault from './map-with-default';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
@@ -53,6 +52,14 @@ const emberRun = emberRunLoop.backburner;
 const { ENV } = Ember;
 
 let globalClientIdCounter = 1;
+
+function fetchMapFor(fetches, modelName) {
+  if (!fetches.has(modelName)) {
+    fetches.set(modelName, []);
+  }
+
+  return fetches.get(modelName);
+}
 
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
@@ -217,11 +224,7 @@ Store = Service.extend({
     this._updatedInternalModels = [];
 
     // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = new MapWithDefault({
-      defaultValue() {
-        return [];
-      },
-    });
+    this._pendingFetch = new Map();
 
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -934,7 +937,7 @@ Store = Service.extend({
       emberRun.schedule('actions', this, this.flushAllPendingFetches);
     }
 
-    this._pendingFetch.get(modelName).push(pendingFetchItem);
+    fetchMapFor(this._pendingFetch, modelName).push(pendingFetchItem);
 
     return promise;
   },

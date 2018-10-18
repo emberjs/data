@@ -30,7 +30,8 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
     return possibleRelationships;
   }
 
-  let relationships = relationshipMap.get(type.modelName).filter(relationship => {
+  let relationshipsForType = relationshipMap.get(type.modelName);
+  let relationships = Array.isArray(relationshipsForType) ? relationshipsForType.filter(relationship => {
     let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
     if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
@@ -38,7 +39,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
     }
 
     return name === optionsForRelationship.inverse;
-  });
+  }) : null;
 
   if (relationships) {
     possibleRelationships.push.apply(possibleRelationships, relationships);

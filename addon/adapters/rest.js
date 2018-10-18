@@ -23,7 +23,6 @@ import {
   ServerError,
   TimeoutError,
   AbortError,
-  MapWithDefault,
 } from '../-private';
 import { instrument } from 'ember-data/-debug';
 import { warn } from '@ember/debug';
@@ -817,16 +816,16 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany(store, snapshots) {
-    let groups = new MapWithDefault({
-      defaultValue() {
-        return [];
-      },
-    });
+    let groups = new Map();
     let adapter = this;
     let maxURLLength = this.maxURLLength;
 
     snapshots.forEach(snapshot => {
       let baseUrl = adapter._stripIDFromURL(store, snapshot);
+      if (!groups.has(baseUrl)) {
+        groups.set(baseUrl, []);
+      }
+
       groups.get(baseUrl).push(snapshot);
     });
 

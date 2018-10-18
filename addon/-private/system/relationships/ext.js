@@ -1,22 +1,21 @@
 import { A } from '@ember/array';
 import { computed, get } from '@ember/object';
-import MapWithDefault from '../map-with-default';
 import { assert } from '@ember/debug';
 import { typeForRelationshipMeta, relationshipFromMeta } from '../relationship-meta';
 
 export const relationshipsDescriptor = computed(function() {
-  let map = new MapWithDefault({
-    defaultValue() {
-      return [];
-    },
-  });
-
+  let map = new Map();
   let relationshipsByName = get(this, 'relationshipsByName');
 
   // Loop through each computed property on the class
   relationshipsByName.forEach(desc => {
-    let relationshipsForType = map.get(desc.type);
-    relationshipsForType.push(desc);
+    let { type } = desc;
+
+    if (!map.has(type)) {
+      map.set(type, []);
+    }
+
+    map.get(type).push(desc);
   });
 
   return map;
