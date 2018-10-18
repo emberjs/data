@@ -53,14 +53,6 @@ const { ENV } = Ember;
 
 let globalClientIdCounter = 1;
 
-function fetchMapFor(fetches, modelName) {
-  if (!fetches.has(modelName)) {
-    fetches.set(modelName, []);
-  }
-
-  return fetches.get(modelName);
-}
-
 //Get the materialized model from the internalModel/promise that returns
 //an internal model and return it in a promiseObject. Useful for returning
 //from find methods
@@ -937,7 +929,12 @@ Store = Service.extend({
       emberRun.schedule('actions', this, this.flushAllPendingFetches);
     }
 
-    fetchMapFor(this._pendingFetch, modelName).push(pendingFetchItem);
+    let fetches = this._pendingFetch;
+    if (!fetches.has(modelName)) {
+      fetches.set(modelName, []);
+    }
+
+    fetches.get(modelName).push(pendingFetchItem);
 
     return promise;
   },
