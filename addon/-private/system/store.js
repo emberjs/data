@@ -5,7 +5,6 @@ import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 import { A } from '@ember/array';
 import EmberError from '@ember/error';
-import MapWithDefault from './map-with-default';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { assign } from '@ember/polyfills';
@@ -217,11 +216,7 @@ Store = Service.extend({
     this._updatedInternalModels = [];
 
     // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = new MapWithDefault({
-      defaultValue() {
-        return [];
-      },
-    });
+    this._pendingFetch = new Map();
 
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
@@ -934,7 +929,12 @@ Store = Service.extend({
       emberRun.schedule('actions', this, this.flushAllPendingFetches);
     }
 
-    this._pendingFetch.get(modelName).push(pendingFetchItem);
+    let fetches = this._pendingFetch;
+    if (!fetches.has(modelName)) {
+      fetches.set(modelName, []);
+    }
+
+    fetches.get(modelName).push(pendingFetchItem);
 
     return promise;
   },
@@ -2298,17 +2298,6 @@ Store = Service.extend({
     this._setRecordId(internalModel, newId, clientId);
   },
 
-  updateId(internalModel, data) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'updateId');
-    }
-    deprecate('store.updateId was documented as private and will be removed.', false, {
-      id: 'ds.store.updateId',
-      until: '3.5',
-    });
-    this._setRecordId(internalModel, coerceId(data.id));
-  },
-
   _setRecordId(internalModel, id, clientId) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
@@ -2397,32 +2386,6 @@ Store = Service.extend({
     return internalModel;
   },
 
-  /*
-    @deprecated
-    @private
-   */
-  _modelForMixin(modelName) {
-    deprecate(
-      '_modelForMixin is private and deprecated and should never be used directly, use modelFor instead',
-      false,
-      {
-        id: 'ember-data:_modelForMixin',
-        until: '3.5',
-      }
-    );
-    assert(
-      `You need to pass a model name to the store's _modelForMixin method`,
-      isPresent(modelName)
-    );
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    return _modelForMixin(this, normalizedModelName);
-  },
-
   /**
     Returns the model class for the particular `modelName`.
 
@@ -2451,18 +2414,6 @@ Store = Service.extend({
     return maybeFactory.class ? maybeFactory.class : maybeFactory;
   },
 
-  /*
-    @deprecated
-    @private
-  */
-  _modelFor(modelName) {
-    deprecate('_modelFor is private and deprecated, you should use modelFor instead', false, {
-      id: 'ember-data:_modelFor',
-      until: '3.5',
-    });
-    return this.modelFor(modelName);
-  },
-
   _modelFactoryFor(modelName) {
     if (DEBUG) {
       assertDestroyedStoreOnly(this, '_modelFactoryFor');
@@ -2483,18 +2434,6 @@ Store = Service.extend({
     }
 
     return factory;
-  },
-
-  /*
-    @deprecated
-    @private
-  */
-  modelFactoryFor(modelName) {
-    deprecate('modelFactoryFor is private and deprecated', false, {
-      id: 'ember-data:modelFactoryFor',
-      until: '3.5',
-    });
-    return this._modelFactoryFor(modelName);
   },
 
   /*

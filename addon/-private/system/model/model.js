@@ -3,7 +3,6 @@ import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
-import Map from '../map';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn } from '@ember/debug';
 import { PromiseObject } from '../promise-proxies';
@@ -31,15 +30,18 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
     return possibleRelationships;
   }
 
-  let relationships = relationshipMap.get(type.modelName).filter(relationship => {
-    let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+  let relationshipsForType = relationshipMap.get(type.modelName);
+  let relationships = Array.isArray(relationshipsForType)
+    ? relationshipsForType.filter(relationship => {
+        let optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
-    if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
-      return true;
-    }
+        if (!optionsForRelationship.inverse && optionsForRelationship.inverse !== null) {
+          return true;
+        }
 
-    return name === optionsForRelationship.inverse;
-  });
+        return name === optionsForRelationship.inverse;
+      })
+    : null;
 
   if (relationships) {
     possibleRelationships.push.apply(possibleRelationships, relationships);
