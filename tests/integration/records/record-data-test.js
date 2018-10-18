@@ -44,11 +44,11 @@ module('RecordData Compatibility', function(hooks) {
       this.attributes = null;
       this.relationships = null;
     }
-    pushData(jsonApiData, shouldCalculateChanges) {
+    pushData(jsonApiResource, shouldCalculateChanges) {
       let oldAttrs = this.attributes;
       let changedKeys;
 
-      this.attributes = jsonApiData.attributes || null;
+      this.attributes = jsonApiResource.attributes || null;
 
       if (shouldCalculateChanges) {
         changedKeys = Object.keys(assign({}, oldAttrs, this.attributes));
