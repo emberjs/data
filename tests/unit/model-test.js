@@ -1347,35 +1347,9 @@ test('A DS.Model can be JSONified', function(assert) {
   assert.deepEqual(record.toJSON(), { data: { type: 'people', attributes: { name: 'TomHuda' } } });
 });
 
-testInDebug('A subclass of DS.Model can not use the `data` property', function(assert) {
-  const Person = DS.Model.extend({
-    data: DS.attr('string'),
-    name: DS.attr('string'),
-  });
-
-  let store = createStore({ person: Person });
-
-  assert.expectAssertion(() => {
-    store.createRecord('person', { name: 'TomHuda' });
-  }, /`data` is a reserved property name on DS.Model objects/);
-});
-
-testInDebug('A subclass of DS.Model can not use the `store` property', function(assert) {
-  const Retailer = DS.Model.extend({
-    store: DS.attr(),
-    name: DS.attr(),
-  });
-
-  let store = createStore({ retailer: Retailer });
-
-  assert.expectAssertion(() => {
-    store.createRecord('retailer', { name: 'Buy n Large' });
-  }, /`store` is a reserved property name on DS.Model objects/);
-});
-
 testInDebug('A subclass of DS.Model can not use reserved properties', function(assert) {
   assert.expect(3);
-  ['currentState', 'data', 'store'].forEach(reservedProperty => {
+  ['recordData', '_internalModel', 'currentState'].forEach(reservedProperty => {
     let invalidExtendObject = {};
     invalidExtendObject[reservedProperty] = DS.attr();
     const Post = DS.Model.extend(invalidExtendObject);

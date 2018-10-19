@@ -1,10 +1,9 @@
-import ComputedProperty from '@ember/object/computed';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
-import { assert, warn } from '@ember/debug';
+import { assert, warn, deprecate } from '@ember/debug';
 import { PromiseObject } from '../promise-proxies';
 import Errors from '../model/errors';
 import RootState from '../model/states';
@@ -66,8 +65,6 @@ function intersection(array1, array2) {
   return result;
 }
 
-const RESERVED_MODEL_PROPS = ['currentState', 'data', 'store'];
-
 const retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
@@ -85,7 +82,7 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @extends Ember.Object
   @uses Ember.Evented
 */
-const Model = EmberObject.extend(Evented, {
+const Model = EmberObject.extend(DeprecatedEvented, {
   _internalModel: null,
   store: null,
   __defineNonEnumerable(property) {
@@ -456,7 +453,7 @@ const Model = EmberObject.extend(Evented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    let serializer = this.store.serializerFor('-default');
+    let serializer = this._internalModel.store.serializerFor('-default');
     let snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
@@ -467,6 +464,7 @@ const Model = EmberObject.extend(Evented, {
     that is either loaded from the server or created locally.
 
     @event ready
+    @deprecated
   */
   ready: null,
 
@@ -474,6 +472,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record is loaded from the server.
 
     @event didLoad
+    @deprecated
   */
   didLoad: null,
 
@@ -481,6 +480,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record is updated.
 
     @event didUpdate
+    @deprecated
   */
   didUpdate: null,
 
@@ -488,6 +488,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when a new record is commited to the server.
 
     @event didCreate
+    @deprecated
   */
   didCreate: null,
 
@@ -495,6 +496,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record is deleted.
 
     @event didDelete
+    @deprecated
   */
   didDelete: null,
 
@@ -502,6 +504,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record becomes invalid.
 
     @event becameInvalid
+    @deprecated
   */
   becameInvalid: null,
 
@@ -509,6 +512,7 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record enters the error state.
 
     @event becameError
+    @deprecated
   */
   becameError: null,
 
@@ -516,26 +520,36 @@ const Model = EmberObject.extend(Evented, {
     Fired when the record is rolled back.
 
     @event rolledBack
+    @deprecated
   */
   rolledBack: null,
 
-  //TODO Do we want to deprecate these?
   /**
     @method send
     @private
+    @deprecated
     @param {String} name
     @param {Object} context
   */
   send(name, context) {
+    deprecate(`Use of the private API Model.send is deprecated`, false, {
+      id: 'ember-data:Model.send',
+      until: '3.9',
+    });
     return this._internalModel.send(name, context);
   },
 
   /**
     @method transitionTo
     @private
+    @deprecated
     @param {String} name
   */
   transitionTo(name) {
+    deprecate(`Use of the private API Model.transitionTo is deprecated`, false, {
+      id: 'ember-data:Model.transitionTo',
+      until: '3.9',
+    });
     return this._internalModel.transitionTo(name);
   },
 
@@ -697,24 +711,6 @@ const Model = EmberObject.extend(Evented, {
     return this._internalModel.changedAttributes();
   },
 
-  //TODO discuss with tomhuda about events/hooks
-  //Bring back as hooks?
-  /**
-    @method adapterWillCommit
-    @private
-  adapterWillCommit: function() {
-    this.send('willCommit');
-  },
-
-  /**
-    @method adapterDidDirty
-    @private
-  adapterDidDirty: function() {
-    this.send('becomeDirty');
-    this.updateRecordArraysLater();
-  },
-  */
-
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
     changes. If the model `isNew` it will be removed from the store.
@@ -845,9 +841,14 @@ const Model = EmberObject.extend(Evented, {
 
     @method trigger
     @private
+    @deprecated
     @param {String} name
   */
   trigger(name) {
+    deprecate(`Model.trigger is deprecated`, false, {
+      id: 'ember-data:model-events',
+      until: '3.9',
+    });
     let fn = this[name];
 
     if (typeof fn === 'function') {
@@ -1012,6 +1013,7 @@ const Model = EmberObject.extend(Evented, {
    @for DS.Model
    @private
    */
+  // TODO, strip from production builds or make ember-inspector inject this
   _debugInfo() {
     let attributes = ['id'];
     let relationships = {};
@@ -1130,7 +1132,7 @@ const Model = EmberObject.extend(Evented, {
   },
 
   inverseFor(key) {
-    return this.constructor.inverseFor(key, this.store);
+    return this.constructor.inverseFor(key, this._internalModel.store);
   },
 
   notifyHasManyAdded(key) {
@@ -1148,12 +1150,20 @@ const Model = EmberObject.extend(Evented, {
 /**
  @property data
  @private
+ @deprecated
  @type {Object}
  */
 Object.defineProperty(Model.prototype, 'data', {
   configurable: false,
   get() {
-    // TODO deprecate this!!!!!!!!!!! it's private but intimate
+    deprecate(
+      `Model.data was private and it's use has been deprecated. For public access, use the RecordData API or iterate attributes`,
+      false,
+      {
+        id: 'ember-data:Model.data',
+        until: '3.9',
+      }
+    );
     return this._internalModel._recordData._data;
   },
 });
@@ -1173,9 +1183,37 @@ Object.defineProperty(Model.prototype, 'id', {
 });
 
 if (DEBUG) {
+  const DISALLOWED_METHODS = [
+    'becameError',
+    'becameInvalid',
+    'didCreate',
+    'didDelete',
+    'didLoad',
+    'didUpdate',
+    'ready',
+    'rolledBack',
+  ];
+  const PRINTED_DEPRECATIONS = {};
   Model.reopen({
     init() {
       this._super(...arguments);
+      let modelName = this.constructor.modelName;
+      DISALLOWED_METHODS.forEach(methodName => {
+        if (typeof this[methodName] === 'function') {
+          let deprecationName = `Model<${modelName}>.${methodName}`;
+
+          deprecate(
+            `Use of the method '${methodName}' on the Model '${modelName} for lifecycle events has been deprecated Use computed properties or template helpers to respond to changes in your data.`,
+            PRINTED_DEPRECATIONS[deprecationName] === true,
+            {
+              id: 'ember-data:model-event-hooks',
+              until: '3.9',
+            }
+          );
+
+          PRINTED_DEPRECATIONS[deprecationName] = true;
+        }
+      });
 
       if (!this._internalModel) {
         throw new EmberError(
@@ -1356,7 +1394,7 @@ Model.reopenClass({
       inverseOptions = inverse.options;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
+      if (propertyMeta.type === propertyMeta.parentModelName) {
         warn(
           `Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
           false,
@@ -1924,6 +1962,8 @@ Model.reopenClass({
 });
 
 if (DEBUG) {
+  const RESERVED_MODEL_PROPS = ['recordData', '_internalModel', 'currentState'];
+
   Model.reopen({
     // This is a temporary solution until we refactor DS.Model to not
     // rely on the data property.
@@ -1941,48 +1981,6 @@ if (DEBUG) {
           constructor.toString(),
         Object.keys(props).indexOf('id') === -1
       );
-    },
-
-    /**
-     This Ember.js hook allows an object to be notified when a property
-     is defined.
-
-     In this case, we use it to be notified when an Ember Data user defines a
-     belongs-to relationship. In that case, we need to set up observers for
-     each one, allowing us to track relationship changes and automatically
-     reflect changes in the inverse has-many array.
-
-     This hook passes the class being set up, as well as the key and value
-     being defined. So, for example, when the user does this:
-
-     ```javascript
-     DS.Model.extend({
-      parent: DS.belongsTo('user')
-    });
-     ```
-
-     This hook would be called with "parent" as the key and the computed
-     property returned by `DS.belongsTo` as the value.
-
-     @method didDefineProperty
-     @param {Object} proto
-     @param {String} key
-     @param {Ember.ComputedProperty} value
-     */
-    didDefineProperty(proto, key, value) {
-      // Check if the value being set is a computed property.
-      if (value instanceof ComputedProperty) {
-        // If it is, get the metadata for the relationship. This is
-        // populated by the `DS.belongsTo` helper when it is creating
-        // the computed property.
-        let meta = value.meta();
-
-        /*
-          This is buggy because if the parent has never been looked up
-          via `modelFor` it will not have `modelName` set.
-         */
-        meta.parentType = proto.constructor;
-      }
     },
   });
 }
