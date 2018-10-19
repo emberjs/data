@@ -202,12 +202,15 @@ function ensureRelationshipIsSetToParent(
         until: '3.8',
       });
     }
-    relationships[inverseKey] = relationships[inverseKey] || {};
-    relationships[inverseKey].data = fixRelationshipData(
-      relationshipData,
-      kind,
-      parentInternalModel
-    );
+
+    if (kind !== 'hasMany' || typeof relationshipData !== 'undefined') {
+      relationships[inverseKey] = relationships[inverseKey] || {};
+      relationships[inverseKey].data = fixRelationshipData(
+        relationshipData,
+        kind,
+        parentInternalModel
+      );
+    }
   }
 }
 
