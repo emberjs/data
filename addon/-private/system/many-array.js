@@ -3,7 +3,7 @@
 */
 import { all } from 'rsvp';
 
-import Evented from '@ember/object/evented';
+import Evented from '../deprecated-evented';
 import MutableArray from '@ember/array/mutable';
 import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';

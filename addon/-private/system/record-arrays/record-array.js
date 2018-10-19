@@ -2,8 +2,7 @@
   @module ember-data
 */
 
-import Evented from '@ember/object/evented';
-
+import Evented from '../../deprecated-evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { Promise } from 'rsvp';

@@ -1,6 +1,6 @@
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import DeprecatedEvented from '../../deprecated-evented';
+import Evented from '../../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn, deprecate } from '@ember/debug';
@@ -82,7 +82,7 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @extends Ember.Object
   @uses Ember.Evented
 */
-const Model = EmberObject.extend(DeprecatedEvented, {
+const Model = EmberObject.extend(Evented, {
   _internalModel: null,
   store: null,
   __defineNonEnumerable(property) {

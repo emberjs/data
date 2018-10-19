@@ -1,5 +1,5 @@
 import { mapBy, not } from '@ember/object/computed';
-import Evented from '@ember/object/evented';
+import Evented from '../../deprecated-evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';

@@ -87,6 +87,7 @@ export default RecordArray.extend({
     this.manager._associateWithRecordArray(internalModels, this);
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
+    // TODO detect if this is listened to and deprecate
     once(this, 'trigger', 'didLoad');
     heimdall.stop(token);
   },
