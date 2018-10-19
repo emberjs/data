@@ -4892,4 +4892,98 @@ module('inverse relationship load test', function(hooks) {
     );
     assert.equal(pal2Dogs.get('firstObject.id'), '2', 'hasMany relationship has correct records');
   });
+
+  test('loading belongsTo doesn\'t remove inverse relationship for other instances', async function (assert) {
+    let {owner} = this;
+
+    const scooby = {
+      id: 1,
+      type: 'dog',
+      attributes: {
+        name: 'Scooby',
+      },
+      relationships: {
+        person: {
+          data: {id: '1', type: 'person'},
+          links: { related: 'http://example.com/dogs/1/person', },
+        },
+      },
+    };
+    const scrappy = {
+      id: 2,
+      type: 'dog',
+      attributes: {
+        name: 'Scrappy',
+      },
+      relationships: {
+        person: {
+          data: {id: '1', type: 'person'},
+          links: { related: 'http://example.com/dogs/1/person', },
+        },
+      },
+    };
+    owner.register(
+      'adapter:application',
+      JSONAPIAdapter.extend({
+        deleteRecord: () => resolve({data: null}),
+        findBelongsTo: () => {
+          return resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: {
+                name: 'John Churchill',
+              },
+              relationships: {
+                dogs: {
+                  links: {
+                    related: 'http://example.com/person/1/dogs',
+                  },
+                },
+              },
+            },
+          });
+        },
+        findRecord: (_store, _type, id) => {
+          const dog = id === '1' ? scooby : scrappy;
+          return resolve({
+            data: dog,
+          });
+        },
+      })
+    );
+
+    class Person extends Model {
+      @hasMany('dog', {
+        async: false,
+      })
+      dogs;
+    }
+
+    owner.register('model:person', Person);
+
+    class Dog extends Model {
+      @belongsTo('person', {
+        async: true,
+      })
+      person;
+
+      @attr('string')
+      name;
+    }
+
+    owner.register('model:dog', Dog);
+
+    // load em into store
+    let dog1 = await owner.lookup('service:store').findRecord('dog', 1);
+    let dog2 = await owner.lookup('service:store').findRecord('dog', 2);
+
+    assert.equal(dog1.belongsTo('person').id(), '1');
+    assert.equal(dog2.belongsTo('person').id(), '1');
+
+    await dog1.get('person');
+
+    assert.equal(dog1.belongsTo('person').id(), '1');
+    assert.equal(dog2.belongsTo('person').id(), '1');
+  });
 });
