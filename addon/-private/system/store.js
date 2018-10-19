@@ -1560,7 +1560,7 @@ Store = Service.extend({
 
     // fetch by data
     if (!localDataIsEmpty) {
-      return this._fetchRecord(internalModel, options).then(() => {
+      return this._scheduleFetch(internalModel, options).then(() => {
         return internalModel.getRecord();
       });
     }

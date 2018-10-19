@@ -1,6 +1,7 @@
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import { Promise } from 'rsvp';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
@@ -196,6 +197,168 @@ test('async belongsTo relationships work when the data hash has not been loaded'
         assert.equal(get(tag, 'isLoaded'), true, 'Tom Dale is now loaded');
       });
   });
+});
+
+test('async belongsTo relationships are not grouped with coalesceFindRequests=false', async function(assert) {
+  assert.expect(6);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: true }),
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.coalesceFindRequests = false;
+
+  store.push({
+    data: [
+      {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '3' },
+          },
+        },
+      },
+      {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Dylan',
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '4' },
+          },
+        },
+      },
+    ],
+  });
+
+  env.adapter.findMany = function() {
+    throw new Error('findMany should not be called');
+  };
+
+  env.adapter.findRecord = function(store, type, id) {
+    assert.equal(type.modelName, 'tag', 'modelName is tag');
+
+    if (id === '3') {
+      return Promise.resolve({
+        data: {
+          id: '3',
+          type: 'tag',
+          attributes: { name: 'friendly' },
+        },
+      });
+    } else if (id === '4') {
+      return Promise.resolve({
+        data: {
+          id: '4',
+          type: 'tag',
+          attributes: { name: 'nice' },
+        },
+      });
+    }
+  };
+
+  let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
+  let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
+
+  assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
+  assert.equal(get(tag1, 'isLoaded'), true, "Tom Dale's tag is now loaded");
+
+  assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
+  assert.equal(get(tag2, 'isLoaded'), true, "Bob Dylan's tag is now loaded");
+});
+
+test('async belongsTo relationships are grouped with coalesceFindRequests=true', async function(assert) {
+  assert.expect(6);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: true }),
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  env.adapter.coalesceFindRequests = true;
+
+  store.push({
+    data: [
+      {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Tom Dale',
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '3' },
+          },
+        },
+      },
+      {
+        type: 'person',
+        id: '2',
+        attributes: {
+          name: 'Bob Dylan',
+        },
+        relationships: {
+          tag: {
+            data: { type: 'tag', id: '4' },
+          },
+        },
+      },
+    ],
+  });
+
+  env.adapter.findMany = function(store, type, ids, snapshots) {
+    assert.equal(type.modelName, 'tag', 'modelName is tag');
+    assert.deepEqual(ids, ['3', '4'], 'it coalesces the find requests correctly');
+
+    return Promise.resolve({
+      data: [
+        {
+          id: '3',
+          type: 'tag',
+          attributes: { name: 'friendly' },
+        },
+        {
+          id: '4',
+          type: 'tag',
+          attributes: { name: 'nice' },
+        },
+      ],
+    });
+  };
+
+  env.adapter.findRecord = function() {
+    throw new Error('findRecord should not be called');
+  };
+
+  let persons = [store.peekRecord('person', '1'), store.peekRecord('person', '2')];
+  let [tag1, tag2] = await Promise.all(persons.map(person => get(person, 'tag')));
+
+  assert.equal(get(tag1, 'name'), 'friendly', 'Tom Dale is now friendly');
+  assert.equal(get(tag1, 'isLoaded'), true, "Tom Dale's tag is now loaded");
+
+  assert.equal(get(tag2, 'name'), 'nice', 'Bob Dylan is now nice');
+  assert.equal(get(tag2, 'isLoaded'), true, "Bob Dylan's tag is now loaded");
 });
 
 test('async belongsTo relationships work when the data hash has already been loaded', function(assert) {
