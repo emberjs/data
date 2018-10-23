@@ -337,7 +337,7 @@ Store = Service.extend({
 
     ```js
     store.createRecord('post', {
-      title: 'Rails is omakase'
+      title: 'Ember is awesome!'
     });
     ```
 
@@ -346,7 +346,7 @@ Store = Service.extend({
     ```js
     let user = this.store.peekRecord('user', 1);
     store.createRecord('post', {
-      title: 'Rails is omakase',
+      title: 'Ember is awesome!',
       user: user
     });
     ```
@@ -434,7 +434,7 @@ Store = Service.extend({
 
     ```javascript
     let post = store.createRecord('post', {
-      title: 'Rails is omakase'
+      title: 'Ember is awesome!'
     });
 
     store.deleteRecord(post);
@@ -1588,12 +1588,10 @@ Store = Service.extend({
     store.query('person', { page: 1 });
     ```
 
-    The call made to the server, using a Rails backend, will look something like this:
+    The request made to the server will look something like this:
 
     ```
-    Started GET "/api/v1/person?page=1"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: { "page"=>"1" }
+    GET "/api/v1/person?page=1"
     ```
 
     ---
@@ -1604,12 +1602,11 @@ Store = Service.extend({
     store.query('person', { ids: [1, 2, 3] });
     ```
 
-    The call to the server, using a Rails backend, will look something like this:
+    The request made to the server will look something like this:
 
     ```
-    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: { "ids" => ["1", "2", "3"] }
+    GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    decoded: "/api/v1/person?ids[]=1&ids[]=2&ids[]=3"
     ```
 
     This method returns a promise, which is resolved with an
