@@ -313,6 +313,20 @@ module('unit/model - Model', function(hooks) {
       assert.ok(person === record, 'The cache has an entry for john');
     });
 
+    test('setting the id after createRecord should correctly update the id', async function(assert) {
+      let person = store.createRecord('person');
+
+      assert.equal(person.get('id'), null, 'initial created model id should be null');
+
+      person.set('id', 'john');
+
+      assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
+
+      let record = store.peekRecord('person', 'john');
+
+      assert.ok(person === record, 'The cache has an entry for john');
+    });
+
     test('updating the id with store.setRecordId should work correctly when the id property is watched', async function(assert) {
       const OddPerson = Model.extend({
         name: DSattr('string'),
