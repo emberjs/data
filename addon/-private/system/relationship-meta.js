@@ -26,8 +26,7 @@ class RelationshipDefinition {
     this._type = '';
     this.__inverseKey = '';
     this.__inverseIsAsync = null;
-    this.modelClass = meta.parentType;
-    this.store = null;
+    this.parentModelName = meta.parentModelName;
   }
 
   get key() {
@@ -48,9 +47,6 @@ class RelationshipDefinition {
   }
   get name() {
     return this.meta.name;
-  }
-  get parentType() {
-    return this.meta.parentType;
   }
 
   _inverseKey(store, modelClass) {

@@ -4,6 +4,7 @@
 import { computed } from '@ember/object';
 import { assert, inspect } from '@ember/debug';
 import normalizeModelName from '../normalize-model-name';
+import { DEBUG } from '@glimmer/env';
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -145,9 +146,23 @@ export default function hasMany(type, options) {
 
   return computed({
     get(key) {
+      if (DEBUG) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+          throw new Error(
+            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
+          );
+        }
+      }
       return this._internalModel.getHasMany(key);
     },
     set(key, records) {
+      if (DEBUG) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+          throw new Error(
+            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
+          );
+        }
+      }
       let internalModel = this._internalModel;
       internalModel.setDirtyHasMany(key, records);
 

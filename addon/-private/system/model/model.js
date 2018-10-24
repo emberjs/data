@@ -1,13 +1,11 @@
-import ComputedProperty from '@ember/object/computed';
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
-import { assert, warn } from '@ember/debug';
+import { assert, warn, deprecate } from '@ember/debug';
 import { PromiseObject } from '../promise-proxies';
 import Errors from '../model/errors';
-import RootState from '../model/states';
 import {
   relationshipsByNameDescriptor,
   relationshipsObjectDescriptor,
@@ -16,6 +14,8 @@ import {
 } from '../relationships/ext';
 
 import Ember from 'ember';
+import InternalModel from './internal-model';
+import RootState from './states';
 const { changeProperties } = Ember;
 
 /**
@@ -55,19 +55,6 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
   return possibleRelationships;
 }
 
-function intersection(array1, array2) {
-  let result = [];
-  array1.forEach(element => {
-    if (array2.indexOf(element) >= 0) {
-      result.push(element);
-    }
-  });
-
-  return result;
-}
-
-const RESERVED_MODEL_PROPS = ['currentState', 'data', 'store'];
-
 const retrieveFromCurrentState = computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
@@ -77,8 +64,6 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   The model class that all Ember Data records descend from.
   This is the public API of Ember Data models. If you are using Ember Data
   in your application, this is the class you should use.
-  If you are working on Ember Data internals, you most likely want to be dealing
-  with `InternalModel`
 
   @class Model
   @namespace DS
@@ -86,8 +71,7 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @uses Ember.Evented
 */
 const Model = EmberObject.extend(Evented, {
-  _internalModel: null,
-  store: null,
+  // until: "3.9" as we need to support 2.18
   __defineNonEnumerable(property) {
     this[property.name] = property.descriptor.value;
   },
@@ -345,7 +329,26 @@ const Model = EmberObject.extend(Evented, {
     @private
     @type {Object}
   */
-  currentState: RootState.empty,
+  currentState: RootState.empty, // defined here to avoid triggering setUnknownProperty
+
+  /**
+   @property _internalModel
+   @private
+   @type {Object}
+   */
+  _internalModel: null, // defined here to avoid triggering setUnknownProperty
+
+  /**
+   @property recordData
+   @private
+   @type undefined (reserved)
+   */
+  // will be defined here to avoid triggering setUnknownProperty
+
+  /**
+   @property store
+   */
+  store: null, // defined here to avoid triggering setUnknownProperty
 
   /**
     When the record is in the `invalid` state this object will contain
@@ -456,7 +459,7 @@ const Model = EmberObject.extend(Evented, {
   */
   toJSON(options) {
     // container is for lazy transform lookups
-    let serializer = this.store.serializerFor('-default');
+    let serializer = this._internalModel.store.serializerFor('-default');
     let snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
@@ -696,24 +699,6 @@ const Model = EmberObject.extend(Evented, {
   changedAttributes() {
     return this._internalModel.changedAttributes();
   },
-
-  //TODO discuss with tomhuda about events/hooks
-  //Bring back as hooks?
-  /**
-    @method adapterWillCommit
-    @private
-  adapterWillCommit: function() {
-    this.send('willCommit');
-  },
-
-  /**
-    @method adapterDidDirty
-    @private
-  adapterDidDirty: function() {
-    this.send('becomeDirty');
-    this.updateRecordArraysLater();
-  },
-  */
 
   /**
     If the model `hasDirtyAttributes` this function will discard any unsaved
@@ -1130,7 +1115,7 @@ const Model = EmberObject.extend(Evented, {
   },
 
   inverseFor(key) {
-    return this.constructor.inverseFor(key, this.store);
+    return this.constructor.inverseFor(key, this._internalModel.store);
   },
 
   notifyHasManyAdded(key) {
@@ -1148,17 +1133,25 @@ const Model = EmberObject.extend(Evented, {
 /**
  @property data
  @private
+ @deprecated
  @type {Object}
  */
 Object.defineProperty(Model.prototype, 'data', {
   configurable: false,
   get() {
-    // TODO deprecate this!!!!!!!!!!! it's private but intimate
+    deprecate(
+      `Model.data was private and it's use has been deprecated. For public access, use the RecordData API or iterate attributes`,
+      false,
+      {
+        id: 'ember-data:Model.data',
+        until: '3.9',
+      }
+    );
     return this._internalModel._recordData._data;
   },
 });
 
-Object.defineProperty(Model.prototype, 'id', {
+const ID_DESCRIPTOR = {
   configurable: false,
   set(id) {
     this._internalModel.setId(id);
@@ -1170,9 +1163,37 @@ Object.defineProperty(Model.prototype, 'id', {
     // object is real.
     return this._internalModel && this._internalModel.id;
   },
-});
+};
+
+Object.defineProperty(Model.prototype, 'id', ID_DESCRIPTOR);
 
 if (DEBUG) {
+  let lookupDescriptor = function lookupDescriptor(obj, keyName) {
+    let current = obj;
+    do {
+      let descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+      if (descriptor !== undefined) {
+        return descriptor;
+      }
+      current = Object.getPrototypeOf(current);
+    } while (current !== null);
+    return null;
+  };
+  let isBasicDesc = function isBasicDesc(desc) {
+    return (
+      !desc ||
+      (!desc.get &&
+        !desc.set &&
+        desc.enumerable === true &&
+        desc.writable === true &&
+        desc.configurable === true)
+    );
+  };
+  let isDefaultEmptyDescriptor = function isDefaultEmptyDescriptor(obj, keyName) {
+    let instanceDesc = lookupDescriptor(obj, keyName);
+    return isBasicDesc(instanceDesc) && lookupDescriptor(obj.constructor, keyName) === null;
+  };
+
   Model.reopen({
     init() {
       this._super(...arguments);
@@ -1180,6 +1201,42 @@ if (DEBUG) {
       if (!this._internalModel) {
         throw new EmberError(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
+        );
+      }
+
+      if (
+        !isDefaultEmptyDescriptor(this, '_internalModel') ||
+        !(this._internalModel instanceof InternalModel)
+      ) {
+        throw new Error(
+          `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      if (
+        !isDefaultEmptyDescriptor(this, 'recordData') ||
+        this.recordData !== undefined ||
+        this.recordData !== this._internalModel.recordData
+      ) {
+        throw new Error(
+          `'recordData' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      if (
+        !isDefaultEmptyDescriptor(this, 'currentState') ||
+        this.get('currentState') !== this._internalModel.currentState
+      ) {
+        throw new Error(
+          `'currentState' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      let idDesc = lookupDescriptor(this, 'id');
+
+      if (idDesc.get !== ID_DESCRIPTOR.get) {
+        throw new EmberError(
+          `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: DS.attr('<type>')\` from ${this.constructor.toString()}`
         );
       }
     },
@@ -1190,16 +1247,16 @@ Model.reopenClass({
   isModel: true,
 
   /**
-    Override the class' `create()` method to raise an error. This
-    prevents end users from inadvertently calling `create()` instead
-    of `createRecord()`. The store is still able to create instances
-    by calling the `_create()` method. To create an instance of a
-    `DS.Model` use [store.createRecord](DS.Store.html#method_createRecord).
+    Create should only ever be called by the store. To create an instance of a
+    `DS.Model` in a dirty state use `store.createRecord`.
+
+   To create instances of `DS.Model` in a clean state, use `store.push`
 
     @method create
     @private
     @static
   */
+
   /**
    Represents the model's class name as a string. This can be used to look up the model's class name through
    `DS.Store`'s modelFor method.
@@ -1356,7 +1413,7 @@ Model.reopenClass({
       inverseOptions = inverse.options;
     } else {
       //No inverse was specified manually, we need to use a heuristic to guess one
-      if (propertyMeta.parentType && propertyMeta.type === propertyMeta.parentType.modelName) {
+      if (propertyMeta.type === propertyMeta.parentModelName) {
         warn(
           `Detected a reflexive relationship by the name of '${name}' without an inverse option. Look at https://guides.emberjs.com/current/models/relationships/#toc_reflexive-relations for how to explicitly specify inverses.`,
           false,
@@ -1922,69 +1979,5 @@ Model.reopenClass({
     return `model:${get(this, 'modelName')}`;
   },
 });
-
-if (DEBUG) {
-  Model.reopen({
-    // This is a temporary solution until we refactor DS.Model to not
-    // rely on the data property.
-    willMergeMixin(props) {
-      let constructor = this.constructor;
-      assert(
-        '`' +
-          intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0] +
-          '` is a reserved property name on DS.Model objects. Please choose a different property name for ' +
-          constructor.toString(),
-        !intersection(Object.keys(props), RESERVED_MODEL_PROPS)[0]
-      );
-      assert(
-        "You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " +
-          constructor.toString(),
-        Object.keys(props).indexOf('id') === -1
-      );
-    },
-
-    /**
-     This Ember.js hook allows an object to be notified when a property
-     is defined.
-
-     In this case, we use it to be notified when an Ember Data user defines a
-     belongs-to relationship. In that case, we need to set up observers for
-     each one, allowing us to track relationship changes and automatically
-     reflect changes in the inverse has-many array.
-
-     This hook passes the class being set up, as well as the key and value
-     being defined. So, for example, when the user does this:
-
-     ```javascript
-     DS.Model.extend({
-      parent: DS.belongsTo('user')
-    });
-     ```
-
-     This hook would be called with "parent" as the key and the computed
-     property returned by `DS.belongsTo` as the value.
-
-     @method didDefineProperty
-     @param {Object} proto
-     @param {String} key
-     @param {Ember.ComputedProperty} value
-     */
-    didDefineProperty(proto, key, value) {
-      // Check if the value being set is a computed property.
-      if (value instanceof ComputedProperty) {
-        // If it is, get the metadata for the relationship. This is
-        // populated by the `DS.belongsTo` helper when it is creating
-        // the computed property.
-        let meta = value.meta();
-
-        /*
-          This is buggy because if the parent has never been looked up
-          via `modelFor` it will not have `modelName` set.
-         */
-        meta.parentType = proto.constructor;
-      }
-    },
-  });
-}
 
 export default Model;

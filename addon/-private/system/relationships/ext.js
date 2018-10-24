@@ -22,7 +22,7 @@ export const relationshipsDescriptor = computed(function() {
 }).readOnly();
 
 export const relatedTypesDescriptor = computed(function() {
-  let modelName;
+  let parentModelName = this.modelName;
   let types = A();
 
   // Loop through each computed property on the class,
@@ -31,10 +31,10 @@ export const relatedTypesDescriptor = computed(function() {
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
-      modelName = typeForRelationshipMeta(meta);
+      let modelName = typeForRelationshipMeta(meta);
 
       assert(
-        `You specified a hasMany (${meta.type}) on ${meta.parentType} but ${
+        `You specified a hasMany (${meta.type}) on ${parentModelName} but ${
           meta.type
         } was not found.`,
         modelName
@@ -55,10 +55,12 @@ export const relatedTypesDescriptor = computed(function() {
 
 export const relationshipsObjectDescriptor = computed(function() {
   let relationships = Object.create(null);
+  let modelName = this.modelName;
   this.eachComputedProperty((name, meta) => {
     if (meta.isRelationship) {
       meta.key = name;
       meta.name = name;
+      meta.parentModelName = modelName;
       relationships[name] = relationshipFromMeta(meta);
     }
   });
