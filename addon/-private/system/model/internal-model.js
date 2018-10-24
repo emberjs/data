@@ -1102,7 +1102,12 @@ export default class InternalModel {
       this.id === null || this.id === id || this.isNew()
     );
     let didChange = id !== this.id;
+
     this.id = id;
+
+    if (didChange && id !== null) {
+      this.store._setRecordId(this, id, this.clientId);
+    }
 
     if (didChange && this.hasRecord) {
       this._record.notifyPropertyChange('id');
