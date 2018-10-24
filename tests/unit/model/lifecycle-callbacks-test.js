@@ -297,33 +297,3 @@ test('a record receives a becameInvalid callback when it became invalid', functi
   });
 });
 
-test('an ID of 0 is allowed', function(assert) {
-  const Person = DS.Model.extend({
-    name: DS.attr('string'),
-  });
-
-  let store = createStore({
-    person: Person,
-  });
-
-  run(() => {
-    store.push({
-      data: {
-        type: 'person',
-        id: '0',
-        attributes: {
-          name: 'Tom Dale',
-        },
-      },
-    });
-  });
-
-  assert.equal(
-    store
-      .peekAll('person')
-      .objectAt(0)
-      .get('name'),
-    'Tom Dale',
-    'found record with id 0'
-  );
-});
