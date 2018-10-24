@@ -1,5 +1,6 @@
 import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 /**
   @module ember-data
@@ -124,6 +125,13 @@ export default function attr(type, options) {
 
   return computed({
     get(key) {
+      if (DEBUG) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+          throw new Error(
+            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
+          );
+        }
+      }
       let internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {
         return internalModel.getAttributeValue(key);
@@ -132,6 +140,13 @@ export default function attr(type, options) {
       }
     },
     set(key, value) {
+      if (DEBUG) {
+        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+          throw new Error(
+            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
+          );
+        }
+      }
       return this._internalModel.setDirtyAttribute(key, value);
     },
   }).meta(meta);
