@@ -139,7 +139,7 @@ module.exports = {
       loose: true,
       plugins: customPlugins.plugins,
       postTransformPlugins: customPlugins.postTransformPlugins,
-      exclude: ['transform-es2015-block-scoping', 'transform-es2015-typeof-symbol'],
+      exclude: ['transform-block-scoping', 'transform-typeof-symbol'],
     };
   },
 
