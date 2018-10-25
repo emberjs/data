@@ -3,7 +3,6 @@ import { assign } from '@ember/polyfills';
 import { isEqual } from '@ember/utils';
 import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
-import isEnabled from '../../features';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
 
