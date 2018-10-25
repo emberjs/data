@@ -3,21 +3,20 @@ import { createStore } from 'dummy/tests/helpers/store';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import Model from 'ember-data/model';
 
 import DS from 'ember-data';
-
-let { Model, hasMany, belongsTo } = DS;
 
 var Post, Comment, Message, User;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
 
 test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     comments: DS.hasMany('comment', { async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { async: false }),
   });
 
@@ -35,78 +34,12 @@ test('When a record is added to a has-many relationship, the inverse belongsTo i
   assert.equal(comment.get('post'), post, 'post was set on the comment');
 });
 
-test('Inverse relationships can be explicitly nullable', function(assert) {
-  User = DS.Model.extend();
-
-  Post = DS.Model.extend({
-    lastParticipant: DS.belongsTo('user', { inverse: null, async: false }),
-    participants: DS.hasMany('user', { inverse: 'posts', async: false }),
-  });
-
-  User.reopen({
-    posts: DS.hasMany('post', { inverse: 'participants', async: false }),
-  });
-
-  var store = createStore({
-    user: User,
-    post: Post,
-  });
-
-  let user = store.createRecord('user');
-  let post = store.createRecord('post');
-
-  assert.equal(
-    user.inverseFor('posts').name,
-    'participants',
-    'User.posts inverse is Post.participants'
-  );
-  assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-  assert.equal(
-    post.inverseFor('participants').name,
-    'posts',
-    'Post.participants inverse is User.posts'
-  );
-});
-
-test('Null inverses are excluded from potential relationship resolutions', function(assert) {
-  User = Model.extend();
-
-  Post = Model.extend({
-    lastParticipant: belongsTo('user', { inverse: null, async: false }),
-    participants: hasMany('user', { async: false }),
-  });
-
-  User.reopen({
-    posts: hasMany('post', { async: false }),
-  });
-
-  let store = createStore({
-    user: User,
-    post: Post,
-  });
-
-  let user = store.createRecord('user');
-  let post = store.createRecord('post');
-
-  assert.equal(
-    user.inverseFor('posts').name,
-    'participants',
-    'User.posts inverse is Post.participants'
-  );
-  assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-  assert.equal(
-    post.inverseFor('participants').name,
-    'posts',
-    'Post.participants inverse is User.posts'
-  );
-});
-
 test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     comments: DS.hasMany('comment', { inverse: 'redPost', async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     onePost: DS.belongsTo('post', { async: false }),
     twoPost: DS.belongsTo('post', { async: false }),
     redPost: DS.belongsTo('post', { async: false }),
@@ -135,13 +68,13 @@ test('When a record is added to a has-many relationship, the inverse belongsTo c
 });
 
 test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     meComments: DS.hasMany('comment', { async: false }),
     youComments: DS.hasMany('comment', { async: false }),
     everyoneWeKnowComments: DS.hasMany('comment', { async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { inverse: 'youComments', async: false }),
   });
 
@@ -172,11 +105,11 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 });
 
 test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     bestComment: DS.belongsTo('comment', { async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { async: false }),
   });
 
@@ -206,11 +139,11 @@ test('When setting a belongsTo, the OneToOne invariant is respected even when ot
 });
 
 test('When setting a belongsTo, the OneToOne invariant is transitive', function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     bestComment: DS.belongsTo('comment', { async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { async: false }),
   });
 
@@ -241,11 +174,11 @@ test('When setting a belongsTo, the OneToOne invariant is transitive', function(
 });
 
 test('When setting a belongsTo, the OneToOne invariant is commutative', function(assert) {
-  Post = DS.Model.extend({
+  Post = Model.extend({
     bestComment: DS.belongsTo('comment', { async: false }),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { async: false }),
   });
 
@@ -277,11 +210,11 @@ test('When setting a belongsTo, the OneToOne invariant is commutative', function
 
 test('OneToNone relationship works', function(assert) {
   assert.expect(3);
-  Post = DS.Model.extend({
+  Post = Model.extend({
     name: DS.attr('string'),
   });
 
-  Comment = DS.Model.extend({
+  Comment = Model.extend({
     post: DS.belongsTo('post', { async: false }),
   });
 
@@ -309,7 +242,7 @@ test('OneToNone relationship works', function(assert) {
 });
 
 test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', function(assert) {
-  User = DS.Model.extend({
+  User = Model.extend({
     messages: DS.hasMany('message', {
       async: false,
       inverse: 'redUser',
@@ -317,7 +250,7 @@ test('When a record is added to or removed from a polymorphic has-many relations
     }),
   });
 
-  Message = DS.Model.extend({
+  Message = Model.extend({
     oneUser: DS.belongsTo('user', { async: false }),
     twoUser: DS.belongsTo('user', { async: false }),
     redUser: DS.belongsTo('user', { async: false }),
@@ -357,13 +290,13 @@ test('When a record is added to or removed from a polymorphic has-many relations
 });
 
 test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", function(assert) {
-  User = DS.Model.extend({
+  User = Model.extend({
     meMessages: DS.hasMany('message', { polymorphic: true, async: false }),
     youMessages: DS.hasMany('message', { polymorphic: true, async: false }),
     everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true, async: false }),
   });
 
-  Message = DS.Model.extend({
+  Message = Model.extend({
     user: DS.belongsTo('user', { inverse: 'youMessages', async: false }),
   });
 
@@ -397,7 +330,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 });
 
 test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function(assert) {
-  Message = DS.Model.extend({
+  Message = Model.extend({
     meMessages: DS.hasMany('comment', { inverse: null, async: false }),
     youMessages: DS.hasMany('comment', { inverse: 'message', async: false }),
     everyoneWeKnowMessages: DS.hasMany('comment', { inverse: null, async: false }),
@@ -443,10 +376,10 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
 testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", function(
   assert
 ) {
-  User = DS.Model.extend();
-  Comment = DS.Model.extend();
+  User = Model.extend();
+  Comment = Model.extend();
 
-  Post = DS.Model.extend({
+  Post = Model.extend({
     comments: DS.hasMany('comment', { inverse: 'testPost', async: false }),
   });
 
@@ -466,10 +399,10 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a has
 testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", function(
   assert
 ) {
-  User = DS.Model.extend();
-  Comment = DS.Model.extend();
+  User = Model.extend();
+  Comment = Model.extend();
 
-  Post = DS.Model.extend({
+  Post = Model.extend({
     user: DS.belongsTo('user', { inverse: 'testPost', async: false }),
   });
 
@@ -484,158 +417,3 @@ testInDebug("Inverse relationships that don't exist throw a nice error for a bel
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 });
-
-test('inverseFor is only called when inverse is not null', function(assert) {
-  assert.expect(2);
-  Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { async: false, inverse: null }),
-  });
-
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false, inverse: null }),
-  });
-
-  User = DS.Model.extend({
-    messages: DS.hasMany('message', { async: false, inverse: 'user' }),
-  });
-
-  Message = DS.Model.extend({
-    user: DS.belongsTo('user', { async: false, inverse: 'messages' }),
-  });
-
-  var env = setupStore({ post: Post, comment: Comment, user: User, message: Message });
-  var store = env.store;
-
-  Post.inverseFor = function() {
-    assert.notOk(true, 'Post model inverseFor is not called');
-  };
-
-  Comment.inverseFor = function() {
-    assert.notOk(true, 'Comment model inverseFor is not called');
-  };
-
-  Message.inverseFor = function() {
-    assert.ok(true, 'Message model inverseFor is called');
-  };
-
-  User.inverseFor = function() {
-    assert.ok(true, 'User model inverseFor is called');
-  };
-
-  run(function() {
-    store.push({
-      data: {
-        id: '1',
-        type: 'post',
-        relationships: {
-          comments: {
-            data: [
-              {
-                id: '1',
-                type: 'comment',
-              },
-              {
-                id: '2',
-                type: 'comment',
-              },
-            ],
-          },
-        },
-      },
-    });
-    store.push({
-      data: [
-        {
-          id: '1',
-          type: 'comment',
-          relationships: {
-            post: {
-              data: {
-                id: '1',
-                type: 'post',
-              },
-            },
-          },
-        },
-        {
-          id: '2',
-          type: 'comment',
-          relationships: {
-            post: {
-              data: {
-                id: '1',
-                type: 'post',
-              },
-            },
-          },
-        },
-      ],
-    });
-    store.push({
-      data: {
-        id: '1',
-        type: 'user',
-        relationships: {
-          messages: {
-            data: [
-              {
-                id: '1',
-                type: 'message',
-              },
-              {
-                id: '2',
-                type: 'message',
-              },
-            ],
-          },
-        },
-      },
-    });
-    store.push({
-      data: [
-        {
-          id: '1',
-          type: 'message',
-          relationships: {
-            user: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
-            },
-          },
-        },
-        {
-          id: '2',
-          type: 'message',
-          relationships: {
-            post: {
-              data: {
-                id: '1',
-                type: 'user',
-              },
-            },
-          },
-        },
-      ],
-    });
-  });
-});
-
-testInDebug(
-  "Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship",
-  function(assert) {
-    User = DS.Model.extend({
-      post: DS.belongsTo('post', { inverse: null }),
-    });
-
-    let env = setupStore({ user: User });
-
-    assert.expectAssertion(() => {
-      env.store.createRecord('user', { post: null });
-    }, /No model was found for/);
-
-    // but don't error if the relationship is not used
-    env.store.createRecord('user', {});
-  }
-);
