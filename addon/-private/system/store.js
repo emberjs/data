@@ -3068,7 +3068,9 @@ Store = Service.extend({
     // no model specific adapter or application adapter, check for an `adapter`
     // property defined on the store
     let adapterName = this.get('adapter');
-    adapter = _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`);
+    adapter = adapterName
+      ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`)
+      : undefined;
     if (adapter !== undefined) {
       set(adapter, 'store', this);
       _adapterCache[normalizedModelName] = adapter;
@@ -3079,6 +3081,10 @@ Store = Service.extend({
     // final fallback, no model specific adapter, no application adapter, no
     // `adapter` property on store: use json-api adapter
     adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
+    assert(
+      `No adapter was found for '${modelName}' and no 'application', store.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks.`,
+      adapter !== undefined
+    );
     set(adapter, 'store', this);
     _adapterCache[normalizedModelName] = adapter;
     _adapterCache['-json-api'] = adapter;
