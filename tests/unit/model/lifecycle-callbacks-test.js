@@ -1,299 +1,1118 @@
-import { resolve, reject } from 'rsvp';
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import { settled } from '@ember/test-helpers';
+import { resolve, reject } from 'rsvp';
+import { attr } from '@ember-decorators/data';
+import Model from 'ember-data/model';
+import Adapter from 'ember-data/adapter';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { InvalidError } from 'ember-data/adapters/errors';
+import { run } from '@ember/runloop';
 
-import DS from 'ember-data';
+module('unit/model - Model Lifecycle Callbacks', function(hooks) {
+  setupTest(hooks);
+  let store;
 
-module('unit/model/lifecycle_callbacks - Lifecycle Callbacks');
-
-test('a record receives a didLoad callback when it has finished loading', function(assert) {
-  assert.expect(3);
-
-  const Person = DS.Model.extend({
-    name: DS.attr(),
-    didLoad() {
-      assert.ok('The didLoad callback was called');
-    },
+  hooks.beforeEach(function() {
+    store = this.owner.lookup('service:store');
   });
 
-  const Adapter = DS.Adapter.extend({
-    findRecord(store, type, id, snapshot) {
-      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
-    },
-  });
+  test('didLoad() only fires for initial loads, not creates, not reloads', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
 
-  let store = createStore({
-    adapter: Adapter,
-    person: Person,
-  });
+      didLoad() {
+        lifecycleEventMethodCalls++;
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
 
-  return run(() => {
-    return store.findRecord('person', 1).then(person => {
-      assert.equal(person.get('id'), '1', `The person's ID is available`);
-      assert.equal(person.get('name'), 'Foo', `The person's properties are availablez`);
+    class AppAdapter extends Adapter {
+      deleteRecord() {
+        return resolve({ data: null });
+      }
+      createRecord() {
+        return resolve({ data: { id: '0', type: 'person' } });
+      }
+      updateRecord() {
+        return resolve({ data: { id: '1', type: 'person' } });
+      }
+      findRecord() {
+        return resolve({ data: { id: '2', type: 'person', attributes: { name: 'Foo' } } });
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
+
+    // ------ Test Create
+
+    let record = store.createRecord('person', { name: 'Chris' });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we save after we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Update
+
+    record = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
     });
-  });
-});
+    assert.strictEqual(lifecycleEventMethodCalls, 1, 'We trigger didLoad when we push');
+    lifecycleEventMethodCalls = 0;
 
-test(`TEMPORARY: a record receives a didLoad callback once it materializes if it wasn't materialized when loaded`, function(assert) {
-  assert.expect(2);
-  let didLoadCalled = 0;
-  const Person = DS.Model.extend({
-    name: DS.attr(),
-    didLoad() {
-      didLoadCalled++;
-    },
-  });
+    record.set('name', 'Chris');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
 
-  let store = createStore({
-    person: Person,
-  });
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we save after we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
 
-  run(() => {
-    store._pushInternalModel({ id: 1, type: 'person' });
-    assert.equal(didLoadCalled, 0, 'didLoad was not called');
-  });
-  run(() => store.peekRecord('person', 1));
-  assert.equal(didLoadCalled, 1, 'didLoad was called');
-});
+    // ------ Test Find
 
-test('a record receives a didUpdate callback when it has finished updating', function(assert) {
-  assert.expect(5);
+    record = await store.findRecord('person', '2');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didLoad when we first find a record'
+    );
+    lifecycleEventMethodCalls = 0;
+    await record.reload();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we reload a record'
+    );
+    lifecycleEventMethodCalls = 0;
 
-  let callCount = 0;
+    // ------ Test Push
 
-  const Person = DS.Model.extend({
-    bar: DS.attr('string'),
-    name: DS.attr('string'),
-
-    didUpdate() {
-      callCount++;
-      assert.equal(get(this, 'isSaving'), false, 'record should be saving');
-      assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    },
-  });
-
-  const Adapter = DS.Adapter.extend({
-    findRecord(store, type, id, snapshot) {
-      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
-    },
-
-    updateRecord(store, type, snapshot) {
-      assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
-
-      return resolve();
-    },
-  });
-
-  let store = createStore({
-    adapter: Adapter,
-    person: Person,
-  });
-
-  let asyncPerson = run(() => store.findRecord('person', 1));
-
-  assert.equal(callCount, 0, 'precond - didUpdate callback was not called yet');
-
-  return run(() => {
-    return asyncPerson
-      .then(person => {
-        return run(() => {
-          person.set('bar', 'Bar');
-          return person.save();
-        });
-      })
-      .then(() => {
-        assert.equal(callCount, 1, 'didUpdate called after update');
-      });
-  });
-});
-
-test('a record receives a didCreate callback when it has finished updating', function(assert) {
-  assert.expect(5);
-
-  let callCount = 0;
-
-  const Person = DS.Model.extend({
-    didCreate() {
-      callCount++;
-      assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-      assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    },
-  });
-
-  const Adapter = DS.Adapter.extend({
-    createRecord(store, type, snapshot) {
-      assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
-
-      return resolve();
-    },
-  });
-
-  let store = createStore({
-    adapter: Adapter,
-    person: Person,
-  });
-
-  assert.equal(callCount, 0, 'precond - didCreate callback was not called yet');
-  let person = store.createRecord('person', { id: 69, name: 'Newt Gingrich' });
-
-  return run(() => {
-    return person.save().then(() => {
-      assert.equal(callCount, 1, 'didCreate called after commit');
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
     });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didLoad when we first pushed a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when push updates to an existing same record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push with Lazy Materialization of Record
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we first push a record without materializing it'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when push updates to an existing non-materialized record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.peekRecord('person', '4');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didLoad when we first materialize a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Deletion of Record
+
+    record = store.push({
+      data: {
+        id: '5',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 1, 'We trigger didLoad on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.deleteRecord();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad once we have saved the deletion'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Unloading of Record
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 1, 'We trigger didLoad on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.unloadRecord();
+    await settled();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didLoad when we unload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didLoad when we push a previously unloaded record'
+    );
   });
-});
 
-test('a record receives a didDelete callback when it has finished deleting', function(assert) {
-  assert.expect(5);
+  test('didUpdate() only fires for persisted updates', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
 
-  let callCount = 0;
+      didUpdate() {
+        lifecycleEventMethodCalls++;
+        assert.equal(this.get('isSaving'), false, 'record should not be saving');
+        assert.equal(this.get('hasDirtyAttributes'), false, 'record should not be dirty');
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
 
-  const Person = DS.Model.extend({
-    bar: DS.attr('string'),
-    name: DS.attr('string'),
+    class AppAdapter extends Adapter {
+      deleteRecord() {
+        return resolve({ data: null });
+      }
+      createRecord() {
+        return resolve({ data: { id: '0', type: 'person' } });
+      }
+      updateRecord() {
+        return resolve({ data: { id: '1', type: 'person' } });
+      }
+      findRecord() {
+        return resolve({ data: { id: '2', type: 'person', attributes: { name: 'Foo' } } });
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
 
-    didDelete() {
-      callCount++;
+    // ------ Test Create
 
-      assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-      assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    },
+    let record = store.createRecord('person', { name: 'Chris' });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we save after we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Update
+
+    record = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didUpdate when we push');
+    lifecycleEventMethodCalls = 0;
+
+    record.set('name', 'Chris');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didUpdate when we save after we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Find
+
+    record = await store.findRecord('person', '2');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we first find a record'
+    );
+    lifecycleEventMethodCalls = 0;
+    await record.reload();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we reload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we first pushed a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when push updates to an existing same record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push with Lazy Materialization of Record
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we first push a record without materializing it'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when push updates to an existing non-materialized record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.peekRecord('person', '4');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we first materialize a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Deletion of Record
+
+    record = store.push({
+      data: {
+        id: '5',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didUpdate on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.deleteRecord();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate once we have saved the deletion'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Unloading of Record
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didUpdate on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.unloadRecord();
+    await settled();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we unload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didUpdate when we push a previously unloaded record'
+    );
   });
 
-  const Adapter = DS.Adapter.extend({
-    findRecord(store, type, id, snapshot) {
-      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
-    },
+  test('didCreate() only fires for persisted creates', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
 
-    deleteRecord(store, type, snapshot) {
-      assert.equal(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
+      didCreate() {
+        lifecycleEventMethodCalls++;
+        assert.equal(this.get('isSaving'), false, 'record should not be saving');
+        assert.equal(this.get('hasDirtyAttributes'), false, 'record should not be dirty');
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
 
-      return resolve();
-    },
+    class AppAdapter extends Adapter {
+      deleteRecord() {
+        return resolve({ data: null });
+      }
+      createRecord() {
+        assert.equal(
+          lifecycleEventMethodCalls,
+          0,
+          'didCreate callback was not called before adapter.createRecord resolves'
+        );
+        return resolve({ data: { id: '0', type: 'person' } });
+      }
+      updateRecord() {
+        return resolve({ data: { id: '1', type: 'person' } });
+      }
+      findRecord() {
+        return resolve({ data: { id: '2', type: 'person', attributes: { name: 'Foo' } } });
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
+
+    // ------ Test Create
+
+    let record = store.createRecord('person', { name: 'Chris' });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didCreate when we save after we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Update
+
+    record = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didCreate when we push');
+    lifecycleEventMethodCalls = 0;
+
+    record.set('name', 'Chris');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we save after we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Find
+
+    record = await store.findRecord('person', '2');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we first find a record'
+    );
+    lifecycleEventMethodCalls = 0;
+    await record.reload();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we reload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we first push a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when push updates to an existing record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push with Lazy Materialization of Record
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we first push a record without materializing it'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when push updates to an existing non-materialized record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.peekRecord('person', '4');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we first materialize a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Deletion of Record
+
+    record = store.push({
+      data: {
+        id: '5',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didCreate on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.deleteRecord();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate once we have saved the deletion'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Unloading of Record
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didCreate on push');
+    lifecycleEventMethodCalls = 0;
+
+    record.unloadRecord();
+    await settled();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we unload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didCreate when we push a previously unloaded record'
+    );
   });
 
-  let store = createStore({
-    adapter: Adapter,
-    person: Person,
+  test('didDelete() only fires for persisted deletions', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
+
+      didDelete() {
+        lifecycleEventMethodCalls++;
+        assert.equal(this.get('isSaving'), false, 'record should not be saving');
+        assert.equal(this.get('hasDirtyAttributes'), false, 'record should not be dirty');
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
+
+    class AppAdapter extends Adapter {
+      deleteRecord() {
+        assert.equal(
+          lifecycleEventMethodCalls,
+          0,
+          'didDelete callback was not called before adapter.deleteRecord resolves'
+        );
+        return resolve({ data: null });
+      }
+      createRecord() {
+        return resolve({ data: { id: '0', type: 'person' } });
+      }
+      updateRecord() {
+        return resolve({ data: { id: '1', type: 'person' } });
+      }
+      findRecord() {
+        return resolve({ data: { id: '2', type: 'person', attributes: { name: 'Foo' } } });
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
+
+    // ------ Test Create
+
+    let record = store.createRecord('person', { name: 'Chris' });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we save after we create locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Update
+
+    record = store.push({
+      data: {
+        id: '1',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(lifecycleEventMethodCalls, 0, 'We do not trigger didDelete when we push');
+    lifecycleEventMethodCalls = 0;
+
+    record.set('name', 'Chris');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we save after we mutate locally'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Find
+
+    record = await store.findRecord('person', '2');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first find a record'
+    );
+    lifecycleEventMethodCalls = 0;
+    await record.reload();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we reload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first push a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.push({
+      data: {
+        id: '3',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when push updates to an existing record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Push with Lazy Materialization of Record
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'James',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first push a record without materializing it'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store._push({
+      data: {
+        id: '4',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when push updates to an existing non-materialized record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    store.peekRecord('person', '4');
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first materialize a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Deletion of Record
+
+    record = store.push({
+      data: {
+        id: '5',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    record.deleteRecord();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We trigger didDelete once we have saved the deletion'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Unloading of Record
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    record.unloadRecord();
+    await settled();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we unload a record'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    record = store.push({
+      data: {
+        id: '6',
+        type: 'person',
+        attributes: {
+          name: 'Chris',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we reload a previously unloaded record'
+    );
   });
-  let asyncPerson = run(() => store.findRecord('person', 1));
 
-  assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
+  test('didDelete() triggers for uncommitted records when the deletion is persisted', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
 
-  return run(() => {
-    return asyncPerson
-      .then(person => {
-        return run(() => {
-          person.deleteRecord();
-          return person.save();
-        });
-      })
-      .then(() => {
-        assert.equal(callCount, 1, 'didDelete called after delete');
-      });
+      didDelete() {
+        lifecycleEventMethodCalls++;
+        assert.equal(this.get('isSaving'), false, 'record should not be saving');
+        assert.equal(this.get('hasDirtyAttributes'), false, 'record should not be dirty');
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
+
+    class AppAdapter extends Adapter {
+      deleteRecord() {
+        assert.equal(
+          lifecycleEventMethodCalls,
+          0,
+          'didDelete callback was not called before adapter.deleteRecord resolves'
+        );
+        return resolve({ data: null });
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
+
+    // ------ Test Deletion of Record
+
+    let record = store.createRecord('person', { name: 'Tomster' });
+
+    record.deleteRecord();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await settled();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      1,
+      'We do not trigger didDelete when we first call record.deleteRecord'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    await record.save();
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete once we have saved the deletion, as we secretly did previously'
+    );
+    lifecycleEventMethodCalls = 0;
+
+    // ------ Test Unloading of Record
+
+    record = store.createRecord('person', { name: 'Tomster' });
+
+    // ideally we could `await settled()` but Ember 2.18 does not handle `destroy()` calls in this case.
+    run(() => record.unloadRecord());
+
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger didDelete when we unload a record'
+    );
   });
-});
 
-test('an uncommited record also receives a didDelete callback when it is deleted', function(assert) {
-  assert.expect(4);
+  test('becameInvalid() triggers when an update rejects with an error for a member', async function(assert) {
+    let lifecycleEventMethodCalls = 0;
+    class Person extends Model {
+      @attr
+      name;
 
-  let callCount = 0;
+      becameInvalid() {
+        lifecycleEventMethodCalls++;
+        assert.equal(this.get('isSaving'), false, 'record should not be saving');
+        assert.equal(this.get('hasDirtyAttributes'), true, 'record should not be dirty');
+      }
+    }
+    this.owner.register('model:person', Person);
+    this.owner.register('serializer:application', JSONAPISerializer);
 
-  const Person = DS.Model.extend({
-    bar: DS.attr('string'),
-    name: DS.attr('string'),
-
-    didDelete() {
-      callCount++;
-      assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-      assert.equal(get(this, 'hasDirtyAttributes'), false, 'record should not be dirty');
-    },
-  });
-
-  let store = createStore({
-    adapter: DS.Adapter.extend(),
-    person: Person,
-  });
-
-  let person = store.createRecord('person', { name: 'Tomster' });
-
-  assert.equal(callCount, 0, 'precond - didDelete callback was not called yet');
-
-  run(() => person.deleteRecord());
-
-  assert.equal(callCount, 1, 'didDelete called after delete');
-});
-
-test('a record receives a becameInvalid callback when it became invalid', function(assert) {
-  assert.expect(8);
-
-  let callCount = 0;
-
-  const Person = DS.Model.extend({
-    bar: DS.attr('string'),
-    name: DS.attr('string'),
-
-    becameInvalid() {
-      callCount++;
-
-      assert.equal(get(this, 'isSaving'), false, 'record should not be saving');
-      assert.equal(get(this, 'hasDirtyAttributes'), true, 'record should be dirty');
-    },
-  });
-
-  const Adapter = DS.Adapter.extend({
-    findRecord(store, type, id, snapshot) {
-      return { data: { id: 1, type: 'person', attributes: { name: 'Foo' } } };
-    },
-
-    updateRecord(store, type, snapshot) {
-      assert.equal(
-        callCount,
-        0,
-        'becameInvalid callback was not called until recordWasInvalid is called'
-      );
-
-      return reject(
-        new DS.InvalidError([
+    class AppAdapter extends Adapter {
+      updateRecord() {
+        assert.equal(
+          lifecycleEventMethodCalls,
+          0,
+          'becameInvalid callback was not called before adapter.updateRecord resolves'
+        );
+        let error = new InvalidError([
           {
             title: 'Invalid Attribute',
             detail: 'error',
             source: {
-              pointer: '/data/attributes/bar',
+              pointer: '/data/attributes/name',
             },
           },
-        ])
-      );
-    },
-  });
+        ]);
 
-  let store = createStore({
-    adapter: Adapter,
-    person: Person,
-  });
+        return reject(error);
+      }
+    }
+    this.owner.register('adapter:application', AppAdapter);
 
-  let asyncPerson = run(() => store.findRecord('person', 1));
-  assert.equal(callCount, 0, 'precond - becameInvalid callback was not called yet');
+    let person = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: {
+          name: 'Great Name!',
+        },
+      },
+    });
+    assert.strictEqual(
+      lifecycleEventMethodCalls,
+      0,
+      'We do not trigger becameInvalid when we first push the record to the store'
+    );
+    lifecycleEventMethodCalls = 0;
 
-  // Make sure that the error handler has a chance to attach before
-  // save fails.
-  return run(() => {
-    return asyncPerson.then(person => {
-      return run(() => {
-        person.set('bar', 'Bar');
-        return person.save().catch(reason => {
-          assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
+    person.set('name', 'Bad Bad Name');
 
-          assert.equal(reason.errors.length, 1, 'reason should have one error');
-          assert.equal(reason.errors[0].title, 'Invalid Attribute');
-          assert.equal(callCount, 1, 'becameInvalid called after invalidating');
-        });
-      });
+    await person.save().catch(reason => {
+      assert.strictEqual(lifecycleEventMethodCalls, 1, 'We trigger becameInvalid when we reject');
+
+      assert.ok(reason.isAdapterError, 'reason should have been an adapter error');
+      assert.equal(reason.errors.length, 1, 'reason should have one error');
+      assert.equal(reason.errors[0].title, 'Invalid Attribute');
     });
   });
 });
-
