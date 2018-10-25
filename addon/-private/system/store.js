@@ -3156,7 +3156,9 @@ Store = Service.extend({
     // property defined on the adapter
     let adapter = this.adapterFor(modelName);
     let serializerName = get(adapter, 'defaultSerializer');
-    serializer = _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`);
+    serializer = serializerName
+      ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
+      : undefined;
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3167,6 +3169,10 @@ Store = Service.extend({
     // final fallback, no model specific serializer, no application serializer, no
     // `serializer` property on store: use json-api serializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+    assert(
+      `No serializer was found for '${modelName}' and no 'application', Adapter.defaultSerializer, or '-default' serializer were found as fallbacks.`,
+      serializer !== undefined
+    );
     set(serializer, 'store', this);
     _serializerCache[normalizedModelName] = serializer;
     _serializerCache['-default'] = serializer;
