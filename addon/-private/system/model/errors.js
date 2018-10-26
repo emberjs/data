@@ -3,7 +3,7 @@ import Evented from '@ember/object/evented';
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
-import { warn } from '@ember/debug';
+import { deprecate } from '@ember/debug';
 
 /**
 @module ember-data
@@ -80,9 +80,8 @@ import { warn } from '@ember/debug';
 
   @class Errors
   @namespace DS
-  @extends Ember.Object
-  @uses Ember.Enumerable
-  @uses Ember.Evented
+  @extends ArrayProxy
+  @uses Evented
  */
 export default ArrayProxy.extend(Evented, {
   /**
@@ -97,16 +96,16 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    @property errorsByAttributeName
-    @type {MapWithDefault}
+    @property errorsByMemberName
+    @type {Map}
     @private
   */
-  errorsByAttributeName: computed(function() {
+  errorsByMemberName: computed(function() {
     return new Map();
   }),
 
   /**
-    Returns errors for a given attribute
+    Returns errors for a given member
 
     ```javascript
     let user = store.createRecord('user', {
@@ -120,17 +119,17 @@ export default ArrayProxy.extend(Evented, {
     ```
 
     @method errorsFor
-    @param {String} attribute
-    @return {Array}
+    @param {string} member - the property name of an attribute or relationship
+    @return {{ member, message }[]}
   */
-  errorsFor(attribute) {
-    let map = get(this, 'errorsByAttributeName');
+  errorsFor(member) {
+    let map = this.get('errorsByMemberName');
 
-    if (!map.has(attribute)) {
-      map.set(attribute, new A());
+    if (!map.has(member)) {
+      map.set(member, new A());
     }
 
-    return map.get(attribute);
+    return map.get(member);
   },
 
   /**
@@ -146,13 +145,13 @@ export default ArrayProxy.extend(Evented, {
     ```
 
     @property messages
-    @type {Array}
+    @type {string[]}
   */
   messages: mapBy('content', 'message'),
 
   /**
     @property content
-    @type {Array}
+    @type {{ member, message }[]}
     @private
   */
   content: computed(function() {
@@ -161,13 +160,17 @@ export default ArrayProxy.extend(Evented, {
 
   /**
     @method unknownProperty
+    @param {string} member - the property name of an attribute or relationship
+    @returns {A|undefined} - the array of errors or undefined if there are no errors.
     @private
   */
-  unknownProperty(attribute) {
-    let errors = this.errorsFor(attribute);
+  unknownProperty(member) {
+    let errors = this.errorsFor(member);
+
     if (errors.length === 0) {
       return undefined;
     }
+
     return errors;
   },
 
@@ -175,42 +178,80 @@ export default ArrayProxy.extend(Evented, {
     Total number of errors.
 
     @property length
-    @type {Number}
+    @type {number}
     @readOnly
   */
 
   /**
     @property isEmpty
-    @type {Boolean}
+    @type {boolean}
     @readOnly
   */
   isEmpty: not('length').readOnly(),
 
   /**
-    Adds error messages to a given attribute and sends
-    `becameInvalid` event to the record.
+   Manually adds errors to the record. This will not
+     transition the record into an `invalid` state, nor
+     will it trigger the `becameInvalid` event or lifecycle method.
 
-    Example:
+   Example
 
-    ```javascript
-    if (!user.get('username') {
-      user.get('errors').add('username', 'This field is required');
-    }
-    ```
+   ```javascript
+   let errors = get(user, 'errors');
 
+   // add multiple errors
+   errors.addErrors('password', [
+      'Must be at least 12 characters',
+      'Must contain at least one symbol',
+      'Cannot contain your name'
+   ]);
+
+   errors.errorsFor('password');
+   // =>
+   // [
+   //   { attribute: 'password', message: 'Must be at least 12 characters' },
+   //   { attribute: 'password', message: 'Must contain at least one symbol' },
+   //   { attribute: 'password', message: 'Cannot contain your name' },
+   // ]
+
+   // add a single error
+   errors.addErrors('username', 'This field is required');
+
+   errors.errorsFor('password');
+   // =>
+   // [
+   //   { attribute: 'username', message: 'This field is required' },
+   // ]
+   ```
+
+    @method addErrors
+    @param {string} member - the property name of an attribute or relationship
+    @param {string[]|string} messages - an error message or array of error messages for the attribute
+   */
+  addErrors(member, messages) {
+    messages = this._findOrCreateMessages(member, messages);
+    this.addObjects(messages);
+
+    this.errorsFor(member).addObjects(messages);
+
+    this.notifyPropertyChange(member);
+  },
+
+  /**
     @method add
-    @param {String} attribute
-    @param {(Array|String)} messages
-    @deprecated
-  */
-  add(attribute, messages) {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.add',
+    @param {string} member - the property name of an attribute or relationship
+    @param {string[]|string} messages - an error message or array of error messages for the attribute
+    @deprecated use addErrors instead
+   */
+  add(member, messages) {
+    deprecate(`Errors.add has been deprecated in favor of Errors.addErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
     });
 
     let wasEmpty = get(this, 'isEmpty');
 
-    this._add(attribute, messages);
+    this.addErrors(member, messages);
 
     if (wasEmpty && !get(this, 'isEmpty')) {
       this.trigger('becameInvalid');
@@ -218,26 +259,29 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Adds error messages to a given attribute without sending event.
-
     @method _add
+    @param {string} member - the property name of an attribute or relationship
+    @param {string[]|string} messages - an error message or array of error messages for the attribute
+    @deprecated use addErrors instead
     @private
-  */
-  _add(attribute, messages) {
-    messages = this._findOrCreateMessages(attribute, messages);
-    this.addObjects(messages);
-
-    this.errorsFor(attribute).addObjects(messages);
-
-    this.notifyPropertyChange(attribute);
+   */
+  _add(member, messages) {
+    deprecate(`Errors._add has been deprecated in favor of Errors.addErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
+    });
+    this.addErrors(member, messages);
   },
 
   /**
     @method _findOrCreateMessages
+    @param {string} member - the property name of an attribute or relationship
+    @param {string[]|string} messages - an error message or array of error messages for the attribute
+    @returns {{ member, message }[]}
     @private
   */
-  _findOrCreateMessages(attribute, messages) {
-    let errors = this.errorsFor(attribute);
+  _findOrCreateMessages(member, messages) {
+    let errors = this.errorsFor(member);
     let messagesArray = makeArray(messages);
     let _messages = new Array(messagesArray.length);
 
@@ -248,8 +292,9 @@ export default ArrayProxy.extend(Evented, {
         _messages[i] = err;
       } else {
         _messages[i] = {
-          attribute: attribute,
-          message: message,
+          // really this should be "member" but this was leaked to the public
+          attribute: member,
+          message
         };
       }
     }
@@ -258,50 +303,61 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Removes all error messages from the given attribute and sends
-    `becameValid` event to the record if there no more errors left.
+   Manually removes all errors for a given member from the record.
+     This will not transition the record into an `valid` state, nor
+     will it trigger the `becameValid` event or lifecycle method.
 
-    Example:
+   Example:
 
-    ```app/models/user.js
-    import DS from 'ember-data';
+   ```javascript
+   let errors = get('user', errors);
+   errors.addErrors('phone', ['error-1', 'error-2']);
 
-    export default DS.Model.extend({
-      email: DS.attr('string'),
-      twoFactorAuth: DS.attr('boolean'),
-      phone: DS.attr('string')
-    });
-    ```
+   errors.errorsFor('phone');
+   // =>
+   // [
+   //   { attribute: 'phone', message: 'error-1' },
+   //   { attribute: 'phone', message: 'error-2' },
+   // ]
 
-    ```app/routes/user/edit.js
-    import Route from '@ember/routing/route';
+   errors.remove('phone');
 
-    export default Route.extend({
-      actions: {
-        save: function(user) {
-          if (!user.get('twoFactorAuth')) {
-            user.get('errors').remove('phone');
-          }
-          user.save();
-        }
-      }
-    });
-    ```
+   errors.errorsFor('phone');
+   // => undefined
+   ```
 
-    @method remove
-    @param {String} attribute
-    @deprecated
-  */
-  remove(attribute) {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.remove',
+   @method removeErrors
+   @param {string} member - the property name of an attribute or relationship
+   */
+  removeErrors(member) {
+    if (get(this, 'isEmpty')) {
+      return;
+    }
+
+    let content = this.rejectBy('attribute', member);
+    set(this, 'content', content);
+    get(this, 'errorsByMemberName').delete(member);
+
+    this.notifyPropertyChange(member);
+    this.notifyPropertyChange('length');
+  },
+
+  /**
+   @method remove
+   @param {string} member - the property name of an attribute or relationship
+   @deprecated use removeErrors instead
+   */
+  remove(member) {
+    deprecate(`Errors.remove has been deprecated in favor of Errors.removeErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
     });
 
     if (get(this, 'isEmpty')) {
       return;
     }
 
-    this._remove(attribute);
+    this.removeErrors(member);
 
     if (get(this, 'isEmpty')) {
       this.trigger('becameValid');
@@ -309,109 +365,134 @@ export default ArrayProxy.extend(Evented, {
   },
 
   /**
-    Removes all error messages from the given attribute without sending event.
+   @method remove
+   @param {string} member - the property name of an attribute or relationship
+   @deprecated use removeErrors instead
+   @private
+   */
+  _remove(member) {
+    deprecate(`Errors.remove has been deprecated in favor of Errors.removeErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
+    });
 
-    @method _remove
-    @private
-  */
-  _remove(attribute) {
-    if (get(this, 'isEmpty')) {
-      return;
-    }
-
-    let content = this.rejectBy('attribute', attribute);
-    set(this, 'content', content);
-    get(this, 'errorsByAttributeName').delete(attribute);
-
-    this.notifyPropertyChange(attribute);
-    this.notifyPropertyChange('length');
+    this.removeErrors(member);
   },
 
   /**
-    Removes all error messages and sends `becameValid` event
-    to the record.
+   Manually clears all errors for the record.
+     This will not transition the record into an `valid` state, nor
+     will it trigger the `becameValid` event or lifecycle method.
 
-    Example:
+   Example:
 
-    ```app/routes/user/edit.js
-  import Route from '@ember/routing/route';
+   ```javascript
+   ```javascript
+   let errors = get('user', errors);
+   errors.addErrors('username', ['error-a']);
+   errors.addErrors('phone', ['error-1', 'error-2']);
 
-    export default Route.extend({
-      actions: {
-        retrySave: function(user) {
-          user.get('errors').clear();
-          user.save();
-        }
-      }
+   errors.errorsFor('username');
+   // =>
+   // [
+   //   { attribute: 'username', message: 'error-a' },
+   // ]
+
+   errors.errorsFor('phone');
+   // =>
+   // [
+   //   { attribute: 'phone', message: 'error-1' },
+   //   { attribute: 'phone', message: 'error-2' },
+   // ]
+
+   errors.clearErrors();
+
+   errors.errorsFor('username');
+   // => undefined
+
+   errors.errorsFor('phone');
+   // => undefined
+
+   errors.get('messages')
+   // => []
+   ```
+
+   @method removeErrors
+   */
+  clearErrors() {
+    if (get(this, 'isEmpty')) {
+      return;
+    }
+
+    let errorsByMemberName = get(this, 'errorsByMemberName');
+    let members = [];
+
+    errorsByMemberName.forEach(function(_, member) {
+      members.push(member);
     });
-    ```
 
+    errorsByMemberName.clear();
+    members.forEach(member => {
+      this.notifyPropertyChange(member);
+    });
+
+    // after the deprecation completes in 3.8
+    //  we can move the `clearErrors` logic back
+    //  into `clear` and call `super` if we desire.
+    ArrayProxy.prototype.clear.call(this);
+  },
+
+  /**
     @method clear
-    @deprecated
+    @deprecated use clearErrors instead
   */
   clear() {
-    warn(`Interacting with a record errors object will no longer change the record state.`, false, {
-      id: 'ds.errors.clear',
+    deprecate(`Errors.clear has been deprecated in favor of Errors.clearErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
     });
 
     if (get(this, 'isEmpty')) {
       return;
     }
 
-    this._clear();
+    this.clearErrors();
     this.trigger('becameValid');
   },
 
   /**
-    Removes all error messages.
-    to the record.
-
     @method _clear
+    @deprecated use clearErrors instead
     @private
   */
   _clear() {
-    if (get(this, 'isEmpty')) {
-      return;
-    }
-
-    let errorsByAttributeName = get(this, 'errorsByAttributeName');
-    let attributes = [];
-
-    errorsByAttributeName.forEach(function(_, attribute) {
-      attributes.push(attribute);
+    deprecate(`Errors._clear has been deprecated in favor of Errors.clearErrors which does not mutate record state`, false, {
+      id: 'ember-data:errors-changing-record-state',
+      until: '3.8'
     });
 
-    errorsByAttributeName.clear();
-    attributes.forEach(attribute => {
-      this.notifyPropertyChange(attribute);
-    });
-
-    ArrayProxy.prototype.clear.call(this);
+    this.clearErrors();
   },
 
   /**
     Checks if there are error messages for the given attribute.
 
-    ```app/routes/user/edit.js
-    import Route from '@ember/routing/route';
+   ```javascript
+   let errors = get('user', errors);
+   errors.addErrors('phone', ['error-1', 'error-2']);
 
-    export default Route.extend({
-      actions: {
-        save: function(user) {
-          if (user.get('errors').has('email')) {
-            return alert('Please update your email before attempting to save.');
-          }
-          user.save();
-        }
-      }
-    });
-    ```
+   errors.has('phone'); // true
+
+   errors.remove('phone');
+
+   errors.has('phone'); // false
+   ```
 
     @method has
-    @param {String} attribute
-    @return {Boolean} true if there some errors on given attribute
+    @param {string} member - the property name of an attribute or relationship
+    @return {boolean} true if there exist any errors for the given member
   */
-  has(attribute) {
-    return this.errorsFor(attribute).length > 0;
+  has(member) {
+    return this.errorsFor(member).length > 0;
   },
 });
