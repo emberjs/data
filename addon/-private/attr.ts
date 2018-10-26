@@ -23,7 +23,7 @@ function hasValue(internalModel, key) {
 }
 
 interface AttrOptions {
-  defaultValue?: string | () => any | null;
+  defaultValue?: string | null | (() => any);
 }
 
 /**
@@ -110,7 +110,7 @@ interface AttrOptions {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-export default function attr(type: string|undefined|AttrOptions, options: AttrOptions|undefined) {
+export default function attr(type?: string | AttrOptions, options?: AttrOptions) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
