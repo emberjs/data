@@ -13,8 +13,13 @@ module.exports = function(blueprint) {
     let type;
 
     let dependencies = this.project.dependencies();
+
     if ('ember-qunit' in dependencies) {
-      type = 'qunit-rfc-232';
+      if (fs.existsSync(this.path + '/qunit-rfc-232-files')) {
+        type = 'qunit-rfc-232';
+      } else {
+        type = 'qunit';
+      }
     } else if ('ember-cli-qunit' in dependencies) {
       let checker = new VersionChecker(this.project);
       if (
