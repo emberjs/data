@@ -296,4 +296,3 @@ test('a record receives a becameInvalid callback when it became invalid', functi
     });
   });
 });
-

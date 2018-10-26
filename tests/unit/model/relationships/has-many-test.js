@@ -2152,6 +2152,65 @@ test('possible to replace items in a relationship using setObjects w/ Ember Enum
   assert.equal(tom.get('tags.firstObject'), store.peekRecord('tag', 2));
 });
 
+test('Replacing `has-many` with non-array will throw assertion', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false }),
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag', { async: false }),
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tags: {
+              data: [{ type: 'tag', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'tag',
+          id: '1',
+          attributes: {
+            name: 'ember',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'ember-data',
+          },
+        },
+      ],
+    });
+  });
+
+  let tom;
+
+  run(() => {
+    tom = store.peekRecord('person', '1');
+    assert.expectAssertion(() => {
+      tom.get('tags').setObjects(store.peekRecord('tag', '2'));
+    }, /The third argument to replace needs to be an array./);
+  });
+});
+
 test('it is possible to remove an item from a relationship', function(assert) {
   assert.expect(2);
 
