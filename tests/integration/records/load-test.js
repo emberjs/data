@@ -12,6 +12,7 @@ import todo from '../../helpers/todo';
 class Person extends Model {
   @attr
   name;
+
   @belongsTo('person', { async: true, inverse: 'bestFriend' })
   bestFriend;
 }
