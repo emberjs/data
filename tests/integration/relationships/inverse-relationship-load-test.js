@@ -2124,7 +2124,7 @@ module('inverse relationship load test', function(hooks) {
       let dog = await person.get('dog');
       assert.expectDeprecation(/Encountered mismatched relationship/);
 
-      let dogFromStore = await store.peekRecord('dog', '1');
+      let dogFromStore = store.peekRecord('dog', '1');
 
       // weirdly these pass
       assert.equal(dogFromStore.belongsTo('person').id(), '1');
@@ -2137,7 +2137,7 @@ module('inverse relationship load test', function(hooks) {
         'relationship is not empty'
       );
 
-      let dogPerson1 = await dog.get('person');
+      let dogPerson1 = dog.get('person');
       assert.equal(
         dogPerson1.get('id'),
         '1',
