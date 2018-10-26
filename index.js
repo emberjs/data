@@ -65,6 +65,7 @@ module.exports = {
 
   treeForAddon(tree) {
     tree = this.debugTree(tree, 'input');
+    this._setupBabelOptions();
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
 
@@ -86,9 +87,10 @@ module.exports = {
     });
 
     let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
-      babel: this.buildBabelOptions(),
+      babel: this.options.babel,
       'ember-cli-babel': {
         compileModules: false,
+        extensions: ['js', 'ts'],
       },
     });
 
@@ -133,11 +135,16 @@ module.exports = {
   },
 
   buildBabelOptions() {
+    let existing = this.options.babel;
     let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+    let plugins = existing.plugins.map(plugin => {
+      return Array.isArray(plugin) ? plugin : [plugin]
+    });
+    plugins = plugins.concat(customPlugins.plugins);
 
     return {
       loose: true,
-      plugins: customPlugins.plugins,
+      plugins,
       postTransformPlugins: customPlugins.postTransformPlugins,
       exclude: ['transform-block-scoping', 'transform-typeof-symbol'],
     };
