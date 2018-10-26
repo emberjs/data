@@ -28,9 +28,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain("import DS from 'ember-data';")
           .to.contain('export default DS.Model.extend(');
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture('model-test/foo-default.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
       });
     });
 
@@ -61,9 +59,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           .to.contain("name: DS.attr('string')")
           .to.contain("customAttr: DS.attr('custom-transform')");
 
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture('model-test/foo-default.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
       });
     });
 
@@ -103,20 +99,24 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       let args = ['model-test', 'foo'];
 
       return emberGenerateDestroy(args, _file => {
-        expect(_file('tests/unit/models/foo-test.js')).to.equal(
-          fixture('model-test/foo-default.js')
-        );
+        expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
       });
     });
 
-    describe('model-test with ember-cli-qunit@4.2.0', function() {
+    describe('model-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        generateFakePackageManifest('ember-cli-qunit', '4.2.0');
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-qunit', delete: true },
+        ]);
+        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
       it('model-test-test foo', function() {
         return emberGenerateDestroy(['model-test', 'foo'], _file => {
-          expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
+          expect(_file('tests/unit/models/foo-test.js')).to.equal(
+            fixture('model-test/foo-default.js')
+          );
         });
       });
     });
@@ -124,7 +124,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
         modifyPackages([
-          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
         ]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
@@ -143,10 +143,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('with ember-mocha v0.14+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-cli-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 
@@ -178,7 +175,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain('export default DS.Model.extend(');
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture('model-test/foo-default.js')
+            fixture('model-test/rfc232.js')
           );
         },
         { isModuleUnification: true }
@@ -215,7 +212,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain("customAttr: DS.attr('custom-transform')");
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture('model-test/foo-default.js')
+            fixture('model-test/rfc232.js')
           );
         },
         { isModuleUnification: true }
@@ -269,16 +266,20 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         args,
         _file => {
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
-            fixture('model-test/foo-default.js')
+            fixture('model-test/rfc232.js')
           );
         },
         { isModuleUnification: true }
       );
     });
 
-    describe('model-test with ember-cli-qunit@4.2.0', function() {
+    describe('model-test with ember-cli-qunit@4.1.0', function() {
       beforeEach(function() {
-        generateFakePackageManifest('ember-cli-qunit', '4.2.0');
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-qunit', delete: true },
+        ]);
+        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
       });
 
       it('model-test-test foo', function() {
@@ -286,7 +287,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           ['model-test', 'foo'],
           _file => {
             expect(_file('src/data/models/foo/model-test.js')).to.equal(
-              fixture('model-test/rfc232.js')
+              fixture('model-test/foo-default.js')
             );
           },
           { isModuleUnification: true }
@@ -297,7 +298,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
     describe('with ember-cli-mocha v0.12+', function() {
       beforeEach(function() {
         modifyPackages([
-          { name: 'ember-cli-qunit', delete: true },
+          { name: 'ember-qunit', delete: true },
           { name: 'ember-cli-mocha', dev: true },
         ]);
         generateFakePackageManifest('ember-cli-mocha', '0.12.0');
@@ -320,10 +321,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
 
     describe('with ember-mocha v0.14+', function() {
       beforeEach(function() {
-        modifyPackages([
-          { name: 'ember-cli-qunit', delete: true },
-          { name: 'ember-mocha', dev: true },
-        ]);
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
         generateFakePackageManifest('ember-mocha', '0.14.0');
       });
 
