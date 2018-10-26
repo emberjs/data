@@ -60,6 +60,8 @@ module('integration/inverse-test - Model.inverseFor', function(hooks) {
     owner.unregister('model:user');
 
     class Job extends Model {
+      @belongsTo('user', { async: false })
+      user;
       @belongsTo('user', { inverse: 'previousJob', async: false })
       owner;
     }
@@ -70,19 +72,8 @@ module('integration/inverse-test - Model.inverseFor', function(hooks) {
     owner.register('model:job', Job);
     owner.register('model:user', User);
 
-    assert.deepEqual(
-      store.modelFor('job').inverseFor('owner', store),
-      {
-        type: User, //the model's type
-        name: 'previousJob', //the models relationship key
-        kind: 'belongsTo',
-        options: {
-          async: false,
-        },
-      },
-      'Gets correct type, name and kind'
-    );
-
+    // lookup the user model's inverse first given that it does not
+    //  define the inverse and there are two potential matches
     assert.deepEqual(
       store.modelFor('user').inverseFor('previousJob', store),
       {
@@ -91,6 +82,19 @@ module('integration/inverse-test - Model.inverseFor', function(hooks) {
         kind: 'belongsTo',
         options: {
           inverse: 'previousJob',
+          async: false,
+        },
+      },
+      'Gets correct type, name and kind'
+    );
+
+    assert.deepEqual(
+      store.modelFor('job').inverseFor('owner', store),
+      {
+        type: User, //the model's type
+        name: 'previousJob', //the models relationship key
+        kind: 'belongsTo',
+        options: {
           async: false,
         },
       },
