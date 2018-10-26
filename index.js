@@ -138,7 +138,7 @@ module.exports = {
     let existing = this.options.babel;
     let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
     let plugins = existing.plugins.map(plugin => {
-      return Array.isArray(plugin) ? plugin : [plugin]
+      return Array.isArray(plugin) ? plugin : [plugin];
     });
     plugins = plugins.concat(customPlugins.plugins);
 
