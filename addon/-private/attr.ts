@@ -23,7 +23,7 @@ function hasValue(internalModel, key) {
 }
 
 interface AttrOptions {
-  defaultValue?: string|null|undefined|Function;
+  defaultValue?: string | () => any | null;
 }
 
 /**
