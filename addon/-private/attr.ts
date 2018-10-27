@@ -1,7 +1,6 @@
 import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
-
 /**
   @module ember-data
 */
@@ -21,6 +20,10 @@ function getDefaultValue(record, options, key) {
 
 function hasValue(internalModel, key) {
   return internalModel._recordData.hasAttr(key);
+}
+
+interface AttrOptions {
+  defaultValue?: string | null | (() => any);
 }
 
 /**
@@ -107,8 +110,7 @@ function hasValue(internalModel, key) {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-
-export default function attr(type, options) {
+export default function attr(type?: string | AttrOptions, options?: AttrOptions) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
