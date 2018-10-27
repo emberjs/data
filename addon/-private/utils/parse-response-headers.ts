@@ -1,7 +1,11 @@
 const newline = /\r?\n/;
 
-export default function parseResponseHeaders(headersString) {
-  let headers = Object.create(null);
+export type ResponseHeaders =
+| {}
+| { [key: string]: string };
+
+export default function parseResponseHeaders(headersString: string): ResponseHeaders {
+  let headers: ResponseHeaders = Object.create(null);
 
   if (!headersString) {
     return headers;
