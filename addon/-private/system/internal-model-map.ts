@@ -1,6 +1,13 @@
 import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
 
+interface IDDict {
+  [id: string]: InternalModel
+}
+interface MetaDict {
+  [key: string]: any
+}
+
 /**
  `InternalModelMap` is a custom storage map for internalModels of a given modelName
  used by `IdentityMap`.
@@ -12,7 +19,13 @@ import InternalModel from './model/internal-model';
  @private
  */
 export default class InternalModelMap {
-  constructor(modelName) {
+  private _idToModel: IDDict;
+  private _models: InternalModel[];
+  private _metadata: MetaDict|null;
+
+  modelName: string;
+
+  constructor(modelName: string) {
     this.modelName = modelName;
     this._idToModel = Object.create(null);
     this._models = [];
@@ -24,19 +37,19 @@ export default class InternalModelMap {
    * @param id {String}
    * @return {InternalModel}
    */
-  get(id) {
+  get(id: string): InternalModel|undefined {
     return this._idToModel[id];
   }
 
-  has(id) {
+  has(id: string): boolean {
     return !!this._idToModel[id];
   }
 
-  get length() {
+  get length(): number {
     return this._models.length;
   }
 
-  set(id, internalModel) {
+  set(id: string, internalModel: InternalModel): void {
     assert(`You cannot index an internalModel by an empty id'`, id);
     assert(
       `You cannot set an index for an internalModel to something other than an internalModel`,
@@ -54,7 +67,7 @@ export default class InternalModelMap {
     this._idToModel[id] = internalModel;
   }
 
-  add(internalModel, id) {
+  add(internalModel: InternalModel, id?: string): void {
     assert(
       `You cannot re-add an already present InternalModel to the InternalModelMap.`,
       !this.contains(internalModel)
@@ -72,7 +85,7 @@ export default class InternalModelMap {
     this._models.push(internalModel);
   }
 
-  remove(internalModel, id) {
+  remove(internalModel: InternalModel, id: string): void {
     delete this._idToModel[id];
 
     let loc = this._models.indexOf(internalModel);
@@ -82,7 +95,7 @@ export default class InternalModelMap {
     }
   }
 
-  contains(internalModel) {
+  contains(internalModel: InternalModel): boolean {
     return this._models.indexOf(internalModel) !== -1;
   }
 
@@ -91,7 +104,7 @@ export default class InternalModelMap {
    @property models
    @type Array
    */
-  get models() {
+  get models(): InternalModel[] {
     return this._models;
   }
 
@@ -100,18 +113,8 @@ export default class InternalModelMap {
    * @property metadata
    * @type Object
    */
-  get metadata() {
+  get metadata(): MetaDict {
     return this._metadata || (this._metadata = Object.create(null));
-  }
-
-  /**
-   deprecated (and unsupported) way of accessing modelClass
-
-   @property type
-   @deprecated
-   */
-  get type() {
-    throw new Error('InternalModelMap.type is no longer available');
   }
 
   /**
@@ -119,13 +122,13 @@ export default class InternalModelMap {
 
    @method clear
    */
-  clear() {
-    let models = this._models;
+  clear(): void {
+    let internalModels = this._models;
     this._models = [];
 
-    for (let i = 0; i < models.length; i++) {
-      let model = models[i];
-      model.unloadRecord();
+    for (let i = 0; i < internalModels.length; i++) {
+      let internalModel = internalModels[i];
+      internalModel.unloadRecord();
     }
 
     this._metadata = null;
