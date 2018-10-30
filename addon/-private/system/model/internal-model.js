@@ -1,6 +1,6 @@
 import { set, get } from '@ember/object';
 import EmberError from '@ember/error';
-import { A } from '@ember/array';
+import { default as EmberArray, A } from '@ember/array';
 import { setOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
@@ -14,7 +14,6 @@ import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { getOwner } from '../../utils';
-import isArrayLike from '../is-array-like';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 
@@ -1248,7 +1247,11 @@ export default class InternalModel {
 }
 
 function assertRecordsPassedToHasMany(records) {
-  assert(`You must pass an array of records to set a hasMany relationship`, isArrayLike(records));
+  // TODO only allow native arrays
+  assert(
+    `You must pass an array of records to set a hasMany relationship`,
+    Array.isArray(records) || EmberArray.detect(records)
+  );
   assert(
     `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
       records

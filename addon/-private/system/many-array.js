@@ -5,12 +5,12 @@ import { all } from 'rsvp';
 
 import Evented from '@ember/object/evented';
 import MutableArray from '@ember/array/mutable';
+import EmberArray from '@ember/array';
 import EmberObject, { get } from '@ember/object';
 import { assert } from '@ember/debug';
 import { PromiseArray } from './promise-proxies';
 import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
-import isArrayLike from './is-array-like';
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -202,7 +202,10 @@ export default EmberObject.extend(MutableArray, Evented, {
       );
     }
     if (objects) {
-      assert('The third argument to replace needs to be an array.', isArrayLike(objects));
+      assert(
+        'The third argument to replace needs to be an array.',
+        Array.isArray(objects) || EmberArray.detect(objects)
+      );
       this.get('recordData').addToHasMany(
         this.get('key'),
         objects.map(obj => obj._internalModel._recordData),
