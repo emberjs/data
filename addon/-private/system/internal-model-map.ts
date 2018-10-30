@@ -2,10 +2,10 @@ import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
 
 interface IDDict {
-  [id: string]: InternalModel
+  [id: string]: InternalModel;
 }
 interface MetaDict {
-  [key: string]: any
+  [key: string]: any;
 }
 
 /**
@@ -21,7 +21,7 @@ interface MetaDict {
 export default class InternalModelMap {
   private _idToModel: IDDict;
   private _models: InternalModel[];
-  private _metadata: MetaDict|null;
+  private _metadata: MetaDict | null;
 
   modelName: string;
 
@@ -37,7 +37,7 @@ export default class InternalModelMap {
    * @param id {String}
    * @return {InternalModel}
    */
-  get(id: string): InternalModel|undefined {
+  get(id: string): InternalModel | undefined {
     return this._idToModel[id];
   }
 
@@ -50,7 +50,10 @@ export default class InternalModelMap {
   }
 
   set(id: string, internalModel: InternalModel): void {
-    assert(`You cannot index an internalModel by an empty id'`, id);
+    assert(
+      `You cannot index an internalModel by an empty id'`,
+      typeof id === 'string' && id.length > 0
+    );
     assert(
       `You cannot set an index for an internalModel to something other than an internalModel`,
       internalModel instanceof InternalModel
