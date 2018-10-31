@@ -80,7 +80,7 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
 
   @class Model
   @namespace DS
-  @extends Ember.Object
+  @extends EmberObject
   @uses Ember.Evented
 */
 const Model = EmberObject.extend(Evented, {

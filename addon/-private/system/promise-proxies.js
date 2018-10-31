@@ -40,7 +40,7 @@ export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
 });
 
 /**
-  A `PromiseObject` is an object that acts like both an `Ember.Object`
+  A `PromiseObject` is an object that acts like both an `EmberObject`
   and a promise. When the promise is resolved, then the resulting value
   will be set to the `PromiseObject`'s `content` property. This makes
   it easy to create data bindings with the `PromiseObject` that will
