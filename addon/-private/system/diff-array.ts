@@ -16,7 +16,7 @@ export interface ArrayDiffResult {
       removedCount: <integer>       // 0 if no change
     }
 */
-export default function diffArray<T = any>(oldArray: T[], newArray: T[]): ArrayDiffResult {
+export default function diffArray<T>(oldArray: T[], newArray: T[]): ArrayDiffResult {
   const oldLength = oldArray.length;
   const newLength = newArray.length;
 
