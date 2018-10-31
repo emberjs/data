@@ -5,9 +5,9 @@ export default class RecordDataWrapper {
     this._pendingManyArrayUpdates = null;
   }
 
-  _scheduleManyArrayUpdate(modelName, id, clientId, key) {
+  _scheduleManyArrayUpdate(modelName, id, lid, key) {
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(modelName, id, clientId, key);
+    pending.push(modelName, id, lid, key);
 
     if (this._willUpdateManyArrays === true) {
       return;
@@ -34,9 +34,9 @@ export default class RecordDataWrapper {
     for (let i = 0; i < pending.length; i += 4) {
       let modelName = pending[i];
       let id = pending[i + 1];
-      let clientId = pending[i + 2];
+      let lid = pending[i + 2];
       let key = pending[i + 3];
-      let internalModel = store._getInternalModelForId(modelName, id, clientId);
+      let internalModel = store._getInternalModelForId(modelName, id, lid);
       internalModel.notifyHasManyChange(key);
     }
   }
@@ -60,38 +60,38 @@ export default class RecordDataWrapper {
     return this.relationshipsDefinitionFor(modelName)[key]._inverseIsAsync(this.store, modelClass);
   }
 
-  notifyPropertyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  notifyPropertyChange(modelName, id, lid, key) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, lid);
     internalModel.notifyPropertyChange(key);
   }
 
-  notifyHasManyChange(modelName, id, clientId, key) {
-    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+  notifyHasManyChange(modelName, id, lid, key) {
+    this._scheduleManyArrayUpdate(modelName, id, lid, key);
   }
 
-  notifyBelongsToChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  notifyBelongsToChange(modelName, id, lid, key) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, lid);
     internalModel.notifyBelongsToChange(key);
   }
 
-  recordDataFor(modelName, id, clientId) {
-    return this.store.recordDataFor(modelName, id, clientId);
+  recordDataFor(modelName, id, lid) {
+    return this.store.recordDataFor(modelName, id, lid);
   }
 
-  setRecordId(modelName, id, clientId) {
-    this.store.setRecordId(modelName, id, clientId);
+  setRecordId(modelName, id, lid) {
+    this.store.setRecordId(modelName, id, lid);
   }
 
-  isRecordInUse(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  isRecordInUse(modelName, id, lid) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, lid);
     if (!internalModel) {
       return false;
     }
     return internalModel.isRecordInUse();
   }
 
-  disconnectRecord(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  disconnectRecord(modelName, id, lid) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, lid);
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }

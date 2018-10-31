@@ -689,7 +689,7 @@ const RootState = {
       isDirty: false,
 
       setup(internalModel) {
-        internalModel.removeFromInverseRelationships();
+        internalModel.commitDeletion();
       },
 
       invokeLifecycleCallbacks(internalModel) {

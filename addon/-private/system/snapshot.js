@@ -33,7 +33,7 @@ export default class Snapshot {
       this._attributes;
     }
 
-    /**O
+    /**
      The id of the snapshot's underlying record
 
      Example
@@ -231,6 +231,7 @@ export default class Snapshot {
 
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
+      debugger;
       throw new EmberError(
         "Model '" +
           inspect(this.record) +
@@ -242,7 +243,7 @@ export default class Snapshot {
 
     relationship = this._internalModel._recordData._relationships.get(keyName);
 
-    let value = relationship.getData();
+    let value = relationship;
     let data = value && value.data;
 
     inverseInternalModel = data && store._internalModelForResource(data);
@@ -324,7 +325,7 @@ export default class Snapshot {
 
     relationship = this._internalModel._recordData._relationships.get(keyName);
 
-    let value = relationship.getData();
+    let value = relationship;
 
     if (value.data) {
       results = [];

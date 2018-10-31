@@ -1,25 +1,4 @@
-import ManyRelationship from './has-many';
-import BelongsToRelationship from './belongs-to';
-
-function createRelationshipFor(relationshipMeta, store, recordData, key) {
-  let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
-  let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
-    recordData.modelName,
-    key
-  );
-
-  if (relationshipMeta.kind === 'hasMany') {
-    return new ManyRelationship(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
-  } else {
-    return new BelongsToRelationship(
-      store,
-      inverseKey,
-      relationshipMeta,
-      recordData,
-      inverseIsAsync
-    );
-  }
-}
+import relationshipStateFor from '../graph/state-for';
 
 export default class Relationships {
   constructor(recordData) {
@@ -33,9 +12,11 @@ export default class Relationships {
 
   forEach(cb) {
     let rels = this.initializedRelationships;
-    Object.keys(rels).forEach(name => {
-      cb(name, rels[name]);
-    });
+    let names = Object.keys(rels);
+
+    for (let i = 0; i < names.length; i++) {
+      cb(names[i], rels[names[i]]);
+    }
   }
 
   get(key) {
@@ -49,10 +30,9 @@ export default class Relationships {
       ];
 
       if (rel) {
-        relationship = relationships[key] = createRelationshipFor(
-          rel,
+        relationship = relationships[key] = relationshipStateFor(
           recordData.store,
-          recordData,
+          recordData.__identifier,
           key
         );
       }

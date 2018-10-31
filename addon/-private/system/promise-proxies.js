@@ -89,8 +89,8 @@ export const PromiseBelongsTo = PromiseObject.extend({
   meta: computed(function() {
     assert(
       'You attempted to access meta on the promise for the async belongsTo relationship ' +
-        `${this.get('_belongsToState').internalModel.modelName}:${
-          this.get('_belongsToState').key
+        `${this.get('_belongsToState').identifier.type}:${
+          this.get('_belongsToState').propertyName
         }'.` +
         '\nUse `record.belongsTo(relationshipName).meta()` instead.',
       false
@@ -103,10 +103,9 @@ export const PromiseBelongsTo = PromiseObject.extend({
       this.get('content') !== undefined
     );
     let state = this.get('_belongsToState');
-    let key = state.key;
+    let key = state.propertyName;
     let store = state.store;
-    let resource = state.recordData.getResourceIdentifier();
-    let internalModel = store._internalModelForResource(resource);
+    let internalModel = store._internalModelForResource(state.identifier);
 
     return store.reloadBelongsTo(this, internalModel, key, options).then(() => this);
   },

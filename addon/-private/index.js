@@ -22,6 +22,10 @@ export {
   errorsArrayToHash,
 } from './adapters/errors';
 
+export { recordIdentifierFor } from './system/cache/record-identifier';
+
+export { default as relationshipStateFor } from './system/relationships/graph/state-for';
+
 // maybe public ?
 export { default as normalizeModelName } from './system/normalize-model-name';
 export { getOwner, modelHasAttributeOrRelationshipNamedType } from './utils';

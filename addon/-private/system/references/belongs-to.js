@@ -17,7 +17,7 @@ export default class BelongsToReference extends Reference {
     super(store, parentInternalModel);
     this.key = key;
     this.belongsToRelationship = belongsToRelationship;
-    this.type = belongsToRelationship.relationshipMeta.type;
+    this.type = belongsToRelationship.definition.type;
     this.parent = parentInternalModel.recordReference;
     this.parentInternalModel = parentInternalModel;
 
@@ -324,7 +324,7 @@ export default class BelongsToReference extends Reference {
       );
     }
     if (resource && resource.data) {
-      if (resource.data && (resource.data.id || resource.data.clientId)) {
+      if (resource.data && (resource.data.id || resource.data.lid)) {
         let internalModel = this.store._internalModelForResource(resource.data);
         if (internalModel.isLoaded()) {
           return internalModel.reload(options).then(internalModel => {

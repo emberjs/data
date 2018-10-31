@@ -5,15 +5,17 @@ import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
+import { recordIdentifierFor } from '../cache/record-identifier';
 
 let nextBfsId = 1;
 export default class RecordData {
-  constructor(modelName, id, clientId, storeWrapper, store) {
+  constructor(modelName, id, lid, storeWrapper, store) {
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
     this.__implicitRelationships = null;
-    this.clientId = clientId;
+    this.__identifier = recordIdentifierFor(store, { type: modelName, id, lid: lid });
+    this.lid = this.__identifier.lid;
     this.id = id;
     this.storeWrapper = storeWrapper;
     this.isDestroyed = false;
@@ -30,7 +32,7 @@ export default class RecordData {
     return {
       id: this.id,
       type: this.modelName,
-      clientId: this.clientId,
+      lid: this.lid,
     };
   }
 
@@ -81,6 +83,7 @@ export default class RecordData {
   }
 
   _setupRelationships(data) {
+    let store = this.store;
     let relationships = this.storeWrapper.relationshipsDefinitionFor(this.modelName);
     let keys = Object.keys(relationships);
     for (let i = 0; i < keys.length; i++) {
@@ -144,9 +147,17 @@ export default class RecordData {
           }
         }
       }
-      let relationship = this._relationships.get(relationshipName);
 
-      relationship.push(relationshipData);
+      let resourceIdentifiers = relationshipData.data;
+
+      if (resourceIdentifiers) {
+        relationshipData.data = Array.isArray(resourceIdentifiers)
+          ? resourceIdentifiers.map(r => recordIdentifierFor(store, r))
+          : recordIdentifierFor(store, resourceIdentifiers);
+      }
+
+      let state = this._relationships.get(relationshipName);
+      state.push(relationshipData);
     }
   }
 
@@ -212,7 +223,7 @@ export default class RecordData {
     }
 
     if (this.isNew()) {
-      this.removeFromInverseRelationships(true);
+      this.didDelete();
     }
 
     this._inFlightAttributes = null;
@@ -222,6 +233,7 @@ export default class RecordData {
 
   didCommit(data) {
     this._isNew = false;
+    debugger;
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
       if (data.relationships) {
@@ -229,7 +241,7 @@ export default class RecordData {
       }
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
+        this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
         this.id = coerceId(data.id);
       }
       data = data.attributes;
@@ -246,24 +258,27 @@ export default class RecordData {
 
   // get ResourceIdentifiers for "current state"
   getHasMany(key) {
-    return this._relationships.get(key).getData();
+    return this._relationships.get(key);
   }
 
   // set a new "current state" via ResourceIdentifiers
   setDirtyHasMany(key, recordDatas) {
-    let relationship = this._relationships.get(key);
-    relationship.clear();
-    relationship.addRecordDatas(recordDatas);
+    let identifiers = recordDatas.map(r => r.__identifier);
+    this._relationships.get(key).setState(identifiers);
   }
 
   // append to "current state" via RecordDatas
   addToHasMany(key, recordDatas, idx) {
-    this._relationships.get(key).addRecordDatas(recordDatas, idx);
+    let state = this._relationships.get(key);
+
+    recordDatas.forEach(r => state._add(r.__identifier));
   }
 
   // remove from "current state" via RecordDatas
   removeFromHasMany(key, recordDatas) {
-    this._relationships.get(key).removeRecordDatas(recordDatas);
+    let state = this._relationships.get(key);
+
+    recordDatas.forEach(r => state._remove(r.__identifier));
   }
 
   commitWasRejected() {
@@ -280,19 +295,13 @@ export default class RecordData {
   }
 
   getBelongsTo(key) {
-    return this._relationships.get(key).getData();
+    return this._relationships.get(key);
   }
 
-  setDirtyBelongsTo(key, recordDataOrPromise) {
-    if (recordDataOrPromise === undefined) {
-      recordDataOrPromise = null;
-    }
+  setDirtyBelongsTo(key, recordData) {
+    let state = this._relationships.get(key);
 
-    if (recordDataOrPromise && recordDataOrPromise.then) {
-      this._relationships.get(key).setRecordPromise(recordDataOrPromise);
-    } else {
-      this._relationships.get(key).setRecordData(recordDataOrPromise);
-    }
+    state._add(recordData ? recordData.__identifier : null);
   }
 
   setDirtyAttribute(key, value) {
@@ -354,13 +363,18 @@ export default class RecordData {
   }
 
   destroy() {
-    this._relationships.forEach((name, rel) => rel.destroy());
+    // TODO @runspired I'm not sure we even need to bother replacing this
+    //  in a world where we use identifiers
+    //  what we probably want is to eliminate any "dirty" state
+    //  and to leave the canonical state intact.
+    //  if there is no canonical state, then we could clean up the memory.
+    // this._relationships.forEach((name, rel) => rel.destroy());
     this.isDestroyed = true;
-    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.lid);
   }
 
   isRecordInUse() {
-    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
+    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.lid);
   }
 
   /**
@@ -372,14 +386,14 @@ export default class RecordData {
 
   */
   _directlyRelatedRecordDatas() {
-    let array = [];
+    let arr = [];
 
     this._relationships.forEach((name, rel) => {
-      let members = rel.members.list;
-      let canonicalMembers = rel.canonicalMembers.list;
-      array = array.concat(members, canonicalMembers);
+      let { canonical, additions } = rel.getChanges();
+      arr.push(...canonical, ...additions);
     });
-    return array;
+
+    return arr;
   }
 
   /**
@@ -525,7 +539,6 @@ export default class RecordData {
       let { modelName, storeWrapper } = this;
       let attributeDefs = storeWrapper.attributesDefinitionFor(modelName);
       let relationshipDefs = storeWrapper.relationshipsDefinitionFor(modelName);
-      let relationships = this._relationships;
       let propertyNames = Object.keys(options);
 
       for (let i = 0; i < propertyNames.length; i++) {
@@ -539,7 +552,6 @@ export default class RecordData {
 
         let fieldType = relationshipDefs[name] || attributeDefs[name];
         let kind = fieldType !== undefined ? fieldType.kind : null;
-        let relationship;
 
         switch (kind) {
           case 'attribute':
@@ -547,15 +559,9 @@ export default class RecordData {
             break;
           case 'belongsTo':
             this.setDirtyBelongsTo(name, propertyValue);
-            relationship = relationships.get(name);
-            relationship.setHasAnyRelationshipData(true);
-            relationship.setRelationshipIsEmpty(false);
             break;
           case 'hasMany':
             this.setDirtyHasMany(name, propertyValue);
-            relationship = relationships.get(name);
-            relationship.setHasAnyRelationshipData(true);
-            relationship.setRelationshipIsEmpty(false);
             break;
           default:
             // reflect back (pass-thru) unknown properties
@@ -568,27 +574,13 @@ export default class RecordData {
   }
 
   /*
-
-
-    TODO IGOR AND DAVID this shouldn't be public
-   This method should only be called by records in the `isNew()` state OR once the record
-   has been deleted and that deletion has been persisted.
-
    It will remove this record from any associated relationships.
 
-   If `isNew` is true (default false), it will also completely reset all
-    relationships to an empty state as well.
-
-    @method removeFromInverseRelationships
-    @param {Boolean} isNew whether to unload from the `isNew` perspective
-    @private
+    @method didDelete
    */
-  removeFromInverseRelationships(isNew = false) {
+  didDelete() {
     this._relationships.forEach((name, rel) => {
-      rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.commitDeletion();
     });
 
     let implicitRelationships = this._implicitRelationships;
@@ -597,10 +589,7 @@ export default class RecordData {
     Object.keys(implicitRelationships).forEach(key => {
       let rel = implicitRelationships[key];
 
-      rel.removeCompletelyFromInverse();
-      if (isNew === true) {
-        rel.clear();
-      }
+      rel.commitDeletion();
     });
   }
 
@@ -745,7 +734,7 @@ function assertRelationshipData(store, recordData, data, meta) {
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
-// relatinoship of the dematerialization: this is done so the relationship can
+// relationship of the dematerialization: this is done so the relationship can
 // notify its inverse which needs to update state
 //
 // If the inverse is sync, unloading this record is treated as a client-side
@@ -755,11 +744,12 @@ function assertRelationshipData(store, recordData, data, meta) {
 // disconnected we can actually destroy the internalModel when checking for
 // orphaned models.
 function destroyRelationship(rel) {
-  rel.recordDataDidDematerialize();
+  // TODO @runspired I'm not sure we need to do this
+  //   in a post recordData / InternalModel world
+  // rel.recordDataDidDematerialize();
 
-  if (rel._inverseIsSync()) {
-    rel.removeAllRecordDatasFromOwn();
-    rel.removeAllCanonicalRecordDatasFromOwn();
+  if (rel.inverseIsAsync === false) {
+    rel.commitDeletion();
   }
 }
 

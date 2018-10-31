@@ -16,7 +16,7 @@ export default class HasManyReference extends Reference {
     super(store, parentInternalModel);
     this.key = key;
     this.hasManyRelationship = hasManyRelationship;
-    this.type = hasManyRelationship.relationshipMeta.type;
+    this.type = hasManyRelationship.definition.type;
     this.parent = parentInternalModel.recordReference;
     this.parentInternalModel = parentInternalModel;
 

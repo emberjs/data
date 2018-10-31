@@ -85,14 +85,14 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data, clientId) {
+  constructor(modelName, id, store, data, lid) {
     heimdall.increment(new_InternalModel);
     this.id = id;
     this.store = store;
     this.modelName = modelName;
-    this.clientId = clientId;
+    this.lid = lid;
 
-    this._recordData = store._createRecordData(modelName, id, clientId, this);
+    this._recordData = store._createRecordData(modelName, id, lid, this);
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -225,11 +225,6 @@ export default class InternalModel {
   // DO NOT USE : purely to ease the transition in tests
   get _attributes() {
     return this._recordData._attributes;
-  }
-
-  // DO NOT USE : purely to ease the transition in tests
-  get _relationships() {
-    return this._recordData._relationships;
   }
 
   getRecord(properties) {
@@ -500,7 +495,7 @@ export default class InternalModel {
       let internalModel =
         resource && resource.data ? store._internalModelForResource(resource.data) : null;
       return PromiseBelongsTo.create({
-        _belongsToState: resource._relationship,
+        _belongsToState: resource,
         promise: store._findBelongsToByJsonApiResource(
           resource,
           parentInternalModel,
@@ -552,7 +547,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
-        _inverseIsAsync: jsonApi._relationship._inverseIsAsync(),
+        _inverseIsAsync: jsonApi.inverseIsAsync,
         internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
@@ -646,7 +641,7 @@ export default class InternalModel {
     }
 
     let jsonApi = this._recordData.getHasMany(key);
-    jsonApi._relationship.setRelationshipIsStale(true);
+    jsonApi.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
     let promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options);
@@ -658,7 +653,7 @@ export default class InternalModel {
 
   reloadBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
-    resource._relationship.setRelationshipIsStale(true);
+    resource.setRelationshipIsStale(true);
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);
@@ -714,10 +709,7 @@ export default class InternalModel {
   }
 
   setDirtyBelongsTo(key, value) {
-    if (value && !value.then) {
-      value = extractRecordDataFromRecord(value);
-    }
-    return this._recordData.setDirtyBelongsTo(key, value);
+    return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
   setDirtyAttribute(key, value) {
@@ -1016,8 +1008,8 @@ export default class InternalModel {
     triggers.length = 0;
   }
 
-  removeFromInverseRelationships(isNew = false) {
-    this._recordData.removeFromInverseRelationships(isNew);
+  commitDeletion() {
+    this._recordData.didDelete();
   }
 
   /*
@@ -1106,7 +1098,7 @@ export default class InternalModel {
     this.id = id;
 
     if (didChange && id !== null) {
-      this.store._setRecordId(this, id, this.clientId);
+      this.store._setRecordId(this, id, this.lid);
     }
 
     if (didChange && this.hasRecord) {
@@ -1217,7 +1209,11 @@ export default class InternalModel {
     let reference = this.references[name];
 
     if (!reference) {
-      // TODO IGOR AND DAVID REFACTOR
+      // TODO @runspired | References are tightly couples to the existing relationship layer,
+      //   but also to Model. You can not actually use references if your RecordData does not
+      //   participate in the graph. We should work to eliminate references, as they truly
+      //   only exist bc our existing descriptors are inadequate. A public Relationship Layer API
+      //   + RecordData and `recordDataFor` will allow us to enable custom descriptors for "Models".
       let relationship = this._recordData._relationships.get(name);
 
       if (DEBUG) {
@@ -1227,7 +1223,7 @@ export default class InternalModel {
           relationship
         );
 
-        let actualRelationshipKind = relationship.relationshipMeta.kind;
+        let actualRelationshipKind = relationship.definition.kind;
         assert(
           `You tried to get the '${name}' relationship on a '${modelName}' via record.${kind}('${name}'), but the relationship is of kind '${actualRelationshipKind}'. Use record.${actualRelationshipKind}('${name}') instead.`,
           actualRelationshipKind === kind
@@ -1264,10 +1260,17 @@ function extractRecordDatasFromRecords(records) {
 }
 
 function extractRecordDataFromRecord(recordOrPromiseProxy) {
+  if (!recordOrPromiseProxy) {
+    return null;
+  }
+
   // TODO @runspired async createRecord would resolve this issue
   // we leak record promises to RecordData by necessity :'(
-  if (!recordOrPromiseProxy || (recordOrPromiseProxy && recordOrPromiseProxy.then)) {
-    return recordOrPromiseProxy;
+  if (recordOrPromiseProxy.then) {
+    if (!recordOrPromiseProxy.content) {
+      throw new Error('setDirtyBelongsTo given an unresolved promiseProxy');
+    }
+    return recordOrPromiseProxy.content._internalModel._recordData;
   }
 
   return recordOrPromiseProxy._internalModel._recordData;

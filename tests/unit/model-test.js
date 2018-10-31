@@ -343,7 +343,7 @@ module('unit/model - Model', function(hooks) {
       // test .get access of id
       assert.equal(person.get('id'), null, 'initial created model id should be null');
 
-      store.setRecordId('odd-person', 'john', person._internalModel.clientId);
+      store.setRecordId('odd-person', 'john', person._internalModel.lid);
 
       oddId = person.get('idComputed');
       assert.equal(oddId, 'john', 'computed get is correct');
