@@ -5,7 +5,7 @@
  */
 
 declare module '@ember/array' {
-  export function detect(obj: any): boolean;
+  export function detect(obj: any): obj is ArrayLike;
 }
 
 declare module '@ember/ordered-set' {
