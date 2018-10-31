@@ -80,8 +80,7 @@ import { warn } from '@ember/debug';
 
   @class Errors
   @namespace DS
-  @extends Ember.Object
-  @uses Ember.Enumerable
+  @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
 export default ArrayProxy.extend(Evented, {
