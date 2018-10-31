@@ -1026,7 +1026,7 @@ module('unit/model - Model Lifecycle Callbacks', function(hooks) {
     assert.strictEqual(
       lifecycleEventMethodCalls,
       1,
-      'We do not trigger didDelete when we first call record.deleteRecord'
+      'We trigger didDelete when we first call record.deleteRecord'
     );
     lifecycleEventMethodCalls = 0;
 
