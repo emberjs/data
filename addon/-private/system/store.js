@@ -62,8 +62,6 @@ function promiseRecord(internalModelPromise, label) {
   return promiseObject(toReturn, label);
 }
 
-let Store;
-
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -181,7 +179,7 @@ const {
   @namespace DS
   @extends Ember.Service
 */
-Store = Service.extend({
+const Store = Service.extend({
   /**
     @method init
     @private
@@ -737,8 +735,8 @@ Store = Service.extend({
     @method findRecord
     @param {String} modelName
     @param {(String|Integer)} id
+    @param {Object} [options]
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
-    @param {Object} options
     @return {Promise} promise
   */
   findRecord(modelName, id, options) {
