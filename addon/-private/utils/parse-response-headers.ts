@@ -1,8 +1,8 @@
 const newline = /\r?\n/;
 
-export type ResponseHeaders =
-| {}
-| { [key: string]: string };
+interface ResponseHeaders {
+  [key: string]: string
+};
 
 export default function parseResponseHeaders(headersString: string): ResponseHeaders {
   let headers: ResponseHeaders = Object.create(null);
