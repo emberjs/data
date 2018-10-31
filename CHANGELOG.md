@@ -1982,7 +1982,7 @@ var Post = DS.Model.extend({
 ```
 
 **no longer works**. Instead, you should just watch each attribute like you
-would with any `Ember.Object`:
+would with any `EmberObject`:
 
 ```javascript
 var Post = DS.Model.extend({

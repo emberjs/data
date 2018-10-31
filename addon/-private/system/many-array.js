@@ -52,7 +52,7 @@ import diffArray from './diff-array';
 
   @class ManyArray
   @namespace DS
-  @extends Ember.Object
+  @extends EmberObject
   @uses Ember.MutableArray, Ember.Evented
 */
 export default EmberObject.extend(MutableArray, Evented, {
