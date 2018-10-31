@@ -10,12 +10,13 @@
   @return {Object|null}
   @for DS
 */
-export default function _normalizeLink(link) {
+export default function _normalizeLink(link: Link | string): Nullable<Link> {
   switch (typeof link) {
     case 'object':
       return link;
     case 'string':
       return { href: link };
+    default:
+      return null;
   }
-  return null;
 }

@@ -4,7 +4,7 @@
 // and lose type information.  For example, Ember's router may put a record's
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
-export default function coerceId(id) {
+export default function coerceId(id?: Nullable<string | number>): Nullable<string> {
   if (id === null || id === undefined || id === '') {
     return null;
   }

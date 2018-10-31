@@ -1,3 +1,9 @@
+export interface ArrayDiffResult {
+  firstChangeIndex: Nullable<number>;
+  addedCount: number;
+  removedCount: number;
+}
+
 /**
   @namespace
   @method diffArray
@@ -10,7 +16,7 @@
       removedCount: <integer>       // 0 if no change
     }
 */
-export default function diffArray(oldArray, newArray) {
+export default function diffArray<T = any>(oldArray: T[], newArray: T[]): ArrayDiffResult {
   const oldLength = oldArray.length;
   const newLength = newArray.length;
 
