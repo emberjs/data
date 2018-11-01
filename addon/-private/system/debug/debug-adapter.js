@@ -31,11 +31,20 @@ export default DataAdapter.extend({
     return typeClass !== Model && Model.detect(typeClass);
   },
 
+  columnNameToDesc(name) {
+    return capitalize(
+      underscore(name)
+        .replace(/_/g, ' ')
+        .trim()
+    );
+  },
+
   columnsForType(typeClass) {
+    let idColumnName = typeClass.prototype.primaryKey || 'id';
     let columns = [
       {
-        name: 'id',
-        desc: 'Id',
+        name: idColumnName,
+        desc: this.columnNameToDesc(idColumnName),
       },
     ];
     let count = 0;
@@ -44,7 +53,7 @@ export default DataAdapter.extend({
       if (count++ > self.attributeLimit) {
         return false;
       }
-      let desc = capitalize(underscore(name).replace('_', ' '));
+      let desc = this.columnNameToDesc(name);
       columns.push({ name: name, desc: desc });
     });
     return columns;
@@ -70,7 +79,10 @@ export default DataAdapter.extend({
 
   getRecordColumnValues(record) {
     let count = 0;
-    let columnValues = { id: get(record, 'id') };
+    let idColumnName = record.primaryKey || 'id';
+    let columnValues = {
+      [idColumnName]: get(record, idColumnName),
+    };
 
     record.eachAttribute(key => {
       if (count++ > this.attributeLimit) {
@@ -83,7 +95,7 @@ export default DataAdapter.extend({
 
   getRecordKeywords(record) {
     let keywords = [];
-    let keys = A(['id']);
+    let keys = A([record.primaryKey || 'id']);
     record.eachAttribute(key => keys.push(key));
     keys.forEach(key => keywords.push(get(record, key)));
     return keywords;
@@ -109,7 +121,7 @@ export default DataAdapter.extend({
 
   observeRecord(record, recordUpdated) {
     let releaseMethods = A();
-    let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
+    let keysToObserve = A([record.primaryKey || 'id', 'isNew', 'hasDirtyAttributes']);
 
     record.eachAttribute(key => keysToObserve.push(key));
     let adapter = this;
