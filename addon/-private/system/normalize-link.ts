@@ -10,13 +10,15 @@
   @return {Object|null}
   @for DS
 */
-export default function _normalizeLink(link: Link | string): Nullable<Link> {
+export default function _normalizeLink(link: Link | string | null): Nullable<Link> {
+  if (link === null) return null;
+
   switch (typeof link) {
     case 'object':
       return link;
     case 'string':
       return { href: link };
     default:
-      return null;
+      throw new Error('this should be unreachable?');
   }
 }
