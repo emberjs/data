@@ -15,6 +15,13 @@ function isResourceIdentiferWithRelatedLinks(
   return value && value.links && value.links.related;
 }
 
+/**
+  This is the baseClass for the different References
+  like RecordReference/HasManyReference/BelongsToReference
+
+ @class Reference
+ @namespace DS
+ */
 export default abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(
