@@ -256,7 +256,8 @@ export default class HasManyReference extends Reference {
   /**
    Loads the relationship if it is not already loaded.  If the
    relationship is already loaded this method does not trigger a new
-   load.
+   load. This causes a request to the specified
+   relationship link or reloads all items currently in the relationship.
 
    Example
 
@@ -318,7 +319,8 @@ export default class HasManyReference extends Reference {
   }
 
   /**
-   Reloads this has-many relationship.
+   Reloads this has-many relationship. This causes a request to the specified
+   relationship link or reloads all items currently in the relationship.
 
    Example
 
