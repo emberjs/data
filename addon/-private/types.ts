@@ -1,3 +1,3 @@
-type Dict<T = unknown> = {
+export type Dict<T = unknown> = {
   [k: string]: T | undefined;
 }

@@ -1,3 +1,5 @@
+import { Dict } from "../types";
+
 const newline = /\r?\n/;
 
 export default function parseResponseHeaders(headersString: string): Dict<string> {
