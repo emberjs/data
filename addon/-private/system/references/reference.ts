@@ -1,11 +1,34 @@
-export default class Reference {
-  constructor(store, internalModel) {
-    this.store = store;
-    this.internalModel = internalModel;
-    this.recordData = internalModel._recordData;
+import Store from './../../system/store';
+import InternalModel from './../../system/model/internal-model';
+import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
+
+interface ResourceIdentifier {
+  links?: {
+    related?: string;
+  };
+  meta?: JSONObject;
+}
+
+function isResourceIdentiferWithRelatedLinks(
+  value: any
+): value is ResourceIdentifier & { links: { related: string } } {
+  return value && value.links && value.links.related;
+}
+
+export default abstract class Reference {
+  public recordData: InternalModel['_recordData'];
+  constructor(
+    // TODO: shouldn't have to instance<factory of instance>
+    public store: InstanceType<typeof Store>,
+    public internalModel: InternalModel
+  ) {
+    this.recordData = this.internalModel._recordData;
   }
 
-  _resource() {}
+  public _resource():
+    | ResourceIdentifier
+    | (JSONObject & { meta?: { [k: string]: JSONValue } })
+    | void {}
 
   /**
    This returns a string that represents how the reference will be
@@ -46,12 +69,11 @@ export default class Reference {
    @method remoteType
    @return {String} The name of the remote type. This should either be "link" or "ids"
    */
-  remoteType() {
+  remoteType(): 'link' | 'id' | 'identity' {
     let value = this._resource();
-    if (value && value.links && value.links.related) {
+    if (isResourceIdentiferWithRelatedLinks(value)) {
       return 'link';
     }
-
     return 'id';
   }
 
@@ -92,11 +114,13 @@ export default class Reference {
    @return {String} The link Ember Data will use to fetch or reload this belongs-to relationship.
    */
   link() {
-    let link = null;
+    let link: string | null = null;
     let resource = this._resource();
 
-    if (resource && resource.links && resource.links.related) {
-      link = resource.links.related;
+    if (isResourceIdentiferWithRelatedLinks(resource)) {
+      if (resource.links) {
+        link = resource.links.related;
+      }
     }
     return link;
   }
@@ -140,9 +164,9 @@ export default class Reference {
    @return {Object} The meta information for the belongs-to relationship.
    */
   meta() {
-    let meta = null;
+    let meta: { [k: string]: JSONValue } | null = null;
     let resource = this._resource();
-    if (resource && resource.meta) {
+    if (resource && resource.meta && typeof resource.meta === 'object') {
       meta = resource.meta;
     }
     return meta;

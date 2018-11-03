@@ -9,11 +9,8 @@ import Reference from './reference';
    @namespace DS
 */
 export default class RecordReference extends Reference {
-  constructor(store, internalModel) {
-    super(store, internalModel);
-    this.type = internalModel.modelName;
-    this._id = internalModel.id;
-  }
+  public type = this.internalModel.modelName;
+  private _id = this.internalModel.id;
 
   /**
      The `id` of the record that this reference refers to.
@@ -52,7 +49,7 @@ export default class RecordReference extends Reference {
      @method remoteType
      @return {String} 'identity'
   */
-  remoteType() {
+  remoteType(): 'link' | 'id' | 'identity' {
     return 'identity';
   }
 
