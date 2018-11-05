@@ -22,6 +22,10 @@ import {
   relationshipStateFor,
 } from 'ember-data/-private';
 
+function getRelationshipsFor(record) {
+  return record._internalModel._recordData._relationships;
+}
+
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
 
@@ -1954,11 +1958,11 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   });
 
   const createRecordDataFor = env.store.createRecordDataFor;
-  env.store.createRecordDataFor = function(modelName, id, clientId, storeWrapper) {
+  env.store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
     if (modelName === 'book1' || modelName === 'section') {
-      return new TestRecordData(modelName, id, clientId, storeWrapper, this);
+      return new TestRecordData(modelName, id, lid, storeWrapper, this);
     }
-    return createRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
+    return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
   };
 
   const data = {

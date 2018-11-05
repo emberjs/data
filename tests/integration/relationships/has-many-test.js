@@ -17,6 +17,10 @@ import DS from 'ember-data';
 let env, store, User, Contact, Email, Phone, Message, Post, Comment;
 let Book, Chapter, Page;
 
+function getRelationshipsFor(record) {
+  return record._internalModel._recordData._relationships;
+}
+
 const { attr, hasMany, belongsTo } = DS;
 
 module('integration/relationships/has_many - Has-Many Relationships', {
