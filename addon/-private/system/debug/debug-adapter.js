@@ -31,6 +31,14 @@ export default DataAdapter.extend({
     return typeClass !== Model && Model.detect(typeClass);
   },
 
+  columnNameToDesc(name) {
+    return capitalize(
+      underscore(name)
+        .replace(/_/g, ' ')
+        .trim()
+    );
+  },
+
   columnsForType(typeClass) {
     let columns = [
       {
@@ -44,7 +52,7 @@ export default DataAdapter.extend({
       if (count++ > self.attributeLimit) {
         return false;
       }
-      let desc = capitalize(underscore(name).replace('_', ' '));
+      let desc = this.columnNameToDesc(name);
       columns.push({ name: name, desc: desc });
     });
     return columns;
