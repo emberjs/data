@@ -40,11 +40,10 @@ export default DataAdapter.extend({
   },
 
   columnsForType(typeClass) {
-    let idColumnName = typeClass.prototype.primaryKey || 'id';
     let columns = [
       {
-        name: idColumnName,
-        desc: this.columnNameToDesc(idColumnName),
+        name: 'id',
+        desc: 'Id',
       },
     ];
     let count = 0;
@@ -79,9 +78,8 @@ export default DataAdapter.extend({
 
   getRecordColumnValues(record) {
     let count = 0;
-    let idColumnName = record.primaryKey || 'id';
     let columnValues = {
-      [idColumnName]: get(record, idColumnName),
+      id: get(record, record.primaryKey || 'id'),
     };
 
     record.eachAttribute(key => {
@@ -95,7 +93,7 @@ export default DataAdapter.extend({
 
   getRecordKeywords(record) {
     let keywords = [];
-    let keys = A([record.primaryKey || 'id']);
+    let keys = A(['id']);
     record.eachAttribute(key => keys.push(key));
     keys.forEach(key => keywords.push(get(record, key)));
     return keywords;
@@ -121,7 +119,7 @@ export default DataAdapter.extend({
 
   observeRecord(record, recordUpdated) {
     let releaseMethods = A();
-    let keysToObserve = A([record.primaryKey || 'id', 'isNew', 'hasDirtyAttributes']);
+    let keysToObserve = A(['id', 'isNew', 'hasDirtyAttributes']);
 
     record.eachAttribute(key => keysToObserve.push(key));
     let adapter = this;
