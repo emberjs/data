@@ -1,4 +1,4 @@
-import { module, skip as test } from 'qunit';
+import { module, test, skip } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import Model from 'ember-data/model';
@@ -7,7 +7,7 @@ import hbs from 'htmlbars-inline-precompile';
 import { attr, hasMany, belongsTo } from '@ember-decorators/data';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
 import Store from 'ember-data/store';
-import { resolve, reject } from 'rsvp';
+import { Promise, resolve, reject } from 'rsvp';
 import { ServerError } from 'ember-data/adapters/errors';
 import Ember from 'ember';
 
@@ -39,12 +39,30 @@ class TestAdapter extends JSONAPIAdapter {
     return false;
   }
 
+  pause() {
+    this.isPaused = true;
+    this.pausePromise = new Promise(resolve => {
+      this._resume = resolve;
+    });
+  }
+
+  resume() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this._resume();
+    }
+  }
+
   _nextPayload() {
+    if (this.isPaused) {
+      return this.pausePromise.then(() => this._nextPayload());
+    }
+
     let payload = this._payloads.shift();
 
     if (payload === undefined) {
       this.assert.ok(false, 'Too many adapter requests have been made!');
-      return resolve({ data: null });
+      return reject(new ServerError([], 'Too many adapter requests have been made!'));
     }
 
     if (payload instanceof ServerError) {
@@ -356,7 +374,7 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
-    test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
+    skip('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(15);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
@@ -371,23 +389,20 @@ module('async belongs-to rendering tests', function(hooks) {
       this.set('sedona', sedona);
 
       let originalOnError = Ember.onerror;
+      let hasFired = false;
       Ember.onerror = function(e) {
-        assert.ok(true, 'Children promise did reject');
-        assert.equal(
-          e.message,
-          'hard error while finding <person>5:has-parent-no-children',
-          'Rejection has the correct message'
-        );
-      };
-
-      // needed for LTS 2.12 and 2.16
-      Ember.Test.adapter.exception = e => {
-        assert.ok(true, 'Children promise did reject');
-        assert.equal(
-          e.message,
-          'hard error while finding <person>5:has-parent-no-children',
-          'Rejection has the correct message'
-        );
+        if (!hasFired) {
+          hasFired = true;
+          assert.ok(true, 'Children promise did reject');
+          assert.equal(
+            e.message,
+            'hard error while finding <person>5:has-parent-no-children',
+            'Rejection has the correct message'
+          );
+        } else {
+          assert.ok(false, 'We only reject a single time');
+          adapter.pause(); // prevent further recursive calls to load the relationship
+        }
       };
 
       await render(hbs`

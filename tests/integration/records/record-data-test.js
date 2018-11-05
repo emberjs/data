@@ -105,16 +105,11 @@ module('RecordData Compatibility', function(hooks) {
 
   test(`store.unloadRecord on a record with default RecordData with relationship to a record with custom RecordData does not error`, async function(assert) {
     const originalCreateRecordDataFor = store.createRecordDataFor;
-    store.createRecordDataFor = function provideCustomRecordData(
-      modelName,
-      id,
-      clientId,
-      storeWrapper
-    ) {
+    store.createRecordDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
       if (modelName === 'pet') {
-        return new CustomRecordData(modelName, id, clientId, storeWrapper);
+        return new CustomRecordData(modelName, id, lid, storeWrapper);
       } else {
-        return originalCreateRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
+        return originalCreateRecordDataFor.call(this, modelName, id, lid, storeWrapper);
       }
     };
 
@@ -171,16 +166,11 @@ module('RecordData Compatibility', function(hooks) {
 
   test(`store.unloadRecord on a record with custom RecordData with relationship to a record with default RecordData does not error`, async function(assert) {
     const originalCreateRecordDataFor = store.createModelDataFor;
-    store.createModelDataFor = function provideCustomRecordData(
-      modelName,
-      id,
-      clientId,
-      storeWrapper
-    ) {
+    store.createModelDataFor = function provideCustomRecordData(modelName, id, lid, storeWrapper) {
       if (modelName === 'pet') {
-        return new CustomRecordData(modelName, id, clientId, storeWrapper);
+        return new CustomRecordData(modelName, id, lid, storeWrapper);
       } else {
-        return originalCreateRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
+        return originalCreateRecordDataFor.call(this, modelName, id, lid, storeWrapper);
       }
     };
 

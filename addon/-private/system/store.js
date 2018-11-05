@@ -7,6 +7,7 @@ import { A } from '@ember/array';
 import EmberError from '@ember/error';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
+import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
 import { default as RSVP, Promise } from 'rsvp';
 import Service from '@ember/service';
@@ -40,7 +41,6 @@ import {
   _queryRecord,
 } from './store/finders';
 
-import { getOwner } from '../utils';
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
@@ -3393,8 +3393,7 @@ function getModelFactory(store, cache, normalizedModelName) {
       return null;
     }
 
-    // interopt with the future
-    let klass = getOwner(store).factoryFor ? factory.class : factory;
+    let klass = factory.class;
     assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
     // TODO: deprecate this
@@ -3412,11 +3411,7 @@ function getModelFactory(store, cache, normalizedModelName) {
 function _lookupModelFactory(store, normalizedModelName) {
   let owner = getOwner(store);
 
-  if (owner.factoryFor) {
-    return owner.factoryFor(`model:${normalizedModelName}`);
-  } else {
-    return owner._lookupFactory(`model:${normalizedModelName}`);
-  }
+  return owner.factoryFor(`model:${normalizedModelName}`);
 }
 
 /*
@@ -3436,14 +3431,8 @@ function _lookupModelFactory(store, normalizedModelName) {
 */
 function _modelForMixin(store, normalizedModelName) {
   let owner = getOwner(store);
-  let mixin;
-
-  if (owner.factoryFor) {
-    let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
-    mixin = MaybeMixin && MaybeMixin.class;
-  } else {
-    mixin = owner._lookupFactory(`mixin:${normalizedModelName}`);
-  }
+  let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
+  let mixin = MaybeMixin && MaybeMixin.class;
 
   if (mixin) {
     let ModelForMixin = Model.extend(mixin);

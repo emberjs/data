@@ -293,40 +293,37 @@ test('Calling push with a normalized hash containing IDs of related records retu
   };
 
   return run(() => {
-    let person = store.push(
-      store.normalize('person', {
-        id: 'wat',
-        type: 'person',
-        attributes: {
-          'first-name': 'John',
-          'last-name': 'Smith',
+    let normalized = store.normalize('person', {
+      id: 'wat',
+      type: 'person',
+      attributes: {
+        'first-name': 'John',
+        'last-name': 'Smith',
+      },
+      relationships: {
+        'phone-numbers': {
+          data: [{ id: 1, type: 'phone-number' }, { id: 2, type: 'phone-number' }],
         },
-        relationships: {
-          'phone-numbers': {
-            data: [{ id: 1, type: 'phone-number' }, { id: 2, type: 'phone-number' }],
-          },
-        },
-      })
-    );
+      },
+    });
+    let person = store.push(normalized);
 
     return person.get('phoneNumbers').then(phoneNumbers => {
-      assert.deepEqual(
-        phoneNumbers.map(item => {
-          return item.getProperties('id', 'number', 'person');
-        }),
-        [
-          {
-            id: '1',
-            number: '5551212',
-            person: person,
-          },
-          {
-            id: '2',
-            number: '5552121',
-            person: person,
-          },
-        ]
-      );
+      let items = phoneNumbers.map(item => {
+        return item ? item.getProperties('id', 'number', 'person') : null;
+      });
+      assert.deepEqual(items, [
+        {
+          id: '1',
+          number: '5551212',
+          person: person,
+        },
+        {
+          id: '2',
+          number: '5552121',
+          person: person,
+        },
+      ]);
     });
   });
 });

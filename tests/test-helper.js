@@ -1,6 +1,4 @@
 import RSVP from 'rsvp';
-
-import Application from '@ember/application';
 import resolver from './helpers/resolver';
 import { setResolver } from '@ember/test-helpers';
 import { start } from 'ember-qunit';
@@ -8,10 +6,8 @@ import { start } from 'ember-qunit';
 import QUnit from 'qunit';
 import DS from 'ember-data';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
-import loadInitializers from 'ember-load-initializers';
 
 setResolver(resolver);
-loadInitializers(Application, 'dummy');
 
 const { assert } = QUnit;
 const transforms = {
