@@ -17,6 +17,10 @@ import {
 import DS from 'ember-data';
 import { RecordData } from 'ember-data/-private';
 
+function getRelationshipsFor(record) {
+  return record._internalModel._recordData._relationships;
+}
+
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
 
@@ -1169,7 +1173,7 @@ test('belongsTo hasAnyRelationshipData async loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = getRelationshipsFor(book).get('author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1193,7 +1197,7 @@ test('belongsTo hasAnyRelationshipData sync loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = getRelationshipsFor(book).get('author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1221,7 +1225,7 @@ test('belongsTo hasAnyRelationshipData async not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = getRelationshipsFor(book).get('author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1242,7 +1246,7 @@ test('belongsTo hasAnyRelationshipData sync not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = getRelationshipsFor(book).get('author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1258,7 +1262,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
   run(() => {
     let author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = getRelationshipsFor(book).get('author');
 
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
@@ -1267,7 +1271,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = getRelationshipsFor(book).get('author');
 
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
@@ -1282,7 +1286,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       name: 'The Greatest Book',
     });
 
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = getRelationshipsFor(book).get('author');
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
@@ -1290,7 +1294,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = getRelationshipsFor(book).get('author');
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
@@ -1307,7 +1311,7 @@ test("Model's belongsTo relationship should not be created during model creation
     });
 
     assert.ok(
-      !user._internalModel._relationships.has('favouriteMessage'),
+      !getRelationshipsFor(user).has('favouriteMessage'),
       'Newly created record should not have relationships'
     );
   });
@@ -1321,7 +1325,7 @@ test("Model's belongsTo relationship should be created during model creation if 
   });
 
   assert.ok(
-    user._internalModel._relationships.has('favouriteMessage'),
+    getRelationshipsFor(user).has('favouriteMessage'),
     'Newly created record with relationships in params passed in its constructor should have relationships'
   );
 });
@@ -1334,7 +1338,7 @@ test("Model's belongsTo relationship should be created during 'set' method", fun
     user = env.store.createRecord('user');
     user.set('favouriteMessage', message);
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      getRelationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -1347,7 +1351,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('favouriteMessage');
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      getRelationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -1949,11 +1953,11 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   });
 
   const createRecordDataFor = env.store.createRecordDataFor;
-  env.store.createRecordDataFor = function(modelName, id, clientId, storeWrapper) {
+  env.store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
     if (modelName === 'book1' || modelName === 'section') {
-      return new TestRecordData(modelName, id, clientId, storeWrapper, this);
+      return new TestRecordData(modelName, id, lid, storeWrapper, this);
     }
-    return createRecordDataFor.call(this, modelName, id, clientId, storeWrapper);
+    return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
   };
 
   const data = {

@@ -303,28 +303,33 @@ test('buildURL - buildURL takes a record from create', function(assert) {
   });
 });
 
-test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', function(assert) {
+test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function(assert) {
   Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
 
   ajaxResponse({ posts: [{ id: 2 }] });
 
-  return run(() => {
-    store.findRecord('post', 2).then(post => {
-      assert.equal(post.get('id'), 2);
-
-      adapter.buildURL = function(type, id, snapshot) {
-        return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
-      };
-
-      ajaxResponse({ comments: [{ id: 1 }] });
-
-      let comment = store.createRecord('comment');
-      comment.set('post', post);
-      return comment.save().then(post => {
-        assert.equal(passedUrl, '/posts/2/comments/');
-      });
-    });
+  let post = store.push({
+    data: {
+      id: '2',
+      type: 'post',
+      attributes: {
+        name: 'foo',
+      },
+    },
   });
+
+  adapter.buildURL = function(type, id, snapshot) {
+    return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+
+  let comment = store.createRecord('comment');
+  comment.set('post', post);
+
+  await comment.save();
+
+  assert.equal(passedUrl, '/posts/2/comments/');
 });
 
 test('buildURL - buildURL takes a record from update', function(assert) {

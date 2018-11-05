@@ -1,7 +1,7 @@
 import { set, get } from '@ember/object';
 import EmberError from '@ember/error';
 import { default as EmberArray, A } from '@ember/array';
-import { setOwner } from '@ember/application';
+import { setOwner, getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
 import RSVP, { Promise } from 'rsvp';
@@ -13,7 +13,6 @@ import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
-import { getOwner } from '../../utils';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 
@@ -219,16 +218,6 @@ export default class InternalModel {
 
   dirtyType() {
     return this.currentState.dirtyType;
-  }
-
-  // DO NOT USE : purely to ease the transition in tests
-  get _attributes() {
-    return this._recordData._attributes;
-  }
-
-  // DO NOT USE : purely to ease the transition in tests
-  get _relationships() {
-    return this._recordData._relationships;
   }
 
   getRecord(properties) {

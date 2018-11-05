@@ -864,7 +864,7 @@ test('create record', function(assert) {
   });
 });
 
-test('update record', function(assert) {
+test('update record', async function(assert) {
   assert.expect(3);
 
   ajaxResponse([
@@ -876,67 +876,65 @@ test('update record', function(assert) {
     },
   ]);
 
-  return run(() => {
-    let user = store.push({
+  let user = store.push({
+    data: {
+      type: 'user',
+      id: '1',
+      attributes: {
+        firstName: 'Yehuda',
+        lastName: 'Katz',
+      },
+    },
+  });
+
+  let company = store.push({
+    data: {
+      type: 'company',
+      id: '2',
+      attributes: {
+        name: 'Tilde Inc.',
+      },
+    },
+  });
+
+  let githubHandle = store.push({
+    data: {
+      type: 'github-handle',
+      id: '3',
+      attributes: {
+        username: 'wycats',
+      },
+    },
+  });
+
+  user.set('firstName', 'Yehuda!');
+  user.set('company', company);
+
+  let handles = await user.get('handles');
+
+  handles.addObject(githubHandle);
+
+  await user.save();
+
+  assert.equal(passedUrl[0], '/users/1');
+  assert.equal(passedVerb[0], 'PATCH');
+  // TODO @runspired seems mega-bad that we expect an extra `data` key
+  assert.deepEqual(passedHash[0], {
+    data: {
       data: {
-        type: 'user',
+        type: 'users',
         id: '1',
         attributes: {
-          firstName: 'Yehuda',
-          lastName: 'Katz',
+          'first-name': 'Yehuda!',
+          'last-name': 'Katz',
         },
-      },
-    });
-
-    let company = store.push({
-      data: {
-        type: 'company',
-        id: '2',
-        attributes: {
-          name: 'Tilde Inc.',
-        },
-      },
-    });
-
-    let githubHandle = store.push({
-      data: {
-        type: 'github-handle',
-        id: '3',
-        attributes: {
-          username: 'wycats',
-        },
-      },
-    });
-
-    user.set('firstName', 'Yehuda!');
-    user.set('company', company);
-
-    return user.get('handles').then(handles => {
-      handles.addObject(githubHandle);
-
-      return user.save().then(() => {
-        assert.equal(passedUrl[0], '/users/1');
-        assert.equal(passedVerb[0], 'PATCH');
-        // TODO @runspired seems mega-bad that we expect an extra `data` key
-        assert.deepEqual(passedHash[0], {
-          data: {
-            data: {
-              type: 'users',
-              id: '1',
-              attributes: {
-                'first-name': 'Yehuda!',
-                'last-name': 'Katz',
-              },
-              relationships: {
-                company: {
-                  data: { type: 'companies', id: '2' },
-                },
-              },
-            },
+        relationships: {
+          company: {
+            data: { type: 'companies', id: '2' },
           },
-        });
-      });
-    });
+        },
+      },
+    },
   });
 });
 
