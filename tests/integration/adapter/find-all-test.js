@@ -1,58 +1,96 @@
-import { reject, resolve, defer } from 'rsvp';
-import { get } from '@ember/object';
-import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-import setupStore from 'dummy/tests/helpers/store';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
+import { reject, resolve, defer, Promise } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import Model from 'ember-data/model';
+import { attr } from '@ember-decorators/data';
+import { settled } from '@ember/test-helpers';
 
-const { attr } = DS;
+class Person extends Model {
+  @attr
+  updatedAt;
 
-let Person, store, allRecords, env;
+  @attr
+  name;
 
-module('integration/adapter/find-all - Finding All Records of a Type', {
-  beforeEach() {
-    Person = DS.Model.extend({
-      updatedAt: attr('string'),
-      name: attr('string'),
-      firstName: attr('string'),
-      lastName: attr('string'),
-    });
-    Person.reopenClass({
-      toString() {
-        return 'Person';
-      },
-    });
+  @attr
+  firstName;
 
-    allRecords = null;
+  @attr
+  lastName;
 
-    env = setupStore({
-      person: Person,
-    });
-    store = env.store;
-  },
+  toString() {
+    return 'Person';
+  }
+}
 
-  afterEach() {
-    run(() => {
-      if (allRecords) {
-        allRecords.destroy();
-      }
-      store.destroy();
-    });
-  },
-});
+module('integration/adapter/find-all - Finding All Records of a Type', function(hooks) {
+  setupTest(hooks);
+  let store;
 
-test("When all records for a type are requested, the store should call the adapter's `findAll` method.", assert => {
-  assert.expect(5);
+  hooks.beforeEach(function() {
+    let { owner } = this;
 
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll() {
-        // this will get called twice
-        assert.ok(true, "the adapter's findAll method should be invoked");
+    owner.register('model:person', Person);
+    store = owner.lookup('service:store');
+  });
 
+  test("When all records for a type are requested, the store should call the adapter's `findAll` method.", async function(assert) {
+    assert.expect(5);
+    let adapter = store.adapterFor('person');
+
+    adapter.findAll = () => {
+      // this will get called twice
+      assert.ok(true, "the adapter's findAll method should be invoked");
+
+      return resolve({
+        data: [
+          {
+            id: 1,
+            type: 'person',
+            attributes: {
+              name: 'Braaaahm Dale',
+            },
+          },
+        ],
+      });
+    };
+
+    let allRecords = await store.findAll('person');
+    assert.equal(
+      get(allRecords, 'length'),
+      1,
+      "the record array's length is 1 after a record is loaded into it"
+    );
+    assert.equal(
+      allRecords.objectAt(0).get('name'),
+      'Braaaahm Dale',
+      'the first item in the record array is Braaaahm Dale'
+    );
+
+    let all = await store.findAll('person');
+    // Only one record array per type should ever be created (identity map)
+    assert.strictEqual(
+      allRecords,
+      all,
+      'the same record array is returned every time all records of a type are requested'
+    );
+  });
+
+  test('When all records for a type are requested, a rejection should reject the promise', async function(assert) {
+    assert.expect(5);
+    let adapter = store.adapterFor('person');
+
+    let count = 0;
+    adapter.findAll = () => {
+      // this will get called twice
+      assert.ok(true, "the adapter's findAll method should be invoked");
+
+      if (count++ === 0) {
+        return reject();
+      } else {
         return resolve({
           data: [
             {
@@ -64,96 +102,28 @@ test("When all records for a type are requested, the store should call the adapt
             },
           ],
         });
-      },
-    })
-  );
+      }
+    };
 
-  return run(() => {
-    return store.findAll('person').then(all => {
-      let allRecords = all;
-      assert.equal(
-        get(all, 'length'),
-        1,
-        "the record array's length is 1 after a record is loaded into it"
-      );
-      assert.equal(
-        all.objectAt(0).get('name'),
-        'Braaaahm Dale',
-        'the first item in the record array is Braaaahm Dale'
-      );
-
-      return store.findAll('person').then(all => {
-        // Only one record array per type should ever be created (identity map)
-        assert.strictEqual(
-          allRecords,
-          all,
-          'the same record array is returned every time all records of a type are requested'
-        );
-      });
+    let all = await store.findAll('person').catch(() => {
+      assert.ok(true, 'The rejection should get here');
+      return store.findAll('person');
     });
-  });
-});
-
-test('When all records for a type are requested, a rejection should reject the promise', assert => {
-  assert.expect(5);
-
-  let count = 0;
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll() {
-        // this will get called twice
-        assert.ok(true, "the adapter's findAll method should be invoked");
-
-        if (count++ === 0) {
-          return reject();
-        } else {
-          return resolve({
-            data: [
-              {
-                id: 1,
-                type: 'person',
-                attributes: {
-                  name: 'Braaaahm Dale',
-                },
-              },
-            ],
-          });
-        }
-      },
-    })
-  );
-
-  return run(() => {
-    return store
-      .findAll('person')
-      .catch(() => {
-        assert.ok(true, 'The rejection should get here');
-        return store.findAll('person');
-      })
-      .then(all => {
-        assert.equal(
-          get(all, 'length'),
-          1,
-          "the record array's length is 1 after a record is loaded into it"
-        );
-        assert.equal(
-          all.objectAt(0).get('name'),
-          'Braaaahm Dale',
-          'the first item in the record array is Braaaahm Dale'
-        );
-      });
-  });
-});
-
-test('When all records for a type are requested, records that are already loaded should be returned immediately.', assert => {
-  assert.expect(3);
-  store = createStore({
-    adapter: DS.Adapter.extend(),
-    person: Person,
+    assert.equal(
+      get(all, 'length'),
+      1,
+      "the record array's length is 1 after a record is loaded into it"
+    );
+    assert.equal(
+      all.objectAt(0).get('name'),
+      'Braaaahm Dale',
+      'the first item in the record array is Braaaahm Dale'
+    );
   });
 
-  run(() => {
+  test('When all records for a type are requested, records that are already loaded should be returned immediately.', async assert => {
+    assert.expect(3);
+
     // Load a record from the server
     store.push({
       data: {
@@ -164,78 +134,63 @@ test('When all records for a type are requested, records that are already loaded
         },
       },
     });
+
     // Create a new, unsaved record in the store
     store.createRecord('person', { name: 'Alex MacCaw' });
+
+    let allRecords = store.peekAll('person');
+
+    assert.equal(get(allRecords, 'length'), 2, "the record array's length is 2");
+    assert.equal(
+      allRecords.objectAt(0).get('name'),
+      'Jeremy Ashkenas',
+      'the first item in the record array is Jeremy Ashkenas'
+    );
+    assert.equal(
+      allRecords.objectAt(1).get('name'),
+      'Alex MacCaw',
+      'the second item in the record array is Alex MacCaw'
+    );
   });
 
-  allRecords = store.peekAll('person');
+  test('When all records for a type are requested, records that are created on the client should be added to the record array.', assert => {
+    assert.expect(3);
 
-  assert.equal(get(allRecords, 'length'), 2, "the record array's length is 2");
-  assert.equal(
-    allRecords.objectAt(0).get('name'),
-    'Jeremy Ashkenas',
-    'the first item in the record array is Jeremy Ashkenas'
-  );
-  assert.equal(
-    allRecords.objectAt(1).get('name'),
-    'Alex MacCaw',
-    'the second item in the record array is Alex MacCaw'
-  );
-});
+    let allRecords = store.peekAll('person');
 
-test('When all records for a type are requested, records that are created on the client should be added to the record array.', assert => {
-  assert.expect(3);
+    assert.equal(
+      get(allRecords, 'length'),
+      0,
+      "precond - the record array's length is zero before any records are loaded"
+    );
 
-  store = createStore({
-    adapter: DS.Adapter.extend(),
-    person: Person,
+    store.createRecord('person', { name: 'Carsten Nielsen' });
+
+    assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
+    assert.equal(
+      allRecords.objectAt(0).get('name'),
+      'Carsten Nielsen',
+      'the first item in the record array is Carsten Nielsen'
+    );
   });
 
-  allRecords = store.peekAll('person');
+  testInDebug('When all records are requested, assert the payload is not blank', async function(
+    assert
+  ) {
+    let adapter = store.adapterFor('person');
+    adapter.findAll = () => resolve({});
 
-  assert.equal(
-    get(allRecords, 'length'),
-    0,
-    "precond - the record array's length is zero before any records are loaded"
-  );
+    assert.expectAssertion(() => {
+      run(() => store.findAll('person'));
+    }, /You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
+  });
 
-  store.createRecord('person', { name: 'Carsten Nielsen' });
+  test('isUpdating is true while records are fetched', async function(assert) {
+    let findAllDeferred = defer();
+    let adapter = store.adapterFor('person');
+    adapter.findAll = () => findAllDeferred.promise;
+    adapter.shouldReloadAll = () => true;
 
-  assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
-  assert.equal(
-    allRecords.objectAt(0).get('name'),
-    'Carsten Nielsen',
-    'the first item in the record array is Carsten Nielsen'
-  );
-});
-
-testInDebug('When all records are requested, assert the payload is not blank', assert => {
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll: () => resolve({}),
-    })
-  );
-
-  assert.expectAssertion(() => {
-    run(() => store.findAll('person'));
-  }, /You made a 'findAll' request for 'person' records, but the adapter's response did not have any data/);
-});
-
-test('isUpdating is true while records are fetched', function(assert) {
-  let findAllDeferred = defer();
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll() {
-        return findAllDeferred.promise;
-      },
-
-      shouldReloadAll: () => true,
-    })
-  );
-
-  run(() => {
     store.push({
       data: [
         {
@@ -244,92 +199,34 @@ test('isUpdating is true while records are fetched', function(assert) {
         },
       ],
     });
-  });
 
-  let persons = store.peekAll('person');
-  assert.equal(persons.get('length'), 1);
+    let persons = store.peekAll('person');
+    assert.equal(persons.get('length'), 1);
 
-  let wait = run(() => {
-    return store.findAll('person').then(persons => {
+    let promise = new Promise(async resolve => {
+      let persons = await store.findAll('person');
+
       assert.equal(persons.get('isUpdating'), false);
       assert.equal(persons.get('length'), 2);
+      resolve();
     });
-  });
 
-  assert.equal(persons.get('isUpdating'), true);
-
-  findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
-
-  return wait;
-});
-
-test('isUpdating is true while records are fetched in the background', function(assert) {
-  let findAllDeferred = defer();
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll() {
-        return findAllDeferred.promise;
-      },
-
-      shouldReloadAll() {
-        return false;
-      },
-      shouldBackgroundReloadAll() {
-        return true;
-      },
-    })
-  );
-
-  run(() => {
-    store.push({
-      data: [
-        {
-          type: 'person',
-          id: 1,
-        },
-      ],
-    });
-  });
-
-  let persons = store.peekAll('person');
-  assert.equal(persons.get('length'), 1);
-
-  return run(() => {
-    return store.findAll('person').then(persons => {
-      assert.equal(persons.get('isUpdating'), true);
-      assert.equal(persons.get('length'), 1, 'persons are updated in the background');
-    });
-  }).then(() => {
     assert.equal(persons.get('isUpdating'), true);
 
-    run(() => {
-      findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
-    });
+    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
 
-    return run(() => {
-      return findAllDeferred.promise.then(() => {
-        assert.equal(persons.get('isUpdating'), false);
-        assert.equal(persons.get('length'), 2);
-      });
-    });
+    await promise;
   });
-});
 
-test('isUpdating is false if records are not fetched in the background', function(assert) {
-  let findAllDeferred = defer();
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      findAll() {
-        return findAllDeferred.promise;
-      },
-      shouldReloadAll: () => false,
-      shouldBackgroundReloadAll: () => false,
-    })
-  );
+  test('isUpdating is true while records are fetched in the background', async function(assert) {
+    let findAllDeferred = defer();
+    let adapter = store.adapterFor('person');
+    adapter.findAll = () => {
+      return findAllDeferred.promise;
+    };
+    adapter.shouldReloadAll = () => false;
+    adapter.shouldBackgroundReloadAll = () => true;
 
-  run(() => {
     store.push({
       data: [
         {
@@ -338,16 +235,48 @@ test('isUpdating is false if records are not fetched in the background', functio
         },
       ],
     });
+
+    let persons = store.peekAll('person');
+    assert.equal(persons.get('length'), 1);
+
+    persons = await store.findAll('person');
+    assert.equal(persons.get('isUpdating'), true);
+    assert.equal(persons.get('length'), 1, 'persons are updated in the background');
+
+    assert.equal(persons.get('isUpdating'), true);
+
+    findAllDeferred.resolve({ data: [{ id: 2, type: 'person' }] });
+
+    await settled();
+
+    await findAllDeferred.promise;
+
+    assert.equal(persons.get('isUpdating'), false);
+    assert.equal(persons.get('length'), 2);
   });
 
-  let persons = store.peekAll('person');
-  assert.equal(persons.get('length'), 1);
+  test('isUpdating is false if records are not fetched in the background', async function(assert) {
+    let findAllDeferred = defer();
+    let adapter = store.adapterFor('person');
+    adapter.findAll = () => {
+      return findAllDeferred.promise;
+    };
+    adapter.shouldReloadAll = () => false;
+    adapter.shouldBackgroundReloadAll = () => false;
 
-  return run(() => {
-    return store.findAll('person').then(persons => {
-      assert.equal(persons.get('isUpdating'), false);
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: 1,
+        },
+      ],
     });
-  }).then(() => {
+
+    let persons = store.peekAll('person');
+    assert.equal(persons.get('length'), 1);
+
+    persons = await store.findAll('person');
     assert.equal(persons.get('isUpdating'), false);
   });
 });
