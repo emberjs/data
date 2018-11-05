@@ -78,9 +78,7 @@ export default DataAdapter.extend({
 
   getRecordColumnValues(record) {
     let count = 0;
-    let columnValues = {
-      id: get(record, record.primaryKey || 'id'),
-    };
+    let columnValues = { id: get(record, 'id') };
 
     record.eachAttribute(key => {
       if (count++ > this.attributeLimit) {
