@@ -129,4 +129,20 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.equal(removedIndex, 1);
     assert.equal(removedCount, 1);
   });
+
+  test('Column names', function(assert) {
+    class Person extends Model {
+      @attr
+      title;
+
+      @attr
+      firstOrLastName;
+    }
+
+    const columns = debugAdapter.columnsForType(Person);
+
+    assert.equal(columns[0].desc, 'Id');
+    assert.equal(columns[1].desc, 'Title');
+    assert.equal(columns[2].desc, 'First or last name');
+  });
 });
