@@ -1,5 +1,6 @@
-import Store from './../../system/store';
-import InternalModel from './../../system/model/internal-model';
+import Store from '../store';
+import InternalModel from '../model/internal-model';
+import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
 
 interface ResourceIdentifier {
@@ -29,7 +30,7 @@ export default abstract class Reference {
     public store: InstanceType<typeof Store>,
     public internalModel: InternalModel
   ) {
-    this.recordData = this.internalModel._recordData;
+    this.recordData = recordDataFor(this);
   }
 
   public _resource():

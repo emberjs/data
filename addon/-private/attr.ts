@@ -1,6 +1,7 @@
 import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
+import recordDataFor from './system/record-data-for';
 /**
   @module ember-data
 */
@@ -19,7 +20,7 @@ function getDefaultValue(record, options, key) {
 }
 
 function hasValue(internalModel, key) {
-  return internalModel._recordData.hasAttr(key);
+  return recordDataFor(internalModel).hasAttr(key);
 }
 
 interface AttrOptions {

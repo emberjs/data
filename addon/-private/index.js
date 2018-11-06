@@ -23,6 +23,11 @@ export {
 } from './adapters/errors';
 
 // maybe public ?
+export {
+  default as recordDataFor,
+  relationshipsFor,
+  relationshipStateFor,
+} from './system/record-data-for';
 export { default as normalizeModelName } from './system/normalize-model-name';
 export { getOwner, modelHasAttributeOrRelationshipNamedType } from './utils';
 export { default as coerceId } from './system/coerce-id';

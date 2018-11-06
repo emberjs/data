@@ -3,6 +3,7 @@ import { get } from '@ember/object';
 import Reference from './reference';
 import { DEBUG } from '@glimmer/env';
 import { assertPolymorphicType } from 'ember-data/-debug';
+import recordDataFor from '../record-data-for';
 
 /**
  A HasManyReference is a low-level API that allows users and addon
@@ -180,7 +181,7 @@ export default class HasManyReference extends Reference {
             this.store
           );
         }
-        return record._internalModel._recordData;
+        return recordDataFor(record);
       });
 
       this.hasManyRelationship.computeChanges(internalModels);

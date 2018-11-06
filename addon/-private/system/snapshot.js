@@ -5,6 +5,7 @@ import { inspect } from '@ember/debug';
 import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
+import { relationshipStateFor } from './record-data-for';
 
 /**
   @class Snapshot
@@ -240,7 +241,7 @@ export default class Snapshot {
       );
     }
 
-    relationship = this._internalModel._recordData._relationships.get(keyName);
+    relationship = relationshipStateFor(this, keyName);
 
     let value = relationship.getData();
     let data = value && value.data;
@@ -322,7 +323,7 @@ export default class Snapshot {
       );
     }
 
-    relationship = this._internalModel._recordData._relationships.get(keyName);
+    relationship = relationshipStateFor(this, keyName);
 
     let value = relationship.getData();
 

@@ -4,7 +4,7 @@ import Model from 'ember-data/model';
 import { run } from '@ember/runloop';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { assign } from '@ember/polyfills';
-import { RecordData } from 'ember-data/-private';
+import { RecordData, recordDataFor } from 'ember-data/-private';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -18,10 +18,6 @@ class Pet extends Model {
   owner;
   @attr
   name;
-}
-
-function recordDataForRecord(record) {
-  return record._internalModel._recordData;
 }
 
 module('RecordData Compatibility', function(hooks) {
@@ -157,11 +153,11 @@ module('RecordData Compatibility', function(hooks) {
 
     assert.equal(shen.get('name'), 'Shen', 'We found Shen');
     assert.ok(
-      recordDataForRecord(chris) instanceof RecordData,
+      recordDataFor(chris) instanceof RecordData,
       'We used the default record-data for person'
     );
     assert.ok(
-      recordDataForRecord(shen) instanceof CustomRecordData,
+      recordDataFor(shen) instanceof CustomRecordData,
       'We used the custom record-data for pets'
     );
 

@@ -11,6 +11,7 @@ import { assert } from '@ember/debug';
 import { PromiseArray } from './promise-proxies';
 import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
+import recordDataFor from './record-data-for';
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -198,7 +199,7 @@ export default EmberObject.extend(MutableArray, Evented, {
       internalModels = this.currentState.slice(idx, idx + amt);
       this.get('recordData').removeFromHasMany(
         this.get('key'),
-        internalModels.map(im => im._recordData)
+        internalModels.map(im => recordDataFor(im))
       );
     }
     if (objects) {
@@ -208,7 +209,7 @@ export default EmberObject.extend(MutableArray, Evented, {
       );
       this.get('recordData').addToHasMany(
         this.get('key'),
-        objects.map(obj => obj._internalModel._recordData),
+        objects.map(obj => recordDataFor(obj)),
         idx
       );
     }

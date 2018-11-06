@@ -116,16 +116,6 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChange();
   }
 
-  setRecordPromise(newPromise) {
-    let content = newPromise.get && newPromise.get('content');
-    assert(
-      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
-      content !== undefined
-    );
-    // TODO Igor deal with this
-    this.setRecordData(content ? content._internalModel._recordData : content);
-  }
-
   removeRecordDataFromOwn(recordData) {
     if (!this.members.has(recordData)) {
       return;
