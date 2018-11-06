@@ -259,7 +259,7 @@ testInDebug('Warns when normalizing with type missing', function(assert) {
 });
 
 test('Serializer should respect the attrs hash when extracting attributes and relationships', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -305,7 +305,7 @@ test('Serializer should respect the attrs hash when extracting attributes and re
 });
 
 test('Serializer should respect the attrs hash when serializing attributes and relationships', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -343,7 +343,7 @@ test('Serializer should respect the attrs hash when serializing attributes and r
 });
 
 test('Serializer should respect the attrs hash when extracting attributes with not camelized keys', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:project',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -370,7 +370,7 @@ test('Serializer should respect the attrs hash when extracting attributes with n
 });
 
 test('Serializer should respect the attrs hash when serializing attributes with not camelized keys', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:project',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -388,7 +388,7 @@ test('Serializer should respect the attrs hash when serializing attributes with 
 test('options are passed to transform for serialization', function(assert) {
   assert.expect(1);
 
-  env.registry.register(
+  env.owner.register(
     'transform:custom',
     DS.Transform.extend({
       serialize: function(deserialized, options) {
@@ -488,7 +488,7 @@ test('a belongsTo relationship set to a new record will not show in the relation
 });
 
 test('it should serialize a hasMany relationship', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -535,7 +535,7 @@ test('it should serialize a hasMany relationship', function(assert) {
 });
 
 test('it should not include new records when serializing a hasMany relationship', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -583,7 +583,7 @@ test('it should not include new records when serializing a hasMany relationship'
 });
 
 test('it should not include any records when serializing a hasMany relationship if they are all new', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
@@ -625,7 +625,7 @@ test('it should not include any records when serializing a hasMany relationship 
 });
 
 test('it should include an empty list when serializing an empty hasMany relationship', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {

@@ -27,7 +27,7 @@ module('integration/store/query', {
 test('meta is proxied correctly on the PromiseArray', function(assert) {
   let defered = RSVP.defer();
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       query(store, type, query) {

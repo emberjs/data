@@ -93,14 +93,8 @@ module('integration/embedded_records_mixin - EmbeddedRecordsMixin', {
     env.store.modelFor('evil-minion');
     env.store.modelFor('comment');
 
-    env.registry.register('adapter:application', DS.RESTAdapter);
-    env.registry.register(
-      'serializer:application',
-      DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin)
-    );
-
-    //env.amsSerializer = env.container.lookup("serializer:-active-model");
-    //env.amsAdapter    = env.container.lookup("adapter:-active-model");
+    env.owner.register('adapter:application', DS.RESTAdapter);
+    env.owner.register('serializer:application', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
   },
 
   afterEach() {
@@ -109,7 +103,7 @@ module('integration/embedded_records_mixin - EmbeddedRecordsMixin', {
 });
 
 test('normalizeResponse with embedded objects', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -166,7 +160,7 @@ test('normalizeResponse with embedded objects', function(assert) {
 });
 
 test('normalizeResponse with embedded objects inside embedded objects', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -174,7 +168,7 @@ test('normalizeResponse with embedded objects inside embedded objects', function
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -249,7 +243,7 @@ test('normalizeResponse with embedded objects inside embedded objects', function
 });
 
 test('normalizeResponse with embedded objects of same type', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -326,7 +320,7 @@ test('normalizeResponse with embedded objects of same type', function(assert) {
 });
 
 test('normalizeResponse with embedded objects inside embedded objects of same type', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -426,7 +420,7 @@ test('normalizeResponse with embedded objects of same type, but from separate at
     reformedVillains: DS.hasMany('superVillain', { inverse: null, async: false }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -526,7 +520,7 @@ test('normalizeResponse with embedded objects of same type, but from separate at
 });
 
 test('normalizeResponse with embedded objects', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -589,13 +583,13 @@ test('normalizeResponse with embedded objects', function(assert) {
 
 test('normalizeResponse with embedded objects with custom primary key', function(assert) {
   assert.expect(1);
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend({
       primaryKey: 'villain_id',
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -658,7 +652,7 @@ test('normalizeResponse with embedded objects with custom primary key', function
 
 test('normalizeResponse with embedded objects with identical relationship and attribute key ', function(assert) {
   assert.expect(1);
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -724,7 +718,7 @@ test('normalizeResponse with embedded objects with identical relationship and at
 });
 
 test('normalizeResponse with embedded objects of same type as primary type', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -810,7 +804,7 @@ test('normalizeResponse with embedded objects of same type, but from separate at
     reformedVillains: DS.hasMany('superVillain', { async: false }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -992,7 +986,7 @@ test('serialize supports serialize:false on non-relationship properties', functi
     id: '1',
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1022,7 +1016,7 @@ test('serialize with embedded objects (hasMany relationship)', function(assert) 
     id: '1',
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1061,7 +1055,7 @@ test('serialize with embedded objects and a custom keyForAttribute (hasMany rela
     id: '1',
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       keyForRelationship(key) {
@@ -1109,7 +1103,7 @@ testInDebug('serialize with embedded objects (unknown hasMany relationship)', fu
     league = env.store.peekRecord('home-planet', 123);
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1141,7 +1135,7 @@ test('serialize with embedded objects (hasMany relationship) supports serialize:
     id: '1',
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1169,7 +1163,7 @@ test('serialize with (new) embedded objects (hasMany relationship)', function(as
     homePlanet: league,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1218,7 +1212,7 @@ test('serialize with embedded objects (hasMany relationships, including related 
     superVillain.get('secretWeapons').pushObject(secretWeapon);
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1229,7 +1223,7 @@ test('serialize with embedded objects (hasMany relationships, including related 
   );
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup('serializer:super-villain');
+    serializer = env.owner.lookup('serializer:super-villain');
 
     json = serializer.serialize(superVillain._createSnapshot());
   });
@@ -1258,7 +1252,7 @@ test('serialize has many relationship using the `ids-and-types` strategy', funct
     minions: [yellowMinion, redMinion],
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:commander-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1268,7 +1262,7 @@ test('serialize has many relationship using the `ids-and-types` strategy', funct
   );
   var serializer, json;
   run(function() {
-    serializer = env.container.lookup('serializer:commander-villain');
+    serializer = env.owner.lookup('serializer:commander-villain');
     var snapshot = commanderVillain._createSnapshot();
     json = serializer.serialize(snapshot);
   });
@@ -1289,7 +1283,7 @@ test('serialize has many relationship using the `ids-and-types` strategy', funct
 });
 
 test('normalizeResponse with embedded object (belongsTo relationship)', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1359,7 +1353,7 @@ test('normalizeResponse with embedded object (belongsTo relationship)', function
 });
 
 test('serialize with embedded object (belongsTo relationship)', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1396,7 +1390,7 @@ test('serialize with embedded object (belongsTo relationship)', function(assert)
 });
 
 test('serialize with embedded object (polymorphic belongsTo relationship)', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1442,7 +1436,7 @@ test('serialize with embedded object (polymorphic belongsTo relationship)', func
 });
 
 test('serialize with embedded object (belongsTo relationship) works with different primaryKeys', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       primaryKey: '_id',
@@ -1451,7 +1445,7 @@ test('serialize with embedded object (belongsTo relationship) works with differe
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:secret-lab',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       primaryKey: 'crazy_id',
@@ -1488,7 +1482,7 @@ test('serialize with embedded object (belongsTo relationship) works with differe
 });
 
 test('serialize with embedded object (belongsTo relationship, new no id)', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1527,7 +1521,7 @@ test('serialize with embedded object (polymorphic belongsTo relationship) suppor
     secretLab: DS.belongsTo('secret-lab', { polymorphic: true }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1564,7 +1558,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
     secretLab: DS.belongsTo('secret-lab', { polymorphic: true }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1601,7 +1595,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
     secretLab: DS.belongsTo('secret-lab', { polymorphic: true }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1634,7 +1628,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) supports serialize:ids', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1668,7 +1662,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) supports serialize:id', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1702,7 +1696,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1736,7 +1730,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) supports serialize:false', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1768,10 +1762,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified', function(assert) {
-  env.registry.register(
-    'serializer:super-villain',
-    DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin)
-  );
+  env.owner.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
   var serializer = env.store.serializerFor('super-villain');
 
   // records with an id, persisted
@@ -1797,7 +1788,7 @@ test('serialize with embedded object (belongsTo relationship) serializes the id 
 });
 
 test('when related record is not present, serialize embedded record (with a belongsTo relationship) as null', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1823,7 +1814,7 @@ test('when related record is not present, serialize embedded record (with a belo
 });
 
 test('normalizeResponse with multiply-nested belongsTo', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:evil-minion',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1831,7 +1822,7 @@ test('normalizeResponse with multiply-nested belongsTo', function(assert) {
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -1919,7 +1910,7 @@ test('normalizeResponse with polymorphic hasMany', function(assert) {
     secretWeapons: DS.hasMany('secretWeapon', { polymorphic: true, async: false }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2000,13 +1991,13 @@ test('normalizeResponse with polymorphic hasMany and custom primary key', functi
     secretWeapons: DS.hasMany('secretWeapon', { polymorphic: true, async: false }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:light-saber',
     DS.RESTSerializer.extend({
       primaryKey: 'custom',
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2087,7 +2078,7 @@ test('normalizeResponse with polymorphic belongsTo', function(assert) {
     secretLab: DS.belongsTo('secretLab', { polymorphic: true, async: true }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2154,7 +2145,7 @@ test('normalizeResponse with polymorphic belongsTo and custom primary key', func
     secretLab: DS.belongsTo('secretLab', { polymorphic: true, async: true }),
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2162,7 +2153,7 @@ test('normalizeResponse with polymorphic belongsTo and custom primary key', func
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:bat-cave',
     DS.RESTSerializer.extend({
       primaryKey: 'custom',
@@ -2254,7 +2245,7 @@ test('Mixin can be used with RESTSerializer which does not define keyForAttribut
     superVillain.get('evilMinions').pushObject(evilMinion);
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2283,7 +2274,7 @@ test('Mixin can be used with RESTSerializer which does not define keyForAttribut
 });
 
 test('normalize with custom belongsTo primary key', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:evil-minion',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2291,7 +2282,7 @@ test('normalize with custom belongsTo primary key', function(assert) {
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend({
       primaryKey: 'custom',
@@ -2398,9 +2389,9 @@ test('serializing relationships with an embedded and without calls super when no
       }
     },
   });
-  env.registry.register('serializer:evil-minion', Serializer);
-  env.registry.register('serializer:secret-weapon', Serializer);
-  env.registry.register(
+  env.owner.register('serializer:evil-minion', Serializer);
+  env.owner.register('serializer:secret-weapon', Serializer);
+  env.owner.register(
     'serializer:super-villain',
     Serializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2447,7 +2438,7 @@ test('serializing belongsTo correctly removes embedded foreign key', function(as
     secretWeapon: secretWeapon,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:evil-minion',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2475,7 +2466,7 @@ test('serializing embedded belongsTo respects remapped attrs key', function(asse
     homePlanet: homePlanet,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2505,7 +2496,7 @@ test('serializing embedded hasMany respects remapped attrs key', function(assert
     homePlanet: homePlanet,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2514,7 +2505,7 @@ test('serializing embedded hasMany respects remapped attrs key', function(assert
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2546,7 +2537,7 @@ test('serializing id belongsTo respects remapped attrs key', function(assert) {
     homePlanet: homePlanet,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2574,7 +2565,7 @@ test('serializing ids hasMany respects remapped attrs key', function(assert) {
     homePlanet: homePlanet,
   });
 
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -2583,7 +2574,7 @@ test('serializing ids hasMany respects remapped attrs key', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:super-villain',
     DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {

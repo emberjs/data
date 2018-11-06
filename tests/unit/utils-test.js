@@ -36,7 +36,7 @@ module('unit/utils', {
       video: Video,
     });
 
-    env.registry.register('mixin:medium', Medium);
+    env.owner.register('mixin:medium', Medium);
   },
 
   afterEach() {

@@ -285,7 +285,7 @@ test('Find with query calls the correct normalizeResponse', function(assert) {
 
   let { store } = env;
 
-  env.registry.register('serializer:application', ApplicationSerializer);
+  env.owner.register('serializer:application', ApplicationSerializer);
 
   run(() => store.query('person', passedQuery));
   assert.equal(callCount, 1, 'normalizeQueryResponse was called');
@@ -475,7 +475,7 @@ test('initial values of belongsTo can be passed in as the third argument to find
     friend: DS.belongsTo('person', { inverse: null, async: true }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => {
     store.push({
@@ -512,7 +512,7 @@ test('initial values of belongsTo can be passed in as the third argument to find
     friend: DS.belongsTo('person', { async: true, inverse: null }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => {
     return store.findRecord('person', 1, { preload: { friend: 2 } }).then(() => {
@@ -547,7 +547,7 @@ test('initial values of hasMany can be passed in as the third argument to find a
     friends: DS.hasMany('person', { inverse: null, async: true }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => {
     store.push({
@@ -585,7 +585,7 @@ test('initial values of hasMany can be passed in as the third argument to find a
     friends: DS.hasMany('person', { async: true, inverse: null }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => store.findRecord('person', 1, { preload: { friends: [2] } }));
 });
@@ -611,7 +611,7 @@ test('initial empty values of hasMany can be passed in as the third argument to 
     friends: DS.hasMany('person', { inverse: null, async: true }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => {
     return store.findRecord('person', 1, { preload: { friends: [] } });
@@ -638,7 +638,7 @@ test('initial values of hasMany can be passed in as the third argument to find a
     friends: DS.hasMany('person', { async: true, inverse: null }),
   });
 
-  env.registry.register('model:person', Person);
+  env.owner.register('model:person', Person);
 
   return run(() => store.findRecord('person', 1, { preload: { friends: [] } }));
 });

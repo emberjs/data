@@ -43,7 +43,7 @@ test('Loading link with inverse:null on other model caches the two ends separate
   User = store.modelFor('user');
   Organisation = store.modelFor('organisation');
 
-  env.registry.register(
+  env.owner.register(
     'adapter:user',
     DS.JSONAPISerializer.extend({
       findRecord(store, type, id) {
@@ -62,7 +62,7 @@ test('Loading link with inverse:null on other model caches the two ends separate
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'adapter:organisation',
     DS.JSONAPISerializer.extend({
       findRecord(store, type, id) {
