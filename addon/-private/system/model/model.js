@@ -12,7 +12,7 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor,
 } from '../relationships/ext';
-
+import recordDataFor from '../record-data-for';
 import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
@@ -1147,7 +1147,7 @@ Object.defineProperty(Model.prototype, 'data', {
         until: '3.9',
       }
     );
-    return this._internalModel._recordData._data;
+    return recordDataFor(this)._data;
   },
 });
 

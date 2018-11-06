@@ -2,6 +2,7 @@ import { resolve } from 'rsvp';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import Model from '../model/model';
 import Reference from './reference';
+import recordDataFor from '../record-data-for';
 
 /**
  A BelongsToReference is a low-level API that allows users and
@@ -137,7 +138,7 @@ export default class BelongsToReference extends Reference {
       );
 
       //TODO Igor cleanup, maybe move to relationship push
-      this.belongsToRelationship.setCanonicalRecordData(record._internalModel._recordData);
+      this.belongsToRelationship.setCanonicalRecordData(recordDataFor(record));
 
       return record;
     });

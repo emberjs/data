@@ -12,6 +12,7 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import JSONSerializer from 'ember-data/serializers/json';
 import { attr, hasMany, belongsTo } from '@ember-decorators/data';
 import DSattr from 'ember-data/attr';
+import { recordDataFor } from 'ember-data/-private';
 
 module('unit/model - Model', function(hooks) {
   setupTest(hooks);
@@ -1032,7 +1033,7 @@ module('unit/model - Model', function(hooks) {
         },
       });
 
-      let recordData = person._internalModel._recordData;
+      let recordData = recordDataFor(person);
       assert.equal(recordData._attributes.name, undefined, 'the `_attributes` hash is clean');
 
       set(person, 'name', 'Niceguy Dale');

@@ -15,7 +15,12 @@ import {
   reset as resetModelFactoryInjection,
 } from 'dummy/tests/helpers/model-factory-injection';
 import DS from 'ember-data';
-import { RecordData } from 'ember-data/-private';
+import {
+  RecordData,
+  recordDataFor,
+  relationshipsFor,
+  relationshipStateFor,
+} from 'ember-data/-private';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -1169,7 +1174,7 @@ test('belongsTo hasAnyRelationshipData async loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1193,7 +1198,7 @@ test('belongsTo hasAnyRelationshipData sync loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1221,7 +1226,7 @@ test('belongsTo hasAnyRelationshipData async not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1242,7 +1247,7 @@ test('belongsTo hasAnyRelationshipData sync not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1258,7 +1263,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
   run(() => {
     let author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = relationshipStateFor(book, 'author');
 
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
@@ -1267,7 +1272,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = relationshipStateFor(book, 'author');
 
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
@@ -1282,7 +1287,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       name: 'The Greatest Book',
     });
 
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = relationshipStateFor(book, 'author');
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
@@ -1290,7 +1295,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = relationshipStateFor(book, 'author');
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
@@ -1307,7 +1312,7 @@ test("Model's belongsTo relationship should not be created during model creation
     });
 
     assert.ok(
-      !user._internalModel._relationships.has('favouriteMessage'),
+      !relationshipsFor(user).has('favouriteMessage'),
       'Newly created record should not have relationships'
     );
   });
@@ -1321,7 +1326,7 @@ test("Model's belongsTo relationship should be created during model creation if 
   });
 
   assert.ok(
-    user._internalModel._relationships.has('favouriteMessage'),
+    relationshipsFor(user).has('favouriteMessage'),
     'Newly created record with relationships in params passed in its constructor should have relationships'
   );
 });
@@ -1334,7 +1339,7 @@ test("Model's belongsTo relationship should be created during 'set' method", fun
     user = env.store.createRecord('user');
     user.set('favouriteMessage', message);
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      relationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -1347,7 +1352,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('favouriteMessage');
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      relationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -2036,15 +2041,15 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   assert.notOk(book2.get('chapter'));
   assert.notOk(book.get('chapter'));
   assert.notOk(
-    book1._internalModel._recordData._implicitRelationships,
+    recordDataFor(book1)._implicitRelationships,
     'no support for implicit relationship in custom RecordData'
   );
   assert.notOk(
-    book2._internalModel._recordData._implicitRelationships,
+    recordDataFor(book2)._implicitRelationships,
     'no support for implicit relationship in custom RecordData'
   );
   assert.ok(
-    book._internalModel._recordData._implicitRelationships,
+    recordDataFor(book)._implicitRelationships,
     'support for implicit relationship in default RecordData'
   );
 
@@ -2058,10 +2063,10 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   // doesn't support implicit Relationship
   run(() => {
     chapter.get('sections').removeObject(section1);
-    assert.notOk(section1._internalModel._recordData._implicitRelationships);
+    assert.notOk(recordDataFor(section1)._implicitRelationships);
 
     chapter.get('sections').removeObject(section2);
-    assert.notOk(section2._internalModel._recordData._implicitRelationships);
+    assert.notOk(recordDataFor(section2)._implicitRelationships);
   });
 
   assert.equal(chapter.get('sections.length'), 0);
@@ -2076,5 +2081,5 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
     sections.addObject(env.store.createRecord('section', { id: 5 }));
   });
   assert.equal(chapter.get('sections.length'), 3);
-  assert.notOk(sections.get('firstObject')._internalModel._recordData._implicitRelationships);
+  assert.notOk(recordDataFor(sections.get('firstObject'))._implicitRelationships);
 });
