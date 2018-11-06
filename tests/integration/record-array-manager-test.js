@@ -29,8 +29,8 @@ module('integration/record_array_manager', {
 
     manager = store.recordArrayManager;
 
-    env.registry.register('model:car', Car);
-    env.registry.register('model:person', Person);
+    env.owner.register('model:car', Car);
+    env.owner.register('model:person', Person);
   },
 });
 

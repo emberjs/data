@@ -258,7 +258,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
     env.registry.optionsForType('serializer', { singleton: false });
     env.registry.optionsForType('adapter', { singleton: false });
 
-    env.registry.register(
+    env.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
         attrs: {
@@ -285,14 +285,14 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
 });
 
 test('returning a null relationship from payload sets the relationship to null on both sides', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'model:app',
     DS.Model.extend({
       name: DSattr('string'),
       team: DSbelongsTo('team', { async: true }),
     })
   );
-  env.registry.register(
+  env.owner.register(
     'model:team',
     DS.Model.extend({
       apps: DShasMany('app', { async: true }),
@@ -642,8 +642,8 @@ test('A serializer can materialize a belongsTo as a link that gets sent back to 
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -706,8 +706,8 @@ test('A record with an async belongsTo relationship always returns a promise for
     seat: DS.belongsTo('seat', { async: true }),
   });
 
-  env.registry.register('model:seat', Seat);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:seat', Seat);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -757,8 +757,8 @@ test('A record with an async belongsTo relationship returning null should resolv
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -806,8 +806,8 @@ test('A record can be created with a resolved belongsTo promise', function(asser
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({

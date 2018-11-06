@@ -199,7 +199,7 @@ testInDebug('push(array)', function(assert) {
 testInDebug('push(array) works with polymorphic type', function(assert) {
   var done = assert.async();
 
-  env.registry.register('model:mafia-boss', Person.extend());
+  env.owner.register('model:mafia-boss', Person.extend());
 
   var family;
   run(function() {

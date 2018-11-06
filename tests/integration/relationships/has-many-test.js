@@ -2811,7 +2811,7 @@ test('adding and removing records from hasMany relationship #2666', function(ass
   });
 
   let commentId = 4;
-  env.registry.register(
+  env.owner.register(
     'adapter:comment',
     DS.RESTAdapter.extend({
       deleteRecord(record) {
@@ -3111,7 +3111,7 @@ test('metadata is accessible when pushed as a meta property for a relationship',
 
 test('metadata is accessible when return from a fetchLink', function(assert) {
   assert.expect(1);
-  env.registry.register('serializer:application', DS.RESTSerializer);
+  env.owner.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     return resolve({
@@ -3154,7 +3154,7 @@ test('metadata is accessible when return from a fetchLink', function(assert) {
 
 test('metadata should be reset between requests', function(assert) {
   let counter = 0;
-  env.registry.register('serializer:application', DS.RESTSerializer);
+  env.owner.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     let data = {

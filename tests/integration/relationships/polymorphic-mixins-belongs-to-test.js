@@ -45,7 +45,7 @@ module(
         notMessage: NotMessage,
       });
 
-      env.registry.register('mixin:message', Message);
+      env.owner.register('mixin:message', Message);
       store = env.store;
     },
 

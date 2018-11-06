@@ -7,6 +7,6 @@ export default function(env, adapterDefinition) {
     adapter = DS.Adapter.extend(adapterDefinition);
   }
   let store = env.store;
-  env.registry.register('adapter:-custom', adapter);
+  env.owner.register('adapter:-custom', adapter);
   run(() => store.set('adapter', '-custom'));
 }

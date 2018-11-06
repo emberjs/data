@@ -39,8 +39,8 @@ function initializeStore(adapter) {
   });
   store = env.store;
 
-  env.registry.register('model:car', Car);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:car', Car);
+  env.owner.register('model:person', Person);
 }
 
 module('integration/store - destroy', {
@@ -265,7 +265,7 @@ test('store#findRecord fetches record from server when cached record is not pres
 
   initializeStore(DS.RESTAdapter.extend());
 
-  env.registry.register('serializer:application', DS.RESTSerializer);
+  env.owner.register('serializer:application', DS.RESTSerializer);
   ajaxResponse({
     cars: [
       {
