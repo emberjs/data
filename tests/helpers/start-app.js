@@ -1,19 +1,8 @@
-import { run } from '@ember/runloop';
-import { merge } from '@ember/polyfills';
-import Application from '../../app';
-import config from '../../config/environment';
+import Application from '../app';
+import config from '../config/environment';
+import { setApplication } from '@ember/test-helpers';
+import { start } from 'ember-qunit';
 
-export default function startApp(attrs) {
-  let application;
+setApplication(Application.create(config.APP));
 
-  let attributes = merge({}, config.APP);
-  attributes = merge(attributes, attrs); // use defaults, but you can override;
-
-  run(() => {
-    application = Application.create(attributes);
-    application.setupForTesting();
-    application.injectTestHelpers();
-  });
-
-  return application;
-}
+start();

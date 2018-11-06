@@ -1,73 +1,81 @@
 import { dasherize } from '@ember/string';
+import { setResolver } from '@ember/test-helpers';
+import EmberObject from '@ember/object';
 import Ember from 'ember';
-import DS from 'ember-data';
+import Store from 'ember-data/store';
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import RESTAdapter from 'ember-data/adapters/json-api';
+import Adapter from 'ember-data/adapter';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import RESTSerializer from 'ember-data/serializers/json-api';
+import JSONSerializer from 'ember-data/serializers/json-api';
 import Owner from './owner';
+import Resolver from '../../resolver';
+import config from '../../config/environment';
+
+const Owner = EmberObject.extend(Ember._RegistryProxyMixin, Ember._ContainerProxyMixin);
+
+const resolver = Resolver.create({
+  namespace: {
+    modulePrefix: config.modulePrefix,
+    podModulePrefix: config.podModulePrefix,
+  },
+});
+
+// TODO get us to a setApplication world instead
+//   seems to require killing off createStore
+setResolver(resolver);
 
 export default function setupStore(options) {
   let container, registry, owner;
   let env = {};
   options = options || {};
 
-  if (Ember.Registry) {
-    registry = env.registry = new Ember.Registry();
-    owner = Owner.create({
-      __registry__: registry,
-    });
-    container = env.container = registry.container({
-      owner: owner,
-    });
-    owner.__container__ = container;
-  } else {
-    container = env.container = new Ember.Container();
-    registry = env.registry = container;
-  }
+  registry = env.registry = new Ember.Registry();
+  registry.optionsForType('serializer', { singleton: false });
+  registry.optionsForType('adapter', { singleton: false });
+
+  owner = Owner.create({
+    __registry__: registry,
+  });
+  container = env.container = registry.container({
+    owner: owner,
+  });
+  owner.__container__ = container;
 
   env.replaceContainerNormalize = function replaceContainerNormalize(fn) {
-    if (env.registry) {
-      env.registry.normalize = fn;
-    } else {
-      env.container.normalize = fn;
-    }
+    env.registry.normalize = fn;
   };
 
+  // treat 'adapter' as a custom key
   let adapter = (env.adapter = options.adapter || '-default');
   delete options.adapter;
 
   if (typeof adapter !== 'string') {
-    env.registry.register('adapter:-ember-data-test-custom', adapter);
+    owner.register('adapter:-ember-data-test-custom', adapter);
     adapter = '-ember-data-test-custom';
   }
 
+  // treat all other key as modelNames
   for (let prop in options) {
-    registry.register('model:' + dasherize(prop), options[prop]);
+    owner.register('model:' + dasherize(prop), options[prop]);
   }
 
-  registry.register(
-    'service:store',
-    DS.Store.extend({
-      adapter: adapter,
-    })
-  );
+  owner.register('service:store', Store.extend({ adapter }));
+  owner.register('serializer:-default', JSONAPISerializer);
+  owner.register('serializer:-json', JSONSerializer);
+  owner.register('serializer:-rest', RESTSerializer);
+  owner.register('adapter:-default', Adapter);
+  owner.register('adapter:-rest', RESTAdapter);
+  owner.register('adapter:-json-api', JSONAPIAdapter);
 
-  registry.optionsForType('serializer', { singleton: false });
-  registry.optionsForType('adapter', { singleton: false });
-  registry.register('adapter:-default', DS.Adapter);
+  owner.injection('serializer', 'store', 'service:store');
 
-  registry.register('serializer:-default', DS.JSONAPISerializer);
-  registry.register('serializer:-json', DS.JSONSerializer);
-  registry.register('serializer:-rest', DS.RESTSerializer);
+  let store = (env.store = owner.lookup('service:store'));
+  env.restSerializer = store.serializerFor('-rest');
+  env.serializer = store.serializerFor('-default');
 
-  registry.register('adapter:-rest', DS.RESTAdapter);
-  registry.register('adapter:-json-api', DS.JSONAPIAdapter);
-
-  registry.injection('serializer', 'store', 'service:store');
-
-  env.store = container.lookup('service:store');
-  env.restSerializer = container.lookup('serializer:-rest');
-  env.restSerializer.store = env.store;
-  env.serializer = env.store.serializerFor('-default');
-  env.serializer.store = env.store;
-  // lazily create the adapter method because some tets depend on
+  // lazily create the adapter method because some tests depend on
   // modifiying the adapter in the container after setupStore is
   // called
   Object.defineProperty(env, 'adapter', {
