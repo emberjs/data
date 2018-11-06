@@ -94,10 +94,7 @@ module('integration/embedded_records_mixin - EmbeddedRecordsMixin', {
     env.store.modelFor('comment');
 
     env.owner.register('adapter:application', DS.RESTAdapter);
-    env.owner.register(
-      'serializer:application',
-      DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin)
-    );
+    env.owner.register('serializer:application', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
   },
 
   afterEach() {
@@ -1765,10 +1762,7 @@ test('serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test('serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified', function(assert) {
-  env.owner.register(
-    'serializer:super-villain',
-    DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin)
-  );
+  env.owner.register('serializer:super-villain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin));
   var serializer = env.store.serializerFor('super-villain');
 
   // records with an id, persisted
