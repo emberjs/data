@@ -8,7 +8,7 @@ import DS from 'ember-data';
 var Person, store, env;
 
 function payloadError(payload, expectedError, assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:person',
     DS.Serializer.extend({
       normalizeResponse(store, type, pld) {
@@ -16,7 +16,7 @@ function payloadError(payload, expectedError, assert) {
       },
     })
   );
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -33,8 +33,8 @@ function payloadError(payload, expectedError, assert) {
     expectedError,
     `Payload ${JSON.stringify(payload)} should throw error ${expectedError}`
   );
-  env.registry.unregister('serializer:person');
-  env.registry.unregister('adapter:person');
+  env.owner.unregister('serializer:person');
+  env.owner.unregister('adapter:person');
 }
 
 module('integration/store/json-validation', {
@@ -63,14 +63,14 @@ module('integration/store/json-validation', {
 testInDebug(
   "when normalizeResponse returns undefined (or doesn't return), throws an error",
   function(assert) {
-    env.registry.register(
+    env.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {},
       })
     );
 
-    env.registry.register(
+    env.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {
@@ -88,7 +88,7 @@ testInDebug(
 );
 
 testInDebug('when normalizeResponse returns null, throws an error', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:person',
     DS.Serializer.extend({
       normalizeResponse() {
@@ -97,7 +97,7 @@ testInDebug('when normalizeResponse returns null, throws an error', function(ass
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -114,7 +114,7 @@ testInDebug('when normalizeResponse returns null, throws an error', function(ass
 });
 
 testInDebug('when normalizeResponse returns an empty object, throws an error', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:person',
     DS.Serializer.extend({
       normalizeResponse() {
@@ -123,7 +123,7 @@ testInDebug('when normalizeResponse returns an empty object, throws an error', f
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -142,7 +142,7 @@ testInDebug('when normalizeResponse returns an empty object, throws an error', f
 testInDebug(
   'when normalizeResponse returns a document with both data and errors, throws an error',
   function(assert) {
-    env.registry.register(
+    env.owner.register(
       'serializer:person',
       DS.Serializer.extend({
         normalizeResponse() {
@@ -154,7 +154,7 @@ testInDebug(
       })
     );
 
-    env.registry.register(
+    env.owner.register(
       'adapter:person',
       DS.Adapter.extend({
         findRecord() {

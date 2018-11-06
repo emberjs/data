@@ -46,7 +46,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', {
 test("When all records for a type are requested, the store should call the adapter's `findAll` method.", assert => {
   assert.expect(5);
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll() {
@@ -98,7 +98,7 @@ test('When all records for a type are requested, a rejection should reject the p
   assert.expect(5);
 
   let count = 0;
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll() {
@@ -210,7 +210,7 @@ test('When all records for a type are requested, records that are created on the
 });
 
 testInDebug('When all records are requested, assert the payload is not blank', assert => {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll: () => resolve({}),
@@ -224,7 +224,7 @@ testInDebug('When all records are requested, assert the payload is not blank', a
 
 test('isUpdating is true while records are fetched', function(assert) {
   let findAllDeferred = defer();
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll() {
@@ -265,7 +265,7 @@ test('isUpdating is true while records are fetched', function(assert) {
 
 test('isUpdating is true while records are fetched in the background', function(assert) {
   let findAllDeferred = defer();
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll() {
@@ -318,7 +318,7 @@ test('isUpdating is true while records are fetched in the background', function(
 
 test('isUpdating is false if records are not fetched in the background', function(assert) {
   let findAllDeferred = defer();
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findAll() {

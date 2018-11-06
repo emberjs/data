@@ -34,9 +34,9 @@ test('hasMany handles pre-loaded relationships', function(assert) {
     pets: DS.hasMany('pet', { async: false }),
   });
 
-  env.registry.register('model:tag', Tag);
-  env.registry.register('model:pet', Pet);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:tag', Tag);
+  env.owner.register('model:pet', Pet);
+  env.owner.register('model:person', Person);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
@@ -798,9 +798,9 @@ test('hasMany lazily loads async relationships', function(assert) {
     pets: DS.hasMany('pet', { async: false }),
   });
 
-  env.registry.register('model:tag', Tag);
-  env.registry.register('model:pet', Pet);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:tag', Tag);
+  env.owner.register('model:pet', Pet);
+  env.owner.register('model:person', Person);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {

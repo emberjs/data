@@ -4,17 +4,17 @@ import EmberObject from '@ember/object';
 import Ember from 'ember';
 import Store from 'ember-data/store';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
-import RESTAdapter from 'ember-data/adapters/json-api';
+import RESTAdapter from 'ember-data/adapters/rest';
 import Adapter from 'ember-data/adapter';
 import JSONAPISerializer from 'ember-data/serializers/json-api';
-import RESTSerializer from 'ember-data/serializers/json-api';
-import JSONSerializer from 'ember-data/serializers/json-api';
-import Owner from './owner';
+import RESTSerializer from 'ember-data/serializers/rest';
+import JSONSerializer from 'ember-data/serializers/json';
 import Resolver from '../../resolver';
 import config from '../../config/environment';
 
-const Owner = EmberObject.extend(Ember._RegistryProxyMixin, Ember._ContainerProxyMixin);
+const { _RegistryProxyMixin, _ContainerProxyMixin, Registry } = Ember;
 
+const Owner = EmberObject.extend(_RegistryProxyMixin, _ContainerProxyMixin);
 const resolver = Resolver.create({
   namespace: {
     modulePrefix: config.modulePrefix,
@@ -31,17 +31,17 @@ export default function setupStore(options) {
   let env = {};
   options = options || {};
 
-  registry = env.registry = new Ember.Registry();
+  registry = new Registry();
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
-  owner = Owner.create({
-    __registry__: registry,
-  });
-  container = env.container = registry.container({
-    owner: owner,
-  });
+  owner = Owner.create({ __registry__: registry });
+  container = registry.container({ owner });
   owner.__container__ = container;
+
+  env.owner = owner;
+  env.container = container;
+  env.registry = registry;
 
   env.replaceContainerNormalize = function replaceContainerNormalize(fn) {
     env.registry.normalize = fn;
@@ -69,7 +69,7 @@ export default function setupStore(options) {
   owner.register('adapter:-rest', RESTAdapter);
   owner.register('adapter:-json-api', JSONAPIAdapter);
 
-  owner.injection('serializer', 'store', 'service:store');
+  owner.inject('serializer', 'store', 'service:store');
 
   let store = (env.store = owner.lookup('service:store'));
   env.restSerializer = store.serializerFor('-rest');

@@ -37,7 +37,7 @@ module('unit/store/push - DS.Store#push', {
 
     store = env.store;
 
-    env.registry.register('serializer:post', DS.RESTSerializer);
+    env.owner.register('serializer:post', DS.RESTSerializer);
   },
 
   afterEach() {
@@ -124,7 +124,7 @@ test('Supplying a model class for `push` is the same as supplying a string', fun
   env.adapter.shouldBackgroundReloadRecord = () => false;
 
   const Programmer = Person.extend();
-  env.registry.register('model:programmer', Programmer);
+  env.owner.register('model:programmer', Programmer);
 
   return run(() => {
     store.push({
@@ -224,7 +224,7 @@ test('Calling push with partial records updates just those attributes', function
 });
 
 test('Calling push on normalize allows partial updates with raw JSON', function(assert) {
-  env.registry.register('serializer:person', DS.RESTSerializer);
+  env.owner.register('serializer:person', DS.RESTSerializer);
   let person;
 
   run(() => {
@@ -387,7 +387,7 @@ test('Calling pushPayload allows pushing singular payload properties', function(
 test(`Calling pushPayload should use the type's serializer for normalizing`, function(assert) {
   assert.expect(4);
 
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       normalize() {
@@ -397,7 +397,7 @@ test(`Calling pushPayload should use the type's serializer for normalizing`, fun
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:person',
     DS.RESTSerializer.extend({
       normalize() {
@@ -436,7 +436,7 @@ test(`Calling pushPayload should use the type's serializer for normalizing`, fun
 test(`Calling pushPayload without a type uses application serializer's pushPayload method`, function(assert) {
   assert.expect(1);
 
-  env.registry.register(
+  env.owner.register(
     'serializer:application',
     DS.RESTSerializer.extend({
       pushPayload() {
@@ -456,7 +456,7 @@ test(`Calling pushPayload without a type uses application serializer's pushPaylo
 test(`Calling pushPayload without a type should use a model's serializer when normalizing`, function(assert) {
   assert.expect(4);
 
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       normalize() {
@@ -466,7 +466,7 @@ test(`Calling pushPayload without a type should use a model's serializer when no
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:application',
     DS.RESTSerializer.extend({
       normalize() {
@@ -503,7 +503,7 @@ test(`Calling pushPayload without a type should use a model's serializer when no
 });
 
 test('Calling pushPayload allows partial updates with raw JSON', function(assert) {
-  env.registry.register('serializer:person', DS.RESTSerializer);
+  env.owner.register('serializer:person', DS.RESTSerializer);
 
   run(() => {
     store.pushPayload('person', {

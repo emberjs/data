@@ -324,7 +324,7 @@ testInDebug('push(record) works with polymorphic modelClass', function(assert) {
 
   var person, mafiaFamily;
 
-  env.registry.register('model:mafia-family', Family.extend());
+  env.owner.register('model:mafia-family', Family.extend());
 
   run(function() {
     person = env.store.push({

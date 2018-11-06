@@ -93,7 +93,7 @@ test('deleting a record that is part of a hasMany removes it from the hasMany re
     return EmberPromise.resolve();
   };
 
-  env.registry.register('model:group', Group);
+  env.owner.register('model:group', Group);
 
   run(function() {
     env.store.push({

@@ -950,7 +950,7 @@ test('update record - serialize hasMany', function(assert) {
     },
   ]);
 
-  env.registry.register(
+  env.owner.register(
     'serializer:user',
     DS.JSONAPISerializer.extend({
       attrs: {
