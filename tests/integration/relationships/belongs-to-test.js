@@ -10,10 +10,6 @@ import Store from 'ember-data/store';
 import Model from 'ember-data/model';
 import { attr, belongsTo } from '@ember-decorators/data';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjection,
-} from 'dummy/tests/helpers/model-factory-injection';
 import DS from 'ember-data';
 import {
   RecordData,
@@ -279,7 +275,6 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
   },
 
   afterEach() {
-    resetModelFactoryInjection();
     run(env.container, 'destroy');
   },
 });
@@ -827,7 +822,7 @@ test('A record can be created with a resolved belongsTo promise', function(asser
   });
 });
 
-test('polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled', function(assert) {
+test('polymorphic belongsTo class-checks check the superclass', function(assert) {
   assert.expect(1);
 
   run(() => {
@@ -841,7 +836,6 @@ test('polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY
 });
 
 test('the subclass in a polymorphic belongsTo relationship is an instanceof its superclass', function(assert) {
-  setupModelFactoryInjections(false);
   assert.expect(1);
 
   let message = env.store.createRecord('message', { id: 1 });
@@ -858,8 +852,7 @@ test('relationshipsByName does not cache a factory', function(assert) {
   // An app is reset, or the container otherwise destroyed.
   run(env.container, 'destroy');
 
-  // A new model for a relationship is created. Note that this may happen
-  // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
+  // A new model for a relationship is created.
   NewMessage = Message.extend();
 
   // A new store is created.

@@ -1,8 +1,3 @@
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections,
-} from 'dummy/tests/helpers/model-factory-injection';
-
 import Mixin from '@ember/object/mixin';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
@@ -191,10 +186,52 @@ testInDebug(
 );
 
 test('Pushing to the hasMany reflects the change on the belongsTo side - model injections true', function(assert) {
-  setupModelFactoryInjections();
+  var user, video;
+  run(function() {
+    store.push({
+      data: [
+        {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley',
+          },
+          relationships: {
+            messages: {
+              data: [],
+            },
+          },
+        },
+        {
+          type: 'video',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube',
+          },
+        },
+      ],
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
+  });
 
-  try {
-    var user, video;
+  run(function() {
+    user.get('messages').then(function(fetchedMessages) {
+      fetchedMessages.pushObject(video);
+      video.get('user').then(function(fetchedUser) {
+        assert.equal(fetchedUser, user, 'user got set correctly');
+      });
+    });
+  });
+});
+
+/*
+  Local edits
+*/
+testInDebug(
+  'Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true',
+  function(assert) {
+    var user, notMessage;
     run(function() {
       store.push({
         data: [
@@ -211,7 +248,7 @@ test('Pushing to the hasMany reflects the change on the belongsTo side - model i
             },
           },
           {
-            type: 'video',
+            type: 'not-message',
             id: '2',
             attributes: {
               video: 'Here comes Youtube',
@@ -220,69 +257,15 @@ test('Pushing to the hasMany reflects the change on the belongsTo side - model i
         ],
       });
       user = store.peekRecord('user', 1);
-      video = store.peekRecord('video', 2);
+      notMessage = store.peekRecord('not-message', 2);
     });
 
     run(function() {
       user.get('messages').then(function(fetchedMessages) {
-        fetchedMessages.pushObject(video);
-        video.get('user').then(function(fetchedUser) {
-          assert.equal(fetchedUser, user, 'user got set correctly');
-        });
+        assert.expectAssertion(function() {
+          fetchedMessages.pushObject(notMessage);
+        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
       });
     });
-  } finally {
-    resetModelFactoryInjections();
-  }
-});
-
-/*
-  Local edits
-*/
-testInDebug(
-  'Pushing a an object that does not implement the mixin to the mixin accepting array errors out - model injections true',
-  function(assert) {
-    setupModelFactoryInjections();
-
-    try {
-      var user, notMessage;
-      run(function() {
-        store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-              relationships: {
-                messages: {
-                  data: [],
-                },
-              },
-            },
-            {
-              type: 'not-message',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
-            },
-          ],
-        });
-        user = store.peekRecord('user', 1);
-        notMessage = store.peekRecord('not-message', 2);
-      });
-
-      run(function() {
-        user.get('messages').then(function(fetchedMessages) {
-          assert.expectAssertion(function() {
-            fetchedMessages.pushObject(notMessage);
-          }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'messages' relationship in 'user'. Make it a descendant of 'message'/);
-        });
-      });
-    } finally {
-      resetModelFactoryInjections();
-    }
   }
 );

@@ -1,9 +1,5 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections,
-} from 'dummy/tests/helpers/model-factory-injection';
 import { A } from '@ember/array';
 import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
@@ -1497,25 +1493,19 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   });
 });
 
-test('polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled', function(assert) {
+test('polymorphic hasMany type-checks check the superclass', function(assert) {
   assert.expect(1);
 
-  setupModelFactoryInjections();
-
-  try {
-    run(function() {
-      let igor = env.store.createRecord('user', { name: 'Igor' });
-      let comment = env.store.createRecord('comment', {
-        body: 'Well I thought the title was fine',
-      });
-
-      igor.get('messages').addObject(comment);
-
-      assert.equal(igor.get('messages.firstObject.body'), 'Well I thought the title was fine');
+  run(function() {
+    let igor = env.store.createRecord('user', { name: 'Igor' });
+    let comment = env.store.createRecord('comment', {
+      body: 'Well I thought the title was fine',
     });
-  } finally {
-    resetModelFactoryInjections();
-  }
+
+    igor.get('messages').addObject(comment);
+
+    assert.equal(igor.get('messages.firstObject.body'), 'Well I thought the title was fine');
+  });
 });
 
 test('Type can be inferred from the key of a hasMany relationship', function(assert) {
