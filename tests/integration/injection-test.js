@@ -7,7 +7,6 @@ module('integration/injection factoryFor enabled', function(hooks) {
   setupTest(hooks);
   let store;
   let Model;
-  let factory;
 
   hooks.beforeEach(function() {
     let { owner } = this;
@@ -16,19 +15,14 @@ module('integration/injection factoryFor enabled', function(hooks) {
     };
     owner.register('model:super-villain', Model);
     store = owner.lookup('service:store');
-
-    let originalFactoryFor = owner.factoryFor;
-
-    owner.factoryFor = function interceptFactoryFor() {
-      factory = originalFactoryFor.call(owner, ...arguments);
-      return factory;
-    };
   });
 
   test('modelFactoryFor', function(assert) {
+    let { owner } = this;
+    const trueFactory = owner.factoryFor('model:super-villain');
     const modelFactory = store._modelFactoryFor('super-villain');
 
-    assert.strictEqual(modelFactory, factory, 'expected the factory itself to be returned');
+    assert.strictEqual(modelFactory, trueFactory, 'expected the factory itself to be returned');
   });
 
   test('modelFor', function(assert) {
