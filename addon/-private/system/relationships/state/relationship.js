@@ -1,7 +1,7 @@
 /* global heimdall */
 import { guidFor } from '@ember/object/internals';
 import { get } from '@ember/object';
-
+import { relationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
@@ -242,7 +242,7 @@ export default class Relationship {
       if (!this._hasSupportForRelationships(inverseRecordData)) {
         return;
       }
-      let relationship = inverseRecordData._relationships.get(this.inverseKey);
+      let relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
       relationship.inverseDidDematerialize(this.recordData);
     });
   }
@@ -354,8 +354,7 @@ export default class Relationship {
       if (!this._hasSupportForRelationships(recordData)) {
         return;
       }
-      let relationships = recordData._relationships;
-      let relationship = relationships.get(this.inverseKey);
+      let relationship = relationshipStateFor(recordData, this.inverseKey);
       // if we have only just initialized the inverse relationship, then it
       // already has this.recordData in its canonicalMembers, so skip the
       // unnecessary work.  The exception to this is polymorphic
@@ -417,7 +416,7 @@ export default class Relationship {
       this.members.addWithIndex(recordData, idx);
       this.notifyRecordRelationshipAdded(recordData, idx);
       if (this._hasSupportForRelationships(recordData) && this.inverseKey) {
-        recordData._relationships.get(this.inverseKey).addRecordData(this.recordData);
+        relationshipStateFor(recordData, this.inverseKey).addRecordData(this.recordData);
       } else {
         if (this._hasSupportForImplicitRelationships(recordData)) {
           if (!recordData._implicitRelationships[this.inverseKeyForImplicit]) {
@@ -462,7 +461,7 @@ export default class Relationship {
     if (!this._hasSupportForRelationships(recordData)) {
       return;
     }
-    let inverseRelationship = recordData._relationships.get(this.inverseKey);
+    let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeRecordDataFromOwn(this.recordData);
@@ -479,7 +478,7 @@ export default class Relationship {
     if (!this._hasSupportForRelationships(recordData)) {
       return;
     }
-    let inverseRelationship = recordData._relationships.get(this.inverseKey);
+    let inverseRelationship = relationshipStateFor(recordData, this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeCanonicalRecordDataFromOwn(this.recordData);
@@ -514,7 +513,7 @@ export default class Relationship {
       const id = guidFor(inverseRecordData);
 
       if (this._hasSupportForRelationships(inverseRecordData) && seen[id] === undefined) {
-        const relationship = inverseRecordData._relationships.get(this.inverseKey);
+        const relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
         relationship.removeCompletelyFromOwn(recordData);
         seen[id] = true;
       }

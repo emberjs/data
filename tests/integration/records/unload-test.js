@@ -6,6 +6,7 @@ import { run } from '@ember/runloop';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import setupStore from 'dummy/tests/helpers/store';
+import { recordDataFor } from 'ember-data/-private';
 
 function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
@@ -793,9 +794,8 @@ test('unloading a disconnected subgraph clears the relevant internal models', fu
 
   function countOrphanCalls(record) {
     let internalModel = record._internalModel;
+    let recordData = recordDataFor(record);
     let origCheck = internalModel._checkForOrphanedInternalModels;
-
-    let recordData = internalModel._recordData;
     let origCleanup = recordData._cleanupOrphanedRecordDatas;
 
     internalModel._checkForOrphanedInternalModels = function() {

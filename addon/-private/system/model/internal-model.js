@@ -13,8 +13,8 @@ import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
-
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
+import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -702,10 +702,7 @@ export default class InternalModel {
   }
 
   setDirtyBelongsTo(key, value) {
-    if (value && !value.then) {
-      value = extractRecordDataFromRecord(value);
-    }
-    return this._recordData.setDirtyBelongsTo(key, value);
+    return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
   }
 
   setDirtyAttribute(key, value) {
@@ -1206,7 +1203,7 @@ export default class InternalModel {
 
     if (!reference) {
       // TODO IGOR AND DAVID REFACTOR
-      let relationship = this._recordData._relationships.get(name);
+      let relationship = relationshipStateFor(this, name);
 
       if (DEBUG) {
         let modelName = this.modelName;
@@ -1255,12 +1252,19 @@ function extractRecordDatasFromRecords(records) {
   return records.map(extractRecordDataFromRecord);
 }
 
-function extractRecordDataFromRecord(recordOrPromiseProxy) {
-  // TODO @runspired async createRecord would resolve this issue
-  // we leak record promises to RecordData by necessity :'(
-  if (!recordOrPromiseProxy || (recordOrPromiseProxy && recordOrPromiseProxy.then)) {
-    return recordOrPromiseProxy;
+function extractRecordDataFromRecord(recordOrPromiseRecord) {
+  if (!recordOrPromiseRecord) {
+    return null;
   }
 
-  return recordOrPromiseProxy._internalModel._recordData;
+  if (recordOrPromiseRecord.then) {
+    let content = recordOrPromiseRecord.get && recordOrPromiseRecord.get('content');
+    assert(
+      'You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.',
+      content !== undefined
+    );
+    return content ? recordDataFor(content) : null;
+  }
+
+  return recordDataFor(recordOrPromiseRecord);
 }

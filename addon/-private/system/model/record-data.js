@@ -283,16 +283,8 @@ export default class RecordData {
     return this._relationships.get(key).getData();
   }
 
-  setDirtyBelongsTo(key, recordDataOrPromise) {
-    if (recordDataOrPromise === undefined) {
-      recordDataOrPromise = null;
-    }
-
-    if (recordDataOrPromise && recordDataOrPromise.then) {
-      this._relationships.get(key).setRecordPromise(recordDataOrPromise);
-    } else {
-      this._relationships.get(key).setRecordData(recordDataOrPromise);
-    }
+  setDirtyBelongsTo(key, recordData) {
+    this._relationships.get(key).setRecordData(recordData);
   }
 
   setDirtyAttribute(key, value) {

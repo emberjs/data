@@ -29,6 +29,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './store/comm
 
 import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
+import recordDataFor from './record-data-for';
 
 import {
   _find,
@@ -1401,7 +1402,7 @@ const Store = Service.extend({
         relationshipMeta,
         options
       ).then(internalModels => {
-        let payload = { data: internalModels.map(im => im._recordData.getResourceIdentifier()) };
+        let payload = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
         if (internalModels.meta !== undefined) {
           payload.meta = internalModels.meta;
         }
@@ -1484,7 +1485,7 @@ const Store = Service.extend({
       relationshipMeta,
       options
     ).then(internalModel => {
-      let response = internalModel && internalModel._recordData.getResourceIdentifier();
+      let response = internalModel && recordDataFor(internalModel).getResourceIdentifier();
       parentInternalModel.linkWasLoadedForRelationship(relationshipMeta.key, { data: response });
       if (internalModel === null) {
         return null;
@@ -2871,7 +2872,7 @@ const Store = Service.extend({
 
   recordDataFor(modelName, id, clientId) {
     let internalModel = this._internalModelForId(modelName, id, clientId);
-    return internalModel._recordData;
+    return recordDataFor(internalModel);
   },
 
   _internalModelForRecordData(recordData) {
@@ -3429,9 +3430,6 @@ function _lookupModelFactory(store, normalizedModelName) {
   in this case
 */
 function _modelForMixin(store, normalizedModelName) {
-  // container.registry = 2.1
-  // container._registry = 1.11 - 2.0
-  // container = < 1.11
   let owner = getOwner(store);
   let MaybeMixin = owner.factoryFor(`mixin:${normalizedModelName}`);
   let mixin = MaybeMixin && MaybeMixin.class;
