@@ -10,10 +10,6 @@ import RESTAdapter from 'ember-data/adapters/rest';
 import RESTSerializer from 'ember-data/serializers/rest';
 import EmbeddedRecordsMixin from 'ember-data/serializers/embedded-records-mixin';
 
-import { w } from '@ember/string';
-import { run } from '@ember/runloop';
-import { get } from '@ember/object';
-
 module('integration/embedded-records-mixin', function(hooks) {
   setupTest(hooks);
   let store;
@@ -52,35 +48,20 @@ module('integration/embedded-records-mixin', function(hooks) {
       superVillain: belongsTo('super-villain', { async: false }),
       name: attr('string'),
     });
-    const NormalMinion = Model.extend({
-      name: attr('string'),
-    });
-    const YellowMinion = NormalMinion.extend();
-    const RedMinion = NormalMinion.extend();
-    const CommanderVillain = Model.extend({
-      name: attr('string'),
-      minions: hasMany('normal-minion', { polymorphic: true }),
-    });
     const Comment = Model.extend({
       body: attr('string'),
       root: attr('boolean'),
       children: hasMany('comment', { inverse: null, async: false }),
     });
-    let models = {
-      'super-villain': SuperVillain,
-      'commander-villain': CommanderVillain,
-      'home-planet': HomePlanet,
-      'secret-lab': SecretLab,
-      'bat-cave': BatCave,
-      'secret-weapon': SecretWeapon,
-      'light-saber': LightSaber,
-      'evil-minion': EvilMinion,
-      'normal-minion': NormalMinion,
-      'yellow-minion': YellowMinion,
-      'red-minion': RedMinion,
-      comment: Comment,
-    };
-    Object.keys(models).forEach(key => owner.register(`model:${key}`, models[key]));
+
+    owner.register('model:super-villain', SuperVillain);
+    owner.register('model:home-planet', HomePlanet);
+    owner.register('model:secret-lab', SecretLab);
+    owner.register('model:bat-cave', BatCave);
+    owner.register('model:secret-weapon', SecretWeapon);
+    owner.register('model:light-saber', LightSaber);
+    owner.register('model:evil-minion', EvilMinion);
+    owner.register('model:comment', Comment);
 
     owner.register('adapter:application', RESTAdapter);
     owner.register('serializer:application', RESTSerializer.extend(EmbeddedRecordsMixin));
@@ -1755,7 +1736,7 @@ module('integration/embedded-records-mixin', function(hooks) {
           let payloadKey = this.keyForRelationship ? this.keyForRelationship(key, 'hasMany') : key;
           let relationshipType = snapshot.type.determineRelationshipType(relationship);
           // "manyToOne" not supported in ActiveModelSerializer.prototype.serializeHasMany
-          let relationshipTypes = w('manyToNone manyToMany manyToOne');
+          let relationshipTypes = ['manyToNone', 'manyToMany', 'manyToOne'];
           if (relationshipTypes.indexOf(relationshipType) > -1) {
             json[payloadKey] = snapshot.hasMany(key, { ids: true });
           }
@@ -1839,26 +1820,26 @@ module('integration/embedded-records-mixin', function(hooks) {
           })
         );
 
-        let league = store.createRecord('home-planet', {
+        let homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
-        let tom = store.createRecord('super-villain', {
+        store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
-          homePlanet: league,
+          homePlanet,
           id: '1',
         });
         const serializer = store.serializerFor('home-planet');
-        const serializedRestJson = serializer.serialize(league._createSnapshot());
+        const serializedRestJson = serializer.serialize(homePlanet._createSnapshot());
         const expectedOutput = {
           name: 'Villain League',
           villains: [
             {
-              id: get(tom, 'id'),
+              id: '1',
               firstName: 'Tom',
               lastName: 'Dale',
-              homePlanet: get(league, 'id'),
+              homePlanet: '123',
               secretLab: null,
             },
           ],
@@ -1883,27 +1864,27 @@ module('integration/embedded-records-mixin', function(hooks) {
             },
           })
         );
-        let league = store.createRecord('home-planet', {
+        let homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
-        let tom = store.createRecord('super-villain', {
+        store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
-          homePlanet: league,
+          homePlanet,
           id: '1',
         });
 
         const serializer = store.serializerFor('home-planet');
-        const serializedRestJson = serializer.serialize(league._createSnapshot());
+        const serializedRestJson = serializer.serialize(homePlanet._createSnapshot());
         const expectedOutput = {
           name: 'Villain League',
           'villains-custom': [
             {
-              id: get(tom, 'id'),
+              id: '1',
               firstName: 'Tom',
               lastName: 'Dale',
-              homePlanet: get(league, 'id'),
+              homePlanet: '123',
               secretLab: null,
             },
           ],
@@ -1966,19 +1947,19 @@ module('integration/embedded-records-mixin', function(hooks) {
           })
         );
 
-        let league = store.createRecord('home-planet', {
+        let homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
         store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
-          homePlanet: league,
+          homePlanet,
           id: '1',
         });
 
         const serializer = store.serializerFor('home-planet');
-        const serializedRestJson = serializer.serialize(league._createSnapshot());
+        const serializedRestJson = serializer.serialize(homePlanet._createSnapshot());
         const expectedOutput = {
           name: 'Villain League',
         };
@@ -1996,24 +1977,24 @@ module('integration/embedded-records-mixin', function(hooks) {
           })
         );
 
-        let league = store.createRecord('home-planet', {
+        let homePlanet = store.createRecord('home-planet', {
           name: 'Villain League',
           id: '123',
         });
         store.createRecord('super-villain', {
           firstName: 'Tom',
           lastName: 'Dale',
-          homePlanet: league,
+          homePlanet,
         });
         const serializer = store.serializerFor('home-planet');
-        const serializedRestJson = serializer.serialize(league._createSnapshot());
+        const serializedRestJson = serializer.serialize(homePlanet._createSnapshot());
         const expectedOutput = {
           name: 'Villain League',
           villains: [
             {
               firstName: 'Tom',
               lastName: 'Dale',
-              homePlanet: get(league, 'id'),
+              homePlanet: '123',
               secretLab: null,
             },
           ],
@@ -2044,12 +2025,12 @@ module('integration/embedded-records-mixin', function(hooks) {
         let evilMinion = store.createRecord('evil-minion', {
           id: 1,
           name: 'Evil Minion',
-          superVillian: superVillain,
+          superVillain,
         });
         let secretWeapon = store.createRecord('secret-weapon', {
           id: 1,
           name: 'Secret Weapon',
-          superVillain: superVillain,
+          superVillain,
         });
 
         superVillain.get('evilMinions').pushObject(evilMinion);
@@ -2058,13 +2039,13 @@ module('integration/embedded-records-mixin', function(hooks) {
         const serializer = store.serializerFor('super-villain');
         const serializedRestJson = serializer.serialize(superVillain._createSnapshot());
         const expectedOutput = {
-          firstName: get(superVillain, 'firstName'),
-          lastName: get(superVillain, 'lastName'),
+          firstName: 'Super',
+          lastName: 'Villian',
           homePlanet: null,
           evilMinions: [
             {
-              id: get(evilMinion, 'id'),
-              name: get(evilMinion, 'name'),
+              id: '1',
+              name: 'Evil Minion',
               superVillain: '1',
             },
           ],
@@ -2079,7 +2060,22 @@ module('integration/embedded-records-mixin', function(hooks) {
       });
 
       test('serialize has many relationship using the `ids-and-types` strategy', async function(assert) {
-        this.owner.register(
+        let { owner } = this;
+        const NormalMinion = Model.extend({
+          name: attr('string'),
+        });
+        const YellowMinion = NormalMinion.extend();
+        const RedMinion = NormalMinion.extend();
+        const CommanderVillain = Model.extend({
+          name: attr('string'),
+          minions: hasMany('normal-minion', { polymorphic: true }),
+        });
+
+        owner.register('model:commander-villain', CommanderVillain);
+        owner.register('model:normal-minion', NormalMinion);
+        owner.register('model:yellow-minion', YellowMinion);
+        owner.register('model:red-minion', RedMinion);
+        owner.register(
           'serializer:commander-villain',
           RESTSerializer.extend(EmbeddedRecordsMixin, {
             attrs: {
@@ -2194,7 +2190,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         let superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
-          homePlanet: homePlanet,
+          homePlanet,
         });
 
         const serializer = store.serializerFor('home-planet');
@@ -2795,7 +2791,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         let secretWeapon = store.createRecord('secret-weapon', { name: 'Secret Weapon' });
         let evilMinion = store.createRecord('evil-minion', {
           name: 'Evil Minion',
-          secretWeapon: secretWeapon,
+          secretWeapon,
         });
 
         const serializer = store.serializerFor('evil-minion');
@@ -2828,7 +2824,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         let superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
-          homePlanet: homePlanet,
+          homePlanet,
         });
 
         const serializer = store.serializerFor('super-villain');
@@ -2863,7 +2859,7 @@ module('integration/embedded-records-mixin', function(hooks) {
         let superVillain = store.createRecord('super-villain', {
           firstName: 'Ice',
           lastName: 'Creature',
-          homePlanet: homePlanet,
+          homePlanet,
         });
 
         const serializer = store.serializerFor('super-villain');
