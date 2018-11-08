@@ -7,6 +7,8 @@ import QUnit from 'qunit';
 import DS from 'ember-data';
 import { wait, asyncEqual, invokeAsync } from 'dummy/tests/helpers/async';
 
+// TODO get us to a setApplication world instead
+//   seems to require killing off createStore
 setResolver(resolver);
 
 const { assert } = QUnit;
@@ -28,6 +30,7 @@ QUnit.begin(() => {
   });
 
   // Prevent all tests involving serialization to require a container
+  // TODO kill the need for this
   DS.JSONSerializer.reopen({
     transformFor(attributeType) {
       return this._super(attributeType, true) || transforms[attributeType];

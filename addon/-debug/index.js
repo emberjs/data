@@ -1,4 +1,3 @@
-import Ember from 'ember';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
@@ -34,9 +33,7 @@ if (DEBUG) {
       //once it exists in Ember
       return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
     }
-    if (Ember.MODEL_FACTORY_INJECTIONS) {
-      modelClass = modelClass.superclass;
-    }
+
     return modelClass.detect(addedModelClass);
   };
 
