@@ -22,10 +22,6 @@ import {
   relationshipStateFor,
 } from 'ember-data/-private';
 
-function getRelationshipsFor(record) {
-  return record._internalModel._recordData._relationships;
-}
-
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
 
