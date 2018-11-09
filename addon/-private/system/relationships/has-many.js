@@ -13,7 +13,7 @@ import { DEBUG } from '@glimmer/env';
   `DS.hasMany` takes an optional hash as a second parameter, currently
   supported options are:
 
-  - `async`: A boolean value used to explicitly declare this to be an async relationship.
+  - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a related model.
 
   #### One-To-Many
@@ -104,6 +104,36 @@ import { DEBUG } from '@glimmer/env';
 
   You can also specify an inverse on a `belongsTo`, which works how
   you'd expect.
+
+  #### Sync relationships
+
+  Ember Data resolves sync relationships with the related resources
+  available in its local store, hence it is expected these resources
+  to be loaded before or along-side the primary resource.
+
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    comments: DS.hasMany('comment', {
+      async: false
+    })
+  });
+  ```
+
+  In contrast to async relationship, accessing a sync relationship
+  will never trigger a request to fetch the resources,
+  and it will always return an array object with the existing local resources.
+
+  ```
+  post.get('comments').forEach((comment) => {
+
+  });
+
+  ```
+
+  If you are using `links` with sync relationships, you have to use
+  `ref.reload` to fetch the resources.
 
   @namespace
   @method hasMany
