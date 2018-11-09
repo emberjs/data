@@ -11,7 +11,7 @@ import { DEBUG } from '@glimmer/env';
   `DS.belongsTo` takes an optional hash as a second parameter, currently
   supported options are:
 
-  - `async`: A boolean value used to explicitly declare this to be an async relationship.
+  - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a
     related model in a One-To-Many relationship. See [Explicit Inverses](#explicit-inverses)
 
@@ -67,6 +67,31 @@ import { DEBUG } from '@glimmer/env';
   ```
 
   will lookup for a Post type.
+
+  #### Sync relationships
+
+  Ember Data resolves sync relationships with the related resources
+  available in its local store, hence it is expected these resources
+  to be loaded before or along-side the primary resource.
+
+  ```app/models/comment.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    post: DS.belongsTo('post', {
+      async: false
+    })
+  });
+  ```
+
+  In contrast to async relationship, accessing a sync relationship
+  will never trigger a request to fetch the resource,
+  and it will always return the existing local resource.
+
+  ```
+  let post = comment.get('post');
+
+  ```
 
   @namespace
   @method belongsTo
