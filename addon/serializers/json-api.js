@@ -564,7 +564,7 @@ if (DEBUG) {
     willMergeMixin(props) {
       let constructor = this.constructor;
       warn(
-        `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#toc_customizing-meta on how to customize meta when using JSON API.`,
+        `You've defined 'extractMeta' in ${constructor.toString()} which is not used for serializers extending JSONAPISerializer. Read more at https://emberjs.com/api/data/classes/DS.JSONAPISerializer on how to customize meta when using JSON API.`,
         isNone(props.extractMeta) || props.extractMeta === JSONSerializer.prototype.extractMeta,
         {
           id: 'ds.serializer.json-api.extractMeta',
