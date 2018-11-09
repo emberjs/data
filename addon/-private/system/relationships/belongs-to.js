@@ -13,7 +13,7 @@ import { DEBUG } from '@glimmer/env';
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship.
   - `inverse`: A string used to identify the inverse property on a
-    related model in a One-To-Many relationship. See [Explicit Inverses](#toc_explicit-inverses)
+    related model in a One-To-Many relationship. See [Explicit Inverses](#explicit-inverses)
 
   #### One-To-One
   To declare a one-to-one relationship between two models, use
