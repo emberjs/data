@@ -122,8 +122,8 @@ import { DEBUG } from '@glimmer/env';
   ```
 
   In contrast to async relationship, accessing a sync relationship
-  will never trigger a request to fetch the resources,
-  and it will always return an array object with the existing local resources.
+  will always return a [DS.ManyArray](/api/data/classes/DS.ManyArray.html) instance
+  containing the existing local resources, or null.
 
   ```
   post.get('comments').forEach((comment) => {
