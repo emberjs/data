@@ -87,7 +87,7 @@ import { DEBUG } from '@glimmer/env';
   In contrast to async relationship, accessing a sync relationship
   will always return the record (Model instance) for the existing
   local resource, or null. But it will error on access when
-  a related resource is known to exist but has not been loaded.
+  a related resource is known to exist and it has not been loaded.
 
   ```
   let post = comment.get('post');
