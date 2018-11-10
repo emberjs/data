@@ -85,8 +85,8 @@ import { DEBUG } from '@glimmer/env';
   ```
 
   In contrast to async relationship, accessing a sync relationship
-  will never trigger a request to fetch the resource,
-  and it will always return the existing local resource.
+  will always return the record (Model instance) for the existing
+  local resource, or null.
 
   ```
   let post = comment.get('post');
