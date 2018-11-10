@@ -123,7 +123,8 @@ import { DEBUG } from '@glimmer/env';
 
   In contrast to async relationship, accessing a sync relationship
   will always return a [DS.ManyArray](/api/data/classes/DS.ManyArray.html) instance
-  containing the existing local resources, or null.
+  containing the existing local resources. But it will error on access
+  when any of the known related resources have not been loaded.
 
   ```
   post.get('comments').forEach((comment) => {
