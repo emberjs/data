@@ -6,6 +6,7 @@ import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { relationshipStateFor } from './record-data-for';
+import { recordIdentifierFor } from './cache/record-identifier';
 
 /**
   @class Snapshot
@@ -243,15 +244,16 @@ export default class Snapshot {
 
     relationship = relationshipStateFor(this, keyName);
 
+    // TODO IDENTIFIER RFC - value.data should be identifier already
     let value = relationship.getData();
     let data = value && value.data;
+    let identifier = data && recordIdentifierFor(store, data);
+    inverseInternalModel = identifier && store._getOrCreateInternalModelFor(identifier);
 
-    inverseInternalModel = data && store._internalModelForResource(data);
-
-    if (value && value.data !== undefined) {
+    if (data !== undefined /* allow null */) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
         if (id) {
-          result = get(inverseInternalModel, 'id');
+          result = inverseInternalModel.id;
         } else {
           result = inverseInternalModel.createSnapshot();
         }
@@ -330,7 +332,9 @@ export default class Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach(member => {
-        let internalModel = store._internalModelForResource(member);
+        // TODO IDENTIFIER RFC - member should be record-identifier already
+        let identifier = recordIdentifierFor(store, member);
+        let internalModel = store._getOrCreateInternalModelFor(identifier);
         if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);

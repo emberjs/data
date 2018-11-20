@@ -8,7 +8,9 @@ import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
 export default class RecordData {
+  // TODO IDENTIFIER RFC - args should be `identifier, storeWrapper`
   constructor(modelName, id, clientId, storeWrapper, store) {
+    // store is currently required for `new Relationships(this);`
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
@@ -25,12 +27,13 @@ export default class RecordData {
   }
 
   // PUBLIC API
-
+  // TODO IDENTIFIER RFC - RecordData should not be responsible for it's own identifier
   getResourceIdentifier() {
     return {
       id: this.id,
       type: this.modelName,
       clientId: this.clientId,
+      lid: this.clientId,
     };
   }
 
@@ -93,7 +96,7 @@ export default class RecordData {
       // in debug, assert payload validity eagerly
       let relationshipData = data.relationships[relationshipName];
       if (DEBUG) {
-        let store = this.store;
+        let storeWrapper = this.storeWrapper;
         let recordData = this;
         let relationshipMeta = relationships[relationshipName];
         if (!relationshipData || !relationshipMeta) {
@@ -121,7 +124,12 @@ export default class RecordData {
               )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
               !Array.isArray(relationshipData.data)
             );
-            assertRelationshipData(store, recordData, relationshipData.data, relationshipMeta);
+            assertRelationshipData(
+              storeWrapper,
+              recordData,
+              relationshipData.data,
+              relationshipMeta
+            );
           } else if (relationshipMeta.kind === 'hasMany') {
             assert(
               `A ${
@@ -134,7 +142,7 @@ export default class RecordData {
             if (Array.isArray(relationshipData.data)) {
               for (let i = 0; i < relationshipData.data.length; i++) {
                 assertRelationshipData(
-                  store,
+                  storeWrapper,
                   recordData,
                   relationshipData.data[i],
                   relationshipMeta
@@ -699,7 +707,7 @@ export default class RecordData {
   }
 }
 
-function assertRelationshipData(store, recordData, data, meta) {
+function assertRelationshipData(storeWrapper, recordData, data, meta) {
   assert(
     `A ${recordData.modelName} record was pushed into the store with the value of ${
       meta.key
@@ -732,7 +740,7 @@ function assertRelationshipData(store, recordData, data, meta) {
     } relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${
       meta.type
     }'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store._hasModelFor(data.type)
+    data === null || !data.type || storeWrapper._hasModelFor(data.type)
   );
 }
 

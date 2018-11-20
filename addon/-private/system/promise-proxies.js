@@ -5,6 +5,7 @@ import { get, computed } from '@ember/object';
 import { reads } from '@ember/object/computed';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
+import { recordIdentifierFor } from './cache/record-identifier';
 
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
@@ -106,7 +107,9 @@ export const PromiseBelongsTo = PromiseObject.extend({
     let key = state.key;
     let store = state.store;
     let resource = state.recordData.getResourceIdentifier();
-    let internalModel = store._internalModelForResource(resource);
+    // TODO IDENTIFIER RFC - get identifier via weakmap to record-data
+    let identifier = recordIdentifierFor(store, resource);
+    let internalModel = store._getOrCreateInternalModelFor(identifier);
 
     return store.reloadBelongsTo(this, internalModel, key, options).then(() => this);
   },

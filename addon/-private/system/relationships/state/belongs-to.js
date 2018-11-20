@@ -2,6 +2,7 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
+import coerceId from '../../coerce-id';
 
 export default class BelongsToRelationship extends Relationship {
   constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
@@ -213,7 +214,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, coerceId(data.id));
     }
     if (initial) {
       this.setInitialCanonicalRecordData(recordData);

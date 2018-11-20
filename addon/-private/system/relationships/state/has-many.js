@@ -2,6 +2,7 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
+import coerceId from '../../coerce-id';
 
 export default class ManyRelationship extends Relationship {
   constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
@@ -239,7 +240,10 @@ export default class ManyRelationship extends Relationship {
     } else {
       recordDatas = new Array(data.length);
       for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(data[i].type, data[i].id);
+        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(
+          data[i].type,
+          coerceId(data[i].id)
+        );
       }
     }
     if (initial) {

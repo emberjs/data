@@ -3,6 +3,7 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Model from '../model/model';
 import Reference from './reference';
 import recordDataFor from '../record-data-for';
+import { recordIdentifierFor } from '../cache/record-identifier';
 
 /**
  A BelongsToReference is a low-level API that allows users and
@@ -195,7 +196,9 @@ export default class BelongsToReference extends Reference {
     let store = this.parentInternalModel.store;
     let resource = this._resource();
     if (resource && resource.data) {
-      let inverseInternalModel = store._internalModelForResource(resource.data);
+      // TODO IDENTIFIER RFC - resource.data should be identifier already
+      let identifier = recordIdentifierFor(this.store, resource.data);
+      let inverseInternalModel = store._getOrCreateInternalModelFor(identifier);
       if (inverseInternalModel && inverseInternalModel.isLoaded()) {
         return inverseInternalModel.getRecord();
       }
@@ -325,18 +328,18 @@ export default class BelongsToReference extends Reference {
       );
     }
     if (resource && resource.data) {
-      if (resource.data && (resource.data.id || resource.data.clientId)) {
-        let internalModel = this.store._internalModelForResource(resource.data);
-        if (internalModel.isLoaded()) {
-          return internalModel.reload(options).then(internalModel => {
-            if (internalModel) {
-              return internalModel.getRecord();
-            }
-            return null;
-          });
-        } else {
-          return this.store._findByInternalModel(internalModel, options);
-        }
+      // TODO IDENTIFIER RFC - resource.data should be identifier already
+      let identifier = recordIdentifierFor(this.store, resource.data);
+      let internalModel = this.store._getOrCreateInternalModelFor(identifier);
+      if (internalModel.isLoaded()) {
+        return internalModel.reload(options).then(internalModel => {
+          if (internalModel) {
+            return internalModel.getRecord();
+          }
+          return null;
+        });
+      } else {
+        return this.store._findByInternalModel(internalModel, options);
       }
     }
   }

@@ -28,6 +28,8 @@ export {
   relationshipsFor,
   relationshipStateFor,
 } from './system/record-data-for';
+export { recordIdentifierFor } from './system/cache/record-identifier';
+export { internalModelsFor } from './system/cache/internal-model-for';
 export { default as normalizeModelName } from './system/normalize-model-name';
 export { modelHasAttributeOrRelationshipNamedType } from './utils';
 export { default as coerceId } from './system/coerce-id';

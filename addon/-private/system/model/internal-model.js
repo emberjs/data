@@ -18,6 +18,7 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import { setRecordDataFor, RECORD_DATA_KEY } from './record-data-map';
+import { recordIdentifierFor } from '../cache/record-identifier';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -86,13 +87,13 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data, clientId) {
+  constructor(store, identifier) {
     heimdall.increment(new_InternalModel);
-    this.id = id;
+    this.modelName = identifier.type;
+    this.id = identifier.id;
+    this.clientId = identifier.lid;
     this.store = store;
-    this.modelName = modelName;
-    this.clientId = clientId;
-
+    this.__identifier = identifier;
     this.__recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
@@ -146,7 +147,7 @@ export default class InternalModel {
 
   get _recordData() {
     if (this.__recordData === null) {
-      this._recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+      this._recordData = this.store._createRecordData(this.__identifier);
     }
     return this.__recordData;
   }
@@ -499,16 +500,19 @@ export default class InternalModel {
   }
 
   getBelongsTo(key, options) {
+    // TODO IDENTIFIER RFC - resource.data here should be already be record-identifier
     let resource = this._recordData.getBelongsTo(key);
-    let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
+    let identifier =
+      resource && resource.data ? recordIdentifierFor(this.store, resource.data) : null;
+    let relationshipMeta = store._relationshipMetaFor(this.modelName, null, key);
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
 
     if (isAsync) {
       let internalModel =
-        resource && resource.data ? store._internalModelForResource(resource.data) : null;
+        identifier !== null ? store._getOrCreateInternalModelFor(identifier) : null;
       return PromiseBelongsTo.create({
         _belongsToState: resource._relationship,
         promise: store._findBelongsToByJsonApiResource(
@@ -520,10 +524,10 @@ export default class InternalModel {
         content: internalModel ? internalModel.getRecord() : null,
       });
     } else {
-      if (!resource || !resource.data) {
+      if (identifier === null) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(resource.data);
+        let internalModel = store._getOrCreateInternalModelFor(identifier);
         let toReturn = internalModel.getRecord();
         assert(
           "You looked up the '" +

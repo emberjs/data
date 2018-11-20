@@ -7,6 +7,7 @@ import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { module, test } from 'qunit';
 
 import DS from 'ember-data';
+import internalModelFor from '../helpers/internal-model-for';
 
 let store, env;
 
@@ -922,7 +923,7 @@ test('Using store#fetch on an empty record calls find', function(assert) {
     });
   });
 
-  let car = store.recordForId('car', 20);
+  let car = internalModelFor(store, 'car', '20').getRecord();
   assert.ok(car.get('isEmpty'), 'Car with id=20 should be empty');
 
   return run(() => {

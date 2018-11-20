@@ -296,7 +296,7 @@ test('when an adapter populated record gets updated the array contents are also 
 
   // implement findAll to further test that query updates won't muddle
   // with the non-query record arrays
-  env.adapter.findAll = function(store, type, sinceToken) {
+  env.adapter.findAll = function(store, type) {
     return { data: array.slice(0) };
   };
 

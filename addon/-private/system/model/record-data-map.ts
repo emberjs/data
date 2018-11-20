@@ -39,7 +39,6 @@ export function getRecordDataFor(instance: Mappable): RecordData {
     }
 
     // TODO can we strip this in prod without throwing Typescript Errors?
-    debugger;
     throw new Error(
       `Attempted to retrieve the RecordData mapped to ${instance} but no mapping exists!`
     );
@@ -54,6 +53,7 @@ export function setRecordDataFor(instance: Mappable, recordData: RecordData): vo
     if (existing !== undefined) {
       // even re-setting to the same instance is a mistake
       if (existing === recordData) {
+        debugger;
         throw new Error(
           `Attempting to create RecordData mapping for ${instance} but this same mapping has already been created!`
         );

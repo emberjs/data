@@ -1,3 +1,6 @@
+import { recordIdentifierFor } from '../cache/record-identifier';
+import { internalModelFor } from '../cache/internal-model-for';
+
 export default class RecordDataWrapper {
   constructor(store) {
     this.store = store;
@@ -5,9 +8,16 @@ export default class RecordDataWrapper {
     this._pendingManyArrayUpdates = null;
   }
 
-  _scheduleManyArrayUpdate(modelName, id, clientId, key) {
+  // TODO this exists just to the default recordData can
+  //  check this in debug for relationships
+  //  we can likely do away with this in the new relationship layer
+  _hasModelFor(modelName) {
+    return this.store._hasModelFor(modelName);
+  }
+
+  _scheduleManyArrayUpdate(identifier, key) {
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(modelName, id, clientId, key);
+    pending.push(identifier, key);
 
     if (this._willUpdateManyArrays === true) {
       return;
@@ -29,14 +39,11 @@ export default class RecordDataWrapper {
     let pending = this._pendingManyArrayUpdates;
     this._pendingManyArrayUpdates = [];
     this._willUpdateManyArrays = false;
-    let store = this.store;
 
-    for (let i = 0; i < pending.length; i += 4) {
-      let modelName = pending[i];
-      let id = pending[i + 1];
-      let clientId = pending[i + 2];
-      let key = pending[i + 3];
-      let internalModel = store._getInternalModelForId(modelName, id, clientId);
+    for (let i = 0; i < pending.length; i += 2) {
+      let identifier = pending[i];
+      let key = pending[i + 1];
+      let internalModel = internalModelFor(identifier);
       internalModel.notifyHasManyChange(key);
     }
   }
@@ -54,44 +61,56 @@ export default class RecordDataWrapper {
     return this.relationshipsDefinitionFor(modelName)[key]._inverseKey(this.store, modelClass);
   }
 
-  // TODO Igor David cleanup
   inverseIsAsyncForRelationship(modelName, key) {
     let modelClass = this.store.modelFor(modelName);
     return this.relationshipsDefinitionFor(modelName)[key]._inverseIsAsync(this.store, modelClass);
   }
 
-  notifyPropertyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  notifyPropertyChange(type, id, lid, key) {
+    let identifier = recordIdentifierFor(this.store, { type, id, lid });
+    let internalModel = internalModelFor(identifier);
+
     internalModel.notifyPropertyChange(key);
   }
 
-  notifyHasManyChange(modelName, id, clientId, key) {
-    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  notifyHasManyChange(type, id, lid, key) {
+    let identifier = recordIdentifierFor(this.store, { type, id, lid });
+    this._scheduleManyArrayUpdate(identifier, key);
   }
 
-  notifyBelongsToChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyBelongsToChange(key);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  notifyBelongsToChange(type, id, lid, key) {
+    this.notifyPropertyChange(type, id, lid, key);
   }
 
-  recordDataFor(modelName, id, clientId) {
-    return this.store.recordDataFor(modelName, id, clientId);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  recordDataFor(type, id, lid) {
+    return this.store.recordDataFor(type, id, lid);
   }
 
-  setRecordId(modelName, id, clientId) {
-    this.store.setRecordId(modelName, id, clientId);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  setRecordId(type, id, lid) {
+    this.store.setRecordId(type, id, lid);
   }
 
-  isRecordInUse(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  isRecordInUse(type, id, lid) {
+    let identifier = recordIdentifierFor(this.store, { type, id, lid });
+    let internalModel = internalModelFor(identifier);
+
     if (!internalModel) {
       return false;
     }
     return internalModel.isRecordInUse();
   }
 
-  disconnectRecord(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  // TODO IDENTIFIER RFC - arg should be identifier
+  disconnectRecord(type, id, lid) {
+    let identifier = recordIdentifierFor(this.store, { type, id, lid });
+    let internalModel = internalModelFor(identifier);
+
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }

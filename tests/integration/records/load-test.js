@@ -8,6 +8,7 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { attr, belongsTo } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
 import todo from '../../helpers/todo';
+import internalModelFor from 'dummy/tests/helpers/internal-model-for';
 
 class Person extends Model {
   @attr
@@ -120,7 +121,7 @@ module('integration/load - Loading Records', function(hooks) {
       })
     );
 
-    let internalModel = store._internalModelForId('person', '1');
+    let internalModel = internalModelFor(store, 'person', '1');
 
     // test that our initial state is correct
     assert.equal(internalModel.isEmpty(), true, 'We begin in the empty state');

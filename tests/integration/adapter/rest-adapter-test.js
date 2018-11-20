@@ -6,6 +6,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import { singularize } from 'ember-inflector';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { internalModelsFor } from 'dummy/tests/helpers/internal-model-for';
 import { module, test } from 'qunit';
 
 import Pretender from 'pretender';
@@ -626,12 +627,12 @@ test("createRecord - response can contain relationships the client doesn't yet k
         'the comments are related to the correct post model'
       );
       assert.equal(
-        store._internalModelsFor('post').models.length,
+        internalModelsFor(store, 'post').length,
         1,
         'There should only be one post record in the store'
       );
 
-      let postRecords = store._internalModelsFor('post').models;
+      let postRecords = internalModelsFor(store, 'post');
       for (var i = 0; i < postRecords.length; i++) {
         assert.equal(
           post,

@@ -367,7 +367,7 @@ module('unit/model - Model', function(hooks) {
 
       assert.equal(person.get('id'), null, 'initial created model id should be null');
       assert.equal(idChange, 0);
-      store._setRecordId(person._internalModel, 'john');
+      store._setRecordId(person._internalModel, 'john', person._internalModel.clientId);
       assert.equal(idChange, 1);
       assert.equal(person.get('id'), 'john', 'new id should be correctly set.');
     });

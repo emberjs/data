@@ -1,6 +1,7 @@
 import { resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
+import internalModelFor from 'dummy/tests/helpers/internal-model-for';
 
 import { module, test } from 'qunit';
 
@@ -122,7 +123,7 @@ test('snapshot.type loads the class lazily', function(assert) {
         },
       },
     });
-    let postInternalModel = env.store._internalModelForId('post', 1);
+    let postInternalModel = internalModelFor(env.store, 'post', '1');
     let snapshot = postInternalModel.createSnapshot();
 
     assert.equal(false, postClassLoaded, 'model class is not eagerly loaded');
@@ -165,7 +166,7 @@ test('snapshots for un-materialized internal-models generate attributes lazily',
     })
   );
 
-  let postInternalModel = env.store._internalModelForId('post', 1);
+  let postInternalModel = internalModelFor(env.store, 'post', '1');
   let snapshot = postInternalModel.createSnapshot();
   let expected = {
     author: undefined,
@@ -192,7 +193,7 @@ test('snapshots for materialized internal-models generate attributes greedily', 
     })
   );
 
-  let postInternalModel = env.store._internalModelForId('post', 1);
+  let postInternalModel = internalModelFor(env.store, 'post', '1');
   let snapshot = postInternalModel.createSnapshot();
   let expected = {
     author: undefined,
