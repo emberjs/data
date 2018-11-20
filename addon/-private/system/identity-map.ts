@@ -1,5 +1,9 @@
 import InternalModelMap from './internal-model-map';
 
+interface IMMDict {
+  [modelName: string]: InternalModelMap
+}
+
 /**
  `IdentityMap` is a custom storage map for records by modelName
  used by `DS.Store`.
@@ -8,6 +12,8 @@ import InternalModelMap from './internal-model-map';
  @private
  */
 export default class IdentityMap {
+  private _map: IMMDict;
+
   constructor() {
     this._map = Object.create(null);
   }
@@ -21,7 +27,7 @@ export default class IdentityMap {
    @param modelName a previously normalized modelName
    @return {InternalModelMap} the InternalModelMap for the given modelName
    */
-  retrieve(modelName) {
+  retrieve(modelName: string): InternalModelMap {
     let map = this._map[modelName];
 
     if (map === undefined) {
@@ -37,7 +43,7 @@ export default class IdentityMap {
 
    @method clear
    */
-  clear() {
+  clear(): void {
     let map = this._map;
     let keys = Object.keys(map);
 
