@@ -1,5 +1,3 @@
-import EmberError from '@ember/error';
-
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 
@@ -11,7 +9,6 @@ test('DS.AdapterError', function(assert) {
   let error = new DS.AdapterError();
 
   assert.ok(error instanceof Error);
-  assert.ok(error instanceof EmberError);
   assert.ok(error.isAdapterError);
   assert.equal(error.message, 'Adapter operation failed');
 });

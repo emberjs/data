@@ -1,5 +1,4 @@
 import { set, get } from '@ember/object';
-import EmberError from '@ember/error';
 import { default as EmberArray, A } from '@ember/array';
 import { setOwner, getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
@@ -708,7 +707,7 @@ export default class InternalModel {
 
   setDirtyAttribute(key, value) {
     if (this.isDeleted()) {
-      throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
+      throw new Error(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
     }
 
     let currentValue = this.getAttributeValue(key);
@@ -973,7 +972,7 @@ export default class InternalModel {
       errorMessage += 'Called with ' + inspect(context) + '.';
     }
 
-    throw new EmberError(errorMessage);
+    throw new Error(errorMessage);
   }
 
   triggerLater(...args) {

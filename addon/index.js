@@ -1,19 +1,8 @@
-import { VERSION } from '@ember/version';
-import EmberError from '@ember/error';
-
 /**
   Ember Data
   @module ember-data
   @main ember-data
 */
-
-if (VERSION.match(/^1\.([0-9]|1[0-2])\./)) {
-  throw new EmberError(
-    'Ember Data requires at least Ember 1.13.0, but you have ' +
-      VERSION +
-      '. Please upgrade your version of Ember, then upgrade Ember Data.'
-  );
-}
 
 import {
   Snapshot,

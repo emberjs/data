@@ -1,7 +1,7 @@
 import { makeArray } from '@ember/array';
 import { isPresent } from '@ember/utils';
-import EmberError from '@ember/error';
 import { assert } from '@ember/debug';
+import { DEBUG } from '@glimmer/env';
 
 const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
@@ -74,38 +74,28 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @class AdapterError
   @namespace DS
 */
-export function AdapterError(errors, message = 'Adapter operation failed') {
-  this.isAdapterError = true;
-  EmberError.call(this, message);
+export class AdapterError extends Error {
+  constructor(errors, message = 'Adapter operation failed') {
+    super(message);
+    this.isAdapterError = true;
 
-  this.errors = errors || [
-    {
-      title: 'Adapter Error',
-      detail: message,
-    },
-  ];
+    this.errors = errors || [
+      {
+        title: 'Adapter Error',
+        detail: message,
+      },
+    ];
+  }
+
+  // TODO deprecate this in favor of user doing the native class extending
+  static extend({ message: defaultMessage } = {}) {
+    return class CustomError extends this {
+      constructor(errors, message = defaultMessage) {
+        super(errors, message);
+      }
+    };
+  }
 }
-
-function extendFn(ErrorClass) {
-  return function({ message: defaultMessage } = {}) {
-    return extend(ErrorClass, defaultMessage);
-  };
-}
-
-function extend(ParentErrorClass, defaultMessage) {
-  let ErrorClass = function(errors, message) {
-    assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
-    ParentErrorClass.call(this, errors, message || defaultMessage);
-  };
-  ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
-  ErrorClass.extend = extendFn(ErrorClass);
-
-  return ErrorClass;
-}
-
-AdapterError.prototype = Object.create(EmberError.prototype);
-
-AdapterError.extend = extendFn(AdapterError);
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -166,10 +156,17 @@ AdapterError.extend = extendFn(AdapterError);
   @namespace DS
   @extends AdapterError
 */
-export const InvalidError = extend(
-  AdapterError,
-  'The adapter rejected the commit because it was invalid'
-);
+export class InvalidError extends AdapterError {
+  constructor(errors, message = 'The adapter rejected the commit because it was invalid') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.TimeoutError` is used by an adapter to signal that a request
@@ -204,7 +201,17 @@ export const InvalidError = extend(
   @namespace DS
   @extends AdapterError
 */
-export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
+export class TimeoutError extends AdapterError {
+  constructor(errors, message = 'The adapter operation timed out') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.AbortError` is used by an adapter to signal that a request to
@@ -216,7 +223,17 @@ export const TimeoutError = extend(AdapterError, 'The adapter operation timed ou
   @namespace DS
   @extends AdapterError
 */
-export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
+export class AbortError extends AdapterError {
+  constructor(errors, message = 'The adapter operation was aborted') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.UnauthorizedError` equates to a HTTP `401 Unauthorized` response
@@ -252,7 +269,17 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
   @namespace DS
   @extends AdapterError
 */
-export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
+export class UnauthorizedError extends AdapterError {
+  constructor(errors, message = 'The adapter operation is unauthorized') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.ForbiddenError` equates to a HTTP `403 Forbidden` response status.
@@ -265,7 +292,17 @@ export const UnauthorizedError = extend(AdapterError, 'The adapter operation is 
   @namespace DS
   @extends AdapterError
 */
-export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
+export class ForbiddenError extends AdapterError {
+  constructor(errors, message = 'The adapter operation is forbidden') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.NotFoundError` equates to a HTTP `404 Not Found` response status.
@@ -304,7 +341,17 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
   @namespace DS
   @extends AdapterError
 */
-export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
+export class NotFoundError extends AdapterError {
+  constructor(errors, message = 'The adapter could not find the resource') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.ConflictError` equates to a HTTP `409 Conflict` response status.
@@ -317,7 +364,17 @@ export const NotFoundError = extend(AdapterError, 'The adapter could not find th
   @namespace DS
   @extends AdapterError
 */
-export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
+export class ConflictError extends AdapterError {
+  constructor(errors, message = 'The adapter operation failed due to a conflict') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   A `DS.ServerError` equates to a HTTP `500 Internal Server Error` response
@@ -328,10 +385,17 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
   @namespace DS
   @extends AdapterError
 */
-export const ServerError = extend(
-  AdapterError,
-  'The adapter operation failed due to a server error'
-);
+export class ServerError extends AdapterError {
+  constructor(errors, message = 'The adapter operation failed due to a server error') {
+    if (DEBUG) {
+      assert(
+        '`AdapterError` expects json-api formatted errors array.',
+        Array.isArray(errors || [])
+      );
+    }
+    super(errors, message);
+  }
+}
 
 /**
   Convert an hash of errors into an array with errors in JSON-API format.

@@ -4,7 +4,6 @@
 import { registerWaiter, unregisterWaiter } from '@ember/test';
 
 import { A } from '@ember/array';
-import EmberError from '@ember/error';
 import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
@@ -2426,7 +2425,7 @@ const Store = Service.extend({
     let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
     if (factory === null) {
-      throw new EmberError(`No model was found for '${normalizedModelName}'`);
+      throw new Error(`No model was found for '${normalizedModelName}'`);
     }
 
     return factory;

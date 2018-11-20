@@ -1,5 +1,4 @@
 import { isNone } from '@ember/utils';
-import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
@@ -1199,7 +1198,7 @@ if (DEBUG) {
       this._super(...arguments);
 
       if (!this._internalModel) {
-        throw new EmberError(
+        throw new Error(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
         );
       }
@@ -1235,7 +1234,7 @@ if (DEBUG) {
       let idDesc = lookupDescriptor(this, 'id');
 
       if (idDesc.get !== ID_DESCRIPTOR.get) {
-        throw new EmberError(
+        throw new Error(
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: DS.attr('<type>')\` from ${this.constructor.toString()}`
         );
       }

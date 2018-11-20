@@ -2,7 +2,6 @@
   @module ember-data
 */
 import { inspect } from '@ember/debug';
-import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { relationshipStateFor } from './record-data-for';
@@ -132,7 +131,7 @@ export default class Snapshot {
     if (keyName in this._attributes) {
       return this._attributes[keyName];
     }
-    throw new EmberError(
+    throw new Error(
       "Model '" + inspect(this.record) + "' has no attribute named '" + keyName + "' defined."
     );
   }
@@ -232,7 +231,7 @@ export default class Snapshot {
 
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'belongsTo')) {
-      throw new EmberError(
+      throw new Error(
         "Model '" +
           inspect(this.record) +
           "' has no belongsTo relationship named '" +
@@ -314,7 +313,7 @@ export default class Snapshot {
     let store = this._internalModel.store;
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
-      throw new EmberError(
+      throw new Error(
         "Model '" +
           inspect(this.record) +
           "' has no hasMany relationship named '" +

@@ -149,7 +149,7 @@ module('unit/model - Model', function(hooks) {
         'the deleted person is not removed from store (no unload called)'
       );
 
-      assert.expectAssertion(() => {
+      assert.throws(() => {
         set(record, 'isArchived', true);
       }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
 
@@ -218,12 +218,12 @@ module('unit/model - Model', function(hooks) {
 
       this.owner.register('model:test-model', TestModel);
 
-      assert.expectAssertion(() => {
+      assert.throws(() => {
         let ModelClass = store.modelFor('test-model');
         get(ModelClass, 'attributes');
       }, /You may not set `id` as an attribute on your model/);
 
-      assert.expectAssertion(() => {
+      assert.throws(() => {
         store.push({
           data: {
             id: '1',
