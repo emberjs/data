@@ -7,12 +7,15 @@ const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
 
-function ExtendableError(message) {
-  return new Error(message);
-}
+function ExtendBuiltin(klass) {
+  function ExtendableBuiltin(this) {
+    klass.apply(this, arguments);
+  }
 
-ExtendableError.prototype = Object.create(Error.prototype);
-ExtendableError.prototype.constructor = ExtendableError;
+  ExtendableBuiltin.prototype = Object.create(klass.prototype);
+  ExtendableBuiltin.prototype.constructor = ExtendableBuiltin;
+  return ExtendableBuiltin;
+}
 
 /**
   A `DS.AdapterError` is used by an adapter to signal that an error occurred
@@ -82,9 +85,9 @@ ExtendableError.prototype.constructor = ExtendableError;
   @namespace DS
 */
 
-export class AdapterError extends ExtendableError {
+export class AdapterError extends ExtendBuiltin(Error) {
   constructor(errors, message = 'Adapter operation failed') {
-    super(message);
+    super();
     this.isAdapterError = true;
 
     this.errors = errors || [
@@ -93,6 +96,16 @@ export class AdapterError extends ExtendableError {
         detail: message,
       },
     ];
+
+    let error = Error.call(this, message);
+    this.stack = error.stack;
+    this.description = error.description;
+    this.fileName = error.fileName;
+    this.lineNumber = error.lineNumber;
+    this.message = error.message;
+    this.name = error.name;
+    this.number = error.number;
+    this.code = error.code;
   }
 
   // TODO deprecate this in favor of user doing the native class extending
