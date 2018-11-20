@@ -16,6 +16,7 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
+import { setRecordDataFor } from './record-data-map';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -92,6 +93,7 @@ export default class InternalModel {
     this.clientId = clientId;
 
     this._recordData = store._createRecordData(modelName, id, clientId, this);
+    setRecordDataFor(this, this._recordData);
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -284,7 +286,11 @@ export default class InternalModel {
         createOptions.container = store.container;
       }
 
+      let recordData = this._recordData;
+      setRecordDataFor(createOptions, recordData);
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      // TODO should we unmap createOptions after record construction?
+      setRecordDataFor(this._record, recordData);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
