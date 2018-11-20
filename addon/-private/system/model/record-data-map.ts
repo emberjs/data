@@ -1,28 +1,51 @@
 import { DEBUG } from '@glimmer/env';
 
-// TODO is there a way to import classes without causing cyclical imports for rollup?
-//   maybe strip "typing" imports prior to rollup?
-type InternalModel = object;
-type CreateOptions = object;
-type Record = object;
-type RecordData = object;
+/**
+ * Generally we use a WeakMap to store the 1:1 mapping between
+ * Record/CreateOptions and RecordData.
+ *
+ * However, we have no guarantee that the CreateOptions we pass to
+ * `factory.create(createOptions)` are the same object that we receive
+ * as the first arg to `Model.init()` (in fact, they are not!).
+ *
+ * For this reason, we use this randomly generated string key to store
+ * the mapping for CreateOptions. This maintains isolation without
+ * resulting in a performance hit.
+ */
+export const RECORD_DATA_KEY = `${Date.now()}-record-data`;
 
-type Mappable = InternalModel | CreateOptions | Record;
+// TODO TS: create a specific interface
+type CreateOptions = object;
+// TODO TS: create a specific interface
+type Record = object;
+// TODO TS: create a specific interface
+type RecordData = {
+  hasAttr(key);
+  getAttr(key);
+  setDirtyAttribute(key, value);
+  isAttrDirty(key);
+};
+
+type Mappable = CreateOptions | Record;
 
 const RecordDataMap = new WeakMap<Mappable, RecordData>();
 
-export function getRecordDataFor(instance: Mappable): RecordData | null {
+export function getRecordDataFor(instance: Mappable): RecordData {
   let recordData = RecordDataMap.get(instance);
 
-  if (DEBUG) {
-    if (recordData === undefined) {
-      throw new Error(
-        `Attempted to retrieve the RecordData mapped to ${instance} but no mapping exists!`
-      );
+  if (recordData === undefined) {
+    if (instance[RECORD_DATA_KEY] !== undefined) {
+      return instance[RECORD_DATA_KEY];
     }
+
+    // TODO can we strip this in prod without throwing Typescript Errors?
+    debugger;
+    throw new Error(
+      `Attempted to retrieve the RecordData mapped to ${instance} but no mapping exists!`
+    );
   }
 
-  return recordData || null;
+  return recordData;
 }
 
 export function setRecordDataFor(instance: Mappable, recordData: RecordData): void {

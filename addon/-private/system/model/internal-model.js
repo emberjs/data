@@ -12,11 +12,12 @@ import RootState from './states';
 import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
+import Model from './model';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
-import { setRecordDataFor } from './record-data-map';
+import { setRecordDataFor, RECORD_DATA_KEY } from './record-data-map';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -93,7 +94,6 @@ export default class InternalModel {
     this.clientId = clientId;
 
     this._recordData = store._createRecordData(modelName, id, clientId, this);
-    setRecordDataFor(this, this._recordData);
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -287,10 +287,14 @@ export default class InternalModel {
       }
 
       let recordData = this._recordData;
-      setRecordDataFor(createOptions, recordData);
+      createOptions[RECORD_DATA_KEY] = recordData;
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
-      // TODO should we unmap createOptions after record construction?
-      setRecordDataFor(this._record, recordData);
+      // mapping of record to recordData is handled by `Model` itself.
+      // but for custom Models (see the `modelFactoryFor` RFC) it is done
+      //   here to ensure that it happens.
+      if (!(this._record instanceof Model)) {
+        setRecordDataFor(this._record, recordData);
+      }
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
@@ -699,10 +703,6 @@ export default class InternalModel {
     this.pushedData();
   }
 
-  getAttributeValue(key) {
-    return this._recordData.getAttr(key);
-  }
-
   setDirtyHasMany(key, records) {
     assertRecordsPassedToHasMany(records);
     return this._recordData.setDirtyHasMany(key, extractRecordDatasFromRecords(records));
@@ -710,24 +710,6 @@ export default class InternalModel {
 
   setDirtyBelongsTo(key, value) {
     return this._recordData.setDirtyBelongsTo(key, extractRecordDataFromRecord(value));
-  }
-
-  setDirtyAttribute(key, value) {
-    if (this.isDeleted()) {
-      throw new EmberError(`Attempted to set '${key}' to '${value}' on the deleted record ${this}`);
-    }
-
-    let currentValue = this.getAttributeValue(key);
-    if (currentValue !== value) {
-      this._recordData.setDirtyAttribute(key, value);
-      let isDirty = this._recordData.isAttrDirty(key);
-      this.send('didSetProperty', {
-        name: key,
-        isDirty: isDirty,
-      });
-    }
-
-    return value;
   }
 
   get isDestroyed() {
