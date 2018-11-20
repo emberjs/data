@@ -7,6 +7,13 @@ const SOURCE_POINTER_REGEXP = /^\/?data\/(attributes|relationships)\/(.*)/;
 const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
 
+function ExtendableError(message) {
+  return new Error(message);
+}
+
+ExtendableError.prototype = Object.create(Error.prototype);
+ExtendableError.prototype.constructor = ExtendableError;
+
 /**
   A `DS.AdapterError` is used by an adapter to signal that an error occurred
   during a request to an external API. It indicates a generic error, and
@@ -74,7 +81,8 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @class AdapterError
   @namespace DS
 */
-export class AdapterError extends Error {
+
+export class AdapterError extends ExtendableError {
   constructor(errors, message = 'Adapter operation failed') {
     super(message);
     this.isAdapterError = true;
