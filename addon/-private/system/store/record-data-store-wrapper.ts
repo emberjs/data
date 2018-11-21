@@ -1,8 +1,14 @@
-export default class StoreWrapper {
+import { RecordDataStoreWrapper as IRecordDataStoreWrapper } from "../../ts-interfaces/record-data-store-wrapper";
+
+export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
+  store: any;
+  _willUpdateManyArrays: boolean; 
+  _pendingManyArrayUpdates: string[];
+   
   constructor(store) {
     this.store = store;
     this._willUpdateManyArrays = false;
-    this._pendingManyArrayUpdates = null;
+    this._pendingManyArrayUpdates = [];
   }
 
   _scheduleManyArrayUpdate(modelName, id, clientId, key) {

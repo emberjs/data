@@ -21,7 +21,7 @@ import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
 import IdentityMap from './identity-map';
-import StoreWrapper from './store/store-wrapper';
+import RecordDataStoreWrapper from './store/record-data-store-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
 
@@ -44,7 +44,7 @@ import {
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
-import RecordData from './model/record-data';
+import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -220,7 +220,7 @@ const Store = Service.extend({
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
 
-    this.storeWrapper = new StoreWrapper(this);
+    this.storeWrapper = new RecordDataStoreWrapper(this);
 
     if (DEBUG) {
       this.shouldAssertMethodCallsOnDestroyedStore =
@@ -2832,7 +2832,6 @@ const Store = Service.extend({
     if (relationships === undefined) {
       let modelClass = this.modelFor(modelName);
       relationships = get(modelClass, 'relationshipsObject') || null;
-
       this._relationshipsDefCache[modelName] = relationships;
     }
 
@@ -2855,7 +2854,7 @@ const Store = Service.extend({
   },
 
   createRecordDataFor(modelName, id, clientId, storeWrapper) {
-    return new RecordData(modelName, id, clientId, storeWrapper, this);
+    return new RecordDataDefault(modelName, id, clientId, storeWrapper, this);
   },
 
   recordDataFor(modelName, id, clientId) {

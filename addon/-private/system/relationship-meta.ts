@@ -1,6 +1,7 @@
 import { singularize } from 'ember-inflector';
 import { DEBUG } from '@glimmer/env';
 import normalizeModelName from './normalize-model-name';
+import { RelationshipSchema } from "../ts-interfaces/record-data-schemas";
 
 export function typeForRelationshipMeta(meta) {
   let modelName;
@@ -20,7 +21,13 @@ function shouldFindInverse(relationshipMeta) {
   return !(options && options.inverse === null);
 }
 
-class RelationshipDefinition {
+class RelationshipDefinition implements RelationshipSchema {
+  meta: any;
+  _type: string;
+  __inverseKey: string;
+  __inverseIsAsync: boolean | null;
+  parentModelName: string;
+
   constructor(meta) {
     this.meta = meta;
     this._type = '';
@@ -29,23 +36,23 @@ class RelationshipDefinition {
     this.parentModelName = meta.parentModelName;
   }
 
-  get key() {
+  get key(): string {
     return this.meta.key;
   }
-  get kind() {
+  get kind(): string {
     return this.meta.kind;
   }
-  get type() {
+  get type(): string {
     if (this._type) {
       return this._type;
     }
     this._type = typeForRelationshipMeta(this.meta);
     return this._type;
   }
-  get options() {
+  get options(): { [key: string]: any } {
     return this.meta.options;
   }
-  get name() {
+  get name(): string {
     return this.meta.name;
   }
 
@@ -65,7 +72,7 @@ class RelationshipDefinition {
 
   _calculateInverse(store, modelClass) {
     let inverseKey, inverseIsAsync;
-    let inverse = null;
+    let inverse: any = null;
 
     if (shouldFindInverse(this.meta)) {
       inverse = modelClass.inverseFor(this.key, store);
