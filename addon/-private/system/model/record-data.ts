@@ -20,8 +20,18 @@ interface JsonApiResource {
   meta?: any;
 }
 
- interface RecordData {
+interface ChangedAttributesHash {
+  [key: string]: [string, string]
+}
+
+interface RecordData {
   pushData(data: JsonApiResource, calculateChange: boolean)
+  clientDidCreate();
+  willCommit();
+  commitWasRejected();
+  unloadRecord();
+  rollbackAttributes();
+  changedAttributes(): ChangedAttributesHash;
 }
 
 export default class RecordDataDefault implements RecordData {
@@ -216,7 +226,7 @@ export default class RecordDataDefault implements RecordData {
     @method changedAttributes
     @private
   */
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
