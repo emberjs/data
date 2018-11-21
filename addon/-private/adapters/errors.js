@@ -8,7 +8,7 @@ const SOURCE_POINTER_PRIMARY_REGEXP = /^\/?data/;
 const PRIMARY_ATTRIBUTE_KEY = 'base';
 
 function ExtendBuiltin(klass) {
-  function ExtendableBuiltin(this) {
+  function ExtendableBuiltin() {
     klass.apply(this, arguments);
   }
 
