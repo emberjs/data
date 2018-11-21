@@ -5,10 +5,147 @@ import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
+import { RelationshipSchema } from '../relationship-meta';
+import BelongsToRelationship from '../relationships/state/belongs-to';
+import ManyRelationship from '../relationships/state/has-many';
+import Relationship from '../relationships/state/relationship';
 
 let nextBfsId = 1;
-export default class RecordData {
-  constructor(modelName, id, clientId, storeWrapper, store) {
+
+export interface AttributesHash {
+  attributes?: { [key: string]: any };
+}
+
+export interface JsonApiResource {
+  id?: string | null;
+  type?: string;
+
+  attributes?: AttributesHash;
+  relationships?: { [key: string]: JsonApiRelationship };
+  meta?: any;
+}
+
+export interface JsonApiResourceIdentity {
+  id?: string | null;
+  type: string;
+  clientId?: string;
+}
+
+export interface JsonApiBelongsToRelationship {
+  data?: JsonApiResourceIdentity;
+  meta?: any;
+  links? : { [key: string]: string}
+  // Private
+  _relationship?: BelongsToRelationship
+}
+
+export interface JsonApiHasManyRelationship {
+  data?: JsonApiResourceIdentity[];
+  meta?: any;
+  links? : { [key: string]: string}
+  // Private
+  _relationship?: ManyRelationship
+}
+
+export type JsonApiRelationship =  JsonApiBelongsToRelationship | JsonApiHasManyRelationship;
+
+export interface ChangedAttributesHash {
+  [key: string]: [string, string]
+}
+
+export interface RelationshipsSchema {
+  [key: string]: RelationshipSchema
+}
+
+export interface AttributesSchema {
+  [key: string]: AttributeSchema
+}
+
+export interface AttributeSchema {
+  kind: string;
+  name: string;
+  options: { [key: string]: any };
+  type: string;
+}
+
+export interface RecordDataStoreWrapper {
+  relationshipsDefinitionFor(modelName: string): RelationshipsSchema
+  attributesDefinitionFor(modelName: string): AttributesSchema
+  setRecordId(modelName: string, id: string, clientId: string);
+  disconnectRecord(modelName: string, id: string | null, clientId: string);
+  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
+  notifyPropertyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+
+  // Needed For relationships
+  notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  recordDataFor(modelName: string, id: string, clientId?: string);
+  notifyBelongsToChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  inverseForRelationship(modelName: string, key: string);
+  inverseIsAsyncForRelationship(modelName: string, key: string);
+}
+
+export interface RecordData {
+  pushData(data: JsonApiResource, calculateChange?: boolean);
+  clientDidCreate();
+  willCommit();
+  commitWasRejected();
+  unloadRecord();
+  rollbackAttributes();
+  changedAttributes(): ChangedAttributesHash;
+  hasChangedAttributes(): boolean;
+  setDirtyAttribute(key: string, value: any);
+
+  getAttr(key: string): any;
+  getHasMany(key: string): JsonApiHasManyRelationship;
+
+  addToHasMany(key: string, recordDatas: RecordData[], idx?: number)
+  removeFromHasMany(key: string, recordDatas: RecordData[])
+  setDirtyHasMany(key: string, recordDatas: RecordData[])
+
+  getBelongsTo(key: string): JsonApiBelongsToRelationship;
+
+  setDirtyBelongsTo(name: string, recordData: RecordData | null)
+  didCommit(data: JsonApiResource | null)
+
+  // ----- unspecced
+  isAttrDirty(key: string)
+  removeFromInverseRelationships(isNew: boolean)
+  hasAttr(key: string): boolean;
+
+  _initRecordCreateOptions(options)
+}
+
+export interface RelationshipRecordData extends RecordData {
+  //Required by the relationship layer
+  isNew(): boolean;
+  modelName: string;
+  storeWrapper: RecordDataStoreWrapper; 
+  id: string | null;
+  clientId: string | null;
+  isEmpty(): boolean;
+  getResourceIdentifier(): JsonApiResourceIdentity;
+  store: any;
+  _relationships: Relationships;
+  _implicitRelationships: { [key: string]: Relationship };
+}
+
+export default class RecordDataDefault implements RecordData, RelationshipRecordData {
+  store: any;
+  modelName: string;
+  __relationships: Relationships | null;
+  __implicitRelationships:{ [key: string]: Relationship } | null;
+  clientId: string;
+  id: string | null;
+  storeWrapper: RecordDataStoreWrapper;
+  isDestroyed: boolean;
+  _isNew: boolean;
+  _bfsId: number;
+  __attributes: any;
+  __inFlightAttributes: any;
+  __data: any;
+  _scheduledDestroy: any;
+
+  constructor(modelName: string, id: string, clientId: string, storeWrapper: RecordDataStoreWrapper, store:any) {
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
@@ -26,7 +163,7 @@ export default class RecordData {
 
   // PUBLIC API
 
-  getResourceIdentifier() {
+  getResourceIdentifier(): JsonApiResourceIdentity {
     return {
       id: this.id,
       type: this.modelName,
@@ -34,7 +171,7 @@ export default class RecordData {
     };
   }
 
-  pushData(data, calculateChange) {
+  pushData(data: JsonApiResource, calculateChange: boolean) {
     let changedKeys;
 
     if (calculateChange) {
@@ -184,7 +321,7 @@ export default class RecordData {
     @method changedAttributes
     @private
   */
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     let oldData = this._data;
     let currentData = this._attributes;
     let inFlightData = this._inFlightAttributes;
@@ -220,8 +357,9 @@ export default class RecordData {
     return dirtyKeys;
   }
 
-  didCommit(data) {
+  didCommit(data: JsonApiResource | null) {
     this._isNew = false;
+    let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
       if (data.relationships) {
@@ -232,11 +370,11 @@ export default class RecordData {
         this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
         this.id = coerceId(data.id);
       }
-      data = data.attributes;
+      newCanonicalAttributes = data.attributes || null;
     }
-    let changedKeys = this._changedKeys(data);
+    let changedKeys = this._changedKeys(newCanonicalAttributes);
 
-    assign(this._data, this.__inFlightAttributes, data);
+    assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
 
     this._inFlightAttributes = null;
 
@@ -245,8 +383,8 @@ export default class RecordData {
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key) {
-    return this._relationships.get(key).getData();
+  getHasMany(key): JsonApiHasManyRelationship {
+    return (this._relationships.get(key) as ManyRelationship).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
@@ -279,15 +417,15 @@ export default class RecordData {
     this._inFlightAttributes = null;
   }
 
-  getBelongsTo(key) {
-    return this._relationships.get(key).getData();
+  getBelongsTo(key: string): JsonApiBelongsToRelationship {
+    return (this._relationships.get(key) as BelongsToRelationship).getData();
   }
 
-  setDirtyBelongsTo(key, recordData) {
-    this._relationships.get(key).setRecordData(recordData);
+  setDirtyBelongsTo(key: string, recordData: RelationshipRecordData) {
+    (this._relationships.get(key) as BelongsToRelationship).setRecordData(recordData);
   }
 
-  setDirtyAttribute(key, value) {
+  setDirtyAttribute(key: string, value: any) {
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -303,7 +441,7 @@ export default class RecordData {
     }
   }
 
-  getAttr(key) {
+  getAttr(key: string): string {
     if (key in this._attributes) {
       return this._attributes[key];
     } else if (key in this._inFlightAttributes) {
@@ -313,7 +451,7 @@ export default class RecordData {
     }
   }
 
-  hasAttr(key) {
+  hasAttr(key: string): boolean {
     return key in this._attributes || key in this._inFlightAttributes || key in this._data;
   }
 
@@ -363,7 +501,7 @@ export default class RecordData {
     to or has many.
 
   */
-  _directlyRelatedRecordDatas() {
+  _directlyRelatedRecordDatas(): RecordData[] {
     let array = [];
 
     this._relationships.forEach((name, rel) => {
@@ -384,14 +522,14 @@ export default class RecordData {
     @return {Array} An array including `this` and all internal models reachable
     from `this`.
   */
-  _allRelatedRecordDatas() {
-    let array = [];
-    let queue = [];
+  _allRelatedRecordDatas(): RecordDataDefault[] {
+    let array: RecordDataDefault[] = [];
+    let queue: RecordDataDefault[] = [];
     let bfsId = nextBfsId++;
     queue.push(this);
     this._bfsId = bfsId;
     while (queue.length > 0) {
-      let node = queue.shift();
+      let node = queue.shift() as RecordDataDefault;
       array.push(node);
 
       let related = node._directlyRelatedRecordDatas();
@@ -399,7 +537,7 @@ export default class RecordData {
       for (let i = 0; i < related.length; ++i) {
         let recordData = related[i];
 
-        if (recordData instanceof RecordData) {
+        if (recordData instanceof RecordDataDefault) {
           assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
           if (recordData._bfsId < bfsId) {
             queue.push(recordData);
@@ -412,7 +550,7 @@ export default class RecordData {
     return array;
   }
 
-  isAttrDirty(key) {
+  isAttrDirty(key: string): boolean {
     if (this._attributes[key] === undefined) {
       return false;
     }
@@ -485,7 +623,9 @@ export default class RecordData {
   */
   get _implicitRelationships() {
     if (this.__implicitRelationships === null) {
-      this.__implicitRelationships = Object.create(null);
+      let relationships = Object.create(null);
+      this.__implicitRelationships = relationships;
+      return relationships;
     }
     return this.__implicitRelationships;
   }
@@ -659,7 +799,7 @@ export default class RecordData {
       in the schema
   */
   _changedKeys(updates) {
-    let changedKeys = [];
+    let changedKeys: string[] = [];
 
     if (updates) {
       let original, i, value, key;
@@ -724,7 +864,7 @@ function assertRelationshipData(store, recordData, data, meta) {
     }' on ${recordData}, expected a json-api identifier but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || coerceId(data.id)
+    data === null || !!coerceId(data.id)
   );
   assert(
     `Encountered a relationship identifier with type '${data.type}' for the ${

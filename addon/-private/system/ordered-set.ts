@@ -1,12 +1,12 @@
 import EmberOrderedSet from '@ember/ordered-set';
 import { guidFor } from '@ember/object/internals';
 
-export default class EmberDataOrderedSet extends EmberOrderedSet {
+export default class EmberDataOrderedSet<T> extends EmberOrderedSet<T> {
   static create() {
     return new this();
   }
 
-  addWithIndex(obj, idx) {
+  addWithIndex(obj: T, idx?: number) {
     let guid = guidFor(obj);
     let presenceSet = this.presenceSet;
     let list = this.list;

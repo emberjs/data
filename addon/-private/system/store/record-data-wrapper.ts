@@ -1,8 +1,14 @@
-export default class RecordDataWrapper {
+import { RecordDataStoreWrapper } from '../model/record-data';
+
+export default class RecordDataWrapper implements RecordDataStoreWrapper {
+  store: any;
+  _willUpdateManyArrays: boolean; 
+  _pendingManyArrayUpdates: string[];
+   
   constructor(store) {
     this.store = store;
     this._willUpdateManyArrays = false;
-    this._pendingManyArrayUpdates = null;
+    this._pendingManyArrayUpdates = [];
   }
 
   _scheduleManyArrayUpdate(modelName, id, clientId, key) {

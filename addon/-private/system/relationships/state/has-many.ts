@@ -2,27 +2,25 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
+import { RelationshipRecordData, JsonApiHasManyRelationship } from '../../model/record-data';
+import { RelationshipSchema } from '../../relationship-meta';
 
 export default class ManyRelationship extends Relationship {
-  constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
+  canonicalState: RelationshipRecordData[];
+  currentState: RelationshipRecordData[];
+  _willUpdateManyArray: boolean;
+  _pendingManyArrayUpdates: any;
+  key: string
+  constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
+    this.key = relationshipMeta.key;
   }
 
-  removeInverseRelationships() {
-    super.removeInverseRelationships();
-
-    /* TODO Igor make sure this is still working
-    if (this._promiseProxy) {
-      this._promiseProxy.destroy();
-    }
-    */
-  }
-
-  addCanonicalRecordData(recordData, idx) {
+  addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -34,18 +32,19 @@ export default class ManyRelationship extends Relationship {
     super.addCanonicalRecordData(recordData, idx);
   }
 
-  inverseDidDematerialize(inverseRecordData) {
+  inverseDidDematerialize(inverseRecordData: RelationshipRecordData) {
     super.inverseDidDematerialize(inverseRecordData);
     if (this.isAsync) {
       this.notifyManyArrayIsStale();
     }
   }
 
-  addRecordData(recordData, idx) {
+  addRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (this.members.has(recordData)) {
       return;
     }
 
+    // TODO Type this
     assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
     super.addRecordData(recordData, idx);
     // make lazy later
@@ -59,7 +58,7 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  removeCanonicalRecordDataFromOwn(recordData, idx) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx) {
     let i = idx;
     if (!this.canonicalMembers.has(recordData)) {
       return;
@@ -82,7 +81,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) DO WE NEED THIS?
-  removeCompletelyFromOwn(recordData) {
+  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
     super.removeCompletelyFromOwn(recordData);
 
     // TODO SkEPTICAL
@@ -122,7 +121,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) idx not used currently, fix
-  removeRecordDataFromOwn(recordData, idx) {
+  removeRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     super.removeRecordDataFromOwn(recordData, idx);
     let index = idx || this.currentState.indexOf(recordData);
 
@@ -141,9 +140,9 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  computeChanges(recordDatas = []) {
+  computeChanges(recordDatas: RelationshipRecordData[] = []) {
     let members = this.canonicalMembers;
-    let recordDatasToRemove = [];
+    let recordDatasToRemove: RelationshipRecordData[] = [];
     let recordDatasSet = setForArray(recordDatas);
 
     members.forEach(member => {
@@ -163,8 +162,8 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  setInitialRecordDatas(recordDatas) {
-    if (Array.isArray(recordDatas) === false || recordDatas.length === 0) {
+  setInitialRecordDatas(recordDatas: RelationshipRecordData[] | undefined) {
+    if (Array.isArray(recordDatas) === false || !recordDatas || recordDatas.length === 0) {
       return;
     }
 
@@ -211,8 +210,8 @@ export default class ManyRelationship extends Relationship {
     );
   }
 
-  getData() {
-    let payload = {};
+  getData(): JsonApiHasManyRelationship {
+    let payload: any = {};
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
     }
@@ -233,7 +232,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   updateData(data, initial) {
-    let recordDatas;
+    let recordDatas: RelationshipRecordData[] | undefined;
     if (isNone(data)) {
       recordDatas = undefined;
     } else {
@@ -258,7 +257,7 @@ export default class ManyRelationship extends Relationship {
    *
    * @return {boolean}
    */
-  get allInverseRecordsAreLoaded() {
+  get allInverseRecordsAreLoaded(): boolean {
     // check currentState for unloaded records
     let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
       return hasEmptyModel || i.isEmpty();
