@@ -8,6 +8,22 @@ import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
 export default class RecordData {
+  store: any;
+  modelName: string;
+  __relationships: any;
+  __implicitRelationships: any;
+  clientId: string;
+  id?: string;
+  storeWrapper: any;
+  isDestroyed: boolean;
+  _isNew: boolean;
+  _bfsId: number;
+  __attributes: any;
+  __inFlightAttributes: any;
+  __data: any;
+  _scheduledDestroy: any;
+
+
   constructor(modelName, id, clientId, storeWrapper, store) {
     this.store = store;
     this.modelName = modelName;
@@ -287,7 +303,7 @@ export default class RecordData {
     this._relationships.get(key).setRecordData(recordData);
   }
 
-  setDirtyAttribute(key, value) {
+  setAttr(modelName, id, clientId, key, value) {
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -324,7 +340,7 @@ export default class RecordData {
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = run.backburner.schedule(
+      this._scheduledDestroy = (run as any).backburner.schedule(
         'destroy',
         this,
         '_cleanupOrphanedRecordDatas'
@@ -363,7 +379,7 @@ export default class RecordData {
     to or has many.
 
   */
-  _directlyRelatedRecordDatas() {
+  _directlyRelatedRecordDatas(): RecordData[] {
     let array = [];
 
     this._relationships.forEach((name, rel) => {
@@ -384,14 +400,14 @@ export default class RecordData {
     @return {Array} An array including `this` and all internal models reachable
     from `this`.
   */
-  _allRelatedRecordDatas() {
-    let array = [];
-    let queue = [];
+  _allRelatedRecordDatas(): RecordData[] {
+    let array: RecordData[] = [];
+    let queue: RecordData[] = [];
     let bfsId = nextBfsId++;
     queue.push(this);
     this._bfsId = bfsId;
     while (queue.length > 0) {
-      let node = queue.shift();
+      let node = queue.shift() as RecordData;
       array.push(node);
 
       let related = node._directlyRelatedRecordDatas();
@@ -535,7 +551,7 @@ export default class RecordData {
 
         switch (kind) {
           case 'attribute':
-            this.setDirtyAttribute(name, propertyValue);
+            this.setAttr(modelName, this.id, this.clientId, name, propertyValue);
             break;
           case 'belongsTo':
             this.setDirtyBelongsTo(name, propertyValue);
@@ -659,7 +675,7 @@ export default class RecordData {
       in the schema
   */
   _changedKeys(updates) {
-    let changedKeys = [];
+    let changedKeys: string[] = [];
 
     if (updates) {
       let original, i, value, key;
@@ -724,7 +740,7 @@ function assertRelationshipData(store, recordData, data, meta) {
     }' on ${recordData}, expected a json-api identifier but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
-    data === null || coerceId(data.id)
+    data === null || !!coerceId(data.id)
   );
   assert(
     `Encountered a relationship identifier with type '${data.type}' for the ${
