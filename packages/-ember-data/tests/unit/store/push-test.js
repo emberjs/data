@@ -546,6 +546,7 @@ module('unit/store/push - DS.Store#push', function(hooks) {
 
   testInDebug('calling push without data argument as an object raises an error', function(assert) {
     let invalidValues = [null, 1, 'string', EmberObject.create(), EmberObject.extend(), true];
+    debugger
 
     assert.expect(invalidValues.length);
 

@@ -109,7 +109,7 @@ module('integration/records/property-changes - Property changes', function(hooks
     });
   });
 
-  test('Saving a record trigger observers for locally changed attributes with the same canonical value', function(assert) {
+  test('igor Saving a record trigger observers for locally changed attributes with the same canonical value', function(assert) {
     assert.expect(1);
     var person;
 

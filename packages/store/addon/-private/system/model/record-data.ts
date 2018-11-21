@@ -8,30 +8,166 @@ import coerceId from '../coerce-id';
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
 import Relationship from '../relationships/state/relationship';
-import RecordData, { ChangedAttributesHash } from '../../ts-interfaces/record-data'
-import { JsonApiResource, JsonApiResourceIdentity, JsonApiBelongsToRelationship, JsonApiHasManyRelationship, AttributesHash } from "../../ts-interfaces/record-data-json-api";
-import { RelationshipRecordData } from '../../ts-interfaces/relationship-record-data';
+import RelationshipRecordData from '../../ts-interfaces/relationship-record-data';
+import RecordData, { ChangedAttributesHash } from '../../ts-interfaces/record-data';
 import { RecordDataStoreWrapper } from '../../ts-interfaces/record-data-store-wrapper';
+import { JsonApiValidationError, JsonApiResource, JsonApiResourceIdentity, JsonApiHasManyRelationship, JsonApiBelongsToRelationship, AttributesHash } from '../../ts-interfaces/record-data-json-api';
 
 let nextBfsId = 1;
 
-export default class RecordDataDefault implements RelationshipRecordData {
+/*
+export interface AttributesHash {
+  attributes?: { [key: string]: any };
+}
+
+export interface JsonApiResource {
+  id?: string | null;
+  type?: string;
+
+  attributes?: AttributesHash;
+  relationships?: { [key: string]: JsonApiRelationship };
+  meta?: any;
+}
+
+export interface JsonApiResourceIdentity {
+  id?: string | null;
+  type: string;
+  clientId?: string;
+}
+
+export interface JsonApiBelongsToRelationship {
+  data?: JsonApiResourceIdentity;
+  meta?: any;
+  links?: { [key: string]: string }
+  // Private
+  _relationship?: BelongsToRelationship
+}
+
+export interface JsonApiHasManyRelationship {
+  data?: JsonApiResourceIdentity[];
+  meta?: any;
+  links?: { [key: string]: string }
+  // Private
+  _relationship?: ManyRelationship
+}
+
+
+export type JsonApiRelationship = JsonApiBelongsToRelationship | JsonApiHasManyRelationship;
+
+export interface ChangedAttributesHash {
+  [key: string]: [string, string]
+}
+
+export interface RelationshipsSchema {
+  [key: string]: RelationshipSchema
+}
+
+export interface AttributesSchema {
+  [key: string]: AttributeSchema
+}
+
+export interface AttributeSchema {
+  name: string;
+  options: { [key: string]: any };
+  type: string;
+}
+
+
+export interface RecordDataStoreWrapper {
+  relationshipsDefinitionFor(modelName: string, id?: string): RelationshipsSchema
+  attributesDefinitionFor(modelName: string, id?: string): AttributesSchema
+  setRecordId(modelName: string, id: string, clientId: string);
+  disconnectRecord(modelName: string, id: string | null, clientId: string);
+  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
+  notifyPropertyChange(modelName: string, id: string | null, clientId: string | null, key: string);
+  notifyHasManyChange(modelName: string, id: string | null, clientId: string | null, key: string);
+  notifyBelongsToChange(modelName: string, id: string | null, clientId: string | null, key: string);
+  notifyErrorsChange(modelName: string, id: string | null, clientId: string | null);
+
+  // Needed For relationships
+  recordDataFor(modelName: string, id: string, clientId?: string);
+  inverseForRelationship(modelName: string, key: string);
+  inverseIsAsyncForRelationship(modelName: string, key: string);
+}
+
+export interface RecordData {
+
+  pushData(data: JsonApiResource, calculateChange?: boolean);
+  clientDidCreate();
+  willCommit();
+  commitWasRejected(errors?: JsonApiValidationError[]);
+
+
+  unloadRecord();
+  rollbackAttributes();
+
+
+  changedAttributes(): ChangedAttributesHash;
+  hasChangedAttributes(): boolean;
+  setDirtyAttribute(key: string, value: any);
+
+  getAttr(key: string): any;
+  getHasMany(key: string): JsonApiHasManyRelationship;
+
+  addToHasMany(key: string, recordDatas: RecordData[], idx?: number)
+  removeFromHasMany(key: string, recordDatas: RecordData[])
+  setDirtyHasMany(key: string, recordDatas: RecordData[])
+
+  getBelongsTo(key: string): JsonApiBelongsToRelationship;
+
+  setDirtyBelongsTo(name: string, recordData: RecordData | null)
+  didCommit(data: JsonApiResource | null)
+
+  // ----- unspecced
+  isAttrDirty(key: string)
+  removeFromInverseRelationships(isNew: boolean)
+  hasAttr(key: string): boolean;
+
+  _initRecordCreateOptions(options)
+
+  // MEW
+  getErrors(): JsonApiValidationError[]
+
+
+  isNew(): boolean;
+  isDeleted(): boolean;
+
+}
+
+export interface RelationshipRecordData extends RecordData {
+  //Required by the relationship layer
+  modelName: string;
+  storeWrapper: RecordDataStoreWrapper;
+  id: string | null;
+  clientId: string | null;
+  isEmpty(): boolean;
+  getResourceIdentifier(): JsonApiResourceIdentity;
+  store: any;
+  _relationships: Relationships;
+  _implicitRelationships: { [key: string]: Relationship };
+}
+*/
+
+export default class RecordDataDefault implements RecordData, RelationshipRecordData {
+  _errors?: JsonApiValidationError[]
   store: any;
   modelName: string;
   __relationships: Relationships | null;
-  __implicitRelationships:{ [key: string]: Relationship } | null;
+  __implicitRelationships: { [key: string]: Relationship } | null;
   clientId: string;
   id: string | null;
   storeWrapper: RecordDataStoreWrapper;
   isDestroyed: boolean;
   _isNew: boolean;
+  _isDeleted: boolean;
+  _isDeletionCommited: boolean;
   _bfsId: number;
   __attributes: any;
   __inFlightAttributes: any;
   __data: any;
   _scheduledDestroy: any;
 
-  constructor(modelName: string, id: string | null, clientId: string, storeWrapper: RecordDataStoreWrapper, store:any) {
+  constructor(modelName: string, id: string, clientId: string, storeWrapper: RecordDataStoreWrapper, store: any) {
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
@@ -41,6 +177,8 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.storeWrapper = storeWrapper;
     this.isDestroyed = false;
     this._isNew = false;
+    this._isDeleted = false;
+    this._isDeletionCommited = false;
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;
@@ -57,9 +195,34 @@ export default class RecordDataDefault implements RelationshipRecordData {
     };
   }
 
+  deleteRecord() {
+    this._isDeleted = true;
+    this.notifyStateChange();
+  }
+
+  isDeleted() {
+    return this._isDeleted;
+  }
+
+  setIsDeleted(isDeleted: boolean): void {
+    this._isDeleted = isDeleted;
+    if (this._isNew) {
+      this._deletionConfirmed();
+    }
+    this.notifyStateChange();
+  }
+
+  isDeletionCommitted(): boolean {
+    return this._isDeletionCommited;
+  }
+
   pushData(data: JsonApiResource, calculateChange: boolean) {
     let changedKeys;
 
+    if (this._isNew) {
+      this._isNew = false;
+      this,this.notifyStateChange();
+    }
     if (calculateChange) {
       changedKeys = this._changedKeys(data.attributes);
     }
@@ -101,6 +264,19 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this.__attributes = null;
     this.__inFlightAttributes = null;
     this.__data = null;
+    this._errors = undefined;
+  }
+
+  _clearErrors() {
+    if (this._errors) {
+      this._errors = undefined;
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    }
+  }
+
+  getErrors(): JsonApiValidationError[] {
+    let errors: JsonApiValidationError[] = this._errors || [];
+    return errors;
   }
 
   _setupRelationships(data) {
@@ -115,7 +291,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
       // in debug, assert payload validity eagerly
       let relationshipData = data.relationships[relationshipName];
-
       if (DEBUG) {
         let store = this.store;
         let recordData = this;
@@ -126,12 +301,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
         if (relationshipData.links) {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
-          let relationship = this._relationships.get(relationshipName);
           warn(
             `You pushed a record of type '${
-              this.modelName
+            this.modelName
             }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
-            isAsync || relationshipData.data || relationship.hasAnyRelationshipData,
+            isAsync || relationshipData.data,
             {
               id: 'ds.store.push-link-for-sync-relationship',
             }
@@ -140,7 +314,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
           if (relationshipMeta.kind === 'belongsTo') {
             assert(
               `A ${
-                this.modelName
+              this.modelName
               } record was pushed into the store with the value of ${relationshipName} being ${inspect(
                 relationshipData.data
               )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
@@ -150,7 +324,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
           } else if (relationshipMeta.kind === 'hasMany') {
             assert(
               `A ${
-                this.modelName
+              this.modelName
               } record was pushed into the store with the value of ${relationshipName} being '${inspect(
                 relationshipData.data
               )}', but ${relationshipName} is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`,
@@ -169,7 +343,6 @@ export default class RecordDataDefault implements RelationshipRecordData {
           }
         }
       }
-
       let relationship = this._relationships.get(relationshipName);
 
       relationship.push(relationshipData);
@@ -231,6 +404,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   rollbackAttributes() {
+    this._isDeleted = false;
     let dirtyKeys;
     if (this.hasChangedAttributes()) {
       dirtyKeys = Object.keys(this._attributes);
@@ -239,14 +413,27 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
     if (this.isNew()) {
       this.removeFromInverseRelationships(true);
+      this._isDeleted = true;
+      //TODO show isNew as false after a rollback seems wrong
+      this._isNew = false;
     }
 
     this._inFlightAttributes = null;
 
+    this._clearErrors();
+    this.notifyStateChange();
     return dirtyKeys;
   }
 
+  _deletionConfirmed() {
+    this.removeFromInverseRelationships();
+  }
+
   didCommit(data: JsonApiResource | null) {
+    if (this._isDeleted) {
+      this._deletionConfirmed();
+      this._isDeletionCommited = true;
+    }
     this._isNew = false;
     let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
@@ -268,7 +455,13 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._inFlightAttributes = null;
 
     this._updateChangedAttributes();
+    this._clearErrors();
+    this.notifyStateChange();
     return changedKeys;
+  }
+
+  notifyStateChange() {
+    this.storeWrapper.notifyStateChange(this.modelName, this.id, this.clientId);
   }
 
   // get ResourceIdentifiers for "current state"
@@ -293,7 +486,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._relationships.get(key).removeRecordDatas(recordDatas);
   }
 
-  commitWasRejected() {
+  commitWasRejected(identifier, errors?: JsonApiValidationError[]) {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
@@ -304,6 +497,12 @@ export default class RecordDataDefault implements RelationshipRecordData {
       }
     }
     this._inFlightAttributes = null;
+
+    // TODO NOW previous version seemed additive, this seems like it would replace
+    if (errors) {
+      this._errors = errors;
+    }
+    this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
   }
 
   getBelongsTo(key: string): JsonApiBelongsToRelationship {
@@ -328,6 +527,15 @@ export default class RecordDataDefault implements RelationshipRecordData {
     if (value === originalValue) {
       delete this._attributes[key];
     }
+    /*
+    if (this._errors) {
+      let errors = this._errors;
+      this._errors = errors.filter((err) => !(err.source && err.source && err.source.pointer === `/data/attributes/${key}`));
+      if (this._errors.length != errors.length) {
+        this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+      }
+    }
+    */
   }
 
   getAttr(key: string): string {
@@ -385,10 +593,10 @@ export default class RecordDataDefault implements RelationshipRecordData {
   /**
     Computes the set of internal models reachable from `this` across exactly one
     relationship.
-
+  
     @return {Array} An array containing the internal models that `this` belongs
     to or has many.
-
+  
   */
   _directlyRelatedRecordDatas(): RecordData[] {
     let array = [];
@@ -403,11 +611,11 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   /**
     Computes the set of internal models reachable from this internal model.
-
+  
     Reachability is determined over the relationship graph (ie a graph where
     nodes are internal models and edges are belongs to or has many
     relationships).
-
+  
     @return {Array} An array including `this` and all internal models reachable
     from `this`.
   */
@@ -487,7 +695,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
    implicit relationships are relationship which have not been declared but the inverse side exists on
    another record somewhere
    For example if there was
-
+  
    ```app/models/comment.js
    import Model, { attr } from '@ember-data/model';
 
@@ -495,9 +703,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
      name: attr()
    });
    ```
-
+  
    but there is also
-
+  
    ```app/models/post.js
    import Model, { attr, hasMany } from '@ember-data/model';
 
@@ -506,7 +714,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
      comments: hasMany('comment')
    });
    ```
-
+  
    would have a implicit post relationship in order to be do things like remove ourselves from the post
    when we are deleted
   */
@@ -589,17 +797,17 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   /*
-
-
+  
+  
     TODO IGOR AND DAVID this shouldn't be public
    This method should only be called by records in the `isNew()` state OR once the record
    has been deleted and that deletion has been persisted.
-
+  
    It will remove this record from any associated relationships.
-
+  
    If `isNew` is true (default false), it will also completely reset all
     relationships to an empty state as well.
-
+  
     @method removeFromInverseRelationships
     @param {Boolean} isNew whether to unload from the `isNew` perspective
     @private
@@ -643,15 +851,15 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
   /*
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
-
+  
     `_data` holds all of the attributes that have been acknowledged by
     a backend via the adapter. When rollbackAttributes is called on a model all
     attributes will revert to the record's state in `_data`.
-
+  
     `_attributes` holds any change the user has made to an attribute
     that has not been acknowledged by the adapter. Any values in
     `_attributes` are have priority over values in `_data`.
-
+  
     `_inFlightAttributes`. When a record is being synced with the
     backend the values in `_attributes` are copied to
     `_inFlightAttributes`. This way if the backend acknowledges the
@@ -659,26 +867,26 @@ export default class RecordDataDefault implements RelationshipRecordData {
     values from `_inFlightAttributes` to `_data`. Without having to
     worry about changes made to `_attributes` while the save was
     happenign.
-
-
+  
+  
     Changed keys builds a list of all of the values that may have been
     changed by the backend after a successful save.
-
+  
     It does this by iterating over each key, value pair in the payload
     returned from the server after a save. If the `key` is found in
     `_attributes` then the user has a local changed to the attribute
     that has not been synced with the server and the key is not
     included in the list of changed keys.
-
-
-
+  
+  
+  
     If the value, for a key differs from the value in what Ember Data
     believes to be the truth about the backend state (A merger of the
     `_data` and `_inFlightAttributes` objects where
     `_inFlightAttributes` has priority) then that means the backend
     has updated the value and the key is added to the list of changed
     keys.
-
+  
     @method _changedKeys
     @private
   */
@@ -731,17 +939,17 @@ export default class RecordDataDefault implements RelationshipRecordData {
 function assertRelationshipData(store, recordData, data, meta) {
   assert(
     `A ${recordData.modelName} record was pushed into the store with the value of ${
-      meta.key
+    meta.key
     } being '${JSON.stringify(data)}', but ${
-      meta.key
+    meta.key
     } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
     !Array.isArray(data)
   );
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
-      meta.key
+    meta.key
     }' on ${recordData}, expected a json-api identifier with type '${
-      meta.type
+    meta.type
     }' but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
@@ -749,7 +957,7 @@ function assertRelationshipData(store, recordData, data, meta) {
   );
   assert(
     `Encountered a relationship identifier without an id for the ${meta.kind} relationship '${
-      meta.key
+    meta.key
     }' on ${recordData}, expected a json-api identifier but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
@@ -757,16 +965,16 @@ function assertRelationshipData(store, recordData, data, meta) {
   );
   assert(
     `Encountered a relationship identifier with type '${data.type}' for the ${
-      meta.kind
+    meta.kind
     } relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${
-      meta.type
+    meta.type
     }'. No model was found for '${data.type}'.`,
     data === null || !data.type || store._hasModelFor(data.type)
   );
 }
 
 // Handle dematerialization for relationship `rel`.  In all cases, notify the
-// relationship of the dematerialization: this is done so the relationship can
+// relatinoship of the dematerialization: this is done so the relationship can
 // notify its inverse which needs to update state
 //
 // If the inverse is sync, unloading this record is treated as a client-side

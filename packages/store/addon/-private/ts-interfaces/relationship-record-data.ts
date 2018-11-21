@@ -4,7 +4,7 @@ import RecordData from './record-data';
 import { JsonApiResourceIdentity } from "./record-data-json-api";
 import { RecordDataStoreWrapper } from "./record-data-store-wrapper";
 
-export interface RelationshipRecordData extends RecordData {
+export default interface RelationshipRecordData extends RecordData {
   //Required by the relationship layer
   isNew(): boolean;
   modelName: string;

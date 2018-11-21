@@ -38,7 +38,7 @@ module('unit/record-array - RecordArray', function(hooks) {
     store = owner.lookup('service:store');
   });
 
-  test('a record array is backed by records', async function(assert) {
+  test('a record array is backed by records igor2', async function(assert) {
     assert.expect(3);
     this.owner.register(
       'adapter:application',
@@ -83,6 +83,11 @@ module('unit/record-array - RecordArray', function(hooks) {
         { id: '3', type: 'person', attributes: { name: 'Scumbag Bryn' } },
       ],
     };
+    let people = store.peekAll('person');
+    let person = store.peekRecord('person', 1);
+    console.log(people.get('length'));
+    person.deleteRecord();
+    console.log(people.get('length'));
 
     for (let i = 0, l = expectedResults.data.length; i < l; i++) {
       let {

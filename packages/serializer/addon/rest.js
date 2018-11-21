@@ -5,7 +5,7 @@
 import { typeOf, isNone } from '@ember/utils';
 
 import { makeArray } from '@ember/array';
-import { camelize } from '@ember/string';
+import { camelize, dasherize } from '@ember/string';
 import { singularize } from 'ember-inflector';
 import { assert, deprecate, warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
@@ -225,6 +225,7 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+    //debugger
     let documentHash = {
       data: null,
       included: [],
@@ -365,7 +366,7 @@ const RESTSerializer = JSONSerializer.extend({
   },
 
   isPrimaryType(store, typeName, primaryTypeClass) {
-    return store.modelFor(typeName) === primaryTypeClass;
+    return dasherize(typeName) === primaryTypeClass.modelName;
   },
 
   /**
@@ -675,7 +676,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    let normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
+    let normalizedRootKey = this.payloadKeyFromModelName(snapshot.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
 

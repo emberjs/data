@@ -19,6 +19,8 @@
       "dummy/*": ["tests/dummy/app/*", "app/*"],
       "@ember-data/adapter": ["addon"],
       "@ember-data/adapter/*": ["addon/*"],
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
       "@ember-data/adapter/test-support": ["addon-test-support"],
       "@ember-data/adapter/test-support/*": ["addon-test-support/*"],
       "ember-data": ["../-ember-data/addon"],

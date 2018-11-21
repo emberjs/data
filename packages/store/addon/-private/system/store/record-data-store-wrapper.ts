@@ -79,6 +79,11 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     internalModel.notifyBelongsToChange(key);
   }
+  
+  notifyErrorsChange(modelName, id, clientId) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    internalModel.notifyErrorsChange();
+  }
 
   recordDataFor(modelName, id, clientId) {
     return this.store.recordDataFor(modelName, id, clientId);
@@ -100,6 +105,13 @@ export default class RecordDataStoreWrapper implements IRecordDataStoreWrapper {
     let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
     if (internalModel) {
       internalModel.destroyFromRecordData();
+    }
+  }
+
+  notifyStateChange(modelName: string, id: string | null, clientId: string | null, key?: string): void {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    if (internalModel) {
+      internalModel.notifyStateChange(key);
     }
   }
 }

@@ -1225,7 +1225,11 @@ module('unit/model - Model', function(hooks) {
 
     test('an invalid record becomes clean again if changed property is reset', async function(assert) {
       adapter.updateRecord = () => {
-        return reject(new InvalidError([{ name: 'not valid' }]));
+        return reject(new InvalidError([{
+          source: {
+            pointer: '/data/attributes/name'
+          } 
+        }]));
       };
 
       store.push({
@@ -1279,7 +1283,11 @@ module('unit/model - Model', function(hooks) {
 
     test('an invalid record stays dirty if only invalid property is reset', async function(assert) {
       adapter.updateRecord = () => {
-        return reject(new InvalidError([{ name: 'not valid' }]));
+        return reject(new InvalidError([{ 
+          source: {
+            pointer: '/data/attributes/name'
+          } 
+        }]));
       };
 
       store.push({
@@ -1314,6 +1322,7 @@ module('unit/model - Model', function(hooks) {
           assert.ok(false, 'save should have rejected');
         })
         .catch(() => {
+
           assert.equal(person.get('isValid'), false, 'record is not valid');
           assert.equal(person.get('hasDirtyAttributes'), true, 'record still has dirty attributes');
 

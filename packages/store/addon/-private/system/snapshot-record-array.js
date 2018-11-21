@@ -126,6 +126,15 @@ export default class SnapshotRecordArray {
   }
 
   /**
+    The modelName of the underlying records for the snapshots in the array, as a DS.Model
+    @property type
+    @type {DS.Model}
+  */
+  get modelName() {
+    return this._recordArray.modelName;
+  }
+
+  /**
     Get snapshots of the underlying record array
 
     Example
