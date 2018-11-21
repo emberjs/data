@@ -136,7 +136,7 @@ export default function belongsTo(modelName, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'conent', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your belongsTo on ${this.constructor.toString()}`
           );
