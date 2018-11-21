@@ -730,7 +730,7 @@ module('unit/model - Model', function(hooks) {
       });
     }
 
-    ['recordData', '_internalModel', 'currentState'].forEach(testReservedProperty);
+    ['recordData', 'content', '_internalModel', 'currentState'].forEach(testReservedProperty);
 
     testInDebug(
       'A subclass of Model throws an error when calling create() directly',

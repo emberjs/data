@@ -178,7 +178,7 @@ export default function hasMany(type, options) {
   return computed({
     get(key) {
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );
@@ -188,7 +188,7 @@ export default function hasMany(type, options) {
     },
     set(key, records) {
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+        if (['_internalModel', 'content', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
             `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your hasMany on ${this.constructor.toString()}`
           );

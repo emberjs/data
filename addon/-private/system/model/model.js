@@ -1223,6 +1223,12 @@ if (DEBUG) {
         );
       }
 
+      if (!isDefaultEmptyDescriptor(this, 'content') || this.content !== undefined) {
+        throw new Error(
+          `'content' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
       if (
         !isDefaultEmptyDescriptor(this, 'currentState') ||
         this.get('currentState') !== this._internalModel.currentState
