@@ -11,6 +11,7 @@ let nextBfsId = 1;
 interface AttributesHash {
   attributes?: { [key: string]: any };
 }
+
 interface JsonApiResource {
   id?: string;
   type: string;
@@ -32,6 +33,16 @@ interface RecordData {
   unloadRecord();
   rollbackAttributes();
   changedAttributes(): ChangedAttributesHash;
+  hasChangedAttributes(): boolean;
+  getAttr(key: string): string;
+  getHasMany(key: string)
+
+  addToHasMany(key: string, recordDatas: RecordData[], idx?: number)
+  removeFromHasMany(key: string, recordDatas: RecordData[])
+  setDirtyHasMany(key: string, recordDatas: RecordData[])
+
+  getBelongsTo(key: string)
+  setDirtyBelongsTo(name: string, recordData: RecordData | null)
 }
 
 export default class RecordDataDefault implements RecordData {
@@ -330,7 +341,7 @@ export default class RecordDataDefault implements RecordData {
     this._relationships.get(key).setRecordData(recordData);
   }
 
-  setAttr(modelName, id, clientId, key, value) {
+  setDirtyAttribute(key, value) {
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -346,7 +357,7 @@ export default class RecordDataDefault implements RecordData {
     }
   }
 
-  getAttr(key) {
+  getAttr(key: string): string {
     if (key in this._attributes) {
       return this._attributes[key];
     } else if (key in this._inFlightAttributes) {
@@ -578,7 +589,7 @@ export default class RecordDataDefault implements RecordData {
 
         switch (kind) {
           case 'attribute':
-            this.setAttr(modelName, this.id, this.clientId, name, propertyValue);
+            this.setDirtyAttribute(name, propertyValue);
             break;
           case 'belongsTo':
             this.setDirtyBelongsTo(name, propertyValue);
