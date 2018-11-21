@@ -124,7 +124,7 @@ module.exports = Object.assign(addonBaseConfig, {
           'ember-inflector',
           'ember-data/version',
           'ember-data/-debug',
-          'ember-data/adapters/errors',
+          'ember-data/adapter/errors',
           '@ember/ordered-set',
           'require',
         ],

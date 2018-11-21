@@ -24,6 +24,7 @@ import {
   DS,
   Errors,
   RootState,
+  identifierForModel,
   PromiseArray,
   PromiseObject,
   PromiseManyArray,

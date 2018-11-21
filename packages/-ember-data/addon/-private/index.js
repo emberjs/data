@@ -18,6 +18,7 @@ export {
   RecordArray,
   RecordArrayManager,
   RootState,
+  identifierForModel,
   SnapshotRecordArray,
   recordDataFor,
   relationshipStateFor,

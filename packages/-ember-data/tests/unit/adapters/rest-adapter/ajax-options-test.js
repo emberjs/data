@@ -43,8 +43,8 @@ module('unit/adapters/rest-adapter/ajax-options - building requests', function(h
 
     return run(() => {
       return EmberPromise.all([
-        adapter.findRecord(store, Person, 1, {}),
-        adapter.findRecord(store, Place, 1, {}),
+        adapter.findRecord(store, Person, 1, Person),
+        adapter.findRecord(store, Place, 1, Place),
       ]);
     });
   });

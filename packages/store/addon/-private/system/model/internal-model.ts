@@ -1,7 +1,6 @@
 import { set, get } from '@ember/object';
 import EmberError from '@ember/error';
 import { default as EmberArray, A } from '@ember/array';
-import { setOwner, getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import { assign } from '@ember/polyfills';
 import RSVP, { Promise, resolve } from 'rsvp';
@@ -18,7 +17,6 @@ import Store from '../store';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordData from '../../ts-interfaces/record-data';
-import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
 import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../types';
 
@@ -34,6 +32,10 @@ interface BelongsToMetaWrapper {
   originatingInternalModel: InternalModel;
   modelName: string;
 }
+import { JsonApiResource, JsonApiValidationError } from '../../ts-interfaces/record-data-json-api';
+import { errorsHashToArray, errorsArrayToHash } from '../errors-utils';
+import { identifierForIM } from '../record-identifier';
+// import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError, JsonApiError, ChangedAttributesHash } from './record-data';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -206,9 +208,19 @@ export default class InternalModel {
       this._isDematerializing ||
       this.hasScheduledDestroy() ||
       this.isDestroyed ||
-      this.currentState.stateName === 'root.deleted.saved' ||
+      this._isRecordFullyDeleted() ||
+      //this.currentState.stateName === 'root.deleted.saved' ||
       this.isEmpty()
     );
+  }
+
+  _isRecordFullyDeleted() {
+    debugger
+    if (this._recordData.isDeletionCommitted) {
+      return this._recordData.isDeletionCommitted() || (this._recordData.isNew() && this._recordData.isDeleted());
+    } else {
+      return this.currentState.stateName === 'root.deleted.saved';
+    }
   }
 
   isRecordInUse() {
@@ -228,6 +240,7 @@ export default class InternalModel {
     return this.currentState.isLoaded;
   }
 
+  /*
   hasDirtyAttributes() {
     return this.currentState.hasDirtyAttributes;
   }
@@ -235,85 +248,41 @@ export default class InternalModel {
   isSaving() {
     return this.currentState.isSaving;
   }
+  */
 
   isDeleted() {
-    return this.currentState.isDeleted;
+    //TODO deprecate and use RD directly
+    return this._recordData.isDeleted();
+    //return this.currentState.isDeleted;
   }
 
   isNew() {
-    return this.currentState.isNew;
+    //TODO deprecate and use RD directly
+    if (this._recordData.isNew) {
+      return this._recordData.isNew();
+    } else {
+      return this.currentState.isNew;
+    }
   }
 
+  /*
   isValid() {
-    return this.currentState.isValid;
+    //return this.currentState.isValid;
   }
+  */
 
   dirtyType() {
-    return this.currentState.dirtyType;
+    //return this.currentState.dirtyType;
   }
 
   getRecord(properties?) {
     if (!this._record && !this._isDematerializing) {
       let { store } = this;
 
-      // lookupFactory should really return an object that creates
-      // instances with the injections applied
-      let createOptions: any = {
-        store,
-        _internalModel: this,
-        currentState: this.currentState,
-        isError: this.isError,
-        adapterError: this.error,
-      };
-
-      if (properties !== undefined) {
-        assert(
-          `You passed '${properties}' as properties for record creation instead of an object.`,
-          typeof properties === 'object' && properties !== null
-        );
-
-        if ('id' in properties) {
-          this.setId(properties.id);
-        }
-
-        // convert relationship Records to RecordDatas before passing to RecordData
-        let defs = store._relationshipsDefinitionFor(this.modelName);
-
-        if (defs !== null) {
-          let keys = Object.keys(properties);
-          let relationshipValue;
-
-          for (let i = 0; i < keys.length; i++) {
-            let prop = keys[i];
-            let def = defs[prop];
-
-            if (def !== undefined) {
-              if (def.kind === 'hasMany') {
-                if (DEBUG) {
-                  assertRecordsPassedToHasMany(properties[prop]);
-                }
-                relationshipValue = extractRecordDatasFromRecords(properties[prop]);
-              } else {
-                relationshipValue = extractRecordDataFromRecord(properties[prop]);
-              }
-
-              properties[prop] = relationshipValue;
-            }
-          }
-        }
-      }
-
-      let additionalCreateOptions = this._recordData._initRecordCreateOptions(properties);
-      assign(createOptions, additionalCreateOptions);
-
-      // ensure that `getOwner(this)` works inside a model instance
-      setOwner(createOptions, getOwner(store));
-
-      this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      this._record = store._instantiateRecord(this, this.modelName, this._recordData, properties);
 
       this._triggerDeferredTriggers();
     }
-
     return this._record;
   }
 
@@ -325,6 +294,7 @@ export default class InternalModel {
   }
 
   dematerializeRecord() {
+    debugger
     this._isDematerializing = true;
 
     // TODO IGOR add a test that fails when this is missing, something that involves canceliing a destroy
@@ -364,22 +334,20 @@ export default class InternalModel {
   }
 
   deleteRecord() {
+    if (this._recordData.setIsDeleted) {
+        this._recordData.setIsDeleted(true);
+    }
     this.send('deleteRecord');
   }
 
   save(options) {
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer(promiseLabel);
-
-    this.store.scheduleSave(this, resolver, options);
-    return resolver.promise;
+    return this.store.scheduleSave(this, options);
   }
 
   startedReloading() {
-    this.isReloading = true;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', true);
+    /*
     }
+    */
   }
 
   linkWasLoadedForRelationship(key, data) {
@@ -393,27 +361,23 @@ export default class InternalModel {
   }
 
   finishedReloading() {
-    this.isReloading = false;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', false);
-    }
   }
 
   reload(options) {
+    if (!options) {
+      options = {};
+    }
     this.startedReloading();
     let internalModel = this;
     let promiseLabel = 'DS: Model#reload of ' + this;
 
-    return new Promise(function(resolve) {
-      internalModel.send('reloadRecord', { resolve, options });
-    }, promiseLabel)
+      return internalModel.store._reloadRecord(internalModel, options)
       .then(
         function() {
-          internalModel.didCleanError();
+          //TODO NOW seems like we shouldn't need to do this
           return internalModel;
         },
         function(error) {
-          internalModel.didError(error);
           throw error;
         },
         'DS: Model#reload complete, update flags'
@@ -437,6 +401,7 @@ export default class InternalModel {
     once all models that refer to it via some relationship are also unloaded.
   */
   unloadRecord() {
+    debugger
     if (this.isDestroyed) {
       return;
     }
@@ -479,6 +444,7 @@ export default class InternalModel {
   // In those scenarios, we make that model's cleanup work, sync.
   //
   destroySync() {
+    debugger
     if (this._isDematerializing) {
       this.cancelDestroy();
     }
@@ -689,7 +655,15 @@ export default class InternalModel {
   reloadHasMany(key, options) {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
-      return loadingPromise;
+      if (loadingPromise.get('isPending')) {
+        return loadingPromise;
+      }
+      /* TODO Igor check wtf this is about
+      TODO NOW
+      if (loadingPromise.get('isRejected')) {
+        manyArray.set('isLoaded', manyArrayLoadedState);
+      }
+      */
     }
 
     let jsonApi = this._recordData.getHasMany(key);
@@ -738,9 +712,11 @@ export default class InternalModel {
   }
 
   destroy() {
+    debugger
+    // TODO add a better check for ED model
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
+      !this._record || (this._record.get && this._record.get('isDestroyed')) || (this._record.get && this._record.get('isDestroying'))
     );
     this.isDestroying = true;
     Object.keys(this._retainedManyArrayCache).forEach(key => {
@@ -812,7 +788,7 @@ export default class InternalModel {
     @private
   */
   createSnapshot(options) {
-    return new Snapshot(this, options);
+    return new Snapshot(options, identifierForIM(this), this.store);
   }
 
   /*
@@ -863,7 +839,7 @@ export default class InternalModel {
     @method changedAttributes
     @private
   */
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     if (this.isLoading() && !this.isReloading) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
@@ -876,8 +852,6 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
-    this._recordData.willCommit();
-    this.send('willCommit');
   }
 
   /*
@@ -935,6 +909,7 @@ export default class InternalModel {
     }
   }
 
+  //TODO NOW have to disentangle hasMany handling from change notifying
   notifyPropertyChange(key) {
     if (this.hasRecord) {
       this._record.notifyPropertyChange(key);
@@ -957,9 +932,6 @@ export default class InternalModel {
 
   rollbackAttributes() {
     let dirtyKeys = this._recordData.rollbackAttributes();
-    if (get(this, 'isError')) {
-      this.didCleanError();
-    }
 
     this.send('rolledBack');
 
@@ -1170,30 +1142,6 @@ export default class InternalModel {
     }
   }
 
-  didError(error) {
-    this.error = error;
-    this.isError = true;
-
-    if (this.hasRecord) {
-      this._record.setProperties({
-        isError: true,
-        adapterError: error,
-      });
-    }
-  }
-
-  didCleanError() {
-    this.error = null;
-    this.isError = false;
-
-    if (this.hasRecord) {
-      this._record.setProperties({
-        isError: false,
-        adapterError: null,
-      });
-    }
-  }
-
   /*
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
@@ -1202,8 +1150,6 @@ export default class InternalModel {
     @method adapterDidCommit
   */
   adapterDidCommit(data) {
-    this.didCleanError();
-
     let changedKeys = this._recordData.didCommit(data);
 
     this.send('didCommit');
@@ -1216,22 +1162,8 @@ export default class InternalModel {
     this._record._notifyProperties(changedKeys);
   }
 
-  addErrorMessageToAttribute(attribute, message) {
-    get(this.getRecord(), 'errors')._add(attribute, message);
-  }
-
-  removeErrorMessageFromAttribute(attribute) {
-    get(this.getRecord(), 'errors')._remove(attribute);
-  }
-
-  clearErrorMessages() {
-    get(this.getRecord(), 'errors')._clear();
-  }
-
   hasErrors() {
-    let errors = get(this.getRecord(), 'errors');
-
-    return errors.get('length') > 0;
+    return this._recordData.getErrors().length > 0;
   }
 
   // FOR USE DURING COMMIT PROCESS
@@ -1240,30 +1172,58 @@ export default class InternalModel {
     @method adapterDidInvalidate
     @private
   */
-  adapterDidInvalidate(errors) {
+  adapterDidInvalidate(error, parsedErrors) {
     let attribute;
+    if (error && parsedErrors) {
+      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(parsedErrors);
+      this.send('becameInvalid');
+      this._recordData.commitWasRejected({}, jsonApiErrors);
+    } else {
+      this.send('becameError');
+      this._recordData.commitWasRejected({});
+    }
+  }
 
-    for (attribute in errors) {
-      if (errors.hasOwnProperty(attribute)) {
-        this.addErrorMessageToAttribute(attribute, errors[attribute]);
+  notifyErrorsChange() {
+    let jsonApiErrors = this._recordData.getErrors() || [];
+    // TODO NOW tighten this check
+    // don't think we need this
+    let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
+    this.notifyInvalidErrorsChange(invalidErrors);
+    debugger
+  }
+
+  notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
+    this.getRecord().invalidErrorsChanged(jsonApiErrors);
+  }
+
+  notifyStateChange(key?) {
+    if (this.hasRecord) {
+      if (!key || key === 'isNew') {
+        this.getRecord().notifyPropertyChange('isNew');
+      } 
+      if (!key || key === 'isDeleted') {
+        this.getRecord().notifyPropertyChange('isDeleted');
       }
     }
-
-    this.send('becameInvalid');
-
-    this._recordData.commitWasRejected();
+      if (!key || key === 'isDeletionCommitted') {
+        this.updateRecordArrays();
+      }
   }
-
   /*
-    @method adapterDidError
+    @method adapterror
     @private
-  */
   adapterDidError(error) {
     this.send('becameError');
-    this.didError(error);
 
-    this._recordData.commitWasRejected();
+    if (error === undefined) {
+      error = null;
+    }
+    // TODO NOW this is kinda a crapshot
+    let jsonError = { meta: error };
+    this._recordData.commitWasRejected([jsonError]);
   }
+  */
 
   toString() {
     return `<${this.modelName}:${this.id}>`;

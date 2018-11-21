@@ -65,7 +65,6 @@ module('unit/store/asserts - DS.Store methods produce useful assertion messages'
     'unloadAll',
     'didSaveRecord',
     'recordWasInvalid',
-    'recordWasError',
     'modelFor',
     '_modelFactoryFor',
     '_hasModelFor',

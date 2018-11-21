@@ -6,6 +6,9 @@ import EmberError from '@ember/error';
 import { get } from '@ember/object';
 import { assign } from '@ember/polyfills';
 import { relationshipStateFor } from './record-data-for';
+import InternalModel from './model/internal-model';
+import { ChangedAttributesHash, RecordData } from './model/record-data';
+import { RecordIdentifier } from './record-identifier';
 
 /**
   @class Snapshot
@@ -15,13 +18,39 @@ import { relationshipStateFor } from './record-data-for';
   @param {DS.Model} internalModel The model to create a snapshot from
 */
 export default class Snapshot {
-  constructor(internalModel, options = {}) {
+  id: string | null
+  __attributes: any
+  _belongsToIds: { [k: string ]: string };
+  _hasManyIds: { [ k: string ]: string };
+  _hasManyRelationships: { [ k: string ]: any }; 
+  _belongsToRelationships: { [ k: string ]: any }; 
+  _internalModel: InternalModel;
+  _store: any;
+  adapterOptions: { [k: string ]: any };
+  include?: boolean;
+  modelName: string;
+  _changedAttributes: ChangedAttributesHash;
+  _identifier: RecordIdentifier;
+  _recordData: RecordData;
+
+  constructor(options: any = {}, identifier: RecordIdentifier, store: any) {
     this.__attributes = null;
     this._belongsToRelationships = Object.create(null);
     this._belongsToIds = Object.create(null);
     this._hasManyRelationships = Object.create(null);
     this._hasManyIds = Object.create(null);
-    this._internalModel = internalModel;
+    let internalModel = this._internalModel = store._internalModelForIdentifier(identifier);
+    this._store = store;
+    this._identifier = identifier;
+
+    this._recordData = store.recordDataForIdentifier(identifier);
+    /**
+     The name of the type of the underlying record for this snapshot, as a string.
+
+     @property modelName
+     @type {String}
+     */
+    this.modelName = identifier.type;
 
     /*
       If the internalModel does not yet have a record, then we are
@@ -47,7 +76,7 @@ export default class Snapshot {
      @property id
      @type {String}
      */
-    this.id = internalModel.id;
+    this.id = identifier.id;
 
     /**
      A hash of adapter options
@@ -57,15 +86,8 @@ export default class Snapshot {
     this.adapterOptions = options.adapterOptions;
     this.include = options.include;
 
-    /**
-     The name of the type of the underlying record for this snapshot, as a string.
 
-     @property modelName
-     @type {String}
-     */
-    this.modelName = internalModel.modelName;
-
-    this._changedAttributes = internalModel.changedAttributes();
+    this._changedAttributes = this._recordData.changedAttributes(); 
   }
 
   /**
@@ -91,8 +113,8 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-
-      record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
+      let attrs = Object.keys(this._store._attributesDefinitionFor(this.modelName, record.id));
+      attrs.forEach(keyName => (attributes[keyName] = get(record, keyName)));
     }
 
     return attributes;
@@ -108,6 +130,9 @@ export default class Snapshot {
     // TODO @runspired we should deprecate this in favor of modelClass but only once
     // we've cleaned up the internals enough that a public change to follow suite is
     // uncontroversial.
+
+
+    // TODO Now
     return this._internalModel.modelClass;
   }
 
@@ -220,7 +245,7 @@ export default class Snapshot {
     let relationship;
     let inverseInternalModel;
     let result;
-    let store = this._internalModel.store;
+    let store = this._store;
 
     if (id && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -311,7 +336,7 @@ export default class Snapshot {
       return this._hasManyRelationships[keyName];
     }
 
-    let store = this._internalModel.store;
+    let store = this._store;
     let relationshipMeta = store._relationshipMetaFor(this.modelName, null, keyName);
     if (!(relationshipMeta && relationshipMeta.kind === 'hasMany')) {
       throw new EmberError(
@@ -367,7 +392,10 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachAttribute(callback, binding) {
-    this.record.eachAttribute(callback, binding);
+    let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.id);
+    Object.keys(attrDefs).forEach((key) => {
+      callback.call(binding, key, attrDefs[key]);
+    });
   }
 
   /**
@@ -387,7 +415,10 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachRelationship(callback, binding) {
-    this.record.eachRelationship(callback, binding);
+    let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.id);
+    Object.keys(relationshipDefs).forEach((key) => {
+      callback.call(binding, key, relationshipDefs[key]);
+    });
   }
 
   /**
