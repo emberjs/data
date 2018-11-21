@@ -8,7 +8,7 @@ type Coercable = string | number | boolean | null | undefined | symbol;
 
 function coerceId(id: number | boolean | symbol): string;
 function coerceId(id: null | undefined | ''): null;
-function coerceId(id: string): string | null;
+function coerceId(id: string | undefined): string | null;
 function coerceId(id: Coercable): string | null {
   if (id === null || id === undefined || id === '') {
     return null;

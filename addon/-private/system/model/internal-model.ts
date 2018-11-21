@@ -16,6 +16,10 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
+import RecordDataDefault from './record-data';
+import RecordData from '../../ts-interfaces/record-data'
+import { JsonApiResource } from "../../ts-interfaces/record-data-json-api";
+
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -84,7 +88,35 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data, clientId) {
+  id: string | null;
+  store: any;
+  modelName: string;
+  clientId: string | null;
+  __recordData: RecordData | null;
+  _isDestroyed: boolean;
+  isError: boolean;
+  _pendingRecordArrayManagerFlush: boolean; 
+  _isDematerializing: boolean;
+  isReloading: boolean;
+  _doNotDestroy: boolean;
+  isDestroying: boolean;
+
+  // Not typed yet
+  _promiseProxy: any;
+  _record: any;
+  _scheduledDestroy: any;
+  _modelClass: any;
+  __deferredTriggers: any;
+  __recordArrays: any;
+  _references: any;
+  _recordReference: any;
+  _manyArrayCache: any;
+  _retainedManyArrayCache: any;
+  _relationshipPromisesCache: any;
+  currentState: any;
+  error: any;
+
+  constructor(modelName: string, id: string | null, store, data, clientId) {
     heimdall.increment(new_InternalModel);
     this.id = id;
     this.store = store;
@@ -142,9 +174,11 @@ export default class InternalModel {
     return this._recordReference;
   }
 
-  get _recordData() {
+  get _recordData(): RecordData {
     if (this.__recordData === null) {
-      this._recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+      let recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+      this._recordData = recordData;
+      return recordData;
     }
     return this.__recordData;
   }
@@ -232,7 +266,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord(properties) {
+  getRecord(properties?) {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -240,12 +274,12 @@ export default class InternalModel {
 
       // lookupFactory should really return an object that creates
       // instances with the injections applied
-      let createOptions = {
+      let createOptions: any = {
         store,
         _internalModel: this,
         currentState: this.currentState,
         isError: this.isError,
-        adapterError: this.error,
+        adapterError: this.error
       };
 
       if (properties !== undefined) {
@@ -543,7 +577,8 @@ export default class InternalModel {
 
     if (!manyArray) {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
-
+      // TODO move this to a public api
+      let inverseIsAsync = jsonApi._relationship ? jsonApi._relationship._inverseIsAsync() : false;
       manyArray = ManyArray.create({
         store: this.store,
         type: this.store.modelFor(relationshipMeta.type),
@@ -552,7 +587,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
-        _inverseIsAsync: jsonApi._relationship._inverseIsAsync(),
+        _inverseIsAsync: inverseIsAsync,
         internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
@@ -615,7 +650,7 @@ export default class InternalModel {
     }
   }
 
-  _updateLoadingPromiseForHasMany(key, promise, content) {
+  _updateLoadingPromiseForHasMany(key, promise, content?) {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
       if (content) {
@@ -646,7 +681,10 @@ export default class InternalModel {
     }
 
     let jsonApi = this._recordData.getHasMany(key);
-    jsonApi._relationship.setRelationshipIsStale(true);
+    // TODO move this to a public api
+    if (jsonApi._relationship) {
+      jsonApi._relationship.setRelationshipIsStale(true);
+    }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
     let promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options);
@@ -658,7 +696,10 @@ export default class InternalModel {
 
   reloadBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
-    resource._relationship.setRelationshipIsStale(true);
+    // TODO move this to a public api
+    if (resource._relationship) {
+      resource._relationship.setRelationshipIsStale(true);
+    }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);
@@ -834,7 +875,7 @@ export default class InternalModel {
     @param {String} name
     @param {Object} context
   */
-  send(name, context) {
+  send(name, context?) {
     heimdall.increment(send);
     let currentState = this.currentState;
 
@@ -1041,7 +1082,7 @@ export default class InternalModel {
     @param {Object} preload
   */
   preloadData(preload) {
-    let jsonPayload = {};
+    let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach(key => {
       let preloadValue = get(preload, key);
