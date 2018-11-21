@@ -44,7 +44,7 @@ import {
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
-import RecordData from './model/record-data';
+import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -2867,7 +2867,7 @@ const Store = Service.extend({
   },
 
   createRecordDataFor(modelName, id, clientId, storeWrapper) {
-    return new RecordData(modelName, id, clientId, storeWrapper, this);
+    return new RecordDataDefault(modelName, id, clientId, storeWrapper, this);
   },
 
   recordDataFor(modelName, id, clientId) {

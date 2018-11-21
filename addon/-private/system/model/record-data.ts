@@ -7,13 +7,30 @@ import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
-export default class RecordData {
+
+interface AttributesHash {
+  attributes?: { [key: string]: any };
+}
+interface JsonApiResource {
+  id?: string;
+  type: string;
+
+  attributes?: AttributesHash;
+  relationships?: { [key: string]: any };
+  meta?: any;
+}
+
+ interface RecordData {
+  pushData(data: JsonApiResource, calculateChange: boolean)
+}
+
+export default class RecordDataDefault implements RecordData {
   store: any;
   modelName: string;
   __relationships: any;
   __implicitRelationships: any;
   clientId: string;
-  id?: string;
+  id: string | null;
   storeWrapper: any;
   isDestroyed: boolean;
   _isNew: boolean;
@@ -22,7 +39,6 @@ export default class RecordData {
   __inFlightAttributes: any;
   __data: any;
   _scheduledDestroy: any;
-
 
   constructor(modelName, id, clientId, storeWrapper, store) {
     this.store = store;
@@ -50,7 +66,7 @@ export default class RecordData {
     };
   }
 
-  pushData(data, calculateChange) {
+  pushData(data: JsonApiResource, calculateChange: boolean) {
     let changedKeys;
 
     if (calculateChange) {
@@ -236,8 +252,9 @@ export default class RecordData {
     return dirtyKeys;
   }
 
-  didCommit(data) {
+  didCommit(data: JsonApiResource | null) {
     this._isNew = false;
+    let newCanonicalAttributes: AttributesHash | null = null;
     if (data) {
       // this.store._internalModelDidReceiveRelationshipData(this.modelName, this.id, data.relationships);
       if (data.relationships) {
@@ -248,11 +265,11 @@ export default class RecordData {
         this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
         this.id = coerceId(data.id);
       }
-      data = data.attributes;
+      newCanonicalAttributes = data.attributes || null;
     }
-    let changedKeys = this._changedKeys(data);
+    let changedKeys = this._changedKeys(newCanonicalAttributes);
 
-    assign(this._data, this.__inFlightAttributes, data);
+    assign(this._data, this.__inFlightAttributes, newCanonicalAttributes);
 
     this._inFlightAttributes = null;
 
@@ -400,14 +417,14 @@ export default class RecordData {
     @return {Array} An array including `this` and all internal models reachable
     from `this`.
   */
-  _allRelatedRecordDatas(): RecordData[] {
-    let array: RecordData[] = [];
-    let queue: RecordData[] = [];
+  _allRelatedRecordDatas(): RecordDataDefault[] {
+    let array: RecordDataDefault[] = [];
+    let queue: RecordDataDefault[] = [];
     let bfsId = nextBfsId++;
     queue.push(this);
     this._bfsId = bfsId;
     while (queue.length > 0) {
-      let node = queue.shift() as RecordData;
+      let node = queue.shift() as RecordDataDefault;
       array.push(node);
 
       let related = node._directlyRelatedRecordDatas();
@@ -415,7 +432,7 @@ export default class RecordData {
       for (let i = 0; i < related.length; ++i) {
         let recordData = related[i];
 
-        if (recordData instanceof RecordData) {
+        if (recordData instanceof RecordDataDefault) {
           assert('Internal Error: seen a future bfs iteration', recordData._bfsId <= bfsId);
           if (recordData._bfsId < bfsId) {
             queue.push(recordData);
