@@ -16,6 +16,7 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
+import RecordDataDefault, { RecordData, JsonApiResource } from './record-data';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -84,6 +85,33 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
+  id: string | null;
+  store: any;
+  modelName: string;
+  clientId: string | null;
+  _recordData: RecordData;
+  _promiseProxy: any;
+  _record: any;
+  _isDestroyed: boolean;
+  isError: boolean;
+  _pendingRecordArrayManagerFlush: boolean; 
+  _isDematerializing: boolean;
+  _scheduledDestroy: any;
+  _modelClass: any;
+  __deferredTriggers: any;
+  __recordArrays: any;
+  _references: any;
+  _recordReference: any;
+
+  _manyArrayCache: any;
+  _retainedManyArrayCache: any;
+  _relationshipPromisesCache: any;
+  currentState: any;
+  error: any;
+  isReloading: boolean;
+  _doNotDestroy: boolean;
+  isDestroying: boolean;
+
   constructor(modelName, id, store, data, clientId) {
     heimdall.increment(new_InternalModel);
     this.id = id;
@@ -232,7 +260,7 @@ export default class InternalModel {
     return this.currentState.dirtyType;
   }
 
-  getRecord(properties) {
+  getRecord(properties?) {
     if (!this._record && !this._isDematerializing) {
       heimdall.increment(materializeRecord);
       let token = heimdall.start('InternalModel.getRecord');
@@ -246,6 +274,7 @@ export default class InternalModel {
         currentState: this.currentState,
         isError: this.isError,
         adapterError: this.error,
+        container: null
       };
 
       if (properties !== undefined) {
@@ -427,7 +456,7 @@ export default class InternalModel {
     this.send('unloadRecord');
     this.dematerializeRecord();
     if (this._scheduledDestroy === null) {
-      this._scheduledDestroy = run.backburner.schedule(
+      this._scheduledDestroy = (run as any).backburner.schedule(
         'destroy',
         this,
         '_checkForOrphanedInternalModels'
@@ -615,7 +644,7 @@ export default class InternalModel {
     }
   }
 
-  _updateLoadingPromiseForHasMany(key, promise, content) {
+  _updateLoadingPromiseForHasMany(key, promise, content?) {
     let loadingPromise = this._relationshipPromisesCache[key];
     if (loadingPromise) {
       if (content) {
@@ -834,7 +863,7 @@ export default class InternalModel {
     @param {String} name
     @param {Object} context
   */
-  send(name, context) {
+  send(name, context?) {
     heimdall.increment(send);
     let currentState = this.currentState;
 
@@ -1041,7 +1070,7 @@ export default class InternalModel {
     @param {Object} preload
   */
   preloadData(preload) {
-    let jsonPayload = {};
+    let jsonPayload: JsonApiResource = {};
     //TODO(Igor) consider the polymorphic case
     Object.keys(preload).forEach(key => {
       let preloadValue = get(preload, key);
@@ -1256,7 +1285,7 @@ function assertRecordsPassedToHasMany(records) {
   // TODO only allow native arrays
   assert(
     `You must pass an array of records to set a hasMany relationship`,
-    Array.isArray(records) || EmberArray.detect(records)
+    Array.isArray(records) || (EmberArray as any).detect(records)
   );
   assert(
     `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(

@@ -8,25 +8,25 @@ import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
 
-interface AttributesHash {
+export interface AttributesHash {
   attributes?: { [key: string]: any };
 }
 
-interface JsonApiResource {
-  id?: string;
-  type: string;
+export interface JsonApiResource {
+  id?: string | null;
+  type?: string;
 
   attributes?: AttributesHash;
   relationships?: { [key: string]: any };
   meta?: any;
 }
 
-interface ChangedAttributesHash {
+export interface ChangedAttributesHash {
   [key: string]: [string, string]
 }
 
-interface RecordData {
-  pushData(data: JsonApiResource, calculateChange: boolean)
+export interface RecordData {
+  pushData(data: JsonApiResource, calculateChange?: boolean)
   clientDidCreate();
   willCommit();
   commitWasRejected();
@@ -34,6 +34,8 @@ interface RecordData {
   rollbackAttributes();
   changedAttributes(): ChangedAttributesHash;
   hasChangedAttributes(): boolean;
+  setDirtyAttribute(key: string, value: any);
+
   getAttr(key: string): string;
   getHasMany(key: string)
 
@@ -43,6 +45,13 @@ interface RecordData {
 
   getBelongsTo(key: string)
   setDirtyBelongsTo(name: string, recordData: RecordData | null)
+  didCommit(data: JsonApiResource | null)
+
+
+  // ----- unspecced
+  isAttrDirty(key: string)
+  removeFromInverseRelationships(isNew: boolean)
+  _initRecordCreateOptions(options)
 }
 
 export default class RecordDataDefault implements RecordData {
