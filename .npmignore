@@ -33,3 +33,9 @@ yarn.lock
 **/*.rb
 node-tests/
 lib/version-replace.js
+
+# typescript
+#
+# avoid publishing .d.ts or .ts files
+# until they have become enforced "public" APIs
+*.ts
