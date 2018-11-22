@@ -688,8 +688,15 @@ module('unit/model - Model', function(hooks) {
       @attr('string')
       name;
     }
+    class NativePostWithContent extends Model {
+      @attr('string')
+      content;
+      @attr('string')
+      name;
+    }
     const PROP_MAP = {
       _internalModel: NativePostWithInternalModel,
+      content: NativePostWithContent,
       recordData: NativePostWithRecordData,
       currentState: NativePostWithCurrentState,
     };
