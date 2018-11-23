@@ -1,8 +1,5 @@
 import InternalModelMap from './internal-model-map';
-
-interface IMMDict {
-  [modelName: string]: InternalModelMap
-}
+import { Dict } from '../types';
 
 /**
  `IdentityMap` is a custom storage map for records by modelName
@@ -12,11 +9,7 @@ interface IMMDict {
  @private
  */
 export default class IdentityMap {
-  private _map: IMMDict;
-
-  constructor() {
-    this._map = Object.create(null);
-  }
+  private _map: Dict<string, InternalModelMap> = Object.create(null);
 
   /**
    Retrieves the `InternalModelMap` for a given modelName,

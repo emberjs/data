@@ -1,12 +1,6 @@
 import { assert } from '@ember/debug';
 import InternalModel from './model/internal-model';
-
-interface IDDict {
-  [id: string]: InternalModel;
-}
-interface MetaDict {
-  [key: string]: any;
-}
+import { Dict } from '../types';
 
 /**
  `InternalModelMap` is a custom storage map for internalModels of a given modelName
@@ -19,18 +13,11 @@ interface MetaDict {
  @private
  */
 export default class InternalModelMap {
-  private _idToModel: IDDict;
-  private _models: InternalModel[];
-  private _metadata: MetaDict | null;
+  private _idToModel: Dict<string, InternalModel> = Object.create(null);
+  private _models: InternalModel[] = [];
+  private _metadata: Dict<string, any> | null = null;
 
-  modelName: string;
-
-  constructor(modelName: string) {
-    this.modelName = modelName;
-    this._idToModel = Object.create(null);
-    this._models = [];
-    this._metadata = null;
-  }
+  constructor(public modelName: string) {}
 
   /**
    * @method get
@@ -116,7 +103,7 @@ export default class InternalModelMap {
    * @property metadata
    * @type Object
    */
-  get metadata(): MetaDict {
+  get metadata(): Dict<string, any> {
     return this._metadata || (this._metadata = Object.create(null));
   }
 
