@@ -639,3 +639,20 @@ testInDebug(
     env.store.createRecord('user', {});
   }
 );
+
+test('No inverse configuration - should default to a null inverse', function (assert) {  
+  User = DS.Model.extend();
+  
+  Comment = DS.Model.extend({
+    user: belongsTo('user')
+  });
+
+  const env = setupStore({
+    user: User,
+    comment: Comment
+  });
+
+  const comment = env.store.createRecord('comment');
+
+  assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
+});
