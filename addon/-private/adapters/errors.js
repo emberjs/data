@@ -75,15 +75,31 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   @namespace DS
 */
 export function AdapterError(errors, message = 'Adapter operation failed') {
-  this.isAdapterError = true;
-  EmberError.call(this, message);
-
-  this.errors = errors || [
+  let instance = new EmberError(message);
+  instance.isAdapterError = true;
+  instance.errors = errors || [
     {
       title: 'Adapter Error',
       detail: message,
     },
   ];
+  Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+  return instance;
+}
+
+AdapterError.prototype = Object.create(EmberError.prototype, {
+  constructor: {
+    value: EmberError,
+    enumerable: false,
+    writable: true,
+    configurable: true,
+  },
+});
+
+if (Object.setPrototypeOf) {
+  Object.setPrototypeOf(AdapterError, EmberError);
+} else {
+  AdapterError.__proto__ = EmberError;
 }
 
 function extendFn(ErrorClass) {
@@ -95,15 +111,13 @@ function extendFn(ErrorClass) {
 function extend(ParentErrorClass, defaultMessage) {
   let ErrorClass = function(errors, message) {
     assert('`AdapterError` expects json-api formatted errors array.', Array.isArray(errors || []));
-    ParentErrorClass.call(this, errors, message || defaultMessage);
+    return ParentErrorClass.call(this, errors, message || defaultMessage);
   };
   ErrorClass.prototype = Object.create(ParentErrorClass.prototype);
   ErrorClass.extend = extendFn(ErrorClass);
 
   return ErrorClass;
 }
-
-AdapterError.prototype = Object.create(EmberError.prototype);
 
 AdapterError.extend = extendFn(AdapterError);
 
