@@ -2,21 +2,21 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import { RecordData } from '../../model/record-data';
+import { RelationshipRecordData } from '../../model/record-data';
 
 export default class BelongsToRelationship extends Relationship {
 
-  inverseRecordData: RecordData | null;
-  canonicalState: RecordData | null;
+  inverseRecordData: RelationshipRecordData | null;
+  canonicalState: RelationshipRecordData | null;
 
-  constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
+  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.key = relationshipMeta.key;
     this.inverseRecordData = null;
     this.canonicalState = null;
   }
 
-  setRecordData(recordData) {
+  setRecordData(recordData: RelationshipRecordData) {
     if (recordData) {
       this.addRecordData(recordData);
     } else if (this.inverseRecordData) {
@@ -28,7 +28,7 @@ export default class BelongsToRelationship extends Relationship {
     this.setRelationshipIsEmpty(false);
   }
 
-  setCanonicalRecordData(recordData) {
+  setCanonicalRecordData(recordData: RelationshipRecordData) {
     if (recordData) {
       this.addCanonicalRecordData(recordData);
     } else if (this.canonicalState) {
@@ -37,7 +37,7 @@ export default class BelongsToRelationship extends Relationship {
     this.flushCanonicalLater();
   }
 
-  setInitialCanonicalRecordData(recordData) {
+  setInitialCanonicalRecordData(recordData: RelationshipRecordData) {
     if (!recordData) {
       return;
     }
@@ -51,7 +51,7 @@ export default class BelongsToRelationship extends Relationship {
     this.setupInverseRelationship(recordData);
   }
 
-  addCanonicalRecordData(recordData) {
+  addCanonicalRecordData(recordData: RelationshipRecordData) {
     if (this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -71,7 +71,7 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChange();
   }
 
-  removeCompletelyFromOwn(recordData) {
+  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
     super.removeCompletelyFromOwn(recordData);
 
     if (this.canonicalState === recordData) {
@@ -104,7 +104,7 @@ export default class BelongsToRelationship extends Relationship {
     super.flushCanonical();
   }
 
-  addRecordData(recordData) {
+  addRecordData(recordData: RelationshipRecordData) {
     if (this.members.has(recordData)) {
       return;
     }
@@ -121,7 +121,7 @@ export default class BelongsToRelationship extends Relationship {
     this.notifyBelongsToChange();
   }
 
-  removeRecordDataFromOwn(recordData) {
+  removeRecordDataFromOwn(recordData: RelationshipRecordData) {
     if (!this.members.has(recordData)) {
       return;
     }
@@ -147,7 +147,7 @@ export default class BelongsToRelationship extends Relationship {
     );
   }
 
-  removeCanonicalRecordDataFromOwn(recordData) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData) {
     if (!this.canonicalMembers.has(recordData)) {
       return;
     }

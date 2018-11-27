@@ -2,14 +2,14 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import { RecordData } from '../../model/record-data';
+import { RelationshipRecordData } from '../../model/record-data';
 
 export default class ManyRelationship extends Relationship {
-  canonicalState: RecordData[];
-  currentState: RecordData[];
+  canonicalState: RelationshipRecordData[];
+  currentState: RelationshipRecordData[];
   _willUpdateManyArray: boolean;
   _pendingManyArrayUpdates: any;
-  constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
+  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
@@ -17,7 +17,7 @@ export default class ManyRelationship extends Relationship {
     this._pendingManyArrayUpdates = null;
   }
 
-  addCanonicalRecordData(recordData, idx) {
+  addCanonicalRecordData(recordData: RelationshipRecordData, idx) {
     if (this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -29,14 +29,14 @@ export default class ManyRelationship extends Relationship {
     super.addCanonicalRecordData(recordData, idx);
   }
 
-  inverseDidDematerialize(inverseRecordData) {
+  inverseDidDematerialize(inverseRecordData: RelationshipRecordData) {
     super.inverseDidDematerialize(inverseRecordData);
     if (this.isAsync) {
       this.notifyManyArrayIsStale();
     }
   }
 
-  addRecordData(recordData, idx) {
+  addRecordData(recordData: RelationshipRecordData, idx) {
     if (this.members.has(recordData)) {
       return;
     }
@@ -54,7 +54,7 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  removeCanonicalRecordDataFromOwn(recordData, idx) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData, idx) {
     let i = idx;
     if (!this.canonicalMembers.has(recordData)) {
       return;
@@ -77,7 +77,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) DO WE NEED THIS?
-  removeCompletelyFromOwn(recordData) {
+  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
     super.removeCompletelyFromOwn(recordData);
 
     // TODO SkEPTICAL
@@ -117,7 +117,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) idx not used currently, fix
-  removeRecordDataFromOwn(recordData, idx?) {
+  removeRecordDataFromOwn(recordData: RelationshipRecordData, idx?: number) {
     super.removeRecordDataFromOwn(recordData, idx);
     let index = idx || this.currentState.indexOf(recordData);
 
@@ -136,13 +136,13 @@ export default class ManyRelationship extends Relationship {
     this.notifyHasManyChange();
   }
 
-  computeChanges(recordDatas = []) {
+  computeChanges(recordDatas: RelationshipRecordData[] = []) {
     let members = this.canonicalMembers;
-    let recordDatasToRemove: RecordData[] = [];
+    let recordDatasToRemove: RelationshipRecordData[] = [];
     let recordDatasSet = setForArray(recordDatas);
 
     members.forEach(member => {
-      if ((recordDatasSet as any).has(member)) {
+      if (recordDatasSet.has(member)) {
         return;
       }
 
@@ -158,8 +158,8 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  setInitialRecordDatas(recordDatas) {
-    if (Array.isArray(recordDatas) === false || recordDatas.length === 0) {
+  setInitialRecordDatas(recordDatas: RelationshipRecordData[] | undefined) {
+    if (Array.isArray(recordDatas) === false || !recordDatas || recordDatas.length === 0) {
       return;
     }
 
@@ -228,7 +228,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   updateData(data, initial) {
-    let recordDatas;
+    let recordDatas: RelationshipRecordData[] | undefined;
     if (isNone(data)) {
       recordDatas = undefined;
     } else {
@@ -274,7 +274,7 @@ function setForArray(array) {
 
   if (array) {
     for (var i = 0, l = array.length; i < l; i++) {
-      (set as any).add(array[i]);
+      set.add(array[i]);
     }
   }
 

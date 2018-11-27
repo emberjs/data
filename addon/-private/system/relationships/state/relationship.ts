@@ -5,7 +5,7 @@ import { relationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RecordData } from '../../model/record-data';
+import { RelationshipRecordData } from '../../model/record-data';
 
 const {
   addCanonicalRecordData,
@@ -53,9 +53,9 @@ const {
 );
 
 export default class Relationship {
-  inverseIsAsync: boolean;
+  inverseIsAsync: boolean | undefined;
   kind: string;
-  recordData: RecordData;
+  recordData: RelationshipRecordData;
   members: any;
   canonicalMembers: any;
   store: any;
@@ -77,7 +77,7 @@ export default class Relationship {
   willSync?: boolean;
 
 
-  constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync?) {
+  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync?: boolean) {
     heimdall.increment(newRelationship);
     this.inverseIsAsync = inverseIsAsync;
     this.kind = relationshipMeta.kind;
@@ -225,13 +225,13 @@ export default class Relationship {
     return this.inverseKey && !this.inverseIsAsync;
   }
 
-  _hasSupportForImplicitRelationships(recordData) {
+  _hasSupportForImplicitRelationships(recordData: RelationshipRecordData) {
     return (
       recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null
     );
   }
 
-  _hasSupportForRelationships(recordData) {
+  _hasSupportForRelationships(recordData: RelationshipRecordData) {
     return recordData._relationships !== undefined && recordData._relationships !== null;
   }
 
@@ -290,7 +290,7 @@ export default class Relationship {
     }
   }
 
-  inverseDidDematerialize(inverseRecordData) {
+  inverseDidDematerialize(inverseRecordData: RelationshipRecordData | null) {
     if (!this.isAsync) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
@@ -334,12 +334,12 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
-  removeRecordDatas(recordDatas) {
+  removeRecordDatas(recordDatas: RelationshipRecordData[]) {
     heimdall.increment(removeRecordDatas);
     recordDatas.forEach(recordData => this.removeRecordData(recordData));
   }
 
-  addRecordDatas(recordDatas, idx) {
+  addRecordDatas(recordDatas: RelationshipRecordData[], idx: number) {
     heimdall.increment(addRecordDatas);
     recordDatas.forEach(recordData => {
       this.addRecordData(recordData, idx);
@@ -349,7 +349,7 @@ export default class Relationship {
     });
   }
 
-  addCanonicalRecordDatas(recordDatas, idx) {
+  addCanonicalRecordDatas(recordDatas: RelationshipRecordData[], idx: number) {
     heimdall.increment(addCanonicalRecordDatas);
     for (let i = 0; i < recordDatas.length; i++) {
       if (idx !== undefined) {
@@ -360,7 +360,7 @@ export default class Relationship {
     }
   }
 
-  addCanonicalRecordData(recordData, idx?) {
+  addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     heimdall.increment(addCanonicalRecordData);
     if (!this.canonicalMembers.has(recordData)) {
       this.canonicalMembers.add(recordData);
@@ -561,11 +561,11 @@ export default class Relationship {
 
   flushCanonical() {
     heimdall.increment(flushCanonical);
-    let list = this.members.list as RecordData[];
+    let list = this.members.list as RelationshipRecordData[];
     this.willSync = false;
     //a hack for not removing new RecordDatas
     //TODO remove once we have proper diffing
-    let newRecordDatas: RecordData[] = [];
+    let newRecordDatas: RelationshipRecordData[] = [];
     for (let i = 0; i < list.length; i++) {
       // TODO Igor deal with this
       if (list[i].isNew()) {

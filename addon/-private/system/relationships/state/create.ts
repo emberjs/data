@@ -1,7 +1,9 @@
 import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
+import { RelationshipRecordData } from '../../model/record-data';
+import Relationship from './relationship';
 
-function createRelationshipFor(relationshipMeta, store, recordData, key) {
+function createRelationshipFor(relationshipMeta: any, store: any, recordData: RelationshipRecordData, key) {
   let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
   let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
     recordData.modelName,
@@ -22,6 +24,8 @@ function createRelationshipFor(relationshipMeta, store, recordData, key) {
 }
 
 export default class Relationships {
+  recordData: RelationshipRecordData
+  initializedRelationships: {[key: string]: Relationship}
   constructor(recordData) {
     this.recordData = recordData;
     this.initializedRelationships = Object.create(null);

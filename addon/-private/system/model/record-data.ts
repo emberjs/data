@@ -45,6 +45,8 @@ export interface RecordDataStoreWrapper {
   notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
   recordDataFor(modelName: string, id: string, clientId?: string);
   notifyBelongsToChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  inverseForRelationship(modelName: string, key: string);
+  inverseIsAsyncForRelationship(modelName: string, key: string);
 }
 
 export interface RecordData {
@@ -77,6 +79,9 @@ export interface RecordData {
   _initRecordCreateOptions(options)
 
 
+}
+
+export interface RelationshipRecordData extends RecordData {
   //Required by the relationship layer
   isNew(): boolean;
   modelName: string;
@@ -85,9 +90,12 @@ export interface RecordData {
   clientId: string | null;
   isEmpty(): boolean;
   getResourceIdentifier(): any;
+  store: any;
+  _relationships: any;
+  _implicitRelationships: any;
 }
 
-export default class RecordDataDefault implements RecordData {
+export default class RecordDataDefault implements RecordData, RelationshipRecordData {
   store: any;
   modelName: string;
   __relationships: any;
