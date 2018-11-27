@@ -5,6 +5,7 @@ import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
+import { isNewLine } from 'acorn';
 
 let nextBfsId = 1;
 
@@ -38,6 +39,7 @@ export interface RecordDataStoreWrapper {
   setRecordId(modelName: string, id: string, clientId: string);
   disconnectRecord(modelName: string, id: string | null, clientId: string);
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
+  notifyPropertyChange(modelName:string, id:string | null, clientId:string | null, key: string);
 }
 
 export interface RecordData {
@@ -68,6 +70,14 @@ export interface RecordData {
   removeFromInverseRelationships(isNew: boolean)
 
   _initRecordCreateOptions(options)
+
+
+  //Required by the relationship layer
+  isNew(): boolean;
+  modelName: string;
+  storeWrapper: RecordDataStoreWrapper; 
+  id: string | null;
+  clientId: string | null;
 }
 
 export default class RecordDataDefault implements RecordData {
