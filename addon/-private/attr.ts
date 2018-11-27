@@ -1,14 +1,15 @@
 import { computed } from '@ember/object';
 import { assert } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
-import recordDataFor from './system/record-data-for';
+import Model from './system/model/model';
+import { getRecordDataFor } from './system/model/record-data-map';
 /**
   @module ember-data
 */
 
-function getDefaultValue(record, options, key) {
+function getDefaultValue(record, options, propertyName) {
   if (typeof options.defaultValue === 'function') {
-    return options.defaultValue.apply(null, arguments);
+    return options.defaultValue.call(null, record, options, propertyName);
   } else {
     let defaultValue = options.defaultValue;
     assert(
@@ -17,10 +18,6 @@ function getDefaultValue(record, options, key) {
     );
     return defaultValue;
   }
-}
-
-function hasValue(internalModel, key) {
-  return recordDataFor(internalModel).hasAttr(key);
 }
 
 interface AttrOptions {
@@ -127,7 +124,7 @@ export default function attr(type?: string | AttrOptions, options?: AttrOptions)
   };
 
   return computed({
-    get(key) {
+    get(key: string) {
       if (DEBUG) {
         if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
           throw new Error(
@@ -135,22 +132,54 @@ export default function attr(type?: string | AttrOptions, options?: AttrOptions)
           );
         }
       }
-      let internalModel = this._internalModel;
-      if (hasValue(internalModel, key)) {
-        return internalModel.getAttributeValue(key);
+
+      let recordData = getRecordDataFor(this);
+      if (recordData.hasAttr(key)) {
+        return recordData.getAttr(key);
       } else {
         return getDefaultValue(this, options, key);
       }
     },
-    set(key, value) {
+    set(key: string, value: any) {
       if (DEBUG) {
-        if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
-          throw new Error(
-            `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
-          );
+        if (this instanceof Model) {
+          if (['_internalModel', 'recordData', 'currentState'].indexOf(key) !== -1) {
+            throw new Error(
+              `'${key}' is a reserved property name on instances of classes extending Model. Please choose a different property name for your attr on ${this.constructor.toString()}`
+            );
+          }
         }
       }
-      return this._internalModel.setDirtyAttribute(key, value);
+      let recordData = getRecordDataFor(this);
+      if (this instanceof Model) {
+        updateViaInternalModel(this, key, value);
+      } else {
+        recordData.setDirtyAttribute(key, value);
+      }
+
+      return recordData.getAttr(key);
     },
   }).meta(meta);
+}
+
+function updateViaInternalModel(record: InstanceType<typeof Model>, key: string, value: any): void {
+  let recordData = getRecordDataFor(record);
+  let internalModel = record._internalModel;
+
+  if (internalModel.isDeleted()) {
+    throw new Error(
+      `Attempted to set '${key}' to '${value}' on the deleted record ${internalModel}`
+    );
+  }
+
+  let currentValue = recordData.getAttr(key);
+  if (currentValue !== value) {
+    recordData.setDirtyAttribute(key, value);
+    let isDirty = recordData.isAttrDirty(key);
+
+    internalModel.send('didSetProperty', {
+      name: key,
+      isDirty: isDirty,
+    });
+  }
 }
