@@ -25,8 +25,23 @@ export interface ChangedAttributesHash {
   [key: string]: [string, string]
 }
 
+export interface RelationshipsSchema {
+
+}
+
+export interface AttributesSchema {
+}
+
+export interface RecordDataStoreWrapper {
+  relationshipsDefinitionFor(modelName: string): RelationshipsSchema
+  attributesDefinitionFor(modelName: string): AttributesSchema
+  setRecordId(modelName: string, id: string, clientId: string);
+  disconnectRecord(modelName: string, id: string | null, clientId: string);
+  isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
+}
+
 export interface RecordData {
-  pushData(data: JsonApiResource, calculateChange?: boolean)
+  pushData(data: JsonApiResource, calculateChange?: boolean);
   clientDidCreate();
   willCommit();
   commitWasRejected();
@@ -51,6 +66,7 @@ export interface RecordData {
   // ----- unspecced
   isAttrDirty(key: string)
   removeFromInverseRelationships(isNew: boolean)
+
   _initRecordCreateOptions(options)
 }
 
@@ -61,7 +77,7 @@ export default class RecordDataDefault implements RecordData {
   __implicitRelationships: any;
   clientId: string;
   id: string | null;
-  storeWrapper: any;
+  storeWrapper: RecordDataStoreWrapper;
   isDestroyed: boolean;
   _isNew: boolean;
   _bfsId: number;
@@ -70,7 +86,7 @@ export default class RecordDataDefault implements RecordData {
   __data: any;
   _scheduledDestroy: any;
 
-  constructor(modelName, id, clientId, storeWrapper, store) {
+  constructor(modelName: string, id: string, clientId: string, storeWrapper: RecordDataStoreWrapper, store:any) {
     this.store = store;
     this.modelName = modelName;
     this.__relationships = null;
