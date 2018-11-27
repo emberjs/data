@@ -77,8 +77,6 @@ export interface RecordData {
   removeFromInverseRelationships(isNew: boolean)
 
   _initRecordCreateOptions(options)
-
-
 }
 
 export interface RelationshipRecordData extends RecordData {
