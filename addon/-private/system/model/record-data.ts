@@ -40,6 +40,10 @@ export interface RecordDataStoreWrapper {
   disconnectRecord(modelName: string, id: string | null, clientId: string);
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
   notifyPropertyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+
+  // Needed For relationships
+  notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  recordDataFor(modelName: string, id: string, clientId?: string);
 }
 
 export interface RecordData {
@@ -78,6 +82,8 @@ export interface RecordData {
   storeWrapper: RecordDataStoreWrapper; 
   id: string | null;
   clientId: string | null;
+  isEmpty(): boolean;
+  getResourceIdentifier(): any;
 }
 
 export default class RecordDataDefault implements RecordData {

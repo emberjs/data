@@ -2,24 +2,19 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
+import { RecordData } from '../../model/record-data';
 
 export default class ManyRelationship extends Relationship {
+  canonicalState: RecordData[];
+  currentState: RecordData[];
+  _willUpdateManyArray: boolean;
+  _pendingManyArrayUpdates: any;
   constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
-  }
-
-  removeInverseRelationships() {
-    super.removeInverseRelationships();
-
-    /* TODO Igor make sure this is still working
-    if (this._promiseProxy) {
-      this._promiseProxy.destroy();
-    }
-    */
   }
 
   addCanonicalRecordData(recordData, idx) {
@@ -122,7 +117,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   //TODO(Igor) idx not used currently, fix
-  removeRecordDataFromOwn(recordData, idx) {
+  removeRecordDataFromOwn(recordData, idx?) {
     super.removeRecordDataFromOwn(recordData, idx);
     let index = idx || this.currentState.indexOf(recordData);
 
@@ -143,11 +138,11 @@ export default class ManyRelationship extends Relationship {
 
   computeChanges(recordDatas = []) {
     let members = this.canonicalMembers;
-    let recordDatasToRemove = [];
+    let recordDatasToRemove: RecordData[] = [];
     let recordDatasSet = setForArray(recordDatas);
 
     members.forEach(member => {
-      if (recordDatasSet.has(member)) {
+      if ((recordDatasSet as any).has(member)) {
         return;
       }
 
@@ -212,7 +207,7 @@ export default class ManyRelationship extends Relationship {
   }
 
   getData() {
-    let payload = {};
+    let payload: any = {};
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
     }
@@ -279,7 +274,7 @@ function setForArray(array) {
 
   if (array) {
     for (var i = 0, l = array.length; i < l; i++) {
-      set.add(array[i]);
+      (set as any).add(array[i]);
     }
   }
 
