@@ -44,6 +44,7 @@ export interface RecordDataStoreWrapper {
   // Needed For relationships
   notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
   recordDataFor(modelName: string, id: string, clientId?: string);
+  notifyBelongsToChange(modelName:string, id:string | null, clientId:string | null, key: string);
 }
 
 export interface RecordData {

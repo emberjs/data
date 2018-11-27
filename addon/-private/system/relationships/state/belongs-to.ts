@@ -2,8 +2,13 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
+import { RecordData } from '../../model/record-data';
 
 export default class BelongsToRelationship extends Relationship {
+
+  inverseRecordData: RecordData | null;
+  canonicalState: RecordData | null;
+
   constructor(store, inverseKey, relationshipMeta, recordData, inverseIsAsync) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.key = relationshipMeta.key;
@@ -159,7 +164,7 @@ export default class BelongsToRelationship extends Relationship {
 
   getData() {
     let data;
-    let payload = {};
+    let payload: any = {};
     if (this.inverseRecordData) {
       data = this.inverseRecordData.getResourceIdentifier();
     }

@@ -431,7 +431,7 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
-  addRecordData(recordData, idx) {
+  addRecordData(recordData, idx?) {
     heimdall.increment(addRecordData);
     if (!this.members.has(recordData)) {
       this.members.addWithIndex(recordData, idx);
