@@ -6,7 +6,7 @@ lot of manual steps. The following steps navigate us through
 some of the release gotchas and will hopefully result in a successful
 release.
 
-We cut fixes to released branches from their release branch.
+We cut new `patch` releases from their released branch.
 We cut new `major/minor` releases from the `beta` branch.
 We cut new `beta` releases from the `master` branch.
 
