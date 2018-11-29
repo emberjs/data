@@ -66,5 +66,5 @@ For releases of new Major/Minor versions
 Announce release!
 
 1. on Twitter
-* then crosslink Twitter post on slack #dev-ember-data and #ember-data
+* then crosslink Twitter post on Discord [#dev-ember-data](https://discordapp.com/channels/480462759797063690/480501977931972608) and [#ember-data](https://discordapp.com/channels/480462759797063690/486549196837486592)
 
