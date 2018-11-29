@@ -53,6 +53,8 @@ Assuming that the remote `origin` is `git@github.com:emberjs/data.git`
   * Click pre-release for beta releases
   * Publish the release!
 * Submit a PR to `ember-learn/builds` to update the builds for this channel
+  * File to edit for [beta](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/beta.js
+  * File to edit for [release](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/release.js)
 
 For releases of new Major/Minor versions
   
