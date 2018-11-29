@@ -16,7 +16,7 @@ STEPS:
 Assuming that the remote `origin` is `git@github.com:emberjs/data.git`
 
 * For patches to `release`
-  * checkout `release` and ensure it is up todate with `origin/release` (`git fetch origin`). DO NOT WORK FROM A LOCAL `release` branch THAT DIFFERS
+  * checkout `release` and ensure it is up to date with `origin/release` (`git fetch origin`). DO NOT WORK FROM A LOCAL `release` branch THAT DIFFERS
 * For new major/minor releases
   * Ensure `git fetch origin` is up todate for `origin/beta`. DO NOT WORK FROM A LOCAL `beta` branch THAT DIFFERS
   * reset `release` to match `beta`
