@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.5.1 (November 28, 2018)
+
+- [#5762](https://github.com/emberjs/data/pull/5762) [BUGFIX unloadRecord] bfs compatibility for custom RecordData (#5703)
+
 ### Release 3.5.0 (October 12, 2018)
 
 - [#5491](https://github.com/emberjs/data/pull/5491) [Feature] Add MU support for model and model-test blueprints
