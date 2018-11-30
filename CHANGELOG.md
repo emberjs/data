@@ -2,6 +2,11 @@
 
 ### Master
 
+### Release 3.5.2 (November 29, 2018)
+
+- [#5766](https://github.com/emberjs/data/pull/5766) [BUGFIX] update ember-cli-babel to ensure @ember/canary-features is available
+- [#5769](https://github.com/emberjs/data/pull/5769) [BUGFIX beta] backport #5767 Make _recordData lazy
+
 ### Release 3.5.1 (November 28, 2018)
 
 - [#5762](https://github.com/emberjs/data/pull/5762) [BUGFIX unloadRecord] bfs compatibility for custom RecordData (#5703)
