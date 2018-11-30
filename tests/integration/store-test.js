@@ -258,7 +258,7 @@ function ajaxResponse(value) {
   };
 }
 
-module('integration/store - findRecord');
+module('integration/store - findRecord (old style test)');
 
 test('store#findRecord fetches record from server when cached record is not present', function(assert) {
   assert.expect(2);
