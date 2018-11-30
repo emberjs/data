@@ -5,6 +5,7 @@ import { run } from '@ember/runloop';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { assign } from '@ember/polyfills';
 import { RecordData, recordDataFor } from 'ember-data/-private';
+import { resolve } from 'rsvp';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
@@ -215,5 +216,63 @@ module('RecordData Compatibility', function(hooks) {
     } catch (e) {
       assert.ok(false, 'expected `unloadRecord()` not to throw');
     }
+  });
+
+  test(`store.findRecord does not eagerly instantiate record data`, async function(assert) {
+    let recordDataInstances = 0;
+    class TestRecordData extends CustomRecordData {
+      constructor() {
+        super(...arguments);
+        ++recordDataInstances;
+      }
+    }
+
+    store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
+      return new TestRecordData(modelName, id, lid, storeWrapper);
+    };
+    this.owner.register(
+      'adapter:pet',
+      class TestAdapter {
+        static create() {
+          return new TestAdapter(...arguments);
+        }
+
+        findRecord() {
+          assert.equal(
+            recordDataInstances,
+            0,
+            'no instance created from findRecord before adapter promise resolves'
+          );
+
+          return resolve({
+            data: {
+              id: '1',
+              type: 'pet',
+              attributes: {
+                name: 'Loki',
+              },
+            },
+          });
+        }
+      }
+    );
+    this.owner.register(
+      'serializer:pet',
+      class TestSerializer {
+        static create() {
+          return new TestSerializer(...arguments);
+        }
+
+        normalizeResponse(store, modelClass, payload) {
+          return payload;
+        }
+      }
+    );
+
+    assert.equal(recordDataInstances, 0, 'initially no instances');
+
+    await store.findRecord('pet', '1');
+
+    assert.equal(recordDataInstances, 1, 'record data created after promise fulfills');
   });
 });
