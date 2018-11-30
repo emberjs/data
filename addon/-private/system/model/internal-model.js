@@ -93,7 +93,7 @@ export default class InternalModel {
     this.modelName = modelName;
     this.clientId = clientId;
 
-    this._recordData = store._createRecordData(modelName, id, clientId, this);
+    this.__recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -142,6 +142,17 @@ export default class InternalModel {
       this._recordReference = new RecordReference(this.store, this);
     }
     return this._recordReference;
+  }
+
+  get _recordData() {
+    if (this.__recordData === null) {
+      this._recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+    }
+    return this.__recordData;
+  }
+
+  set _recordData(newValue) {
+    this.__recordData = newValue;
   }
 
   get _recordArrays() {
@@ -764,6 +775,10 @@ export default class InternalModel {
 
   hasChangedAttributes() {
     heimdall.increment(hasChangedAttributes);
+    if (this.isLoading() && !this.isReloading) {
+      // no need to instantiate _recordData in this case
+      return false;
+    }
     return this._recordData.hasChangedAttributes();
   }
 
@@ -776,6 +791,10 @@ export default class InternalModel {
   */
   changedAttributes() {
     heimdall.increment(changedAttributes);
+    if (this.isLoading() && !this.isReloading) {
+      // no need to calculate changed attributes when calling `findRecord`
+      return {};
+    }
     return this._recordData.changedAttributes();
   }
 
