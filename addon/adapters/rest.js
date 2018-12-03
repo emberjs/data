@@ -6,8 +6,8 @@
 
 import Ember from 'ember';
 import fetch, { Response } from 'fetch';
-//FIXME: We need to add a direct export of `serializeQueryParams`
-import { serializeQueryParams } from 'ember-fetch/mixins/adapter-fetch';
+import serializeQueryParams from 'ember-fetch/utils/serialize-query-params';
+import determineBodyPromise from 'ember-fetch/utils/determine-body-promise';
 
 import RSVP, { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
@@ -1338,25 +1338,6 @@ function ajaxResponseData(jqXHR) {
     textStatus: jqXHR.statusText,
     headers: parseResponseHeaders(jqXHR.getAllResponseHeaders()),
   };
-}
-
-function determineBodyPromise(response, requestData) {
-  return response.text().then(function(payload) {
-    try {
-      payload = JSON.parse(payload);
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) {
-        throw error;
-      }
-      const status = response.status;
-      if (response.ok && (status === 204 || status === 205 || requestData.method === 'HEAD')) {
-        payload = { data: null };
-      } else {
-        warn('This response was unable to be parsed as json.', payload);
-      }
-    }
-    return payload;
-  });
 }
 
 function headersToObject(headers) {
