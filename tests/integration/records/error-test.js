@@ -8,12 +8,6 @@ import RSVP from 'rsvp';
 var env, store, Person;
 var attr = DS.attr;
 
-function updateErrors(func, assert) {
-  assert.expectWarning(function() {
-    run(func);
-  }, 'Interacting with a record errors object will no longer change the record state.');
-}
-
 module('integration/records/error', {
   beforeEach: function() {
     Person = DS.Model.extend({
@@ -36,8 +30,6 @@ module('integration/records/error', {
 });
 
 testInDebug('adding errors during root.loaded.created.invalid works', function(assert) {
-  assert.expect(5);
-
   var person = run(() => {
     store.push({
       data: {
@@ -59,11 +51,11 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.uncommitted');
 
-  updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
+  person.get('errors').add('firstName', 'is invalid');
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.updated.invalid');
 
-  updateErrors(() => person.get('errors').add('lastName', 'is invalid'), assert);
+  person.get('errors').add('lastName', 'is invalid');
 
   assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
@@ -72,8 +64,6 @@ testInDebug('adding errors during root.loaded.created.invalid works', function(a
 });
 
 testInDebug('adding errors root.loaded.created.invalid works', function(assert) {
-  assert.expect(5);
-
   let person = store.createRecord('person', {
     id: 'wat',
     firstName: 'Yehuda',
@@ -87,11 +77,11 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
-  updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
+  person.get('errors').add('firstName', 'is invalid');
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-  updateErrors(() => person.get('errors').add('lastName', 'is invalid'), assert);
+  person.get('errors').add('lastName', 'is invalid');
 
   assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
@@ -100,8 +90,6 @@ testInDebug('adding errors root.loaded.created.invalid works', function(assert) 
 });
 
 testInDebug('adding errors root.loaded.created.invalid works add + remove + add', function(assert) {
-  assert.expect(7);
-
   let person = store.createRecord('person', {
     id: 'wat',
     firstName: 'Yehuda',
@@ -113,15 +101,15 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
-  updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
+  person.get('errors').add('firstName', 'is invalid');
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-  updateErrors(() => person.get('errors').remove('firstName'), assert);
+  person.get('errors').remove('firstName');
 
   assert.deepEqual(person.get('errors').toArray(), []);
 
-  updateErrors(() => person.get('errors').add('firstName', 'is invalid'), assert);
+  person.get('errors').add('firstName', 'is invalid');
 
   assert.deepEqual(person.get('errors').toArray(), [
     { attribute: 'firstName', message: 'is invalid' },
@@ -131,8 +119,6 @@ testInDebug('adding errors root.loaded.created.invalid works add + remove + add'
 testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)', function(
   assert
 ) {
-  assert.expect(6);
-
   let person = store.createRecord('person', {
     id: 'wat',
     firstName: 'Yehuda',
@@ -144,16 +130,16 @@ testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.uncommitted');
 
-  updateErrors(() => {
+  {
     person.get('errors').add('firstName', 'is invalid');
-  }, assert);
+  }
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
-  updateErrors(() => {
+  {
     person.get('errors').remove('firstName');
     person.get('errors').add('firstName', 'is invalid');
-  }, assert);
+  }
 
   assert.equal(person._internalModel.currentState.stateName, 'root.loaded.created.invalid');
 
