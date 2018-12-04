@@ -3,18 +3,21 @@ import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
 import { RelationshipRecordData } from '../../model/record-data';
+import { RelationshipSchema } from '../../relationship-meta';
 
 export default class ManyRelationship extends Relationship {
   canonicalState: RelationshipRecordData[];
   currentState: RelationshipRecordData[];
   _willUpdateManyArray: boolean;
   _pendingManyArrayUpdates: any;
-  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
+  key: string;
+  constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
     this._willUpdateManyArray = false;
     this._pendingManyArrayUpdates = null;
+    this.key = relationshipMeta.key;
   }
 
   addCanonicalRecordData(recordData: RelationshipRecordData, idx) {

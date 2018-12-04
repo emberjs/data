@@ -124,14 +124,14 @@ export interface RelationshipRecordData extends RecordData {
   getResourceIdentifier(): JsonApiResourceIdentity;
   store: any;
   _relationships: Relationships;
-  _implicitRelationships: { [key: string]: Relationship};
+  _implicitRelationships: { [key: string]: Relationship };
 }
 
 export default class RecordDataDefault implements RecordData, RelationshipRecordData {
   store: any;
   modelName: string;
   __relationships: Relationships | null;
-  __implicitRelationships:{ [key: string]: Relationship} | null;
+  __implicitRelationships:{ [key: string]: Relationship } | null;
   clientId: string;
   id: string | null;
   storeWrapper: RecordDataStoreWrapper;
@@ -621,7 +621,9 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   */
   get _implicitRelationships() {
     if (this.__implicitRelationships === null) {
-      this.__implicitRelationships = Object.create(null);
+      let relationships = Object.create(null);
+      this.__implicitRelationships = relationships;
+      return relationships;
     }
     return this.__implicitRelationships;
   }

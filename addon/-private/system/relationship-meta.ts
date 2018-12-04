@@ -21,7 +21,7 @@ function shouldFindInverse(relationshipMeta) {
 }
 
 export interface RelationshipSchema {
-  kind: string
+  kind: string;
   type: string;
   key: string;
   options: { [key: string]: any } ;

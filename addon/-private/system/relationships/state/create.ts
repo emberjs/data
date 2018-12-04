@@ -1,9 +1,9 @@
 import ManyRelationship from './has-many';
 import BelongsToRelationship from './belongs-to';
 import { RelationshipRecordData } from '../../model/record-data';
-import Relationship from './relationship';
+import { RelationshipSchema } from '../../relationship-meta';
 
-function createRelationshipFor(relationshipMeta: any, store: any, recordData: RelationshipRecordData, key) {
+function createRelationshipFor(relationshipMeta: RelationshipSchema, store: any, recordData: RelationshipRecordData, key) {
   let inverseKey = recordData.storeWrapper.inverseForRelationship(recordData.modelName, key);
   let inverseIsAsync = recordData.storeWrapper.inverseIsAsyncForRelationship(
     recordData.modelName,

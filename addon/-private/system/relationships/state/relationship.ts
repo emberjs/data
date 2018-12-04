@@ -5,7 +5,8 @@ import { relationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData } from '../../model/record-data';
+import { RelationshipRecordData, RecordData } from '../../model/record-data';
+import { RelationshipSchema } from '../../relationship-meta';
 
 const {
   addCanonicalRecordData,
@@ -52,18 +53,23 @@ const {
   'updateRecordDatasFromAdapter'
 );
 
+interface ImplicitRelationshipMeta {
+  key?: string, 
+  kind?: string;
+  options: any;
+}
 export default class Relationship {
   inverseIsAsync: boolean | undefined;
-  kind: string;
+  kind?: string;
   recordData: RelationshipRecordData;
-  members: any;
-  canonicalMembers: any;
+  members: OrderedSet<RelationshipRecordData>;
+  canonicalMembers: OrderedSet<RelationshipRecordData>;
   store: any;
-  key: string;
+  key: string | null;
   inverseKey: string | null;
   isAsync: boolean;
   isPolymorphic: boolean;
-  relationshipMeta: any;
+  relationshipMeta: ImplicitRelationshipMeta | RelationshipSchema;
   inverseKeyForImplicit: string;
   meta: any;
   __inverseMeta: any;
@@ -76,8 +82,7 @@ export default class Relationship {
   link?: string;
   willSync?: boolean;
 
-
-  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync?: boolean) {
+  constructor(store: any, inverseKey: string, relationshipMeta: ImplicitRelationshipMeta, recordData: RelationshipRecordData, inverseIsAsync?: boolean) {
     heimdall.increment(newRelationship);
     this.inverseIsAsync = inverseIsAsync;
     this.kind = relationshipMeta.kind;
@@ -87,7 +92,7 @@ export default class Relationship {
     this.members = new OrderedSet();
     this.canonicalMembers = new OrderedSet();
     this.store = store;
-    this.key = relationshipMeta.key;
+    this.key = relationshipMeta.key || null;
     this.inverseKey = inverseKey;
     this.isAsync = typeof async === 'undefined' ? true : async;
     this.isPolymorphic = typeof polymorphic === 'undefined' ? false : polymorphic;
@@ -213,34 +218,36 @@ export default class Relationship {
     // this.updatedLink = false;
   }
 
-  get isNew() {
+  get isNew(): boolean {
     return this.recordData.isNew();
   }
 
-  _inverseIsAsync() {
-    return this.inverseIsAsync;
+  _inverseIsAsync(): boolean {
+    return !!this.inverseIsAsync;
   }
 
-  _inverseIsSync() {
-    return this.inverseKey && !this.inverseIsAsync;
+  _inverseIsSync(): boolean {
+    return !!(this.inverseKey && !this.inverseIsAsync);
   }
 
-  _hasSupportForImplicitRelationships(recordData: RelationshipRecordData) {
+  _hasSupportForImplicitRelationships(recordData: RelationshipRecordData): boolean {
     return (
       recordData._implicitRelationships !== undefined && recordData._implicitRelationships !== null
     );
   }
 
-  _hasSupportForRelationships(recordData: RelationshipRecordData) {
+  _hasSupportForRelationships(recordData: RelationshipRecordData): boolean {
     return recordData._relationships !== undefined && recordData._relationships !== null;
   }
 
-  get _inverseMeta() {
+  get _inverseMeta(): RelationshipSchema {
     if (this.__inverseMeta === undefined) {
       let inverseMeta = null;
 
       if (this.inverseKey) {
-        let inverseModelClass = this.store.modelFor(this.relationshipMeta.type);
+        // We know we have a full inverse relationship
+        let type = (this.relationshipMeta as RelationshipSchema).type;
+        let inverseModelClass = this.store.modelFor(type);
         let inverseRelationships = get(inverseModelClass, 'relationshipsByName');
         inverseMeta = inverseRelationships.get(this.inverseKey);
       }
@@ -370,7 +377,7 @@ export default class Relationship {
     this.setHasAnyRelationshipData(true);
   }
 
-  setupInverseRelationship(recordData) {
+  setupInverseRelationship(recordData: RelationshipRecordData) {
     if (this.inverseKey) {
       if (!this._hasSupportForRelationships(recordData)) {
         return;
@@ -391,7 +398,8 @@ export default class Relationship {
       if (!relationship) {
         relationship = relationships[this.inverseKeyForImplicit] = new Relationship(
           this.store,
-          this.key,
+          // we know we are not an implicit relationship here
+          (this.key as string),
           { options: { async: this.isAsync } },
           recordData
         );
@@ -400,7 +408,7 @@ export default class Relationship {
     }
   }
 
-  removeCanonicalRecordDatas(recordDatas, idx?) {
+  removeCanonicalRecordDatas(recordDatas: RelationshipRecordData[], idx?: number) {
     heimdall.increment(removeCanonicalRecordDatas);
     for (let i = 0; i < recordDatas.length; i++) {
       if (idx !== undefined) {
@@ -411,7 +419,7 @@ export default class Relationship {
     }
   }
 
-  removeCanonicalRecordData(recordData, idx?) {
+  removeCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     heimdall.increment(removeCanonicalRecordData);
     if (this.canonicalMembers.has(recordData)) {
       this.removeCanonicalRecordDataFromOwn(recordData);
@@ -431,7 +439,7 @@ export default class Relationship {
     this.flushCanonicalLater();
   }
 
-  addRecordData(recordData, idx?) {
+  addRecordData(recordData: RelationshipRecordData, idx?: number) {
     heimdall.increment(addRecordData);
     if (!this.members.has(recordData)) {
       this.members.addWithIndex(recordData, idx);
@@ -443,7 +451,8 @@ export default class Relationship {
           if (!recordData._implicitRelationships[this.inverseKeyForImplicit]) {
             recordData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
               this.store,
-              this.key,
+              // we know we are not an implicit relationship here
+              (this.key as string),
               { options: { async: this.isAsync } },
               recordData,
               this.isAsync
@@ -458,7 +467,7 @@ export default class Relationship {
     this.setHasAnyRelationshipData(true);
   }
 
-  removeRecordData(recordData) {
+  removeRecordData(recordData: RelationshipRecordData) {
     heimdall.increment(removeRecordData);
     if (this.members.has(recordData)) {
       this.removeRecordDataFromOwn(recordData);
@@ -477,7 +486,7 @@ export default class Relationship {
     }
   }
 
-  removeRecordDataFromInverse(recordData) {
+  removeRecordDataFromInverse(recordData: RelationshipRecordData) {
     heimdall.increment(removeRecordDataFromInverse);
     if (!this._hasSupportForRelationships(recordData)) {
       return;
@@ -708,7 +717,8 @@ export default class Relationship {
           recordData.modelName,
           recordData.id,
           recordData.clientId,
-          this.key
+          // We know we are not an implicit relationship here
+          (this.key as string)
         );
       }
     }

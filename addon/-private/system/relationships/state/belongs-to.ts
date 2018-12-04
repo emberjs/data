@@ -3,17 +3,20 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
 import { RelationshipRecordData, JsonApiBelongsToRelationship } from '../../model/record-data';
+import { RelationshipSchema } from '../../relationship-meta';
 
 export default class BelongsToRelationship extends Relationship {
 
   inverseRecordData: RelationshipRecordData | null;
   canonicalState: RelationshipRecordData | null;
+  key: string;
 
-  constructor(store: any, inverseKey: string, relationshipMeta: any, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
+  constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.key = relationshipMeta.key;
     this.inverseRecordData = null;
     this.canonicalState = null;
+    this.key = relationshipMeta.key;
   }
 
   setRecordData(recordData: RelationshipRecordData) {
