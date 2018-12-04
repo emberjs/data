@@ -35,6 +35,7 @@ export interface JsonApiResourceIdentity {
 export interface JsonApiBelongsToRelationship {
   data?: JsonApiResourceIdentity;
   meta?: any;
+  links? : { [key: string]: string}
   // Private
   _relationship?: BelongsToRelationship
 }
@@ -42,6 +43,7 @@ export interface JsonApiBelongsToRelationship {
 export interface JsonApiHasManyRelationship {
   data?: JsonApiResourceIdentity[];
   meta?: any;
+  links? : { [key: string]: string}
   // Private
   _relationship?: ManyRelationship
 }

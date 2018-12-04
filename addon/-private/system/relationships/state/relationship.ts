@@ -5,7 +5,7 @@ import { relationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData, RecordData } from '../../model/record-data';
+import { RelationshipRecordData, RecordData, JsonApiResource, JsonApiRelationship } from '../../model/record-data';
 import { RelationshipSchema } from '../../relationship-meta';
 
 const {
@@ -79,7 +79,7 @@ export default class Relationship {
   hasDematerializedInverse: boolean;
   hasAnyRelationshipData: boolean;
   relationshipIsEmpty: boolean;
-  link?: string;
+  link?: string | null;
   willSync?: boolean;
 
   constructor(store: any, inverseKey: string, relationshipMeta: ImplicitRelationshipMeta, recordData: RelationshipRecordData, inverseIsAsync?: boolean) {
@@ -275,7 +275,7 @@ export default class Relationship {
     });
   }
 
-  forAllMembers(callback) {
+  forAllMembers(callback: (im: RelationshipRecordData) => void) {
     let seen = Object.create(null);
 
     for (let i = 0; i < this.members.list.length; i++) {
@@ -310,7 +310,7 @@ export default class Relationship {
     }
   }
 
-  updateMeta(meta) {
+  updateMeta(meta : any) {
     heimdall.increment(updateMeta);
     this.meta = meta;
   }
@@ -498,12 +498,12 @@ export default class Relationship {
     }
   }
 
-  removeRecordDataFromOwn(recordData, idx?) {
+  removeRecordDataFromOwn(recordData: RelationshipRecordData | null, idx?: number) {
     heimdall.increment(removeRecordDataFromOwn);
     this.members.delete(recordData);
   }
 
-  removeCanonicalRecordDataFromInverse(recordData) {
+  removeCanonicalRecordDataFromInverse(recordData: RelationshipRecordData) {
     heimdall.increment(removeCanonicalRecordDataFromInverse);
     if (!this._hasSupportForRelationships(recordData)) {
       return;
@@ -515,7 +515,7 @@ export default class Relationship {
     }
   }
 
-  removeCanonicalRecordDataFromOwn(recordData, idx?) {
+  removeCanonicalRecordDataFromOwn(recordData: RelationshipRecordData | null, idx?: number) {
     heimdall.increment(removeCanonicalRecordDataFromOwn);
     this.canonicalMembers.delete(recordData);
     this.flushCanonicalLater();
@@ -563,7 +563,7 @@ export default class Relationship {
     This method is useful when either a deletion or a rollback on a new record
     needs to entirely purge itself from an inverse relationship.
    */
-  removeCompletelyFromOwn(recordData) {
+  removeCompletelyFromOwn(recordData: RelationshipRecordData) {
     this.canonicalMembers.delete(recordData);
     this.members.delete(recordData);
   }
@@ -599,7 +599,7 @@ export default class Relationship {
     this.store._updateRelationshipState(this);
   }
 
-  updateLink(link) {
+  updateLink(link: string | null) {
     heimdall.increment(updateLink);
     warn(
       `You pushed a record of type '${this.recordData.modelName}' with a relationship '${
@@ -620,7 +620,7 @@ export default class Relationship {
     this.link = link;
   }
 
-  updateRecordDatasFromAdapter(recordDatas) {
+  updateRecordDatasFromAdapter(recordDatas?: RelationshipRecordData[]) {
     heimdall.increment(updateRecordDatasFromAdapter);
     this.setHasAnyRelationshipData(true);
     //TODO(Igor) move this to a proper place
@@ -628,23 +628,23 @@ export default class Relationship {
     this.computeChanges(recordDatas);
   }
 
-  computeChanges(recordDatas) {}
+  computeChanges(recordDatas?: RelationshipRecordData[]) {}
 
   notifyRecordRelationshipAdded(recordData?, idxs?) {}
 
-  setHasAnyRelationshipData(value) {
+  setHasAnyRelationshipData(value: boolean) {
     this.hasAnyRelationshipData = value;
   }
 
-  setHasDematerializedInverse(value) {
+  setHasDematerializedInverse(value: boolean) {
     this.hasDematerializedInverse = value;
   }
 
-  setRelationshipIsStale(value) {
+  setRelationshipIsStale(value: boolean) {
     this.relationshipIsStale = value;
   }
 
-  setRelationshipIsEmpty(value) {
+  setRelationshipIsEmpty(value: boolean) {
     this.relationshipIsEmpty = value;
   }
 
@@ -656,7 +656,7 @@ export default class Relationship {
    `push` use `updateMeta`, `updateData` and `updateLink` to update the state
    of the relationship.
    */
-  push(payload, initial?) {
+  push(payload: JsonApiRelationship, initial?: boolean) {
     heimdall.increment(push);
 
     let hasRelationshipDataProperty = false;
