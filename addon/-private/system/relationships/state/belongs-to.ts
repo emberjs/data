@@ -2,7 +2,7 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import { RelationshipRecordData } from '../../model/record-data';
+import { RelationshipRecordData, JsonApiBelongsToRelationship } from '../../model/record-data';
 
 export default class BelongsToRelationship extends Relationship {
 
@@ -162,7 +162,7 @@ export default class BelongsToRelationship extends Relationship {
     this.canonicalState = null;
   }
 
-  getData() {
+  getData(): JsonApiBelongsToRelationship {
     let data;
     let payload: any = {};
     if (this.inverseRecordData) {

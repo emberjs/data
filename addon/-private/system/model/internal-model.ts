@@ -572,7 +572,8 @@ export default class InternalModel {
 
     if (!manyArray) {
       let initialState = this.store._getHasManyByJsonApiResource(jsonApi);
-
+      // TODO move this to a public api
+      let inverseIsAsync = jsonApi._relationship ? jsonApi._relationship._inverseIsAsync() : false;
       manyArray = ManyArray.create({
         store: this.store,
         type: this.store.modelFor(relationshipMeta.type),
@@ -581,7 +582,7 @@ export default class InternalModel {
         key,
         isPolymorphic: relationshipMeta.options.polymorphic,
         initialState: initialState.slice(),
-        _inverseIsAsync: jsonApi._relationship._inverseIsAsync(),
+        _inverseIsAsync: inverseIsAsync,
         internalModel: this,
       });
       this._manyArrayCache[key] = manyArray;
@@ -675,7 +676,10 @@ export default class InternalModel {
     }
 
     let jsonApi = this._recordData.getHasMany(key);
-    jsonApi._relationship.setRelationshipIsStale(true);
+    // TODO move this to a public api
+    if (jsonApi._relationship) {
+      jsonApi._relationship.setRelationshipIsStale(true);
+    }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let manyArray = this.getManyArray(key);
     let promise = this.fetchAsyncHasMany(relationshipMeta, jsonApi, manyArray, options);
@@ -687,7 +691,10 @@ export default class InternalModel {
 
   reloadBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
-    resource._relationship.setRelationshipIsStale(true);
+    // TODO move this to a public api
+    if (resource._relationship) {
+      resource._relationship.setRelationshipIsStale(true);
+    }
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
 
     return this.store._findBelongsToByJsonApiResource(resource, this, relationshipMeta, options);

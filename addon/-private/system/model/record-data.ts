@@ -6,6 +6,9 @@ import { run } from '@ember/runloop';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
 import { isNewLine } from 'acorn';
+import { RelationshipSchema } from '../relationship-meta';
+import BelongsToRelationship from '../relationships/state/belongs-to';
+import ManyRelationship from '../relationships/state/has-many';
 
 let nextBfsId = 1;
 
@@ -18,19 +21,49 @@ export interface JsonApiResource {
   type?: string;
 
   attributes?: AttributesHash;
-  relationships?: { [key: string]: any };
+  relationships?: { [key: string]: JsonApiRelationship };
   meta?: any;
 }
+
+export interface JsonApiResourceIdentity {
+  id?: string;
+  type: string;
+  clientId?: string;
+}
+
+export interface JsonApiBelongsToRelationship {
+  data?: JsonApiResourceIdentity;
+  meta?: any;
+  // Private
+  _relationship?: BelongsToRelationship
+}
+
+export interface JsonApiHasManyRelationship {
+  data?: JsonApiResourceIdentity[];
+  meta?: any;
+  // Private
+  _relationship?: ManyRelationship
+}
+
+export type JsonApiRelationship =  JsonApiBelongsToRelationship | JsonApiHasManyRelationship;
 
 export interface ChangedAttributesHash {
   [key: string]: [string, string]
 }
 
 export interface RelationshipsSchema {
-
+  [key: string]: RelationshipSchema
 }
 
 export interface AttributesSchema {
+  [key: string]: AttributeSchema
+}
+
+export interface AttributeSchema {
+  kind: string;
+  name: string;
+  options: { [key: string]: any };
+  type: string;
 }
 
 export interface RecordDataStoreWrapper {
@@ -60,17 +93,17 @@ export interface RecordData {
   hasChangedAttributes(): boolean;
   setDirtyAttribute(key: string, value: any);
 
-  getAttr(key: string): string;
-  getHasMany(key: string)
+  getAttr(key: string): any;
+  getHasMany(key: string): JsonApiHasManyRelationship;
 
   addToHasMany(key: string, recordDatas: RecordData[], idx?: number)
   removeFromHasMany(key: string, recordDatas: RecordData[])
   setDirtyHasMany(key: string, recordDatas: RecordData[])
 
-  getBelongsTo(key: string)
+  getBelongsTo(key: string): JsonApiBelongsToRelationship;
+
   setDirtyBelongsTo(name: string, recordData: RecordData | null)
   didCommit(data: JsonApiResource | null)
-
 
   // ----- unspecced
   isAttrDirty(key: string)
