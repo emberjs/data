@@ -112,7 +112,7 @@ export default class InternalModel {
   _doNotDestroy: boolean;
   isDestroying: boolean;
 
-  constructor(modelName, id, store, data, clientId) {
+  constructor(modelName: string, id: string | null, store, data, clientId) {
     heimdall.increment(new_InternalModel);
     this.id = id;
     this.store = store;

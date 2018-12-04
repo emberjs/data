@@ -5,7 +5,6 @@ import { assert, warn, inspect } from '@ember/debug';
 import { run } from '@ember/runloop';
 import Relationships from '../relationships/state/create';
 import coerceId from '../coerce-id';
-import { isNewLine } from 'acorn';
 import { RelationshipSchema } from '../relationship-meta';
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
@@ -111,6 +110,7 @@ export interface RecordData {
   // ----- unspecced
   isAttrDirty(key: string)
   removeFromInverseRelationships(isNew: boolean)
+  hasAttr(key: string): boolean;
 
   _initRecordCreateOptions(options)
 }

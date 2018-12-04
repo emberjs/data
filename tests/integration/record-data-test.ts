@@ -2,14 +2,30 @@ import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { attr } from '@ember-decorators/data';
+import { attr, belongsTo } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 
+class Book extends Model {
+  // TODO fix the typing for naked attrs
+  @attr('string', {})
+  title;
+}
+
 class Person extends Model {
+  // TODO fix the typing for naked attrs
+  @attr('string', {})
+  name;
+
+  @belongsTo('house', {}) house;
+}
+
+class House extends Model {
   // TODO fix the typing for naked attrs
   @attr('something', {})
   name;
+
+  @belongsTo('person', {}) person;
 }
 
 class TestRecordData {
@@ -73,32 +89,59 @@ class TestRecordData {
   }
 
   isAttrDirty(key: string) { return false; }
-  removeFromInverseRelationships(isNew: boolean) {}
+  removeFromInverseRelationships(isNew: boolean) { }
 
-  _initRecordCreateOptions(options) {}
+  _initRecordCreateOptions(options) { }
 
+}
+class TestRelationshipRecordData extends TestRecordData {
+  constructor() {
+    super();
+    this.modelName = 'person';
+  }
+  isNew() {
+    return false;
+  }
+  modelName: string;
+  isEmpty() {
+    return false;
+  }
+
+  getResourceIdentifier() {
+    return { id: '1', type: 'person'};
+  }
+  //_relationships: Relationships;
+  //_implicitRelationships: { [key: string]: Relationship };
 }
 
 let CustomStore = Store.extend({
   createRecordDataFor(modelName, id, clientId, storeWrapper) {
-    return new TestRecordData();
+    if (modelName === 'book') {
+      return new TestRecordData();
+    } else if (modelName === 'person') {
+      return new TestRelationshipRecordData();
+    } else {
+      return this._super(modelName, id, clientId, storeWrapper);
+    }
   }
 });
 
-module('integration/record-data - Custom RecordData Implementations', function(hooks) {
+module('integration/record-data - Custom RecordData Implementations', function (hooks) {
   setupTest(hooks);
 
   let store;
 
-  hooks.beforeEach(function() {
+  hooks.beforeEach(function () {
     let { owner } = this;
 
     owner.register('model:person', Person);
+    owner.register('model:house', House);
+    owner.register('model:book', Book);
     owner.register('service:store', CustomStore);
     store = owner.lookup('service:store');
   });
 
-  test("A noop Record Data implementation that follows the spec should not error out", async function(assert) {
+  test("A noop Record Data implementation that follows the spec should not error out", async function (assert) {
     store.push({
       data: [
         {
@@ -136,5 +179,52 @@ module('integration/record-data - Custom RecordData Implementations', function(h
     await settled();
 
     assert.equal(get(all, 'length'), 3);
+  });
+
+  test("A noop Record Data implementation that follows the interop spec should not error out", async function (assert) {
+    debugger
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Scumbag Dale',
+          },
+        },
+        {
+          type: 'person',
+          id: '2',
+          attributes: {
+            name: 'Scumbag Katz',
+          },
+        },
+      ],
+    });
+    store.push({
+      data: [
+        {
+          type: 'house',
+          id: '1',
+          attributes: {
+            name: 'Dales house',
+          },
+          relationships: {
+            person: { data: { type: 'person', id: '1' } }
+          }
+        }]
+    });
+
+    let all = store.peekAll('person');
+    let houses = store.peekAll('house');
+    let house = houses.objectAt(0);
+    let person = houses.objectAt(0).get('person');
+    assert.equal(get(all, 'length'), 2);
+    
+    await settled();
+
+    house.unloadRecord();
+
+    await settled();
   });
 });
