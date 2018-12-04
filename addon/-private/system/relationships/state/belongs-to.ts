@@ -2,7 +2,7 @@ import { assert, inspect } from '@ember/debug';
 import { assertPolymorphicType } from 'ember-data/-debug';
 import { isNone } from '@ember/utils';
 import Relationship from './relationship';
-import { RelationshipRecordData, JsonApiBelongsToRelationship } from '../../model/record-data';
+import { RelationshipRecordData, JsonApiBelongsToRelationship, JsonApiResourceIdentity } from '../../model/record-data';
 import { RelationshipSchema } from '../../relationship-meta';
 
 export default class BelongsToRelationship extends Relationship {
@@ -199,14 +199,14 @@ export default class BelongsToRelationship extends Relationship {
    *
    * @return {boolean}
    */
-  get allInverseRecordsAreLoaded() {
+  get allInverseRecordsAreLoaded(): boolean {
     let recordData = this.inverseRecordData;
     let isEmpty = recordData !== null && recordData.isEmpty();
 
     return !isEmpty;
   }
 
-  updateData(data, initial) {
+  updateData(data: JsonApiResourceIdentity, initial: boolean) {
     let recordData;
     if (isNone(data)) {
       recordData = null;
@@ -221,7 +221,7 @@ export default class BelongsToRelationship extends Relationship {
     );
 
     if (recordData !== null) {
-      recordData = this.recordData.storeWrapper.recordDataFor(data.type, data.id);
+      recordData = this.recordData.storeWrapper.recordDataFor(data.type, (data.id as string));
     }
     if (initial) {
       this.setInitialCanonicalRecordData(recordData);

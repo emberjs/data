@@ -383,8 +383,8 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   }
 
   // get ResourceIdentifiers for "current state"
-  getHasMany(key) {
-    return this._relationships.get(key).getData();
+  getHasMany(key): JsonApiHasManyRelationship {
+    return (this._relationships.get(key) as ManyRelationship).getData();
   }
 
   // set a new "current state" via ResourceIdentifiers
@@ -417,15 +417,15 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this._inFlightAttributes = null;
   }
 
-  getBelongsTo(key) {
-    return this._relationships.get(key).getData();
+  getBelongsTo(key: string): JsonApiBelongsToRelationship {
+    return (this._relationships.get(key) as BelongsToRelationship).getData();
   }
 
-  setDirtyBelongsTo(key, recordData) {
+  setDirtyBelongsTo(key: string, recordData: RelationshipRecordData) {
     (this._relationships.get(key) as BelongsToRelationship).setRecordData(recordData);
   }
 
-  setDirtyAttribute(key, value) {
+  setDirtyAttribute(key: string, value: any) {
     let originalValue;
     // Add the new value to the changed attributes hash
     this._attributes[key] = value;
@@ -451,7 +451,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     }
   }
 
-  hasAttr(key) {
+  hasAttr(key: string): boolean {
     return key in this._attributes || key in this._inFlightAttributes || key in this._data;
   }
 
@@ -550,7 +550,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     return array;
   }
 
-  isAttrDirty(key) {
+  isAttrDirty(key: string): boolean {
     if (this._attributes[key] === undefined) {
       return false;
     }

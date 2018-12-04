@@ -2,7 +2,7 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import { RelationshipRecordData } from '../../model/record-data';
+import { RelationshipRecordData, JsonApiHasManyRelationship } from '../../model/record-data';
 import { RelationshipSchema } from '../../relationship-meta';
 
 export default class ManyRelationship extends Relationship {
@@ -10,7 +10,7 @@ export default class ManyRelationship extends Relationship {
   currentState: RelationshipRecordData[];
   _willUpdateManyArray: boolean;
   _pendingManyArrayUpdates: any;
-  key: string;
+  key: string
   constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
@@ -20,7 +20,7 @@ export default class ManyRelationship extends Relationship {
     this.key = relationshipMeta.key;
   }
 
-  addCanonicalRecordData(recordData: RelationshipRecordData, idx) {
+  addCanonicalRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (this.canonicalMembers.has(recordData)) {
       return;
     }
@@ -39,11 +39,12 @@ export default class ManyRelationship extends Relationship {
     }
   }
 
-  addRecordData(recordData: RelationshipRecordData, idx) {
+  addRecordData(recordData: RelationshipRecordData, idx?: number) {
     if (this.members.has(recordData)) {
       return;
     }
 
+    // TODO Type this
     assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
     super.addRecordData(recordData, idx);
     // make lazy later
@@ -209,7 +210,7 @@ export default class ManyRelationship extends Relationship {
     );
   }
 
-  getData() {
+  getData(): JsonApiHasManyRelationship {
     let payload: any = {};
     if (this.hasAnyRelationshipData) {
       payload.data = this.currentState.map(recordData => recordData.getResourceIdentifier());
@@ -256,7 +257,7 @@ export default class ManyRelationship extends Relationship {
    *
    * @return {boolean}
    */
-  get allInverseRecordsAreLoaded() {
+  get allInverseRecordsAreLoaded(): boolean {
     // check currentState for unloaded records
     let hasEmptyRecords = this.currentState.reduce((hasEmptyModel, i) => {
       return hasEmptyModel || i.isEmpty();
