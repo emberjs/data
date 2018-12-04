@@ -9,6 +9,7 @@ import { isNewLine } from 'acorn';
 import { RelationshipSchema } from '../relationship-meta';
 import BelongsToRelationship from '../relationships/state/belongs-to';
 import ManyRelationship from '../relationships/state/has-many';
+import Relationship from '../relationships/state/relationship';
 
 let nextBfsId = 1;
 
@@ -26,7 +27,7 @@ export interface JsonApiResource {
 }
 
 export interface JsonApiResourceIdentity {
-  id?: string;
+  id?: string | null;
   type: string;
   clientId?: string;
 }
@@ -120,17 +121,17 @@ export interface RelationshipRecordData extends RecordData {
   id: string | null;
   clientId: string | null;
   isEmpty(): boolean;
-  getResourceIdentifier(): any;
+  getResourceIdentifier(): JsonApiResourceIdentity;
   store: any;
-  _relationships: any;
-  _implicitRelationships: any;
+  _relationships: Relationships;
+  _implicitRelationships: { [key: string]: Relationship};
 }
 
 export default class RecordDataDefault implements RecordData, RelationshipRecordData {
   store: any;
   modelName: string;
-  __relationships: any;
-  __implicitRelationships: any;
+  __relationships: Relationships | null;
+  __implicitRelationships:{ [key: string]: Relationship} | null;
   clientId: string;
   id: string | null;
   storeWrapper: RecordDataStoreWrapper;
@@ -160,7 +161,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
 
   // PUBLIC API
 
-  getResourceIdentifier() {
+  getResourceIdentifier(): JsonApiResourceIdentity {
     return {
       id: this.id,
       type: this.modelName,
@@ -419,7 +420,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   }
 
   setDirtyBelongsTo(key, recordData) {
-    this._relationships.get(key).setRecordData(recordData);
+    (this._relationships.get(key) as BelongsToRelationship).setRecordData(recordData);
   }
 
   setDirtyAttribute(key, value) {
@@ -459,7 +460,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = (run as any).backburner.schedule(
+      this._scheduledDestroy = run.backburner.schedule(
         'destroy',
         this,
         '_cleanupOrphanedRecordDatas'

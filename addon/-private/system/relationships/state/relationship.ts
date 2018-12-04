@@ -339,7 +339,7 @@ export default class Relationship {
     recordDatas.forEach(recordData => this.removeRecordData(recordData));
   }
 
-  addRecordDatas(recordDatas: RelationshipRecordData[], idx: number) {
+  addRecordDatas(recordDatas: RelationshipRecordData[], idx?: number) {
     heimdall.increment(addRecordDatas);
     recordDatas.forEach(recordData => {
       this.addRecordData(recordData, idx);
@@ -647,7 +647,7 @@ export default class Relationship {
    `push` use `updateMeta`, `updateData` and `updateLink` to update the state
    of the relationship.
    */
-  push(payload, initial) {
+  push(payload, initial?) {
     heimdall.increment(push);
 
     let hasRelationshipDataProperty = false;

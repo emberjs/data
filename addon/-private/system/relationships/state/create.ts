@@ -25,7 +25,7 @@ function createRelationshipFor(relationshipMeta: any, store: any, recordData: Re
 
 export default class Relationships {
   recordData: RelationshipRecordData
-  initializedRelationships: {[key: string]: Relationship}
+  initializedRelationships: {[key: string]: BelongsToRelationship | ManyRelationship}
   constructor(recordData) {
     this.recordData = recordData;
     this.initializedRelationships = Object.create(null);
