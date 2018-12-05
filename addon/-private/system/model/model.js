@@ -1,5 +1,4 @@
 import { isNone } from '@ember/utils';
-import { lte } from 'ember-compatibility-helpers';
 import EmberError from '@ember/error';
 import Evented from '@ember/object/evented';
 import EmberObject, { computed, get } from '@ember/object';
@@ -13,7 +12,7 @@ import {
   relatedTypesDescriptor,
   relationshipsDescriptor,
 } from '../relationships/ext';
-import { setRecordDataFor, getRecordDataFor } from './record-data-map';
+import recordDataFor from '../record-data-for';
 import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
@@ -75,16 +74,6 @@ const Model = EmberObject.extend(Evented, {
   // until: "3.9" as we need to support 2.18
   __defineNonEnumerable(property) {
     this[property.name] = property.descriptor.value;
-  },
-
-  init(createArgs) {
-    // with DS.Model we guarantee that `attr` `belongsTo` and `hasMany` can be accessed
-    //  during `init` once `_super` has been called. This is necessary so that the above
-    //  can be true. Custom Model classes that also want this guarantee will need to do
-    //  the same.
-    let recordData = getRecordDataFor(createArgs);
-    setRecordDataFor(this, recordData);
-    this._super(createArgs);
   },
 
   /**
@@ -1158,7 +1147,7 @@ Object.defineProperty(Model.prototype, 'data', {
         until: '3.9',
       }
     );
-    return getRecordDataFor(this)._data;
+    return recordDataFor(this)._data;
   },
 });
 
@@ -1206,14 +1195,14 @@ if (DEBUG) {
   };
 
   Model.reopen({
-    init(createArgs) {
-      if (!createArgs || !createArgs._internalModel) {
+    init() {
+      this._super(...arguments);
+
+      if (!this._internalModel) {
         throw new EmberError(
           'You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.'
         );
       }
-
-      this._super(createArgs);
 
       if (
         !isDefaultEmptyDescriptor(this, '_internalModel') ||
@@ -1221,6 +1210,16 @@ if (DEBUG) {
       ) {
         throw new Error(
           `'_internalModel' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
+        );
+      }
+
+      if (
+        !isDefaultEmptyDescriptor(this, 'recordData') ||
+        this.recordData !== undefined ||
+        this.recordData !== this._internalModel.recordData
+      ) {
+        throw new Error(
+          `'recordData' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
         );
       }
 
@@ -1240,15 +1239,6 @@ if (DEBUG) {
           `You may not set 'id' as an attribute on your model. Please remove any lines that look like: \`id: DS.attr('<type>')\` from ${this.constructor.toString()}`
         );
       }
-    },
-  });
-}
-
-// primarily for 2.18 LTS support, not needed >= 3.1
-if (lte('3.0.9000')) {
-  Model.reopenClass({
-    create(createArgs) {
-      return new this(createArgs);
     },
   });
 }

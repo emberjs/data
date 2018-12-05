@@ -149,7 +149,7 @@ module('unit/model - Model', function(hooks) {
         'the deleted person is not removed from store (no unload called)'
       );
 
-      assert.throws(() => {
+      assert.expectAssertion(() => {
         set(record, 'isArchived', true);
       }, /Attempted to set 'isArchived' to 'true' on the deleted record <person:1>/);
 
@@ -676,6 +676,12 @@ module('unit/model - Model', function(hooks) {
       @attr('string')
       name;
     }
+    class NativePostWithRecordData extends Model {
+      @attr('string', { defaultValue: 'hello' })
+      recordData;
+      @attr('string')
+      name;
+    }
     class NativePostWithCurrentState extends Model {
       @attr('string')
       currentState;
@@ -684,6 +690,7 @@ module('unit/model - Model', function(hooks) {
     }
     const PROP_MAP = {
       _internalModel: NativePostWithInternalModel,
+      recordData: NativePostWithRecordData,
       currentState: NativePostWithCurrentState,
     };
 
@@ -723,7 +730,7 @@ module('unit/model - Model', function(hooks) {
       });
     }
 
-    ['_internalModel', 'currentState'].forEach(testReservedProperty);
+    ['recordData', '_internalModel', 'currentState'].forEach(testReservedProperty);
 
     testInDebug(
       'A subclass of Model throws an error when calling create() directly',

@@ -1,5 +1,4 @@
 import { setupTest } from 'ember-qunit';
-import { run } from '@ember/runloop';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
 import Model from 'ember-data/model';
@@ -123,7 +122,7 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
     assert.deepEqual(record.color, 'green');
 
-    run(() => post.unloadRecord());
+    post.unloadRecord();
 
     await settled();
 
