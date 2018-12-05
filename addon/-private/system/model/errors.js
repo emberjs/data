@@ -193,7 +193,7 @@ export default ArrayProxy.extend(Evented, {
     let errors = get(user, 'errors');
     
     // add multiple errors
-    errors.addErrors('password', [
+    errors.add('password', [
       'Must be at least 12 characters',
       'Must contain at least one symbol',
       'Cannot contain your name'
@@ -208,7 +208,7 @@ export default ArrayProxy.extend(Evented, {
     // ]
     
     // add a single error
-    errors.addErrors('username', 'This field is required');
+    errors.add('username', 'This field is required');
 
     errors.errorsFor('password');
     // =>
@@ -216,7 +216,7 @@ export default ArrayProxy.extend(Evented, {
     //   { attribute: 'username', message: 'This field is required' },
     // ]
    ```
-  @method addErrors
+  @method add
   @param {string} attribute - the property name of an attribute or relationship
   @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
@@ -279,7 +279,7 @@ export default ArrayProxy.extend(Evented, {
 
    ```javascript
     let errors = get('user', errors);
-    errors.addErrors('phone', ['error-1', 'error-2']);
+    errors.add('phone', ['error-1', 'error-2']);
     
     errors.errorsFor('phone');
     // =>
@@ -293,7 +293,7 @@ export default ArrayProxy.extend(Evented, {
     errors.errorsFor('phone');
     // => undefined
    ```
-   @method removeErrors
+   @method remove
    @param {string} member - the property name of an attribute or relationship
    */
   remove(attribute) {
@@ -336,8 +336,8 @@ export default ArrayProxy.extend(Evented, {
    
    ```javascript
    let errors = get('user', errors);
-   errors.addErrors('username', ['error-a']);
-   errors.addErrors('phone', ['error-1', 'error-2']);
+   errors.add('username', ['error-a']);
+   errors.add('phone', ['error-1', 'error-2']);
    
    errors.errorsFor('username');
    // =>
@@ -352,7 +352,7 @@ export default ArrayProxy.extend(Evented, {
    //   { attribute: 'phone', message: 'error-2' },
    // ]
    
-   errors.clearErrors();
+   errors.clear();
    
    errors.errorsFor('username');
    // => undefined
@@ -363,7 +363,7 @@ export default ArrayProxy.extend(Evented, {
    errors.get('messages')
    // => []
    ```
-   @method removeErrors
+   @method remove
    */
   clear() {
     if (get(this, 'isEmpty')) {
