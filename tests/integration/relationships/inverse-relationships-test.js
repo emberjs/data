@@ -1,155 +1,172 @@
-import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-import setupStore from 'dummy/tests/helpers/store';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
+import { belongsTo, hasMany, attr } from '@ember-decorators/data';
+import { setupTest } from 'ember-qunit';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import Model from 'ember-data/model';
 
-import DS from 'ember-data';
+module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
+  setupTest(hooks);
 
-let { Model, hasMany, belongsTo } = DS;
+  let store;
+  let register;
 
-var Post, Comment, Message, User;
+  hooks.beforeEach(function() {
+    const { owner } = this;
 
-module('integration/relationships/inverse_relationships - Inverse Relationships');
-
-test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', function(assert) {
-  Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { async: false }),
+    store = owner.lookup('service:store');
+    register = owner.register.bind(owner);
   });
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false }),
-  });
+  test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', async function(assert) {
+    class Post extends Model {
+      @hasMany('comment', { async: false })
+      comments;
+    }
 
-  var env = setupStore({ post: Post, comment: Comment });
-  var store = env.store;
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      post;
+    }
 
-  let comment = store.createRecord('comment');
-  let post = store.createRecord('post');
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  assert.equal(comment.get('post'), null, 'no post has been set on the comment');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
-  run(function() {
+    assert.equal(comment.get('post'), null, 'no post has been set on the comment');
+
     post.get('comments').pushObject(comment);
-  });
-  assert.equal(comment.get('post'), post, 'post was set on the comment');
-});
-
-test('Inverse relationships can be explicitly nullable', function(assert) {
-  User = DS.Model.extend();
-
-  Post = DS.Model.extend({
-    lastParticipant: DS.belongsTo('user', { inverse: null, async: false }),
-    participants: DS.hasMany('user', { inverse: 'posts', async: false }),
+    assert.equal(comment.get('post'), post, 'post was set on the comment');
   });
 
-  User.reopen({
-    posts: DS.hasMany('post', { inverse: 'participants', async: false }),
+  test('Inverse relationships can be explicitly nullable', function(assert) {
+    class User extends Model {
+      @hasMany('post', { inverse: 'participants', async: false })
+      posts;
+    }
+
+    class Post extends Model {
+      @belongsTo('user', { inverse: null, async: false })
+      lastParticipant;
+
+      @hasMany('user', { inverse: 'posts', async: false })
+      participants;
+    }
+
+    register('model:User', User);
+    register('model:Post', Post);
+
+    const user = store.createRecord('user');
+    const post = store.createRecord('post');
+
+    assert.equal(
+      user.inverseFor('posts').name,
+      'participants',
+      'User.posts inverse is Post.participants'
+    );
+    assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+    assert.equal(
+      post.inverseFor('participants').name,
+      'posts',
+      'Post.participants inverse is User.posts'
+    );
   });
 
-  var store = createStore({
-    user: User,
-    post: Post,
+  test('Null inverses are excluded from potential relationship resolutions', function(assert) {
+    class User extends Model {
+      @hasMany('post', { async: false })
+      posts;
+    }
+
+    class Post extends Model {
+      @belongsTo('user', { inverse: null, async: false })
+      lastParticipant;
+
+      @hasMany('user', { async: false })
+      participants;
+    }
+
+    register('model:User', User);
+    register('model:Post', Post);
+
+    const user = store.createRecord('user');
+    const post = store.createRecord('post');
+
+    assert.equal(
+      user.inverseFor('posts').name,
+      'participants',
+      'User.posts inverse is Post.participants'
+    );
+    assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+    assert.equal(
+      post.inverseFor('participants').name,
+      'posts',
+      'Post.participants inverse is User.posts'
+    );
   });
 
-  let user = store.createRecord('user');
-  let post = store.createRecord('post');
+  test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', async function(assert) {
+    class Post extends Model {
+      @hasMany('comment', { inverse: 'redPost', async: false })
+      comments;
+    }
 
-  assert.equal(
-    user.inverseFor('posts').name,
-    'participants',
-    'User.posts inverse is Post.participants'
-  );
-  assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-  assert.equal(
-    post.inverseFor('participants').name,
-    'posts',
-    'Post.participants inverse is User.posts'
-  );
-});
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      onePost;
 
-test('Null inverses are excluded from potential relationship resolutions', function(assert) {
-  User = Model.extend();
+      @belongsTo('post', { async: false })
+      twoPost;
 
-  Post = Model.extend({
-    lastParticipant: belongsTo('user', { inverse: null, async: false }),
-    participants: hasMany('user', { async: false }),
-  });
+      @belongsTo('post', { async: false })
+      redPost;
 
-  User.reopen({
-    posts: hasMany('post', { async: false }),
-  });
+      @belongsTo('post', { async: false })
+      bluePost;
+    }
 
-  let store = createStore({
-    user: User,
-    post: Post,
-  });
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  let user = store.createRecord('user');
-  let post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
-  assert.equal(
-    user.inverseFor('posts').name,
-    'participants',
-    'User.posts inverse is Post.participants'
-  );
-  assert.equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-  assert.equal(
-    post.inverseFor('participants').name,
-    'posts',
-    'Post.participants inverse is User.posts'
-  );
-});
+    assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
+    assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
+    assert.equal(comment.get('redPost'), null, 'redPost has not been set on the comment');
+    assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
 
-test('When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly', function(assert) {
-  Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { inverse: 'redPost', async: false }),
-  });
-
-  Comment = DS.Model.extend({
-    onePost: DS.belongsTo('post', { async: false }),
-    twoPost: DS.belongsTo('post', { async: false }),
-    redPost: DS.belongsTo('post', { async: false }),
-    bluePost: DS.belongsTo('post', { async: false }),
-  });
-
-  var env = setupStore({ post: Post, comment: Comment });
-  var store = env.store;
-
-  let comment = store.createRecord('comment');
-  let post = store.createRecord('post');
-
-  assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
-  assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
-  assert.equal(comment.get('redPost'), null, 'redPost has not been set on the comment');
-  assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
-
-  run(function() {
     post.get('comments').pushObject(comment);
+
+    assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
+    assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
+    assert.equal(comment.get('redPost'), post, 'redPost has been set on the comment');
+    assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
   });
 
-  assert.equal(comment.get('onePost'), null, 'onePost has not been set on the comment');
-  assert.equal(comment.get('twoPost'), null, 'twoPost has not been set on the comment');
-  assert.equal(comment.get('redPost'), post, 'redPost has been set on the comment');
-  assert.equal(comment.get('bluePost'), null, 'bluePost has not been set on the comment');
-});
+  test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function(assert) {
+    class Post extends Model {
+      @hasMany('comment', { async: false })
+      meComments;
 
-test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function(assert) {
-  Post = DS.Model.extend({
-    meComments: DS.hasMany('comment', { async: false }),
-    youComments: DS.hasMany('comment', { async: false }),
-    everyoneWeKnowComments: DS.hasMany('comment', { async: false }),
-  });
+      @hasMany('comment', { async: false })
+      youComments;
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { inverse: 'youComments', async: false }),
-  });
+      @hasMany('comment', { async: false })
+      everyoneWeKnowComments;
+    }
 
-  var env = setupStore({ post: Post, comment: Comment });
-  var store = env.store;
-  var comment, post;
+    class Comment extends Model {
+      @belongsTo('post', { inverse: 'youComments', async: false })
+      post;
+    }
 
-  run(function() {
+    register('model:Post', Post);
+    register('model:Comment', Comment);
+
+    let comment, post;
+
     comment = store.createRecord('comment');
     post = store.createRecord('post');
 
@@ -162,367 +179,398 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
     );
 
     comment.set('post', post);
+
+    assert.equal(comment.get('post'), post, 'The post that was set can be retrieved');
+
+    assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
+    assert.equal(post.get('youComments.length'), 1, 'youComments had the post added');
+    assert.equal(
+      post.get('everyoneWeKnowComments.length'),
+      0,
+      'everyoneWeKnowComments has no posts'
+    );
   });
 
-  assert.equal(comment.get('post'), post, 'The post that was set can be retrieved');
+  test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', async function(assert) {
+    class Post extends Model {
+      @belongsTo('comment', { async: false })
+      bestComment;
+    }
 
-  assert.equal(post.get('meComments.length'), 0, 'meComments has no posts');
-  assert.equal(post.get('youComments.length'), 1, 'youComments had the post added');
-  assert.equal(post.get('everyoneWeKnowComments.length'), 0, 'everyoneWeKnowComments has no posts');
-});
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      post;
+    }
 
-test('When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used', function(assert) {
-  Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment', { async: false }),
-  });
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false }),
-  });
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
+    const post2 = store.createRecord('post');
 
-  var env = setupStore({ post: Post, comment: Comment });
-  var store = env.store;
-
-  let comment = store.createRecord('comment');
-  let post = store.createRecord('post');
-  let post2 = store.createRecord('post');
-
-  run(function() {
     comment.set('post', post);
     post2.set('bestComment', null);
-  });
 
-  assert.equal(comment.get('post'), post);
-  assert.equal(post.get('bestComment'), comment);
-  assert.strictEqual(post2.get('bestComment'), null);
+    assert.equal(comment.get('post'), post);
+    assert.equal(post.get('bestComment'), comment);
+    assert.strictEqual(post2.get('bestComment'), null);
 
-  run(function() {
     comment.set('post', post2);
+
+    assert.equal(comment.get('post'), post2);
+    assert.strictEqual(post.get('bestComment'), null);
+    assert.equal(post2.get('bestComment'), comment);
   });
 
-  assert.equal(comment.get('post'), post2);
-  assert.strictEqual(post.get('bestComment'), null);
-  assert.equal(post2.get('bestComment'), comment);
-});
+  test('When setting a belongsTo, the OneToOne invariant is transitive', async function(assert) {
+    class Post extends Model {
+      @belongsTo('comment', { async: false })
+      bestComment;
+    }
 
-test('When setting a belongsTo, the OneToOne invariant is transitive', function(assert) {
-  Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment', { async: false }),
-  });
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      post;
+    }
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false }),
-  });
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  var store = createStore({
-    post: Post,
-    comment: Comment,
-  });
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
+    const post2 = store.createRecord('post');
 
-  let comment = store.createRecord('comment');
-  let post = store.createRecord('post');
-  let post2 = store.createRecord('post');
-
-  run(function() {
     comment.set('post', post);
-  });
 
-  assert.equal(comment.get('post'), post);
-  assert.equal(post.get('bestComment'), comment);
-  assert.strictEqual(post2.get('bestComment'), null);
+    assert.equal(comment.get('post'), post);
+    assert.equal(post.get('bestComment'), comment);
+    assert.strictEqual(post2.get('bestComment'), null);
 
-  run(function() {
     post2.set('bestComment', comment);
+
+    assert.equal(comment.get('post'), post2);
+    assert.strictEqual(post.get('bestComment'), null);
+    assert.equal(post2.get('bestComment'), comment);
   });
 
-  assert.equal(comment.get('post'), post2);
-  assert.strictEqual(post.get('bestComment'), null);
-  assert.equal(post2.get('bestComment'), comment);
-});
+  test('When setting a belongsTo, the OneToOne invariant is commutative', async function(assert) {
+    class Post extends Model {
+      @belongsTo('comment', { async: false })
+      bestComment;
+    }
 
-test('When setting a belongsTo, the OneToOne invariant is commutative', function(assert) {
-  Post = DS.Model.extend({
-    bestComment: DS.belongsTo('comment', { async: false }),
-  });
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      post;
+    }
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false }),
-  });
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  var store = createStore({
-    post: Post,
-    comment: Comment,
-  });
+    const post = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const comment2 = store.createRecord('comment');
 
-  let post = store.createRecord('post');
-  let comment = store.createRecord('comment');
-  let comment2 = store.createRecord('comment');
-
-  run(function() {
     comment.set('post', post);
-  });
 
-  assert.equal(comment.get('post'), post);
-  assert.equal(post.get('bestComment'), comment);
-  assert.strictEqual(comment2.get('post'), null);
+    assert.equal(comment.get('post'), post);
+    assert.equal(post.get('bestComment'), comment);
+    assert.strictEqual(comment2.get('post'), null);
 
-  run(function() {
     post.set('bestComment', comment2);
+
+    assert.strictEqual(comment.get('post'), null);
+    assert.equal(post.get('bestComment'), comment2);
+    assert.equal(comment2.get('post'), post);
   });
 
-  assert.strictEqual(comment.get('post'), null);
-  assert.equal(post.get('bestComment'), comment2);
-  assert.equal(comment2.get('post'), post);
-});
+  test('OneToNone relationship works', async function(assert) {
+    assert.expect(3);
 
-test('OneToNone relationship works', function(assert) {
-  assert.expect(3);
-  Post = DS.Model.extend({
-    name: DS.attr('string'),
-  });
+    class Post extends Model {
+      @attr('string')
+      name;
+    }
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false }),
-  });
+    class Comment extends Model {
+      @belongsTo('post', { async: false })
+      post;
+    }
 
-  var env = setupStore({ post: Post, comment: Comment });
-  var store = env.store;
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  let comment = store.createRecord('comment');
-  let post1 = store.createRecord('post');
-  let post2 = store.createRecord('post');
+    const comment = store.createRecord('comment');
+    const post1 = store.createRecord('post');
+    const post2 = store.createRecord('post');
 
-  run(function() {
     comment.set('post', post1);
-  });
-  assert.equal(comment.get('post'), post1, 'the post is set to the first one');
+    assert.equal(comment.get('post'), post1, 'the post is set to the first one');
 
-  run(function() {
     comment.set('post', post2);
-  });
-  assert.equal(comment.get('post'), post2, 'the post is set to the second one');
+    assert.equal(comment.get('post'), post2, 'the post is set to the second one');
 
-  run(function() {
     comment.set('post', post1);
-  });
-  assert.equal(comment.get('post'), post1, 'the post is re-set to the first one');
-});
-
-test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', function(assert) {
-  User = DS.Model.extend({
-    messages: DS.hasMany('message', {
-      async: false,
-      inverse: 'redUser',
-      polymorphic: true,
-    }),
+    assert.equal(comment.get('post'), post1, 'the post is re-set to the first one');
   });
 
-  Message = DS.Model.extend({
-    oneUser: DS.belongsTo('user', { async: false }),
-    twoUser: DS.belongsTo('user', { async: false }),
-    redUser: DS.belongsTo('user', { async: false }),
-    blueUser: DS.belongsTo('user', { async: false }),
-  });
+  test('When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly', async function(assert) {
+    class User extends Model {
+      @hasMany('message', { async: false, inverse: 'redUser', polymorphic: true })
+      messages;
+    }
 
-  Post = Message.extend();
+    class Message extends Model {
+      @belongsTo('user', { async: false })
+      oneUser;
 
-  var env = setupStore({ user: User, message: Message, post: Post });
-  var store = env.store;
+      @belongsTo('user', { async: false })
+      twoUser;
 
-  let post = store.createRecord('post');
-  let user = store.createRecord('user');
+      @belongsTo('user', { async: false })
+      redUser;
 
-  assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-  assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-  assert.equal(post.get('redUser'), null, 'redUser has not been set on the user');
-  assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+      @belongsTo('user', { async: false })
+      blueUser;
+    }
 
-  run(function() {
+    class Post extends Message {}
+
+    register('model:User', User);
+    register('model:Message', Message);
+    register('model:Post', Post);
+
+    const post = store.createRecord('post');
+    const user = store.createRecord('user');
+
+    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.equal(post.get('redUser'), null, 'redUser has not been set on the user');
+    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+
     user.get('messages').pushObject(post);
-  });
 
-  assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-  assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-  assert.equal(post.get('redUser'), user, 'redUser has been set on the user');
-  assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
+    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.equal(post.get('redUser'), user, 'redUser has been set on the user');
+    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
 
-  run(function() {
     user.get('messages').popObject();
+
+    assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
+    assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
+    assert.equal(post.get('redUser'), null, 'redUser has bot been set on the user');
+    assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
   });
 
-  assert.equal(post.get('oneUser'), null, 'oneUser has not been set on the user');
-  assert.equal(post.get('twoUser'), null, 'twoUser has not been set on the user');
-  assert.equal(post.get('redUser'), null, 'redUser has bot been set on the user');
-  assert.equal(post.get('blueUser'), null, 'blueUser has not been set on the user');
-});
+  test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", async function(assert) {
+    class User extends Model {
+      @hasMany('message', { polymorphic: true, async: false })
+      meMessages;
 
-test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", function(assert) {
-  User = DS.Model.extend({
-    meMessages: DS.hasMany('message', { polymorphic: true, async: false }),
-    youMessages: DS.hasMany('message', { polymorphic: true, async: false }),
-    everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true, async: false }),
-  });
+      @hasMany('message', { polymorphic: true, async: false })
+      youMessages;
 
-  Message = DS.Model.extend({
-    user: DS.belongsTo('user', { inverse: 'youMessages', async: false }),
-  });
+      @hasMany('message', { polymorphic: true, async: false })
+      everyoneWeKnowMessages;
+    }
 
-  Post = Message.extend();
+    class Message extends Model {
+      @belongsTo('user', { inverse: 'youMessages', async: false })
+      user;
+    }
 
-  var env = setupStore({ user: User, message: Message, post: Post });
-  var store = env.store;
+    class Post extends Message {}
 
-  let user = store.createRecord('user');
-  let post = store.createRecord('post');
+    register('model:User', User);
+    register('model:Message', Message);
+    register('model:Post', Post);
 
-  assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-  assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    const user = store.createRecord('user');
+    const post = store.createRecord('post');
 
-  run(function() {
+    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.equal(
+      user.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
+
     post.set('user', user);
-  });
 
-  assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(user.get('youMessages.length'), 1, 'youMessages had the post added');
-  assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(user.get('youMessages.length'), 1, 'youMessages had the post added');
+    assert.equal(
+      user.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
 
-  run(function() {
     post.set('user', null);
+
+    assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.equal(
+      user.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
   });
 
-  assert.equal(user.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(user.get('youMessages.length'), 0, 'youMessages has no posts');
-  assert.equal(user.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
-});
+  test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", async function(assert) {
+    class Message extends Model {
+      @hasMany('comment', { inverse: null, async: false })
+      meMessages;
 
-test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function(assert) {
-  Message = DS.Model.extend({
-    meMessages: DS.hasMany('comment', { inverse: null, async: false }),
-    youMessages: DS.hasMany('comment', { inverse: 'message', async: false }),
-    everyoneWeKnowMessages: DS.hasMany('comment', { inverse: null, async: false }),
-  });
+      @hasMany('comment', { inverse: 'message', async: false })
+      youMessages;
 
-  Post = Message.extend();
+      @hasMany('comment', { inverse: null, async: false })
+      everyoneWeKnowMessages;
+    }
 
-  Comment = Message.extend({
-    message: DS.belongsTo('message', {
-      async: false,
-      polymorphic: true,
-      inverse: 'youMessages',
-    }),
-  });
+    class Post extends Message {}
 
-  var env = setupStore({ comment: Comment, message: Message, post: Post });
-  var store = env.store;
+    class Comment extends Message {
+      @belongsTo('message', { async: false, polymorphic: true, inverse: 'youMessages' })
+      message;
+    }
 
-  let comment = store.createRecord('comment');
-  let post = store.createRecord('post');
+    register('model:Message', Message);
+    register('model:Post', Post);
+    register('model:Comment', Comment);
 
-  assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-  assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    const comment = store.createRecord('comment');
+    const post = store.createRecord('post');
 
-  run(function() {
+    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.equal(
+      post.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
+
     comment.set('message', post);
-  });
 
-  assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(post.get('youMessages.length'), 1, 'youMessages had the post added');
-  assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
+    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(post.get('youMessages.length'), 1, 'youMessages had the post added');
+    assert.equal(
+      post.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
 
-  run(function() {
     comment.set('message', null);
+
+    assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
+    assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
+    assert.equal(
+      post.get('everyoneWeKnowMessages.length'),
+      0,
+      'everyoneWeKnowMessages has no posts'
+    );
   });
 
-  assert.equal(post.get('meMessages.length'), 0, 'meMessages has no posts');
-  assert.equal(post.get('youMessages.length'), 0, 'youMessages has no posts');
-  assert.equal(post.get('everyoneWeKnowMessages.length'), 0, 'everyoneWeKnowMessages has no posts');
-});
+  testInDebug(
+    "Inverse relationships that don't exist throw a nice error for a hasMany",
+    async function(assert) {
+      class User extends Model {}
 
-testInDebug("Inverse relationships that don't exist throw a nice error for a hasMany", function(
-  assert
-) {
-  User = DS.Model.extend();
-  Comment = DS.Model.extend();
+      class Comment extends Model {}
 
-  Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { inverse: 'testPost', async: false }),
-  });
+      class Post extends Model {
+        @hasMany('comment', { inverse: 'testPost', async: false })
+        comments;
+      }
 
-  var env = setupStore({ post: Post, comment: Comment, user: User });
-  var post;
+      register('model:User', User);
+      register('model:Comment', Comment);
+      register('model:Post', Post);
 
-  env.store.createRecord('comment');
+      let post;
 
-  assert.expectAssertion(function() {
-    run(function() {
-      post = env.store.createRecord('post');
-      post.get('comments');
-    });
-  }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
-});
+      store.createRecord('comment');
 
-testInDebug("Inverse relationships that don't exist throw a nice error for a belongsTo", function(
-  assert
-) {
-  User = DS.Model.extend();
-  Comment = DS.Model.extend();
+      assert.expectAssertion(function() {
+        post = store.createRecord('post');
+        post.get('comments');
+      }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+    }
+  );
 
-  Post = DS.Model.extend({
-    user: DS.belongsTo('user', { inverse: 'testPost', async: false }),
-  });
+  testInDebug(
+    "Inverse relationships that don't exist throw a nice error for a belongsTo",
+    async function(assert) {
+      class User extends Model {}
 
-  var env = setupStore({ post: Post, comment: Comment, user: User });
-  var post;
-  env.store.createRecord('user');
+      class Comment extends Model {}
 
-  assert.expectAssertion(function() {
-    run(function() {
-      post = env.store.createRecord('post');
-      post.get('user');
-    });
-  }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
-});
+      class Post extends Model {
+        @belongsTo('user', { inverse: 'testPost', async: false })
+        user;
+      }
 
-test('inverseFor is only called when inverse is not null', function(assert) {
-  assert.expect(2);
-  Post = DS.Model.extend({
-    comments: DS.hasMany('comment', { async: false, inverse: null }),
-  });
+      register('model:User', User);
+      register('model:Comment', Comment);
+      register('model:Post', Post);
 
-  Comment = DS.Model.extend({
-    post: DS.belongsTo('post', { async: false, inverse: null }),
-  });
+      let post;
+      store.createRecord('user');
 
-  User = DS.Model.extend({
-    messages: DS.hasMany('message', { async: false, inverse: 'user' }),
-  });
+      assert.expectAssertion(function() {
+        post = store.createRecord('post');
+        post.get('user');
+      }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
+    }
+  );
 
-  Message = DS.Model.extend({
-    user: DS.belongsTo('user', { async: false, inverse: 'messages' }),
-  });
+  test('inverseFor is only called when inverse is not null', async function(assert) {
+    assert.expect(2);
 
-  var env = setupStore({ post: Post, comment: Comment, user: User, message: Message });
-  var store = env.store;
+    class Post extends Model {
+      @hasMany('comment', { async: false, inverse: null })
+      comments;
+    }
 
-  Post.inverseFor = function() {
-    assert.notOk(true, 'Post model inverseFor is not called');
-  };
+    class Comment extends Model {
+      @belongsTo('post', { async: false, inverse: null })
+      post;
+    }
 
-  Comment.inverseFor = function() {
-    assert.notOk(true, 'Comment model inverseFor is not called');
-  };
+    class User extends Model {
+      @hasMany('message', { async: false, inverse: 'user' })
+      messages;
+    }
 
-  Message.inverseFor = function() {
-    assert.ok(true, 'Message model inverseFor is called');
-  };
+    class Message extends Model {
+      @belongsTo('user', { async: false, inverse: 'messages' })
+      user;
+    }
 
-  User.inverseFor = function() {
-    assert.ok(true, 'User model inverseFor is called');
-  };
+    register('model:Post', Post);
+    register('model:Comment', Comment);
+    register('model:User', User);
+    register('model:Message', Message);
 
-  run(function() {
+    Post.inverseFor = function() {
+      assert.notOk(true, 'Post model inverseFor is not called');
+    };
+
+    Comment.inverseFor = function() {
+      assert.notOk(true, 'Comment model inverseFor is not called');
+    };
+
+    Message.inverseFor = function() {
+      assert.ok(true, 'Message model inverseFor is called');
+    };
+
+    User.inverseFor = function() {
+      assert.ok(true, 'User model inverseFor is called');
+    };
+
     store.push({
       data: {
         id: '1',
@@ -620,39 +668,39 @@ test('inverseFor is only called when inverse is not null', function(assert) {
       ],
     });
   });
-});
 
-testInDebug(
-  "Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship",
-  function(assert) {
-    User = DS.Model.extend({
-      post: DS.belongsTo('post', { inverse: null }),
-    });
+  testInDebug(
+    "Inverse null relationships with models that don't exist throw a nice error if trying to use that relationship",
+    function(assert) {
+      class User extends Model {
+        @belongsTo('post', { inverse: null })
+        post;
+      }
 
-    let env = setupStore({ user: User });
+      register('model:User', User);
 
-    assert.expectAssertion(() => {
-      env.store.createRecord('user', { post: null });
-    }, /No model was found for/);
+      assert.expectAssertion(() => {
+        store.createRecord('user', { post: null });
+      }, /No model was found for/);
 
-    // but don't error if the relationship is not used
-    env.store.createRecord('user', {});
-  }
-);
+      // but don't error if the relationship is not used
+      store.createRecord('user', {});
+    }
+  );
 
-test('No inverse configuration - should default to a null inverse', function (assert) {  
-  User = DS.Model.extend();
-  
-  Comment = DS.Model.extend({
-    user: belongsTo('user')
+  test('No inverse configuration - should default to a null inverse', function(assert) {
+    class User extends Model {}
+
+    class Comment extends Model {
+      @belongsTo('user')
+      user;
+    }
+
+    register('model:User', User);
+    register('model:Comment', Comment);
+
+    const comment = store.createRecord('comment');
+
+    assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
   });
-
-  const env = setupStore({
-    user: User,
-    comment: Comment
-  });
-
-  const comment = env.store.createRecord('comment');
-
-  assert.equal(comment.inverseFor('user'), null, 'Defaults to a null inverse');
 });
