@@ -133,7 +133,7 @@ module('integration/application - Attaching initializer', function(hooks) {
 
     this.application = this.TestApplication.create({ autoboot: false });
 
-    await run(() => this.application.boot());
+    await this.application.boot();
 
     assert.ok(ran, 'ember-data initializer was found');
   });
@@ -153,9 +153,7 @@ module('integration/application - Attaching initializer', function(hooks) {
 
     this.application = this.TestApplication.create({ autoboot: false });
 
-    await run(() => this.application.boot()).then(
-      () => (this.owner = this.application.buildInstance())
-    );
+    await this.application.boot().then(() => (this.owner = this.application.buildInstance()));
 
     let store = this.owner.lookup('service:store');
     assert.ok(
