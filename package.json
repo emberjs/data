@@ -43,7 +43,7 @@
     "broccoli-debug": "^0.6.5",
     "broccoli-file-creator": "^2.1.1",
     "broccoli-funnel": "^2.0.1",
-    "broccoli-merge-trees": "^3.0.1",
+    "broccoli-merge-trees": "^3.0.2",
     "broccoli-rollup": "^2.1.1",
     "calculate-cache-key-for-tree": "^1.1.0",
     "chalk": "^2.4.1",
