@@ -5847,10 +5847,10 @@ json-stringify-safe@~5.0.0, json-stringify-safe@~5.0.1:
   version "5.0.1"
   resolved "https://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
 
-json-typescript@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/json-typescript/-/json-typescript-1.0.1.tgz#9d71a17627a20a61dbbf504e33561030f4eefd7f"
-  integrity sha512-+PBRanpdVZ/MV8jJ044EuJ1muG3Ic/jLAZYgDE0WPqBbU46D3w3e+yL4ZbxwTfGbR9ff6JZlAGeGxSmumbQl0A==
+json-typescript@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/json-typescript/-/json-typescript-1.1.0.tgz#5369013526d516b13bde1ae2bbc541386dd12c72"
+  integrity sha512-6BzXAzBSfO4L3+IdCLISVQUzR4Wq946Xk2u7ChUAnvftyj/Ec1YgRmBOjw9Rw4wpdtvX678HPIYtYaGYr9fb9w==
 
 json5@^0.5.0, json5@^0.5.1:
   version "0.5.1"
