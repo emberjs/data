@@ -47,7 +47,7 @@
     "broccoli-rollup": "^2.1.1",
     "calculate-cache-key-for-tree": "^1.1.0",
     "chalk": "^2.4.1",
-    "ember-cli-babel": "^7.1.2",
+    "ember-cli-babel": "^7.1.4",
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
