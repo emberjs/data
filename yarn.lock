@@ -739,6 +739,13 @@ amd-name-resolver@1.2.0, amd-name-resolver@^1.2.0:
   dependencies:
     ensure-posix-path "^1.0.1"
 
+amd-name-resolver@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.npmjs.org/amd-name-resolver/-/amd-name-resolver-1.2.1.tgz#cea40abff394268307df647ce340c83eda6e9cfc"
+  dependencies:
+    ensure-posix-path "^1.0.1"
+    object-hash "^1.3.1"
+
 amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
@@ -1797,6 +1804,21 @@ broccoli-babel-transpiler@^6.5.0:
 broccoli-babel-transpiler@^7.0.0:
   version "7.0.0"
   resolved "https://registry.npmjs.org/broccoli-babel-transpiler/-/broccoli-babel-transpiler-7.0.0.tgz#bc9d0e93d70d9515b799144b54b0b958e88b6f19"
+  dependencies:
+    "@babel/core" "^7.0.0"
+    broccoli-funnel "^2.0.1"
+    broccoli-merge-trees "^3.0.0"
+    broccoli-persistent-filter "^1.4.3"
+    clone "^2.1.2"
+    hash-for-dep "^1.2.3"
+    heimdalljs-logger "^0.1.9"
+    json-stable-stringify "^1.0.1"
+    rsvp "^4.8.3"
+    workerpool "^2.3.1"
+
+broccoli-babel-transpiler@^7.1.0:
+  version "7.1.1"
+  resolved "https://registry.npmjs.org/broccoli-babel-transpiler/-/broccoli-babel-transpiler-7.1.1.tgz#4202cd0653845083ee744fb4eaa4a2b50292f03f"
   dependencies:
     "@babel/core" "^7.0.0"
     broccoli-funnel "^2.0.1"
@@ -3110,6 +3132,27 @@ ember-cli-babel@^7.1.2:
     ensure-posix-path "^1.0.2"
     semver "^5.5.0"
 
+ember-cli-babel@^7.1.3:
+  version "7.1.4"
+  resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.1.4.tgz#5f2b6ba2156d8dce2681aea92689b57ffbc71ccb"
+  dependencies:
+    "@babel/core" "^7.0.0"
+    "@babel/plugin-transform-modules-amd" "^7.0.0"
+    "@babel/polyfill" "^7.0.0"
+    "@babel/preset-env" "^7.0.0"
+    amd-name-resolver "^1.2.1"
+    babel-plugin-debug-macros "^0.2.0-beta.6"
+    babel-plugin-ember-modules-api-polyfill "^2.5.0"
+    babel-plugin-module-resolver "^3.1.1"
+    broccoli-babel-transpiler "^7.1.0"
+    broccoli-debug "^0.6.4"
+    broccoli-funnel "^2.0.1"
+    broccoli-source "^1.1.0"
+    clone "^2.1.2"
+    ember-cli-version-checker "^2.1.2"
+    ensure-posix-path "^1.0.2"
+    semver "^5.5.0"
+
 ember-cli-blueprint-test-helpers@^0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/ember-cli-blueprint-test-helpers/-/ember-cli-blueprint-test-helpers-0.19.1.tgz#26df9724a6cb48f7acfa391dec7ec772888b0929"
@@ -3302,12 +3345,6 @@ ember-cli-uglify@2.1.0:
   dependencies:
     broccoli-uglify-sourcemap "^2.1.1"
     lodash.defaultsdeep "^4.6.0"
-
-ember-cli-valid-component-name@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/ember-cli-valid-component-name/-/ember-cli-valid-component-name-1.0.0.tgz#71550ce387e0233065f30b30b1510aa2dfbe87ef"
-  dependencies:
-    silent-error "^1.0.0"
 
 ember-cli-version-checker@^2.0.0, ember-cli-version-checker@^2.1.0, ember-cli-version-checker@^2.1.1, ember-cli-version-checker@^2.1.2:
   version "2.1.2"
@@ -3530,19 +3567,19 @@ ember-source-channel-url@^1.0.1, ember-source-channel-url@^1.1.0:
   dependencies:
     got "^8.0.1"
 
-ember-source@~3.5.0:
-  version "3.5.0"
-  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.5.0.tgz#2322e393125684e1e043d0eedad8fd79c6de78a8"
+ember-source@~3.6.0:
+  version "3.6.0"
+  resolved "https://registry.npmjs.org/ember-source/-/ember-source-3.6.0.tgz#0229b4fe6802dcfadb81e27ebcf50fff166889ec"
   dependencies:
     broccoli-funnel "^2.0.1"
     broccoli-merge-trees "^2.0.0"
     chalk "^2.3.0"
+    ember-cli-babel "^7.1.3"
     ember-cli-get-component-path-option "^1.0.0"
     ember-cli-is-package-missing "^1.0.0"
     ember-cli-normalize-entity-name "^1.0.0"
     ember-cli-path-utils "^1.0.0"
     ember-cli-string-utils "^1.1.0"
-    ember-cli-valid-component-name "^1.0.0"
     ember-cli-version-checker "^2.1.0"
     ember-router-generator "^1.2.3"
     inflection "^1.12.0"
@@ -6961,6 +6998,10 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
+
+object-hash@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/object-hash/-/object-hash-1.3.1.tgz#fde452098a951cb145f039bb7d455449ddc126df"
 
 object-keys@^1.0.8:
   version "1.0.12"

@@ -6,6 +6,7 @@ import { attr } from '@ember-decorators/data';
 import Adapter from 'ember-data/adapter';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
+import { run } from '@ember/runloop';
 
 class Post extends Model {
   @attr
@@ -122,7 +123,10 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
     assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
     assert.deepEqual(record.color, 'green');
 
-    post.unloadRecord();
+    // this run necessary for ember 2.18
+    run(() => {
+      post.unloadRecord();
+    });
 
     await settled();
 
