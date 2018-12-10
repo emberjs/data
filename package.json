@@ -110,7 +110,7 @@
     "ember-source": "~3.5.0",
     "ember-source-channel-url": "^1.1.0",
     "ember-try": "^1.1.0",
-    "eslint": "^5.7.0",
+    "eslint": "^5.10.0",
     "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-node": "^7.0.1",
     "eslint-plugin-prettier": "^3.0.0",
