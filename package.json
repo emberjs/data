@@ -83,7 +83,7 @@
     "broccoli-uglify-sourcemap": "^2.2.0",
     "co": "^4.6.0",
     "common-tags": "^1.8.0",
-    "ember-cli": "^3.5.0",
+    "ember-cli": "^3.5.1",
     "ember-cli-app-version": "^3.2.0",
     "ember-cli-blueprint-test-helpers": "^0.19.1",
     "ember-cli-dependency-checker": "^3.0.0",
