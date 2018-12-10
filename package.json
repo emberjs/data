@@ -121,7 +121,7 @@
     "loader.js": "^4.7.0",
     "mocha": "^5.2.0",
     "mocha-only-detector": "1.0.0",
-    "prettier": "^1.14.3",
+    "prettier": "^1.15.3",
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
     "typescript": "~3.1.3"
