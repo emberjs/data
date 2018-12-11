@@ -64,7 +64,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.1.0",
-    "@ember-decorators/babel-transforms": "^2.1.2",
+    "@ember-decorators/babel-transforms": "^3.1.5",
     "@ember-decorators/data": "^3.0.0",
     "@types/ember": "~3.0.25",
     "@types/ember-qunit": "~3.4.3",
