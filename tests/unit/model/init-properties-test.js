@@ -262,7 +262,7 @@ test('store.queryRecord(type, query) makes properties available during record in
   run(() => store.queryRecord('post', { id: '1' }));
 });
 
-test('Model class does not get properties passed to setUknownProperty accidentaly', function(assert) {
+test('Model class does not get properties passed to setUknownProperty accidentally', function(assert) {
   assert.expect(2);
   // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
   // how to get setUnknownProperty to continue working
