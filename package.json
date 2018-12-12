@@ -77,7 +77,7 @@
     "babel-eslint": "^10.0.1",
     "broccoli-babel-transpiler": "^7.0.0",
     "broccoli-concat": "^3.7.3",
-    "broccoli-stew": "^2.0.0",
+    "broccoli-stew": "^2.0.1",
     "broccoli-string-replace": "^0.1.2",
     "broccoli-test-helper": "^2.0.0",
     "broccoli-uglify-sourcemap": "^2.2.0",
