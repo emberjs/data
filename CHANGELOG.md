@@ -2,6 +2,21 @@
 
 ### Master
 
+### Release 3.6.0 (December 12, 2018)
+
+- [#5671](https://github.com/emberjs/data/pull/5671) Fix issue preventing coalescing of belongsTo
+- [#5700](https://github.com/emberjs/data/pull/5700) [CHORE] remove deprecations targeted for 3.5 (#5700)
+- [#5733](https://github.com/emberjs/data/pull/5733) [BUGFIX inspector] Fix columns names in debug-adapter (#5733)
+
+### Release 3.5.2 (November 29, 2018)
+
+- [#5766](https://github.com/emberjs/data/pull/5766) [BUGFIX] update ember-cli-babel to ensure @ember/canary-features is available
+- [#5769](https://github.com/emberjs/data/pull/5769) [BUGFIX beta] backport #5767 Make _recordData lazy
+
+### Release 3.5.1 (November 28, 2018)
+
+- [#5762](https://github.com/emberjs/data/pull/5762) [BUGFIX unloadRecord] bfs compatibility for custom RecordData (#5703)
+
 ### Release 3.5.0 (October 12, 2018)
 
 - [#5491](https://github.com/emberjs/data/pull/5491) [Feature] Add MU support for model and model-test blueprints
@@ -1982,7 +1997,7 @@ var Post = DS.Model.extend({
 ```
 
 **no longer works**. Instead, you should just watch each attribute like you
-would with any `EmberObject`:
+would with any `Ember.Object`:
 
 ```javascript
 var Post = DS.Model.extend({
