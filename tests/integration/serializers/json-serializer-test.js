@@ -527,6 +527,68 @@ test('Serializer respects if embedded model has a relationship named "type" - #3
   ]);
 });
 
+test('Serializer respects readOnly option in the attribute options', function(assert) {
+  assert.expect(2);
+
+  env.owner.register('serializer:post', DS.JSONSerializer);
+
+  Post.reopen({
+    title: DS.attr('string'),
+    description: DS.attr('string', { readOnly: true }),
+  });
+
+  let post = env.store.createRecord('post', {
+    title: 'Rails is omakase',
+    description: 'Do not serialize',
+  });
+
+  let payload = env.store.serializerFor('post').serialize(post._createSnapshot());
+
+  assert.ok(!payload.hasOwnProperty('description'), 'Does not add the key to instance');
+  assert.ok(
+    !payload.hasOwnProperty('[object Object]'),
+    'Does not add some random key like [object Object]'
+  );
+});
+
+test('Serializer respects readOnly option in the `hasMany` relationship options', function(assert) {
+  assert.expect(1);
+
+  env.owner.register('serializer:post', DS.JSONSerializer);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { readOnly: true }),
+  });
+
+  let comment = env.store.createRecord('comment');
+  let post = env.store.createRecord('post', { comments: [comment] });
+
+  let serializer = env.store.serializerFor('post');
+  let serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+
+  let payload = serializer.serialize(post._createSnapshot());
+  assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+});
+
+test('Serializer respects readOnly option in the `belongsTo` relationship options', function(assert) {
+  assert.expect(1);
+
+  env.owner.register('serializer:comment', DS.JSONSerializer);
+
+  Comment.reopen({
+    post: DS.belongsTo('post', { readOnly: true }),
+  });
+
+  let post = env.store.createRecord('post');
+  let comment = env.store.createRecord('comment', { post: post });
+
+  let serializer = env.store.serializerFor('comment');
+  let serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
+
+  let payload = serializer.serialize(comment._createSnapshot());
+  assert.ok(!payload.hasOwnProperty(serializedProperty), 'Does not add the key to instance');
+});
+
 test('Serializer respects `serialize: false` on the attrs hash', function(assert) {
   assert.expect(2);
   env.owner.register(

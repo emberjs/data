@@ -827,18 +827,19 @@ const JSONSerializer = Serializer.extend({
   },
 
   /**
-    Check attrs.key.serialize property to inform if the `key`
-    can be serialized
+    Check attrs.key.serialize property and readOnly option
+    to inform if the `key` can be serialized
 
     @method _canSerialize
     @private
     @param {String} key
     @return {boolean} true if the key can be serialized
   */
-  _canSerialize(key) {
+  _canSerialize(key, options = {}) {
     let attrs = get(this, 'attrs');
+    let readOnly = get(options, 'readOnly');
 
-    return !attrs || !attrs[key] || attrs[key].serialize !== false;
+    return !readOnly && (!attrs || !attrs[key] || attrs[key].serialize !== false);
   },
 
   /**
@@ -875,7 +876,7 @@ const JSONSerializer = Serializer.extend({
       return true;
     }
     return (
-      this._canSerialize(key) &&
+      this._canSerialize(key, relationship.options) &&
       (relationshipType === 'manyToNone' || relationshipType === 'manyToMany')
     );
   },
@@ -1116,7 +1117,7 @@ const JSONSerializer = Serializer.extend({
     @param {Object} attribute
   */
   serializeAttribute(snapshot, json, key, attribute) {
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, attribute.options)) {
       let type = attribute.type;
       let value = snapshot.attr(key);
       if (type) {
@@ -1166,7 +1167,7 @@ const JSONSerializer = Serializer.extend({
   serializeBelongsTo(snapshot, json, relationship) {
     let key = relationship.key;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, relationship.options)) {
       let belongsToId = snapshot.belongsTo(key, { id: true });
 
       // if provided, use the mapping provided by `attrs` in

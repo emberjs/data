@@ -477,7 +477,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   serializeAttribute(snapshot, json, key, attribute) {
     let type = attribute.type;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, attribute.options)) {
       json.attributes = json.attributes || {};
 
       let value = snapshot.attr(key);
@@ -499,7 +499,7 @@ const JSONAPISerializer = JSONSerializer.extend({
   serializeBelongsTo(snapshot, json, relationship) {
     let key = relationship.key;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, relationship.options)) {
       let belongsTo = snapshot.belongsTo(key);
       let belongsToIsNotNew = belongsTo && belongsTo.record && !belongsTo.record.get('isNew');
 
