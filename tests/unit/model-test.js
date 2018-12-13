@@ -943,6 +943,77 @@ module('unit/model - Model', function(hooks) {
       assert.equal(get(person, 'name'), 'Brohuda Katz', 'setting took hold');
     });
 
+    test('a Model can not update its readOnly attributes', async function(assert) {
+      assert.expect(1);
+
+      class Person extends Model {
+        @attr('string', { readOnly: true })
+        name;
+      }
+
+      this.owner.register('model:person', Person);
+
+      let person = store.createRecord('person');
+      assert.throws(
+        function() {
+          set(person, 'name', 'New name');
+        },
+
+        function(e) {
+          return (
+            e.message ===
+            'Assertion Failed: Cannot set read-only attribute "name" on instance of model "person"'
+          );
+        }
+      );
+    });
+
+    test('a Model can not update its readOnly relationships', async function(assert) {
+      assert.expect(2);
+
+      class Person extends Model {
+        @hasMany('post', { readOnly: true })
+        posts;
+      }
+
+      class Post extends Model {
+        @belongsTo('person', { readOnly: true })
+        author;
+      }
+
+      this.owner.register('model:person', Person);
+      this.owner.register('model:post', Post);
+
+      let person = store.createRecord('person');
+      let post = store.createRecord('post');
+
+      assert.throws(
+        function() {
+          set(person, 'posts', [post]);
+        },
+
+        function(e) {
+          return (
+            e.message ===
+            'Assertion Failed: Cannot set read-only relationship "posts" on instance of model "person"'
+          );
+        }
+      );
+
+      assert.throws(
+        function() {
+          set(post, 'author', person);
+        },
+
+        function(e) {
+          return (
+            e.message ===
+            'Assertion Failed: Cannot set read-only relationship "author" on instance of model "post"'
+          );
+        }
+      );
+    });
+
     test(`clearing the value when a Model's defaultValue was in use works`, async function(assert) {
       class Tag extends Model {
         @attr('string', { defaultValue: 'unknown' })

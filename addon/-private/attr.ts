@@ -25,6 +25,7 @@ function hasValue(internalModel, key) {
 
 interface AttrOptions {
   defaultValue?: string | null | (() => any);
+  readOnly?: boolean;
 }
 
 /**
@@ -69,6 +70,19 @@ interface AttrOptions {
         return {};
       }
     })
+  });
+  ```
+
+  - `readOnly`: A boolean value that determines if the attribute should be read only and serialized in a payload.
+
+  Example
+
+  ```app/models/user.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    username: DS.attr('string'),
+    isAdmin: DS.attr('string', { readOnly: true }),
   });
   ```
 
@@ -150,6 +164,9 @@ export default function attr(type?: string | AttrOptions, options?: AttrOptions)
           );
         }
       }
+
+      assert(`Cannot set read-only attribute "${key}" on instance of model "${this.constructor.modelName}"`, !(options && options.readOnly))
+
       return this._internalModel.setDirtyAttribute(key, value);
     },
   }).meta(meta);

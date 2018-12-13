@@ -15,6 +15,7 @@ import { DEBUG } from '@glimmer/env';
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
   - `inverse`: A string used to identify the inverse property on a related model.
+  - `readOnly`: A boolean value that determines if the relationship should be read only and serialized in a payload.
 
   #### One-To-Many
   To declare a one-to-many relationship between two models, use
@@ -194,6 +195,14 @@ export default function hasMany(type, options) {
           );
         }
       }
+
+      assert(
+        `Cannot set read-only relationship "${key}" on instance of model "${
+          this.constructor.modelName
+        }"`,
+        !(options && options.readOnly)
+      );
+
       let internalModel = this._internalModel;
       internalModel.setDirtyHasMany(key, records);
 
