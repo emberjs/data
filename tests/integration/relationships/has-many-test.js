@@ -900,6 +900,71 @@ test('A many-many hasMany should not be reordered when a child is posted with th
   });
 });
 
+test('A hasMany should not be reordered when a child is posted with the reverse relationship specified', function (assert) {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true }),
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true }),
+  });
+
+  env.adapter.findHasMany = function (store, snapshot, link, relationship) {
+    return resolve({ data: [] });
+  };
+
+  env.adapter.createRecord = function (store, snapshot, link, relationship) {
+    return resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: '/some/link' },
+          },
+        },
+      },
+    });
+  };
+
+  return run(() => {
+    let post = env.store.createRecord('post', {});
+    let comment1 = env.store.createRecord('comment', { message: post });
+    env.store.createRecord('comment', { message: post });
+    return post
+      .save()
+      .then(() => comment1.save())
+      .then(() => post.get('comments'))
+      .then(comments => {
+        assert.equal(comments.toArray()[0], comment1, 'initially in the correct order');
+      })
+      .then(() => {
+        // push the first comment with no changes
+        return env.store.push({
+          data: [
+            {
+              id: comment1.id,
+              type: 'comment',
+              attributes: {},
+              relationships: {
+                message: {
+                  data: {
+                    id: 1,
+                    type: 'post',
+                  },
+                },
+              },
+            },
+          ],
+        });
+      })
+      .then(() => post.get('comments'))
+      .then(comments => {
+        assert.equal(comments.toArray()[0], comment1, 'after post the comments are in the correct order');
+      });
+  });
+});
+
 test('A hasMany relationship can be reloaded if it was fetched via a link', function(assert) {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true }),
