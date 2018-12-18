@@ -2165,7 +2165,11 @@ const Store = Service.extend({
     @param {Resolver} resolver
     @param {Object} options
   */
-  scheduleSave(internalModel, resolver, options) {
+  scheduleSave(internalModel, options) {
+    let promiseLabel = 'DS: Model#save ' + this;
+    let resolver = RSVP.defer(promiseLabel);
+
+
     let snapshot = internalModel.createSnapshot(options);
     internalModel.adapterWillCommit();
     this._pendingSave.push({
@@ -2173,6 +2177,7 @@ const Store = Service.extend({
       resolver: resolver,
     });
     emberRun.scheduleOnce('actions', this, this.flushPendingSave);
+    return resolver.promise;
   },
 
   /**
@@ -2408,6 +2413,10 @@ const Store = Service.extend({
 
     // for factorFor factory/class split
     return maybeFactory.class ? maybeFactory.class : maybeFactory;
+  },
+
+  instantiateRecord(modelName, createOptions) {
+    return this._modelFactoryFor(modelName).create(createOptions);
   },
 
   _modelFactoryFor(modelName) {

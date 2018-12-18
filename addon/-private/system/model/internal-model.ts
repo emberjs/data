@@ -326,7 +326,7 @@ export default class InternalModel {
         createOptions.container = store.container;
       }
 
-      this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      this._record = store.instantiateRecord(this.modelName, createOptions);
 
       this._triggerDeferredTriggers();
       heimdall.stop(token);
@@ -387,11 +387,7 @@ export default class InternalModel {
   }
 
   save(options) {
-    let promiseLabel = 'DS: Model#save ' + this;
-    let resolver = RSVP.defer(promiseLabel);
-
-    this.store.scheduleSave(this, resolver, options);
-    return resolver.promise;
+    return this.store.scheduleSave(this, options);
   }
 
   startedReloading() {

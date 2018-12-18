@@ -22,6 +22,7 @@ export default class Snapshot {
     this._hasManyRelationships = Object.create(null);
     this._hasManyIds = Object.create(null);
     this._internalModel = internalModel;
+    this._store = this._internalModel.store;
 
     /*
       If the internalModel does not yet have a record, then we are
@@ -91,8 +92,8 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-
-      record.eachAttribute(keyName => (attributes[keyName] = get(record, keyName)));
+      let attrs = Object.keys(this._store._attributesDefinitionFor(this._internalModel.modelName));
+      attrs.forEach(keyName => (attributes[keyName] = get(record, keyName)));
     }
 
     return attributes;
