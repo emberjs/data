@@ -156,10 +156,13 @@ export default class ManyRelationship extends Relationship {
 
     this.removeCanonicalRecordDatas(recordDatasToRemove);
 
+    const membersLength = members.list.length;
     for (let i = 0, l = recordDatas.length; i < l; i++) {
       let recordData = recordDatas[i];
-      this.removeCanonicalRecordData(recordData);
-      this.addCanonicalRecordData(recordData, i);
+      if (membersLength <= i || members.list[i] !== recordData) {
+        this.removeCanonicalRecordData(recordData);
+        this.addCanonicalRecordData(recordData, i);
+      }
     }
   }
 
