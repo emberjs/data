@@ -3977,7 +3977,7 @@ test('A hasMany relationship with a link will trigger the link request even if a
       });
     };
 
-    return run(() => 
+    return run(() => {
       let author1 = env.store.createRecord('user', { id: 2 });
       let author2 = env.store.createRecord('user', { id: 3 });
       let post = env.store.createRecord('post', { id: 1, authors: [author1, author2] });
