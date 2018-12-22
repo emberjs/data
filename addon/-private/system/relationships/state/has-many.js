@@ -159,7 +159,7 @@ export default class ManyRelationship extends Relationship {
     const membersLength = members.list.length;
     for (let i = 0, l = recordDatas.length; i < l; i++) {
       let recordData = recordDatas[i];
-      if (membersLength <= i || members.list[i] !== recordData) {
+      if ((i >= membersLength) || (members.list[i] !== recordData)) {
         this.removeCanonicalRecordData(recordData);
         this.addCanonicalRecordData(recordData, i);
       }
