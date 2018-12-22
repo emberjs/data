@@ -3884,4 +3884,138 @@ test('A hasMany relationship with a link will trigger the link request even if a
         });
     });
   });
+   
+  test('A many-one hasMany should not be reordered when a child is posted with the reverse relationship specified', function (assert) {
+    Post.reopen({
+      comments: DS.hasMany('comment', { async: true }),
+    });
+  
+    Comment.reopen({
+      message: DS.belongsTo('post', { async: true }),
+    });
+  
+    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      return resolve({ data: [] });
+    };
+  
+    env.adapter.createRecord = function(store, snapshot, link, relationship) {
+      return resolve({
+        data: {
+          id: 1,
+          type: 'post',
+          relationships: {
+            comments: {
+              links: { related: '/some/link' },
+            },
+          },
+        },
+      });
+    };
+  
+    return run(() => {
+      let post = env.store.createRecord('post', {});
+      let comment1 = env.store.createRecord('comment', { message: post });
+      env.store.createRecord('comment', { message: post });
+      return post
+        .save()
+        .then(() => comment1.save())
+        .then(() => post.get('comments'))
+        .then(comments => {
+          assert.equal(comments.toArray()[0], comment1, 'initially in the correct order');
+        })
+        .then(() => {
+          // push the first comment with no changes
+          return env.store.push({
+            data: [
+              {
+                id: comment1.id,
+                type: 'comment',
+                attributes: {},
+                relationships: {
+                  message: {
+                    data: {
+                      id: 1,
+                      type: 'post',
+                    },
+                  },
+                },
+              },
+            ],
+          });
+        })
+        .then(() => post.get('comments'))
+        .then(comments => {
+          assert.equal(comments.toArray()[0], comment1, 'after post the comments are in the correct order');
+        });
+    });
+  });
+  
+  test('A many-many hasMany should not be reordered when a child is posted with the reverse relationship specified', function(assert) {
+    Post.reopen({
+      authors: DS.hasMany('user', { async: true, inverse: 'posts' }),
+    });
+
+    User.reopen({
+      posts: DS.hasMany('post', { async: true, inverse: 'authors' }),
+    });
+
+    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+      return resolve({ data: [] });
+    };
+
+    env.adapter.createRecord = function(store, snapshot, link, relationship) {
+      return resolve({
+        data: {
+          id: 1,
+          type: 'post',
+          relationships: {
+            comments: {
+              links: { related: '/some/link' },
+            },
+          },
+        },
+      });
+    };
+
+    return run(() => 
+      let author1 = env.store.createRecord('user', { id: 2 });
+      let author2 = env.store.createRecord('user', { id: 3 });
+      let post = env.store.createRecord('post', { id: 1, authors: [author1, author2] });
+      return post
+        .save()
+        .then(() => post.get('authors'))
+        .then(authors => {
+          assert.equal(authors.toArray()[0], author1, 'initially in the correct order (1)');
+          assert.equal(authors.toArray()[1], author2, 'initially in the correct order (2)');
+        })
+        .then(() => {
+          // push the first author with no changes
+          return env.store.push({
+            data: [
+              {
+                id: author1.id,
+                type: 'user',
+                attributes: {},
+                relationships: {
+                  posts: {
+                    data: [
+                      {
+                        id: post.id,
+                        type: 'post',
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          });
+        })
+        .then(() => post.get('authors'))
+        .then(authors => {
+          assert.equal(authors.toArray()[0], author1, 'after post in the correct order (1)');
+          assert.equal(authors.toArray()[1], author2, 'after post in the correct order (2)');
+        });
+    });
+  });
+    
 });
