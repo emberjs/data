@@ -46,6 +46,7 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
+import ShimModelClass from './model/shim-model-class';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -2412,7 +2413,14 @@ const Store = Service.extend({
     let maybeFactory = this._modelFactoryFor(modelName);
 
     // for factorFor factory/class split
-    return maybeFactory.class ? maybeFactory.class : maybeFactory;
+    debugger
+    let klass = maybeFactory.class ? maybeFactory.class : maybeFactory;
+
+    if (!klass.isModel) {
+      return new ShimModelClass(this, modelName);
+    } else {
+      return klass;
+    }
   },
 
   instantiateRecord(modelName, createOptions) {
@@ -3402,12 +3410,14 @@ function getModelFactory(store, cache, normalizedModelName) {
     }
 
     let klass = factory.class;
-    assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
+    // assert(`'${inspect(klass)}' does not appear to be an ember-data model`, klass.isModel);
 
     // TODO: deprecate this
-    let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
-    if (!hasOwnModelNameSet) {
-      klass.modelName = normalizedModelName;
+    if (klass.isModel) {
+      let hasOwnModelNameSet = klass.modelName && klass.hasOwnProperty('modelName');
+      if (!hasOwnModelNameSet) {
+        klass.modelName = normalizedModelName;
+      }
     }
 
     cache[normalizedModelName] = factory;

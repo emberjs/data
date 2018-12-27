@@ -678,7 +678,7 @@ const RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash(hash, typeClass, snapshot, options) {
-    let normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
+    let normalizedRootKey = this.payloadKeyFromModelName(snapshot.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
 

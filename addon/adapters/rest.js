@@ -482,7 +482,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findRecord(store, type, id, snapshot) {
-    let url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
+    let url = this.buildURL(snapshot.modelName, id, snapshot, 'findRecord');
     let query = this.buildQuery(snapshot);
 
     return this.ajax(url, 'GET', { data: query });
@@ -504,7 +504,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   findAll(store, type, sinceToken, snapshotRecordArray) {
     let query = this.buildQuery(snapshotRecordArray);
-    let url = this.buildURL(type.modelName, null, snapshotRecordArray, 'findAll');
+    let url = this.buildURL(snapshotRecordArray.modelName, null, snapshotRecordArray, 'findAll');
 
     if (sinceToken) {
       query.since = sinceToken;
@@ -531,6 +531,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   query(store, type, query) {
+     // CUSTOM CLASS TODO DEAL WITH THIS
     let url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
@@ -559,6 +560,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   queryRecord(store, type, query) {
+     // CUSTOM CLASS TODO DEAL WITH THIS
     let url = this.buildURL(type.modelName, null, null, 'queryRecord', query);
 
     if (this.sortQueryParams) {
@@ -602,6 +604,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findMany(store, type, ids, snapshots) {
+     // CUSTOM CLASS TODO DEAL WITH THIS
     let url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   },
@@ -713,8 +716,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   createRecord(store, type, snapshot) {
     let data = {};
-    let serializer = store.serializerFor(type.modelName);
-    let url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
+    let serializer = store.serializerFor(snapshot.modelName);
+    let url = this.buildURL(snapshot.modelName, null, snapshot, 'createRecord');
 
     serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
@@ -739,12 +742,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   updateRecord(store, type, snapshot) {
     let data = {};
-    let serializer = store.serializerFor(type.modelName);
+    let serializer = store.serializerFor(snapshot.modelName);
 
     serializer.serializeIntoHash(data, type, snapshot);
 
     let id = snapshot.id;
-    let url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
+    let url = this.buildURL(snapshot.modelName, id, snapshot, 'updateRecord');
 
     return this.ajax(url, 'PUT', { data: data });
   },
@@ -763,7 +766,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   deleteRecord(store, type, snapshot) {
     let id = snapshot.id;
 
-    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
+    return this.ajax(this.buildURL(snapshot.modelName, id, snapshot, 'deleteRecord'), 'DELETE');
   },
 
   _stripIDFromURL(store, snapshot) {

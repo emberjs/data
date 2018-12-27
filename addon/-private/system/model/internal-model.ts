@@ -707,9 +707,10 @@ export default class InternalModel {
   }
 
   destroy() {
+    // TODO add a better check for ED model
     assert(
       'Cannot destroy an internalModel while its record is materialized',
-      !this._record || this._record.get('isDestroyed') || this._record.get('isDestroying')
+      !this._record || (this._record.get && this._record.get('isDestroyed')) || (this._record.get && this._record.get('isDestroying'))
     );
     this.isDestroying = true;
     Object.keys(this._retainedManyArrayCache).forEach(key => {
@@ -1157,12 +1158,14 @@ export default class InternalModel {
     this.error = error;
     this.isError = true;
 
+    /*
     if (this.hasRecord) {
       this._record.setProperties({
         isError: true,
         adapterError: error,
       });
     }
+    */
   }
 
   didCleanError() {
@@ -1226,15 +1229,17 @@ export default class InternalModel {
   adapterDidInvalidate(errors) {
     let attribute;
 
+    /*
     for (attribute in errors) {
       if (errors.hasOwnProperty(attribute)) {
         this.addErrorMessageToAttribute(attribute, errors[attribute]);
       }
     }
+    */
 
     this.send('becameInvalid');
 
-    this._recordData.commitWasRejected();
+    this._recordData.commitWasRejected(errors);
   }
 
   /*
@@ -1245,7 +1250,7 @@ export default class InternalModel {
     this.send('becameError');
     this.didError(error);
 
-    this._recordData.commitWasRejected();
+    this._recordData.commitWasRejected(error);
   }
 
   toString() {

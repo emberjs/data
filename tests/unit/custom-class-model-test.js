@@ -28,6 +28,12 @@ module('unit/model - Custom Class Model', function(hooks) {
         this.internalModel = internalModel;
         this.store = store;
       }
+      get isError() {
+
+      }
+      get adapterError() {
+
+      }
 
       trigger() {
 
@@ -40,6 +46,24 @@ module('unit/model - Custom Class Model', function(hooks) {
       destroy() {
 
       }
+      _notifyProperties() {
+
+      }
+      notifyBelongsToChange() {
+
+      }
+      notifyPropertyChange() {
+
+      }
+      /*
+      get currentState() {
+
+      }
+
+      set currentState() {
+
+      }
+      */
     }
 
     let CustomStore = Store.extend({
@@ -60,6 +84,7 @@ module('unit/model - Custom Class Model', function(hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
+        createRecord: () => ({ data: { type: 'person', id: 1}})
       })
     );
     owner.register('serializer:-default', JSONAPISerializer);

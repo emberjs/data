@@ -368,7 +368,10 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachAttribute(callback, binding) {
-    this.record.eachAttribute(callback, binding);
+    let attrDefs = this._store._attributesDefinitionFor(this.modelName, this.id);
+    Object.keys(attrDefs).forEach((key) => {
+      callback.call(binding, key, attrDefs[key]);
+    });
   }
 
   /**
@@ -388,7 +391,10 @@ export default class Snapshot {
     @param {Object} [binding] the value to which the callback's `this` should be bound
   */
   eachRelationship(callback, binding) {
-    this.record.eachRelationship(callback, binding);
+    let relationshipDefs = this._store._relationshipsDefinitionFor(this.modelName, this.id);
+    Object.keys(relationshipDefs).forEach((key) => {
+      callback.call(binding, key, relationshipDefs[key]);
+    });
   }
 
   /**

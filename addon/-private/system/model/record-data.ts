@@ -88,7 +88,7 @@ export interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean);
   clientDidCreate();
   willCommit();
-  commitWasRejected();
+  commitWasRejected(error: any);
   unloadRecord();
   rollbackAttributes();
   changedAttributes(): ChangedAttributesHash;
