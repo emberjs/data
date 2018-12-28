@@ -2413,7 +2413,6 @@ const Store = Service.extend({
     let maybeFactory = this._modelFactoryFor(modelName);
 
     // for factorFor factory/class split
-    debugger
     let klass = maybeFactory.class ? maybeFactory.class : maybeFactory;
 
     if (!klass.isModel) {

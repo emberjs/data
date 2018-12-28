@@ -47,6 +47,28 @@ export interface JsonApiHasManyRelationship {
   _relationship?: ManyRelationship
 }
 
+export interface JsonApiError {
+  id?: string;
+  status?: string;
+  code?: string;
+  title?: string;
+  detail?: string;
+  source?: {
+    pointer?: string;
+    parameter?: string;
+  };
+  meta?: Object
+}
+
+export interface JsonApiValidationError {
+  title: string;
+  detail: string;
+  source: {
+    pointer: string;
+    parameter?: string
+  }
+}
+
 export type JsonApiRelationship =  JsonApiBelongsToRelationship | JsonApiHasManyRelationship;
 
 export interface ChangedAttributesHash {
@@ -75,22 +97,27 @@ export interface RecordDataStoreWrapper {
   disconnectRecord(modelName: string, id: string | null, clientId: string);
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
   notifyPropertyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  notifyBelongsToChange(modelName:string, id:string | null, clientId:string | null, key: string);
+  notifyErrorsChange(modelName:string, id:string | null, clientId:string | null);
 
   // Needed For relationships
-  notifyHasManyChange(modelName:string, id:string | null, clientId:string | null, key: string);
   recordDataFor(modelName: string, id: string, clientId?: string);
-  notifyBelongsToChange(modelName:string, id:string | null, clientId:string | null, key: string);
   inverseForRelationship(modelName: string, key: string);
   inverseIsAsyncForRelationship(modelName: string, key: string);
 }
 
 export interface RecordData {
+
   pushData(data: JsonApiResource, calculateChange?: boolean);
   clientDidCreate();
   willCommit();
-  commitWasRejected(error: any);
+  commitWasRejected(errors: JsonApiError[]);
+
   unloadRecord();
   rollbackAttributes();
+
+
   changedAttributes(): ChangedAttributesHash;
   hasChangedAttributes(): boolean;
   setDirtyAttribute(key: string, value: any);
@@ -113,6 +140,11 @@ export interface RecordData {
   hasAttr(key: string): boolean;
 
   _initRecordCreateOptions(options)
+
+
+  // MEW
+
+  getErrors(): JsonApiError[] 
 }
 
 export interface RelationshipRecordData extends RecordData {
@@ -130,6 +162,8 @@ export interface RelationshipRecordData extends RecordData {
 }
 
 export default class RecordDataDefault implements RecordData, RelationshipRecordData {
+  _errors?: JsonApiError[]
+  _adapterError?: JsonApiError
   store: any;
   modelName: string;
   __relationships: Relationships | null;
@@ -215,6 +249,24 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this.__attributes = null;
     this.__inFlightAttributes = null;
     this.__data = null;
+    this._errors = undefined;
+    this._adapterError = undefined;
+  }
+
+  _clearErrors() {
+    if (this._errors || this._adapterError) {
+      this._errors = undefined;
+      this._adapterError = undefined;
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    }
+  }
+
+  getErrors(): JsonApiError[] {
+    let errors: JsonApiError[] = this._errors || [];
+    if (this._adapterError) {
+      errors.push(this._adapterError);
+    }
+    return errors;
   }
 
   _setupRelationships(data) {
@@ -354,6 +406,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
 
     this._inFlightAttributes = null;
 
+    this._clearErrors();
     return dirtyKeys;
   }
 
@@ -379,6 +432,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this._inFlightAttributes = null;
 
     this._updateChangedAttributes();
+    this._clearErrors();
     return changedKeys;
   }
 
@@ -404,7 +458,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this._relationships.get(key).removeRecordDatas(recordDatas);
   }
 
-  commitWasRejected() {
+  commitWasRejected(errors: JsonApiError[]) {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
@@ -415,6 +469,27 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
       }
     }
     this._inFlightAttributes = null;
+
+    // TODO NOW previous version seemed additive, this seems like it would replace
+    if (errors) {
+      // TODO NOW tighten this check
+      if (errors[0].meta) {
+        this._commitWasError(errors);
+      } else {
+        this._commitWasInvalid(errors);
+      }
+      this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+    }
+  }
+
+
+  _commitWasError(errors: JsonApiError[]) {
+    this._adapterError = errors[0];
+  }
+
+  // If we had an adapter error we should move away here
+  _commitWasInvalid(errors: JsonApiError[]) {
+    this._errors = errors;
   }
 
   getBelongsTo(key: string): JsonApiBelongsToRelationship {

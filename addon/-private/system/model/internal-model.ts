@@ -16,7 +16,8 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
-import RecordDataDefault, { RecordData, JsonApiResource } from './record-data';
+import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError } from './record-data';
+import { errorsHashToArray, errorsArrayToHash } from '../../adapters/errors';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -667,6 +668,7 @@ export default class InternalModel {
         return loadingPromise;
       }
       /* TODO Igor check wtf this is about
+      TODO NOW
       if (loadingPromise.get('isRejected')) {
         manyArray.set('isLoaded', manyArrayLoadedState);
       }
@@ -1158,14 +1160,11 @@ export default class InternalModel {
     this.error = error;
     this.isError = true;
 
-    /*
     if (this.hasRecord) {
-      this._record.setProperties({
-        isError: true,
-        adapterError: error,
-      });
+      // TODO NOW
+      /*
+      */
     }
-    */
   }
 
   didCleanError() {
@@ -1173,6 +1172,7 @@ export default class InternalModel {
     this.isError = false;
 
     if (this.hasRecord) {
+      // TODO NOW
       this._record.setProperties({
         isError: false,
         adapterError: null,
@@ -1228,20 +1228,46 @@ export default class InternalModel {
   */
   adapterDidInvalidate(errors) {
     let attribute;
-
-    /*
-    for (attribute in errors) {
-      if (errors.hasOwnProperty(attribute)) {
-        this.addErrorMessageToAttribute(attribute, errors[attribute]);
-      }
-    }
-    */
+    let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors);
 
     this.send('becameInvalid');
 
-    this._recordData.commitWasRejected(errors);
+    this._recordData.commitWasRejected(jsonApiErrors);
   }
 
+
+  notifyErrorsChange() {
+    let jsonApiErrors = this._recordData.getErrors();
+    if (jsonApiErrors.length === 0) {
+      return;
+    }
+
+    // TODO NOW tighten this check
+    let adapterError = jsonApiErrors.find((err) => !!err.meta);
+    let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
+    if (adapterError) {
+      this.notifyAdapterErrorChange(adapterError);
+    }
+    if (invalidErrors.length > 0) {
+      this.notifyInvalidErrorsChange(invalidErrors);
+    }
+  }
+
+  notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
+    let errors = errorsArrayToHash(jsonApiErrors);
+    let errorKeys = Object.keys(errors);
+
+    for (let i = 0; i < errorKeys.length; i++) {
+      this.addErrorMessageToAttribute(errorKeys[i], errors[errorKeys[i]]);
+    }
+  }
+
+  notifyAdapterErrorChange(jsonApiError) {
+    this.getRecord().setProperties({
+      isError: true,
+      adapterError: jsonApiError.meta,
+    });
+  }
   /*
     @method adapterDidError
     @private
@@ -1250,7 +1276,9 @@ export default class InternalModel {
     this.send('becameError');
     this.didError(error);
 
-    this._recordData.commitWasRejected(error);
+    // TODO NOW this is kinda a crapshot
+    let jsonError = { meta: error };
+    this._recordData.commitWasRejected([jsonError]);
   }
 
   toString() {

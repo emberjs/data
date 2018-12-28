@@ -80,6 +80,11 @@ export default class RecordDataWrapper implements RecordDataStoreWrapper {
     internalModel.notifyBelongsToChange(key);
   }
 
+  notifyErrorsChange(modelName, id, clientId) {
+    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+    internalModel.notifyErrorsChange();
+  }
+
   recordDataFor(modelName, id, clientId) {
     return this.store.recordDataFor(modelName, id, clientId);
   }
