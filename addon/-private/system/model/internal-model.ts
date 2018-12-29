@@ -421,11 +421,10 @@ export default class InternalModel {
     }, promiseLabel)
       .then(
         function() {
-          internalModel.didCleanError();
+          //TODO NOW seems like we shouldn't need to do this
           return internalModel;
         },
         function(error) {
-          internalModel.didError(error);
           throw error;
         },
         'DS: Model#reload complete, update flags'
@@ -942,9 +941,6 @@ export default class InternalModel {
 
   rollbackAttributes() {
     let dirtyKeys = this._recordData.rollbackAttributes();
-    if (get(this, 'isError')) {
-      this.didCleanError();
-    }
 
     this.send('rolledBack');
 
@@ -1156,25 +1152,6 @@ export default class InternalModel {
     }
   }
 
-  didError(error) {
-    this.error = error;
-    this.isError = true;
-
-    if (this.hasRecord) {
-      // TODO NOW
-      /*
-      */
-    }
-  }
-
-  didCleanError() {
-    this.error = null;
-    this.isError = false;
-
-    if (this.hasRecord) {
-      // TODO NOW
-    }
-  }
 
   /*
     If the adapter did not return a hash in response to a commit,
@@ -1184,7 +1161,6 @@ export default class InternalModel {
     @method adapterDidCommit
   */
   adapterDidCommit(data) {
-    this.didCleanError();
 
     let changedKeys = this._recordData.didCommit(data);
 
@@ -1269,12 +1245,11 @@ export default class InternalModel {
 
   }
   /*
-    @method adapterDidError
+    @method adapterror
     @private
   */
   adapterDidError(error) {
     this.send('becameError');
-    this.didError(error);
 
     if (error === undefined) {
       error = null;

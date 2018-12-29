@@ -529,8 +529,6 @@ const RootState = {
       internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('didLoad');
       internalModel.triggerLater('ready');
-      //TODO this seems out of place here
-      internalModel.didCleanError();
     },
 
     becameError(internalModel) {
