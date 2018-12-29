@@ -16,7 +16,7 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
-import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError } from './record-data';
+import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError, JsonApiError } from './record-data';
 import { errorsHashToArray, errorsArrayToHash } from '../../adapters/errors';
 
 /*
@@ -1173,10 +1173,6 @@ export default class InternalModel {
 
     if (this.hasRecord) {
       // TODO NOW
-      this._record.setProperties({
-        isError: false,
-        adapterError: null,
-      });
     }
   }
 
@@ -1238,22 +1234,18 @@ export default class InternalModel {
 
   notifyErrorsChange() {
     let jsonApiErrors = this._recordData.getErrors();
-    if (jsonApiErrors.length === 0) {
-      return;
-    }
-
     // TODO NOW tighten this check
-    let adapterError = jsonApiErrors.find((err) => !!err.meta);
+    let adapterError = jsonApiErrors.find((err) => err.meta !== undefined);
     let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
-    if (adapterError) {
-      this.notifyAdapterErrorChange(adapterError);
-    }
+    this.notifyAdapterErrorChange(adapterError);
     if (invalidErrors.length > 0) {
       this.notifyInvalidErrorsChange(invalidErrors);
     }
   }
 
+
   notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
+    this.clearErrorMessages();
     let errors = errorsArrayToHash(jsonApiErrors);
     let errorKeys = Object.keys(errors);
 
@@ -1262,11 +1254,19 @@ export default class InternalModel {
     }
   }
 
-  notifyAdapterErrorChange(jsonApiError) {
-    this.getRecord().setProperties({
-      isError: true,
-      adapterError: jsonApiError.meta,
-    });
+  notifyAdapterErrorChange(jsonApiError?: JsonApiError) {
+    if (!jsonApiError) {
+      this.getRecord().setProperties({
+        isError: false,
+        adapterError: null
+      });
+    } else {
+      this.getRecord().setProperties({
+        isError: true,
+        adapterError: jsonApiError.meta,
+      });
+    }
+
   }
   /*
     @method adapterDidError
@@ -1276,6 +1276,9 @@ export default class InternalModel {
     this.send('becameError');
     this.didError(error);
 
+    if (error === undefined) {
+      error = null;
+    }
     // TODO NOW this is kinda a crapshot
     let jsonError = { meta: error };
     this._recordData.commitWasRejected([jsonError]);
