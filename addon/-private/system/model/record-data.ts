@@ -515,6 +515,14 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     if (value === originalValue) {
       delete this._attributes[key];
     }
+    if (this._errors) {
+      debugger
+      let errors = this._errors;  
+      this._errors = errors.filter((err) => !(err.source && err.source  && err.source.pointer === `/data/attributes/${key}`));
+      if (this._errors.length != errors.length) {
+        this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
+      }
+    }
   }
 
   getAttr(key: string): string {

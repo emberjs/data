@@ -329,8 +329,6 @@ const DirtyState = {
     },
 
     didSetProperty(internalModel, context) {
-      internalModel.removeErrorMessageFromAttribute(context.name);
-
       didSetProperty(internalModel, context);
 
       if (!internalModel.hasErrors()) {
@@ -704,8 +702,6 @@ const RootState = {
       isValid: false,
 
       didSetProperty(internalModel, context) {
-        internalModel.removeErrorMessageFromAttribute(context.name);
-
         didSetProperty(internalModel, context);
 
         if (!internalModel.hasErrors()) {

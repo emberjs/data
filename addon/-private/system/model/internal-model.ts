@@ -1178,18 +1178,18 @@ export default class InternalModel {
     get(this.getRecord(), 'errors')._add(attribute, message);
   }
 
-  removeErrorMessageFromAttribute(attribute) {
-    get(this.getRecord(), 'errors')._remove(attribute);
-  }
-
   clearErrorMessages() {
     get(this.getRecord(), 'errors')._clear();
   }
 
   hasErrors() {
+    debugger
+    return this._recordData.getErrors().length > 0;
+    /*
     let errors = get(this.getRecord(), 'errors');
 
     return errors.get('length') > 0;
+    */
   }
 
   // FOR USE DURING COMMIT PROCESS
@@ -1214,9 +1214,7 @@ export default class InternalModel {
     let adapterError = jsonApiErrors.find((err) => err.meta !== undefined);
     let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
     this.notifyAdapterErrorChange(adapterError);
-    if (invalidErrors.length > 0) {
-      this.notifyInvalidErrorsChange(invalidErrors);
-    }
+    this.notifyInvalidErrorsChange(invalidErrors);
   }
 
 
