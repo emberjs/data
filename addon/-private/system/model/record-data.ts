@@ -113,6 +113,7 @@ export interface RecordData {
   clientDidCreate();
   willCommit();
   commitWasRejected(errors: JsonApiError[]);
+   
 
   unloadRecord();
   rollbackAttributes();

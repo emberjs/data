@@ -96,7 +96,7 @@ module('integration/reload - Reloading Records', function(hooks) {
     await store.findRecord('person', '1');
   });
 
-  test('When a record is reloaded and fails, it can try again', async function(assert) {
+  test('When a record is reloaded and fails, it can try again, FAILS on purpose on this branch until resolving JSON API errors design', async function(assert) {
     let tom = store.push({
       data: {
         type: 'person',
