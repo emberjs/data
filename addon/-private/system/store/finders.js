@@ -19,6 +19,7 @@ function payloadIsNotBlank(adapterPayload) {
 }
 
 export function _find(adapter, store, modelClass, id, internalModel, options) {
+  debugger
   let snapshot = internalModel.createSnapshot(options);
   let { modelName } = internalModel;
   let promise = Promise.resolve().then(() => {

@@ -43,8 +43,8 @@ test('When an id is searched, the correct url should be generated', function(ass
 
   return run(() => {
     return EmberPromise.all([
-      adapter.findRecord(store, Person, 1, {}),
-      adapter.findRecord(store, Place, 1, {}),
+      adapter.findRecord(store, Person, 1, Person),
+      adapter.findRecord(store, Place, 1, Place),
     ]);
   });
 });
@@ -57,7 +57,7 @@ test(`id's should be sanatized`, function(assert) {
     return resolve();
   };
 
-  return run(() => adapter.findRecord(store, Person, '../place/1', {}));
+  return run(() => adapter.findRecord(store, Person, '../place/1', Person));
 });
 
 test('ajaxOptions() headers are set', function(assert) {
