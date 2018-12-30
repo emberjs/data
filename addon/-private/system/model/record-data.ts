@@ -516,7 +516,6 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
       delete this._attributes[key];
     }
     if (this._errors) {
-      debugger
       let errors = this._errors;  
       this._errors = errors.filter((err) => !(err.source && err.source  && err.source.pointer === `/data/attributes/${key}`));
       if (this._errors.length != errors.length) {

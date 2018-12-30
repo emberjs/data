@@ -1174,22 +1174,8 @@ export default class InternalModel {
     this._record._notifyProperties(changedKeys);
   }
 
-  addErrorMessageToAttribute(attribute, message) {
-    get(this.getRecord(), 'errors')._add(attribute, message);
-  }
-
-  clearErrorMessages() {
-    get(this.getRecord(), 'errors')._clear();
-  }
-
   hasErrors() {
-    debugger
     return this._recordData.getErrors().length > 0;
-    /*
-    let errors = get(this.getRecord(), 'errors');
-
-    return errors.get('length') > 0;
-    */
   }
 
   // FOR USE DURING COMMIT PROCESS
@@ -1207,7 +1193,6 @@ export default class InternalModel {
     this._recordData.commitWasRejected(jsonApiErrors);
   }
 
-
   notifyErrorsChange() {
     let jsonApiErrors = this._recordData.getErrors();
     // TODO NOW tighten this check
@@ -1217,30 +1202,12 @@ export default class InternalModel {
     this.notifyInvalidErrorsChange(invalidErrors);
   }
 
-
   notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
-    this.clearErrorMessages();
-    let errors = errorsArrayToHash(jsonApiErrors);
-    let errorKeys = Object.keys(errors);
-
-    for (let i = 0; i < errorKeys.length; i++) {
-      this.addErrorMessageToAttribute(errorKeys[i], errors[errorKeys[i]]);
-    }
+    this.getRecord().invalidErrorsChanged(jsonApiErrors);
   }
 
   notifyAdapterErrorChange(jsonApiError?: JsonApiError) {
-    if (!jsonApiError) {
-      this.getRecord().setProperties({
-        isError: false,
-        adapterError: null
-      });
-    } else {
-      this.getRecord().setProperties({
-        isError: true,
-        adapterError: jsonApiError.meta,
-      });
-    }
-
+    this.getRecord().adapterErrorChanged(jsonApiError);
   }
   /*
     @method adapterror

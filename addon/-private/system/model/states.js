@@ -341,12 +341,10 @@ const DirtyState = {
     pushedData() {},
 
     willCommit(internalModel) {
-      internalModel.clearErrorMessages();
       internalModel.transitionTo('inFlight');
     },
 
     rolledBack(internalModel) {
-      internalModel.clearErrorMessages();
       internalModel.transitionTo('loaded.saved');
       internalModel.triggerLater('ready');
     },
@@ -453,7 +451,6 @@ updatedState.uncommitted.deleteRecord = function(internalModel) {
 };
 
 updatedState.invalid.rolledBack = function(internalModel) {
-  internalModel.clearErrorMessages();
   internalModel.transitionTo('loaded.saved');
   internalModel.triggerLater('rolledBack');
 };
@@ -715,7 +712,6 @@ const RootState = {
       willCommit() {},
 
       rolledBack(internalModel) {
-        internalModel.clearErrorMessages();
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
       },

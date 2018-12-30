@@ -16,6 +16,7 @@ import recordDataFor from '../record-data-for';
 import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
+import { errorsHashToArray, errorsArrayToHash } from '../../adapters/errors';
 const { changeProperties } = Ember;
 
 /**
@@ -424,6 +425,43 @@ const Model = EmberObject.extend(Evented, {
     @type {DS.AdapterError}
   */
   adapterError: null,
+
+  
+  invalidErrorsChanged(jsonApiErrors) {
+    debugger
+    this._clearErrorMessages();
+    let errors = errorsArrayToHash(jsonApiErrors);
+    let errorKeys = Object.keys(errors);
+
+    for (let i = 0; i < errorKeys.length; i++) {
+      this._addErrorMessageToAttribute(errorKeys[i], errors[errorKeys[i]]);
+    }
+
+  },
+
+  adapterErrorChanged(jsonApiError) {
+    debugger
+    if (!jsonApiError) {
+      this.setProperties({
+        isError: false,
+        adapterError: null
+      });
+    } else {
+      this.setProperties({
+        isError: true,
+        adapterError: jsonApiError.meta,
+      });
+    }
+
+  },
+
+  _addErrorMessageToAttribute(attribute, message) {
+    this.get('errors')._add(attribute, message);
+  },
+
+  _clearErrorMessages() {
+    this.get('errors')._clear();
+  },
 
   /**
     Create a JSON representation of the record, using the serialization

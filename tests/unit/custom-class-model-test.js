@@ -1,5 +1,5 @@
 import { guidFor } from '@ember/object/internals';
-import { resolve, reject } from 'rsvp';
+import RSVP, { resolve, reject } from 'rsvp';
 import { set, get, observer, computed } from '@ember/object';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
@@ -27,11 +27,21 @@ module('unit/model - Custom Class Model', function(hooks) {
         // This goes away after store apis are fixed
         this.internalModel = internalModel;
         this.store = store;
-      }
+      }/*
       get isError() {
 
       }
       get adapterError() {
+
+      }
+
+      */
+
+      adapterErrorChanged() {
+
+      }
+
+      invalidErrorsChanged() {
 
       }
 
@@ -84,7 +94,8 @@ module('unit/model - Custom Class Model', function(hooks) {
       'adapter:application',
       JSONAPIAdapter.extend({
         shouldBackgroundReloadRecord: () => false,
-        createRecord: () => ({ data: { type: 'person', id: 1}})
+        //createRecord: () => ({ data: { type: 'person', id: 1}})
+        createRecord: () => RSVP.reject()
       })
     );
     owner.register('serializer:-default', JSONAPISerializer);
@@ -93,8 +104,9 @@ module('unit/model - Custom Class Model', function(hooks) {
   })
 
   test('igor', function(assert) {
-    //assert.expect(3);
+    assert.expect(1);
     let person = store.createRecord('person');
     person.save();
+    assert.ok(true);
   });
 });
