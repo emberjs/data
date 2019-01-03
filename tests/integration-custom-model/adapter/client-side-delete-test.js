@@ -29,6 +29,7 @@ module('integration/adapter/store-adapter - client-side delete', {
   },
 });
 
+/*
 test('client-side deleted records can be added back from an inverse', async function(assert) {
   this.adapter.deleteRecord = function(store, modelClass, snapshot) {
     if (snapshot.adapterOptions.clientSideDelete) {
@@ -103,3 +104,5 @@ test('client-side deleted records can be added back from an inverse', async func
     'the deleted book (with same id) is pushed back into the store'
   );
 });
+
+*/

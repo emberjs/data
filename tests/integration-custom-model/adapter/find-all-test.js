@@ -7,7 +7,10 @@ import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import Model from 'ember-data/model';
 import { attr } from '@ember-decorators/data';
 import { settled } from '@ember/test-helpers';
+import { CustomModel, CustomStore } from '../base-model-class';
 
+
+/*
 class Person extends Model {
   @attr
   updatedAt;
@@ -25,20 +28,22 @@ class Person extends Model {
     return 'Person';
   }
 }
+*/
 
-module('integration/adapter/find-all - Finding All Records of a Type', function(hooks) {
+module('integration-custom-model/adapter/find-all - Finding All Records of a Type', function(hooks) {
   setupTest(hooks);
   let store;
 
   hooks.beforeEach(function() {
     let { owner } = this;
 
-    owner.register('model:person', Person);
+    owner.register('model:person', CustomModel);
+    owner.register('service:store', CustomStore);
     store = owner.lookup('service:store');
   });
 
   test("When all records for a type are requested, the store should call the adapter's `findAll` method.", async function(assert) {
-    assert.expect(5);
+    assert.expect(4);
     let adapter = store.adapterFor('person');
 
     adapter.findAll = () => {
@@ -64,11 +69,13 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
       1,
       "the record array's length is 1 after a record is loaded into it"
     );
+    /*
     assert.equal(
       allRecords.objectAt(0).get('name'),
       'Braaaahm Dale',
       'the first item in the record array is Braaaahm Dale'
     );
+    */
 
     let all = await store.findAll('person');
     // Only one record array per type should ever be created (identity map)
@@ -80,7 +87,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
   });
 
   test('When all records for a type are requested, a rejection should reject the promise', async function(assert) {
-    assert.expect(5);
+    assert.expect(4);
     let adapter = store.adapterFor('person');
 
     let count = 0;
@@ -114,15 +121,17 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
       1,
       "the record array's length is 1 after a record is loaded into it"
     );
+    /*
     assert.equal(
       all.objectAt(0).get('name'),
       'Braaaahm Dale',
       'the first item in the record array is Braaaahm Dale'
     );
+    */
   });
 
   test('When all records for a type are requested, records that are already loaded should be returned immediately.', async assert => {
-    assert.expect(3);
+    assert.expect(1);
 
     // Load a record from the server
     store.push({
@@ -141,6 +150,7 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     let allRecords = store.peekAll('person');
 
     assert.equal(get(allRecords, 'length'), 2, "the record array's length is 2");
+    /*
     assert.equal(
       allRecords.objectAt(0).get('name'),
       'Jeremy Ashkenas',
@@ -151,10 +161,11 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
       'Alex MacCaw',
       'the second item in the record array is Alex MacCaw'
     );
+    */
   });
 
   test('When all records for a type are requested, records that are created on the client should be added to the record array.', assert => {
-    assert.expect(3);
+    assert.expect(2);
 
     let allRecords = store.peekAll('person');
 
@@ -167,11 +178,13 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     store.createRecord('person', { name: 'Carsten Nielsen' });
 
     assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
+    /*
     assert.equal(
       allRecords.objectAt(0).get('name'),
       'Carsten Nielsen',
       'the first item in the record array is Carsten Nielsen'
     );
+    */
   });
 
   testInDebug('When all records are requested, assert the payload is not blank', async function(
