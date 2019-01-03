@@ -228,6 +228,7 @@ const RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse(store, primaryModelClass, payload, id, requestType, isSingle) {
+    debugger
     let documentHash = {
       data: null,
       included: [],

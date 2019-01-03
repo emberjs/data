@@ -2414,7 +2414,6 @@ const Store = Service.extend({
 
     // for factorFor factory/class split
     let klass = maybeFactory.class ? maybeFactory.class : maybeFactory;
-
     if (!klass.isModel) {
       return new ShimModelClass(this, modelName);
     } else {
@@ -2460,6 +2459,10 @@ const Store = Service.extend({
   @private
  */
   _hasModelFor(modelName) {
+    // TODO NOW
+    // remove 
+    return true;
+    /*
     if (DEBUG) {
       assertDestroyingStore(this, '_hasModelFor');
     }
@@ -2472,6 +2475,7 @@ const Store = Service.extend({
     let factory = getModelFactory(this, this._modelFactoryCache, normalizedModelName);
 
     return factory !== null;
+    */
   },
 
   /**

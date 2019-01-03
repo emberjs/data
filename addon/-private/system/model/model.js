@@ -439,7 +439,6 @@ const Model = EmberObject.extend(Evented, {
   },
 
   adapterErrorChanged(jsonApiError) {
-    debugger
     if (!jsonApiError) {
       this.setProperties({
         isError: false,
@@ -1840,6 +1839,7 @@ Model.reopenClass({
    */
   attributes: computed(function() {
     let map = new Map();
+    debugger
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {

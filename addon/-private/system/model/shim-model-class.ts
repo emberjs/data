@@ -10,6 +10,16 @@ export default class ShimModelClass {
         this._id = id;
     }
 
+    get attributes() {
+        let attrs = this.store._attributesDefinitionFor(this.modelName, this._id);
+        return new Map(Object.entries(attrs));
+    }
+
+    get relationshipsByName() {
+        let relationships = this.store._relationshipsDefinitionFor(this.modelName, this._id);
+        return new Map(Object.entries(relationships));
+    }
+
     eachAttribute(callback: Function, binding: any) {
         let attrDefs = this.store._attributesDefinitionFor(this.modelName, this._id);
         Object.keys(attrDefs).forEach((key) => {
