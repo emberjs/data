@@ -428,7 +428,6 @@ const Model = EmberObject.extend(Evented, {
 
   
   invalidErrorsChanged(jsonApiErrors) {
-    debugger
     this._clearErrorMessages();
     let errors = errorsArrayToHash(jsonApiErrors);
     let errorKeys = Object.keys(errors);

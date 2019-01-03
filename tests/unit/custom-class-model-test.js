@@ -45,9 +45,11 @@ module('unit/model - Custom Class Model', function(hooks) {
 
       }
 
+      /*
       trigger() {
 
       }
+      */
 
       save() {
         return this.store.scheduleSave(this.internalModel);
@@ -56,6 +58,7 @@ module('unit/model - Custom Class Model', function(hooks) {
       destroy() {
 
       }
+      /*
       _notifyProperties() {
 
       }
@@ -65,6 +68,7 @@ module('unit/model - Custom Class Model', function(hooks) {
       notifyPropertyChange() {
 
       }
+      */
       /*
       get currentState() {
 
