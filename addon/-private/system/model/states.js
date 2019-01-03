@@ -261,9 +261,11 @@ const DirtyState = {
       internalModel.transitionTo('inFlight');
     },
 
+    /*
     reloadRecord(internalModel, { resolve, options }) {
-      resolve(internalModel.store._reloadRecord(internalModel, options));
+      //resolve(internalModel.store._reloadRecord(internalModel, options));
     },
+    */
 
     rolledBack(internalModel) {
       internalModel.transitionTo('loaded.saved');
@@ -572,9 +574,11 @@ const RootState = {
         internalModel.transitionTo('updated.inFlight');
       },
 
+      /*
       reloadRecord(internalModel, { resolve, options }) {
-        resolve(internalModel.store._reloadRecord(internalModel, options));
+        //resolve(internalModel.store._reloadRecord(internalModel, options));
       },
+      */
 
       deleteRecord(internalModel) {
         internalModel.transitionTo('deleted.uncommitted');

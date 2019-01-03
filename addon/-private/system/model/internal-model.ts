@@ -416,9 +416,7 @@ export default class InternalModel {
     let internalModel = this;
     let promiseLabel = 'DS: Model#reload of ' + this;
 
-    return new Promise(function(resolve) {
-      internalModel.send('reloadRecord', { resolve, options });
-    }, promiseLabel)
+      return internalModel.store._reloadRecord(internalModel, options)
       .then(
         function() {
           //TODO NOW seems like we shouldn't need to do this
