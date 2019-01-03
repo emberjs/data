@@ -277,7 +277,7 @@ const DirtyState = {
     },
 
     rollback(internalModel) {
-      internalModel.rollbackAttributes();
+      //internalModel.rollbackAttributes();
       internalModel.triggerLater('ready');
     },
   },
@@ -632,7 +632,7 @@ const RootState = {
       },
 
       rollback(internalModel) {
-        internalModel.rollbackAttributes();
+        //internalModel.rollbackAttributes();
         internalModel.triggerLater('ready');
       },
 
