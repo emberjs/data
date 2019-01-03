@@ -7,7 +7,59 @@ import Model from 'ember-data/model';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import Adapter from 'ember-data/adapter';
+import { InternalModel } from 'ember-data/-private';
+import { CustomModel, CustomStore } from './base-model-class';
 
+class RecordArrayModel extends CustomModel {
+  get(key) {
+    if (key === 'id') {
+      return this.internalModel._recordData.id;
+    } else {
+      return this.internalModel._recordData.getAttr(key);
+    }
+  }
+}
+
+let RecordArrayStore = CustomStore.extend({
+  _relationshipsDefinitionFor: function(key) {
+    if (key === 'person') {
+      return {
+        tag: {  kind: 'belongsTo',
+          key: 'tag',
+          options: {inverse: 'people', async: false },
+        }
+      }
+    } else if (key === 'tag') {
+      return {
+        people: {  kind: 'hasMany',
+          key: 'people',
+          options: { inverse: 'tag', async: false },
+        }
+      }
+
+    } else if (key === 'tool') {
+      return {
+        person: {  kind: 'belongsTo',
+          key: 'person',
+          options: { inverse: null, async: false },
+        }
+      }
+
+    }
+    return Object.create(null);
+  },
+  _attributesDefinitionFor: function(key) {
+    if (key === 'person') {
+      return { name: { name: 'name' } };
+    }
+    return Object.create(null);
+  },
+  instantiateRecord(modelName, createOptions) {
+      return new RecordArrayModel(createOptions.store, createOptions._internalModel);
+  },
+});
+
+/*
 class Person extends Model {
   @attr
   name;
@@ -24,23 +76,25 @@ class Tool extends Model {
   @belongsTo('person', { async: false, inverse: null })
   person;
 }
+*/
 
-module('unit/record-array - RecordArray', function(hooks) {
+module('unit/custom-model-record-array - RecordArray', function(hooks) {
   setupTest(hooks);
   let store;
 
   hooks.beforeEach(function() {
     let { owner } = this;
 
-    owner.register('model:person', Person);
-    owner.register('model:tag', Tag);
-    owner.register('model:tool', Tool);
+    owner.register('model:person', RecordArrayModel);
+    owner.register('model:tag', RecordArrayModel);
+    owner.register('model:tool', RecordArrayModel);
+    owner.register('service:store', RecordArrayStore);
 
     store = owner.lookup('service:store');
   });
 
   test('a record array is backed by records', async function(assert) {
-    assert.expect(3);
+    assert.expect(6);
     this.owner.register(
       'adapter:application',
       Adapter.extend({
@@ -92,10 +146,15 @@ module('unit/record-array - RecordArray', function(hooks) {
       } = expectedResults.data[i];
 
       assert.deepEqual(
-        records[i].getProperties('id', 'name'),
-        { id, name },
+        records[i].get('id'),
+        id,
         'a record array materializes objects on demand'
       );
+      assert.deepEqual(
+        records[i].get('name'),
+        name,
+        'a record array materializes objects on demand'
+      )
     }
   });
 
@@ -114,7 +173,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.equal(get(recordArray, 'lastObject.name'), 'wycats');
+    assert.equal(get(recordArray, 'lastObject').get('name'), 'wycats');
 
     store.push({
       data: {
@@ -128,11 +187,11 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.equal(get(recordArray, 'lastObject.name'), 'brohuda');
+    assert.equal(get(recordArray, 'lastObject').get('name'), 'brohuda');
   });
 
   test('acts as a live query (normalized names)', async function(assert) {
-    this.owner.register('model:Person', Person);
+    this.owner.register('model:Person', RecordArrayModel);
 
     let recordArray = store.peekAll('Person');
     let otherRecordArray = store.peekAll('person');
@@ -151,7 +210,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill']);
+    assert.deepEqual(recordArray.map((r) => r.get('name')), ['John Churchill']);
 
     store.push({
       data: {
@@ -165,7 +224,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
+    assert.deepEqual(recordArray.map((r) => r.get('name')), ['John Churchill', 'Winston Churchill']);
   });
 
   test('stops updating when destroyed', async function(assert) {
