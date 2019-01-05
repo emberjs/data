@@ -11,12 +11,18 @@ import { InternalModel } from 'ember-data/-private';
 import { CustomModel, CustomStore } from './base-model-class';
 
 class RecordArrayModel extends CustomModel {
-  get(key) {
+  unknownProperty(key) {
     if (key === 'id') {
       return this.internalModel._recordData.id;
     } else {
       return this.internalModel._recordData.getAttr(key);
     }
+  }
+  get(key) {
+    return this.unknownProperty(key);
+  }
+  deleteRecord() {
+    return this.store._internalDeleteRecord(this.internalModel);
   }
 }
 
@@ -210,7 +216,7 @@ module('unit/custom-model-record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.map((r) => r.get('name')), ['John Churchill']);
+    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill']);
 
     store.push({
       data: {
@@ -224,7 +230,7 @@ module('unit/custom-model-record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    assert.deepEqual(recordArray.map((r) => r.get('name')), ['John Churchill', 'Winston Churchill']);
+    assert.deepEqual(recordArray.mapBy('name'), ['John Churchill', 'Winston Churchill']);
   });
 
   test('stops updating when destroyed', async function(assert) {
@@ -265,189 +271,6 @@ module('unit/custom-model-record-array - RecordArray', function(hooks) {
 
     assert.equal(recordArray.get('length'), 0, 'Has not been updated');
     assert.equal(recordArray.get('content'), undefined, 'Has not been updated');
-  });
-
-  test('a loaded record is removed from a record array when it is deleted', async function(assert) {
-    assert.expect(5);
-    this.owner.register(
-      'adapter:application',
-      Adapter.extend({
-        deleteRecord() {
-          return resolve({ data: null });
-        },
-        shouldBackgroundReloadRecord() {
-          return false;
-        },
-      })
-    );
-
-    store.push({
-      data: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Scumbag Dale',
-          },
-        },
-        {
-          type: 'person',
-          id: '2',
-          attributes: {
-            name: 'Scumbag Katz',
-          },
-        },
-        {
-          type: 'person',
-          id: '3',
-          attributes: {
-            name: 'Scumbag Bryn',
-          },
-        },
-        {
-          type: 'tag',
-          id: '1',
-          attributes: {},
-        },
-      ],
-    });
-
-    let scumbag = await store.findRecord('person', 1);
-    let tag = await store.findRecord('tag', 1);
-    let recordArray = tag.get('people');
-
-    recordArray.addObject(scumbag);
-
-    assert.ok(scumbag.get('tag') === tag, "precond - the scumbag's tag has been set");
-    assert.equal(get(recordArray, 'length'), 1, 'precond - record array has one item');
-    assert.equal(
-      get(recordArray.objectAt(0), 'name'),
-      'Scumbag Dale',
-      'item at index 0 is record with id 1'
-    );
-
-    scumbag.deleteRecord();
-
-    assert.equal(
-      get(recordArray, 'length'),
-      1,
-      'record is still in the record array until it is saved'
-    );
-
-    await scumbag.save();
-
-    assert.equal(
-      get(recordArray, 'length'),
-      0,
-      'record is removed from the array when it is saved'
-    );
-  });
-
-  test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", async function(assert) {
-    class Person extends Model {
-      @attr
-      name;
-    }
-
-    class Tag extends Model {
-      @hasMany('person', { async: false, inverse: null })
-      people;
-    }
-
-    this.owner.unregister('model:person');
-    this.owner.unregister('model:tag');
-    this.owner.register('model:person', Person);
-    this.owner.register('model:tag', Tag);
-    this.owner.register(
-      'adapter:application',
-      Adapter.extend({
-        deleteRecord() {
-          return resolve({ data: null });
-        },
-      })
-    );
-
-    store.push({
-      data: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Scumbag Tom',
-          },
-        },
-        {
-          type: 'tag',
-          id: '1',
-          relationships: {
-            people: {
-              data: [{ type: 'person', id: '1' }],
-            },
-          },
-        },
-      ],
-    });
-
-    let scumbag = store.peekRecord('person', 1);
-    let tag = store.peekRecord('tag', 1);
-
-    scumbag.deleteRecord();
-
-    assert.equal(tag.get('people.length'), 1, 'record is not removed from the record array');
-    assert.equal(tag.get('people').objectAt(0), scumbag, 'tag still has the scumbag');
-  });
-
-  test("a loaded record is not removed from both the record array and from the belongs to, even if the belongsTo side isn't defined", async function(assert) {
-    this.owner.register(
-      'adapter:application',
-      Adapter.extend({
-        deleteRecord() {
-          return resolve({ data: null });
-        },
-      })
-    );
-
-    store.push({
-      data: [
-        {
-          type: 'person',
-          id: '1',
-          attributes: {
-            name: 'Scumbag Tom',
-          },
-        },
-        {
-          type: 'tag',
-          id: '1',
-          relationships: {
-            people: {
-              data: [{ type: 'person', id: '1' }],
-            },
-          },
-        },
-        {
-          type: 'tool',
-          id: '1',
-          relationships: {
-            person: {
-              data: { type: 'person', id: '1' },
-            },
-          },
-        },
-      ],
-    });
-
-    let scumbag = store.peekRecord('person', 1);
-    let tag = store.peekRecord('tag', 1);
-    let tool = store.peekRecord('tool', 1);
-
-    assert.equal(tag.get('people.length'), 1, 'record is in the record array');
-    assert.equal(tool.get('person'), scumbag, 'the tool belongs to the record');
-
-    scumbag.deleteRecord();
-
-    assert.equal(tag.get('people.length'), 1, 'record is stil in the record array');
-    assert.equal(tool.get('person'), scumbag, 'the tool still belongs to the record');
   });
 
   // GitHub Issue #168

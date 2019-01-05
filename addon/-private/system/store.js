@@ -450,6 +450,9 @@ const Store = Service.extend({
     record.deleteRecord();
   },
 
+  _internalDeleteRecord(internalModel) {
+    return internalModel.deleteRecord();
+  },
   /**
     For symmetry, a record can be unloaded via the store.
     This will cause the record to be destroyed and freed up for garbage collection.
