@@ -69,7 +69,7 @@ export default class Relationship {
     this.relationshipMeta = relationshipMeta;
     //This probably breaks for polymorphic relationship in complex scenarios, due to
     //multiple possible modelNames
-    this.inverseKeyForImplicit = this._tempModelName + this.key;
+    this.inverseKeyForImplicit = (this._tempModelName ? this._tempModelName : '') + this.key;
     this.meta = null;
     this.__inverseMeta = undefined;
 
@@ -342,7 +342,7 @@ export default class Relationship {
   addCanonicalRecordData(recordData, idx) {
     heimdall.increment(addCanonicalRecordData);
     if (!this.canonicalMembers.has(recordData)) {
-      this.canonicalMembers.add(recordData);
+      this.canonicalMembers.addWithIndex(recordData, idx);
       this.setupInverseRelationship(recordData);
     }
     this.flushCanonicalLater();

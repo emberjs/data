@@ -24,10 +24,12 @@ export default class BelongsToRelationship extends Relationship {
   }
 
   setCanonicalRecordData(recordData) {
-    if (recordData) {
-      this.addCanonicalRecordData(recordData);
-    } else if (this.canonicalState) {
-      this.removeCanonicalRecordData(this.canonicalState);
+    if (recordData !== this.canonicalState) {
+      if (recordData) {
+        this.addCanonicalRecordData(recordData);
+      } else if (this.canonicalState) {
+        this.removeCanonicalRecordData(this.canonicalState);
+      }
     }
     this.flushCanonicalLater();
   }
@@ -51,14 +53,16 @@ export default class BelongsToRelationship extends Relationship {
       return;
     }
 
-    if (this.canonicalState) {
-      this.removeCanonicalRecordData(this.canonicalState);
-    }
+    if (this.canonicalState !== recordData) {
+      if (this.canonicalState) {
+        this.removeCanonicalRecordData(this.canonicalState);
+      }
 
-    this.canonicalState = recordData;
-    super.addCanonicalRecordData(recordData);
-    this.setHasAnyRelationshipData(true);
-    this.setRelationshipIsEmpty(false);
+      this.canonicalState = recordData;
+      super.addCanonicalRecordData(recordData);
+      this.setHasAnyRelationshipData(true);
+      this.setRelationshipIsEmpty(false);
+    }
   }
 
   inverseDidDematerialize() {
@@ -107,13 +111,15 @@ export default class BelongsToRelationship extends Relationship {
     // TODO Igor cleanup
     assertPolymorphicType(this.recordData, this.relationshipMeta, recordData, this.store);
 
-    if (this.inverseRecordData) {
-      this.removeRecordData(this.inverseRecordData);
-    }
+    if (this.inverseRecordData !== recordData) {
+      if (this.inverseRecordData) {
+        this.removeRecordData(this.inverseRecordData);
+      }
 
-    this.inverseRecordData = recordData;
-    super.addRecordData(recordData);
-    this.notifyBelongsToChange();
+      this.inverseRecordData = recordData;
+      super.addRecordData(recordData);
+      this.notifyBelongsToChange();
+    }
   }
 
   removeRecordDataFromOwn(recordData) {

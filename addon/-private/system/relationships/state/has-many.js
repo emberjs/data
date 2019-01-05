@@ -34,6 +34,29 @@ export default class ManyRelationship extends Relationship {
     super.addCanonicalRecordData(recordData, idx);
   }
 
+  moveCanonicalRecordData(recordData, idx) {
+    if (!this.canonicalMembers.has(recordData)) {
+      this.addCanonicalRecordData(recordData, idx);
+      return;
+    }
+    if (idx === undefined) {
+      this.removeCanonicalRecordData(recordData);
+      this.addCanonicalRecordData(recordData, idx);
+      return;
+    }
+    let oldIndex = this.canonicalState.indexOf(recordData);
+    if (this.canonicalState.length > idx) {
+      if (oldIndex !== idx) {
+        this.canonicalState.splice(oldIndex, 1);
+        this.canonicalState.splice(idx, 0, recordData);
+      }
+    } else {
+      this.canonicalState.splice(oldIndex, 1);
+      this.canonicalState.push(recordData);
+    }
+    this.flushCanonicalLater();
+  }
+
   inverseDidDematerialize(inverseRecordData) {
     super.inverseDidDematerialize(inverseRecordData);
     if (this.isAsync) {
@@ -156,14 +179,20 @@ export default class ManyRelationship extends Relationship {
 
     this.removeCanonicalRecordDatas(recordDatasToRemove);
 
-    const membersLength = members.list.length;
-    for (let i = 0, l = recordDatas.length; i < l; i++) {
+    const newLength = recordDatas.length;
+
+    // we've got rid of all the old ones that aren't in here any more
+    // so everything else is a move or an add
+    // move falls back to add if the entry is not present
+
+    for (let i = 0; i < newLength; i++) {
       let recordData = recordDatas[i];
-      if ((i >= membersLength) || (members.list[i] !== recordData)) {
-        this.removeCanonicalRecordData(recordData);
-        this.addCanonicalRecordData(recordData, i);
-      }
+      this.moveCanonicalRecordData(recordData, i);
     }
+
+    // not necessarily calling addCanonicalRecordData, so flush in case
+    // duplicates are ignored so this doesn't result in extra work
+    this.flushCanonicalLater();
   }
 
   setInitialRecordDatas(recordDatas) {

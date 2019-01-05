@@ -1244,21 +1244,21 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
           type: 'pet',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'pet',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
         {
           type: 'pet',
           id: '3',
           attributes: {
-            name: 'Rebel',
+            name: 'Pet3',
           },
         },
       ],
@@ -1268,11 +1268,11 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   const person = store.peekRecord('person', '1');
   const pets = run(() => person.get('pets'));
 
-  const shen = pets.objectAt(0);
-  const rambo = store.peekRecord('pet', '2');
-  const rebel = store.peekRecord('pet', '3');
+  const pet1 = pets.objectAt(0);
+  const pet2 = store.peekRecord('pet', '2');
+  const pet3 = store.peekRecord('pet', '3');
 
-  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.equal(get(pet1, 'name'), 'Pet1', 'precond - relationships work');
   assert.deepEqual(
     pets.map(p => get(p, 'id')),
     ['1'],
@@ -1280,7 +1280,7 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   );
 
   run(() => {
-    pets.pushObjects([rambo, rebel]);
+    pets.pushObjects([pet2, pet3]);
   });
 
   assert.deepEqual(
@@ -1290,8 +1290,8 @@ test('new items added to a hasMany relationship are not cleared by a delete', fu
   );
 
   run(() => {
-    return shen.destroyRecord({}).then(() => {
-      shen.unloadRecord();
+    return pet1.destroyRecord({}).then(() => {
+      pet1.unloadRecord();
     });
   });
 
@@ -1347,21 +1347,21 @@ todo(
             type: 'pet',
             id: '1',
             attributes: {
-              name: 'Shenanigans',
+              name: 'Pet1',
             },
           },
           {
             type: 'pet',
             id: '2',
             attributes: {
-              name: 'Rambunctious',
+              name: 'Pet2',
             },
           },
           {
             type: 'pet',
             id: '3',
             attributes: {
-              name: 'Rebel',
+              name: 'Pet3',
             },
           },
         ],
@@ -1371,10 +1371,10 @@ todo(
     const person = store.peekRecord('person', '1');
     const pets = run(() => person.get('pets'));
 
-    const shen = pets.objectAt(0);
-    const rebel = store.peekRecord('pet', '3');
+    const pet1 = pets.objectAt(0);
+    const pet3 = store.peekRecord('pet', '3');
 
-    assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+    assert.equal(get(pet1, 'name'), 'Pet1', 'precond - relationships work');
     assert.deepEqual(
       pets.map(p => get(p, 'id')),
       ['1'],
@@ -1382,7 +1382,7 @@ todo(
     );
 
     run(() => {
-      pets.pushObjects([rebel]);
+      pets.pushObjects([pet3]);
     });
 
     assert.deepEqual(
@@ -1465,21 +1465,21 @@ todo(
             type: 'pet',
             id: '1',
             attributes: {
-              name: 'Shenanigans',
+              name: 'Pet1',
             },
           },
           {
             type: 'pet',
             id: '2',
             attributes: {
-              name: 'Rambunctious',
+              name: 'Pet2',
             },
           },
           {
             type: 'pet',
             id: '3',
             attributes: {
-              name: 'Rebel',
+              name: 'Pet3',
             },
           },
         ],
@@ -1489,10 +1489,10 @@ todo(
     const person = store.peekRecord('person', '1');
     const pets = run(() => person.get('pets'));
 
-    const shen = pets.objectAt(0);
-    const rebel = store.peekRecord('pet', '3');
+    const pet1 = pets.objectAt(0);
+    const pet3 = store.peekRecord('pet', '3');
 
-    assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+    assert.equal(get(pet1, 'name'), 'Pet1', 'precond - relationships work');
     assert.deepEqual(
       pets.map(p => get(p, 'id')),
       ['1', '3'],
@@ -1500,7 +1500,7 @@ todo(
     );
 
     run(() => {
-      pets.removeObject(rebel);
+      pets.removeObject(pet3);
     });
 
     assert.deepEqual(
@@ -1581,21 +1581,21 @@ test('new items added to an async hasMany relationship are not cleared by a dele
           type: 'pet',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'pet',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
         {
           type: 'pet',
           id: '3',
           attributes: {
-            name: 'Rebel',
+            name: 'Pet3',
           },
         },
       ],
@@ -1607,11 +1607,11 @@ test('new items added to an async hasMany relationship are not cleared by a dele
     const petsProxy = run(() => person.get('pets'));
 
     return petsProxy.then(pets => {
-      const shen = pets.objectAt(0);
-      const rambo = store.peekRecord('pet', '2');
-      const rebel = store.peekRecord('pet', '3');
+      const pet1 = pets.objectAt(0);
+      const pet2 = store.peekRecord('pet', '2');
+      const pet3 = store.peekRecord('pet', '3');
 
-      assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+      assert.equal(get(pet1, 'name'), 'Pet1', 'precond - relationships work');
       assert.deepEqual(
         pets.map(p => get(p, 'id')),
         ['1'],
@@ -1619,7 +1619,7 @@ test('new items added to an async hasMany relationship are not cleared by a dele
       );
       assert.equal(get(petsProxy, 'length'), 1, 'precond - proxy has only one pet to start');
 
-      pets.pushObjects([rambo, rebel]);
+      pets.pushObjects([pet2, pet3]);
 
       assert.deepEqual(
         pets.map(p => get(p, 'id')),
@@ -1628,8 +1628,8 @@ test('new items added to an async hasMany relationship are not cleared by a dele
       );
       assert.equal(get(petsProxy, 'length'), 3, 'precond2 - proxy now reflects three pets');
 
-      return shen.destroyRecord({}).then(() => {
-        shen.unloadRecord();
+      return pet1.destroyRecord({}).then(() => {
+        pet1.unloadRecord();
 
         assert.deepEqual(
           pets.map(p => get(p, 'id')),
@@ -1684,14 +1684,14 @@ test('new items added to a belongsTo relationship are not cleared by a delete', 
           type: 'dog',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'dog',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
       ],
@@ -1700,25 +1700,25 @@ test('new items added to a belongsTo relationship are not cleared by a delete', 
 
   const person = store.peekRecord('person', '1');
   let dog = run(() => person.get('dog'));
-  const shen = store.peekRecord('dog', '1');
-  const rambo = store.peekRecord('dog', '2');
+  const pet1 = store.peekRecord('dog', '1');
+  const pet2 = store.peekRecord('dog', '2');
 
-  assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
-  assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.ok(dog === pet1, 'precond - the belongsTo points to the correct dog');
+  assert.equal(get(dog, 'name'), 'Pet1', 'precond - relationships work');
 
   run(() => {
-    person.set('dog', rambo);
+    person.set('dog', pet2);
   });
 
   dog = person.get('dog');
-  assert.equal(dog, rambo, 'precond2 - relationship was updated');
+  assert.equal(dog, pet2, 'precond2 - relationship was updated');
 
   return run(() => {
-    return shen.destroyRecord({}).then(() => {
-      shen.unloadRecord();
+    return pet1.destroyRecord({}).then(() => {
+      pet1.unloadRecord();
 
       dog = person.get('dog');
-      assert.equal(dog, rambo, 'The currentState of the belongsTo was preserved after the delete');
+      assert.equal(dog, pet2, 'The currentState of the belongsTo was preserved after the delete');
     });
   });
 });
@@ -1765,14 +1765,14 @@ test('new items added to an async belongsTo relationship are not cleared by a de
           type: 'dog',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'dog',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
       ],
@@ -1781,27 +1781,24 @@ test('new items added to an async belongsTo relationship are not cleared by a de
 
   return run(() => {
     const person = store.peekRecord('person', '1');
-    const shen = store.peekRecord('dog', '1');
-    const rambo = store.peekRecord('dog', '2');
+    const pet1 = store.peekRecord('dog', '1');
+    const pet2 = store.peekRecord('dog', '2');
 
     return person.get('dog').then(dog => {
-      assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
-      assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+      assert.ok(dog === pet1, 'precond - the belongsTo points to the correct dog');
+      assert.equal(get(dog, 'name'), 'Pet1', 'precond - relationships work');
 
-      person.set('dog', rambo);
+      person.set('dog', pet2);
 
       dog = person.get('dog.content');
 
-      assert.ok(dog === rambo, 'precond2 - relationship was updated');
+      assert.ok(dog === pet2, 'precond2 - relationship was updated');
 
-      return shen.destroyRecord({}).then(() => {
-        shen.unloadRecord();
+      return pet1.destroyRecord({}).then(() => {
+        pet1.unloadRecord();
 
         dog = person.get('dog.content');
-        assert.ok(
-          dog === rambo,
-          'The currentState of the belongsTo was preserved after the delete'
-        );
+        assert.ok(dog === pet2, 'The currentState of the belongsTo was preserved after the delete');
       });
     });
   });
@@ -1849,14 +1846,14 @@ test('deleting an item that is the current state of a belongsTo clears currentSt
           type: 'dog',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'dog',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
       ],
@@ -1865,22 +1862,22 @@ test('deleting an item that is the current state of a belongsTo clears currentSt
 
   const person = store.peekRecord('person', '1');
   let dog = run(() => person.get('dog'));
-  const shen = store.peekRecord('dog', '1');
-  const rambo = store.peekRecord('dog', '2');
+  const pet1 = store.peekRecord('dog', '1');
+  const pet2 = store.peekRecord('dog', '2');
 
-  assert.ok(dog === shen, 'precond - the belongsTo points to the correct dog');
-  assert.equal(get(dog, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.ok(dog === pet1, 'precond - the belongsTo points to the correct dog');
+  assert.equal(get(dog, 'name'), 'Pet1', 'precond - relationships work');
 
   run(() => {
-    person.set('dog', rambo);
+    person.set('dog', pet2);
   });
 
   dog = person.get('dog');
-  assert.equal(dog, rambo, 'precond2 - relationship was updated');
+  assert.equal(dog, pet2, 'precond2 - relationship was updated');
 
   return run(() => {
-    return rambo.destroyRecord({}).then(() => {
-      rambo.unloadRecord();
+    return pet2.destroyRecord({}).then(() => {
+      pet2.unloadRecord();
 
       dog = person.get('dog');
       assert.equal(dog, null, 'The current state of the belongsTo was clearer');
@@ -2019,21 +2016,21 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
           type: 'pet',
           id: '1',
           attributes: {
-            name: 'Shenanigans',
+            name: 'Pet1',
           },
         },
         {
           type: 'pet',
           id: '2',
           attributes: {
-            name: 'Rambunctious',
+            name: 'Pet2',
           },
         },
         {
           type: 'pet',
           id: '3',
           attributes: {
-            name: 'Rebel',
+            name: 'Pet3',
           },
         },
       ],
@@ -2043,10 +2040,10 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   const person = store.peekRecord('person', '1');
   const pets = run(() => person.get('pets'));
 
-  const shen = store.peekRecord('pet', '1');
-  const rebel = store.peekRecord('pet', '3');
+  const pet1 = store.peekRecord('pet', '1');
+  const pet3 = store.peekRecord('pet', '3');
 
-  assert.equal(get(shen, 'name'), 'Shenanigans', 'precond - relationships work');
+  assert.equal(get(pet1, 'name'), 'Pet1', 'precond - relationships work');
   assert.deepEqual(
     pets.map(p => get(p, 'id')),
     ['1', '2'],
@@ -2054,7 +2051,7 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   );
 
   run(() => {
-    pets.pushObjects([rebel]);
+    pets.pushObjects([pet3]);
   });
 
   assert.deepEqual(
@@ -2064,8 +2061,8 @@ test('[ASSERTS KNOWN LIMITATION STILL EXISTS] returning new hasMany relationship
   );
 
   return run(() => {
-    return shen.destroyRecord({}).then(() => {
-      shen.unloadRecord();
+    return pet1.destroyRecord({}).then(() => {
+      pet1.unloadRecord();
 
       // were ember-data to now preserve local edits during a relationship push, this would be '2'
       assert.deepEqual(
