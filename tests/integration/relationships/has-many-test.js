@@ -3886,7 +3886,7 @@ test('A hasMany relationship with a link will trigger the link request even if a
   });
 });
 
-test('A polymorphic hasMany should not be reordered when a child is posted with the reverse relationship specified', function (assert) {
+test('A polymorphic hasMany should not be reordered when a child is posted with the reverse relationship specified', function(assert) {
   Post.reopen({
     messages: DS.hasMany('message', { async: true, polymorphic: true, inverse: 'post' }),
   });
