@@ -131,11 +131,13 @@ module('integration/application - Attaching initializer', function(hooks) {
       },
     });
 
-    this.application = this.TestApplication.create({ autoboot: false });
+    return await run(async () => {
+      this.application = this.TestApplication.create({ autoboot: false });
 
-    await this.application.boot();
+      await this.application.boot();
 
-    assert.ok(ran, 'ember-data initializer was found');
+      assert.ok(ran, 'ember-data initializer was found');
+    });
   });
 
   test('ember-data initializer does not register the store service when it was already registered', async function(assert) {
@@ -151,14 +153,16 @@ module('integration/application - Attaching initializer', function(hooks) {
       },
     });
 
-    this.application = this.TestApplication.create({ autoboot: false });
+    return await run(async () => {
+      this.application = this.TestApplication.create({ autoboot: false });
 
-    await this.application.boot().then(() => (this.owner = this.application.buildInstance()));
+      await this.application.boot().then(() => (this.owner = this.application.buildInstance()));
 
-    let store = this.owner.lookup('service:store');
-    assert.ok(
-      store && store.get('isCustomStore'),
-      'ember-data initializer does not overwrite the previous registered service store'
-    );
+      let store = this.owner.lookup('service:store');
+      assert.ok(
+        store && store.get('isCustomStore'),
+        'ember-data initializer does not overwrite the previous registered service store'
+      );
+    });
   });
 });

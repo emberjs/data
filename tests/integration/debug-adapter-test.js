@@ -1,6 +1,7 @@
 import { setupTest } from 'ember-qunit';
 import { A } from '@ember/array';
 import { get } from '@ember/object';
+import { run } from '@ember/runloop';
 import Model from 'ember-data/model';
 import { attr } from '@ember-decorators/data';
 import Adapter from 'ember-data/adapter';
@@ -70,64 +71,66 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
       })
     );
 
-    store.push({
-      data: {
-        type: 'post',
-        id: '1',
-        attributes: {
-          title: 'Clean Post',
+    return await run(async () => {
+      store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'Clean Post',
+          },
         },
-      },
+      });
+
+      var recordsAdded = function(wrappedRecords) {
+        addedRecords = wrappedRecords;
+      };
+      var recordsUpdated = function(wrappedRecords) {
+        updatedRecords = wrappedRecords;
+      };
+      var recordsRemoved = function(index, count) {
+        removedIndex = index;
+        removedCount = count;
+      };
+
+      debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
+
+      assert.equal(get(addedRecords, 'length'), 1);
+      let record = addedRecords[0];
+      assert.deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
+      assert.deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
+      assert.deepEqual(record.searchKeywords, ['1', 'Clean Post']);
+      assert.deepEqual(record.color, 'black');
+
+      let post = await store.findRecord('post', 1);
+
+      post.set('title', 'Modified Post');
+
+      assert.equal(get(updatedRecords, 'length'), 1);
+      record = updatedRecords[0];
+      assert.deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
+      assert.deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
+      assert.deepEqual(record.searchKeywords, ['1', 'Modified Post']);
+      assert.deepEqual(record.color, 'blue');
+
+      post = store.createRecord('post', { id: '2', title: 'New Post' });
+
+      await settled();
+
+      assert.equal(get(addedRecords, 'length'), 1);
+      record = addedRecords[0];
+      assert.deepEqual(record.columnValues, { id: '2', title: 'New Post' });
+      assert.deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
+      assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
+      assert.deepEqual(record.color, 'green');
+
+      post.unloadRecord();
+
+      await settled();
+
+      assert.equal(removedIndex, 1);
+      assert.equal(removedCount, 1);
     });
-
-    var recordsAdded = function(wrappedRecords) {
-      addedRecords = wrappedRecords;
-    };
-    var recordsUpdated = function(wrappedRecords) {
-      updatedRecords = wrappedRecords;
-    };
-    var recordsRemoved = function(index, count) {
-      removedIndex = index;
-      removedCount = count;
-    };
-
-    debugAdapter.watchRecords('post', recordsAdded, recordsUpdated, recordsRemoved);
-
-    assert.equal(get(addedRecords, 'length'), 1);
-    let record = addedRecords[0];
-    assert.deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
-    assert.deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
-    assert.deepEqual(record.searchKeywords, ['1', 'Clean Post']);
-    assert.deepEqual(record.color, 'black');
-
-    let post = await store.findRecord('post', 1);
-
-    post.set('title', 'Modified Post');
-
-    assert.equal(get(updatedRecords, 'length'), 1);
-    record = updatedRecords[0];
-    assert.deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
-    assert.deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
-    assert.deepEqual(record.searchKeywords, ['1', 'Modified Post']);
-    assert.deepEqual(record.color, 'blue');
-
-    post = store.createRecord('post', { id: '2', title: 'New Post' });
-
-    await settled();
-
-    assert.equal(get(addedRecords, 'length'), 1);
-    record = addedRecords[0];
-    assert.deepEqual(record.columnValues, { id: '2', title: 'New Post' });
-    assert.deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
-    assert.deepEqual(record.searchKeywords, ['2', 'New Post']);
-    assert.deepEqual(record.color, 'green');
-
-    post.unloadRecord();
-
-    await settled();
-
-    assert.equal(removedIndex, 1);
-    assert.equal(removedCount, 1);
   });
 
   test('Column names', function(assert) {

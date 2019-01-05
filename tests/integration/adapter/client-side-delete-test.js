@@ -38,68 +38,70 @@ test('client-side deleted records can be added back from an inverse', async func
     assert.ok(false, 'unreachable');
   };
 
-  let bookstore = this.store.push({
-    data: {
-      id: '1',
-      type: 'bookstore',
-      relationships: {
-        books: {
-          data: [
-            {
-              id: '1',
-              type: 'book',
-            },
-            {
-              id: '2',
-              type: 'book',
-            },
-          ],
-        },
-      },
-    },
-    included: [
-      {
+  return await run(async () => {
+    let bookstore = this.store.push({
+      data: {
         id: '1',
-        type: 'book',
-      },
-      {
-        id: '2',
-        type: 'book',
-      },
-    ],
-  });
-
-  assert.deepEqual(bookstore.get('books').mapBy('id'), ['1', '2'], 'initial hasmany loaded');
-
-  let book2 = this.store.peekRecord('book', '2');
-
-  await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
-
-  book2.unloadRecord();
-
-  await settled();
-
-  assert.equal(this.store.hasRecordForId('book', '2'), false, 'book 2 unloaded');
-  assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
-
-  this.store.push({
-    data: {
-      id: '2',
-      type: 'book',
-      relationships: {
-        bookstore: {
-          data: {
-            id: '1',
-            type: 'bookstore',
+        type: 'bookstore',
+        relationships: {
+          books: {
+            data: [
+              {
+                id: '1',
+                type: 'book',
+              },
+              {
+                id: '2',
+                type: 'book',
+              },
+            ],
           },
         },
       },
-    },
-  });
+      included: [
+        {
+          id: '1',
+          type: 'book',
+        },
+        {
+          id: '2',
+          type: 'book',
+        },
+      ],
+    });
 
-  assert.deepEqual(
-    bookstore.get('books').mapBy('id'),
-    ['1', '2'],
-    'the deleted book (with same id) is pushed back into the store'
-  );
+    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1', '2'], 'initial hasmany loaded');
+
+    let book2 = this.store.peekRecord('book', '2');
+
+    await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
+
+    book2.unloadRecord();
+
+    await settled();
+
+    assert.equal(this.store.hasRecordForId('book', '2'), false, 'book 2 unloaded');
+    assert.deepEqual(bookstore.get('books').mapBy('id'), ['1'], 'one book client-side deleted');
+
+    this.store.push({
+      data: {
+        id: '2',
+        type: 'book',
+        relationships: {
+          bookstore: {
+            data: {
+              id: '1',
+              type: 'bookstore',
+            },
+          },
+        },
+      },
+    });
+
+    assert.deepEqual(
+      bookstore.get('books').mapBy('id'),
+      ['1', '2'],
+      'the deleted book (with same id) is pushed back into the store'
+    );
+  });
 });
