@@ -8,7 +8,7 @@ import { _bind, _guard, _objectIsAlive, guardDestroyedStore } from './common';
 
 import { normalizeResponseHelper } from './serializer-response';
 import { serializerForAdapter } from './serializers';
-import { merge } from '@ember/polyfills';
+import { assign } from '@ember/polyfills';
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -301,7 +301,7 @@ function fixRelationshipData(relationshipData, relationshipKind, { id, modelName
     payload.push(parentRelationshipData);
   } else {
     payload = relationshipData || {};
-    merge(payload, parentRelationshipData);
+    assign(payload, parentRelationshipData);
   }
 
   return payload;
