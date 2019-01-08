@@ -1310,7 +1310,7 @@ const JSONSerializer = Serializer.extend({
     property of the payload object.
 
     This serializer expects this `errors` object to be an Array similar
-    to the following, compliant with the JSON-API specification:
+    to the following, compliant with the https://jsonapi.org/format/#errors specification:
 
     ```js
     {
