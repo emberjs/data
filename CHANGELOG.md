@@ -2,6 +2,10 @@
 
 ### Master
 
+### Release 3.7.0 (January 8, 2019)
+
+- Re-release of 3.6.0
+
 ### Release 3.6.0 (December 12, 2018)
 
 - [#5671](https://github.com/emberjs/data/pull/5671) Fix issue preventing coalescing of belongsTo
