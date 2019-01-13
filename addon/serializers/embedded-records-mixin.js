@@ -77,8 +77,8 @@ import { warn } from '@ember/debug';
 
   To successfully extract and serialize embedded records the model relationships
   must be set up correctly. See the
-  [defining relationships](/guides/models/defining-models/#toc_defining-relationships)
-  section of the **Defining Models** guide page.
+  [EmbeddedRecordMixin](https://guides.emberjs.com/release/models/customizing-serializers/#toc_embeddedrecordmixin)
+  section of the **Customizing Serializers** guide page.
 
   Records without an `id` property are not considered embedded records, model
   instances must have an `id` property to be used with Ember Data.
