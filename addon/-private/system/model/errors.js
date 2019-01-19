@@ -125,7 +125,7 @@ export default ArrayProxy.extend(Evented, {
     let map = get(this, 'errorsByAttributeName');
 
     if (!map.has(attribute)) {
-      map.set(attribute, new A());
+      map.set(attribute, A());
     }
 
     return map.get(attribute);
