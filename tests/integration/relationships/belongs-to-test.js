@@ -587,6 +587,53 @@ test('The store can load a polymorphic belongsTo association', function(assert) 
   });
 });
 
+test('The store can load a polymorphic belongsTo association via json-api', function(assert) {
+  env.registry.register(
+    'adapter:post',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'post',
+            id,
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:comment',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'comment',
+            id,
+            relationships: {
+              post: {
+                data: {
+                  type: 'post',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+  return run(() => {
+    return store
+      .findRecord('comment', 1)
+      .then(comment => comment.get('post'))
+      .then(post => {
+        assert.ok(post);
+        assert.equal(post.id, 1);
+      });
+  });
+});
+
 test('The store can serialize a polymorphic belongsTo association', function(assert) {
   env.adapter.shouldBackgroundReloadRecord = () => false;
   let serializerInstance = store.serializerFor('comment');
