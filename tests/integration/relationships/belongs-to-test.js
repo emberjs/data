@@ -8,7 +8,7 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import { setupTest } from 'ember-qunit';
 import Store from 'ember-data/store';
 import Model from 'ember-data/model';
-import { attr, belongsTo } from '@ember-decorators/data';
+import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
 import {
@@ -17,7 +17,6 @@ import {
   relationshipsFor,
   relationshipStateFor,
 } from 'ember-data/-private';
-import { settled } from '@ember/test-helpers';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -212,8 +211,8 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
     });
 
     Comment = Message.extend({
-      body: DS.attr('string'),
-      message: DS.belongsTo('message', { polymorphic: true, async: false, inverse: null }),
+      body: DSattr('string'),
+      message: DSbelongsTo('message', { polymorphic: true, async: false, inverse: null }),
     });
 
     Book = DS.Model.extend({
@@ -588,7 +587,419 @@ test('The store can load a polymorphic belongsTo association', function(assert) 
   });
 });
 
-test('The store can load a polymorphic belongsTo association via json-api', async function(assert) {
+test('The store can load an 1-1 async belongsTo association via json-api', async function(assert) {
+  class Person extends Model {
+    @belongsTo('pet', { inverse: 'bestHuman', async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @belongsTo('person', { inverse: 'bestDog', async: true })
+    bestHuman;
+    @attr
+    name;
+  }
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:pet', Pet);
+
+  env.registry.register(
+    'adapter:person',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              'best-dog': {
+                data: {
+                  type: 'pet',
+                  id: '2',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:pet',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'pet',
+            id,
+            relationships: {
+              'best-person': {
+                data: {
+                  type: 'person',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+  let person = await store.findRecord('person', 1);
+  let pet = await person.get('bestDog');
+  assert.ok(pet);
+  assert.equal(pet.id, 2);
+});
+
+test('The store can load an 1-1 async polymorphic belongsTo association via json-api', async function(assert) {
+  class Person extends Model {
+    @belongsTo('pet', { inverse: 'bestHuman', polymorphic: true, async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @belongsTo('person', { inverse: 'bestDog', polymorphic: true, async: true })
+    bestHuman;
+    @attr
+    name;
+  }
+
+  class Dog extends Pet {}
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:pet', Pet);
+  env.registry.register('model:dog', Dog);
+
+  env.registry.register(
+    'adapter:person',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              'best-dog': {
+                data: {
+                  type: 'dog',
+                  id: '2',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:dog',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'dog',
+            id,
+            relationships: {
+              'best-person': {
+                data: {
+                  type: 'person',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+  let person = await store.findRecord('person', 1);
+  let pet = await person.get('bestDog');
+  assert.ok(pet);
+  assert.equal(pet.id, 2);
+});
+
+test('The store can load an 1-1 async polymorphic belongsTo association with no inverses via json-api', async function(assert) {
+  class Person extends Model {
+    @belongsTo('pet', { polymorphic: true, async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @belongsTo('person', { polymorphic: true, async: true })
+    bestHuman;
+    @attr
+    name;
+  }
+
+  class Dog extends Pet {}
+
+  Message = DS.Model.extend({
+    user: DSbelongsTo('user', { inverse: 'messages', async: false }),
+    created_at: DSattr('date'),
+  });
+
+  Post = Message.extend({
+    title: DSattr('string'),
+    comments: DShasMany('comment', { async: false, inverse: null }),
+  });
+
+  Comment = Message.extend({
+    body: DSattr('string'),
+    message: DSbelongsTo('message', { polymorphic: true, async: false, inverse: null }),
+  });
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:pet', Pet);
+  env.registry.register('model:dog', Dog);
+
+  env.registry.register(
+    'adapter:person',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              'best-dog': {
+                data: {
+                  type: 'dog',
+                  id: '2',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:dog',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'dog',
+            id,
+            relationships: {
+              'best-person': {
+                data: {
+                  type: 'person',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+  let person = await store.findRecord('person', 1);
+  let pet = await person.get('bestDog');
+  assert.ok(pet);
+  assert.equal(pet.id, 2);
+});
+
+test('The store can load an 1-many async belongsTo association via json-api', async function(assert) {
+  class Person extends Model {
+    @belongsTo('pet', { inverse: 'humans', async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @hasMany('person', { inverse: 'bestDog', async: true })
+    humans;
+    @attr
+    name;
+  }
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:pet', Pet);
+
+  env.registry.register(
+    'adapter:person',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              'best-dog': {
+                data: {
+                  type: 'pet',
+                  id: '2',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:pet',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'pet',
+            id,
+          },
+        });
+      },
+    })
+  );
+  let person = await store.findRecord('person', 1);
+  let pet = await person.get('bestDog');
+  assert.ok(pet);
+  assert.equal(pet.id, 2);
+});
+
+test('The store can load an 1-many async polymorphic belongsTo association via json-api', async function(assert) {
+  class Person extends Model {
+    @hasMany('pet', { inverse: 'human', async: true })
+    pets;
+    @attr
+    name;
+  }
+
+  class Vetenarian extends Person {}
+
+  class Pet extends Model {
+    @belongsTo('person', { inverse: 'pets', async: true })
+    human;
+    @attr
+    name;
+  }
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:vetenarian', Vetenarian);
+  env.registry.register('model:pet', Pet);
+
+  env.registry.register(
+    'adapter:vetenarian',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              pets: {
+                data: [
+                  {
+                    type: 'pet',
+                    id: '2',
+                  },
+                ],
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:pet',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'pet',
+            id,
+            relationships: {
+              human: {
+                data: {
+                  type: 'vetenarian',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+  let pet = await store.findRecord('pet', 2);
+  let person = await pet.get('human');
+  assert.ok(person);
+  assert.equal(person.id, 1);
+});
+
+test('The store can load an 1-many async belongsTo association with no inverses via json-api', async function(assert) {
+  class Person extends Model {
+    @belongsTo('pet', { inverse: null, async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @hasMany('person', { inverse: null, async: true })
+    humans;
+    @attr
+    name;
+  }
+
+  env.registry.register('model:person', Person);
+  env.registry.register('model:pet', Pet);
+
+  env.registry.register(
+    'adapter:person',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'person',
+            id,
+            relationships: {
+              'best-dog': {
+                data: {
+                  type: 'pet',
+                  id: '2',
+                },
+              },
+            },
+          },
+        });
+      },
+    })
+  );
+
+  env.registry.register(
+    'adapter:pet',
+    DS.JSONAPIAdapter.extend({
+      findRecord(store, type, id) {
+        return resolve({
+          data: {
+            type: 'pet',
+            id,
+          },
+        });
+      },
+    })
+  );
+  let person = await store.findRecord('person', 1);
+  let pet = await person.get('bestDog');
+  assert.ok(pet);
+  assert.equal(pet.id, 2);
+});
+
+test('The store can load a 1-many polymorphic belongsTo association via json-api', async function(assert) {
   env.registry.register(
     'adapter:post',
     DS.JSONAPIAdapter.extend({
@@ -596,7 +1007,7 @@ test('The store can load a polymorphic belongsTo association via json-api', asyn
         return resolve({
           data: {
             type: 'post',
-            id,
+            id: '1',
           },
         });
       },
@@ -610,7 +1021,7 @@ test('The store can load a polymorphic belongsTo association via json-api', asyn
         return resolve({
           data: {
             type: 'comment',
-            id,
+            id: '2',
             relationships: {
               post: {
                 data: {
@@ -624,10 +1035,10 @@ test('The store can load a polymorphic belongsTo association via json-api', asyn
       },
     })
   );
-  let comment = await store.findRecord('comment', 1);
+  let comment = await store.findRecord('comment', '2');
   let post = await comment.get('post');
   assert.ok(post);
-  assert.equal(post.id, 1);
+  assert.equal(post.id, '1');
 });
 
 test('The store can serialize a polymorphic belongsTo association', function(assert) {
