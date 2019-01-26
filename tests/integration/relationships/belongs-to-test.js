@@ -17,6 +17,7 @@ import {
   relationshipsFor,
   relationshipStateFor,
 } from 'ember-data/-private';
+import { settled } from '@ember/test-helpers';
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
@@ -587,7 +588,7 @@ test('The store can load a polymorphic belongsTo association', function(assert) 
   });
 });
 
-test('The store can load a polymorphic belongsTo association via json-api', function(assert) {
+test('The store can load a polymorphic belongsTo association via json-api', async function(assert) {
   env.registry.register(
     'adapter:post',
     DS.JSONAPIAdapter.extend({
@@ -623,15 +624,10 @@ test('The store can load a polymorphic belongsTo association via json-api', func
       },
     })
   );
-  return run(() => {
-    return store
-      .findRecord('comment', 1)
-      .then(comment => comment.get('post'))
-      .then(post => {
-        assert.ok(post);
-        assert.equal(post.id, 1);
-      });
-  });
+  let comment = await store.findRecord('comment', 1);
+  let post = await comment.get('post');
+  assert.ok(post);
+  assert.equal(post.id, 1);
 });
 
 test('The store can serialize a polymorphic belongsTo association', function(assert) {
