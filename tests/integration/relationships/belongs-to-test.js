@@ -999,21 +999,7 @@ test('The store can load an 1-many async belongsTo association with no inverses 
   assert.equal(pet.id, 2);
 });
 
-test('The store can load a 1-many polymorphic belongsTo association via json-api', async function(assert) {
-  env.registry.register(
-    'adapter:post',
-    DS.JSONAPIAdapter.extend({
-      findRecord(store, type, id) {
-        return resolve({
-          data: {
-            type: 'post',
-            id: '1',
-          },
-        });
-      },
-    })
-  );
-
+test('The store can load a 1-many polymorphic sync belongsTo association via json-api', async function(assert) {
   env.registry.register(
     'adapter:comment',
     DS.JSONAPIAdapter.extend({
@@ -1031,12 +1017,18 @@ test('The store can load a 1-many polymorphic belongsTo association via json-api
               },
             },
           },
+          included: [
+            {
+              type: 'post',
+              id: '1',
+            },
+          ],
         });
       },
     })
   );
   let comment = await store.findRecord('comment', '2');
-  let post = await comment.get('post');
+  let post = await comment.get('message');
   assert.ok(post);
   assert.equal(post.id, '1');
 });
