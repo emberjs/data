@@ -1023,7 +1023,7 @@ test('The store can load a 1-many polymorphic belongsTo association via json-api
             type: 'comment',
             id: '2',
             relationships: {
-              post: {
+              message: {
                 data: {
                   type: 'post',
                   id: '1',
