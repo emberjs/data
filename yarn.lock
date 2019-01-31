@@ -702,9 +702,10 @@
   dependencies:
     "@types/estree" "*"
 
-"@types/ember-qunit@~3.4.3":
-  version "3.4.3"
-  resolved "https://registry.yarnpkg.com/@types/ember-qunit/-/ember-qunit-3.4.3.tgz#ad8532e735c7a46af764f5cb7d852896e6d28bfd"
+"@types/ember-qunit@~3.4.5":
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/@types/ember-qunit/-/ember-qunit-3.4.5.tgz#791e4919a88b8d2ac982e4d73564a2c4c08fec6a"
+  integrity sha512-Nk9hubQdaBUbRgw68dkcLsAt9n9WIHFX3vj5e75Cht5MVizz7j6hW6O5zGtM1QPp62+2/TgUqGIEYMv4nlw1uQ==
   dependencies:
     "@types/ember" "*"
     "@types/ember-test-helpers" "*"
