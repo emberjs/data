@@ -807,11 +807,13 @@
   dependencies:
     "@types/handlebars" "*"
 
-"@types/ember__test-helpers@~0.7.6":
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/@types/ember__test-helpers/-/ember__test-helpers-0.7.6.tgz#f26050fc74cd8ce111ee9e01864a293d6a9ac7ac"
+"@types/ember__test-helpers@~0.7.7":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@types/ember__test-helpers/-/ember__test-helpers-0.7.7.tgz#b11832e5e622c1e61f96d8477845a84b5ec348c3"
+  integrity sha512-Agvz+92jejB/Fy4jf0qhii6bOeXrPXZUWkGGlbNT5VXppRbQaQirjML/NSoGm93dU/o2JD/E9Ax8ZOFSthGkDw==
   dependencies:
     "@types/ember" "*"
+    "@types/ember__application" "*"
     "@types/ember__error" "*"
     "@types/htmlbars-inline-precompile" "*"
 
