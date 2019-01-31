@@ -113,7 +113,7 @@
     "eslint": "^5.10.0",
     "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-node": "^8.0.0",
-    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "execa": "^1.0.0",
     "github": "^14.0.0",
     "glob": "^7.1.3",
