@@ -42,6 +42,12 @@ module.exports = {
     }
   },
 
+  _suppressCircularDependencyWarnings(message, next) {
+    if (message.code !== 'CIRCULAR_DEPENDENCY') {
+      next(message);
+    }
+  },
+
   getOutputDirForVersion() {
     let VersionChecker = require('ember-cli-version-checker');
     let checker = new VersionChecker(this);
@@ -120,6 +126,7 @@ module.exports = {
           'ember-data/adapters/errors',
           '@ember/ordered-set',
         ],
+        onwarn: this._suppressCircularDependencyWarnings,
         // cache: true|false Defaults to true
       },
     });
