@@ -124,7 +124,7 @@
     "prettier": "^1.15.3",
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
-    "typescript": "~3.2.2"
+    "typescript": "~3.3.1"
   },
   "engines": {
     "node": ">= 6.0.0"
