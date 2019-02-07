@@ -54,7 +54,7 @@
     "ember-cli-typescript": "^2.0.0-beta.2",
     "ember-cli-version-checker": "^3.0.1",
     "ember-inflector": "^3.0.0",
-    "git-repo-info": "^2.0.0",
+    "git-repo-info": "^2.1.0",
     "heimdalljs": "^0.3.0",
     "inflection": "^1.12.0",
     "npm-git-info": "^1.0.3",
