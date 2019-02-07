@@ -51,7 +51,7 @@
     "ember-cli-path-utils": "^1.0.0",
     "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-info": "^1.0.0",
-    "ember-cli-typescript": "^2.0.0-beta.2",
+    "ember-cli-typescript": "^2.0.0-rc.2",
     "ember-cli-version-checker": "^3.0.1",
     "ember-inflector": "^3.0.0",
     "git-repo-info": "^2.0.0",
