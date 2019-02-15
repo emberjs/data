@@ -10,6 +10,7 @@ import { assert } from '@ember/debug';
 import { PromiseArray } from './promise-proxies';
 import { _objectIsAlive } from './store/common';
 import diffArray from './diff-array';
+import { A } from '@ember/array';
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -130,7 +131,7 @@ export default EmberObject.extend(MutableArray, Evented, {
     @property {ManyRelationship} relationship
     @private
     */
-    this.currentState = [];
+    this.currentState = A();
     this.flushCanonical(this.initialState, false);
   },
 
@@ -181,7 +182,7 @@ export default EmberObject.extend(MutableArray, Evented, {
       // we found a change
       this.arrayContentWillChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       this.set('length', toSet.length);
-      this.currentState = toSet.slice();
+      this.currentState = A(toSet.slice());
       this.arrayContentDidChange(diff.firstChangeIndex, diff.removedCount, diff.addedCount);
       if (isInitialized && diff.addedCount > 0) {
         //notify only on additions
