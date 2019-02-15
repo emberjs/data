@@ -138,7 +138,8 @@ export default EmberObject.extend(MutableArray, Evented, {
 
   // TODO: if(DEBUG)
   anyUnloaded() {
-    let unloaded = this.currentState.find(im => im._isDematerializing || !im.isLoaded());
+    // Use `filter[0]` as opposed to `find` because of IE11
+    let unloaded = this.currentState.filter(im => im._isDematerializing || !im.isLoaded())[0];
     return !!unloaded;
   },
 
