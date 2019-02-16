@@ -1,16 +1,29 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
-import { createStore } from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
+import Model from 'ember-data/model';
+import { attr } from '@ember-decorators/data';
 import { module, test } from 'qunit';
+import { settled } from '@ember/test-helpers';
 
-import DS from 'ember-data';
+class Person extends Model {
+  @attr
+  name;
+}
 
-let Person, store, array, moreArray;
+module('integration/peek-all - DS.Store#peekAll()', function(hooks) {
+  setupTest(hooks);
 
-module('integration/peek-all - DS.Store#peekAll()', {
-  beforeEach() {
-    array = {
+  let store;
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+
+    owner.register('model:person', Person);
+    store = owner.lookup('service:store');
+  });
+
+  test("store.peekAll('person') should return all records and should update with new ones", async function(assert) {
+    store.push({
       data: [
         {
           type: 'person',
@@ -27,8 +40,12 @@ module('integration/peek-all - DS.Store#peekAll()', {
           },
         },
       ],
-    };
-    moreArray = {
+    });
+
+    let all = store.peekAll('person');
+    assert.equal(get(all, 'length'), 2);
+
+    store.push({
       data: [
         {
           type: 'person',
@@ -38,38 +55,16 @@ module('integration/peek-all - DS.Store#peekAll()', {
           },
         },
       ],
-    };
+    });
 
-    Person = DS.Model.extend({ name: DS.attr('string') });
+    await settled();
 
-    store = createStore({ person: Person });
-  },
-  afterEach() {
-    run(store, 'destroy');
-    Person = null;
-    array = null;
-  },
-});
-
-test("store.peekAll('person') should return all records and should update with new ones", function(assert) {
-  run(() => {
-    store.push(array);
+    assert.equal(get(all, 'length'), 3);
   });
 
-  let all = store.peekAll('person');
-  assert.equal(get(all, 'length'), 2);
+  test('Calling store.peekAll() multiple times should update immediately', async function(assert) {
+    assert.expect(3);
 
-  run(() => {
-    store.push(moreArray);
-  });
-
-  assert.equal(get(all, 'length'), 3);
-});
-
-test('Calling store.peekAll() multiple times should update immediately inside the runloop', function(assert) {
-  assert.expect(3);
-
-  run(() => {
     assert.equal(get(store.peekAll('person'), 'length'), 0, 'should initially be empty');
     store.createRecord('person', { name: 'Tomster' });
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
@@ -84,12 +79,10 @@ test('Calling store.peekAll() multiple times should update immediately inside th
     });
     assert.equal(get(store.peekAll('person'), 'length'), 2, 'should contain two people');
   });
-});
 
-test('Calling store.peekAll() after creating a record should return correct data', function(assert) {
-  assert.expect(1);
+  test('Calling store.peekAll() after creating a record should return correct data', async function(assert) {
+    assert.expect(1);
 
-  run(() => {
     store.createRecord('person', { name: 'Tomster' });
     assert.equal(get(store.peekAll('person'), 'length'), 1, 'should contain one person');
   });

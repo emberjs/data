@@ -2,38 +2,212 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import RSVP, { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-
-import testInDebug, { testRecordData } from 'dummy/tests/helpers/test-in-debug';
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjection,
-} from 'dummy/tests/helpers/model-factory-injection';
 import { module, test } from 'qunit';
-
+import JSONAPIAdapter from 'ember-data/adapters/json-api';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
+import { setupTest } from 'ember-qunit';
+import Store from 'ember-data/store';
+import Model from 'ember-data/model';
+import { attr, belongsTo } from '@ember-decorators/data';
+import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
-import { ModelData } from 'ember-data/-private';
+import {
+  RecordData,
+  recordDataFor,
+  relationshipsFor,
+  relationshipStateFor,
+} from 'ember-data/-private';
 
-const { attr, hasMany, belongsTo } = DS;
+const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
 
 let env, store, User, Message, Post, Comment, Book, Book1, Chapter, Author, NewMessage, Section;
 
+module('integration/relationship/belongs-to BelongsTo Relationships (new-style)', function(hooks) {
+  let store;
+  setupTest(hooks);
+
+  class Person extends Model {
+    @belongsTo('pet', { inverse: 'bestHuman', async: true })
+    bestDog;
+    @attr
+    name;
+  }
+
+  class Pet extends Model {
+    @belongsTo('person', { inverse: 'bestDog', async: false })
+    bestHuman;
+    @attr
+    name;
+  }
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    owner.register('service:store', Store);
+    owner.register('model:person', Person);
+    owner.register('model:pet', Pet);
+    owner.register(
+      'serializer:application',
+      JSONAPISerializer.extend({
+        normalizeResponse(_, __, payload) {
+          return payload;
+        },
+      })
+    );
+    store = owner.lookup('service:store');
+  });
+
+  test("async belongsTo chains the related record's loading promise when present", async function(assert) {
+    let petFindRecordCalls = 0;
+    this.owner.register(
+      'adapter:pet',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          assert.equal(++petFindRecordCalls, 1, 'We call findRecord only once for our pet');
+          return resolve({
+            data: {
+              type: 'pet',
+              id: '1',
+              attributes: { name: 'Shen' },
+              relationships: {
+                bestHuman: {
+                  data: { type: 'person', id: '1' },
+                },
+              },
+            },
+          });
+        },
+        findBelongsTo() {
+          return this.store.adapterFor('person').findRecord();
+        },
+      })
+    );
+    let personFindRecordCalls = 0;
+    this.owner.register(
+      'adapter:person',
+      JSONAPIAdapter.extend({
+        findRecord() {
+          assert.equal(++personFindRecordCalls, 1, 'We call findRecord only once for our person');
+          return resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: { name: 'Chris' },
+              relationships: {
+                bestDog: {
+                  data: { type: 'pet', id: '1' },
+                  links: {
+                    related: './pet/1',
+                  },
+                },
+              },
+            },
+          });
+        },
+        findBelongsTo() {
+          return this.store.adapterFor('pet').findRecord();
+        },
+      })
+    );
+
+    let person = await store.findRecord('person', '1');
+    let petRequest = store.findRecord('pet', '1');
+    let personPetRequest = person.get('bestDog');
+    let personPet = await personPetRequest;
+    let pet = await petRequest;
+
+    assert.ok(personPet === pet, 'We ended up in the same state');
+  });
+
+  test('async belongsTo returns correct new value after a local change', async function(assert) {
+    let chris = store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        attributes: { name: 'Chris' },
+        relationships: {
+          bestDog: {
+            data: null,
+          },
+        },
+      },
+      included: [
+        {
+          type: 'pet',
+          id: '1',
+          attributes: { name: 'Shen' },
+          relationships: {
+            bestHuman: {
+              data: null,
+            },
+          },
+        },
+        {
+          type: 'pet',
+          id: '2',
+          attributes: { name: 'Pirate' },
+          relationships: {
+            bestHuman: {
+              data: null,
+            },
+          },
+        },
+      ],
+    });
+
+    let shen = store.peekRecord('pet', '1');
+    let pirate = store.peekRecord('pet', '2');
+    let bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === null, 'precond - Shen has no best human');
+    assert.ok(pirate.get('bestHuman') === null, 'precond - pirate has no best human');
+    assert.ok(bestDog === null, 'precond - Chris has no best dog');
+
+    chris.set('bestDog', shen);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === chris, "scene 1 - Chris is Shen's best human");
+    assert.ok(pirate.get('bestHuman') === null, 'scene 1 - pirate has no best human');
+    assert.ok(bestDog === shen, "scene 1 - Shen is Chris's best dog");
+
+    chris.set('bestDog', pirate);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(shen.get('bestHuman') === null, "scene 2 - Chris is no longer Shen's best human");
+    assert.ok(pirate.get('bestHuman') === chris, 'scene 2 - pirate now has Chris as best human');
+    assert.ok(bestDog === pirate, "scene 2 - Pirate is now Chris's best dog");
+
+    chris.set('bestDog', null);
+    bestDog = await chris.get('bestDog');
+
+    assert.ok(
+      shen.get('bestHuman') === null,
+      "scene 3 - Chris remains no longer Shen's best human"
+    );
+    assert.ok(
+      pirate.get('bestHuman') === null,
+      'scene 3 - pirate no longer has Chris as best human'
+    );
+    assert.ok(bestDog === null, 'scene 3 - Chris has no best dog');
+  });
+});
+
 module('integration/relationship/belongs_to Belongs-To Relationships', {
   beforeEach() {
     User = DS.Model.extend({
-      name: attr('string'),
-      messages: hasMany('message', { polymorphic: true, async: false }),
-      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null, async: false }),
+      name: DSattr('string'),
+      messages: DShasMany('message', { polymorphic: true, async: false }),
+      favouriteMessage: DSbelongsTo('message', { polymorphic: true, inverse: null, async: false }),
     });
 
     Message = DS.Model.extend({
-      user: belongsTo('user', { inverse: 'messages', async: false }),
-      created_at: attr('date'),
+      user: DSbelongsTo('user', { inverse: 'messages', async: false }),
+      created_at: DSattr('date'),
     });
 
     Post = Message.extend({
-      title: attr('string'),
-      comments: hasMany('comment', { async: false, inverse: null }),
+      title: DSattr('string'),
+      comments: DShasMany('comment', { async: false, inverse: null }),
     });
 
     Comment = Message.extend({
@@ -42,27 +216,27 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
     });
 
     Book = DS.Model.extend({
-      name: attr('string'),
-      author: belongsTo('author', { async: false }),
-      chapters: hasMany('chapters', { async: false, inverse: 'book' }),
+      name: DSattr('string'),
+      author: DSbelongsTo('author', { async: false }),
+      chapters: DShasMany('chapters', { async: false, inverse: 'book' }),
     });
 
     Book1 = DS.Model.extend({
-      name: attr('string'),
+      name: DSattr('string'),
     });
 
     Chapter = DS.Model.extend({
-      title: attr('string'),
-      book: belongsTo('book', { async: false, inverse: 'chapters' }),
+      title: DSattr('string'),
+      book: DSbelongsTo('book', { async: false, inverse: 'chapters' }),
     });
 
     Author = DS.Model.extend({
-      name: attr('string'),
-      books: hasMany('books', { async: false }),
+      name: DSattr('string'),
+      books: DShasMany('books', { async: false }),
     });
 
     Section = DS.Model.extend({
-      name: attr('string'),
+      name: DSattr('string'),
     });
 
     env = setupStore({
@@ -80,7 +254,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
     env.registry.optionsForType('serializer', { singleton: false });
     env.registry.optionsForType('adapter', { singleton: false });
 
-    env.registry.register(
+    env.owner.register(
       'serializer:user',
       DS.JSONAPISerializer.extend({
         attrs: {
@@ -101,23 +275,22 @@ module('integration/relationship/belongs_to Belongs-To Relationships', {
   },
 
   afterEach() {
-    resetModelFactoryInjection();
     run(env.container, 'destroy');
   },
 });
 
 test('returning a null relationship from payload sets the relationship to null on both sides', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'model:app',
     DS.Model.extend({
-      name: attr('string'),
-      team: belongsTo('team', { async: true }),
+      name: DSattr('string'),
+      team: DSbelongsTo('team', { async: true }),
     })
   );
-  env.registry.register(
+  env.owner.register(
     'model:team',
     DS.Model.extend({
-      apps: hasMany('app', { async: true }),
+      apps: DShasMany('app', { async: true }),
     })
   );
   run(() => {
@@ -464,8 +637,8 @@ test('A serializer can materialize a belongsTo as a link that gets sent back to 
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -528,8 +701,8 @@ test('A record with an async belongsTo relationship always returns a promise for
     seat: DS.belongsTo('seat', { async: true }),
   });
 
-  env.registry.register('model:seat', Seat);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:seat', Seat);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -579,8 +752,8 @@ test('A record with an async belongsTo relationship returning null should resolv
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -628,8 +801,8 @@ test('A record can be created with a resolved belongsTo promise', function(asser
     group: DS.belongsTo({ async: true }),
   });
 
-  env.registry.register('model:group', Group);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:group', Group);
+  env.owner.register('model:person', Person);
 
   run(() => {
     store.push({
@@ -649,7 +822,7 @@ test('A record can be created with a resolved belongsTo promise', function(asser
   });
 });
 
-test('polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled', function(assert) {
+test('polymorphic belongsTo class-checks check the superclass', function(assert) {
   assert.expect(1);
 
   run(() => {
@@ -663,7 +836,6 @@ test('polymorphic belongsTo class-checks check the superclass when MODEL_FACTORY
 });
 
 test('the subclass in a polymorphic belongsTo relationship is an instanceof its superclass', function(assert) {
-  setupModelFactoryInjections(false);
   assert.expect(1);
 
   let message = env.store.createRecord('message', { id: 1 });
@@ -680,8 +852,7 @@ test('relationshipsByName does not cache a factory', function(assert) {
   // An app is reset, or the container otherwise destroyed.
   run(env.container, 'destroy');
 
-  // A new model for a relationship is created. Note that this may happen
-  // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
+  // A new model for a relationship is created.
   NewMessage = Message.extend();
 
   // A new store is created.
@@ -854,7 +1025,7 @@ test('Destroying a record with an unloaded aync belongsTo association does not f
   run(post, 'destroyRecord');
 });
 
-testInDebug('A sync belongsTo errors out if the record is unlaoded', function(assert) {
+testInDebug('A sync belongsTo errors out if the record is unloaded', function(assert) {
   let message;
   run(() => {
     message = env.store.push({
@@ -969,7 +1140,7 @@ testInDebug('Passing a model as type to belongsTo should not work', function(ass
     User = DS.Model.extend();
 
     DS.Model.extend({
-      user: belongsTo(User, { async: false }),
+      user: DSbelongsTo(User, { async: false }),
     });
   }, /The first argument to DS.belongsTo must be a string/);
 });
@@ -978,7 +1149,7 @@ test('belongsTo hasAnyRelationshipData async loaded', function(assert) {
   assert.expect(1);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -996,7 +1167,7 @@ test('belongsTo hasAnyRelationshipData async loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1020,7 +1191,7 @@ test('belongsTo hasAnyRelationshipData sync loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -1030,7 +1201,7 @@ test('belongsTo hasAnyRelationshipData async not loaded', function(assert) {
   assert.expect(1);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
@@ -1048,7 +1219,7 @@ test('belongsTo hasAnyRelationshipData async not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1069,7 +1240,7 @@ test('belongsTo hasAnyRelationshipData sync not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('book', 1).then(book => {
-      let relationship = book._internalModel._relationships.get('author');
+      let relationship = relationshipStateFor(book, 'author');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -1079,13 +1250,13 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
   assert.expect(2);
 
   Book.reopen({
-    author: belongsTo('author', { async: true }),
+    author: DSbelongsTo('author', { async: true }),
   });
 
   run(() => {
     let author = store.createRecord('author');
     let book = store.createRecord('book', { name: 'The Greatest Book' });
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = relationshipStateFor(book, 'author');
 
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
@@ -1094,7 +1265,7 @@ test('belongsTo hasAnyRelationshipData NOT created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = relationshipStateFor(book, 'author');
 
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
@@ -1109,7 +1280,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       name: 'The Greatest Book',
     });
 
-    let relationship = book._internalModel._relationships.get('author');
+    let relationship = relationshipStateFor(book, 'author');
     assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
     book = store.createRecord('book', {
@@ -1117,7 +1288,7 @@ test('belongsTo hasAnyRelationshipData sync created', function(assert) {
       author,
     });
 
-    relationship = book._internalModel._relationships.get('author');
+    relationship = relationshipStateFor(book, 'author');
     assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
   });
 });
@@ -1134,7 +1305,7 @@ test("Model's belongsTo relationship should not be created during model creation
     });
 
     assert.ok(
-      !user._internalModel._relationships.has('favouriteMessage'),
+      !relationshipsFor(user).has('favouriteMessage'),
       'Newly created record should not have relationships'
     );
   });
@@ -1148,7 +1319,7 @@ test("Model's belongsTo relationship should be created during model creation if 
   });
 
   assert.ok(
-    user._internalModel._relationships.has('favouriteMessage'),
+    relationshipsFor(user).has('favouriteMessage'),
     'Newly created record with relationships in params passed in its constructor should have relationships'
   );
 });
@@ -1161,7 +1332,7 @@ test("Model's belongsTo relationship should be created during 'set' method", fun
     user = env.store.createRecord('user');
     user.set('favouriteMessage', message);
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      relationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -1174,7 +1345,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('favouriteMessage');
     assert.ok(
-      user._internalModel._relationships.has('favouriteMessage'),
+      relationshipsFor(user).has('favouriteMessage'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -1737,174 +1908,171 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
   assert.equal(count, 0);
 });
 
-testRecordData(
-  "belongsTo relationship doesn't trigger when model data doesn't support implicit relationship",
-  function(assert) {
-    class TestModelData extends ModelData {
-      constructor(modelName, id, clientId, storeWrapper, store) {
-        super(modelName, id, clientId, storeWrapper, store);
-        delete this.__implicitRelationships;
-        delete this.__relationships;
-      }
-
-      _destroyRelationships() {}
-
-      _allRelatedModelDatas() {}
-
-      _cleanupOrphanedModelDatas() {}
-
-      _directlyRelatedModelDatas() {
-        return [];
-      }
-
-      destroy() {
-        this.isDestroyed = true;
-        this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
-      }
-
-      get _implicitRelationships() {
-        return undefined;
-      }
-      get _relationships() {
-        return undefined;
-      }
+test("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
+  class TestRecordData extends RecordData {
+    constructor(modelName, id, clientId, storeWrapper, store) {
+      super(modelName, id, clientId, storeWrapper, store);
+      delete this.__implicitRelationships;
+      delete this.__relationships;
     }
 
-    Chapter.reopen({
-      // book is still an inverse from prior to the reopen
-      sections: DS.hasMany('section', { async: false }),
-      book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
-      book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
-    });
+    _destroyRelationships() {}
 
-    const createModelDataFor = env.store.createModelDataFor;
-    env.store.createModelDataFor = function(modelName, id, clientId, storeWrapper) {
-      if (modelName === 'book1' || modelName === 'section') {
-        return new TestModelData(modelName, id, clientId, storeWrapper, this);
-      }
-      return createModelDataFor.call(this, modelName, id, clientId, storeWrapper);
-    };
+    _allRelatedRecordDatas() {}
 
-    const data = {
-      data: {
-        type: 'chapter',
-        id: '1',
-        relationships: {
-          book1: {
-            data: { type: 'book1', id: '1' },
-          },
-          book2: {
-            data: { type: 'book1', id: '2' },
-          },
-          book: {
-            data: { type: 'book', id: '1' },
-          },
-          sections: {
-            data: [
-              {
-                type: 'section',
-                id: 1,
-              },
-              {
-                type: 'section',
-                id: 2,
-              },
-            ],
-          },
+    _cleanupOrphanedRecordDatas() {}
+
+    _directlyRelatedRecordDatas() {
+      return [];
+    }
+
+    destroy() {
+      this.isDestroyed = true;
+      this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    }
+
+    get _implicitRelationships() {
+      return undefined;
+    }
+    get _relationships() {
+      return undefined;
+    }
+  }
+
+  Chapter.reopen({
+    // book is still an inverse from prior to the reopen
+    sections: DS.hasMany('section', { async: false }),
+    book1: DS.belongsTo('book1', { async: false, inverse: 'chapters' }), // incorrect inverse
+    book2: DS.belongsTo('book1', { async: false, inverse: null }), // correct inverse
+  });
+
+  const createRecordDataFor = env.store.createRecordDataFor;
+  env.store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
+    if (modelName === 'book1' || modelName === 'section') {
+      return new TestRecordData(modelName, id, lid, storeWrapper, this);
+    }
+    return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
+  };
+
+  const data = {
+    data: {
+      type: 'chapter',
+      id: '1',
+      relationships: {
+        book1: {
+          data: { type: 'book1', id: '1' },
+        },
+        book2: {
+          data: { type: 'book1', id: '2' },
+        },
+        book: {
+          data: { type: 'book', id: '1' },
+        },
+        sections: {
+          data: [
+            {
+              type: 'section',
+              id: 1,
+            },
+            {
+              type: 'section',
+              id: 2,
+            },
+          ],
         },
       },
-      included: [
-        { type: 'book1', id: '1' },
-        { type: 'book1', id: '2' },
-        { type: 'section', id: '1' },
-        { type: 'book', id: '1' },
-        { type: 'section', id: '2' },
-      ],
-    };
+    },
+    included: [
+      { type: 'book1', id: '1' },
+      { type: 'book1', id: '2' },
+      { type: 'section', id: '1' },
+      { type: 'book', id: '1' },
+      { type: 'section', id: '2' },
+    ],
+  };
 
-    // Expect assertion failure as Book1 ModelData
-    // doesn't have relationship attribute
-    // and inverse is not set to null in
-    // belongsTo
-    assert.expectAssertion(() => {
-      run(() => {
-        env.store.push(data);
-      });
-    }, `Assertion Failed: We found no inverse relationships by the name of 'chapters' on the 'book1' model. This is most likely due to a missing attribute on your model definition.`);
-
-    //Update setup
-    // with inverse set to null
-    // no errors thrown
-    Chapter.reopen({
-      book1: DS.belongsTo({ async: false }),
-      sections: DS.hasMany('section', { async: false }),
-      book: DS.belongsTo({ async: false, inverse: null }),
-    });
-
+  // Expect assertion failure as Book1 RecordData
+  // doesn't have relationship attribute
+  // and inverse is not set to null in
+  // DSbelongsTo
+  assert.expectAssertion(() => {
     run(() => {
       env.store.push(data);
     });
+  }, `Assertion Failed: We found no inverse relationships by the name of 'chapters' on the 'book1' model. This is most likely due to a missing attribute on your model definition.`);
 
-    let chapter = env.store.peekRecord('chapter', '1');
-    let book1 = env.store.peekRecord('book1', '1');
-    let book2 = env.store.peekRecord('book1', '2');
-    let book = env.store.peekRecord('book', '1');
-    let section1 = env.store.peekRecord('section', '1');
-    let section2 = env.store.peekRecord('section', '2');
+  //Update setup
+  // with inverse set to null
+  // no errors thrown
+  Chapter.reopen({
+    book1: DS.belongsTo({ async: false }),
+    sections: DS.hasMany('section', { async: false }),
+    book: DS.belongsTo({ async: false, inverse: null }),
+  });
 
-    let sections = chapter.get('sections');
+  run(() => {
+    env.store.push(data);
+  });
 
-    assert.equal(chapter.get('book1.id'), '1');
-    assert.equal(chapter.get('book2.id'), '2');
-    assert.equal(chapter.get('book.id'), '1');
+  let chapter = env.store.peekRecord('chapter', '1');
+  let book1 = env.store.peekRecord('book1', '1');
+  let book2 = env.store.peekRecord('book1', '2');
+  let book = env.store.peekRecord('book', '1');
+  let section1 = env.store.peekRecord('section', '1');
+  let section2 = env.store.peekRecord('section', '2');
 
-    // No inverse setup created for book1
-    // as Model-Data of book1 doesn't support this
-    // functionality.
-    assert.notOk(book1.get('chapter'));
-    assert.notOk(book2.get('chapter'));
-    assert.notOk(book.get('chapter'));
-    assert.notOk(
-      book1._internalModel._modelData._implicitRelationships,
-      'no support for implicit relationship in custom RecordData'
-    );
-    assert.notOk(
-      book2._internalModel._modelData._implicitRelationships,
-      'no support for implicit relationship in custom RecordData'
-    );
-    assert.ok(
-      book._internalModel._modelData._implicitRelationships,
-      'support for implicit relationship in default RecordData'
-    );
+  let sections = chapter.get('sections');
 
-    // No inverse setup is created for section
-    assert.notOk(section1.get('chapter'));
-    assert.notOk(section2.get('chapter'));
+  assert.equal(chapter.get('book1.id'), '1');
+  assert.equal(chapter.get('book2.id'), '2');
+  assert.equal(chapter.get('book.id'), '1');
 
-    // Removing the sections
-    // shouldnot throw error
-    // as Model-data of section
-    // doesn't support implicit Relationship
-    run(() => {
-      chapter.get('sections').removeObject(section1);
-      assert.notOk(section1._internalModel._modelData._implicitRelationships);
+  // No inverse setup created for book1
+  // as Model-Data of book1 doesn't support this
+  // functionality.
+  assert.notOk(book1.get('chapter'));
+  assert.notOk(book2.get('chapter'));
+  assert.notOk(book.get('chapter'));
+  assert.notOk(
+    recordDataFor(book1)._implicitRelationships,
+    'no support for implicit relationship in custom RecordData'
+  );
+  assert.notOk(
+    recordDataFor(book2)._implicitRelationships,
+    'no support for implicit relationship in custom RecordData'
+  );
+  assert.ok(
+    recordDataFor(book)._implicitRelationships,
+    'support for implicit relationship in default RecordData'
+  );
 
-      chapter.get('sections').removeObject(section2);
-      assert.notOk(section2._internalModel._modelData._implicitRelationships);
-    });
+  // No inverse setup is created for section
+  assert.notOk(section1.get('chapter'));
+  assert.notOk(section2.get('chapter'));
 
-    assert.equal(chapter.get('sections.length'), 0);
+  // Removing the sections
+  // shouldnot throw error
+  // as Model-data of section
+  // doesn't support implicit Relationship
+  run(() => {
+    chapter.get('sections').removeObject(section1);
+    assert.notOk(recordDataFor(section1)._implicitRelationships);
 
-    // Update the current state of chapter by
-    // adding new sections
-    // shouldnot throw error during
-    // setup of implicit inverse
-    run(() => {
-      sections.addObject(env.store.createRecord('section', { id: 3 }));
-      sections.addObject(env.store.createRecord('section', { id: 4 }));
-      sections.addObject(env.store.createRecord('section', { id: 5 }));
-    });
-    assert.equal(chapter.get('sections.length'), 3);
-    assert.notOk(sections.get('firstObject')._internalModel._modelData._implicitRelationships);
-  }
-);
+    chapter.get('sections').removeObject(section2);
+    assert.notOk(recordDataFor(section2)._implicitRelationships);
+  });
+
+  assert.equal(chapter.get('sections.length'), 0);
+
+  // Update the current state of chapter by
+  // adding new sections
+  // shouldnot throw error during
+  // setup of implicit inverse
+  run(() => {
+    sections.addObject(env.store.createRecord('section', { id: 3 }));
+    sections.addObject(env.store.createRecord('section', { id: 4 }));
+    sections.addObject(env.store.createRecord('section', { id: 5 }));
+  });
+  assert.equal(chapter.get('sections.length'), 3);
+  assert.notOk(recordDataFor(sections.get('firstObject'))._implicitRelationships);
+});

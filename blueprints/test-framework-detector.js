@@ -13,8 +13,13 @@ module.exports = function(blueprint) {
     let type;
 
     let dependencies = this.project.dependencies();
+
     if ('ember-qunit' in dependencies) {
-      type = 'qunit-rfc-232';
+      if (fs.existsSync(this.path + '/qunit-rfc-232-files')) {
+        type = 'qunit-rfc-232';
+      } else {
+        type = 'qunit';
+      }
     } else if ('ember-cli-qunit' in dependencies) {
       let checker = new VersionChecker(this.project);
       if (
@@ -24,6 +29,16 @@ module.exports = function(blueprint) {
         type = 'qunit-rfc-232';
       } else {
         type = 'qunit';
+      }
+    } else if ('ember-mocha' in dependencies) {
+      let checker = new VersionChecker(this.project);
+      if (
+        fs.existsSync(this.path + '/mocha-rfc-232-files') &&
+        checker.for('ember-mocha', 'npm').gte('0.14.0')
+      ) {
+        type = 'mocha-rfc-232';
+      } else {
+        type = 'mocha';
       }
     } else if ('ember-cli-mocha' in dependencies) {
       type = 'mocha';

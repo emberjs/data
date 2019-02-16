@@ -29,6 +29,9 @@ export default function parseResponseHeaders(headersString) {
     let value = header.substring(j + 1, header.length).trim();
 
     if (value) {
+      let lowerCasedField = field.toLowerCase();
+
+      headers[lowerCasedField] = value;
       headers[field] = value;
     }
   }

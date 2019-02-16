@@ -160,7 +160,7 @@ test('findRecord - payload with sideloaded records of a different type', functio
 });
 
 test('findRecord - payload with an serializer-specified primary key', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -182,7 +182,7 @@ test('findRecord - payload with an serializer-specified primary key', function(a
 });
 
 test('findRecord - payload with a serializer-specified attribute mapping', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       attrs: {
@@ -333,7 +333,7 @@ test("createRecord - findMany doesn't overwrite owner", function(assert) {
 });
 
 test("createRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_id_',
@@ -359,7 +359,7 @@ test("createRecord - a serializer's primary key and attributes are consulted whe
 
 test("createRecord - a serializer's attributes are consulted when building the payload if no id is pre-defined", function(assert) {
   let post;
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       attrs: {
@@ -382,7 +382,7 @@ test("createRecord - a serializer's attributes are consulted when building the p
 });
 
 test("createRecord - a serializer's attribute mapping takes precedence over keyForAttribute when building the payload", function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       attrs: {
@@ -409,7 +409,7 @@ test("createRecord - a serializer's attribute mapping takes precedence over keyF
 });
 
 test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend({
       attrs: {
@@ -443,7 +443,7 @@ test("createRecord - a serializer's attribute mapping takes precedence over keyF
 });
 
 test("createRecord - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       attrs: {
@@ -863,7 +863,7 @@ test('updateRecord - a payload with sideloaded updates pushes the updates', func
 
 test("updateRecord - a serializer's primary key and attributes are consulted when building the payload", function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_id_',
@@ -1201,7 +1201,7 @@ test('findAll - returning sideloaded data loads the data', function(assert) {
 });
 
 test('findAll - data is normalized through custom serializers', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -1388,7 +1388,7 @@ test('query - returning sideloaded data loads the data', function(assert) {
 });
 
 test('query - data is normalized through custom serializers', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -1516,7 +1516,7 @@ testInDebug("queryRecord - returning an single object doesn't throw a deprecatio
 });
 
 test('queryRecord - data is normalized through custom serializers', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -1784,7 +1784,7 @@ test('findMany - returning sideloaded data loads the data', function(assert) {
 
 test('findMany - a custom serializer is used if present', function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -1792,7 +1792,7 @@ test('findMany - a custom serializer is used if present', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -2016,7 +2016,7 @@ test('findMany - returning sideloaded data loads the data (with JSONApi Links)',
 
 test('findMany - a custom serializer is used if present', function(assert) {
   adapter.shouldBackgroundReloadRecord = () => false;
-  env.registry.register(
+  env.owner.register(
     'serializer:post',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -2024,7 +2024,7 @@ test('findMany - a custom serializer is used if present', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'serializer:comment',
     DS.RESTSerializer.extend({
       primaryKey: '_ID_',
@@ -2256,7 +2256,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 });
 
 test('normalizeKey - to set up _ids and _id', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:application',
     DS.RESTSerializer.extend({
       keyForAttribute(attr) {
@@ -2277,7 +2277,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'model:post',
     DS.Model.extend({
       name: DS.attr(),
@@ -2287,7 +2287,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'model:user',
     DS.Model.extend({
       createdAt: DS.attr(),
@@ -2295,7 +2295,7 @@ test('normalizeKey - to set up _ids and _id', function(assert) {
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'model:comment',
     DS.Model.extend({
       body: DS.attr(),
@@ -2551,7 +2551,7 @@ test('gracefully handles exceptions in handleResponse where the ajax request err
 });
 
 test('treats status code 0 as an abort', function(assert) {
-  assert.expect(1);
+  assert.expect(3);
 
   adapter._ajaxRequest = function(hash) {
     hash.error({
@@ -2568,6 +2568,21 @@ test('treats status code 0 as an abort', function(assert) {
   return run(() => {
     return store.findRecord('post', '1').catch(err => {
       assert.ok(err instanceof DS.AbortError, 'reason should be an instance of DS.AbortError');
+      assert.equal(
+        err.errors.length,
+        1,
+        'AbortError includes errors with request/response details'
+      );
+      let expectedError = {
+        title: 'Adapter Error',
+        detail: 'Request failed: GET /posts/1',
+        status: 0,
+      };
+      assert.deepEqual(
+        err.errors[0],
+        expectedError,
+        'method, url and, status are captured as details'
+      );
     });
   });
 });

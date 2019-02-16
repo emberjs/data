@@ -2,7 +2,6 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import { resolve } from 'rsvp';
 import setupStore from 'dummy/tests/helpers/store';
-import { reset as resetModelFactoryInjection } from 'dummy/tests/helpers/model-factory-injection';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
@@ -16,7 +15,6 @@ module('integration/relationship/json-api-links | Relationship state updates', {
   beforeEach() {},
 
   afterEach() {
-    resetModelFactoryInjection();
     run(env.container, 'destroy');
   },
 });
@@ -43,7 +41,7 @@ test('Loading link with inverse:null on other model caches the two ends separate
   User = store.modelFor('user');
   Organisation = store.modelFor('organisation');
 
-  env.registry.register(
+  env.owner.register(
     'adapter:user',
     DS.JSONAPISerializer.extend({
       findRecord(store, type, id) {
@@ -62,7 +60,7 @@ test('Loading link with inverse:null on other model caches the two ends separate
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'adapter:organisation',
     DS.JSONAPISerializer.extend({
       findRecord(store, type, id) {
@@ -691,7 +689,6 @@ module('integration/relationship/json-api-links | Relationship fetching', {
   },
 
   afterEach() {
-    resetModelFactoryInjection();
     run(env.container, 'destroy');
     env = null;
   },

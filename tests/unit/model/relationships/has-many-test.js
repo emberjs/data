@@ -34,9 +34,9 @@ test('hasMany handles pre-loaded relationships', function(assert) {
     pets: DS.hasMany('pet', { async: false }),
   });
 
-  env.registry.register('model:tag', Tag);
-  env.registry.register('model:pet', Pet);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:tag', Tag);
+  env.owner.register('model:pet', Pet);
+  env.owner.register('model:person', Person);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
@@ -798,9 +798,9 @@ test('hasMany lazily loads async relationships', function(assert) {
     pets: DS.hasMany('pet', { async: false }),
   });
 
-  env.registry.register('model:tag', Tag);
-  env.registry.register('model:pet', Pet);
-  env.registry.register('model:person', Person);
+  env.owner.register('model:tag', Tag);
+  env.owner.register('model:pet', Pet);
+  env.owner.register('model:person', Person);
 
   env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
@@ -2152,6 +2152,65 @@ test('possible to replace items in a relationship using setObjects w/ Ember Enum
   assert.equal(tom.get('tags.firstObject'), store.peekRecord('tag', 2));
 });
 
+test('Replacing `has-many` with non-array will throw assertion', function(assert) {
+  assert.expect(1);
+
+  const Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person', { async: false }),
+  });
+
+  const Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag', { async: false }),
+  });
+
+  let env = setupStore({ tag: Tag, person: Person });
+  let { store } = env;
+
+  run(() => {
+    store.push({
+      data: [
+        {
+          type: 'person',
+          id: '1',
+          attributes: {
+            name: 'Tom Dale',
+          },
+          relationships: {
+            tags: {
+              data: [{ type: 'tag', id: '1' }],
+            },
+          },
+        },
+        {
+          type: 'tag',
+          id: '1',
+          attributes: {
+            name: 'ember',
+          },
+        },
+        {
+          type: 'tag',
+          id: '2',
+          attributes: {
+            name: 'ember-data',
+          },
+        },
+      ],
+    });
+  });
+
+  let tom;
+
+  run(() => {
+    tom = store.peekRecord('person', '1');
+    assert.expectAssertion(() => {
+      tom.get('tags').setObjects(store.peekRecord('tag', '2'));
+    }, /The third argument to replace needs to be an array./);
+  });
+});
+
 test('it is possible to remove an item from a relationship', function(assert) {
   assert.expect(2);
 
@@ -2309,7 +2368,7 @@ test('DS.hasMany proxy is destroyed', function(assert) {
 
   return peopleProxy.then(people => {
     run(() => {
-      let isRecordDataBuild = people.modelData !== undefined;
+      let isRecordDataBuild = people.recordData !== undefined;
       tag.unloadRecord();
       // TODO Check all unloading behavior
       assert.equal(people.isDestroying, false, 'people is NOT destroying sync after unloadRecord');

@@ -3,53 +3,61 @@ import setupStore from 'dummy/tests/helpers/store';
 import { module, test } from 'qunit';
 import { get } from '@ember/object';
 
-import DS from 'ember-data';
+import Store from 'ember-data/store';
+import attr from 'ember-data/attr';
+import { belongsTo, hasMany } from 'ember-data/relationships';
+import Model from 'ember-data/model';
+import RESTSerializer from 'ember-data/serializers/rest';
+import RESTAdapter from 'ember-data/adapters/rest';
+import Adapter from 'ember-data/adapter';
+import EmbeddedRecordsMixin from 'ember-data/serializers/embedded-records-mixin';
 
 let env;
-let SuperVillain, HomePlanet, EvilMinion;
 
 module('integration/multiple_stores - Multiple Stores Tests', {
   beforeEach() {
-    SuperVillain = DS.Model.extend({
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string'),
-      homePlanet: DS.belongsTo('home-planet', { inverse: 'villains', async: false }),
-      evilMinions: DS.hasMany('evil-minion', { async: false }),
+    const SuperVillain = Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      homePlanet: belongsTo('home-planet', { inverse: 'villains', async: false }),
+      evilMinions: hasMany('evil-minion', { async: false }),
     });
-    HomePlanet = DS.Model.extend({
-      name: DS.attr('string'),
-      villains: DS.hasMany('super-villain', { inverse: 'homePlanet', async: false }),
+    const HomePlanet = Model.extend({
+      name: attr('string'),
+      villains: hasMany('super-villain', { inverse: 'homePlanet', async: false }),
     });
-    EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('super-villain', { async: false }),
-      name: DS.attr('string'),
-    });
-
-    env = setupStore({
-      superVillain: SuperVillain,
-      homePlanet: HomePlanet,
-      evilMinion: EvilMinion,
+    const EvilMinion = Model.extend({
+      superVillain: belongsTo('super-villain', { async: false }),
+      name: attr('string'),
     });
 
-    env.registry.register('adapter:application', DS.RESTAdapter);
-    env.registry.register('serializer:application', DS.RESTSerializer);
+    env = setupStore({});
 
-    env.registry.register('store:store-a', DS.Store);
-    env.registry.register('store:store-b', DS.Store);
+    let { owner } = env;
 
-    env.store_a = env.container.lookup('store:store-a');
-    env.store_b = env.container.lookup('store:store-b');
+    owner.register('model:super-villain', SuperVillain);
+    owner.register('model:home-planet', HomePlanet);
+    owner.register('model:evil-minion', EvilMinion);
+
+    owner.register('adapter:application', RESTAdapter);
+    owner.register('serializer:application', RESTSerializer);
+
+    owner.register('store:store-a', Store);
+    owner.register('store:store-b', Store);
+
+    env.store_a = owner.lookup('store:store-a');
+    env.store_b = owner.lookup('store:store-b');
   },
 
   afterEach() {
-    run(env.store, 'destroy');
+    run(env.container, 'destroy');
   },
 });
 
 test('should be able to push into multiple stores', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:home-planet',
-    DS.RESTAdapter.extend({
+    RESTAdapter.extend({
       shouldBackgroundReloadRecord: () => false,
     })
   );
@@ -81,9 +89,9 @@ test('should be able to push into multiple stores', function(assert) {
 });
 
 test('embedded records should be created in multiple stores', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'serializer:home-planet',
-    DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    RESTSerializer.extend(EmbeddedRecordsMixin, {
       attrs: {
         villains: { embedded: 'always' },
       },
@@ -185,7 +193,7 @@ test('embedded records should be created in multiple stores', function(assert) {
 });
 
 test('each store should have a unique instance of the serializers', function(assert) {
-  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({}));
+  env.owner.register('serializer:home-planet', RESTSerializer.extend({}));
 
   let serializer_a = env.store_a.serializerFor('home-planet');
   let serializer_b = env.store_b.serializerFor('home-planet');
@@ -208,7 +216,7 @@ test('each store should have a unique instance of the serializers', function(ass
 });
 
 test('each store should have a unique instance of the adapters', function(assert) {
-  env.registry.register('adapter:home-planet', DS.Adapter.extend({}));
+  env.owner.register('adapter:home-planet', Adapter.extend({}));
 
   let adapter_a = env.store_a.adapterFor('home-planet');
   let adapter_b = env.store_b.adapterFor('home-planet');

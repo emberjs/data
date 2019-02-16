@@ -1,9 +1,5 @@
 /*eslint no-unused-vars: ["error", { "args": "none", "varsIgnorePattern": "(page)" }]*/
 
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections,
-} from 'dummy/tests/helpers/model-factory-injection';
 import { A } from '@ember/array';
 import { resolve, Promise as EmberPromise, all, reject, hash } from 'rsvp';
 import { get } from '@ember/object';
@@ -11,8 +7,8 @@ import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test, skip } from 'qunit';
+import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
 import DS from 'ember-data';
-import { skipRecordData } from '../../helpers/test-in-debug';
 
 let env, store, User, Contact, Email, Phone, Message, Post, Comment;
 let Book, Chapter, Page;
@@ -960,75 +956,72 @@ test('A hasMany relationship can be reloaded if it was fetched via ids', functio
   });
 });
 
-skipRecordData(
-  'A hasMany relationship can be reloaded even if it failed at the first time',
-  async function(assert) {
-    assert.expect(6);
+skip('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
+  assert.expect(6);
 
-    const { store, adapter } = env;
+  const { store, adapter } = env;
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
-    });
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true }),
+  });
 
-    adapter.findRecord = function(store, type, id) {
-      return resolve({
-        data: {
-          id: 1,
-          type: 'post',
-          relationships: {
-            comments: {
-              links: { related: '/posts/1/comments' },
-            },
+  adapter.findRecord = function(store, type, id) {
+    return resolve({
+      data: {
+        id: 1,
+        type: 'post',
+        relationships: {
+          comments: {
+            links: { related: '/posts/1/comments' },
           },
         },
+      },
+    });
+  };
+
+  let loadingCount = -1;
+  adapter.findHasMany = function(store, record, link, relationship) {
+    loadingCount++;
+    if (loadingCount % 2 === 0) {
+      return reject({ data: null });
+    } else {
+      return resolve({
+        data: [
+          { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
+          { id: 2, type: 'comment', attributes: { body: 'Second' } },
+        ],
       });
-    };
+    }
+  };
 
-    let loadingCount = -1;
-    adapter.findHasMany = function(store, record, link, relationship) {
-      loadingCount++;
-      if (loadingCount % 2 === 0) {
-        return reject({ data: null });
-      } else {
-        return resolve({
-          data: [
-            { id: 1, type: 'comment', attributes: { body: 'FirstUpdated' } },
-            { id: 2, type: 'comment', attributes: { body: 'Second' } },
-          ],
-        });
-      }
-    };
+  let post = await store.findRecord('post', 1);
+  let comments = post.get('comments');
+  let manyArray = await comments.catch(() => {
+    assert.ok(true, 'An error was thrown on the first reload of comments');
+    return comments.reload();
+  });
 
-    let post = await store.findRecord('post', 1);
-    let comments = post.get('comments');
-    let manyArray = await comments.catch(() => {
-      assert.ok(true, 'An error was thrown on the first reload of comments');
-      return comments.reload();
-    });
+  assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
 
-    assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
+  await manyArray.reload().catch(() => {
+    assert.ok(true, 'An error was thrown on the second reload via manyArray');
+  });
 
-    await manyArray.reload().catch(() => {
-      assert.ok(true, 'An error was thrown on the second reload via manyArray');
-    });
+  assert.equal(
+    manyArray.get('isLoaded'),
+    true,
+    'the second reload failed, comments are still loaded though'
+  );
 
-    assert.equal(
-      manyArray.get('isLoaded'),
-      true,
-      'the second reload failed, comments are still loaded though'
-    );
+  let reloadedManyArray = await manyArray.reload();
 
-    let reloadedManyArray = await manyArray.reload();
-
-    assert.equal(
-      reloadedManyArray.get('isLoaded'),
-      true,
-      'the third reload worked, comments are loaded again'
-    );
-    assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
-  }
-);
+  assert.equal(
+    reloadedManyArray.get('isLoaded'),
+    true,
+    'the third reload worked, comments are loaded again'
+  );
+  assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+});
 
 test('A hasMany relationship can be directly reloaded if it was fetched via links', function(assert) {
   assert.expect(6);
@@ -1500,25 +1493,19 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   });
 });
 
-test('polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled', function(assert) {
+test('polymorphic hasMany type-checks check the superclass', function(assert) {
   assert.expect(1);
 
-  setupModelFactoryInjections();
-
-  try {
-    run(function() {
-      let igor = env.store.createRecord('user', { name: 'Igor' });
-      let comment = env.store.createRecord('comment', {
-        body: 'Well I thought the title was fine',
-      });
-
-      igor.get('messages').addObject(comment);
-
-      assert.equal(igor.get('messages.firstObject.body'), 'Well I thought the title was fine');
+  run(function() {
+    let igor = env.store.createRecord('user', { name: 'Igor' });
+    let comment = env.store.createRecord('comment', {
+      body: 'Well I thought the title was fine',
     });
-  } finally {
-    resetModelFactoryInjections();
-  }
+
+    igor.get('messages').addObject(comment);
+
+    assert.equal(igor.get('messages.firstObject.body'), 'Well I thought the title was fine');
+  });
 });
 
 test('Type can be inferred from the key of a hasMany relationship', function(assert) {
@@ -2719,7 +2706,7 @@ test('Relationship.clear removes all records correctly', function(assert) {
   });
 
   run(() => {
-    post._internalModel._relationships.get('comments').clear();
+    relationshipStateFor(post, 'comments').clear();
     let comments = A(env.store.peekAll('comment'));
     assert.deepEqual(comments.mapBy('post'), [null, null, null]);
   });
@@ -2814,7 +2801,7 @@ test('adding and removing records from hasMany relationship #2666', function(ass
   });
 
   let commentId = 4;
-  env.registry.register(
+  env.owner.register(
     'adapter:comment',
     DS.RESTAdapter.extend({
       deleteRecord(record) {
@@ -2922,7 +2909,7 @@ test('hasMany hasAnyRelationshipData async loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._relationships.get('pages');
+      let relationship = relationshipStateFor(chapter, 'pages');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -2948,7 +2935,7 @@ test('hasMany hasAnyRelationshipData sync loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._relationships.get('pages');
+      let relationship = relationshipStateFor(chapter, 'pages');
       assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
     });
   });
@@ -2978,7 +2965,7 @@ test('hasMany hasAnyRelationshipData async not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._relationships.get('pages');
+      let relationship = relationshipStateFor(chapter, 'pages');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -2999,7 +2986,7 @@ test('hasMany hasAnyRelationshipData sync not loaded', function(assert) {
 
   return run(() => {
     return store.findRecord('chapter', 1).then(chapter => {
-      let relationship = chapter._internalModel._relationships.get('pages');
+      let relationship = relationshipStateFor(chapter, 'pages');
       assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
     });
   });
@@ -3015,7 +3002,7 @@ test('hasMany hasAnyRelationshipData async created', function(assert) {
   let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
   let page = store.createRecord('page');
 
-  let relationship = chapter._internalModel._relationships.get('pages');
+  let relationship = relationshipStateFor(chapter, 'pages');
   assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
   chapter = store.createRecord('chapter', {
@@ -3023,7 +3010,7 @@ test('hasMany hasAnyRelationshipData async created', function(assert) {
     pages: [page],
   });
 
-  relationship = chapter._internalModel._relationships.get('pages');
+  relationship = relationshipStateFor(chapter, 'pages');
   assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
 
@@ -3031,7 +3018,7 @@ test('hasMany hasAnyRelationshipData sync created', function(assert) {
   assert.expect(2);
 
   let chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-  let relationship = chapter._internalModel._relationships.get('pages');
+  let relationship = relationshipStateFor(chapter, 'pages');
 
   assert.equal(relationship.hasAnyRelationshipData, false, 'relationship does not have data');
 
@@ -3039,7 +3026,7 @@ test('hasMany hasAnyRelationshipData sync created', function(assert) {
     title: 'The Story Begins',
     pages: [store.createRecord('page')],
   });
-  relationship = chapter._internalModel._relationships.get('pages');
+  relationship = relationshipStateFor(chapter, 'pages');
 
   assert.equal(relationship.hasAnyRelationshipData, true, 'relationship has data');
 });
@@ -3055,7 +3042,7 @@ test("Model's hasMany relationship should not be created during model creation",
     });
     user = env.store.peekRecord('user', 1);
     assert.ok(
-      !user._internalModel._relationships.has('messages'),
+      !relationshipsFor(user).has('messages'),
       'Newly created record should not have relationships'
     );
   });
@@ -3067,7 +3054,7 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('messages');
     assert.ok(
-      user._internalModel._relationships.has('messages'),
+      relationshipsFor(user).has('messages'),
       'Newly created record with relationships in params passed in its constructor should have relationships'
     );
   });
@@ -3105,7 +3092,7 @@ test('metadata is accessible when pushed as a meta property for a relationship',
 
   run(() => {
     assert.equal(
-      book._internalModel._relationships.get('chapters').meta.where,
+      relationshipStateFor(book, 'chapters').meta.where,
       'the lefkada sea',
       'meta is there'
     );
@@ -3114,7 +3101,7 @@ test('metadata is accessible when pushed as a meta property for a relationship',
 
 test('metadata is accessible when return from a fetchLink', function(assert) {
   assert.expect(1);
-  env.registry.register('serializer:application', DS.RESTSerializer);
+  env.owner.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     return resolve({
@@ -3157,7 +3144,7 @@ test('metadata is accessible when return from a fetchLink', function(assert) {
 
 test('metadata should be reset between requests', function(assert) {
   let counter = 0;
-  env.registry.register('serializer:application', DS.RESTSerializer);
+  env.owner.register('serializer:application', DS.RESTSerializer);
 
   env.adapter.findHasMany = function() {
     let data = {

@@ -1,118 +1,65 @@
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections,
-} from 'dummy/tests/helpers/model-factory-injection';
-import EmberObject from '@ember/object';
-import { getOwner } from '@ember/application';
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
-import DS from 'ember-data';
+import Model from 'ember-data/model';
+import Service from '@ember/service';
 import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 
-let env, hasFactoryFor, originalLookupFactory, originalOwnerLookupFactory, originalFactoryFor;
+module('integration/injection factoryFor enabled', function(hooks) {
+  setupTest(hooks);
+  let store;
+  let Model;
 
-const model = {
-  isModel: true,
-  _create() {},
-};
-const factory = {
-  class: model,
-};
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    Model = {
+      isModel: true,
+    };
+    owner.register('model:super-villain', Model);
+    store = owner.lookup('service:store');
+  });
 
-module('integration/injection factoryFor enabled', {
-  beforeEach() {
-    env = setupStore();
+  test('modelFactoryFor', function(assert) {
+    let { owner } = this;
+    const trueFactory = owner.factoryFor('model:super-villain');
+    const modelFactory = store._modelFactoryFor('super-villain');
 
-    if (getOwner) {
-      let owner = getOwner(env.store);
+    assert.strictEqual(modelFactory, trueFactory, 'expected the factory itself to be returned');
+  });
 
-      hasFactoryFor = !!owner.factoryFor;
-      originalFactoryFor = owner.factoryFor;
-      originalOwnerLookupFactory = owner._lookupFactory;
+  test('modelFor', function(assert) {
+    const modelClass = store.modelFor('super-villain');
 
-      if (originalFactoryFor) {
-        owner.factoryFor = function(/* name */) {
-          return factory;
-        };
-      } else {
-        // Ember 2.3 - Ember 2.11
-        originalOwnerLookupFactory = owner._lookupFactory;
-        owner._lookupFactory = function() {
-          return model;
-        };
-      }
-    } else {
-      originalLookupFactory = env.store.container.lookupFactory;
-      env.store.container.lookupFactory = function() {
-        return model;
-      };
-    }
-  },
+    assert.strictEqual(modelClass, Model, 'expected the factory itself to be returned');
 
-  afterEach() {
-    if (getOwner) {
-      let owner = getOwner(env.store);
-
-      if (owner.factoryFor) {
-        owner.factoryFor = originalFactoryFor;
-      } else {
-        owner._lookupFactory = originalOwnerLookupFactory;
-      }
-    } else {
-      env.store.container.lookupFactory = originalLookupFactory;
-    }
-
-    run(env.store, 'destroy');
-  },
+    assert.equal(
+      modelClass.modelName,
+      'super-villain',
+      'expected the factory itself to be returned'
+    );
+  });
 });
 
-test('modelFactoryFor', function(assert) {
-  const modelFactory = env.store._modelFactoryFor('super-villain');
+module('integration/injection eager injections', function(hooks) {
+  setupTest(hooks);
+  let store;
+  let Apple = Service.extend();
 
-  assert.equal(
-    modelFactory,
-    hasFactoryFor ? factory : model,
-    'expected the factory itself to be returned'
-  );
-});
+  hooks.beforeEach(function() {
+    let { owner } = this;
 
-test('modelFor', function(assert) {
-  const modelFactory = env.store.modelFor('super-villain');
+    owner.register('model:foo', Model.extend());
+    owner.register('service:apple', Apple);
+    owner.inject('model:foo', 'apple', 'service:apple');
 
-  assert.equal(modelFactory, model, 'expected the factory itself to be returned');
+    store = this.owner.lookup('service:store');
+  });
 
-  // TODO: we should deprecate this next line. Resolved state on the class is fraught with peril
-  assert.equal(
-    modelFactory.modelName,
-    'super-villain',
-    'expected the factory itself to be returned'
-  );
-});
+  test('did inject', async function(assert) {
+    let foo = store.createRecord('foo');
+    let apple = foo.get('apple');
+    let appleService = this.owner.lookup('service:apple');
 
-module('integration/injection eager injections', {
-  beforeEach() {
-    setupModelFactoryInjections();
-    env = setupStore();
-
-    env.registry.injection('model:foo', 'apple', 'service:apple');
-    env.registry.register('model:foo', DS.Model);
-    env.registry.register('service:apple', EmberObject.extend({ isService: true }));
-    // container injection
-  },
-
-  afterEach() {
-    // can be removed once we no longer support ember versions without lookupFactory
-    resetModelFactoryInjections();
-
-    run(env.store, 'destroy');
-  },
-});
-
-test('did inject', function(assert) {
-  let foo = env.store.createRecord('foo');
-  let apple = foo.get('apple');
-  let Apple = env.registry.registrations['service:apple'];
-
-  assert.ok(apple, `'model:foo' instance should have an 'apple' property`);
-  assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
+    assert.ok(apple, `'model:foo' instance should have an 'apple' property`);
+    assert.ok(apple === appleService, `'model:foo.apple' should be the apple service`);
+    assert.ok(apple instanceof Apple, `'model:foo'.apple should be an instance of 'service:apple'`);
+  });
 });

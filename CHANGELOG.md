@@ -2,6 +2,93 @@
 
 ### Master
 
+### Release 3.6.0 (December 12, 2018)
+
+- [#5671](https://github.com/emberjs/data/pull/5671) Fix issue preventing coalescing of belongsTo
+- [#5700](https://github.com/emberjs/data/pull/5700) [CHORE] remove deprecations targeted for 3.5 (#5700)
+- [#5733](https://github.com/emberjs/data/pull/5733) [BUGFIX inspector] Fix columns names in debug-adapter (#5733)
+
+### Release 3.5.2 (November 29, 2018)
+
+- [#5766](https://github.com/emberjs/data/pull/5766) [BUGFIX] update ember-cli-babel to ensure @ember/canary-features is available
+- [#5769](https://github.com/emberjs/data/pull/5769) [BUGFIX beta] backport #5767 Make _recordData lazy
+
+### Release 3.5.1 (November 28, 2018)
+
+- [#5762](https://github.com/emberjs/data/pull/5762) [BUGFIX unloadRecord] bfs compatibility for custom RecordData (#5703)
+
+### Release 3.5.0 (October 12, 2018)
+
+- [#5491](https://github.com/emberjs/data/pull/5491) [Feature] Add MU support for model and model-test blueprints
+- [#5616](https://github.com/emberjs/data/pull/5616) [FEAT RecordData] turn on the build-flag by default
+- [#5608](https://github.com/emberjs/data/pull/5608) [BUGFIX] Add inverse relationship on payload when missing (#5608)
+- [#5489](https://github.com/emberjs/data/pull/5489) [BUGFIX] Lowercase header names in parseResponseHeaders
+- [#5494](https://github.com/emberjs/data/pull/5494) [Feature] Add MU support for serializer and serializer-test blueprints
+- [#5495](https://github.com/emberjs/data/pull/5495) [Feature] Add MU transform{,-test} blueprints
+- [#5657](https://github.com/emberjs/data/pull/5657) [BUGFIX blueprints] remove second string argument from transform tests
+- [#5652](https://github.com/emberjs/data/pull/5652) [Docs] Update buildUrl syntax in docs
+- [#5639](https://github.com/emberjs/data/pull/5639) Include request/response info with Abort error
+- [#5646](https://github.com/emberjs/data/pull/5646) [CHORE] update contribution guidelines
+- [#5623](https://github.com/emberjs/data/pull/5623) Added conditional check to extract polymorphic relationship for hasMany (#5623)
+- [#5650](https://github.com/emberjs/data/pull/5650) [FEAT transforms] makes the assertion for missing transforms clearer
+- [#5640](https://github.com/emberjs/data/pull/5640) [BUGFIX] fix deprecation for store entry methods
+- [#5654](https://github.com/emberjs/data/pull/5654)  add mocha rfc232 blueprints
+- [#5665](https://github.com/emberjs/data/pull/5665) add remaining mocha rfc 232 blueprints (#5665)
+- [#5667](https://github.com/emberjs/data/pull/5667) Added check to extract polymorphic relationship for hasMany (#5623)
+
+### Release 3.4.1 (September 14, 2018)
+- [#5621](https://github.com/emberjs/data/pull/5621) Add partner test for the ilios frontend
+- [#5589](https://github.com/emberjs/data/pull/5589) fix broken link because the new API website does not support the anchor
+- [#5582](https://github.com/emberjs/data/pull/5582) [BUGFIX] Reference.reload should not cause sync-relationship assertion (#5582)
+- [#5584](https://github.com/emberjs/data/pull/5584) Additional test coverage for async belongsTo mutation (#5584)
+- [#5592](https://github.com/emberjs/data/pull/5592) Grammar fixes
+- [#5602](https://github.com/emberjs/data/pull/5602) Publish docs to npm (#5602)
+- [#5620](https://github.com/emberjs/data/pull/5620) [DOC release] Change misleading documentation for AdapterPopulatedRecordArray
+- [#5622](https://github.com/emberjs/data/pull/5622) remove deletes (#5622)
+- [#5624](https://github.com/emberjs/data/pull/5624) [BUGFIX] fix promise labels
+- [#5627](https://github.com/emberjs/data/pull/5627) [FEAT adapterOptions] Ensure adapterOptions use is possible throughout (#5627)
+- [#5632](https://github.com/emberjs/data/pull/5632) cleanup code climate config
+
+### Release 3.4.0 (August 27, 2018)
+- [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
+- [#5545](https://github.com/emberjs/data/pull/5545) [FEAT] TrackableRequests for when async leakage is detected
+- [#5551](https://github.com/emberjs/data/pull/5551) Fix `floating dependencies` test suite (#5551)
+- [#5557](https://github.com/emberjs/data/pull/5557) Fixup transpilation issues with @ember/ordered-set. (#5557)
+- [#5559](https://github.com/emberjs/data/pull/5559) Dependency roundup!
+- [#5562](https://github.com/emberjs/data/pull/5562) [BUGFIX] use internalModel promise if already loading (#5562)
+- [#5566](https://github.com/emberjs/data/pull/5566) Acceptance Tests for belongsTo
+- [#5567](https://github.com/emberjs/data/pull/5567) [FEAT] enable external partner testing
+- [#5549](https://github.com/emberjs/data/pull/5549) [BUGFIX beta] Replace Object.assign with Ember polyfill assign (#5549)
+- [#5540](https://github.com/emberjs/data/pull/5540) revert is-empty flag change, leave todo (#5540)
+- [#5544](https://github.com/emberjs/data/pull/5544) remove test waiter (#5544)
+- [#5543](https://github.com/emberjs/data/pull/5543) Do not publish yarn.lock to npm
+- [#5477](https://github.com/emberjs/data/pull/5477) [BUGFIX] normalize model name for belongs to relationships (#5477)
+- [#5518](https://github.com/emberjs/data/pull/5518) [BUGFIX] Clarifying error message for polymorphic types (#5518)
+- [#5520](https://github.com/emberjs/data/pull/5520) Add 2.18.3 release to the changelog on master
+- [#5526](https://github.com/emberjs/data/pull/5526) Update links to builds page fixtures
+- [#5528](https://github.com/emberjs/data/pull/5528) Add tests for createRecord+unloadRecord
+- [#5531](https://github.com/emberjs/data/pull/5531) broccoli-babel-transpiler appears only used in tests, otherwise it uses
+- [#5531](https://github.com/emberjs/data/pull/5531) broccoli-babel-transpiler appears only used in tests, otherwise it uses
+- [#5533](https://github.com/emberjs/data/pull/5533) [BUGFIX] fix and tests for belongs-to proxy not properly updating (#5533)
+- [#5536](https://github.com/emberjs/data/pull/5536) [BUGFIX beta] Upgrading ember-inflector to v3.3.0
+- [#5467](https://github.com/emberjs/data/pull/5467) [BUGFIX] don't cause unnecessary work during destroy
+- [#5411](https://github.com/emberjs/data/pull/5411) Remove deprecations scheduled for 3.0
+- [#5117](https://github.com/emberjs/data/pull/5117) Give Model a static toString method
+- [#5429](https://github.com/emberjs/data/pull/5429) improve tests for unloading relationships
+- [#5469](https://github.com/emberjs/data/pull/5469) Revamp eslint configuration.
+- [#5439](https://github.com/emberjs/data/pull/5439) [FEAT] FASTBOOT SHOEBOX - Use actions queue so rehydration works
+- [#5432](https://github.com/emberjs/data/pull/5432) Remove exists-sync dependency
+- [#5436](https://github.com/emberjs/data/pull/5436) [CHORE] remove all usage of Ember.copy
+- [#5438](https://github.com/emberjs/data/pull/5438) [BUGFIX] ensure destroy-sync cleanup is correct
+- [#5437](https://github.com/emberjs/data/pull/5437) [CHORE] removes deprecated Store.filter feature
+- [#5462](https://github.com/emberjs/data/pull/5462) [BUGFIX] ensure ManyArray state is in-sync with relationship state
+- [#5446](https://github.com/emberjs/data/pull/5446) [CLEANUP] fix model and factory lookup
+- [#5466](https://github.com/emberjs/data/pull/5466) Serialize empty hasMany relationships
+- [#5461](https://github.com/emberjs/data/pull/5461) [BUGFIX] update content of proxy for async belongs-to relationships when null data received
+- [#5471](https://github.com/emberjs/data/pull/5471) [CHORE] cull unnecessary files left from previous build setups
+- [#5476](https://github.com/emberjs/data/pull/5476) [Feature] added module-unification adapter and adapter-test blueprints
+- [#5508](https://github.com/emberjs/data/pull/5508) [CHORE] Update Dependencies
+
 ### Release 3.3.1 (July 26, 2018)
 - [#5541](https://github.com/emberjs/data/pull/5541) [BUGFIX] backport fix for belongsTo proxy update
 

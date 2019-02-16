@@ -324,7 +324,7 @@ testInDebug('push(record) works with polymorphic modelClass', function(assert) {
 
   var person, mafiaFamily;
 
-  env.registry.register('model:mafia-family', Family.extend());
+  env.owner.register('model:mafia-family', Family.extend());
 
   run(function() {
     person = env.store.push({
@@ -433,7 +433,10 @@ test('value() returns the referenced record when loaded even if links are presen
 test('load() fetches the record', function(assert) {
   var done = assert.async();
 
-  env.adapter.findRecord = function(store, type, id) {
+  const adapterOptions = { thing: 'one' };
+
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
     return resolve({
       data: {
         id: 1,
@@ -461,7 +464,7 @@ test('load() fetches the record', function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    familyReference.load().then(function(record) {
+    familyReference.load({ adapterOptions }).then(function(record) {
       assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
@@ -472,7 +475,10 @@ test('load() fetches the record', function(assert) {
 test('load() fetches link when remoteType is link', function(assert) {
   var done = assert.async();
 
+  const adapterOptions = { thing: 'one' };
+
   env.adapter.findBelongsTo = function(store, snapshot, link) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
     assert.equal(link, '/families/1');
 
     return resolve({
@@ -503,7 +509,7 @@ test('load() fetches link when remoteType is link', function(assert) {
   assert.equal(familyReference.remoteType(), 'link');
 
   run(function() {
-    familyReference.load().then(function(record) {
+    familyReference.load({ adapterOptions }).then(function(record) {
       assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
@@ -514,8 +520,12 @@ test('load() fetches link when remoteType is link', function(assert) {
 test('reload() - loads the record when not yet loaded', function(assert) {
   var done = assert.async();
 
+  const adapterOptions = { thing: 'one' };
+
   var count = 0;
-  env.adapter.findRecord = function(store, type, id) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+
     count++;
     assert.equal(count, 1);
 
@@ -546,7 +556,7 @@ test('reload() - loads the record when not yet loaded', function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    familyReference.reload().then(function(record) {
+    familyReference.reload({ adapterOptions }).then(function(record) {
       assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
@@ -557,8 +567,12 @@ test('reload() - loads the record when not yet loaded', function(assert) {
 test('reload() - reloads the record when already loaded', function(assert) {
   var done = assert.async();
 
+  const adapterOptions = { thing: 'one' };
+
   var count = 0;
-  env.adapter.findRecord = function(store, type, id) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+
     count++;
     assert.equal(count, 1);
 
@@ -595,7 +609,7 @@ test('reload() - reloads the record when already loaded', function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    familyReference.reload().then(function(record) {
+    familyReference.reload({ adapterOptions }).then(function(record) {
       assert.equal(get(record, 'name'), 'Coreleone');
 
       done();
@@ -606,7 +620,11 @@ test('reload() - reloads the record when already loaded', function(assert) {
 test('reload() - uses link to reload record', function(assert) {
   var done = assert.async();
 
+  const adapterOptions = { thing: 'one' };
+
   env.adapter.findBelongsTo = function(store, snapshot, link) {
+    assert.equal(snapshot.adapterOptions, adapterOptions, 'adapterOptions are passed in');
+
     assert.equal(link, '/families/1');
 
     return resolve({
@@ -636,7 +654,7 @@ test('reload() - uses link to reload record', function(assert) {
   var familyReference = person.belongsTo('family');
 
   run(function() {
-    familyReference.reload().then(function(record) {
+    familyReference.reload({ adapterOptions }).then(function(record) {
       assert.equal(get(record, 'name'), 'Coreleone');
 
       done();

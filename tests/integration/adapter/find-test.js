@@ -44,7 +44,7 @@ test("When a single record is requested, the adapter's find method should be cal
 
   let count = 0;
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord(_, type) {
@@ -74,7 +74,7 @@ test("When a single record is requested, the adapter's find method should be cal
 test('When a single record is requested multiple times, all .findRecord() calls are resolved after the promise is resolved', function(assert) {
   let deferred = defer();
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -113,7 +113,7 @@ test('When a single record is requested multiple times, all .findRecord() calls 
 });
 
 test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -132,7 +132,7 @@ test('When a single record is requested, and the promise is rejected, .findRecor
 test('When a single record is requested, and the promise is rejected, the record should be unloaded.', function(assert) {
   assert.expect(2);
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {
@@ -150,7 +150,7 @@ test('When a single record is requested, and the promise is rejected, the record
 });
 
 testInDebug('When a single record is requested, and the payload is blank', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord: () => resolve({}),
@@ -163,7 +163,7 @@ testInDebug('When a single record is requested, and the payload is blank', funct
 });
 
 testInDebug('When multiple records are requested, and the payload is blank', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       coalesceFindRequests: true,
@@ -180,7 +180,7 @@ testInDebug('When multiple records are requested, and the payload is blank', fun
 });
 
 testInDebug('warns when returned record has different id', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       findRecord() {

@@ -30,7 +30,7 @@ import { warn } from '@ember/debug';
   Note that this use of `{ embedded: 'always' }` is unrelated to
   the `{ embedded: 'always' }` that is defined as an option on `DS.attr` as part of
   defining a model while working with the `ActiveModelSerializer`.  Nevertheless,
-  using `{ embedded: 'always' }` as an option to `DS.attr` is not a valid way to setup
+  using `{ embedded: 'always' }` as an option to `DS.attr` is not a valid way to set up
   embedded records.
 
   The `attrs` option for a resource `{ embedded: 'always' }` is shorthand for:
@@ -52,7 +52,7 @@ import { warn } from '@ember/debug';
 
   In the case where embedded JSON is expected while extracting a payload (reading)
   the setting is `deserialize: 'records'`, there is no need to use `ids` when
-  extracting as that is the default behavior without this mixin if you are using
+  extracting as that is the default behaviour without this mixin if you are using
   the vanilla `EmbeddedRecordsMixin`. Likewise, to embed JSON in the payload while
   serializing `serialize: 'records'` is the setting to use. There is an option of
   not embedding JSON in the serialized payload by using `serialize: 'ids'`. If you
@@ -76,8 +76,8 @@ import { warn } from '@ember/debug';
   then do not use `async: true`.
 
   To successfully extract and serialize embedded records the model relationships
-  must be setup correcty. See the
-  [defining relationships](/guides/models/defining-models/#toc_defining-relationships)
+  must be set up correctly. See the
+  [defining relationships](https://guides.emberjs.com/current/models/relationships)
   section of the **Defining Models** guide page.
 
   Records without an `id` property are not considered embedded records, model
@@ -89,7 +89,7 @@ import { warn } from '@ember/debug';
   are. Please read the docs for the methods this mixin provides, in case you need
   to modify it to fit your specific needs.**
 
-  For example review the docs for each method of this mixin:
+  For example, review the docs for each method of this mixin:
   * [normalize](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_normalize)
   * [serializeBelongsTo](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeBelongsTo)
   * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
@@ -326,7 +326,7 @@ export default Mixin.create({
     This is particularly useful for polymorphic relationships where records don't share
     the same table and the `id` is not enough information.
 
-    By example having a user that has many pets:
+    For example having a user that has many pets:
 
     ```js
     User = DS.Model.extend({
@@ -455,8 +455,8 @@ export default Mixin.create({
   },
 
   /**
-    When serializing an embedded record, modify the property (in the json payload)
-    that refers to the parent record (foreign key for relationship).
+    When serializing an embedded record, modify the property (in the `JSON` payload)
+    that refers to the parent record (foreign key for the relationship).
 
     Serializing a `belongsTo` relationship removes the property that refers to the
     parent record

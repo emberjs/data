@@ -1,8 +1,3 @@
-import {
-  setup as setupModelFactoryInjections,
-  reset as resetModelFactoryInjections,
-} from 'dummy/tests/helpers/model-factory-injection';
-
 import Mixin from '@ember/object/mixin';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
@@ -45,7 +40,7 @@ module(
         notMessage: NotMessage,
       });
 
-      env.registry.register('mixin:message', Message);
+      env.owner.register('mixin:message', Message);
       store = env.store;
     },
 
@@ -174,9 +169,45 @@ testInDebug(
 
 test('Setting the polymorphic belongsTo gets propagated to the inverse side - model injections true', function(assert) {
   assert.expect(2);
-  setupModelFactoryInjections();
 
-  try {
+  var user, video;
+  run(function() {
+    store.push({
+      data: [
+        {
+          type: 'user',
+          id: '1',
+          attributes: {
+            name: 'Stanley',
+          },
+        },
+        {
+          type: 'video',
+          id: '2',
+          attributes: {
+            video: 'Here comes Youtube',
+          },
+        },
+      ],
+    });
+    user = store.peekRecord('user', 1);
+    video = store.peekRecord('video', 2);
+  });
+
+  run(function() {
+    user.set('bestMessage', video);
+    video.get('user').then(function(fetchedUser) {
+      assert.equal(fetchedUser, user, 'user got set correctly');
+    });
+    user.get('bestMessage').then(function(message) {
+      assert.equal(message, video, 'The message was set correctly');
+    });
+  });
+});
+
+testInDebug(
+  'Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true',
+  function(assert) {
     var user, video;
     run(function() {
       store.push({
@@ -189,7 +220,7 @@ test('Setting the polymorphic belongsTo gets propagated to the inverse side - mo
             },
           },
           {
-            type: 'video',
+            type: 'not-message',
             id: '2',
             attributes: {
               video: 'Here comes Youtube',
@@ -198,60 +229,13 @@ test('Setting the polymorphic belongsTo gets propagated to the inverse side - mo
         ],
       });
       user = store.peekRecord('user', 1);
-      video = store.peekRecord('video', 2);
+      video = store.peekRecord('not-message', 2);
     });
 
     run(function() {
-      user.set('bestMessage', video);
-      video.get('user').then(function(fetchedUser) {
-        assert.equal(fetchedUser, user, 'user got set correctly');
-      });
-      user.get('bestMessage').then(function(message) {
-        assert.equal(message, video, 'The message was set correctly');
-      });
+      assert.expectAssertion(function() {
+        user.set('bestMessage', video);
+      }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
     });
-  } finally {
-    resetModelFactoryInjections();
-  }
-});
-
-testInDebug(
-  'Setting the polymorphic belongsTo with an object that does not implement the mixin errors out - model injections true',
-  function(assert) {
-    setupModelFactoryInjections();
-
-    try {
-      var user, video;
-      run(function() {
-        store.push({
-          data: [
-            {
-              type: 'user',
-              id: '1',
-              attributes: {
-                name: 'Stanley',
-              },
-            },
-            {
-              type: 'not-message',
-              id: '2',
-              attributes: {
-                video: 'Here comes Youtube',
-              },
-            },
-          ],
-        });
-        user = store.peekRecord('user', 1);
-        video = store.peekRecord('not-message', 2);
-      });
-
-      run(function() {
-        assert.expectAssertion(function() {
-          user.set('bestMessage', video);
-        }, /The 'not-message' type does not implement 'message' and thus cannot be assigned to the 'bestMessage' relationship in 'user'. Make it a descendant of 'message'/);
-      });
-    } finally {
-      resetModelFactoryInjections();
-    }
   }
 );

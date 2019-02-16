@@ -27,8 +27,7 @@ module('unit/model/relationships - DS.Model', {
 });
 
 test('exposes a hash of the relationships on a model', function(assert) {
-  store.createRecord('person');
-  store.createRecord('occupation');
+  let Person = store.modelFor('person');
 
   let relationships = get(Person, 'relationships');
   function extractDetails(key) {

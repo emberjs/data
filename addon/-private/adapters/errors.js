@@ -23,7 +23,7 @@ const PRIMARY_ATTRIBUTE_KEY = 'base';
   - `DS.ServerError`
 
   To create a custom error to signal a specific error state in communicating
-  with an external API, extend the `DS.AdapterError`. For example if the
+  with an external API, extend the `DS.AdapterError`. For example, if the
   external API exclusively used HTTP `503 Service Unavailable` to indicate
   it was closed for maintenance:
 
@@ -110,16 +110,16 @@ AdapterError.extend = extendFn(AdapterError);
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
   was unable to process a request because the content was not
-  semantically correct or meaningful per the API. Usually this means a
-  record failed some form of server side validation. When a promise
+  semantically correct or meaningful per the API. Usually, this means a
+  record failed some form of server-side validation. When a promise
   from an adapter is rejected with a `DS.InvalidError` the record will
   transition to the `invalid` state and the errors will be set to the
   `errors` property on the record.
 
   For Ember Data to correctly map errors to their corresponding
   properties on the model, Ember Data expects each error to be
-  a valid json-api error object with a `source/pointer` that matches
-  the property name. For example if you had a Post model that
+  a valid JSON-API error object with a `source/pointer` that matches
+  the property name. For example, if you had a Post model that
   looked like this.
 
   ```app/models/post.js
@@ -157,13 +157,14 @@ AdapterError.extend = extendFn(AdapterError);
   ```
 
   Your backend may use different property names for your records the
-  store will attempt extract and normalize the errors using the
+  store will attempt to extract and normalize the errors using the
   serializer's `extractErrors` method before the errors get added to
-  the the model. As a result, it is safe for the `InvalidError` to
+  the model. As a result, it is safe for the `InvalidError` to
   wrap the error payload unaltered.
 
   @class InvalidError
   @namespace DS
+  @extends AdapterError
 */
 export const InvalidError = extend(
   AdapterError,
@@ -201,6 +202,7 @@ export const InvalidError = extend(
 
   @class TimeoutError
   @namespace DS
+  @extends AdapterError
 */
 export const TimeoutError = extend(AdapterError, 'The adapter operation timed out');
 
@@ -212,6 +214,7 @@ export const TimeoutError = extend(AdapterError, 'The adapter operation timed ou
 
   @class AbortError
   @namespace DS
+  @extends AdapterError
 */
 export const AbortError = extend(AdapterError, 'The adapter operation was aborted');
 
@@ -221,7 +224,7 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
   API was rejected because authorization is required and has failed or has not
   yet been provided.
 
-  An example use case would be to redirect the user to a log in route if a
+  An example use case would be to redirect the user to a login route if a
   request is unauthorized:
 
   ```app/routes/application.js
@@ -247,6 +250,7 @@ export const AbortError = extend(AdapterError, 'The adapter operation was aborte
 
   @class UnauthorizedError
   @namespace DS
+  @extends AdapterError
 */
 export const UnauthorizedError = extend(AdapterError, 'The adapter operation is unauthorized');
 
@@ -259,6 +263,7 @@ export const UnauthorizedError = extend(AdapterError, 'The adapter operation is 
 
   @class ForbiddenError
   @namespace DS
+  @extends AdapterError
 */
 export const ForbiddenError = extend(AdapterError, 'The adapter operation is forbidden');
 
@@ -297,6 +302,7 @@ export const ForbiddenError = extend(AdapterError, 'The adapter operation is for
 
   @class NotFoundError
   @namespace DS
+  @extends AdapterError
 */
 export const NotFoundError = extend(AdapterError, 'The adapter could not find the resource');
 
@@ -304,11 +310,12 @@ export const NotFoundError = extend(AdapterError, 'The adapter could not find th
   A `DS.ConflictError` equates to a HTTP `409 Conflict` response status.
   It is used by an adapter to indicate that the request could not be processed
   because of a conflict in the request. An example scenario would be when
-  creating a record with a client generated id but that id is already known
+  creating a record with a client-generated ID but that ID is already known
   to the external API.
 
   @class ConflictError
   @namespace DS
+  @extends AdapterError
 */
 export const ConflictError = extend(AdapterError, 'The adapter operation failed due to a conflict');
 
@@ -319,6 +326,7 @@ export const ConflictError = extend(AdapterError, 'The adapter operation failed 
 
   @class ServerError
   @namespace DS
+  @extends AdapterError
 */
 export const ServerError = extend(
   AdapterError,

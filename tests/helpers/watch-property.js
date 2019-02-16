@@ -1,7 +1,5 @@
-import Ember from 'ember';
+import { removeObserver, addObserver } from '@ember/object/observers';
 import QUnit from 'qunit';
-
-const { addObserver, removeObserver } = Ember;
 
 function makeCounter() {
   let count = 0;

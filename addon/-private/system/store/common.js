@@ -1,6 +1,5 @@
 import { get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
-import Ember from 'ember';
 import { resolve } from 'rsvp';
 
 const { __bind, __guard, __objectIsAlive } = heimdall.registerMonitor(
@@ -34,23 +33,16 @@ export function _objectIsAlive(object) {
   return !(get(object, 'isDestroyed') || get(object, 'isDestroying'));
 }
 
-let ASYNC_REQUEST_COUNT = 0;
-export function incrementRequestCount() {
-  ASYNC_REQUEST_COUNT++;
-}
-
-if (DEBUG) {
-  Ember.Test.registerWaiter(() => {
-    return ASYNC_REQUEST_COUNT === 0;
-  });
-}
-
 export function guardDestroyedStore(promise, store, label) {
+  let token;
+  if (DEBUG) {
+    token = store._trackAsyncRequestStart(label);
+  }
   let wrapperPromise = resolve(promise, label).then(v => promise);
 
   return _guard(wrapperPromise, () => {
     if (DEBUG) {
-      ASYNC_REQUEST_COUNT--;
+      store._trackAsyncRequestEnd(token);
     }
     return _objectIsAlive(store);
   });

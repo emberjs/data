@@ -1,264 +1,209 @@
+import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 import { decamelize, underscore } from '@ember/string';
-import RSVP from 'rsvp';
-import { run } from '@ember/runloop';
-import setupStore from 'dummy/tests/helpers/store';
+import { resolve } from 'rsvp';
 import deepCopy from 'dummy/tests/helpers/deep-copy';
 import { pluralize } from 'ember-inflector';
+import RESTAdapter from 'ember-data/adapters/rest';
+import Model from 'ember-data/model';
+import attr from 'ember-data/attr';
+import { belongsTo, hasMany } from 'ember-data/relationships';
 
-import { module, test } from 'qunit';
+module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', function(hooks) {
+  setupTest(hooks);
 
-import DS from 'ember-data';
+  let store, adapter, Post, Comment, passedUrl;
 
-let env, store, adapter, Post, Comment, SuperUser;
-let passedUrl;
+  function ajaxResponse(value) {
+    adapter.ajax = function(url, verb, hash) {
+      passedUrl = url;
 
-module('integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter', {
-  beforeEach() {
-    Post = DS.Model.extend({
-      name: DS.attr('string'),
+      return resolve(deepCopy(value));
+    };
+  }
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+    const PostModel = Model.extend({
+      name: attr('string'),
     });
-
-    Comment = DS.Model.extend({
-      name: DS.attr('string'),
+    const CommentModel = Model.extend({
+      name: attr('string'),
     });
+    const SuperUser = Model.extend({});
 
-    SuperUser = DS.Model.extend();
+    owner.register('adapter:application', RESTAdapter);
+    owner.register('model:comment', CommentModel);
+    owner.register('model:post', PostModel);
+    owner.register('model:super-user', SuperUser);
 
-    env = setupStore({
-      post: Post,
-      comment: Comment,
-      superUser: SuperUser,
-      adapter: DS.RESTAdapter,
-    });
-
-    store = env.store;
-    adapter = env.adapter;
+    store = owner.lookup('service:store');
+    adapter = store.adapterFor('application');
 
     Post = store.modelFor('post');
     Comment = store.modelFor('comment');
-    SuperUser = store.modelFor('super-user');
 
     passedUrl = null;
-  },
-});
+  });
 
-function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-
-    return run(RSVP, 'resolve', deepCopy(value));
-  };
-}
-
-test('buildURL - with host and namespace', function(assert) {
-  run(() => {
+  test('buildURL - with host and namespace', async function(assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
+
+    ajaxResponse({ posts: [{ id: 1 }] });
+
+    await store.findRecord('post', 1);
+
+    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1');
   });
 
-  ajaxResponse({ posts: [{ id: 1 }] });
-
-  return run(() =>
-    store.findRecord('post', 1).then(post => {
-      assert.equal(passedUrl, 'http://example.com/api/v1/posts/1');
-    })
-  );
-});
-
-test('buildURL - with relative paths in links', function(assert) {
-  run(() => {
+  test('buildURL - with relative paths in links', async function(assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
+
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+
+    ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
+
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    await post.get('comments');
+    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
 
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-
-  ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
-
-  return run(() =>
-    store
-      .findRecord('post', 1)
-      .then(post => {
-        ajaxResponse({ comments: [{ id: 1 }] });
-        return post.get('comments');
-      })
-      .then(comments => {
-        assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
-      })
-  );
-});
-
-test('buildURL - with absolute paths in links', function(assert) {
-  run(() => {
+  test('buildURL - with absolute paths in links', async function(assert) {
     adapter.setProperties({
       host: 'http://example.com',
       namespace: 'api/v1',
     });
+
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+
+    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+    let post = await store.findRecord('post', 1);
+
+    ajaxResponse({ comments: [{ id: 1 }] });
+    await post.get('comments');
+    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
-
-  return run(() =>
-    store
-      .findRecord('post', 1)
-      .then(post => {
-        ajaxResponse({ comments: [{ id: 1 }] });
-        return post.get('comments');
-      })
-      .then(comments => {
-        assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
-      })
-  );
-});
-
-test('buildURL - with absolute paths in links and protocol relative host', function(assert) {
-  run(() => {
+  test('buildURL - with absolute paths in links and protocol relative host', async function(assert) {
     adapter.setProperties({
       host: '//example.com',
       namespace: 'api/v1',
     });
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+
+    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    await post.get('comments');
+    assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
   });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
-
-  return run(() =>
-    store
-      .findRecord('post', 1)
-      .then(post => {
-        ajaxResponse({ comments: [{ id: 1 }] });
-        return post.get('comments');
-      })
-      .then(comments => {
-        assert.equal(passedUrl, '//example.com/api/v1/posts/1/comments');
-      })
-  );
-});
-
-test('buildURL - with absolute paths in links and host is /', function(assert) {
-  run(() => {
+  test('buildURL - with absolute paths in links and host is /', async function(assert) {
     adapter.setProperties({
       host: '/',
       namespace: 'api/v1',
     });
-  });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+    ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  return run(() =>
-    store
-      .findRecord('post', 1)
-      .then(post => {
-        ajaxResponse({ comments: [{ id: 1 }] });
-        return post.get('comments');
-      })
-      .then(comments => {
-        assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
-      })
-  );
-});
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ comments: [{ id: 1 }] });
 
-test('buildURL - with full URLs in links', function(assert) {
-  adapter.setProperties({
-    host: 'http://example.com',
-    namespace: 'api/v1',
-  });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-
-  ajaxResponse({
-    posts: [
-      {
-        id: 1,
-        links: { comments: 'http://example.com/api/v1/posts/1/comments' },
-      },
-    ],
+    await post.get('comments');
+    assert.equal(passedUrl, '/api/v1/posts/1/comments', 'host stripped out properly');
   });
 
-  return run(() => {
-    return store
-      .findRecord('post', 1)
-      .then(post => {
-        ajaxResponse({ comments: [{ id: 1 }] });
-        return post.get('comments');
-      })
-      .then(comments => {
-        assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
-      });
-  });
-});
-
-test('buildURL - with camelized names', function(assert) {
-  adapter.setProperties({
-    pathForType(type) {
-      let decamelized = decamelize(type);
-      return underscore(pluralize(decamelized));
-    },
-  });
-
-  ajaxResponse({ superUsers: [{ id: 1 }] });
-
-  return run(() => {
-    return store.findRecord('super-user', 1).then(post => {
-      assert.equal(passedUrl, '/super_users/1');
+  test('buildURL - with full URLs in links', async function(assert) {
+    adapter.setProperties({
+      host: 'http://example.com',
+      namespace: 'api/v1',
     });
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+
+    ajaxResponse({
+      posts: [
+        {
+          id: 1,
+          links: { comments: 'http://example.com/api/v1/posts/1/comments' },
+        },
+      ],
+    });
+
+    let post = await store.findRecord('post', 1);
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    await post.get('comments');
+    assert.equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
   });
-});
 
-test('buildURL - buildURL takes a record from find', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-  adapter.buildURL = function(type, id, snapshot) {
-    return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+  test('buildURL - with camelized names', async function(assert) {
+    adapter.setProperties({
+      pathForType(type) {
+        let decamelized = decamelize(type);
+        return underscore(pluralize(decamelized));
+      },
+    });
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ superUsers: [{ id: 1 }] });
 
-  let post;
-  run(() => {
-    post = store.push({
+    await store.findRecord('super-user', 1);
+    assert.equal(passedUrl, '/super_users/1');
+  });
+
+  test('buildURL - buildURL takes a record from find', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+
+    adapter.buildURL = function(type, id, snapshot) {
+      return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
+    };
+
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    let post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
+
+    await store.findRecord('comment', 1, { preload: { post } });
+
+    assert.equal(passedUrl, '/posts/2/comments/1');
   });
 
-  return run(() => {
-    return store.findRecord('comment', 1, { preload: { post: post } }).then(post => {
-      assert.equal(passedUrl, '/posts/2/comments/1');
-    });
-  });
-});
+  test('buildURL - buildURL takes the records from findMany', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    Post.reopen({ comments: hasMany('comment', { async: true }) });
 
-test('buildURL - buildURL takes the records from findMany', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+    adapter.buildURL = function(type, ids, snapshots) {
+      if (Array.isArray(snapshots)) {
+        return (
+          '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/'
+        );
+      }
+      return '';
+    };
+    adapter.coalesceFindRequests = true;
 
-  adapter.buildURL = function(type, ids, snapshots) {
-    if (Array.isArray(snapshots)) {
-      return (
-        '/posts/' + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/'
-      );
-    }
-    return '';
-  };
-  adapter.coalesceFindRequests = true;
-
-  ajaxResponse({ comments: [{ id: 1 }, { id: 2 }, { id: 3 }] });
-  let post;
-
-  return run(() => {
-    post = store.push({
+    ajaxResponse({ comments: [{ id: 1 }, { id: 2 }, { id: 3 }] });
+    let post = store.push({
       data: {
         type: 'post',
         id: '2',
@@ -274,21 +219,18 @@ test('buildURL - buildURL takes the records from findMany', function(assert) {
       },
     });
 
-    return post.get('comments').then(post => {
-      assert.equal(passedUrl, '/posts/2/comments/');
-    });
+    await post.get('comments');
+    assert.equal(passedUrl, '/posts/2/comments/');
   });
-});
 
-test('buildURL - buildURL takes a record from create', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-  adapter.buildURL = function(type, id, snapshot) {
-    return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
-  };
+  test('buildURL - buildURL takes a record from create', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    adapter.buildURL = function(type, id, snapshot) {
+      return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
+    };
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: 1 }] });
 
-  return run(() => {
     let post = store.push({
       data: {
         type: 'post',
@@ -297,87 +239,78 @@ test('buildURL - buildURL takes a record from create', function(assert) {
     });
     let comment = store.createRecord('comment');
     comment.set('post', post);
-    return comment.save().then(post => {
-      assert.equal(passedUrl, '/posts/2/comments/');
-    });
+    await comment.save();
+    assert.equal(passedUrl, '/posts/2/comments/');
   });
-});
 
-test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
+  test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: true }) });
+    adapter.buildURL = function(type, id, snapshot) {
+      return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
+    };
 
-  ajaxResponse({ posts: [{ id: 2 }] });
-
-  return run(() => {
-    store.findRecord('post', 2).then(post => {
-      assert.equal(post.get('id'), 2);
-
-      adapter.buildURL = function(type, id, snapshot) {
-        return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/';
-      };
-
-      ajaxResponse({ comments: [{ id: 1 }] });
-
-      let comment = store.createRecord('comment');
-      comment.set('post', post);
-      return comment.save().then(post => {
-        assert.equal(passedUrl, '/posts/2/comments/');
-      });
+    let post = store.push({
+      data: {
+        id: '2',
+        type: 'post',
+        attributes: {
+          name: 'foo',
+        },
+      },
     });
+
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    let comment = store.createRecord('comment');
+    comment.set('post', post);
+
+    await comment.save();
+
+    assert.equal(passedUrl, '/posts/2/comments/');
   });
-});
 
-test('buildURL - buildURL takes a record from update', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-  adapter.buildURL = function(type, id, snapshot) {
-    return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+  test('buildURL - buildURL takes a record from update', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    adapter.buildURL = function(type, id, snapshot) {
+      return '/posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
+    };
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: 1 }] });
 
-  let post, comment;
-  run(() => {
-    post = store.push({
+    let post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
-    comment = store.push({
+    let comment = store.push({
       data: {
         type: 'comment',
         id: '1',
       },
     });
     comment.set('post', post);
+
+    await comment.save();
+    assert.equal(passedUrl, '/posts/2/comments/1');
   });
 
-  return run(() => {
-    return comment.save().then(post => {
-      assert.equal(passedUrl, '/posts/2/comments/1');
-    });
-  });
-});
+  test('buildURL - buildURL takes a record from delete', async function(assert) {
+    Comment.reopen({ post: belongsTo('post', { async: false }) });
+    Post.reopen({ comments: hasMany('comment', { async: false }) });
+    adapter.buildURL = function(type, id, snapshot) {
+      return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
+    };
 
-test('buildURL - buildURL takes a record from delete', function(assert) {
-  Comment.reopen({ post: DS.belongsTo('post', { async: false }) });
-  Post.reopen({ comments: DS.hasMany('comment', { async: false }) });
-  adapter.buildURL = function(type, id, snapshot) {
-    return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+    ajaxResponse({ comments: [{ id: 1 }] });
 
-  ajaxResponse({ comments: [{ id: 1 }] });
-
-  let post, comment;
-
-  run(() => {
-    post = store.push({
+    let post = store.push({
       data: {
         type: 'post',
         id: '2',
       },
     });
-    comment = store.push({
+    let comment = store.push({
       data: {
         type: 'comment',
         id: '1',
@@ -386,25 +319,19 @@ test('buildURL - buildURL takes a record from delete', function(assert) {
 
     comment.set('post', post);
     comment.deleteRecord();
+
+    await comment.save();
+    assert.equal(passedUrl, 'posts/2/comments/1');
   });
 
-  return run(() => {
-    return comment.save().then(post => {
-      assert.equal(passedUrl, 'posts/2/comments/1');
-    });
-  });
-});
-
-test('buildURL - with absolute namespace', function(assert) {
-  run(() => {
+  test('buildURL - with absolute namespace', async function(assert) {
     adapter.setProperties({
       namespace: '/api/v1',
     });
-  });
 
-  ajaxResponse({ posts: [{ id: 1 }] });
+    ajaxResponse({ posts: [{ id: 1 }] });
 
-  return run(store, 'findRecord', 'post', 1).then(post => {
+    await store.findRecord('post', 1);
     assert.equal(passedUrl, '/api/v1/posts/1');
   });
 });

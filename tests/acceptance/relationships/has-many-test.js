@@ -1,4 +1,4 @@
-import { module } from 'qunit';
+import { module, test, skip } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from 'ember-data/adapters/json-api';
 import Model from 'ember-data/model';
@@ -10,14 +10,14 @@ import Store from 'ember-data/store';
 import { resolve, reject } from 'rsvp';
 import { ServerError } from 'ember-data/adapters/errors';
 import Ember from 'ember';
-import { skipRecordData as test } from '../../helpers/test-in-debug';
 
 function domListToArray(domList) {
   return Array.prototype.slice.call(domList);
 }
 
 class Person extends Model {
-  @attr name;
+  @attr
+  name;
   @hasMany('person', { async: true, inverse: 'parent' })
   children;
   @belongsTo('person', { async: true, inverse: 'children' })
@@ -30,7 +30,7 @@ class TestAdapter extends JSONAPIAdapter {
     this._payloads = arr;
   }
 
-  shouldBackgroundReload() {
+  shouldBackgroundReloadRecord() {
     return false;
   }
 
@@ -287,7 +287,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
+    skip('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
@@ -304,16 +304,6 @@ module('async has-many rendering tests', function(hooks) {
 
       let originalOnError = Ember.onerror;
       Ember.onerror = function(e) {
-        assert.ok(true, 'Children promise did reject');
-        assert.equal(
-          e.message,
-          'hard error while finding <person>5:has-parent-no-children',
-          'Rejection has the correct message'
-        );
-      };
-
-      // needed for LTS 2.12 and 2.16
-      Ember.Test.adapter.exception = e => {
         assert.ok(true, 'Children promise did reject');
         assert.equal(
           e.message,
@@ -454,7 +444,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
+    skip('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
@@ -477,16 +467,6 @@ module('async has-many rendering tests', function(hooks) {
 
       let originalOnError = Ember.onerror;
       Ember.onerror = function(e) {
-        assert.ok(true, 'Children promise did reject');
-        assert.equal(
-          e.message,
-          'hard error while finding link ./person/3:has-2-children-and-parent/children',
-          'Rejection has the correct message'
-        );
-      };
-
-      // needed for LTS 2.12 and 2.16
-      Ember.Test.adapter.exception = e => {
         assert.ok(true, 'Children promise did reject');
         assert.equal(
           e.message,

@@ -261,3 +261,25 @@ test('store.queryRecord(type, query) makes properties available during record in
 
   run(() => store.queryRecord('post', { id: '1' }));
 });
+
+test('Model class does not get properties passed to setUknownProperty accidentally', function(assert) {
+  assert.expect(2);
+  // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
+  // how to get setUnknownProperty to continue working
+  let { store } = setupStore({
+    adapter: JSONAPIAdapter.extend(),
+    post: Model.extend({
+      title: attr(),
+      setUnknownProperty: function(key, value) {
+        assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
+        assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+      },
+    }),
+  });
+  run(() => {
+    store.createRecord('post', {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
+    });
+  });
+});

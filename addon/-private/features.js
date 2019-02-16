@@ -1,5 +1,5 @@
-import Ember from 'ember';
+import { isEnabled } from '@ember/canary-features';
 
-export default function isEnabled() {
-  return Ember.FEATURES.isEnabled(...arguments);
+export default function featureIsEnabled() {
+  return isEnabled(...arguments);
 }

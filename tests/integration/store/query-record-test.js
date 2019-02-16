@@ -44,7 +44,7 @@ testInDebug('It raises an assertion when no query hash is passed', function(asse
 test("When a record is requested, the adapter's queryRecord method should be called.", function(assert) {
   assert.expect(1);
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       queryRecord(store, type, query) {
@@ -60,7 +60,7 @@ test("When a record is requested, the adapter's queryRecord method should be cal
 });
 
 test('When a record is requested, and the promise is rejected, .queryRecord() is rejected.', function(assert) {
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       queryRecord(store, type, query) {
@@ -79,7 +79,7 @@ test('When a record is requested, and the promise is rejected, .queryRecord() is
 test("When a record is requested, the serializer's normalizeQueryRecordResponse method should be called.", function(assert) {
   assert.expect(1);
 
-  env.registry.register(
+  env.owner.register(
     'serializer:person',
     DS.JSONAPISerializer.extend({
       normalizeQueryRecordResponse(store, primaryModelClass, payload, id, requestType) {
@@ -93,7 +93,7 @@ test("When a record is requested, the serializer's normalizeQueryRecordResponse 
     })
   );
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       queryRecord(store, type, query) {

@@ -12,7 +12,8 @@ class Person extends Model {
   pets;
   @belongsTo('pet', { inverse: 'bestHuman', async: true })
   bestDog;
-  @attr name;
+  @attr
+  name;
 }
 
 class Pet extends Model {
@@ -20,7 +21,8 @@ class Pet extends Model {
   owner;
   @belongsTo('person', { inverse: 'bestDog', async: false })
   bestHuman;
-  @attr name;
+  @attr
+  name;
 }
 
 module('Store.createRecord() coverage', function(hooks) {
@@ -131,7 +133,7 @@ module('Store.createRecord() coverage', function(hooks) {
     this.owner.register(
       'adapter:application',
       JSONAPIAdapter.extend({
-        shouldBackgroundReload() {
+        shouldBackgroundReloadRecord() {
           return false;
         },
         findRecord() {

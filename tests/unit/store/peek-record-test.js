@@ -1,6 +1,6 @@
+import EmberObject from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 import { module, test } from 'qunit';
@@ -64,7 +64,7 @@ testInDebug('peekRecord should assert if passed a model class instead of model n
 ) {
   run(() => {
     assert.expectAssertion(() => {
-      let modelClass = Ember.Object.extend();
+      let modelClass = EmberObject.extend();
       store.peekRecord(modelClass, 'id');
     }, /Passing classes to store methods has been removed/);
   });

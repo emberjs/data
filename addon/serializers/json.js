@@ -2,9 +2,9 @@ import { assign, merge } from '@ember/polyfills';
 import { isNone, typeOf } from '@ember/utils';
 import { get } from '@ember/object';
 import { assert, warn } from '@ember/debug';
+import { getOwner } from '@ember/application';
 import Serializer from '../serializer';
 import {
-  getOwner,
   coerceId,
   modelHasAttributeOrRelationshipNamedType,
   normalizeModelName,
@@ -686,9 +686,20 @@ const JSONSerializer = Serializer.extend({
         } else if (relationshipMeta.kind === 'hasMany') {
           if (!isNone(relationshipHash)) {
             data = new Array(relationshipHash.length);
-            for (let i = 0, l = relationshipHash.length; i < l; i++) {
-              let item = relationshipHash[i];
-              data[i] = this.extractRelationship(relationshipMeta.type, item);
+            if (relationshipMeta.options.polymorphic) {
+              for (let i = 0, l = relationshipHash.length; i < l; i++) {
+                let item = relationshipHash[i];
+                data[i] = this.extractPolymorphicRelationship(relationshipMeta.type, item, {
+                  key,
+                  resourceHash,
+                  relationshipMeta,
+                });
+              }
+            } else {
+              for (let i = 0, l = relationshipHash.length; i < l; i++) {
+                let item = relationshipHash[i];
+                data[i] = this.extractRelationship(relationshipMeta.type, item);
+              }
             }
           }
         }
@@ -1299,7 +1310,7 @@ const JSONSerializer = Serializer.extend({
     property of the payload object.
 
     This serializer expects this `errors` object to be an Array similar
-    to the following, compliant with the JSON-API specification:
+    to the following, compliant with the https://jsonapi.org/format/#errors specification:
 
     ```js
     {
@@ -1482,7 +1493,10 @@ const JSONSerializer = Serializer.extend({
   transformFor(attributeType, skipAssertion) {
     let transform = getOwner(this).lookup('transform:' + attributeType);
 
-    assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
+    assert(
+      `Unable to find the transform for \`attr('${attributeType}')\``,
+      skipAssertion || !!transform
+    );
 
     return transform;
   },

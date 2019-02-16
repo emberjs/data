@@ -5,39 +5,15 @@ const Funnel = require('broccoli-funnel');
 const Rollup = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
 const version = require('./lib/version');
+const { isInstrumentedBuild } = require('./lib/cli-flags');
 const BroccoliDebug = require('broccoli-debug');
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
-
-// allow toggling of heimdall instrumentation
-let INSTRUMENT_HEIMDALL = false;
-let USE_RECORD_DATA_RFC = false;
-let args = process.argv;
-
-for (let i = 1; i < args.length; i++) {
-  if (args[i] === '--instrument') {
-    INSTRUMENT_HEIMDALL = true;
-    if (USE_RECORD_DATA_RFC) {
-      break;
-    }
-  } else if (args[i] === '--record-data-rfc-build') {
-    USE_RECORD_DATA_RFC = true;
-    if (INSTRUMENT_HEIMDALL) {
-      break;
-    }
-  }
-}
-
-process.env.INSTRUMENT_HEIMDALL = INSTRUMENT_HEIMDALL;
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
   let isTest = process.env.EMBER_CLI_TEST_COMMAND;
 
   return isProd && !isTest;
-}
-
-function isInstrumentedBuild() {
-  return INSTRUMENT_HEIMDALL;
 }
 
 module.exports = {
@@ -83,72 +59,38 @@ module.exports = {
     this.options = this.options || {};
   },
 
-  config() {
-    let optionFlag =
-      this.app &&
-      this.app.options &&
-      this.app.options.emberData &&
-      this.app.options.emberData.enableRecordDataRFCBuild;
-
-    return {
-      emberData: {
-        enableRecordDataRFCBuild: USE_RECORD_DATA_RFC || optionFlag || false,
-      },
-    };
-  },
-
   blueprintsPath() {
     return path.join(__dirname, 'blueprints');
   },
 
   treeForAddon(tree) {
     tree = this.debugTree(tree, 'input');
+    this._setupBabelOptions();
 
     let babel = this.addons.find(addon => addon.name === 'ember-cli-babel');
-    let config = this.config();
 
     let treeWithVersion = merge([
       tree,
       version(), // compile the VERSION into the build
     ]);
 
-    let corePrivate = new Funnel(tree, {
+    let withPrivate = new Funnel(tree, {
       include: ['-private/**'],
     });
-    let withPrivate;
-
-    if (config.emberData.enableRecordDataRFCBuild) {
-      withPrivate = new Funnel(tree, {
-        srcDir: '-record-data-private',
-        destDir: '-private',
-      });
-    } else {
-      withPrivate = new Funnel(tree, {
-        srcDir: '-legacy-private',
-        destDir: '-private',
-      });
-    }
-
-    // do not allow overwrite, conflicts should error
-    //  overwrite: false is default, but we are being explicit here
-    //  since this is very important
-    withPrivate = merge([corePrivate, withPrivate], { overwrite: false });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
-      exclude: [
-        '-private',
-        '-record-data-private',
-        '-legacy-private',
-        isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false,
-      ].filter(Boolean),
+      exclude: ['-private', isProductionEnv() && !isInstrumentedBuild() ? '-debug' : false].filter(
+        Boolean
+      ),
 
       destDir: 'ember-data',
     });
 
     let privateTree = babel.transpileTree(this.debugTree(withPrivate, 'babel-private:input'), {
-      babel: this.buildBabelOptions(),
+      babel: this.options.babel,
       'ember-cli-babel': {
         compileModules: false,
+        extensions: ['js', 'ts'],
       },
     });
 
@@ -193,13 +135,18 @@ module.exports = {
   },
 
   buildBabelOptions() {
+    let existing = this.options.babel;
     let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+    let plugins = existing.plugins.map(plugin => {
+      return Array.isArray(plugin) ? plugin : [plugin];
+    });
+    plugins = plugins.concat(customPlugins.plugins);
 
     return {
       loose: true,
-      plugins: customPlugins.plugins,
+      plugins,
       postTransformPlugins: customPlugins.postTransformPlugins,
-      exclude: ['transform-es2015-block-scoping', 'transform-es2015-typeof-symbol'],
+      exclude: ['transform-block-scoping', 'transform-typeof-symbol'],
     };
   },
 

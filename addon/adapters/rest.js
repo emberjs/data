@@ -23,7 +23,6 @@ import {
   ServerError,
   TimeoutError,
   AbortError,
-  MapWithDefault,
 } from '../-private';
 import { instrument } from 'ember-data/-debug';
 import { warn } from '@ember/debug';
@@ -161,9 +160,9 @@ const Promise = EmberPromise;
   ```
 
   If the records in the relationship are not known when the response
-  is serialized its also possible to represent the relationship as a
-  url using the `links` key in the response. Ember Data will fetch
-  this url to resolve the relationship when it is accessed for the
+  is serialized it's also possible to represent the relationship as a
+  URL using the `links` key in the response. Ember Data will fetch
+  this URL to resolve the relationship when it is accessed for the
   first time.
 
   ```js
@@ -445,7 +444,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     key. Arbitrary headers can be set as key/value pairs on the
     `RESTAdapter`'s `headers` object and Ember Data will send them
     along with each ajax request. For dynamic headers see [headers
-    customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
+    customization](/api/data/classes/DS.RESTAdapter.html).
 
     ```app/adapters/application.js
     import DS from 'ember-data';
@@ -817,16 +816,16 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany(store, snapshots) {
-    let groups = new MapWithDefault({
-      defaultValue() {
-        return [];
-      },
-    });
+    let groups = new Map();
     let adapter = this;
     let maxURLLength = this.maxURLLength;
 
     snapshots.forEach(snapshot => {
       let baseUrl = adapter._stripIDFromURL(store, snapshot);
+      if (!groups.has(baseUrl)) {
+        groups.set(baseUrl, []);
+      }
+
       groups.get(baseUrl).push(snapshot);
     });
 
@@ -1156,7 +1155,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   */
   generatedDetailedMessage: function(status, headers, payload, requestData) {
     let shortenedPayload;
-    let payloadContentType = headers['Content-Type'] || 'Empty Content-Type';
+    let payloadContentType = headers['content-type'] || 'Empty Content-Type';
 
     if (payloadContentType === 'text/html' && payload.length > 250) {
       shortenedPayload = '[Omitted Lengthy HTML]';
@@ -1228,7 +1227,7 @@ function ajaxError(adapter, payload, requestData, responseData) {
   } else if (responseData.textStatus === 'timeout') {
     error = new TimeoutError();
   } else if (responseData.textStatus === 'abort' || responseData.status === 0) {
-    error = new AbortError();
+    error = handleAbort(requestData, responseData);
   } else {
     try {
       error = adapter.handleResponse(
@@ -1243,6 +1242,15 @@ function ajaxError(adapter, payload, requestData, responseData) {
   }
 
   return error;
+}
+
+// Adapter abort error to include any relevent info, e.g. request/response:
+function handleAbort(requestData, responseData) {
+  let { method, url, errorThrown } = requestData;
+  let { status } = responseData;
+  let msg = `Request failed: ${method} ${url} ${errorThrown || ''}`;
+  let errors = [{ title: 'Adapter Error', detail: msg.trim(), status }];
+  return new AbortError(errors);
 }
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
@@ -1269,7 +1277,7 @@ function ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData) {
 function ajaxResponseData(jqXHR) {
   return {
     status: jqXHR.status,
-    textStatus: jqXHR.textStatus,
+    textStatus: jqXHR.statusText,
     headers: parseResponseHeaders(jqXHR.getAllResponseHeaders()),
   };
 }

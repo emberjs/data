@@ -1,5 +1,5 @@
+import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
-import Ember from 'ember';
 import RSVP from 'rsvp';
 
 import { module, test } from 'qunit';
@@ -7,7 +7,6 @@ import { module, test } from 'qunit';
 import DS from 'ember-data';
 
 var Person, store, env;
-var run = Ember.run;
 
 module('integration/store/query', {
   beforeEach() {
@@ -28,7 +27,7 @@ module('integration/store/query', {
 test('meta is proxied correctly on the PromiseArray', function(assert) {
   let defered = RSVP.defer();
 
-  env.registry.register(
+  env.owner.register(
     'adapter:person',
     DS.Adapter.extend({
       query(store, type, query) {
