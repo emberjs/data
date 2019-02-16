@@ -2,8 +2,9 @@ const extendFromApplicationEntity = require('../../lib/utilities/extend-from-app
 const isModuleUnificationProject = require('../../lib/utilities/module-unification')
   .isModuleUnificationProject;
 const path = require('path');
+const useEditionDetector = require('../edition-detector');
 
-module.exports = {
+module.exports = useEditionDetector({
   description: 'Generates an ember-data adapter.',
 
   availableOptions: [{ name: 'base-class', type: String }],
@@ -27,4 +28,4 @@ module.exports = {
   locals(options) {
     return extendFromApplicationEntity('adapter', 'DS.JSONAPIAdapter', options);
   },
-};
+});

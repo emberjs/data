@@ -4,8 +4,9 @@ const EOL = require('os').EOL;
 const isModuleUnificationProject = require('../../lib/utilities/module-unification')
   .isModuleUnificationProject;
 const path = require('path');
+const useEditionDetector = require('../edition-detector');
 
-module.exports = {
+module.exports = useEditionDetector({
   description: 'Generates an ember-data model.',
 
   anonymousOptions: ['name', 'attr:type'],
@@ -74,7 +75,7 @@ module.exports = {
       needs: needs,
     };
   },
-};
+});
 
 function dsAttr(name, type) {
   switch (type) {
