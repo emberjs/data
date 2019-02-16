@@ -15,6 +15,9 @@ const SilentError = require('silent-error');
 const generateFakePackageManifest = require('../helpers/generate-fake-package-manifest');
 const fixture = require('../helpers/fixture');
 
+const setupTestEnvironment = require('../helpers/setup-test-environment');
+const enableOctane = setupTestEnvironment.enableOctane;
+
 describe('Acceptance: generate and destroy serializer blueprints', function() {
   setupTestHooks(this);
 
@@ -235,6 +238,180 @@ describe('Acceptance: generate and destroy serializer blueprints', function() {
           expect(_file('src/data/models/application/serializer.js'))
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default DS.JSONAPISerializer.extend({');
+
+          expect(_file('src/data/models/application/serializer-test.js')).to.equal(
+            fixture('serializer-test/application-default.js')
+          );
+        },
+        { isModuleUnification: true }
+      );
+    });
+
+    it('serializer-test', function() {
+      let args = ['serializer-test', 'foo'];
+
+      return emberGenerateDestroy(
+        args,
+        _file => {
+          expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+            fixture('serializer-test/rfc232.js')
+          );
+        },
+        { isModuleUnification: true }
+      );
+    });
+
+    describe('serializer-test with ember-cli-qunit@4.1.0', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-qunit', delete: true },
+        ]);
+        generateFakePackageManifest('ember-cli-qunit', '4.1.0');
+      });
+
+      it('serializer-test-test foo', function() {
+        return emberGenerateDestroy(
+          ['serializer-test', 'foo'],
+          _file => {
+            expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+              fixture('serializer-test/foo-default.js')
+            );
+          },
+          { isModuleUnification: true }
+        );
+      });
+    });
+
+    describe('with ember-cli-mocha v0.12+', function() {
+      beforeEach(function() {
+        modifyPackages([
+          { name: 'ember-qunit', delete: true },
+          { name: 'ember-cli-mocha', dev: true },
+        ]);
+        generateFakePackageManifest('ember-cli-mocha', '0.12.0');
+      });
+
+      it('serializer-test for mocha v0.12+', function() {
+        let args = ['serializer-test', 'foo'];
+
+        return emberGenerateDestroy(
+          args,
+          _file => {
+            expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+              fixture('serializer-test/foo-mocha-0.12.js')
+            );
+          },
+          { isModuleUnification: true }
+        );
+      });
+    });
+
+    describe('with ember-mocha v0.14+', function() {
+      beforeEach(function() {
+        modifyPackages([{ name: 'ember-qunit', delete: true }, { name: 'ember-mocha', dev: true }]);
+        generateFakePackageManifest('ember-mocha', '0.14.0');
+      });
+
+      it('serializer-test for mocha v0.14+', function() {
+        let args = ['serializer-test', 'foo'];
+
+        return emberGenerateDestroy(
+          args,
+          _file => {
+            expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+              fixture('serializer-test/mocha-rfc232.js')
+            );
+          },
+          { isModuleUnification: true }
+        );
+      });
+    });
+  });
+
+  describe('octane', function() {
+    enableOctane();
+
+    beforeEach(function() {
+      return emberNew({ isModuleUnification: true });
+    });
+
+    it('serializer', function() {
+      let args = ['serializer', 'foo'];
+
+      return emberGenerateDestroy(
+        args,
+        _file => {
+          expect(_file('src/data/models/foo/serializer.js'))
+            .to.contain("import DS from 'ember-data';")
+            .to.contain('export default class FooSerializer extends DS.JSONAPISerializer {');
+
+          expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+            fixture('serializer-test/rfc232.js')
+          );
+        },
+        { isModuleUnification: true }
+      );
+    });
+
+    it('serializer extends application serializer if it exists', function() {
+      let args = ['serializer', 'foo'];
+
+      return emberGenerate(['serializer', 'application'], { isModuleUnification: true }).then(() =>
+        emberGenerateDestroy(
+          args,
+          _file => {
+            expect(_file('src/data/models/foo/serializer.js'))
+              .to.contain("import ApplicationSerializer from '../application/serializer';")
+              .to.contain('export default class FooSerializer extends ApplicationSerializer {');
+
+            expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+              fixture('serializer-test/rfc232.js')
+            );
+          },
+          { isModuleUnification: true }
+        )
+      );
+    });
+
+    it('serializer with --base-class', function() {
+      let args = ['serializer', 'foo', '--base-class=bar'];
+
+      return emberGenerateDestroy(
+        args,
+        _file => {
+          expect(_file('src/data/models/foo/serializer.js'))
+            .to.contain("import BarSerializer from '../bar/serializer';")
+            .to.contain('export default class FooSerializer extends BarSerializer');
+
+          expect(_file('src/data/models/foo/serializer-test.js')).to.equal(
+            fixture('serializer-test/rfc232.js')
+          );
+        },
+        { isModuleUnification: true }
+      );
+    });
+
+    xit('serializer throws when --base-class is same as name', function() {
+      let args = ['serializer', 'foo', '--base-class=foo'];
+
+      return expect(emberGenerate(args, { isModuleUnification: true })).to.be.rejectedWith(
+        SilentError,
+        /Serializers cannot extend from themself/
+      );
+    });
+
+    it('serializer when is named "application"', function() {
+      let args = ['serializer', 'application'];
+
+      return emberGenerateDestroy(
+        args,
+        _file => {
+          expect(_file('src/data/models/application/serializer.js'))
+            .to.contain("import DS from 'ember-data';")
+            .to.contain(
+              'export default class ApplicationSerializer extends DS.JSONAPISerializer {'
+            );
 
           expect(_file('src/data/models/application/serializer-test.js')).to.equal(
             fixture('serializer-test/application-default.js')
