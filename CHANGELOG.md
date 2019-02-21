@@ -2,6 +2,22 @@
 
 ### Master
 
+### Release 3.8.0 (February 20, 2019)
+
+- [#5671](https://github.com/emberjs/data/pull/5671) Use _scheduleFetch instead of _fetchRecord for belongsTo relationship (#5671)
+- [#5702](https://github.com/emberjs/data/pull/5702) [CHORE reference] update reference to be ES2015
+- [#5763](https://github.com/emberjs/data/pull/5763) Update Release instructions
+- [#5736](https://github.com/emberjs/data/pull/5736) [DOC] Add Reference doc and AdapterError uses
+- [#5733](https://github.com/emberjs/data/pull/5733) [BUGFIX inspector] Fix columns names in debug-adapter (#5733)
+- [#5735](https://github.com/emberjs/data/pull/5735) Clarify load/reload behavior
+- [#5721](https://github.com/emberjs/data/pull/5721) [BUGFIX 5720] - assert that replacing has-many with non-array throws assertion
+- [#5749](https://github.com/emberjs/data/pull/5749) [DOC beta] Fix broken links
+- [#5743](https://github.com/emberjs/data/pull/5743) drop use of MODEL_FACTORY_FOR
+
+### Release 3.7.0 (January 8, 2019)
+
+- Re-release of 3.6.0
+
 ### Release 3.6.0 (December 12, 2018)
 
 - [#5671](https://github.com/emberjs/data/pull/5671) Fix issue preventing coalescing of belongsTo
