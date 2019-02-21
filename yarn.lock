@@ -932,13 +932,6 @@ after@0.8.2:
   version "0.8.2"
   resolved "https://registry.npmjs.org/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
 
-agent-base@2:
-  version "2.1.1"
-  resolved "https://registry.npmjs.org/agent-base/-/agent-base-2.1.1.tgz#d6de10d5af6132d5bd692427d46fc538539094c7"
-  dependencies:
-    extend "~3.0.0"
-    semver "~5.0.1"
-
 ajv@^6.5.5, ajv@^6.9.1:
   version "6.9.1"
   resolved "https://registry.npmjs.org/ajv/-/ajv-6.9.1.tgz#a4d3683d74abc5670e75f0b16520f70a20ea8dc1"
@@ -2968,7 +2961,7 @@ date-time@^2.1.0:
   dependencies:
     time-zone "^1.0.0"
 
-debug@2, debug@2.6.9, debug@^2.1.0, debug@^2.1.1, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
+debug@2.6.9, debug@^2.1.0, debug@^2.1.1, debug@^2.1.3, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9:
   version "2.6.9"
   resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   dependencies:
@@ -4093,7 +4086,7 @@ extend-shallow@^3.0.0, extend-shallow@^3.0.2:
     assign-symbols "^1.0.0"
     is-extendable "^1.0.1"
 
-extend@3, extend@^3.0.0, extend@~3.0.0, extend@~3.0.2:
+extend@^3.0.0, extend@~3.0.0, extend@~3.0.2:
   version "3.0.2"
   resolved "https://registry.npmjs.org/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
 
@@ -4321,13 +4314,6 @@ flat@^4.1.0:
 flatted@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/flatted/-/flatted-2.0.0.tgz#55122b6536ea496b4b44893ee2608141d10d9916"
-
-follow-redirects@0.0.7:
-  version "0.0.7"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-0.0.7.tgz#34b90bab2a911aa347571da90f22bd36ecd8a919"
-  dependencies:
-    debug "^2.2.0"
-    stream-consume "^0.1.0"
 
 follow-redirects@^1.0.0:
   version "1.7.0"
@@ -4675,13 +4661,9 @@ git-write-pkt-line@0.1.0:
     bops "0.0.3"
     through "~2.2.7"
 
-github@^1.1.1:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/github/-/github-1.4.0.tgz#60aed8f16ffe381a3ca6dc6dba5bdd64445b7856"
-  dependencies:
-    follow-redirects "0.0.7"
-    https-proxy-agent "^1.0.0"
-    mime "^1.2.11"
+github@^14.0.0:
+  version "14.0.0"
+  resolved "https://registry.yarnpkg.com/github/-/github-14.0.0.tgz#b707ed88c33cd05e155c785d289aa6229c59a850"
 
 "glob@3 || 4", glob@^4.3.2:
   version "4.5.3"
@@ -5043,14 +5025,6 @@ http-signature@~1.2.0:
     assert-plus "^1.0.0"
     jsprim "^1.2.2"
     sshpk "^1.7.0"
-
-https-proxy-agent@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-1.0.0.tgz#35f7da6c48ce4ddbfa264891ac593ee5ff8671e6"
-  dependencies:
-    agent-base "2"
-    debug "2"
-    extend "3"
 
 iconv-lite@0.4.23:
   version "0.4.23"
@@ -6366,10 +6340,6 @@ mime-types@~1.0.1:
 mime@1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/mime/-/mime-1.4.1.tgz#121f9ebc49e3766f311a76e1fa1c8003c4b03aa6"
-
-mime@^1.2.11:
-  version "1.6.0"
-  resolved "https://registry.npmjs.org/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
 
 mime@~1.2.11:
   version "1.2.11"
@@ -7926,10 +7896,6 @@ semver@^4.3.1:
   version "4.3.6"
   resolved "https://registry.npmjs.org/semver/-/semver-4.3.6.tgz#300bc6e0e86374f7ba61068b5b1ecd57fc6532da"
 
-semver@~5.0.1:
-  version "5.0.3"
-  resolved "https://registry.npmjs.org/semver/-/semver-5.0.3.tgz#77466de589cd5d3c95f138aa78bc569a3cb5d27a"
-
 semver@~5.1.0:
   version "5.1.1"
   resolved "https://registry.npmjs.org/semver/-/semver-5.1.1.tgz#a3292a373e6f3e0798da0b20641b9a9c5bc47e19"
@@ -8297,10 +8263,6 @@ statuses@~1.3.1:
 statuses@~1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/statuses/-/statuses-1.4.0.tgz#bb73d446da2796106efcc1b601a253d6c46bd087"
-
-stream-consume@^0.1.0:
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/stream-consume/-/stream-consume-0.1.1.tgz#d3bdb598c2bd0ae82b8cac7ac50b1107a7996c48"
 
 strict-uri-encode@^1.0.0:
   version "1.1.0"
