@@ -388,14 +388,14 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           expect(_file('src/data/models/foo/model.js'))
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default class FooModel extends Model {')
-            .to.contain('misc: DS.attr()')
-            .to.contain("skills: DS.attr('array')")
-            .to.contain("isActive: DS.attr('boolean')")
-            .to.contain("birthday: DS.attr('date')")
-            .to.contain("someObject: DS.attr('object')")
-            .to.contain("age: DS.attr('number')")
-            .to.contain("name: DS.attr('string')")
-            .to.contain("customAttr: DS.attr('custom-transform')");
+            .to.contain('@DS.attr misc')
+            .to.contain("@DS.attr('array') skills")
+            .to.contain("@DS.attr('boolean') isActive")
+            .to.contain("@DS.attr('date') birthday")
+            .to.contain("@DS.attr('object') someObject")
+            .to.contain("@DS.attr('number') age")
+            .to.contain("@DS.attr('string') name")
+            .to.contain("@DS.attr('custom-transform') customAttr");
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
             fixture('model-test/rfc232.js')
@@ -414,8 +414,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           expect(_file('src/data/models/comment/model.js'))
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default class CommentModel extends Model {')
-            .to.contain("post: DS.belongsTo('post')")
-            .to.contain("author: DS.belongsTo('user')");
+            .to.contain('@DS.belongsTo post')
+            .to.contain("@DS.belongsTo('user') author");
 
           expect(_file('src/data/models/comment/model-test.js')).to.equal(
             fixture('model-test/comment-default.js')
@@ -434,8 +434,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
           expect(_file('src/data/models/post/model.js'))
             .to.contain("import DS from 'ember-data';")
             .to.contain('export default class PostModel extends Model {')
-            .to.contain("comments: DS.hasMany('comment')")
-            .to.contain("otherComments: DS.hasMany('comment')");
+            .to.contain('@DS.hasMany comments')
+            .to.contain("@DS.hasMany('comment') otherComments");
 
           expect(_file('src/data/models/post/model-test.js')).to.equal(
             fixture('model-test/post-default.js')
