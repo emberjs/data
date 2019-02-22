@@ -51,22 +51,21 @@ module.exports = useEditionDetector({
         attr = {
           name: dasherizedForeignModelSingular,
           type: dasherizedType,
-          propertyName: camelizedNamePlural
+          propertyName: camelizedNamePlural,
         };
       } else if (/belongs-to/.test(dasherizedType)) {
         attr = {
           name: dasherizedForeignModel,
           type: dasherizedType,
-          propertyName: camelizedName
+          propertyName: camelizedName,
         };
       } else {
         attr = {
           name: dasherizedName,
           type: dasherizedType,
-          propertyName: camelizedName
+          propertyName: camelizedName,
         };
       }
-
       attrs.push(attr);
 
       if (/has-many|belongs-to/.test(dasherizedType)) {
@@ -74,15 +73,20 @@ module.exports = useEditionDetector({
       }
     }
 
+    let attrTransformer, attrSeparator;
+    if (process.env.EMBER_VERSION === 'OCTANE') {
+      attrTransformer = nativeAttr;
+      attrSeparator = ';';
+    } else {
+      attrTransformer = classicAttr;
+      attrSeparator = ',';
+    }
+    attrs = attrs.map(attrTransformer);
+    attrs = attrs.join(attrSeparator + EOL + '  ');
+
     let needsDeduplicated = needs.filter(function(need, i) {
       return needs.indexOf(need) === i;
     });
-
-    attrs = attrs.map(function(attr) {
-      return attr.propertyName + ': ' + dsAttr(attr.name, attr.type);
-    });
-    attrs = attrs.join(',' + EOL + '  ');
-
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
 
     return {
@@ -92,17 +96,48 @@ module.exports = useEditionDetector({
   },
 });
 
-function dsAttr(name, type) {
-  switch (type) {
-    case 'belongs-to':
-      return "DS.belongsTo('" + name + "')";
-    case 'has-many':
-      return "DS.hasMany('" + name + "')";
-    case '':
-      //"If you don't specify the type of the attribute, it will be whatever was provided by the server"
-      //https://emberjs.com/guides/models/defining-models/
-      return 'DS.attr()';
-    default:
-      return "DS.attr('" + type + "')";
+function nativeAttr(attr) {
+  let name = attr.name,
+    type = attr.type,
+    propertyName = attr.propertyName,
+    result;
+
+  if (type === 'belongs-to') {
+    if (name === propertyName) {
+      result = '@DS.belongsTo';
+    } else {
+      result = "@DS.belongsTo('" + name + "')";
+    }
+  } else if (type === 'has-many') {
+    if (inflection.pluralize(name) === propertyName) {
+      result = '@DS.hasMany';
+    } else {
+      result = "@DS.hasMany('" + name + "')";
+    }
+  } else if (type === '') {
+    result = '@DS.attr';
+  } else {
+    result = "@DS.attr('" + type + "')";
   }
+  return result + ' ' + propertyName;
+}
+
+function classicAttr(attr) {
+  let name = attr.name,
+    type = attr.type,
+    propertyName = attr.propertyName,
+    result;
+
+  if (type === 'belongs-to') {
+    result = "DS.belongsTo('" + name + "')";
+  } else if (type === 'has-many') {
+    result = "DS.hasMany('" + name + "')";
+  } else if (type === '') {
+    //"If you don't specify the type of the attribute, it will be whatever was provided by the server"
+    //https://emberjs.com/guides/models/defining-models/
+    result = 'DS.attr()';
+  } else {
+    result = "DS.attr('" + type + "')";
+  }
+  return propertyName + ': ' + result;
 }
