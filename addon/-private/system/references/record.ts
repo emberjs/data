@@ -1,4 +1,4 @@
-import { resolve } from 'rsvp';
+import RSVP, { resolve } from 'rsvp';
 import Reference from './reference';
 
 /**
@@ -81,9 +81,9 @@ export default class RecordReference extends Reference {
 
     @method push
     @param objectOrPromise {Promise|Object}
-    @return Promise<record> a promise for the value (record or relationship)
+    @return RSVP.Promise<record> a promise for the value (record or relationship)
   */
-  push(objectOrPromise) {
+  push(objectOrPromise): RSVP.Promise<object> {
     return resolve(objectOrPromise).then(data => {
       return this.store.push(data);
     });
