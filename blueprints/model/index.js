@@ -48,15 +48,26 @@ module.exports = useEditionDetector({
       let attr;
       if (/has-many/.test(dasherizedType)) {
         let camelizedNamePlural = inflection.pluralize(camelizedName);
-        attr = dsAttr(dasherizedForeignModelSingular, dasherizedType);
-        attrs.push(camelizedNamePlural + ': ' + attr);
+        attr = {
+          name: dasherizedForeignModelSingular,
+          type: dasherizedType,
+          propertyName: camelizedNamePlural
+        };
       } else if (/belongs-to/.test(dasherizedType)) {
-        attr = dsAttr(dasherizedForeignModel, dasherizedType);
-        attrs.push(camelizedName + ': ' + attr);
+        attr = {
+          name: dasherizedForeignModel,
+          type: dasherizedType,
+          propertyName: camelizedName
+        };
       } else {
-        attr = dsAttr(dasherizedName, dasherizedType);
-        attrs.push(camelizedName + ': ' + attr);
+        attr = {
+          name: dasherizedName,
+          type: dasherizedType,
+          propertyName: camelizedName
+        };
       }
+
+      attrs.push(attr);
 
       if (/has-many|belongs-to/.test(dasherizedType)) {
         needs.push("'model:" + dasherizedForeignModelSingular + "'");
@@ -67,7 +78,11 @@ module.exports = useEditionDetector({
       return needs.indexOf(need) === i;
     });
 
+    attrs = attrs.map(function(attr) {
+      return attr.propertyName + ': ' + dsAttr(attr.name, attr.type);
+    });
     attrs = attrs.join(',' + EOL + '  ');
+
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
 
     return {
