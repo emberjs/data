@@ -47,22 +47,24 @@ export default class RecordDataWrapper implements RecordDataStoreWrapper {
     }
   }
 
-  attributesDefinitionFor(modelName) {
-    return this.store._attributesDefinitionFor(modelName);
+  attributesDefinitionFor(modelName, id?) {
+    return this.store._attributesDefinitionFor(modelName, id);
   }
 
-  relationshipsDefinitionFor(modelName) {
-    return this.store._relationshipsDefinitionFor(modelName);
+  relationshipsDefinitionFor(modelName, id?) {
+    return this.store._relationshipsDefinitionFor(modelName, id);
   }
 
   inverseForRelationship(modelName, key) {
     let modelClass = this.store.modelFor(modelName);
+    // TODO now cleanup null
     return this.relationshipsDefinitionFor(modelName)[key]._inverseKey(this.store, modelClass);
   }
 
   // TODO Igor David cleanup
   inverseIsAsyncForRelationship(modelName, key) {
     let modelClass = this.store.modelFor(modelName);
+    // TODO now cleanup null
     return this.relationshipsDefinitionFor(modelName)[key]._inverseIsAsync(this.store, modelClass);
   }
 

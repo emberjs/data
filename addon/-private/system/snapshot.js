@@ -92,7 +92,7 @@ export default class Snapshot {
     if (attributes === null) {
       let record = this.record;
       attributes = this.__attributes = Object.create(null);
-      let attrs = Object.keys(this._store._attributesDefinitionFor(this._internalModel.modelName));
+      let attrs = Object.keys(this._store._attributesDefinitionFor(this._internalModel.modelName, record.id));
       attrs.forEach(keyName => (attributes[keyName] = get(record, keyName)));
     }
 

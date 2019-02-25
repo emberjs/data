@@ -914,6 +914,7 @@ export default class InternalModel {
     }
   }
 
+  //TODO NOW have to disentangle hasMany handling from change notifying
   notifyPropertyChange(key) {
     if (this.hasRecord) {
       this._record.notifyPropertyChange(key);

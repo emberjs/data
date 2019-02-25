@@ -91,8 +91,8 @@ export interface AttributeSchema {
 }
 
 export interface RecordDataStoreWrapper {
-  relationshipsDefinitionFor(modelName: string): RelationshipsSchema
-  attributesDefinitionFor(modelName: string): AttributesSchema
+  relationshipsDefinitionFor(modelName: string, id?: string): RelationshipsSchema
+  attributesDefinitionFor(modelName: string, id?: string): AttributesSchema
   setRecordId(modelName: string, id: string, clientId: string);
   disconnectRecord(modelName: string, id: string | null, clientId: string);
   isRecordInUse(modelName: string, id: string | null, clientId: string): boolean;
