@@ -657,9 +657,9 @@
     ember-cli-babel "^6.16.0"
     ember-compatibility-helpers "^1.1.1"
 
-"@ember/test-helpers@^1.3.2":
+"@ember/test-helpers@^1.5.0":
   version "1.5.0"
-  resolved "https://registry.npmjs.org/@ember/test-helpers/-/test-helpers-1.5.0.tgz#a480181c412778294e317c256d04ca52e63c813a"
+  resolved "https://registry.yarnpkg.com/@ember/test-helpers/-/test-helpers-1.5.0.tgz#a480181c412778294e317c256d04ca52e63c813a"
   dependencies:
     broccoli-debug "^0.6.5"
     broccoli-funnel "^2.0.2"
@@ -3182,7 +3182,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.3, ember-cli-babel@^7.1.4, ember-cli-babel@^7.2.0, ember-cli-babel@^7.4.2, ember-cli-babel@^7.4.3:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.3, ember-cli-babel@^7.1.4, ember-cli-babel@^7.2.0, ember-cli-babel@^7.4.3, ember-cli-babel@^7.5.0:
   version "7.5.0"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.5.0.tgz#af654dcef23630391d2efe85aaa3bdf8b6ca17b7"
   dependencies:
@@ -3600,17 +3600,17 @@ ember-qunit-assert-helpers@^0.2.1:
     broccoli-filter "^1.0.1"
     ember-cli-babel "^6.9.0"
 
-ember-qunit@^4.2.0:
-  version "4.4.0"
-  resolved "https://registry.npmjs.org/ember-qunit/-/ember-qunit-4.4.0.tgz#813d7b1febc5a35b86db64c4a54ea5bf91a5fbf0"
+ember-qunit@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/ember-qunit/-/ember-qunit-4.4.1.tgz#3654cadf9fa7e2287fe7b61fc7f19c3eb06222b5"
   dependencies:
-    "@ember/test-helpers" "^1.3.2"
+    "@ember/test-helpers" "^1.5.0"
     broccoli-funnel "^2.0.2"
     broccoli-merge-trees "^3.0.2"
     common-tags "^1.4.0"
-    ember-cli-babel "^7.4.2"
+    ember-cli-babel "^7.5.0"
     ember-cli-test-loader "^2.2.0"
-    qunit "^2.9.1"
+    qunit "^2.9.2"
 
 ember-resolver@^5.0.1:
   version "5.1.3"
@@ -7330,9 +7330,9 @@ quick-temp@^0.1.2, quick-temp@^0.1.3, quick-temp@^0.1.5, quick-temp@^0.1.8:
     rimraf "^2.5.4"
     underscore.string "~3.3.4"
 
-qunit@^2.9.1:
+qunit@^2.9.2:
   version "2.9.2"
-  resolved "https://registry.npmjs.org/qunit/-/qunit-2.9.2.tgz#97919440c9c0ae838bcd3c33a2ee42f35c5ef4a0"
+  resolved "https://registry.yarnpkg.com/qunit/-/qunit-2.9.2.tgz#97919440c9c0ae838bcd3c33a2ee42f35c5ef4a0"
   dependencies:
     commander "2.12.2"
     js-reporters "1.2.1"
