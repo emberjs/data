@@ -47,6 +47,7 @@ import InternalModel from './model/internal-model';
 import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 import ShimModelClass from './model/shim-model-class';
+import FetchManager from './fetch-manager';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -199,6 +200,7 @@ const Store = Service.extend({
     this._relationshipsDefCache = Object.create(null);
     this._attributesDefCache = Object.create(null);
 
+    this._fetchManager = new FetchManager();
     /*
       Ember Data uses several specialized micro-queues for organizing
       and coalescing similar async work.
@@ -802,7 +804,7 @@ const Store = Service.extend({
     return Promise.resolve(internalModel);
   },
 
-  _findByInternalModel(internalModel, options = {}) {
+  _findByInternalModel(internalModel, options: any = {}) {
     if (options.preload) {
       internalModel.preloadData(options.preload);
     }
@@ -895,13 +897,14 @@ const Store = Service.extend({
   },
 
   _scheduleFetch(internalModel, options) {
+    
     if (internalModel._promiseProxy) {
       return internalModel._promiseProxy;
     }
 
     let { id, modelName } = internalModel;
     let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem = {
+    let pendingFetchItem: any = {
       internalModel,
       resolver,
       options,
@@ -1005,7 +1008,7 @@ const Store = Service.extend({
       }
 
       // reject missing records
-      let missingInternalModels = [];
+      let missingInternalModels: any = [];
 
       for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
         let internalModel = expectedInternalModels[i];
@@ -1029,7 +1032,7 @@ const Store = Service.extend({
       }
     }
 
-    function rejectInternalModels(internalModels, error) {
+    function rejectInternalModels(internalModels, error?) {
       for (let i = 0, l = internalModels.length; i < l; i++) {
         let internalModel = internalModels[i];
         let pair = seeking[internalModel.id];
@@ -1406,7 +1409,7 @@ const Store = Service.extend({
         relationshipMeta,
         options
       ).then(internalModels => {
-        let payload = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
+        let payload: any = { data: internalModels.map(im => recordDataFor(im).getResourceIdentifier()) };
         if (internalModels.meta !== undefined) {
           payload.meta = internalModels.meta;
         }
@@ -1634,7 +1637,7 @@ const Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let adapterOptionsWrapper = {};
+    let adapterOptionsWrapper: any = {};
 
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
@@ -1785,7 +1788,7 @@ const Store = Service.extend({
 
     let normalizedModelName = normalizeModelName(modelName);
     let adapter = this.adapterFor(normalizedModelName);
-    let adapterOptionsWrapper = {};
+    let adapterOptionsWrapper: any = {};
 
     if (options && options.adapterOptions) {
       adapterOptionsWrapper.adapterOptions = options.adapterOptions;
@@ -2033,7 +2036,7 @@ const Store = Service.extend({
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll(modelName, array, options = {}) {
+  _fetchAll(modelName, array, options: any = {}) {
     let adapter = this.adapterFor(modelName);
     let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
@@ -2663,7 +2666,7 @@ const Store = Service.extend({
     @param {Object} jsonApiDoc
     @return {DS.InternalModel|Array<DS.InternalModel>} pushed InternalModel(s)
   */
-  _push(jsonApiDoc) {
+  _push(jsonApiDoc: any) {
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
@@ -2692,12 +2695,14 @@ const Store = Service.extend({
         return null;
       }
 
+      /*
       assert(
         `Expected an object in the 'data' property in a call to 'push' for ${
           jsonApiDoc.type
         }, but was ${typeOf(jsonApiDoc.data)}`,
         typeOf(jsonApiDoc.data) === 'object'
       );
+      */
 
       return this._pushInternalModel(jsonApiDoc.data);
     });
