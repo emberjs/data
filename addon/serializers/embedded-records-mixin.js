@@ -261,7 +261,7 @@ export default Mixin.create({
     Use a custom (type) serializer for the post model to configure embedded comments
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import DS from 'ember-data;
 
     export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -300,7 +300,7 @@ export default Mixin.create({
     To embed the `ids` for a related object (using a hasMany relationship):
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import DS from 'ember-data;
 
     export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
@@ -348,7 +348,7 @@ export default Mixin.create({
     ```
 
     ```app/serializers/user.js
-    import DS from 'ember-data';
+    import DS from 'ember-data;
 
     export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
