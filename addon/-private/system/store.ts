@@ -48,6 +48,8 @@ import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 import ShimModelClass from './model/shim-model-class';
 import FetchManager from './fetch-manager';
+import { identifierFor } from './record-identifier';
+import { AdapterCache } from './adapter-cache';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -217,11 +219,9 @@ const Store = Service.extend({
     // used for coalescing internal model updates
     this._updatedInternalModels = [];
 
-    // used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = new Map();
 
-    this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
+    this._adapterCache = new AdapterCache(this);
 
     this.recordDataWrapper = new RecordDataWrapper(this);
 
@@ -783,6 +783,7 @@ const Store = Service.extend({
       return this._scheduleFetch(internalModel, options);
     }
 
+
     let snapshot = internalModel.createSnapshot(options);
     let adapter = this.adapterFor(internalModel.modelName);
 
@@ -863,29 +864,6 @@ const Store = Service.extend({
     );
   },
 
-  /**
-    This method is called by `findRecord` if it discovers that a particular
-    type/id pair hasn't been loaded yet to kick off a request to the
-    adapter.
-
-    @method _fetchRecord
-    @private
-    @param {InternalModel} internalModel model
-    @return {Promise} promise
-   */
-  _fetchRecord(internalModel, options) {
-    let modelName = internalModel.modelName;
-    let adapter = this.adapterFor(modelName);
-
-    assert(`You tried to find a record but you have no adapter (for ${modelName})`, adapter);
-    assert(
-      `You tried to find a record but your adapter (for ${modelName}) does not implement 'findRecord'`,
-      typeof adapter.findRecord === 'function'
-    );
-
-    return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
-  },
-
   _scheduleFetchMany(internalModels, options) {
     let fetches = new Array(internalModels.length);
 
@@ -896,215 +874,11 @@ const Store = Service.extend({
     return Promise.all(fetches);
   },
 
+
   _scheduleFetch(internalModel, options) {
-    
-    if (internalModel._promiseProxy) {
-      return internalModel._promiseProxy;
-    }
-
-    let { id, modelName } = internalModel;
-    let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
-    let pendingFetchItem: any = {
-      internalModel,
-      resolver,
-      options,
-    };
-
-    if (DEBUG) {
-      if (this.generateStackTracesForTrackedRequests === true) {
-        let trace;
-
-        try {
-          throw new Error(`Trace Origin for scheduled fetch for ${modelName}:${id}.`);
-        } catch (e) {
-          trace = e;
-        }
-
-        // enable folks to discover the origin of this findRecord call when
-        // debugging. Ideally we would have a tracked queue for requests with
-        // labels or local IDs that could be used to merge this trace with
-        // the trace made available when we detect an async leak
-        pendingFetchItem.trace = trace;
-      }
-    }
-
-    let promise = resolver.promise;
-
-    internalModel.loadingData(promise);
-    if (this._pendingFetch.size === 0) {
-      emberRun.schedule('actions', this, this.flushAllPendingFetches);
-    }
-
-    let fetches = this._pendingFetch;
-    if (!fetches.has(modelName)) {
-      fetches.set(modelName, []);
-    }
-
-    fetches.get(modelName).push(pendingFetchItem);
-
-    return promise;
+    return this._fetchManager.scheduleFetch(identifierFor(internalModel), options, this.generateStackTracesForTrackedRequests);
   },
 
-  flushAllPendingFetches() {
-    if (this.isDestroyed || this.isDestroying) {
-      return;
-    }
-
-    this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch.clear();
-  },
-
-  _flushPendingFetchForType(pendingFetchItems, modelName) {
-    let store = this;
-    let adapter = store.adapterFor(modelName);
-    let shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    let totalItems = pendingFetchItems.length;
-    let internalModels = new Array(totalItems);
-    let seeking = Object.create(null);
-
-    let optionsMap = new WeakMap();
-
-    for (let i = 0; i < totalItems; i++) {
-      let pendingItem = pendingFetchItems[i];
-      let internalModel = pendingItem.internalModel;
-      internalModels[i] = internalModel;
-      optionsMap.set(internalModel, pendingItem.options);
-      seeking[internalModel.id] = pendingItem;
-    }
-
-    for (let i = 0; i < totalItems; i++) {
-      let internalModel = internalModels[i];
-      // We may have unloaded the record after scheduling this fetch, in which
-      // case we must cancel the destroy.  This is because we require a record
-      // to build a snapshot.  This is not fundamental: this cancelation code
-      // can be removed when snapshots can be created for internal models that
-      // have no records.
-      if (internalModel.hasScheduledDestroy()) {
-        internalModels[i].cancelDestroy();
-      }
-    }
-
-    function _fetchRecord(recordResolverPair) {
-      let recordFetch = store._fetchRecord(
-        recordResolverPair.internalModel,
-        recordResolverPair.options
-      );
-
-      recordResolverPair.resolver.resolve(recordFetch);
-    }
-
-    function handleFoundRecords(foundInternalModels, expectedInternalModels) {
-      // resolve found records
-      let found = Object.create(null);
-      for (let i = 0, l = foundInternalModels.length; i < l; i++) {
-        let internalModel = foundInternalModels[i];
-        let pair = seeking[internalModel.id];
-        found[internalModel.id] = internalModel;
-
-        if (pair) {
-          let resolver = pair.resolver;
-          resolver.resolve(internalModel);
-        }
-      }
-
-      // reject missing records
-      let missingInternalModels: any = [];
-
-      for (let i = 0, l = expectedInternalModels.length; i < l; i++) {
-        let internalModel = expectedInternalModels[i];
-
-        if (!found[internalModel.id]) {
-          missingInternalModels.push(internalModel);
-        }
-      }
-
-      if (missingInternalModels.length) {
-        warn(
-          'Ember Data expected to find records with the following ids in the adapter response but they were missing: [ "' +
-            missingInternalModels.map(r => r.id).join('", "') +
-            '" ]',
-          false,
-          {
-            id: 'ds.store.missing-records-from-adapter',
-          }
-        );
-        rejectInternalModels(missingInternalModels);
-      }
-    }
-
-    function rejectInternalModels(internalModels, error?) {
-      for (let i = 0, l = internalModels.length; i < l; i++) {
-        let internalModel = internalModels[i];
-        let pair = seeking[internalModel.id];
-
-        if (pair) {
-          pair.resolver.reject(
-            error ||
-              new Error(
-                `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
-              )
-          );
-        }
-      }
-    }
-
-    if (shouldCoalesce) {
-      // TODO: Improve records => snapshots => records => snapshots
-      //
-      // We want to provide records to all store methods and snapshots to all
-      // adapter methods. To make sure we're doing that we're providing an array
-      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
-      // return grouped snapshots instead of grouped records.
-      //
-      // But since the _findMany() finder is a store method we need to get the
-      // records from the grouped snapshots even though the _findMany() finder
-      // will once again convert the records to snapshots for adapter.findMany()
-      let snapshots = new Array(totalItems);
-      for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
-      }
-
-      let groups = adapter.groupRecordsForFindMany(this, snapshots);
-
-      for (var i = 0, l = groups.length; i < l; i++) {
-        var group = groups[i];
-        var totalInGroup = groups[i].length;
-        var ids = new Array(totalInGroup);
-        var groupedInternalModels = new Array(totalInGroup);
-
-        for (var j = 0; j < totalInGroup; j++) {
-          var internalModel = group[j]._internalModel;
-
-          groupedInternalModels[j] = internalModel;
-          ids[j] = internalModel.id;
-        }
-
-        if (totalInGroup > 1) {
-          (function(groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then(function(foundInternalModels) {
-                handleFoundRecords(foundInternalModels, groupedInternalModels);
-              })
-              .catch(function(error) {
-                rejectInternalModels(groupedInternalModels, error);
-              });
-          })(groupedInternalModels);
-        } else if (ids.length === 1) {
-          var pair = seeking[groupedInternalModels[0].id];
-          _fetchRecord(pair);
-        } else {
-          assert(
-            "You cannot return an empty array from adapter's method groupRecordsForFindMany",
-            false
-          );
-        }
-      }
-    } else {
-      for (let i = 0; i < totalItems; i++) {
-        _fetchRecord(pendingFetchItems[i]);
-      }
-    }
-  },
 
   /**
     Get the reference for the specified record.
@@ -3052,66 +2826,13 @@ const Store = Service.extend({
     @param {String} modelName
     @return DS.Adapter
   */
-  adapterFor(modelName) {
+  adapterFor(modelName: string): any {
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
     heimdall.increment(adapterFor);
-    assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
-    assert(
-      `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-    let normalizedModelName = normalizeModelName(modelName);
-
-    let { _adapterCache } = this;
-    let adapter = _adapterCache[normalizedModelName];
-    if (adapter) {
-      return adapter;
-    }
-
-    let owner = getOwner(this);
-
-    adapter = owner.lookup(`adapter:${normalizedModelName}`);
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      return adapter;
-    }
-
-    // no adapter found for the specific model, fallback and check for application adapter
-    adapter = _adapterCache.application || owner.lookup('adapter:application');
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache.application = adapter;
-      return adapter;
-    }
-
-    // no model specific adapter or application adapter, check for an `adapter`
-    // property defined on the store
-    let adapterName = this.get('adapter');
-    adapter = adapterName
-      ? _adapterCache[adapterName] || owner.lookup(`adapter:${adapterName}`)
-      : undefined;
-    if (adapter !== undefined) {
-      set(adapter, 'store', this);
-      _adapterCache[normalizedModelName] = adapter;
-      _adapterCache[adapterName] = adapter;
-      return adapter;
-    }
-
-    // final fallback, no model specific adapter, no application adapter, no
-    // `adapter` property on store: use json-api adapter
-    adapter = _adapterCache['-json-api'] || owner.lookup('adapter:-json-api');
-    assert(
-      `No adapter was found for '${modelName}' and no 'application', store.adapter = 'adapter-fallback-name', or '-json-api' adapter were found as fallbacks.`,
-      adapter !== undefined
-    );
-    set(adapter, 'store', this);
-    _adapterCache[normalizedModelName] = adapter;
-    _adapterCache['-json-api'] = adapter;
-    return adapter;
+    // TODO Ask Runspired about perf impact
+    return this._adapterCache.adapterFor(modelName);
   },
 
   // ..............................

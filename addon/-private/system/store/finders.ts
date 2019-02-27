@@ -32,7 +32,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
     adapterPayload => {
       assert(
         `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
+        !!payloadIsNotBlank(adapterPayload)
       );
       let serializer = serializerForAdapter(store, adapter, modelName);
       let payload = normalizeResponseHelper(
@@ -90,7 +90,7 @@ export function _findMany(adapter, store, modelName, ids, internalModels, option
     adapterPayload => {
       assert(
         `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
+        !!payloadIsNotBlank(adapterPayload)
       );
       let serializer = serializerForAdapter(store, adapter, modelName);
       let payload = normalizeResponseHelper(
@@ -328,7 +328,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship, 
         `You made a 'findHasMany' request for a ${internalModel.modelName}'s '${
           relationship.key
         }' relationship, using link '${link}' , but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
+        !!payloadIsNotBlank(adapterPayload)
       );
       let serializer = serializerForAdapter(store, adapter, relationship.type);
       let payload = normalizeResponseHelper(
@@ -402,7 +402,7 @@ export function _findAll(adapter, store, modelName, sinceToken, options) {
     adapterPayload => {
       assert(
         `You made a 'findAll' request for '${modelName}' records, but the adapter's response did not have any data`,
-        payloadIsNotBlank(adapterPayload)
+        !!payloadIsNotBlank(adapterPayload)
       );
       let serializer = serializerForAdapter(store, adapter, modelName);
       let payload = normalizeResponseHelper(
