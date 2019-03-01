@@ -27,7 +27,9 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
   let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
 
   promise = guardDestroyedStore(promise, store, label);
+}
 
+/*
   return promise.then(
     adapterPayload => {
       assert(
@@ -71,6 +73,7 @@ export function _find(adapter, store, modelClass, id, internalModel, options) {
     `DS: Extract payload of '${modelName}'`
   );
 }
+*/
 
 export function _findMany(adapter, store, modelName, ids, internalModels, optionsMap) {
   let snapshots = A(

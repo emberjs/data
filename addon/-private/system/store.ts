@@ -32,7 +32,6 @@ import { serializerForAdapter } from './store/serializers';
 import recordDataFor from './record-data-for';
 
 import {
-  _find,
   _findMany,
   _findHasMany,
   _findBelongsTo,
@@ -48,7 +47,7 @@ import RecordDataDefault from './model/record-data';
 import edBackburner from './backburner';
 import ShimModelClass from './model/shim-model-class';
 import FetchManager from './fetch-manager';
-import { identifierFor } from './record-identifier';
+import { identifierFor, RecordIdentifier } from './record-identifier';
 import { AdapterCache } from './adapter-cache';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
@@ -202,7 +201,6 @@ const Store = Service.extend({
     this._relationshipsDefCache = Object.create(null);
     this._attributesDefCache = Object.create(null);
 
-    this._fetchManager = new FetchManager();
     /*
       Ember Data uses several specialized micro-queues for organizing
       and coalescing similar async work.
@@ -222,6 +220,8 @@ const Store = Service.extend({
 
     this._serializerCache = Object.create(null);
     this._adapterCache = new AdapterCache(this);
+
+    this._fetchManager = new FetchManager(this._adapterCache, this);
 
     this.recordDataWrapper = new RecordDataWrapper(this);
 
@@ -2663,6 +2663,17 @@ const Store = Service.extend({
     return internalModel;
   },
 
+  _internalModelForIdentifier(identifier: RecordIdentifier): InternalModel {
+    let internalModel;
+    if (identifier.lid) {
+      internalModel = this._newlyCreatedModelsFor(identifier.type).get(identifier.lid);
+    }
+    if (!internalModel) {
+      internalModel = this._internalModelForId(identifier.type, identifier.id);
+    }
+    return internalModel;
+  },
+
   _createRecordData(modelName, id, clientId, internalModel) {
     return this.createRecordDataFor(modelName, id, clientId, this.recordDataWrapper);
   },
@@ -2672,6 +2683,15 @@ const Store = Service.extend({
   },
 
   recordDataFor(modelName, id, clientId) {
+    let internalModel = this._internalModelForId(modelName, id, clientId);
+    return recordDataFor(internalModel);
+  },
+ 
+  recordDataForIdentifier(identifier: RecordIdentifier) {
+    //TODO TEMP
+    let modelName = identifier.type;
+    let id = identifier.id;
+    let clientId = identifier.lid;
     let internalModel = this._internalModelForId(modelName, id, clientId);
     return recordDataFor(internalModel);
   },

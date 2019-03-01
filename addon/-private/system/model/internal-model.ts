@@ -16,8 +16,9 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
-import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError, JsonApiError } from './record-data';
+import RecordDataDefault, { RecordData, JsonApiResource, JsonApiValidationError, JsonApiError, ChangedAttributesHash } from './record-data';
 import { errorsHashToArray, errorsArrayToHash } from '../../adapters/errors';
+import { identifierFor } from '../record-identifier';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -783,7 +784,7 @@ export default class InternalModel {
   */
   createSnapshot(options) {
     heimdall.increment(createSnapshot);
-    return new Snapshot(this, options);
+    return new Snapshot(options, identifierFor(this), this.store);
   }
 
   /*
@@ -835,7 +836,7 @@ export default class InternalModel {
     @method changedAttributes
     @private
   */
-  changedAttributes() {
+  changedAttributes(): ChangedAttributesHash {
     heimdall.increment(changedAttributes);
     if (this.isLoading() && !this.isReloading) {
       // no need to calculate changed attributes when calling `findRecord`
@@ -1208,6 +1209,7 @@ export default class InternalModel {
   notifyAdapterErrorChange(jsonApiError?: JsonApiError) {
     this.getRecord().adapterErrorChanged(jsonApiError);
   }
+
   /*
     @method adapterror
     @private

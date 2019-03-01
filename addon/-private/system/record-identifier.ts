@@ -5,7 +5,6 @@ export interface RecordIdentifier {
     lid: string;
 }
 
-
 let lid = 1;
 export function identifierFor(im: InternalModel): RecordIdentifier {
     if (!im.clientId) {

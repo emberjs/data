@@ -5,6 +5,10 @@ import { run as emberRunLoop } from '@ember/runloop';
 import Adapter from "@ember/test/adapter";
 import { AdapterCache } from "./adapter-cache";
 import { assert, deprecate, warn, inspect } from '@ember/debug';
+import Snapshot from './snapshot';
+import { guardDestroyedStore } from './store/common';
+import { normalizeResponseHelper } from './store/serializer-response';
+import { serializerForAdapter } from './store/serializers';
 
 import {
   _find,
@@ -15,28 +19,70 @@ import {
   _query,
   _queryRecord,
 } from './store/finders';
+import RequestCache from "./request-cache";
+
+function payloadIsNotBlank(adapterPayload) {
+  if (Array.isArray(adapterPayload)) {
+    return true;
+  } else {
+    return Object.keys(adapterPayload || {}).length;
+  }
+}
 
 const emberRun = emberRunLoop.backburner;
 
-interface PendingFetchItem {
+export interface PendingFetchItem {
   identifier: RecordIdentifier,
+  queryRequest: QueryRequest,
   resolver: RSVP.Deferred<any>,
   options: any,
   trace?: any
+}
+
+export interface QueryExpression {
+  op: string;
+  options: { [key: string]: any };
+}
+
+export interface FindRecordExpression extends QueryExpression {
+  op: 'findRecord';
+  record: RecordIdentifier
+}
+
+// TODO Name?
+export interface QueryRequest {
+  query: QueryExpression
 }
 
 export default class FetchManager {
   _pendingFetch: Map<string, PendingFetchItem[]>;
   isDestroyed: boolean;
   _adapterCache: AdapterCache;
+  _store: any;
+  requestCache: RequestCache;
 
-  constructor(adapterCache: AdapterCache) {
+  constructor(adapterCache: AdapterCache, store: any) {
     // used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = new Map();
     this._adapterCache = adapterCache;
+    this._store = store;
+
+    this.requestCache = new RequestCache(); 
   }
 
   scheduleFetch(identifier: RecordIdentifier, options: any, shouldTrace: boolean): Promise<any> {
+    // TODO Probably the store should pass in the query object
+
+    let query: FindRecordExpression = {
+      'op': 'findRecord',
+      record: identifier,
+      options
+    }
+
+    let queryRequest: QueryRequest = {
+      query
+    }
+
     /*
     if (internalModel._promiseProxy) {
         return internalModel._promiseProxy;
@@ -51,6 +97,7 @@ export default class FetchManager {
       identifier,
       resolver,
       options,
+      queryRequest
     };
 
     if (DEBUG) {
@@ -72,8 +119,6 @@ export default class FetchManager {
     }
 
     let promise = resolver.promise;
-
-    //internalModel.loadingData(promise);
 
     if (this._pendingFetch.size === 0) {
       emberRun.schedule('actions', this, this.flushAllPendingFetches);
@@ -102,8 +147,65 @@ export default class FetchManager {
       typeof adapter.findRecord === 'function'
     );
 
-    let recordFetch =  _find(adapter, this, modelName, identifier.id, internalModel, fetchItem.options);
-    fetchItem.resolver.resolve(recordFetch);
+    let snapshot = new Snapshot(fetchItem.options, identifier, this._store);
+    let klass = {};
+
+    let promise = Promise.resolve().then(() => {
+      return adapter.findRecord(this._store, klass, identifier.id, snapshot);
+    });
+
+    let id = identifier.id;
+
+    let label = `DS: Handle Adapter#findRecord of '${modelName}' with id: '${id}'`;
+
+    promise = guardDestroyedStore(promise, this._store, label);
+    promise = promise.then(
+      adapterPayload => {
+        assert(
+          `You made a 'findRecord' request for a '${modelName}' with id '${id}', but the adapter's response did not have any data`,
+          !!payloadIsNotBlank(adapterPayload)
+        );
+        let serializer = serializerForAdapter(this._store, adapter, modelName);
+        let payload = normalizeResponseHelper(
+          serializer,
+          this._store,
+          klass,
+          adapterPayload,
+          id,
+          'findRecord'
+        );
+        assert(
+          `Ember Data expected the primary data returned from a 'findRecord' response to be an object but instead it found an array.`,
+          !Array.isArray(payload.data)
+        );
+
+        warn(
+          `You requested a record of type '${modelName}' with id '${id}' but the adapter returned a payload with primary data having an id of '${
+          payload.data.id
+          }'. Use 'store.findRecord()' when the requested id is the same as the one returned by the adapter. In other cases use 'store.queryRecord()' instead https://emberjs.com/api/data/classes/DS.Store.html#method_queryRecord`,
+          payload.data.id === id,
+          {
+            id: 'ds.store.findRecord.id-mismatch',
+          }
+        );
+
+        return this._store._push(payload);
+      },
+      error => {
+        /*
+        internalModel.notFound();
+        if (internalModel.isEmpty()) {
+          internalModel.unloadRecord();
+        }
+        */
+
+        throw error;
+      },
+      `DS: Extract payload of '${modelName}'`
+    );
+
+    this.requestCache.enqueue(promise, fetchItem.queryRequest);
+    fetchItem.resolver.resolve(promise);
   }
 
 
