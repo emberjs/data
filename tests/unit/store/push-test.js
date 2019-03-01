@@ -621,22 +621,22 @@ testInDebug(
           id: '1',
           relationships: {
             phoneNumbers: {
-              data: [
-                { type: 'phone-number', id: '2' }
-              ],
+              data: [{ type: 'phone-number', id: '2' }],
               links: {
                 related: '/api/people/1/phone-numbers',
               },
             },
           },
         },
-        included: [{
-          type: 'phone-number',
-          id: '2',
-          attributes: {
-            number: '1-800-DATA'
-          }
-        }]
+        included: [
+          {
+            type: 'phone-number',
+            id: '2',
+            attributes: {
+              number: '1-800-DATA',
+            },
+          },
+        ],
       });
     });
 
