@@ -637,7 +637,7 @@ export default class Relationship {
     if (payload.data !== undefined) {
       hasRelationshipDataProperty = true;
       this.updateData(payload.data, initial);
-    } else if (this.isAsync === false) {
+    } else if (this.isAsync === false && !this.hasAnyRelationshipData) {
       hasRelationshipDataProperty = true;
       let data = this.kind === 'hasMany' ? [] : null;
 
