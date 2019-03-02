@@ -73,16 +73,24 @@ module.exports = useEditionDetector({
       }
     }
 
-    let attrTransformer, attrSeparator;
-    if (process.env.EMBER_VERSION === 'OCTANE') {
-      attrTransformer = nativeAttr;
-      attrSeparator = ';';
-    } else {
-      attrTransformer = classicAttr;
-      attrSeparator = ',';
+    if (attrs.length) {
+      let isOctane = process.env.EMBER_VERSION === 'OCTANE';
+
+      let attrTransformer, attrSeparator;
+      if (isOctane) {
+        attrTransformer = nativeAttr;
+        attrSeparator = ';';
+      } else {
+        attrTransformer = classicAttr;
+        attrSeparator = ',';
+      }
+
+      attrs = attrs.map(attrTransformer);
+      attrs = '  ' + attrs.join(attrSeparator + EOL + '  ');
+      if (isOctane) {
+        attrs = attrs + attrSeparator;
+      }
     }
-    attrs = attrs.map(attrTransformer);
-    attrs = attrs.join(attrSeparator + EOL + '  ');
 
     let needsDeduplicated = needs.filter(function(need, i) {
       return needs.indexOf(need) === i;
