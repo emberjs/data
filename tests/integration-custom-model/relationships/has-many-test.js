@@ -15,7 +15,7 @@ let Book, Chapter, Page;
 
 const { attr, hasMany, belongsTo } = DS;
 
-module('integration/relationships/has_many - Has-Many Relationships', {
+module('integration-custom-model/relationships/has_many - Has-Many Relationships', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),

@@ -10,7 +10,7 @@ class Person extends Model {
   name;
 }
 
-module('integration/peek-all - DS.Store#peekAll()', function(hooks) {
+module('integration-custom-model/peek-all - DS.Store#peekAll()', function(hooks) {
   setupTest(hooks);
 
   let store;

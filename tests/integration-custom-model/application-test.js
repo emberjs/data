@@ -14,7 +14,7 @@ import initializeStoreService from 'ember-data/initialize-store-service';
   These tests ensure that Ember Data works with Ember's application
   initialization and dependency injection APIs.
 */
-module('integration/application - Injecting a Custom Store', function(hooks) {
+module('integration-custom-model/application - Injecting a Custom Store', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
@@ -45,7 +45,7 @@ module('integration/application - Injecting a Custom Store', function(hooks) {
   });
 });
 
-module('integration/application - Injecting the Default Store', function(hooks) {
+module('integration-custom-model/application - Injecting the Default Store', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
@@ -71,7 +71,7 @@ module('integration/application - Injecting the Default Store', function(hooks) 
   });
 });
 
-module('integration/application - Using the store as a service', function(hooks) {
+module('integration-custom-model/application - Using the store as a service', function(hooks) {
   setupTest(hooks);
 
   hooks.beforeEach(function() {
@@ -99,7 +99,7 @@ module('integration/application - Using the store as a service', function(hooks)
   });
 });
 
-module('integration/application - Attaching initializer', function(hooks) {
+module('integration-custom-model/application - Attaching initializer', function(hooks) {
   hooks.beforeEach(function() {
     this.TestApplication = Application.extend();
     this.TestApplication.initializer({

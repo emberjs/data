@@ -43,7 +43,7 @@ function initializeStore(adapter) {
   env.owner.register('model:person', Person);
 }
 
-module('integration/store - destroy', {
+module('integration-custom-model/store - destroy', {
   beforeEach() {
     initializeStore(DS.Adapter.extend());
   },
@@ -258,7 +258,7 @@ function ajaxResponse(value) {
   };
 }
 
-module('integration/store - findRecord');
+module('integration-custom-model/store - findRecord');
 
 test('store#findRecord fetches record from server when cached record is not present', function(assert) {
   assert.expect(2);
@@ -581,7 +581,7 @@ testInDebug(
   }
 );
 
-module('integration/store - findAll', {
+module('integration-custom-model/store - findAll', {
   beforeEach() {
     initializeStore(DS.RESTAdapter.extend());
   },
@@ -950,7 +950,7 @@ test('Using store#serializerFor should not throw an error when looking up the ap
   });
 });
 
-module('integration/store - deleteRecord', {
+module('integration-custom-model/store - deleteRecord', {
   beforeEach() {
     initializeStore(DS.RESTAdapter.extend());
   },
@@ -1029,7 +1029,7 @@ testInDebug(
   }
 );
 
-module('integration/store - queryRecord', {
+module('integration-custom-model/store - queryRecord', {
   beforeEach() {
     initializeStore(DS.Adapter.extend());
   },

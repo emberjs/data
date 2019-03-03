@@ -3,7 +3,7 @@ import Service from '@ember/service';
 import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 
-module('integration/injection factoryFor enabled', function(hooks) {
+module('integration-custom-model/injection factoryFor enabled', function(hooks) {
   setupTest(hooks);
   let store;
   let Model;
@@ -38,7 +38,7 @@ module('integration/injection factoryFor enabled', function(hooks) {
   });
 });
 
-module('integration/injection eager injections', function(hooks) {
+module('integration-custom-model/injection eager injections', function(hooks) {
   setupTest(hooks);
   let store;
   let Apple = Service.extend();

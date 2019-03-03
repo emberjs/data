@@ -8,7 +8,7 @@ import DS from 'ember-data';
 
 var Post, env;
 
-module('integration/records/save - Save Record', {
+module('integration-custom-model/records/save - Save Record', {
   beforeEach() {
     Post = DS.Model.extend({
       title: DS.attr('string'),

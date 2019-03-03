@@ -16,7 +16,7 @@ class TestAdapter {
   }
 }
 
-module('integration/store - adapterFor', function(hooks) {
+module('integration-custom-model/store - adapterFor', function(hooks) {
   setupTest(hooks);
   let store;
 

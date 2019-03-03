@@ -13,7 +13,7 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 
-module('integration/relationships/one_to_many_test - OneToMany relationships', {
+module('integration-custom-model/relationships/one_to_many_test - OneToMany relationships', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),

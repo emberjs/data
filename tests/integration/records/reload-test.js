@@ -39,6 +39,7 @@ module('integration/reload - Reloading Records', function(hooks) {
   });
 
   test("When a single record is requested, the adapter's find method should be called unless it's loaded.", async function(assert) {
+    debugger
     let count = 0;
     let reloadOptions = {
       adapterOptions: {

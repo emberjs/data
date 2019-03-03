@@ -10,7 +10,7 @@ let { Model, hasMany, belongsTo } = DS;
 
 var Post, Comment, Message, User;
 
-module('integration/relationships/inverse_relationships - Inverse Relationships');
+module('integration-custom-model/relationships/inverse_relationships - Inverse Relationships');
 
 test('When a record is added to a has-many relationship, the inverse belongsTo is determined automatically', function(assert) {
   Post = DS.Model.extend({

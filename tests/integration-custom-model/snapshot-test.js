@@ -9,7 +9,7 @@ const { Model, attr, hasMany, belongsTo, Snapshot } = DS;
 
 let env, Post, Comment;
 
-module('integration/snapshot - Snapshot', {
+module('integration-custom-model/snapshot - Snapshot', {
   beforeEach() {
     Post = Model.extend({
       author: attr(),

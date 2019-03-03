@@ -9,7 +9,7 @@ const { attr } = DS;
 
 let Person, store, env;
 
-module('integration/adapter/find - Finding Records', {
+module('integration-custom-model/adapter/find - Finding Records - Custom Model', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),

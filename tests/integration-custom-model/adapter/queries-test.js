@@ -10,7 +10,7 @@ import DS from 'ember-data';
 
 let Person, env, store, adapter;
 
-module('integration/adapter/queries - Queries', {
+module('integration-custom-model/adapter/queries - Queries', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),

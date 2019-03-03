@@ -23,7 +23,7 @@ const { hash } = RSVP;
 
 let env, store, User, Message, Post, Comment, Book, Book1, Chapter, Author, NewMessage, Section;
 
-module('integration/relationship/belongs-to BelongsTo Relationships (new-style)', function(hooks) {
+module('integration-custom-model/relationship/belongs-to BelongsTo Relationships (new-style)', function(hooks) {
   let store;
   setupTest(hooks);
 
@@ -192,7 +192,7 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   });
 });
 
-module('integration/relationship/belongs_to Belongs-To Relationships', {
+module('integration-custom-model/relationship/belongs_to Belongs-To Relationships', {
   beforeEach() {
     User = DS.Model.extend({
       name: DSattr('string'),

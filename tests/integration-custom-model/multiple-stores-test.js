@@ -14,7 +14,7 @@ import EmbeddedRecordsMixin from 'ember-data/serializers/embedded-records-mixin'
 
 let env;
 
-module('integration/multiple_stores - Multiple Stores Tests', {
+module('integration-custom-model/multiple_stores - Multiple Stores Tests', {
   beforeEach() {
     const SuperVillain = Model.extend({
       firstName: attr('string'),

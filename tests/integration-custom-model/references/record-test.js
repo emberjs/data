@@ -7,7 +7,7 @@ import { module, test } from 'qunit';
 
 var env, Person;
 
-module('integration/references/record', {
+module('integration-custom-model/references/record', {
   beforeEach() {
     Person = DS.Model.extend({
       name: DS.attr(),

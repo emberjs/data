@@ -8,7 +8,7 @@ import RSVP from 'rsvp';
 var env, store, Person;
 var attr = DS.attr;
 
-module('integration/records/error', {
+module('integration-custom-model/records/error', {
   beforeEach: function() {
     Person = DS.Model.extend({
       firstName: attr('string'),

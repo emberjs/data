@@ -8,7 +8,7 @@ import JSONAPISerializer from 'ember-data/serializers/json-api';
 import Model from 'ember-data/model';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 
-module('integration/reload - Reloading Records', function(hooks) {
+module('integration-custom-model/reload - Reloading Records', function(hooks) {
   let store;
   setupTest(hooks);
 

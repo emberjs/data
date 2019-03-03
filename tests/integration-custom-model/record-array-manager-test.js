@@ -20,7 +20,7 @@ const Car = DS.Model.extend({
   person: DS.belongsTo('person', { async: false }),
 });
 
-module('integration/record_array_manager', {
+module('integration-custom-model/record_array_manager', {
   beforeEach() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend(),

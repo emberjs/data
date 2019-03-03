@@ -9,7 +9,7 @@ import DS from 'ember-data';
 
 var Person, store, env;
 
-module('integration/store/query-record - Query one record with a query hash', {
+module('integration-custom-model/store/query-record - Query one record with a query hash', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),

@@ -12,7 +12,7 @@ var env, store, User, Job;
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 
-module('integration/relationships/one_to_one_test - OneToOne relationships', {
+module('integration-custom-model/relationships/one_to_one_test - OneToOne relationships', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),

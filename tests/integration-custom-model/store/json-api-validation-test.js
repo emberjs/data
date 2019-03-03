@@ -37,7 +37,7 @@ function payloadError(payload, expectedError, assert) {
   env.owner.unregister('adapter:person');
 }
 
-module('integration/store/json-validation', {
+module('integration-custom-model/store/json-validation', {
   beforeEach() {
     QUnit.assert.payloadError = payloadError.bind(QUnit.assert);
 

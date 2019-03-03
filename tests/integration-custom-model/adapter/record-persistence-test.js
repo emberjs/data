@@ -11,7 +11,7 @@ const { attr } = DS;
 
 let Person, env, store;
 
-module('integration/adapter/record_persistence - Persisting Records', {
+module('integration-custom-model/adapter/record_persistence - Persisting Records', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),

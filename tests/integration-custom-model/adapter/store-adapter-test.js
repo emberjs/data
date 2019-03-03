@@ -19,7 +19,7 @@ function moveRecordOutOfInFlight(record) {
   });
 }
 
-module('integration/adapter/store-adapter - DS.Store and DS.Adapter integration test', {
+module('integration-custom-model/adapter/store-adapter - DS.Store and DS.Adapter integration test', {
   beforeEach() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),

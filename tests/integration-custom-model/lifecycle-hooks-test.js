@@ -9,7 +9,7 @@ import DS from 'ember-data';
 let Person, env;
 const { attr } = DS;
 
-module('integration/lifecycle_hooks - Lifecycle Hooks', {
+module('integration-custom-model/lifecycle_hooks - Lifecycle Hooks', {
   beforeEach() {
     Person = DS.Model.extend({
       name: attr('string'),

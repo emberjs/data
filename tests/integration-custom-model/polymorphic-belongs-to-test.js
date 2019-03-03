@@ -22,7 +22,7 @@ const AsyncBook = DS.Model.extend({
   author: belongsTo('person', { polymorphic: true }),
 });
 
-module('integration/polymorphic-belongs-to - Polymorphic BelongsTo', {
+module('integration-custom-model/polymorphic-belongs-to - Polymorphic BelongsTo', {
   beforeEach() {
     let env = setupStore({
       book: Book,

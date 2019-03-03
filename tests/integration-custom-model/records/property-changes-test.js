@@ -9,7 +9,7 @@ import DS from 'ember-data';
 var env, store, Person;
 var attr = DS.attr;
 
-module('integration/records/property-changes - Property changes', {
+module('integration-custom-model/records/property-changes - Property changes', {
   beforeEach() {
     Person = DS.Model.extend({
       firstName: attr('string'),

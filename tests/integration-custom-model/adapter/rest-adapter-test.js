@@ -16,7 +16,7 @@ let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
 let server;
 
-module('integration/adapter/rest_adapter - REST Adapter', {
+module('integration-custom-model/adapter/rest_adapter - REST Adapter', {
   beforeEach() {
     Post = DS.Model.extend({
       name: DS.attr('string'),

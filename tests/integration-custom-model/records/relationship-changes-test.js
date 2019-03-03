@@ -94,7 +94,7 @@ const sibling5Ref = {
   id: '5',
 };
 
-module('integration/records/relationship-changes - Relationship changes', {
+module('integration-custom-model/records/relationship-changes - Relationship changes', {
   beforeEach() {
     env = setupStore({
       person: Person,

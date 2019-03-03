@@ -8,7 +8,7 @@ import DS from 'ember-data';
 
 var Person, store, env;
 
-module('integration/store/query', {
+module('integration-custom-model/store/query', {
   beforeEach() {
     Person = DS.Model.extend();
 

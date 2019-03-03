@@ -17,7 +17,7 @@ class Person extends Model {
   bestFriend;
 }
 
-module('integration/load - Loading Records', function(hooks) {
+module('integration-custom-model/load - Loading Records', function(hooks) {
   let store;
   setupTest(hooks);
 

@@ -16,7 +16,7 @@ function stringify(string) {
   };
 }
 
-module('integration/inverse_test - inverseFor', {
+module('integration-custom-model/inverse_test - inverseFor', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),

@@ -14,7 +14,7 @@ const Person = DS.Model.extend({
   },
 });
 
-module('integration/peeked-records', {
+module('integration-custom-model/peeked-records', {
   beforeEach() {
     store = createStore({
       person: Person,

@@ -126,7 +126,7 @@ let CustomStore = Store.extend({
   }
 });
 
-module('integration/record-data - Custom RecordData Implementations', function (hooks) {
+module('integration-custom-model/record-data - Custom RecordData Implementations', function (hooks) {
   setupTest(hooks);
 
   let store;

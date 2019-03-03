@@ -10,7 +10,7 @@ const { attr, hasMany, belongsTo } = DS;
 
 let env, store, Elder, MiddleAger, Kid;
 
-module('integration/relationships/nested_relationships_test - Nested relationships', {
+module('integration-custom-model/relationships/nested_relationships_test - Nested relationships', {
   beforeEach() {
     Elder = DS.Model.extend({
       name: attr('string'),

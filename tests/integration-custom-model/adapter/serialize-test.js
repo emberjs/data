@@ -7,7 +7,7 @@ import DS from 'ember-data';
 
 let env, store, adapter, serializer;
 
-module('integration/adapter/serialize - DS.Adapter integration test', {
+module('integration-custom-model/adapter/serialize - DS.Adapter integration test', {
   beforeEach() {
     const Person = DS.Model.extend({
       name: DS.attr('string'),

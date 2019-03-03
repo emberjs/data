@@ -143,6 +143,7 @@ test('load() fetches the record', function(assert) {
 });
 
 test('load() only a single find is triggered', function(assert) {
+  debugger
   var done = assert.async();
 
   var deferred = defer();
@@ -183,8 +184,10 @@ test('load() only a single find is triggered', function(assert) {
   });
 
   run(function() {
+    debugger
     recordReference.load().then(function(record) {
       assert.equal(get(record, 'name'), 'Vito');
+      debugger
 
       done();
     });

@@ -49,7 +49,7 @@ Boat.toString = function() {
   return 'Boat';
 };
 
-module('integration/unload - Rematerializing Unloaded Records', {
+module('integration-custom-model/unload - Rematerializing Unloaded Records', {
   beforeEach() {
     env = setupStore({
       adapter: DS.JSONAPIAdapter,

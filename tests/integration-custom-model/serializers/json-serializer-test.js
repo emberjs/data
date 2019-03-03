@@ -9,7 +9,7 @@ import DS from 'ember-data';
 
 var Post, Comment, Favorite, env, serializer;
 
-module('integration/serializer/json - JSONSerializer', {
+module('integration-custom-model/serializer/json - JSONSerializer', {
   beforeEach() {
     Post = DS.Model.extend({
       title: DS.attr('string'),

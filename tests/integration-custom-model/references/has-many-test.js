@@ -8,7 +8,7 @@ import { module, test } from 'qunit';
 
 var env, Person;
 
-module('integration/references/has-many', {
+module('integration-custom-model/references/has-many', {
   beforeEach() {
     var Family = DS.Model.extend({
       persons: DS.hasMany({ async: true }),

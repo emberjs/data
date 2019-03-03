@@ -11,7 +11,7 @@ const { Model, attr, hasMany, belongsTo } = DS;
 
 let env, User, Organisation;
 
-module('integration/relationship/json-api-links | Relationship state updates', {
+module('integration-custom-model/relationship/json-api-links | Relationship state updates', {
   beforeEach() {},
 
   afterEach() {
@@ -662,7 +662,7 @@ test('pushing has-many payloads with links, then one with links and data works a
   run(() => get(Chris, 'pets'));
 });
 
-module('integration/relationship/json-api-links | Relationship fetching', {
+module('integration-custom-model/relationship/json-api-links | Relationship fetching', {
   beforeEach() {
     const User = Model.extend({
       name: attr(),

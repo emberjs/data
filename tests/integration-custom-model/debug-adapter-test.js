@@ -12,7 +12,7 @@ class Post extends Model {
   title;
 }
 
-module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
+module('integration-custom-model/debug-adapter - DS.DebugAdapter', function(hooks) {
   setupTest(hooks);
 
   let store, debugAdapter;

@@ -11,7 +11,7 @@ var env, store, serializer;
 
 var User, Handle, GithubHandle, TwitterHandle, Company, Project;
 
-module('integration/serializers/json-api-serializer - JSONAPISerializer', {
+module('integration-custom-model/serializers/json-api-serializer - JSONAPISerializer', {
   beforeEach() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),

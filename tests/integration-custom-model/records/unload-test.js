@@ -121,7 +121,7 @@ Show.toString = function() {
   return 'Show';
 };
 
-module('integration/unload - Unloading Records', function(hooks) {
+module('integration-custom-model/unload - Unloading Records', function(hooks) {
   setupTest(hooks);
   let store, adapter;
 

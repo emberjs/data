@@ -20,7 +20,7 @@ let User,
   DevelopmentShop,
   DesignStudio;
 
-module('integration/adapter/json-api-adapter - JSONAPIAdapter', {
+module('integration-custom-model/adapter/json-api-adapter - JSONAPIAdapter', {
   beforeEach() {
     User = DS.Model.extend({
       firstName: DS.attr('string'),

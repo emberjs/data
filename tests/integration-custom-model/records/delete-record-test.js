@@ -14,7 +14,7 @@ import DS from 'ember-data';
 var attr = DS.attr;
 var Person, env;
 
-module('integration/deletedRecord - Deleting Records', {
+module('integration-custom-model/deletedRecord - Deleting Records', {
   beforeEach() {
     Person = DS.Model.extend({
       name: attr('string'),

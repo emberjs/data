@@ -12,7 +12,7 @@ const { attr, hasMany } = DS;
 
 let Account, Topic, User, store, env;
 
-module('integration/relationships/many_to_many_test - ManyToMany relationships', {
+module('integration-custom-model/relationships/many_to_many_test - ManyToMany relationships', {
   beforeEach() {
     User = DS.Model.extend({
       name: attr('string'),

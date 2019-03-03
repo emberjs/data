@@ -16,7 +16,7 @@ let HomePlanet,
   Container,
   env;
 
-module('integration/serializer/rest - RESTSerializer', {
+module('integration-custom-model/serializer/rest - RESTSerializer', {
   beforeEach() {
     HomePlanet = DS.Model.extend({
       name: DS.attr('string'),

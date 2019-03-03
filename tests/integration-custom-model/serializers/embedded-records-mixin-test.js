@@ -10,7 +10,7 @@ import RESTAdapter from 'ember-data/adapters/rest';
 import RESTSerializer from 'ember-data/serializers/rest';
 import EmbeddedRecordsMixin from 'ember-data/serializers/embedded-records-mixin';
 
-module('integration/embedded-records-mixin', function(hooks) {
+module('integration-custom-model/embedded-records-mixin', function(hooks) {
   setupTest(hooks);
   let store;
 
