@@ -132,6 +132,7 @@ export default class FetchManager {
 
     (fetches.get(modelName) as PendingFetchItem[]).push(pendingFetchItem);
 
+    this.requestCache.enqueue(promise, pendingFetchItem.queryRequest);
     return promise;
   }
 
@@ -204,7 +205,6 @@ export default class FetchManager {
       `DS: Extract payload of '${modelName}'`
     );
 
-    this.requestCache.enqueue(promise, fetchItem.queryRequest);
     fetchItem.resolver.resolve(promise);
   }
 

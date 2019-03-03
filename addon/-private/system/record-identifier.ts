@@ -17,3 +17,8 @@ export function identifierFor(im: InternalModel): RecordIdentifier {
         lid: im.clientId
     }
 }
+
+// TODO 
+export function identifierForModel(model): RecordIdentifier  {
+    return identifierFor(model._internalModel);
+}

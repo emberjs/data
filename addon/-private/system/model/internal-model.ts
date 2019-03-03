@@ -393,10 +393,9 @@ export default class InternalModel {
   }
 
   startedReloading() {
-    this.isReloading = true;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', true);
+    /*
     }
+    */
   }
 
   linkWasLoadedForRelationship(key, data) {
@@ -406,10 +405,6 @@ export default class InternalModel {
   }
 
   finishedReloading() {
-    this.isReloading = false;
-    if (this.hasRecord) {
-      set(this._record, 'isReloading', false);
-    }
   }
 
   reload(options) {

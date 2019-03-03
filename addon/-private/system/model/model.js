@@ -17,6 +17,8 @@ import Ember from 'ember';
 import InternalModel from './internal-model';
 import RootState from './states';
 import { errorsHashToArray, errorsArrayToHash } from '../../adapters/errors';
+import { identifierForModel } from '../record-identifier';
+import { request } from 'http';
 const { changeProperties } = Ember;
 
 /**
@@ -303,7 +305,11 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isReloading: false,
+
+  isReloading: computed(function() {
+    let requests = this.store.requestCache.getPending(identifierForModel(this));
+    return !!requests.find((req) => req.query.query.options.isReloading);;
+  }).volatile(),
 
   /**
     All ember models have an id property. This is an identifier
@@ -1839,7 +1845,7 @@ Model.reopenClass({
    */
   attributes: computed(function() {
     let map = new Map();
-    debugger
+    //debugger
 
     this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {

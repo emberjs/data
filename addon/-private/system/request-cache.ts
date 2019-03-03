@@ -81,9 +81,9 @@ export default class RequestCache {
     }
   }
 
-  //TODO Implement
+  //TODO Account for more than one request
   _dequeue(lid: string) {
-
+    this._pending[lid] = [];
   }
 
   _addDone(request: Request) {

@@ -280,6 +280,10 @@ const Store = Service.extend({
     }
   },
 
+  requestCache: computed(function() {
+    return this._fetchManager.requestCache;
+  }),
+
   /**
     The default adapter to use to communicate to a backend server or
     other persistence layer. This will be overridden by an application
@@ -986,6 +990,7 @@ const Store = Service.extend({
     @return {Promise} promise
   */
   _reloadRecord(internalModel, options) {
+    options.isReloading = true;
     let { id, modelName } = internalModel;
     let adapter = this.adapterFor(modelName);
 
@@ -2044,7 +2049,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }
-    debugger
+    //debugger
     internalModel.adapterDidInvalidate(errors);
   },
 
@@ -2062,7 +2067,7 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasError');
     }
-    debugger
+    //sdebugger
     internalModel.adapterDidError(error);
   },
 
