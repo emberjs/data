@@ -438,8 +438,16 @@ const Model = EmberObject.extend(Evented, {
     @property adapterError
     @type {DS.AdapterError}
   */
-  adapterError: null,
-
+  adapterError: computed(function() {
+    debugger
+    let requests = this.store.requestCache.getFinished(identifierForModel(this));
+    let request = requests.find((req) => req.state === 'rejected');
+    if (request) {
+      return request.result;
+    } else {
+      return null;
+    }
+  }).volatile(),
   
   invalidErrorsChanged(jsonApiErrors) {
     this._clearErrorMessages();

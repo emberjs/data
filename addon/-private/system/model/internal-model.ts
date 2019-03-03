@@ -276,7 +276,6 @@ export default class InternalModel {
         store,
         _internalModel: this,
         currentState: this.currentState,
-        adapterError: this.error,
         container: null
       };
 
