@@ -14,7 +14,6 @@ import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
 import Ember from 'ember';
-import { InvalidError } from '../adapters/errors';
 import { instrument } from 'ember-data/-debug';
 import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
@@ -43,7 +42,7 @@ import {
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
-import RecordDataDefault from './model/record-data';
+import RecordDataDefault, { RecordData } from './model/record-data';
 import edBackburner from './backburner';
 import ShimModelClass from './model/shim-model-class';
 import FetchManager from './fetch-manager';
@@ -280,7 +279,7 @@ const Store = Service.extend({
     }
   },
 
-  requestCache: computed(function() {
+  requestCache: computed(function () {
     return this._fetchManager.requestCache;
   }),
 
@@ -320,7 +319,7 @@ const Store = Service.extend({
     @private
     @return DS.Adapter
   */
-  defaultAdapter: computed('adapter', function() {
+  defaultAdapter: computed('adapter', function () {
     let adapter = get(this, 'adapter');
 
     assert(
@@ -1148,7 +1147,7 @@ const Store = Service.extend({
 
     assert(
       `You tried to load a hasMany relationship but you have no adapter (for ${
-        internalModel.modelName
+      internalModel.modelName
       })`,
       adapter
     );
@@ -1248,7 +1247,7 @@ const Store = Service.extend({
 
     assert(
       `You tried to load a belongsTo relationship but you have no adapter (for ${
-        internalModel.modelName
+      internalModel.modelName
       })`,
       adapter
     );
@@ -1954,50 +1953,35 @@ const Store = Service.extend({
   scheduleSave(internalModel, options) {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
-
-
-    let snapshot = internalModel.createSnapshot(options);
-    internalModel.adapterWillCommit();
-    this._pendingSave.push({
-      snapshot: snapshot,
-      resolver: resolver,
-    });
-    emberRun.scheduleOnce('actions', this, this.flushPendingSave);
-    return resolver.promise;
-  },
-
-  /**
-    This method is called at the end of the run loop, and
-    flushes any records passed into `scheduleSave`
-
-    @method flushPendingSave
-    @private
-  */
-  flushPendingSave() {
-    let pending = this._pendingSave.slice();
-    this._pendingSave = [];
-
-    for (let i = 0, j = pending.length; i < j; i++) {
-      let pendingItem = pending[i];
-      let snapshot = pendingItem.snapshot;
-      let resolver = pendingItem.resolver;
-      let internalModel = snapshot._internalModel;
-      let adapter = this.adapterFor(internalModel.modelName);
-      let operation;
-
-      if (internalModel.currentState.stateName === 'root.deleted.saved') {
-        resolver.resolve();
-        continue;
-      } else if (internalModel.isNew()) {
-        operation = 'createRecord';
-      } else if (internalModel.isDeleted()) {
-        operation = 'deleteRecord';
-      } else {
-        operation = 'updateRecord';
-      }
-
-      resolver.resolve(_commit(adapter, this, operation, snapshot));
-    }
+    internalModel._recordData.willCommit();
+    //TODO Remove
+    internalModel.send('willCommit');
+    let promise = this._fetchManager.scheduleSave(identifierFor(internalModel), options);
+    promise = promise.then(payload => {
+      /*
+      Note to future spelunkers hoping to optimize.
+      We rely on this `run` to create a run loop if needed
+      that `store._push` and `store.didSaveRecord` will both share.
+ 
+      We use `join` because it is often the case that we
+      have an outer run loop available still from the first
+      call to `store._push`;
+     */
+      this._backburner.join(() => {
+        let data = payload && payload.data;
+        this.didSaveRecord(internalModel, { data });
+        // seems risky, but if the tests pass might be fine?
+        if (payload && payload.included) {
+          this._push({ data: null, included: payload.included });
+        }
+      });
+    },
+      (error) => {
+        this.recordWasInvalid(internalModel, error);
+        throw error;
+      });
+      
+    return promise;
   },
 
   /**
@@ -2024,7 +2008,7 @@ const Store = Service.extend({
     if (!data) {
       assert(
         `Your ${
-          internalModel.modelName
+        internalModel.modelName
         } record was saved to the server, but the response does not have an id and no id has been set client side. Records must have ids. Please update the server response to provide an id in the response or generate the id on the client side either before saving the record or while normalizing the response.`,
         internalModel.id
       );
@@ -2051,24 +2035,6 @@ const Store = Service.extend({
     }
     //debugger
     internalModel.adapterDidInvalidate(errors);
-  },
-
-  /**
-    This method is called once the promise returned by an
-    adapter's `createRecord`, `updateRecord` or `deleteRecord`
-    is rejected (with anything other than a `DS.InvalidError`).
-
-    @method recordWasError
-    @private
-    @param {InternalModel} internalModel
-    @param {Error} error
-  */
-  recordWasError(internalModel, error) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'recordWasError');
-    }
-    //sdebugger
-    internalModel.adapterDidError(error);
   },
 
   /**
@@ -2691,8 +2657,8 @@ const Store = Service.extend({
     let internalModel = this._internalModelForId(modelName, id, clientId);
     return recordDataFor(internalModel);
   },
- 
-  recordDataForIdentifier(identifier: RecordIdentifier) {
+
+  recordDataForIdentifier(identifier: RecordIdentifier): RecordData {
     //TODO TEMP
     let modelName = identifier.type;
     let id = identifier.id;
@@ -2972,12 +2938,12 @@ const Store = Service.extend({
         if (shouldTrack) {
           throw new Error(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - ')
+            tracked.map(o => o.label).join('\n\t - ')
           );
         } else {
           warn(
             'Async Request leaks detected. Add a breakpoint here and set `store.generateStackTracesForTrackedRequests = true;`to inspect traces for leak origins:\n\t - ' +
-              tracked.map(o => o.label).join('\n\t - '),
+            tracked.map(o => o.label).join('\n\t - '),
             false,
             {
               id: 'ds.async.leak.detected',
@@ -3033,11 +2999,11 @@ const Store = Service.extend({
 
     assert(
       `A ${
-        relationship.internalModel.modelName
+      relationship.internalModel.modelName
       } record was pushed into the store with the value of ${relationship.key} being ${inspect(
         resourceIdentifier
       )}, but ${
-        relationship.key
+      relationship.key
       } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
       !Array.isArray(resourceIdentifier)
     );
@@ -3053,11 +3019,11 @@ const Store = Service.extend({
 
     assert(
       `A ${
-        relationship.internalModel.modelName
+      relationship.internalModel.modelName
       } record was pushed into the store with the value of ${relationship.key} being '${inspect(
         resourceIdentifiers
       )}', but ${
-        relationship.key
+      relationship.key
       } is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.`,
       Array.isArray(resourceIdentifiers)
     );
@@ -3069,79 +3035,6 @@ const Store = Service.extend({
     return _internalModels;
   },
 });
-
-function _commit(adapter, store, operation, snapshot) {
-  let internalModel = snapshot._internalModel;
-  let modelName = snapshot.modelName;
-  let modelClass = store.modelFor(modelName);
-  assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
-  assert(
-    `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
-    typeof adapter[operation] === 'function'
-  );
-
-  let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
-  let serializer = serializerForAdapter(store, adapter, modelName);
-  let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
-
-  assert(
-    `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
-    promise !== undefined
-  );
-
-  promise = guardDestroyedStore(promise, store, label);
-  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
-
-  return promise.then(
-    adapterPayload => {
-      /*
-      Note to future spelunkers hoping to optimize.
-      We rely on this `run` to create a run loop if needed
-      that `store._push` and `store.didSaveRecord` will both share.
-
-      We use `join` because it is often the case that we
-      have an outer run loop available still from the first
-      call to `store._push`;
-     */
-      store._backburner.join(() => {
-        let payload, data, sideloaded;
-        if (adapterPayload) {
-          payload = normalizeResponseHelper(
-            serializer,
-            store,
-            modelClass,
-            adapterPayload,
-            snapshot.id,
-            operation
-          );
-          if (payload.included) {
-            sideloaded = payload.included;
-          }
-          data = payload.data;
-        }
-        store.didSaveRecord(internalModel, { data });
-        // seems risky, but if the tests pass might be fine?
-        if (sideloaded) {
-          store._push({ data: null, included: sideloaded });
-        }
-      });
-
-      return internalModel;
-    },
-    function(error) {
-      if (error instanceof InvalidError) {
-        let errors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-
-        store.recordWasInvalid(internalModel, errors);
-      } else {
-        store.recordWasError(internalModel, error);
-      }
-
-      throw error;
-    },
-    label
-  );
-}
 
 /**
  *

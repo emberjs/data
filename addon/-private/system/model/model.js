@@ -175,7 +175,13 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isSaving: retrieveFromCurrentState,
+  isSaving: computed(function() {
+    debugger
+    let requests = this.store.requestCache.getPending(identifierForModel(this));
+    return !!requests.find((req) => req.query.query.op === 'saveRecord');
+  }).volatile(),
+
+  /**
   /**
     If this property is `true` the record is in the `deleted` state
     and has been marked for deletion. When `isDeleted` is true and

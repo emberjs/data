@@ -60,7 +60,7 @@ export default class RequestCache {
       }
       this._pending[lid].push(request);
       promise.then((result) => {
-        this._dequeue(lid);
+        this._dequeue(lid, request);
         let finalizedRequest = {
           state: RequestState.fulfilled,
           query: queryRequest,
@@ -69,7 +69,7 @@ export default class RequestCache {
         }
         this._addDone(finalizedRequest);
       }, (error) => {
-        this._dequeue(lid);
+        this._dequeue(lid, request);
         let finalizedRequest = {
           state: RequestState.rejected,
           query: queryRequest,
@@ -82,8 +82,8 @@ export default class RequestCache {
   }
 
   //TODO Account for more than one request
-  _dequeue(lid: string) {
-    this._pending[lid] = [];
+  _dequeue(lid: string, request: Request) {
+    this._pending[lid] = this._pending[lid].filter((req) => req !== request);
   }
 
   _addDone(request: Request) {

@@ -385,6 +385,7 @@ export default class InternalModel {
   }
 
   deleteRecord() {
+    this._recordData.deleteRecord();
     this.send('deleteRecord');
   }
 
@@ -845,8 +846,6 @@ export default class InternalModel {
     @private
   */
   adapterWillCommit() {
-    this._recordData.willCommit();
-    this.send('willCommit');
   }
 
   /*
@@ -1181,11 +1180,15 @@ export default class InternalModel {
   */
   adapterDidInvalidate(errors) {
     let attribute;
-    let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors);
+    if (errors.__INVALID_ERRROR) {
+      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors);
 
-    this.send('becameInvalid');
+      this.send('becameInvalid');
 
-    this._recordData.commitWasRejected(jsonApiErrors);
+      this._recordData.commitWasRejected(jsonApiErrors);
+    } else {
+      this._recordData.commitWasRejected();
+    }
   }
 
   notifyErrorsChange() {

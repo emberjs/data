@@ -136,12 +136,17 @@ test("when a store is committed, the adapter's `commit` method should be called 
     });
 });
 
-test('An adapter can notify the store that records were updated by calling `didSaveRecords`.', function(assert) {
-  assert.expect(6);
+test('igor1 An adapter can notify the store that records were updated by calling `didSaveRecords`.', function(assert) {
+  assert.expect(11);
+  debugger
 
   let tom, yehuda;
 
   env.adapter.updateRecord = function(store, type, snapshot) {
+    if (snapshot.id === '1')  {
+      assert.equal(tom.get('isSaving'), true, 'Tom is saving');
+    }
+    assert.ok('called', true);
     return resolve();
   };
 
@@ -166,12 +171,15 @@ test('An adapter can notify the store that records were updated by calling `didS
 
     tom.set('name', 'Michael Phelps');
     yehuda.set('name', 'Usain Bolt');
+    
+    assert.equal(tom.get('isSaving'), false, 'Tom is not saving');
 
     assert.ok(tom.get('hasDirtyAttributes'), 'tom is dirty');
     assert.ok(yehuda.get('hasDirtyAttributes'), 'yehuda is dirty');
 
     let savedTom = assert.assertClean(tom.save()).then(record => {
       assert.equal(record, tom, 'The record is correct');
+      assert.equal(tom.get('isSaving'), false, 'Tom is not saving after promise resolves');
     });
 
     let savedYehuda = assert.assertClean(yehuda.save()).then(record => {

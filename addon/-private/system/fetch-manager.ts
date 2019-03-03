@@ -6,9 +6,10 @@ import Adapter from "@ember/test/adapter";
 import { AdapterCache } from "./adapter-cache";
 import { assert, deprecate, warn, inspect } from '@ember/debug';
 import Snapshot from './snapshot';
-import { guardDestroyedStore } from './store/common';
+import { guardDestroyedStore, _guard, _bind, _objectIsAlive } from './store/common';
 import { normalizeResponseHelper } from './store/serializer-response';
 import { serializerForAdapter } from './store/serializers';
+import { InvalidError } from '../adapters/errors';
 
 import {
   _find,
@@ -20,6 +21,7 @@ import {
   _queryRecord,
 } from './store/finders';
 import RequestCache from "./request-cache";
+import { RecordData, RelationshipRecordData } from "./model/record-data";
 
 function payloadIsNotBlank(adapterPayload) {
   if (Array.isArray(adapterPayload)) {
@@ -39,6 +41,14 @@ export interface PendingFetchItem {
   trace?: any
 }
 
+export interface PendingSaveItem {
+  resolver: RSVP.Deferred<any>,
+  snapshot: Snapshot,
+  identifier: RecordIdentifier,
+  options: any,
+  queryRequest: QueryRequest
+}
+
 export interface QueryExpression {
   op: string;
   options: { [key: string]: any };
@@ -46,6 +56,11 @@ export interface QueryExpression {
 
 export interface FindRecordExpression extends QueryExpression {
   op: 'findRecord';
+  record: RecordIdentifier
+}
+
+export interface SaveRecordExpression extends QueryExpression {
+  op: 'saveRecord';
   record: RecordIdentifier
 }
 
@@ -60,6 +75,7 @@ export default class FetchManager {
   _adapterCache: AdapterCache;
   _store: any;
   requestCache: RequestCache;
+  _pendingSave: PendingSaveItem[];
 
   constructor(adapterCache: AdapterCache, store: any) {
     // used to keep track of all the find requests that need to be coalesced
@@ -67,11 +83,147 @@ export default class FetchManager {
     this._adapterCache = adapterCache;
     this._store = store;
 
-    this.requestCache = new RequestCache(); 
+    this._pendingSave = [];
+    this.requestCache = new RequestCache();
+  }
+
+  /**
+    This method is called by `record.save`, and gets passed a
+    resolver for the promise that `record.save` returns.
+
+    It schedules saving to happen at the end of the run loop.
+
+    @method scheduleSave
+    @private
+    @param {InternalModel} internalModel
+    @param {Resolver} resolver
+    @param {Object} options
+  */
+  scheduleSave(identifier: RecordIdentifier, options: any) {
+    let promiseLabel = 'DS: Model#save ' + this;
+    let resolver = RSVP.defer(promiseLabel);
+
+    let query: SaveRecordExpression = {
+      'op': 'saveRecord',
+      record: identifier,
+      options
+    }
+
+    let queryRequest: QueryRequest = {
+      query
+    }
+
+    let snapshot = new Snapshot(options, identifier, this._store);
+    let pendingSaveItem = {
+      snapshot: snapshot,
+      resolver: resolver,
+      identifier,
+      options,
+      queryRequest
+    }
+    this._pendingSave.push(pendingSaveItem);
+    emberRun.scheduleOnce('actions', this, this._flushPendingSaves);
+
+    this.requestCache.enqueue(resolver.promise, pendingSaveItem.queryRequest);
+
+    return resolver.promise;
+  }
+
+  _flushPendingSave(pending: PendingSaveItem) {
+    let { snapshot, resolver, identifier } = pending;
+    let adapter = this._adapterCache.adapterFor(identifier.type);
+    let operation;
+    let recordData: RelationshipRecordData = this._store.recordDataForIdentifier(identifier);
+
+
+    /*
+    TODO Bring back this case
+    if (internalModel.currentState.stateName === 'root.deleted.saved') {
+      resolver.resolve();
+      continue;
+    */
+
+    if (recordData.isNew()) {
+      operation = 'createRecord';
+    } else if (recordData.isDeleted()) {
+      operation = 'deleteRecord';
+    } else {
+      operation = 'updateRecord';
+    }
+    let internalModel = snapshot._internalModel;
+    let modelName = snapshot.modelName;
+    let store = this._store;
+    let modelClass = store.modelFor(modelName);
+
+    assert(`You tried to update a record but you have no adapter (for ${modelName})`, adapter);
+    assert(
+      `You tried to update a record but your adapter (for ${modelName}) does not implement '${operation}'`,
+      typeof adapter[operation] === 'function'
+    );
+
+    let promise = Promise.resolve().then(() => adapter[operation](store, modelClass, snapshot));
+    let serializer = serializerForAdapter(store, adapter, modelName);
+    let label = `DS: Extract and notify about ${operation} completion of ${internalModel}`;
+
+    assert(
+      `Your adapter's '${operation}' method must return a value, but it returned 'undefined'`,
+      promise !== undefined
+    );
+
+    promise = guardDestroyedStore(promise, store, label);
+    promise = _guard(promise, _bind(_objectIsAlive, internalModel));
+
+
+    promise = promise.then(
+      adapterPayload => {
+        let payload, data, sideloaded;
+        if (adapterPayload) {
+          payload = normalizeResponseHelper(
+            serializer,
+            store,
+            modelClass,
+            adapterPayload,
+            snapshot.id,
+            operation
+          );
+          return payload;
+        }
+      },
+      function (error) {
+        if (error instanceof InvalidError) {
+          let errors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+          // TODO turn into a symbol
+          errors.__INVALID_ERROR = true;
+          throw errors;
+        } else {
+          throw error;
+        }
+      },
+      label
+    );
+    resolver.resolve(promise);
+  }
+
+
+  /**
+    This method is called at the end of the run loop, and
+    flushes any records passed into `scheduleSave`
+
+    @method flushPendingSave
+    @private
+  */
+  _flushPendingSaves() {
+    let pending = this._pendingSave.slice();
+    this._pendingSave = [];
+    for (var i = 0, j = pending.length; i < j; i++) {
+      let pendingItem = pending[i];
+      this._flushPendingSave(pendingItem);
+    }
   }
 
   scheduleFetch(identifier: RecordIdentifier, options: any, shouldTrace: boolean): Promise<any> {
     // TODO Probably the store should pass in the query object
+
 
     let query: FindRecordExpression = {
       'op': 'findRecord',

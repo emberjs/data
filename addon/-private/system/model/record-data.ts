@@ -112,7 +112,7 @@ export interface RecordData {
   pushData(data: JsonApiResource, calculateChange?: boolean);
   clientDidCreate();
   willCommit();
-  commitWasRejected(errors: JsonApiError[]);
+  commitWasRejected(errors?: JsonApiError[]);
    
 
   unloadRecord();
@@ -139,6 +139,8 @@ export interface RecordData {
   isAttrDirty(key: string)
   removeFromInverseRelationships(isNew: boolean)
   hasAttr(key: string): boolean;
+  deleteRecord();
+  isDeleted();
 
   _initRecordCreateOptions(options)
 
@@ -174,6 +176,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   storeWrapper: RecordDataStoreWrapper;
   isDestroyed: boolean;
   _isNew: boolean;
+  _isDeleted: boolean;
   _bfsId: number;
   __attributes: any;
   __inFlightAttributes: any;
@@ -190,6 +193,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this.storeWrapper = storeWrapper;
     this.isDestroyed = false;
     this._isNew = false;
+    this._isDeleted = false;
     // Used during the mark phase of unloading to avoid checking the same internal
     // model twice in the same scan
     this._bfsId = 0;
@@ -204,6 +208,15 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
       type: this.modelName,
       clientId: this.clientId,
     };
+  }
+
+
+  deleteRecord() {
+    this._isDeleted = true;
+  }
+
+  isDeleted() {
+    return this._isDeleted;
   }
 
   pushData(data: JsonApiResource, calculateChange: boolean) {
@@ -395,6 +408,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
   }
 
   rollbackAttributes() {
+    this._isDeleted = false;
     let dirtyKeys;
     if (this.hasChangedAttributes()) {
       dirtyKeys = Object.keys(this._attributes);
@@ -459,7 +473,7 @@ export default class RecordDataDefault implements RecordData, RelationshipRecord
     this._relationships.get(key).removeRecordDatas(recordDatas);
   }
 
-  commitWasRejected(errors: JsonApiError[]) {
+  commitWasRejected(errors?: JsonApiError[]) {
     let keys = Object.keys(this._inFlightAttributes);
     if (keys.length > 0) {
       let attrs = this._attributes;
