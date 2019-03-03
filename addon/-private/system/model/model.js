@@ -251,7 +251,10 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isValid: retrieveFromCurrentState,
+  isValid: computed(function() {
+    debugger
+    return !recordDataFor(this).getErrors();
+  }).volatile(),
   /**
     If the record is in the dirty state this property will report what
     kind of change has caused it to move into the dirty
@@ -439,7 +442,6 @@ const Model = EmberObject.extend(Evented, {
     @type {DS.AdapterError}
   */
   adapterError: computed(function() {
-    debugger
     let requests = this.store.requestCache.getFinished(identifierForModel(this));
     let request = requests.find((req) => req.state === 'rejected');
     if (request) {

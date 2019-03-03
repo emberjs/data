@@ -1178,8 +1178,8 @@ export default class InternalModel {
   */
   adapterDidInvalidate(errors) {
     let attribute;
-    if (errors.__INVALID_ERRROR) {
-      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors);
+    if (errors.parsedErrors) {
+      let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors.parsedErrors);
 
       this.send('becameInvalid');
 

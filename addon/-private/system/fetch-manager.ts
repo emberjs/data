@@ -191,10 +191,10 @@ export default class FetchManager {
       },
       function (error) {
         if (error instanceof InvalidError) {
-          let errors = serializer.extractErrors(store, modelClass, error, snapshot.id);
-          // TODO turn into a symbol
-          errors.__INVALID_ERROR = true;
-          throw errors;
+          let parsedErrors = serializer.extractErrors(store, modelClass, error, snapshot.id);
+          // TODO put on a symbol
+          error.parsedErrors = parsedErrors;
+          throw error;
         } else {
           throw error;
         }

@@ -630,7 +630,7 @@ test('allows errors on arbitrary properties on create', function(assert) {
   });
 });
 
-test('if a created record is marked as invalid by the server, you can attempt the save again', function(assert) {
+test('igor1 if a created record is marked as invalid by the server, you can attempt the save again', function(assert) {
   let saveCount = 0;
   adapter.createRecord = function(store, type, snapshot) {
     assert.equal(type, Person, 'the type is correct');
@@ -662,6 +662,7 @@ test('if a created record is marked as invalid by the server, you can attempt th
       .save()
       .catch(reason => {
         assert.equal(saveCount, 1, 'The record has been saved once');
+        debugger
         assert.ok(
           reason.message.match('The adapter rejected the commit because it was invalid'),
           'It should fail due to being invalid'
@@ -870,7 +871,8 @@ test('records can have errors on arbitrary properties after update', function(as
   });
 });
 
-test('if an updated record is marked as invalid by the server, you can attempt the save again', function(assert) {
+test('igor 1 if an updated record is marked as invalid by the server, you can attempt the save again', function(assert) {
+  debugger
   let saveCount = 0;
   adapter.shouldBackgroundReloadRecord = () => false;
   adapter.updateRecord = function(store, type, snapshot) {
