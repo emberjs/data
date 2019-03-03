@@ -467,7 +467,7 @@ test('if an existing model is edited then deleted, deleteRecord is called on the
   );
 });
 
-test('if a deleted record errors, it enters the error state', function(assert) {
+test('igor1 if a deleted record errors, it enters the error state', function(assert) {
   let count = 0;
   let error = new DS.AdapterError();
 

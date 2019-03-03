@@ -176,7 +176,6 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isSaving: computed(function() {
-    debugger
     let requests = this.store.requestCache.getPending(identifierForModel(this));
     return !!requests.find((req) => req.query.query.op === 'saveRecord');
   }).volatile(),
@@ -294,7 +293,10 @@ const Model = EmberObject.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isError: false,
+  isError: computed(function() {
+    let requests = this.store.requestCache.getFinished(identifierForModel(this));
+    return !!requests.find((req) => req.state === 'rejected');
+  }).volatile(),
 
   /**
     If `true` the store is attempting to reload the record from the adapter.
@@ -302,7 +304,7 @@ const Model = EmberObject.extend(Evented, {
     Example
 
     ```javascript
-    record.get('isReloading'); // false
+    record.get('jjjjing'); // false
     record.reload();
     record.get('isReloading'); // true
     ```
@@ -451,6 +453,7 @@ const Model = EmberObject.extend(Evented, {
   },
 
   adapterErrorChanged(jsonApiError) {
+    /*
     if (!jsonApiError) {
       this.setProperties({
         isError: false,
@@ -462,6 +465,7 @@ const Model = EmberObject.extend(Evented, {
         adapterError: jsonApiError.meta,
       });
     }
+    */
 
   },
 
