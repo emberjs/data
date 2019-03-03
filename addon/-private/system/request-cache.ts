@@ -81,7 +81,6 @@ export default class RequestCache {
     }
   }
 
-  //TODO Account for more than one request
   _dequeue(lid: string, request: Request) {
     this._pending[lid] = this._pending[lid].filter((req) => req !== request);
   }
@@ -91,6 +90,7 @@ export default class RequestCache {
       if (!this._done[identifier.lid]) {
         this._done[identifier.lid] = [];
       }
+      this._done[identifier.lid] = this._done[identifier.lid].filter((req) => req.query.op !== request.query.op);
       this._done[identifier.lid].push(request);
     });
   }
