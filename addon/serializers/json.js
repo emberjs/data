@@ -515,7 +515,7 @@ const JSONSerializer = Serializer.extend({
       normalize(typeClass, hash) {
         var fields = get(typeClass, 'fields');
 
-        fields.forEach(function(field) {
+        fields.forEach(function(type, field) {
           var payloadField = underscore(field);
           if (field === payloadField) { return; }
 
