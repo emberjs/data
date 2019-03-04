@@ -148,7 +148,7 @@ testInDebug('adding errors root.loaded.created.invalid works add + (remove, add)
   ]);
 });
 
-test('using setProperties to clear errors', function(assert) {
+test('igor2 using setProperties to clear errors', function(assert) {
   env.adapter.reopen({
     createRecord() {
       return RSVP.reject(

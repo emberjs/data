@@ -241,6 +241,7 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isNew: retrieveFromCurrentState,
+
   /**
     If this property is `true` the record is in the `valid` state.
 
@@ -252,7 +253,8 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isValid: computed(function() {
-    return !recordDataFor(this).getErrors();
+    debugger
+    return this.get('errors.length') === 0;
   }).volatile(),
   /**
     If the record is in the dirty state this property will report what

@@ -297,6 +297,7 @@ export default ArrayProxy.extend(Evented, {
    @param {string} member - the property name of an attribute or relationship
    */
   remove(attribute) {
+    debugger
     if (get(this, 'isEmpty')) {
       return;
     }
@@ -315,6 +316,7 @@ export default ArrayProxy.extend(Evented, {
     @private
   */
   _remove(attribute) {
+    debugger
     if (get(this, 'isEmpty')) {
       return;
     }

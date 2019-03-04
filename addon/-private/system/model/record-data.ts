@@ -506,6 +506,7 @@ setDirtyAttribute(key: string, value: any) {
   if (value === originalValue) {
     delete this._attributes[key];
   }
+  /*
   if (this._errors) {
     let errors = this._errors;
     this._errors = errors.filter((err) => !(err.source && err.source && err.source.pointer === `/data/attributes/${key}`));
@@ -513,6 +514,7 @@ setDirtyAttribute(key: string, value: any) {
       this.storeWrapper.notifyErrorsChange(this.modelName, this.id, this.clientId);
     }
   }
+  */
 }
 
 getAttr(key: string): string {
