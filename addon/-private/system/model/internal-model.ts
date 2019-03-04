@@ -1190,20 +1190,14 @@ export default class InternalModel {
   }
 
   notifyErrorsChange() {
-    let jsonApiErrors = this._recordData.getErrors();
+    let jsonApiErrors = this._recordData.getErrors() || [];
     // TODO NOW tighten this check
-    let adapterError = jsonApiErrors.find((err) => err.meta !== undefined);
     let invalidErrors: JsonApiValidationError[] = jsonApiErrors.filter((err) => err.source !== undefined && err.title !== undefined) as JsonApiValidationError[];
-    this.notifyAdapterErrorChange(adapterError);
     this.notifyInvalidErrorsChange(invalidErrors);
   }
 
   notifyInvalidErrorsChange(jsonApiErrors: JsonApiValidationError[]) {
     this.getRecord().invalidErrorsChanged(jsonApiErrors);
-  }
-
-  notifyAdapterErrorChange(jsonApiError?: JsonApiError) {
-    this.getRecord().adapterErrorChanged(jsonApiError);
   }
 
   /*

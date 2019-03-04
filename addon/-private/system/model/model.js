@@ -252,7 +252,6 @@ const Model = EmberObject.extend(Evented, {
     @readOnly
   */
   isValid: computed(function() {
-    debugger
     return !recordDataFor(this).getErrors();
   }).volatile(),
   /**
