@@ -242,7 +242,7 @@ export default EmberObject.extend({
     import { v4 } from 'uuid';
 
     export default DS.Adapter.extend({
-      generateIdForRecord(store, inputProperties) {
+      generateIdForRecord(store, type, inputProperties) {
         return v4();
       }
     });
