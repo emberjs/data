@@ -302,7 +302,7 @@ export default class FetchManager {
     );
 
     let snapshot = new Snapshot(fetchItem.options, identifier, this._store);
-    let klass = {};
+    let klass = this._store.modelFor(identifier.type);
 
     let promise = Promise.resolve().then(() => {
       return adapter.findRecord(this._store, klass, identifier.id, snapshot);
@@ -362,7 +362,6 @@ export default class FetchManager {
   }
 
 
-  /*
   handleFoundRecords(foundInternalModels, expectedInternalModels) {
     // resolve found records
     let found = Object.create(null);
@@ -417,7 +416,6 @@ export default class FetchManager {
       }
     }
   }
-  */
 
   _flushPendingFetchForType(pendingFetchItems: PendingFetchItem[], modelName: string) {
     let store = this;
@@ -437,10 +435,7 @@ export default class FetchManager {
       seeking[(identifier.id as string)] = pendingItem;
     }
 
-    shouldCoalesce = false;
-
     if (shouldCoalesce) {
-      /*
       // TODO: Improve records => snapshots => records => snapshots
       //
       // We want to provide records to all store methods and snapshots to all
@@ -453,7 +448,8 @@ export default class FetchManager {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        snapshots[i] = internalModels[i].createSnapshot(optionsMap.get(internalModel));
+        let options = optionsMap.get(identifier);
+        snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
       let groups = adapter.groupRecordsForFindMany(this, snapshots);
@@ -465,7 +461,8 @@ export default class FetchManager {
         var groupedInternalModels = new Array(totalInGroup);
 
         for (var j = 0; j < totalInGroup; j++) {
-          var internalModel = group[j]._internalModel;
+          debugger
+          var identifier = group[j]._internalModel;
 
           groupedInternalModels[j] = internalModel;
           ids[j] = internalModel.id;
@@ -491,7 +488,6 @@ export default class FetchManager {
           );
         }
       }
-      */
     } else {
       for (let i = 0; i < totalItems; i++) {
         this._fetchRecord(pendingFetchItems[i]);
