@@ -1512,10 +1512,10 @@ Model.reopenClass({
    import Post from 'app/models/post';
 
    let relationships = Ember.get(Blog, 'relationships');
-   relationships.get(User);
+   relationships.get('user');
    //=> [ { name: 'users', kind: 'hasMany' },
    //     { name: 'owner', kind: 'belongsTo' } ]
-   relationships.get(Post);
+   relationships.get('post');
    //=> [ { name: 'posts', kind: 'hasMany' } ]
    ```
 
