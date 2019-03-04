@@ -74,7 +74,13 @@ export default class RecordReference extends Reference {
      let userRef = store.getReference('user', 1);
 
      // provide data for reference
-     userRef.push({ data: { id: 1, username: "@user" }}).then(function(user) {
+     userRef.push({ 
+       data: { 
+         id: "1", 
+         type: "user",
+         username: "@user" 
+       }
+     }).then(function(user) {
        userRef.value() === user;
      });
      ```
