@@ -637,22 +637,22 @@
     ember-cli-babel-plugin-helpers "^1.0.0"
     ember-cli-version-checker "^3.0.0"
 
-"@ember-decorators/component@^5.1.3":
-  version "5.1.3"
-  resolved "https://registry.npmjs.org/@ember-decorators/component/-/component-5.1.3.tgz#f78c78f8b67ec88bbd00002ef855afb0c8d87f66"
+"@ember-decorators/component@^5.1.4":
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/@ember-decorators/component/-/component-5.1.4.tgz#bb1fba00fc025366cf1f60252b76c07ac8b6fbbe"
   dependencies:
-    "@ember-decorators/utils" "^5.1.3"
+    "@ember-decorators/utils" "^5.1.4"
     ember-cli-babel "^7.1.3"
 
-"@ember-decorators/controller@^5.1.3":
-  version "5.1.3"
-  resolved "https://registry.npmjs.org/@ember-decorators/controller/-/controller-5.1.3.tgz#3fc6c8001716eed42bae468dbd3b5a6cb5160222"
+"@ember-decorators/controller@^5.1.4":
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/@ember-decorators/controller/-/controller-5.1.4.tgz#8dd322bccd81a97892979bd44c92c9aa9d4fe272"
   dependencies:
-    "@ember-decorators/utils" "^5.1.3"
+    "@ember-decorators/utils" "^5.1.4"
     ember-cli-babel "^7.1.3"
     ember-compatibility-helpers "^1.1.2"
 
-"@ember-decorators/data@^5.1.3", "@ember-decorators/data@^5.1.4":
+"@ember-decorators/data@^5.1.4":
   version "5.1.4"
   resolved "https://registry.yarnpkg.com/@ember-decorators/data/-/data-5.1.4.tgz#08e0fefe83ce855bcc5837bd8ea7feb5ecefb2ac"
   dependencies:
@@ -660,23 +660,23 @@
     ember-cli-babel "^7.1.3"
     ember-compatibility-helpers "^1.1.2"
 
-"@ember-decorators/object@^5.1.3":
-  version "5.1.3"
-  resolved "https://registry.npmjs.org/@ember-decorators/object/-/object-5.1.3.tgz#3b85eaf47d18ab3c9f271cc9c216cbdb62c8263d"
+"@ember-decorators/object@^5.1.4":
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/@ember-decorators/object/-/object-5.1.4.tgz#41ea33864cf742b42e47b6d13b6edf8baa5e7b28"
   dependencies:
-    "@ember-decorators/utils" "^5.1.3"
+    "@ember-decorators/utils" "^5.1.4"
     ember-cli-babel "^7.1.3"
     ember-compatibility-helpers "^1.1.2"
 
-"@ember-decorators/service@^5.1.3":
-  version "5.1.3"
-  resolved "https://registry.npmjs.org/@ember-decorators/service/-/service-5.1.3.tgz#4034277d0c428388d47b48886dea35bccebc9d09"
+"@ember-decorators/service@^5.1.4":
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/@ember-decorators/service/-/service-5.1.4.tgz#a42525245eff3fc327845bdbca4bb38f9e3a6663"
   dependencies:
-    "@ember-decorators/utils" "^5.1.3"
+    "@ember-decorators/utils" "^5.1.4"
     ember-cli-babel "^7.1.3"
     ember-compatibility-helpers "^1.1.2"
 
-"@ember-decorators/utils@^5.1.3", "@ember-decorators/utils@^5.1.4":
+"@ember-decorators/utils@^5.1.4":
   version "5.1.4"
   resolved "https://registry.yarnpkg.com/@ember-decorators/utils/-/utils-5.1.4.tgz#e8a18e614b3bd282c548803fd5e94d49d8fbaeee"
   dependencies:
@@ -3564,15 +3564,15 @@ ember-compatibility-helpers@^1.1.1, ember-compatibility-helpers@^1.1.2:
     ember-cli-version-checker "^2.1.1"
     semver "^5.4.1"
 
-ember-decorators@^5.1.2:
-  version "5.1.3"
-  resolved "https://registry.npmjs.org/ember-decorators/-/ember-decorators-5.1.3.tgz#dafcca32e7acaa68ddb88420f6cd8e78a9edc35a"
+ember-decorators@^5.1.4:
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/ember-decorators/-/ember-decorators-5.1.4.tgz#d574fbfab85bb3938f1dd18f5a0b1569ea0eb4cb"
   dependencies:
-    "@ember-decorators/component" "^5.1.3"
-    "@ember-decorators/controller" "^5.1.3"
-    "@ember-decorators/data" "^5.1.3"
-    "@ember-decorators/object" "^5.1.3"
-    "@ember-decorators/service" "^5.1.3"
+    "@ember-decorators/component" "^5.1.4"
+    "@ember-decorators/controller" "^5.1.4"
+    "@ember-decorators/data" "^5.1.4"
+    "@ember-decorators/object" "^5.1.4"
+    "@ember-decorators/service" "^5.1.4"
     ember-cli-babel "^7.1.3"
     semver "^5.5.0"
 
