@@ -78,7 +78,9 @@ export default class RecordReference extends Reference {
        data: { 
          id: "1", 
          type: "user",
-         username: "@user" 
+         attributes: {
+           username: "@user" 
+         }
        }
      }).then(function(user) {
        userRef.value() === user;
