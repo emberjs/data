@@ -397,16 +397,17 @@ export default class FetchManager {
     }
   }
 
-  rejectInternalModels(seeking: { [id: string]: PendingFetchItem }, internalModels, error?) {
-    for (let i = 0, l = internalModels.length; i < l; i++) {
-      let internalModel = internalModels[i];
-      let pair = seeking[internalModel.id];
+  rejectInternalModels(seeking: { [id: string]: PendingFetchItem }, identifiers: RecordIdentifier[], error?) {
+    debugger
+    for (let i = 0, l = identifiers.length; i < l; i++) {
+      let identifier = identifiers[i];
+      let pair = seeking[identifier.id];
 
       if (pair) {
         pair.resolver.reject(
           error ||
           new Error(
-            `Expected: '${internalModel}' to be present in the adapter provided payload, but it was not found.`
+            `Expected: '<${identifier.type}:${identifier.id}>' to be present in the adapter provided payload, but it was not found.`
           )
         );
       }
