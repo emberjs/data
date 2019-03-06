@@ -841,7 +841,8 @@ const Model = EmberObject.extend(Evented, {
     @method rollbackAttributes
   */
   rollbackAttributes() {
-    this._markErrorRequestAsClean();
+    this._markErrorRequestAsClean();  
+    this._markInvalidRequestAsClean();
     this._internalModel.rollbackAttributes();
   },
 
