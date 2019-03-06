@@ -734,9 +734,9 @@
     "@types/ember" "*"
     "@types/ember-test-helpers" "*"
 
-"@types/ember-test-helpers@*", "@types/ember-test-helpers@~1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@types/ember-test-helpers/-/ember-test-helpers-1.0.4.tgz#db08190659339cd6018ff8f842c6df6f24d7679a"
+"@types/ember-test-helpers@*", "@types/ember-test-helpers@~1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@types/ember-test-helpers/-/ember-test-helpers-1.0.5.tgz#b0a8a3b9386ddf372eef11ba95487be806674ca2"
   dependencies:
     "@types/ember" "*"
     "@types/htmlbars-inline-precompile" "*"
