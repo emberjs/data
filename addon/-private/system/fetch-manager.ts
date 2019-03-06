@@ -362,7 +362,7 @@ export default class FetchManager {
   }
 
 
-  handleFoundRecords(foundInternalModels, expectedInternalModels) {
+  handleFoundRecords(seeking: { [id: string]: PendingFetchItem }, foundInternalModels, expectedInternalModels) {
     // resolve found records
     let found = Object.create(null);
     for (let i = 0, l = foundInternalModels.length; i < l; i++) {
@@ -397,11 +397,11 @@ export default class FetchManager {
           id: 'ds.store.missing-records-from-adapter',
         }
       );
-      this.rejectInternalModels(missingInternalModels);
+      this.rejectInternalModels(seeking, missingInternalModels);
     }
   }
 
-  rejectInternalModels(internalModels, error?) {
+  rejectInternalModels(seeking: { [id: string]: PendingFetchItem }, internalModels, error?) {
     for (let i = 0, l = internalModels.length; i < l; i++) {
       let internalModel = internalModels[i];
       let pair = seeking[internalModel.id];
@@ -414,6 +414,72 @@ export default class FetchManager {
           )
         );
       }
+    }
+  }
+
+
+  _findMany(adapter: any, store: any, modelName: string, snapshots: Snapshot[], identifiers: RecordIdentifier[], optionsMap) {
+    let modelClass = store.modelFor(modelName); // `adapter.findMany` gets the modelClass still
+    let ids = snapshots.map((s) => s.id);
+    let promise = adapter.findMany(store, modelClass, ids, snapshots);
+    let label = `DS: Handle Adapter#findMany of '${modelName}'`;
+
+    if (promise === undefined) {
+      throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
+    }
+
+    promise = guardDestroyedStore(promise, store, label);
+
+    return promise.then(
+      adapterPayload => {
+        assert(
+          `You made a 'findMany' request for '${modelName}' records with ids '[${ids}]', but the adapter's response did not have any data`,
+          !!payloadIsNotBlank(adapterPayload)
+        );
+        let serializer = serializerForAdapter(store, adapter, modelName);
+        let payload = normalizeResponseHelper(
+          serializer,
+          store,
+          modelClass,
+          adapterPayload,
+          null,
+          'findMany'
+        );
+        return store._push(payload);
+      },
+      null,
+      `DS: Extract payload of ${modelName}`
+    );
+  }
+
+
+  _processCoalescedGroup(seeking: { [id: string]: PendingFetchItem },  group: Snapshot[], adapter: any, optionsMap, modelName: string) {
+    let totalInGroup = group.length;
+    let ids = new Array(totalInGroup);
+    let groupedIdentifiers = new Array(totalInGroup);
+
+    for (var j = 0; j < totalInGroup; j++) {
+      groupedIdentifiers[j] = group[j]._identifier;
+      ids[j] = groupedIdentifiers[j].id;
+    }
+
+    let store = this._store;
+    if (totalInGroup > 1) {
+      this._findMany(adapter, store, modelName, group, groupedIdentifiers, optionsMap)
+        .then((foundInternalModels) => {
+          this.handleFoundRecords(seeking, foundInternalModels, groupedIdentifiers);
+        })
+        .catch((error) => {
+          this.rejectInternalModels(seeking, groupedIdentifiers, error);
+        });
+    } else if (ids.length === 1) {
+      var pair = seeking[groupedIdentifiers[0].id];
+      this._fetchRecord(pair);
+    } else {
+      assert(
+        "You cannot return an empty array from adapter's method groupRecordsForFindMany",
+        false
+      );
     }
   }
 
@@ -448,45 +514,14 @@ export default class FetchManager {
       // will once again convert the records to snapshots for adapter.findMany()
       let snapshots = new Array(totalItems);
       for (let i = 0; i < totalItems; i++) {
-        let options = optionsMap.get(identifier);
+        let options = optionsMap.get(identifiers[i]);
         snapshots[i] = new Snapshot(options, identifiers[i], this._store);
       }
 
-      let groups = adapter.groupRecordsForFindMany(this, snapshots);
+      let groups: Snapshot[][] = adapter.groupRecordsForFindMany(this, snapshots);
 
       for (var i = 0, l = groups.length; i < l; i++) {
-        var group = groups[i];
-        var totalInGroup = groups[i].length;
-        var ids = new Array(totalInGroup);
-        var groupedInternalModels = new Array(totalInGroup);
-
-        for (var j = 0; j < totalInGroup; j++) {
-          debugger
-          var identifier = group[j]._internalModel;
-
-          groupedInternalModels[j] = internalModel;
-          ids[j] = internalModel.id;
-        }
-
-        if (totalInGroup > 1) {
-          (function (groupedInternalModels) {
-            _findMany(adapter, store, modelName, ids, groupedInternalModels, optionsMap)
-              .then((foundInternalModels) => {
-                this.handleFoundRecords(foundInternalModels, groupedInternalModels);
-              })
-              .catch((error) => {
-                this.rejectInternalModels(groupedInternalModels, error);
-              });
-          })(groupedInternalModels);
-        } else if (ids.length === 1) {
-          var pair = seeking[groupedInternalModels[0].id];
-          this._fetchRecord(pair);
-        } else {
-          assert(
-            "You cannot return an empty array from adapter's method groupRecordsForFindMany",
-            false
-          );
-        }
+        this._processCoalescedGroup(seeking, groups[i], adapter, optionsMap, modelName);
       }
     } else {
       for (let i = 0; i < totalItems; i++) {
