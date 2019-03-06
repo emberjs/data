@@ -1977,7 +1977,6 @@ const Store = Service.extend({
       });
     },
       (originalAndParsedError) => {
-        debugger
         this.recordWasInvalid(internalModel, originalAndParsedError);
         let error = Object.assign({}, originalAndParsedError);
         delete error.parsedErrors;
@@ -1987,6 +1986,11 @@ const Store = Service.extend({
     return promise;
   },
 
+
+  // TDO Deprecate/noop warn  
+  recordWasError() {
+
+  },
   /**
     This method is called once the promise returned by an
     adapter's `createRecord`, `updateRecord` or `deleteRecord`

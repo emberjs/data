@@ -880,6 +880,10 @@ const Model = EmberObject.extend(Evented, {
       wrappedAdapterOptions = {
         adapterOptions: options.adapterOptions,
       };
+    } else if (!options) {
+      wrappedAdapterOptions = {};
+    } else {
+      wrappedAdapterOptions = options;
     }
 
     return PromiseObject.create({
