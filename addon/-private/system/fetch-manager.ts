@@ -217,6 +217,7 @@ export default class FetchManager {
     // TODO Probably the store should pass in the query object
 
 
+    debugger
     let query: FindRecordExpression = {
       'op': 'findRecord',
       record: identifier,
@@ -227,6 +228,10 @@ export default class FetchManager {
       query
     }
 
+    // We already have a pending fetch for this
+    if (this._pendingFetch.has(identifier.type) && this._pendingFetch.get(identifier.type).find((fetch) => fetch.identifier.id === identifier.id)) {
+      return this._pendingFetch.get(identifier.type).find((fetch) => fetch.identifier.id === identifier.id).resolver.promise;
+    }
     /*
     if (internalModel._promiseProxy) {
         return internalModel._promiseProxy;

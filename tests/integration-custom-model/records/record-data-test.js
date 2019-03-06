@@ -21,7 +21,7 @@ class Pet extends Model {
   name;
 }
 
-module('RecordData Compatibility', function(hooks) {
+module('RecordData Compatibility - custom record class', function(hooks) {
   let store;
   setupTest(hooks);
 

@@ -822,6 +822,7 @@ const Store = Service.extend({
   },
 
   _findEmptyInternalModel(internalModel, options) {
+    debugger
     if (internalModel.isEmpty()) {
       return this._scheduleFetch(internalModel, options);
     }
@@ -1240,6 +1241,7 @@ const Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo(internalModel, link, relationship, options) {
+    debugger
     if (DEBUG) {
       assertDestroyingStore(this, 'findBelongsTo');
     }
