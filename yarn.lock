@@ -862,9 +862,9 @@
   dependencies:
     "@types/handlebars" "*"
 
-"@types/ember__test-helpers@~0.7.7":
-  version "0.7.7"
-  resolved "https://registry.npmjs.org/@types/ember__test-helpers/-/ember__test-helpers-0.7.7.tgz#b11832e5e622c1e61f96d8477845a84b5ec348c3"
+"@types/ember__test-helpers@~0.7.8":
+  version "0.7.8"
+  resolved "https://registry.yarnpkg.com/@types/ember__test-helpers/-/ember__test-helpers-0.7.8.tgz#16d6e060ec88e5510756d00e8f191fa48d9e0362"
   dependencies:
     "@types/ember" "*"
     "@types/ember__application" "*"
