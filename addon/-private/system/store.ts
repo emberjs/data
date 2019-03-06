@@ -2046,6 +2046,7 @@ const Store = Service.extend({
     @param {Object} errors
   */
   recordWasInvalid(internalModel, errors) {
+    debugger
     if (DEBUG) {
       assertDestroyingStore(this, 'recordWasInvalid');
     }

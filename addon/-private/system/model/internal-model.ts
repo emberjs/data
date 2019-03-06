@@ -1181,11 +1181,9 @@ export default class InternalModel {
   */
   adapterDidInvalidate(errors) {
     let attribute;
-    if (errors.parsedErrors) {
+    if (errors && errors.parsedErrors) {
       let jsonApiErrors: JsonApiValidationError[] = errorsHashToArray(errors.parsedErrors);
-
       this.send('becameInvalid');
-
       this._recordData.commitWasRejected(jsonApiErrors);
     } else {
       this._recordData.commitWasRejected();
@@ -1206,7 +1204,6 @@ export default class InternalModel {
   /*
     @method adapterror
     @private
-  */
   adapterDidError(error) {
     this.send('becameError');
 
@@ -1217,6 +1214,7 @@ export default class InternalModel {
     let jsonError = { meta: error };
     this._recordData.commitWasRejected([jsonError]);
   }
+  */
 
   toString() {
     return `<${this.modelName}:${this.id}>`;

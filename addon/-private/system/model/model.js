@@ -60,6 +60,7 @@ function findPossibleInverses(type, inverseType, name, relationshipsSoFar) {
 
 // THis relies on 1-1 mapping between requests and records
 let ignoreInvalidRequestsMap = new WeakMap();
+let ignoreErrorRequestsMap = new WeakMap();
 
 const retrieveFromCurrentState = computed('currentState', function (key) {
   return get(this._internalModel.currentState, key);
@@ -282,14 +283,62 @@ const Model = EmberObject.extend(Evented, {
     let invalidRequest = this._getInvalidRequest();
     if (invalidRequest) {
       ignoreInvalidRequestsMap.set(invalidRequest, true);
-
     }
-
   },
 
   _getInvalidRequestsToIgnore() {
     return ignoreInvalidRequestsMap;
   },
+
+  /**
+    If `true` the adapter reported that it was unable to save local
+    changes to the backend for any reason other than a server-side
+    validation error.
+
+    Example
+
+    ```javascript
+    record.get('isError'); // false
+    record.set('foo', 'valid value');
+    record.save().then(null, function() {
+      record.get('isError'); // true
+    });
+    ```
+
+    @property isError
+    @type {Boolean}
+    @readOnly
+  */
+  isError: computed(function () {
+    let errorReq = this._getErrorRequest();
+    if (!errorReq) {
+      return false;
+    } else {
+      if (ignoreErrorRequestsMap.get(errorReq)) {
+        return false;
+      } else {
+        return true;
+      }
+
+    }
+  }).volatile(),
+
+  _markErrorRequestAsClean() {
+    let errorRequest = this._getErrorRequest();
+    if (errorRequest) {
+      ignoreErrorRequestsMap.set(errorRequest, true);
+    }
+  },
+
+  _getErrorRequestsToIgnore() {
+    return ignoreErrorRequestsMap;
+  },
+
+  _getErrorRequest() {
+    let requests = this.store.requestCache.getFinished(identifierForModel(this));
+    return requests.find((req) => req.state === 'rejected' && !(req.result instanceof InvalidError));
+  },
+
   /**
     If the record is in the dirty state this property will report what
     kind of change has caused it to move into the dirty
@@ -312,29 +361,6 @@ const Model = EmberObject.extend(Evented, {
   */
   dirtyType: retrieveFromCurrentState,
 
-  /**
-    If `true` the adapter reported that it was unable to save local
-    changes to the backend for any reason other than a server-side
-    validation error.
-
-    Example
-
-    ```javascript
-    record.get('isError'); // false
-    record.set('foo', 'valid value');
-    record.save().then(null, function() {
-      record.get('isError'); // true
-    });
-    ```
-
-    @property isError
-    @type {Boolean}
-    @readOnly
-  */
-  isError: computed(function () {
-    let requests = this.store.requestCache.getFinished(identifierForModel(this));
-    return !!requests.find((req) => req.state === 'rejected');
-  }).volatile(),
 
   /**
     If `true` the store is attempting to reload the record from the adapter.
@@ -815,6 +841,7 @@ const Model = EmberObject.extend(Evented, {
     @method rollbackAttributes
   */
   rollbackAttributes() {
+    this._markErrorRequestAsClean();
     this._internalModel.rollbackAttributes();
   },
 
