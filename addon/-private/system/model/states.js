@@ -436,7 +436,9 @@ createdState.uncommitted.pushedData = function(internalModel) {
 createdState.uncommitted.propertyWasReset = function() {};
 
 function assertAgainstUnloadRecord(internalModel) {
-  assert('You can only unload a record which is not inFlight. `' + internalModel + '`', false);
+  if (internalModel._record.get('isSaving')) {
+    assert('You can only unload a record which is not inFlight. `' + internalModel + '`', false);
+  }
 }
 
 updatedState.invalid.becameValid = function(internalModel) {

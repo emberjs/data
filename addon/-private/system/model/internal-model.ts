@@ -407,6 +407,9 @@ export default class InternalModel {
   }
 
   reload(options) {
+    if (!options) {
+      options = {};
+    }
     this.startedReloading();
     let internalModel = this;
     let promiseLabel = 'DS: Model#reload of ' + this;
