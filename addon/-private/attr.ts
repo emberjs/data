@@ -158,6 +158,7 @@ export default function attr(type?: string | AttrOptions, options?: AttrOptions)
         if (errors.get(key)) {
           errors.remove(key);
         }
+        this._markInvalidRequestAsClean();
       }
       return this._internalModel.setDirtyAttribute(key, value);
     },
