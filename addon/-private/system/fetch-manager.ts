@@ -102,7 +102,6 @@ export default class FetchManager {
   scheduleSave(identifier: RecordIdentifier, options: any) {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
-
     let query: SaveRecordExpression = {
       'op': 'saveRecord',
       record: identifier,
@@ -134,14 +133,6 @@ export default class FetchManager {
     let adapter = this._adapterCache.adapterFor(identifier.type);
     let operation;
     let recordData: RelationshipRecordData = this._store.recordDataForIdentifier(identifier);
-
-
-    /*
-    TODO Bring back this case
-    if (internalModel.currentState.stateName === 'root.deleted.saved') {
-      resolver.resolve();
-      continue;
-    */
 
     if (recordData.isNew()) {
       operation = 'createRecord';

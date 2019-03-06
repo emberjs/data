@@ -1953,6 +1953,15 @@ const Store = Service.extend({
   scheduleSave(internalModel, options) {
     let promiseLabel = 'DS: Model#save ' + this;
     let resolver = RSVP.defer(promiseLabel);
+    let recordData: RelationshipRecordData = internalModel._recordData;
+
+    if (recordData.isNew() && recordData.isDeleted()) {
+      // TODO should probably warn here
+      resolver.resolve();
+      return resolver.promise;
+     }  
+
+
     internalModel._recordData.willCommit();
     //TODO Remove
     internalModel.send('willCommit');
