@@ -29,7 +29,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/foo.js'))
           .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.Model.extend(');
+          .to.contain('const { Model } = DS;')
+          .to.contain('export default Model.extend(');
 
         expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
       });
@@ -52,15 +53,16 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/foo.js'))
           .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.Model.extend(')
-          .to.contain('  misc: DS.attr(),')
-          .to.contain("  skills: DS.attr('array'),")
-          .to.contain("  isActive: DS.attr('boolean'),")
-          .to.contain("  birthday: DS.attr('date'),")
-          .to.contain("  someObject: DS.attr('object'),")
-          .to.contain("  age: DS.attr('number'),")
-          .to.contain("  name: DS.attr('string'),")
-          .to.contain("  customAttr: DS.attr('custom-transform')");
+          .to.contain('const { Model, attr } = DS;')
+          .to.contain('export default Model.extend(')
+          .to.contain('  misc: attr(),')
+          .to.contain("  skills: attr('array'),")
+          .to.contain("  isActive: attr('boolean'),")
+          .to.contain("  birthday: attr('date'),")
+          .to.contain("  someObject: attr('object'),")
+          .to.contain("  age: attr('number'),")
+          .to.contain("  name: attr('string'),")
+          .to.contain("  customAttr: attr('custom-transform')");
 
         expect(_file('tests/unit/models/foo-test.js')).to.equal(fixture('model-test/rfc232.js'));
       });
@@ -72,9 +74,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/comment.js'))
           .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.Model.extend(')
-          .to.contain("  post: DS.belongsTo('post'),")
-          .to.contain("  author: DS.belongsTo('user')");
+          .to.contain('const { Model, belongsTo } = DS;')
+          .to.contain('export default Model.extend(')
+          .to.contain("  post: belongsTo('post'),")
+          .to.contain("  author: belongsTo('user')");
 
         expect(_file('tests/unit/models/comment-test.js')).to.equal(
           fixture('model-test/comment-default.js')
@@ -88,9 +91,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
       return emberGenerateDestroy(args, _file => {
         expect(_file('app/models/post.js'))
           .to.contain("import DS from 'ember-data';")
-          .to.contain('export default DS.Model.extend(')
-          .to.contain("  comments: DS.hasMany('comment')")
-          .to.contain("  otherComments: DS.hasMany('comment')");
+          .to.contain('const { Model, hasMany } = DS;')
+          .to.contain('export default Model.extend(')
+          .to.contain("  comments: hasMany('comment')")
+          .to.contain("  otherComments: hasMany('comment')");
 
         expect(_file('tests/unit/models/post-test.js')).to.equal(
           fixture('model-test/post-default.js')
@@ -175,7 +179,8 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         _file => {
           expect(_file('src/data/models/foo/model.js'))
             .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.Model.extend(');
+            .to.contain('const { Model } = DS;')
+            .to.contain('export default Model.extend(');
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
             fixture('model-test/rfc232.js')
@@ -204,15 +209,16 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         _file => {
           expect(_file('src/data/models/foo/model.js'))
             .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.Model.extend(')
-            .to.contain('  misc: DS.attr(),')
-            .to.contain("  skills: DS.attr('array'),")
-            .to.contain("  isActive: DS.attr('boolean'),")
-            .to.contain("  birthday: DS.attr('date'),")
-            .to.contain("  someObject: DS.attr('object'),")
-            .to.contain("  age: DS.attr('number'),")
-            .to.contain("  name: DS.attr('string'),")
-            .to.contain("  customAttr: DS.attr('custom-transform')");
+            .to.contain('const { Model, attr } = DS;')
+            .to.contain('export default Model.extend(')
+            .to.contain('  misc: attr(),')
+            .to.contain("  skills: attr('array'),")
+            .to.contain("  isActive: attr('boolean'),")
+            .to.contain("  birthday: attr('date'),")
+            .to.contain("  someObject: attr('object'),")
+            .to.contain("  age: attr('number'),")
+            .to.contain("  name: attr('string'),")
+            .to.contain("  customAttr: attr('custom-transform')");
 
           expect(_file('src/data/models/foo/model-test.js')).to.equal(
             fixture('model-test/rfc232.js')
@@ -230,9 +236,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         _file => {
           expect(_file('src/data/models/comment/model.js'))
             .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.Model.extend(')
-            .to.contain("  post: DS.belongsTo('post'),")
-            .to.contain("  author: DS.belongsTo('user')");
+            .to.contain('const { Model, belongsTo } = DS;')
+            .to.contain('export default Model.extend(')
+            .to.contain("  post: belongsTo('post'),")
+            .to.contain("  author: belongsTo('user')");
 
           expect(_file('src/data/models/comment/model-test.js')).to.equal(
             fixture('model-test/comment-default.js')
@@ -250,9 +257,10 @@ describe('Acceptance: generate and destroy model blueprints', function() {
         _file => {
           expect(_file('src/data/models/post/model.js'))
             .to.contain("import DS from 'ember-data';")
-            .to.contain('export default DS.Model.extend(')
-            .to.contain("  comments: DS.hasMany('comment'),")
-            .to.contain("  otherComments: DS.hasMany('comment')");
+            .to.contain('const { Model, hasMany } = DS;')
+            .to.contain('export default Model.extend(')
+            .to.contain("  comments: hasMany('comment'),")
+            .to.contain("  otherComments: hasMany('comment')");
 
           expect(_file('src/data/models/post/model-test.js')).to.equal(
             fixture('model-test/post-default.js')

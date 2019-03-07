@@ -34,7 +34,6 @@ module.exports = useEditionDetector({
     let includeHasMany = false;
     let includeBelongsTo = false;
     let includeAttr = false;
-    let importedModules = null;
 
     for (let name in entityOptions) {
       let type = entityOptions[name] || '';
@@ -80,10 +79,10 @@ module.exports = useEditionDetector({
       }
     }
 
-    let isOctane = process.env.EMBER_VERSION === 'OCTANE';
-
     if (attrs.length) {
       let attrTransformer, attrSeparator;
+
+      let isOctane = process.env.EMBER_VERSION === 'OCTANE';
       if (isOctane) {
         attrTransformer = nativeAttr;
         attrSeparator = ';';
@@ -104,19 +103,17 @@ module.exports = useEditionDetector({
     });
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
 
-    if (isOctane) {
-      importedModules = ['Model'];
-      if (includeAttr) {
-        importedModules.push('attr');
-      }
-      if (includeBelongsTo) {
-        importedModules.push('belongsTo');
-      }
-      if (includeHasMany) {
-        importedModules.push('hasMany');
-      }
-      importedModules = importedModules.join(', ');
+    let importedModules = ['Model'];
+    if (includeAttr) {
+      importedModules.push('attr');
     }
+    if (includeBelongsTo) {
+      importedModules.push('belongsTo');
+    }
+    if (includeHasMany) {
+      importedModules.push('hasMany');
+    }
+    importedModules = importedModules.join(', ');
 
     return {
       importedModules: importedModules,
@@ -159,15 +156,15 @@ function classicAttr(attr) {
     result;
 
   if (type === 'belongs-to') {
-    result = "DS.belongsTo('" + name + "')";
+    result = "belongsTo('" + name + "')";
   } else if (type === 'has-many') {
-    result = "DS.hasMany('" + name + "')";
+    result = "hasMany('" + name + "')";
   } else if (type === '') {
     //"If you don't specify the type of the attribute, it will be whatever was provided by the server"
     //https://emberjs.com/guides/models/defining-models/
-    result = 'DS.attr()';
+    result = 'attr()';
   } else {
-    result = "DS.attr('" + type + "')";
+    result = "attr('" + type + "')";
   }
   return propertyName + ': ' + result;
 }
