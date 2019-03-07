@@ -31,6 +31,10 @@ module.exports = useEditionDetector({
     let attrs = [];
     let needs = [];
     let entityOptions = options.entity.options;
+    let includeHasMany = false;
+    let includeBelongsTo = false;
+    let includeAttr = false;
+    let importedModules = null;
 
     for (let name in entityOptions) {
       let type = entityOptions[name] || '';
@@ -47,6 +51,7 @@ module.exports = useEditionDetector({
 
       let attr;
       if (/has-many/.test(dasherizedType)) {
+        includeHasMany = true;
         let camelizedNamePlural = inflection.pluralize(camelizedName);
         attr = {
           name: dasherizedForeignModelSingular,
@@ -54,12 +59,14 @@ module.exports = useEditionDetector({
           propertyName: camelizedNamePlural,
         };
       } else if (/belongs-to/.test(dasherizedType)) {
+        includeBelongsTo = true;
         attr = {
           name: dasherizedForeignModel,
           type: dasherizedType,
           propertyName: camelizedName,
         };
       } else {
+        includeAttr = true;
         attr = {
           name: dasherizedName,
           type: dasherizedType,
@@ -73,9 +80,9 @@ module.exports = useEditionDetector({
       }
     }
 
-    if (attrs.length) {
-      let isOctane = process.env.EMBER_VERSION === 'OCTANE';
+    let isOctane = process.env.EMBER_VERSION === 'OCTANE';
 
+    if (attrs.length) {
       let attrTransformer, attrSeparator;
       if (isOctane) {
         attrTransformer = nativeAttr;
@@ -97,7 +104,22 @@ module.exports = useEditionDetector({
     });
     needs = '  needs: [' + needsDeduplicated.join(', ') + ']';
 
+    if (isOctane) {
+      importedModules = ['Model'];
+      if (includeAttr) {
+        importedModules.push('attr');
+      }
+      if (includeBelongsTo) {
+        importedModules.push('belongsTo');
+      }
+      if (includeHasMany) {
+        importedModules.push('hasMany');
+      }
+      importedModules = importedModules.join(', ');
+    }
+
     return {
+      importedModules: importedModules,
       attrs: attrs,
       needs: needs,
     };
@@ -112,20 +134,20 @@ function nativeAttr(attr) {
 
   if (type === 'belongs-to') {
     if (name === propertyName) {
-      result = '@DS.belongsTo';
+      result = '@belongsTo';
     } else {
-      result = "@DS.belongsTo('" + name + "')";
+      result = "@belongsTo('" + name + "')";
     }
   } else if (type === 'has-many') {
     if (inflection.pluralize(name) === propertyName) {
-      result = '@DS.hasMany';
+      result = '@hasMany';
     } else {
-      result = "@DS.hasMany('" + name + "')";
+      result = "@hasMany('" + name + "')";
     }
   } else if (type === '') {
-    result = '@DS.attr';
+    result = '@attr';
   } else {
-    result = "@DS.attr('" + type + "')";
+    result = "@attr('" + type + "')";
   }
   return result + ' ' + propertyName;
 }
