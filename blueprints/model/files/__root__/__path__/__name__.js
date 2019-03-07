@@ -1,5 +1,6 @@
 import DS from 'ember-data';
+const { <%= importedModules %> } = DS;
 
-export default DS.Model.extend({
+export default Model.extend({
 <%= attrs.length ? '  ' + attrs : '' %>
 });
