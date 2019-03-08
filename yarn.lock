@@ -750,9 +750,9 @@
     "@types/jquery" "*"
     "@types/rsvp" "*"
 
-"@types/ember@*", "@types/ember@~3.0.25":
-  version "3.0.27"
-  resolved "https://registry.npmjs.org/@types/ember/-/ember-3.0.27.tgz#2915984038f3ae3609142f8e700b4a783a30be5d"
+"@types/ember@*", "@types/ember@~3.0.29":
+  version "3.0.29"
+  resolved "https://registry.yarnpkg.com/@types/ember/-/ember-3.0.29.tgz#a437a60a41f8df9cba52de267bfd0007566eae41"
   dependencies:
     "@types/ember__application" "*"
     "@types/ember__array" "*"
@@ -769,7 +769,6 @@
     "@types/ember__string" "*"
     "@types/ember__test" "*"
     "@types/ember__utils" "*"
-    "@types/handlebars" "*"
     "@types/htmlbars-inline-precompile" "*"
     "@types/jquery" "*"
     "@types/rsvp" "*"
