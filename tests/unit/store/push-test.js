@@ -609,35 +609,29 @@ testInDebug(
 testInDebug(
   'Calling push with a link for a non async relationship should not reset an existing relationship',
   function(assert) {
-    Person.reopen({
-      phoneNumbers: hasMany('phone-number', { async: false }),
-    });
-
     // GET /persons/1?include=phone-numbers
-    run(() => {
-      store.push({
-        data: {
-          type: 'person',
-          id: '1',
-          relationships: {
-            phoneNumbers: {
-              data: [{ type: 'phone-number', id: '2' }],
-              links: {
-                related: '/api/people/1/phone-numbers',
-              },
+    store.push({
+      data: {
+        type: 'person',
+        id: '1',
+        relationships: {
+          phoneNumbers: {
+            data: [{ type: 'phone-number', id: '2' }],
+            links: {
+              related: '/api/people/1/phone-numbers',
             },
           },
         },
-        included: [
-          {
-            type: 'phone-number',
-            id: '2',
-            attributes: {
-              number: '1-800-DATA',
-            },
+      },
+      included: [
+        {
+          type: 'phone-number',
+          id: '2',
+          attributes: {
+            number: '1-800-DATA',
           },
-        ],
-      });
+        },
+      ],
     });
 
     let person = store.peekRecord('person', 1);
@@ -647,20 +641,18 @@ testInDebug(
 
     // GET /persons/1
     assert.expectNoWarning(() => {
-      run(() => {
-        store.push({
-          data: {
-            type: 'person',
-            id: '1',
-            relationships: {
-              phoneNumbers: {
-                links: {
-                  related: '/api/people/1/phone-numbers',
-                },
+      store.push({
+        data: {
+          type: 'person',
+          id: '1',
+          relationships: {
+            phoneNumbers: {
+              links: {
+                related: '/api/people/1/phone-numbers',
               },
             },
           },
-        });
+        },
       });
     });
 
