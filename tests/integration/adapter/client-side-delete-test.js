@@ -75,7 +75,7 @@ test('client-side deleted records can be added back from an inverse', async func
 
   await book2.destroyRecord({ adapterOptions: { clientSideDelete: true } });
 
-  book2.unloadRecord();
+  run(() => book2.unloadRecord());
 
   await settled();
 
