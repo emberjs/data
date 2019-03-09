@@ -688,7 +688,7 @@ module('integration/relationships/inverse_relationships - Inverse Relationships'
     }
   );
 
-  test('No inverse configuration - should default to a null inverse', function(assert) {
+  test('No inverse configuration - should default to a null inverse', async function(assert) {
     class User extends Model {}
 
     class Comment extends Model {
