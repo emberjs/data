@@ -727,9 +727,9 @@
   dependencies:
     "@types/estree" "*"
 
-"@types/ember-qunit@~3.4.5":
-  version "3.4.5"
-  resolved "https://registry.npmjs.org/@types/ember-qunit/-/ember-qunit-3.4.5.tgz#791e4919a88b8d2ac982e4d73564a2c4c08fec6a"
+"@types/ember-qunit@~3.4.6":
+  version "3.4.6"
+  resolved "https://registry.yarnpkg.com/@types/ember-qunit/-/ember-qunit-3.4.6.tgz#b09ae84192c16fbd1da0d1be26fa02b67691250d"
   dependencies:
     "@types/ember" "*"
     "@types/ember-test-helpers" "*"
