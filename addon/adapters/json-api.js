@@ -1,4 +1,3 @@
-/* global heimdall */
 /**
   @module ember-data
 */
