@@ -4,6 +4,7 @@ import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
 import DS from 'ember-data';
+import JSONAPISerializer from 'ember-data/serializers/json-api';
 
 const { attr } = DS;
 
@@ -200,5 +201,44 @@ testInDebug('warns when returned record has different id', function(assert) {
   assert.expectWarning(
     () => run(() => env.store.findRecord('person', 'me')),
     /You requested a record of type 'person' with id 'me' but the adapter returned a payload with primary data having an id of '1'/
+  );
+});
+
+testInDebug('coerces ids before warning when returned record has different id', async function(
+  assert
+) {
+  env.owner.register(
+    'serializer:application',
+    JSONAPISerializer.extend({
+      normalizeResponse(_, __, payload) {
+        return payload;
+      },
+    })
+  );
+
+  env.owner.register(
+    'adapter:person',
+    DS.Adapter.extend({
+      findRecord() {
+        return {
+          data: {
+            id: 1,
+            type: 'person',
+            attributes: {
+              name: 'Braaaahm Dale',
+            },
+          },
+        };
+      },
+    })
+  );
+
+  assert.expectNoWarning(
+    () => run(() => env.store.findRecord('person', 1)),
+    /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
+  );
+  assert.expectNoWarning(
+    () => run(() => env.store.findRecord('person', '1')),
+    /You requested a record of type 'person' with id '1' but the adapter returned a payload with primary data having an id of '1'/
   );
 });
