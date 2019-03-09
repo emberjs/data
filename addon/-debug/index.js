@@ -34,7 +34,7 @@ if (DEBUG) {
       return modelClass.__mixin.detect(addedModelClass.PrototypeMixin);
     }
 
-    return modelClass.detect(addedModelClass);
+    return addedModelClass.prototype instanceof modelClass || modelClass.detect(addedModelClass);
   };
 
   assertPolymorphicType = function assertPolymorphicType(
