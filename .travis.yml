@@ -84,9 +84,17 @@ jobs:
       if: NOT (branch ~= /^(release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-canary
 
-    # runs tests against various open-source projects for early-warning regression analysis
-    # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
-    # By running longer jobs first, we allow the shorter jobs to complete within the same time block in parallel
+    - stage: deploy
+      name: "Publish"
+      install: yarn install
+      script:
+        - node_modules/.bin/ember try:reset
+        - yarn build:production
+
+  # runs tests against various open-source projects for early-warning regression analysis
+  # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
+  # By running longer jobs first, we allow the shorter jobs to complete within the same time block in parallel
+  allow_failures:
     - stage: external partner tests
       name: "Ilios Frontend" # ~30min job
       script: yarn test-external:ilios-frontend
@@ -110,13 +118,6 @@ jobs:
       script: yarn test-external:ember-data-change-tracker
     - name: "ember-m3" # ~3.5min job
       script: yarn test-external:ember-m3
-
-    - stage: deploy
-      name: "Publish"
-      install: yarn install
-      script:
-        - node_modules/.bin/ember try:reset
-        - yarn build:production
 
 
 before_install:
