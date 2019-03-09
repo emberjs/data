@@ -636,8 +636,8 @@ testInDebug(
 
     let person = store.peekRecord('person', 1);
 
-    assert.equal(person.phoneNumbers.length, 1);
-    assert.equal(person.phoneNumbers.firstObject.number, '1-800-DATA');
+    assert.equal(person.get('phoneNumbers.length'), 1);
+    assert.equal(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
 
     // GET /persons/1
     assert.expectNoWarning(() => {
@@ -656,8 +656,8 @@ testInDebug(
       });
     });
 
-    assert.equal(person.phoneNumbers.length, 1);
-    assert.equal(person.phoneNumbers.firstObject.number, '1-800-DATA');
+    assert.equal(person.get('phoneNumbers.length'), 1);
+    assert.equal(person.get('phoneNumbers.firstObject.number'), '1-800-DATA');
   }
 );
 
