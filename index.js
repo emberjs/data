@@ -81,7 +81,8 @@ module.exports = {
     ]);
 
     let withPrivate = new Funnel(tree, {
-      include: ['-private/**'],
+      srcDir: '-private',
+      destDir: '-private',
     });
 
     let withoutPrivate = new Funnel(treeWithVersion, {
