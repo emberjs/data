@@ -84,12 +84,13 @@ let InternalModelReferenceId = 1;
   @class InternalModel
 */
 export default class InternalModel {
-  constructor(modelName, id, store, data, clientId) {
+  constructor(store, identifier) {
     heimdall.increment(new_InternalModel);
-    this.id = id;
+    this.id = identifier.id;
     this.store = store;
-    this.modelName = modelName;
-    this.clientId = clientId;
+    this.modelName = identifier.type;
+    this.lid = identifier.lid;
+    this.identifier = identifier;
 
     this.__recordData = null;
 
@@ -144,7 +145,7 @@ export default class InternalModel {
 
   get _recordData() {
     if (this.__recordData === null) {
-      this._recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
+      this._recordData = this.store._createRecordData(this.identifier);
     }
     return this.__recordData;
   }
@@ -490,6 +491,7 @@ export default class InternalModel {
 
   getBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
+    let identifier = resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;
@@ -497,8 +499,7 @@ export default class InternalModel {
     let isAsync = typeof async === 'undefined' ? true : async;
 
     if (isAsync) {
-      let internalModel =
-        resource && resource.data ? store._internalModelForResource(resource.data) : null;
+      let internalModel = identifier !== null ? store._imCache.get(identifier) : null;
       return PromiseBelongsTo.create({
         _belongsToState: resource._relationship,
         promise: store._findBelongsToByJsonApiResource(
@@ -510,10 +511,10 @@ export default class InternalModel {
         content: internalModel ? internalModel.getRecord() : null,
       });
     } else {
-      if (!resource || !resource.data) {
+      if (identifier === null) {
         return null;
       } else {
-        let internalModel = store._internalModelForResource(resource.data);
+        let internalModel = store._imCache.ensureInstance(identifier);
         let toReturn = internalModel.getRecord();
         assert(
           "You looked up the '" +
@@ -1111,7 +1112,7 @@ export default class InternalModel {
     this.id = id;
 
     if (didChange && id !== null) {
-      this.store._setRecordId(this, id, this.clientId);
+      this.store._setRecordId(this, id, this.lid);
     }
 
     if (didChange && this.hasRecord) {

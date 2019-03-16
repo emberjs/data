@@ -745,7 +745,7 @@ testInDebug('calling push with hasMany relationship the value must be an array',
 });
 
 testInDebug('calling push with missing or invalid `id` throws assertion error', function(assert) {
-  let invalidValues = [{}, { id: null }, { id: '' }];
+  let invalidValues = [{ type: 'person' }, { type: 'person', id: null }, { type: 'person', id: '' }];
 
   assert.expect(invalidValues.length);
 

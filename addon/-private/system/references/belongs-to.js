@@ -195,7 +195,8 @@ export default class BelongsToReference extends Reference {
     let store = this.parentInternalModel.store;
     let resource = this._resource();
     if (resource && resource.data) {
-      let inverseInternalModel = store._internalModelForResource(resource.data);
+      let inverseIdentifier = store.identifierCache.getOrCreateRecordIdentifier(resource.data);
+      let inverseInternalModel = store._imCache.get(inverseIdentifier);
       if (inverseInternalModel && inverseInternalModel.isLoaded()) {
         return inverseInternalModel.getRecord();
       }
@@ -325,8 +326,9 @@ export default class BelongsToReference extends Reference {
       );
     }
     if (resource && resource.data) {
-      if (resource.data && (resource.data.id || resource.data.clientId)) {
-        let internalModel = this.store._internalModelForResource(resource.data);
+      if (resource.data && (resource.data.id || resource.data.lid)) {
+        let identifier = this.store.identifierCache.getOrCreateRecordIdentifier(resource.data);
+        let internalModel = this.store._imCache.ensureInstance(identifier);
         if (internalModel.isLoaded()) {
           return internalModel.reload(options).then(internalModel => {
             if (internalModel) {

@@ -5,9 +5,16 @@ export default class StoreWrapper {
     this._pendingManyArrayUpdates = null;
   }
 
-  _scheduleManyArrayUpdate(modelName, id, clientId, key) {
+  // TODO this exists just to the default recordData can
+  //  check this in debug for relationships
+  //  we can likely do away with this in the new relationship layer
+  _hasModelFor(modelName) {
+    return this.store._hasModelFor(modelName);
+  }
+
+  _scheduleManyArrayUpdate(identifier, key) {
     let pending = (this._pendingManyArrayUpdates = this._pendingManyArrayUpdates || []);
-    pending.push(modelName, id, clientId, key);
+    pending.push(identifier, key);
 
     if (this._willUpdateManyArrays === true) {
       return;
@@ -31,13 +38,11 @@ export default class StoreWrapper {
     this._willUpdateManyArrays = false;
     let store = this.store;
 
-    for (let i = 0; i < pending.length; i += 4) {
-      let modelName = pending[i];
-      let id = pending[i + 1];
-      let clientId = pending[i + 2];
-      let key = pending[i + 3];
-      let internalModel = store._getInternalModelForId(modelName, id, clientId);
-      internalModel.notifyHasManyChange(key);
+    for (let i = 0; i < pending.length; i += 2) {
+      let identifier = pending[i];
+      let key = pending[i + 1];
+      let internalModel = store._imCache.get(identifier);
+      internalModel && internalModel.notifyHasManyChange(key);
     }
   }
 
@@ -60,38 +65,46 @@ export default class StoreWrapper {
     return this.relationshipsDefinitionFor(modelName)[key]._inverseIsAsync(this.store, modelClass);
   }
 
-  notifyPropertyChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyPropertyChange(key);
+  notifyPropertyChange(type, id, lid, key) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    let internalModel = this.store._imCache.get(identifier);
+    internalModel && internalModel.notifyPropertyChange(key);
   }
 
-  notifyHasManyChange(modelName, id, clientId, key) {
-    this._scheduleManyArrayUpdate(modelName, id, clientId, key);
+  notifyHasManyChange(type, id, lid, key) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    this._scheduleManyArrayUpdate(identifier, key);
   }
 
-  notifyBelongsToChange(modelName, id, clientId, key) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
-    internalModel.notifyBelongsToChange(key);
+  notifyBelongsToChange(type, id, lid, key) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    let internalModel = this.store._imCache.get(identifier);
+    internalModel && internalModel.notifyBelongsToChange(key);
   }
 
-  recordDataFor(modelName, id, clientId) {
-    return this.store.recordDataFor(modelName, id, clientId);
+  recordDataFor(type, id, lid) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    return this.store.recordDataFor(identifier);
   }
 
-  setRecordId(modelName, id, clientId) {
-    this.store.setRecordId(modelName, id, clientId);
+  setRecordId(type, id, lid) {
+    this.store.setRecordId(type, id, lid);
   }
 
-  isRecordInUse(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  isRecordInUse(type, id, lid) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    let internalModel = this.store._imCache.get(identifier);
+
     if (!internalModel) {
       return false;
     }
     return internalModel.isRecordInUse();
   }
 
-  disconnectRecord(modelName, id, clientId) {
-    let internalModel = this.store._getInternalModelForId(modelName, id, clientId);
+  disconnectRecord(type, id, lid) {
+    let identifier = this.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    let internalModel = this.store._imCache.get(identifier);
+
     if (internalModel) {
       internalModel.destroyFromRecordData();
     }

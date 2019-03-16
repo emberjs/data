@@ -9,6 +9,11 @@ const { Model, attr, hasMany, belongsTo, Snapshot } = DS;
 
 let env, Post, Comment;
 
+function internalModelFor(store, type, id) {
+  let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+  return store._imCache.ensureInstance(identifier);
+}
+
 module('integration/snapshot - Snapshot', {
   beforeEach() {
     Post = Model.extend({
@@ -122,7 +127,7 @@ test('snapshot.type loads the class lazily', function(assert) {
         },
       },
     });
-    let postInternalModel = env.store._internalModelForId('post', 1);
+    let postInternalModel = internalModelFor(env.store, 'post', 1);
     let snapshot = postInternalModel.createSnapshot();
 
     assert.equal(false, postClassLoaded, 'model class is not eagerly loaded');
@@ -165,7 +170,7 @@ test('snapshots for un-materialized internal-models generate attributes lazily',
     })
   );
 
-  let postInternalModel = env.store._internalModelForId('post', 1);
+  let postInternalModel = internalModelFor(env.store, 'post', 1);
   let snapshot = postInternalModel.createSnapshot();
   let expected = {
     author: undefined,
@@ -192,7 +197,7 @@ test('snapshots for materialized internal-models generate attributes greedily', 
     })
   );
 
-  let postInternalModel = env.store._internalModelForId('post', 1);
+  let postInternalModel = internalModelFor(env.store, 'post', 1);
   let snapshot = postInternalModel.createSnapshot();
   let expected = {
     author: undefined,

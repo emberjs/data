@@ -53,7 +53,7 @@ test(`TEMPORARY: a record receives a didLoad callback once it materializes if it
   });
 
   run(() => {
-    store._pushInternalModel({ id: 1, type: 'person' });
+    store._pushResource({ id: 1, type: 'person' });
     assert.equal(didLoadCalled, 0, 'didLoad was not called');
   });
   run(() => store.peekRecord('person', 1));

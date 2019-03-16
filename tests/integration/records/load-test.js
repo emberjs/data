@@ -9,6 +9,11 @@ import { attr, belongsTo } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
 import todo from '../../helpers/todo';
 
+function internalModelFor(store, type, id) {
+  let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+  return store._imCache.ensureInstance(identifier);
+}
+
 class Person extends Model {
   @attr
   name;
@@ -120,7 +125,7 @@ module('integration/load - Loading Records', function(hooks) {
       })
     );
 
-    let internalModel = store._internalModelForId('person', '1');
+    let internalModel = internalModelFor(store, 'person', '1');
 
     // test that our initial state is correct
     assert.equal(internalModel.isEmpty(), true, 'We begin in the empty state');

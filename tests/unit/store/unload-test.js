@@ -111,7 +111,7 @@ test('unload a record', function(assert) {
 test('unload followed by create of the same type + id', function(assert) {
   let record = store.createRecord('record', { id: 1 });
 
-  assert.ok(store.recordForId('record', 1) === record, 'record should exactly equal');
+  assert.ok(store.peekRecord('record', 1) === record, 'record should exactly equal');
 
   return run(() => {
     record.unloadRecord();

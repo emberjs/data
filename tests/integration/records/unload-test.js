@@ -12,6 +12,10 @@ function idsFromOrderedSet(set) {
   return set.list.map(i => i.id);
 }
 
+function internalModelsFor(store, modelName) {
+  return store._imCache.all(modelName);
+}
+
 const { attr, belongsTo, hasMany, Model } = DS;
 
 const Person = Model.extend({
@@ -177,14 +181,14 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(store.peekAll('person').get('length'), 1, 'one person record loaded');
-    assert.equal(store._internalModelsFor('person').length, 1, 'one person internalModel loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 1, 'one person internalModel loaded');
 
     run(function() {
       adam.unloadRecord();
     });
 
     assert.equal(store.peekAll('person').get('length'), 0, 'no person records');
-    assert.equal(store._internalModelsFor('person').length, 0, 'no person internalModels');
+    assert.equal(internalModelsFor(store, 'person').length, 0, 'no person internalModels');
   });
 
   test('can unload all records for a given type', function(assert) {
@@ -232,9 +236,9 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 2, 'two person internalModels loaded');
     assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.equal(internalModelsFor(store, 'car').length, 1, 'one car internalModel loaded');
 
     run(function() {
       car.get('person');
@@ -243,8 +247,8 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     assert.equal(store.peekAll('person').get('length'), 0);
     assert.equal(store.peekAll('car').get('length'), 1);
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 0, 'zero person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'car').length, 1, 'one car internalModel loaded');
 
     run(function() {
       store.push({
@@ -323,9 +327,9 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 2, 'two person internalModels loaded');
     assert.equal(store.peekAll('car').get('length'), 1, 'one car record loaded');
-    assert.equal(store._internalModelsFor('car').length, 1, 'one car internalModel loaded');
+    assert.equal(internalModelsFor(store, 'car').length, 1, 'one car internalModel loaded');
 
     run(function() {
       store.unloadAll();
@@ -333,8 +337,8 @@ module('integration/unload - Unloading Records', function(hooks) {
 
     assert.equal(store.peekAll('person').get('length'), 0);
     assert.equal(store.peekAll('car').get('length'), 0);
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
-    assert.equal(store._internalModelsFor('car').length, 0, 'zero car internalModels loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 0, 'zero person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'car').length, 0, 'zero car internalModels loaded');
   });
 
   test('removes findAllCache after unloading all records', function(assert) {
@@ -365,7 +369,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(store.peekAll('person').get('length'), 2, 'two person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 2, 'two person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 2, 'two person internalModels loaded');
 
     run(function() {
       store.peekAll('person');
@@ -373,7 +377,7 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(store.peekAll('person').get('length'), 0, 'zero person records loaded');
-    assert.equal(store._internalModelsFor('person').length, 0, 'zero person internalModels loaded');
+    assert.equal(internalModelsFor(store, 'person').length, 0, 'zero person internalModels loaded');
   });
 
   test('unloading all records also updates record array from peekAll()', function(assert) {
@@ -449,12 +453,12 @@ module('integration/unload - Unloading Records', function(hooks) {
     let boat = store.peekRecord('boat', '1');
     let initialBoatInternalModel = boat._internalModel;
     let relationshipState = person.hasMany('boats').hasManyRelationship;
-    let knownPeople = store._internalModelsFor('person');
-    let knownBoats = store._internalModelsFor('boat');
+    let knownPeople = internalModelsFor(store, 'person');
+    let knownBoats = internalModelsFor(store, 'boat');
 
     // ensure we loaded the people and boats
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+    assert.equal(knownPeople.length, 1, 'one person record is loaded');
+    assert.equal(knownBoats.length, 1, 'one boat record is loaded');
     assert.equal(store.hasRecordForId('person', '1'), true);
     assert.equal(store.hasRecordForId('boat', '1'), true);
 
@@ -473,8 +477,8 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     // ensure that our new state is correct
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
+    assert.equal(knownPeople.length, 1, 'one person record is loaded');
+    assert.equal(knownBoats.length, 1, 'we still have a boat');
     assert.equal(
       relationshipState.canonicalMembers.size,
       1,
@@ -499,7 +503,7 @@ module('integration/unload - Unloading Records', function(hooks) {
   });
 
   test('unloadAll(type) does not leave stranded internalModels in relationships (rediscover via relationship reload)', function(assert) {
-    assert.expect(17);
+    assert.expect(18);
 
     adapter.findRecord = (store, type, id) => {
       assert.ok(type.modelName === 'boat', 'We refetch the boat');
@@ -530,12 +534,12 @@ module('integration/unload - Unloading Records', function(hooks) {
     let boat = store.peekRecord('boat', '1');
     let initialBoatInternalModel = boat._internalModel;
     let relationshipState = person.hasMany('boats').hasManyRelationship;
-    let knownPeople = store._internalModelsFor('person');
-    let knownBoats = store._internalModelsFor('boat');
+    let knownPeople = internalModelsFor(store, 'person');
+    let knownBoats = internalModelsFor(store, 'boat');
 
     // ensure we loaded the people and boats
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 1, 'one boat record is loaded');
+    assert.equal(knownPeople.length, 1, 'one person record is loaded');
+    assert.equal(knownBoats.length, 1, 'one boat record is loaded');
     assert.equal(store.hasRecordForId('person', '1'), true);
     assert.equal(store.hasRecordForId('boat', '1'), true);
 
@@ -554,8 +558,9 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     // ensure that our new state is correct
-    assert.equal(knownPeople.models.length, 1, 'one person record is loaded');
-    assert.equal(knownBoats.models.length, 0, 'no boat records are loaded');
+    assert.equal(knownPeople.length, 1, 'one person record is loaded');
+    assert.equal(knownBoats.length, 1, 'we still have a boat');
+    assert.equal(knownBoats[0].isHiddenFromRecordArrays(), true, 'our boat is hidden');
     assert.equal(
       relationshipState.canonicalMembers.size,
       1,
@@ -597,12 +602,12 @@ module('integration/unload - Unloading Records', function(hooks) {
     let boat = store.peekRecord('boat', '1');
     let initialBoatInternalModel = boat._internalModel;
     let relationshipState = person.hasMany('boats').hasManyRelationship;
-    let knownPeople = store._internalModelsFor('person');
-    let knownBoats = store._internalModelsFor('boat');
+    let knownPeople = internalModelsFor(store, 'person');
+    let knownBoats = internalModelsFor(store, 'boat');
 
     // ensure we loaded the people and boats
-    assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
-    assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is loaded');
+    assert.deepEqual(knownPeople.map(m => m.id), ['1'], 'one person record is loaded');
+    assert.deepEqual(knownBoats.map(m => m.id), ['1'], 'one boat record is loaded');
     assert.equal(store.hasRecordForId('person', '1'), true);
     assert.equal(store.hasRecordForId('boat', '1'), true);
 
@@ -627,9 +632,9 @@ module('integration/unload - Unloading Records', function(hooks) {
     run(() => boat.unloadRecord());
 
     // ensure that our new state is correct
-    assert.deepEqual(knownPeople.models.map(m => m.id), ['1'], 'one person record is loaded');
-    assert.deepEqual(knownBoats.models.map(m => m.id), ['1'], 'one boat record is known');
-    assert.ok(knownBoats.models[0] === initialBoatInternalModel, 'We still have our boat');
+    assert.deepEqual(knownPeople.map(m => m.id), ['1'], 'one person record is loaded');
+    assert.deepEqual(knownBoats.map(m => m.id), ['1'], 'one boat record is known');
+    assert.ok(knownBoats[0] === initialBoatInternalModel, 'We still have our boat');
     assert.equal(initialBoatInternalModel.isEmpty(), true, 'Model is in the empty state');
     assert.deepEqual(
       idsFromOrderedSet(relationshipState.canonicalMembers),
@@ -752,11 +757,11 @@ module('integration/unload - Unloading Records', function(hooks) {
     });
 
     assert.equal(
-      store._internalModelsFor('person').models.length,
+      internalModelsFor(store, 'person').length,
       1,
       'one person record is loaded'
     );
-    assert.equal(store._internalModelsFor('boat').models.length, 2, 'two boat records are loaded');
+    assert.equal(internalModelsFor(store, 'boat').length, 2, 'two boat records are loaded');
     assert.equal(store.hasRecordForId('person', 1), true);
     assert.equal(store.hasRecordForId('boat', 1), true);
     assert.equal(store.hasRecordForId('boat', 2), true);
@@ -795,8 +800,8 @@ module('integration/unload - Unloading Records', function(hooks) {
           store.peekRecord('boat', 2).unloadRecord();
         });
 
-        assert.equal(store._internalModelsFor('person').models.length, 0);
-        assert.equal(store._internalModelsFor('boat').models.length, 0);
+        assert.equal(internalModelsFor(store, 'person').length, 0);
+        assert.equal(internalModelsFor(store, 'boat').length, 0);
 
         assert.equal(checkOrphanCalls, 3, 'each internalModel checks for cleanup');
         assert.equal(cleanupOrphanCalls, 3, 'each model data tries to cleanup');

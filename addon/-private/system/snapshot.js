@@ -246,7 +246,8 @@ export default class Snapshot {
     let value = relationship.getData();
     let data = value && value.data;
 
-    inverseInternalModel = data && store._internalModelForResource(data);
+    let inverseIdentifier = data && store.identifierCache.getOrCreateRecordIdentifier(data);
+    inverseInternalModel = data && store._imCache.get(inverseIdentifier);
 
     if (value && value.data !== undefined) {
       if (inverseInternalModel && !inverseInternalModel.isDeleted()) {
@@ -330,7 +331,9 @@ export default class Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach(member => {
-        let internalModel = store._internalModelForResource(member);
+
+        let identifier = store.identifierCache.getOrCreateRecordIdentifier(member);
+        let internalModel = store._imCache.get(identifier);
         if (!internalModel.isDeleted()) {
           if (ids) {
             results.push(member.id);

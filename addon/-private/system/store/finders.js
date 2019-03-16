@@ -366,12 +366,12 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   );
 }
 
-export function _findAll(adapter, store, modelName, sinceToken, options) {
+export function _findAll(adapter, store, modelName, options) {
   let modelClass = store.modelFor(modelName); // adapter.findAll depends on the class
   let recordArray = store.peekAll(modelName);
   let snapshotArray = recordArray._createSnapshot(options);
   let promise = Promise.resolve().then(() =>
-    adapter.findAll(store, modelClass, sinceToken, snapshotArray)
+    adapter.findAll(store, modelClass, undefined, snapshotArray)
   );
   let label = 'DS: Handle Adapter#findAll of ' + modelClass;
 

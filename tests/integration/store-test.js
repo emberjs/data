@@ -922,7 +922,8 @@ test('Using store#fetch on an empty record calls find', function(assert) {
     });
   });
 
-  let car = store.recordForId('car', 20);
+  let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type: 'car', id: '20' });
+  let car = store._imCache.ensureInstance(identifier).getRecord();
   assert.ok(car.get('isEmpty'), 'Car with id=20 should be empty');
 
   return run(() => {

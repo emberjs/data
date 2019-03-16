@@ -106,7 +106,8 @@ export const PromiseBelongsTo = PromiseObject.extend({
     let key = state.key;
     let store = state.store;
     let resource = state.recordData.getResourceIdentifier();
-    let internalModel = store._internalModelForResource(resource);
+    let identifier = store.identifierCache.getOrCreateRecordIdentifier(resource);
+    let internalModel = store._imCache.get(identifier);
 
     return store.reloadBelongsTo(this, internalModel, key, options).then(() => this);
   },

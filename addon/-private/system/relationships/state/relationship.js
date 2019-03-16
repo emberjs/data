@@ -684,7 +684,7 @@ export default class Relationship {
         storeWrapper.notifyPropertyChange(
           recordData.modelName,
           recordData.id,
-          recordData.clientId,
+          recordData.lid,
           this.key
         );
       }

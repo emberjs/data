@@ -9,7 +9,7 @@ import { run as emberRunLoop } from '@ember/runloop';
 import { set, get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { assign } from '@ember/polyfills';
-import { default as RSVP, Promise } from 'rsvp';
+import { Promise, all, resolve, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
@@ -20,7 +20,6 @@ import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
-import IdentityMap from './identity-map';
 import StoreWrapper from './store/store-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
@@ -46,6 +45,8 @@ import RecordArrayManager from './record-array-manager';
 import InternalModel from './model/internal-model';
 import RecordData from './model/record-data';
 import edBackburner from './backburner';
+import IdentifierCache from '../identifiers/cache';
+import InternalModelCache from '../internal-model/internal-model-cache';
 
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
@@ -80,31 +81,23 @@ function promiseRecord(internalModelPromise, label) {
 
 const {
   _generateId,
-  _internalModelForId,
   _load,
-  _pushInternalModel,
   adapterFor,
-  _buildInternalModel,
   _didUpdateAll,
   normalize,
   peekAll,
   peekRecord,
   serializerFor,
-  _internalModelsFor,
 } = heimdall.registerMonitor(
   'store',
   '_generateId',
-  '_internalModelForId',
   '_load',
-  '_pushInternalModel',
   'adapterFor',
-  '_buildInternalModel',
   '_didUpdateAll',
   'normalize',
   'peekAll',
   'peekRecord',
-  'serializerFor',
-  '_internalModelsFor'
+  'serializerFor'
 );
 
 /**
@@ -190,9 +183,9 @@ const Store = Service.extend({
     this._backburner = edBackburner;
     // internal bookkeeping; not observable
     this.recordArrayManager = new RecordArrayManager({ store: this });
-    this._identityMap = new IdentityMap();
-    // To keep track of clientIds for newly created records
-    this._newlyCreated = new IdentityMap();
+    this.identifierCache = new IdentifierCache();
+    this._imCache = new InternalModelCache(this, this.identifierCache);
+
     this._pendingSave = [];
     this._modelFactoryCache = Object.create(null);
     this._relationshipsDefCache = Object.create(null);
@@ -390,8 +383,11 @@ const Store = Service.extend({
 
         // Coerce ID to a string
         properties.id = coerceId(properties.id);
+        let internalModel = this._imCache.createInternalModelForNewRecord({
+          type: normalizedModelName,
+          id: properties.id,
+        });
 
-        let internalModel = this._buildInternalModel(normalizedModelName, properties.id);
         internalModel.loadedData();
         // TODO this exists just to proxy `isNew` to RecordData which is weird
         internalModel.didCreateRecord();
@@ -754,21 +750,20 @@ const Store = Service.extend({
       (typeof id === 'string' && id.length > 0) || (typeof id === 'number' && !isNaN(id))
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
+    let type = normalizeModelName(modelName);
+    let normalizedId = coerceId(id);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id: normalizedId });
+    let internalModel = this._imCache.ensureInstance(identifier);
 
-    let internalModel = this._internalModelForId(normalizedModelName, id);
     options = options || {};
 
-    if (!this.hasRecordForId(normalizedModelName, id)) {
+    if (!this.hasRecordForId(type, id)) {
       return this._findByInternalModel(internalModel, options);
     }
 
     let fetchedInternalModel = this._findRecord(internalModel, options);
 
-    return promiseRecord(
-      fetchedInternalModel,
-      `DS: Store#findRecord ${normalizedModelName} with id: ${id}`
-    );
+    return promiseRecord(fetchedInternalModel, `DS: Store#findRecord ${type} with id: ${id}`);
   },
 
   _findRecord(internalModel, options) {
@@ -853,7 +848,7 @@ const Store = Service.extend({
     }
 
     return promiseArray(
-      RSVP.all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`)
+      all(promises).then(A, null, `DS: Store#findByIds of ${normalizedModelName} complete`)
     );
   },
 
@@ -896,7 +891,7 @@ const Store = Service.extend({
     }
 
     let { id, modelName } = internalModel;
-    let resolver = RSVP.defer(`Fetching ${modelName}' with id: ${id}`);
+    let resolver = defer(`Fetching ${modelName}' with id: ${id}`);
     let pendingFetchItem = {
       internalModel,
       resolver,
@@ -1128,9 +1123,11 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'getReference');
     }
-    let normalizedModelName = normalizeModelName(modelName);
+    let type = normalizeModelName(modelName);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id });
+    let internalModel = this._imCache.ensureInstance(identifier);
 
-    return this._internalModelForId(normalizedModelName, id).recordReference;
+    return internalModel.recordReference;
   },
 
   /**
@@ -1170,10 +1167,12 @@ const Store = Service.extend({
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
       typeof modelName === 'string'
     );
-    let normalizedModelName = normalizeModelName(modelName);
+    let type = normalizeModelName(modelName);
+    let trueId = coerceId(id);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id: trueId });
 
-    if (this.hasRecordForId(normalizedModelName, id)) {
-      return this._internalModelForId(normalizedModelName, id).getRecord();
+    if (this.hasRecordForId(type, trueId)) {
+      return this._imCache.get(identifier).getRecord();
     } else {
       return null;
     }
@@ -1238,71 +1237,19 @@ const Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let normalizedModelName = normalizeModelName(modelName);
-
+    let type = normalizeModelName(modelName);
     let trueId = coerceId(id);
-    let internalModel = this._internalModelsFor(normalizedModelName).get(trueId);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id: trueId });
+    let internalModel = this._imCache.get(identifier);
 
-    return !!internalModel && internalModel.isLoaded();
-  },
-
-  /**
-    Returns id record for a given type and ID. If one isn't already loaded,
-    it builds a new record and leaves it in the `empty` state.
-
-    @method recordForId
-    @private
-    @param {String} modelName
-    @param {(String|Integer)} id
-    @return {DS.Model} record
-  */
-  recordForId(modelName, id) {
-    if (DEBUG) {
-      assertDestroyingStore(this, 'recordForId');
-    }
-    assert(`You need to pass a model name to the store's recordForId method`, isPresent(modelName));
-    assert(
-      `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${modelName}`,
-      typeof modelName === 'string'
-    );
-
-    return this._internalModelForId(modelName, id).getRecord();
+    return internalModel !== null && internalModel.isLoaded();
   },
 
   // directly get an internal model from ID map if it is there, without doing any
   // processing
-  _getInternalModelForId(modelName, id, clientId) {
-    let internalModel;
-    if (clientId) {
-      internalModel = this._newlyCreatedModelsFor(modelName).get(clientId);
-    }
-
-    if (!internalModel) {
-      internalModel = this._internalModelsFor(modelName).get(id);
-    }
-    return internalModel;
-  },
-
-  _internalModelForId(modelName, id, clientId) {
-    heimdall.increment(_internalModelForId);
-    let trueId = coerceId(id);
-    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
-
-    if (internalModel) {
-      // unloadRecord is async, if one attempts to unload + then sync push,
-      //   we must ensure the unload is canceled before continuing
-      //   The createRecord path will take _existingInternalModelForId()
-      //   which will call `destroySync` instead for this unload + then
-      //   sync createRecord scenario. Once we have true client-side
-      //   delete signaling, we should never call destroySync
-      if (internalModel.hasScheduledDestroy()) {
-        internalModel.cancelDestroy();
-      }
-
-      return internalModel;
-    }
-
-    return this._buildInternalModel(modelName, trueId, null, clientId);
+  _getInternalModelForId(type, id, lid) {
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    return this._imCache.get(identifier);
   },
 
   /**
@@ -1364,7 +1311,7 @@ const Store = Service.extend({
 
   _findHasManyByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
-      return RSVP.resolve([]);
+      return resolve([]);
     }
 
     let {
@@ -1407,7 +1354,10 @@ const Store = Service.extend({
 
     // fetch using data, pulling from local cache if possible
     if (!relationshipIsStale && (preferLocalCache || hasLocalPartialData)) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map(json => {
+        let identifier = this.identifierCache.getOrCreateRecordIdentifier(json);
+        return this._imCache.get(identifier);
+      });
 
       return this.findMany(internalModels, options);
     }
@@ -1416,20 +1366,26 @@ const Store = Service.extend({
 
     // fetch by data
     if (hasData || hasLocalPartialData) {
-      let internalModels = resource.data.map(json => this._internalModelForResource(json));
+      let internalModels = resource.data.map(json => {
+        let identifier = this.identifierCache.getOrCreateRecordIdentifier(json);
+        return this._imCache.get(identifier);
+      });
 
       return this._scheduleFetchMany(internalModels, options);
     }
 
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return RSVP.resolve([]);
+    return resolve([]);
   },
 
   _getHasManyByJsonApiResource(resource) {
     let internalModels = [];
     if (resource && resource.data) {
-      internalModels = resource.data.map(reference => this._internalModelForResource(reference));
+      internalModels = resource.data.map(reference => {
+        let identifier = this.identifierCache.getOrCreateRecordIdentifier(reference);
+        return this._imCache.get(identifier);
+      });
     }
     return internalModels;
   },
@@ -1465,7 +1421,7 @@ const Store = Service.extend({
   _fetchBelongsToLinkFromResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource || !resource.links || !resource.links.related) {
       // should we warn here, not sure cause its an internal method
-      return RSVP.resolve(null);
+      return resolve(null);
     }
     return this.findBelongsTo(
       parentInternalModel,
@@ -1485,10 +1441,13 @@ const Store = Service.extend({
 
   _findBelongsToByJsonApiResource(resource, parentInternalModel, relationshipMeta, options) {
     if (!resource) {
-      return RSVP.resolve(null);
+      return resolve(null);
     }
 
-    let internalModel = resource.data ? this._internalModelForResource(resource.data) : null;
+    let identifier = resource.data
+      ? this.identifierCache.getOrCreateRecordIdentifier(resource.data)
+      : null;
+    let internalModel = identifier !== null ? this._imCache.get(identifier) : null;
     let {
       relationshipIsStale,
       allInverseRecordsAreLoaded,
@@ -1533,7 +1492,7 @@ const Store = Service.extend({
         We have canonical data, but our local state is empty
        */
       if (localDataIsEmpty) {
-        return RSVP.resolve(null);
+        return resolve(null);
       }
 
       return this._findByInternalModel(internalModel, options);
@@ -1542,7 +1501,7 @@ const Store = Service.extend({
     let resourceIsLocal = !localDataIsEmpty && resource.data.id === null;
 
     if (resourceIsLocal) {
-      return RSVP.resolve(internalModel.getRecord());
+      return resolve(internalModel.getRecord());
     }
 
     // fetch by data
@@ -1554,7 +1513,7 @@ const Store = Service.extend({
 
     // we were explicitly told we have no data and no links.
     //   TODO if the relationshipIsStale, should we hit the adapter anyway?
-    return RSVP.resolve(null);
+    return resolve(null);
   },
 
   /**
@@ -2019,7 +1978,6 @@ const Store = Service.extend({
   */
   _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
-    let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -2029,14 +1987,14 @@ const Store = Service.extend({
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     if (options.backgroundReload === false) {
@@ -2045,7 +2003,7 @@ const Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelName, sinceToken, options);
+      _findAll(adapter, this, modelName, options);
     }
 
     return promiseArray(Promise.resolve(array));
@@ -2123,18 +2081,11 @@ const Store = Service.extend({
     );
 
     if (arguments.length === 0) {
-      this._identityMap.clear();
+      this._imCache.clear();
     } else {
       let normalizedModelName = normalizeModelName(modelName);
-      this._internalModelsFor(normalizedModelName).clear();
+      this._imCache.clear(normalizedModelName);
     }
-  },
-
-  filter() {
-    assert(
-      'The filter API has been moved to a plugin. To enable store.filter using an environment flag, or to use an alternative, you can visit the ember-data-filter addon page. https://github.com/ember-data/ember-data-filter',
-      false
-    );
   },
 
   // ..............
@@ -2274,15 +2225,15 @@ const Store = Service.extend({
     @private
     @param {String} modelName
     @param {string} newId
-    @param {number} clientId
+    @param {number} lid
    */
-  setRecordId(modelName, newId, clientId) {
+  setRecordId(modelName, newId, lid) {
     let trueId = coerceId(newId);
-    let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
-    this._setRecordId(internalModel, newId, clientId);
+    let internalModel = this._getInternalModelForId(modelName, trueId, lid);
+    this._setRecordId(internalModel, newId, lid);
   },
 
-  _setRecordId(internalModel, id, clientId) {
+  _setRecordId(internalModel, id, lid) {
     if (DEBUG) {
       assertDestroyingStore(this, 'setRecordId');
     }
@@ -2311,30 +2262,14 @@ const Store = Service.extend({
       return;
     }
 
-    let existingInternalModel = this._existingInternalModelForId(modelName, id);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({
+      type: modelName,
+      lid: coerceId(lid),
+    });
 
-    assert(
-      `'${modelName}' was saved to the server, but the response returned the new id '${id}', which has already been used with another record.'`,
-      isNone(existingInternalModel) || existingInternalModel === internalModel
-    );
-
-    this._internalModelsFor(internalModel.modelName).set(id, internalModel);
-    this._newlyCreatedModelsFor(internalModel.modelName).remove(internalModel, clientId);
+    this.identifierCache.updateRecordIdentifier(identifier, { type: modelName, id });
 
     internalModel.setId(id);
-  },
-
-  /**
-    Returns a map of IDs to client IDs for a given modelName.
-
-    @method _internalModelsFor
-    @private
-    @param {String} modelName
-    @return {Object} recordMap
-  */
-  _internalModelsFor(modelName) {
-    heimdall.increment(_internalModelsFor);
-    return this._identityMap.retrieve(modelName);
   },
 
   _newlyCreatedModelsFor(modelName) {
@@ -2354,8 +2289,8 @@ const Store = Service.extend({
   */
   _load(data) {
     heimdall.increment(_load);
-    let modelName = normalizeModelName(data.type);
-    let internalModel = this._internalModelForId(modelName, data.id);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier(data);
+    let internalModel = this._imCache.ensureInstance(identifier);
 
     let isUpdate = internalModel.currentState.isEmpty === false;
 
@@ -2366,6 +2301,8 @@ const Store = Service.extend({
     } else {
       this.recordArrayManager.recordWasLoaded(internalModel);
     }
+
+    this.identifierCache.updateRecordIdentifier(identifier, data);
 
     return internalModel;
   },
@@ -2639,7 +2576,7 @@ const Store = Service.extend({
 
       if (included) {
         for (i = 0, length = included.length; i < length; i++) {
-          this._pushInternalModel(included[i]);
+          this._pushResource(included[i]);
         }
       }
 
@@ -2648,7 +2585,7 @@ const Store = Service.extend({
         let internalModels = new Array(length);
 
         for (i = 0; i < length; i++) {
-          internalModels[i] = this._pushInternalModel(jsonApiDoc.data[i]);
+          internalModels[i] = this._pushResource(jsonApiDoc.data[i]);
         }
         return internalModels;
       }
@@ -2664,15 +2601,14 @@ const Store = Service.extend({
         typeOf(jsonApiDoc.data) === 'object'
       );
 
-      return this._pushInternalModel(jsonApiDoc.data);
+      return this._pushResource(jsonApiDoc.data);
     });
     heimdall.stop(token);
     return internalModelOrModels;
   },
 
-  _pushInternalModel(data) {
-    heimdall.increment(_pushInternalModel);
-    let modelName = data.type;
+  _pushResource(data) {
+    let modelName = normalizeModelName(data.type);
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
       data.id !== null && data.id !== undefined && data.id !== ''
@@ -2839,34 +2775,34 @@ const Store = Service.extend({
     return relationships;
   },
 
-  _internalModelForResource(resource) {
-    let internalModel;
-    if (resource.clientId) {
-      internalModel = this._newlyCreatedModelsFor(resource.type).get(resource.clientId);
-    }
-    if (!internalModel) {
-      internalModel = this._internalModelForId(resource.type, resource.id);
-    }
-    return internalModel;
+  _createRecordData(identifier) {
+    return this.createRecordDataFor(
+      identifier.type,
+      identifier.id,
+      identifier.lid,
+      this.storeWrapper
+    );
   },
 
-  _createRecordData(modelName, id, clientId, internalModel) {
-    return this.createRecordDataFor(modelName, id, clientId, this.storeWrapper);
+  createRecordDataFor(type, id, lid, storeWrapper) {
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    return new RecordData(identifier, storeWrapper, this);
   },
 
-  createRecordDataFor(modelName, id, clientId, storeWrapper) {
-    return new RecordData(modelName, id, clientId, storeWrapper, this);
-  },
+  recordDataFor(identifier) {
+    let internalModel = this._imCache.ensureInstance(identifier);
 
-  recordDataFor(modelName, id, clientId) {
-    let internalModel = this._internalModelForId(modelName, id, clientId);
     return recordDataFor(internalModel);
   },
 
+  // TODO this meanas that hasMany needs to not use this once singleton lands
+  //  so a minimal refactor for using identifiers in relationships must occur in some form
   _internalModelForRecordData(recordData) {
     let resource = recordData.getResourceIdentifier();
-    return this._internalModelForId(resource.type, resource.id, resource.clientId);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier(resource);
+    return this._imCache.ensureInstance(identifier);
   },
+
   /**
     `normalize` converts a json payload into the normalized form that
     [push](#method_push) expects.
@@ -2907,62 +2843,6 @@ const Store = Service.extend({
   newClientId() {
     return globalClientIdCounter++;
   },
-  /**
-    Build a brand new record for a given type, ID, and
-    initial data.
-
-    @method _buildInternalModel
-    @private
-    @param {String} modelName
-    @param {String} id
-    @param {Object} data
-    @return {InternalModel} internal model
-  */
-  _buildInternalModel(modelName, id, data, clientId) {
-    heimdall.increment(_buildInternalModel);
-
-    assert(
-      `You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`,
-      typeof modelName === 'string'
-    );
-
-    let existingInternalModel = this._existingInternalModelForId(modelName, id);
-
-    assert(
-      `The id ${id} has already been used with another record for modelClass '${modelName}'.`,
-      !existingInternalModel
-    );
-
-    if (id === null && !clientId) {
-      clientId = this.newClientId();
-    }
-    // lookupFactory should really return an object that creates
-    // instances with the injections applied
-    let internalModel = new InternalModel(modelName, id, this, data, clientId);
-    if (clientId) {
-      this._newlyCreatedModelsFor(modelName).add(internalModel, clientId);
-    }
-
-    this._internalModelsFor(modelName).add(internalModel, id);
-
-    return internalModel;
-  },
-
-  _existingInternalModelForId(modelName, id) {
-    let internalModel = this._internalModelsFor(modelName).get(id);
-
-    if (internalModel && internalModel.hasScheduledDestroy()) {
-      // unloadRecord is async, if one attempts to unload + then sync create,
-      //   we must ensure the unload is complete before starting the create
-      //   The push path will take _internalModelForId()
-      //   which will call `cancelDestroy` instead for this unload + then
-      //   sync push scenario. Once we have true client-side
-      //   delete signaling, we should never call destroySync
-      internalModel.destroySync();
-      internalModel = null;
-    }
-    return internalModel;
-  },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
   recordWasLoaded(record) {
@@ -2985,11 +2865,11 @@ const Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _removeFromIdMap(internalModel) {
-    let recordMap = this._internalModelsFor(internalModel.modelName);
-    let id = internalModel.id;
+    let identifier = internalModel.identifier;
+    this._imCache.remove(identifier);
 
-    recordMap.remove(internalModel, id);
-    //TODO IGOR DAVID remove from client id map
+    // allow this identifier to be reused by a different record
+    this.identifierCache.forgetRecordIdentifier(identifier);
   },
 
   // ......................
@@ -3258,7 +3138,8 @@ const Store = Service.extend({
     );
 
     //TODO:Better asserts
-    return this._internalModelForId(resourceIdentifier.type, resourceIdentifier.id);
+    let identifier = this.identifierCache.getOrCreateRecordIdentifier(resourceIdentifier);
+    return this._imCache.ensureInstance(identifier);
   },
 
   _pushResourceIdentifiers(relationship, resourceIdentifiers) {
@@ -3277,11 +3158,11 @@ const Store = Service.extend({
       Array.isArray(resourceIdentifiers)
     );
 
-    let _internalModels = new Array(resourceIdentifiers.length);
+    let internalModels = new Array(resourceIdentifiers.length);
     for (let i = 0; i < resourceIdentifiers.length; i++) {
-      _internalModels[i] = this._pushResourceIdentifier(relationship, resourceIdentifiers[i]);
+      internalModels[i] = this._pushResourceIdentifier(relationship, resourceIdentifiers[i]);
     }
-    return _internalModels;
+    return internalModels;
   },
 });
 

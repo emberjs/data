@@ -33,10 +33,10 @@ module('RecordData Compatibility', function(hooks) {
   });
 
   class CustomRecordData {
-    constructor(modelName, id, clientId, storeWrapper) {
+    constructor(modelName, id, lid, storeWrapper) {
       this.type = modelName;
       this.id = id || null;
-      this.clientId = clientId;
+      this.lid = lid;
       this.storeWrapper = storeWrapper;
       this.attributes = null;
       this.relationships = null;
@@ -72,7 +72,7 @@ module('RecordData Compatibility', function(hooks) {
       return {
         id: this.id,
         type: this.type,
-        clientId: this.clientId,
+        lid: this.lid,
       };
     }
     // TODO missing from RFC but required to implement

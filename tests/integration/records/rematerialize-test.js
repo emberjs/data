@@ -8,6 +8,16 @@ import DS from 'ember-data';
 
 const { attr, belongsTo, hasMany, Model } = DS;
 
+function internalModelsFor(store, modelName) {
+  return store._imCache.all(modelName);
+}
+function hasInternalModelFor(store, type, id) {
+  let internalModels = internalModelsFor(store, type);
+  let filtered = internalModels.filter(v => v.id === id);
+
+  return filtered.length === 1;
+}
+
 let env;
 
 let Person = Model.extend({
@@ -115,7 +125,7 @@ test('a sync belongs to relationship to an unloaded record can restore that reco
 
   assert.equal(env.store.hasRecordForId('person', 1), true, 'The person is in the store');
   assert.equal(
-    env.store._internalModelsFor('person').has(1),
+    hasInternalModelFor(env.store, 'person', '1'),
     true,
     'The person internalModel is loaded'
   );
@@ -124,7 +134,7 @@ test('a sync belongs to relationship to an unloaded record can restore that reco
 
   assert.equal(env.store.hasRecordForId('person', 1), false, 'The person is unloaded');
   assert.equal(
-    env.store._internalModelsFor('person').has(1),
+    hasInternalModelFor(env.store, 'person', '1'),
     false,
     'The person internalModel is freed'
   );
@@ -232,13 +242,13 @@ test('an async has many relationship to an unloaded record can restore that reco
   // assert our initial cache state
   assert.equal(env.store.hasRecordForId('person', '1'), true, 'The person is in the store');
   assert.equal(
-    env.store._internalModelsFor('person').has('1'),
+    hasInternalModelFor(env.store, 'person', '1'),
     true,
     'The person internalModel is loaded'
   );
   assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is in the store');
   assert.equal(
-    env.store._internalModelsFor('boat').has('1'),
+    hasInternalModelFor(env.store, 'boat', '1'),
     true,
     'The boat internalModel is loaded'
   );
@@ -252,7 +262,7 @@ test('an async has many relationship to an unloaded record can restore that reco
   // assert our new cache state
   assert.equal(env.store.hasRecordForId('boat', '1'), false, 'The boat is unloaded');
   assert.equal(
-    env.store._internalModelsFor('boat').has('1'),
+    hasInternalModelFor(env.store, 'boat', '1'),
     true,
     'The boat internalModel is retained'
   );
@@ -273,7 +283,7 @@ test('an async has many relationship to an unloaded record can restore that reco
 
   assert.equal(env.store.hasRecordForId('boat', '1'), true, 'The boat is loaded');
   assert.equal(
-    env.store._internalModelsFor('boat').has('1'),
+    hasInternalModelFor(env.store, 'boat', '1'),
     true,
     'The boat internalModel is retained'
   );

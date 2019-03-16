@@ -12,6 +12,11 @@ import DS from 'ember-data';
 
 let TestAdapter, store;
 
+function internalModelFor(store, type, id) {
+  let identifier = store.identifierCache.getOrCreateRecordIdentifier({ type, id });
+  return store._imCache.ensureInstance(identifier);
+}
+
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', {
   beforeEach() {
     TestAdapter = DS.Adapter.extend();
@@ -740,9 +745,9 @@ test('store._scheduleFetchMany should not resolve until all the records are reso
   store.createRecord('test');
 
   let internalModels = [
-    store._internalModelForId('test', 10),
-    store._internalModelForId('phone', 20),
-    store._internalModelForId('phone', 21),
+    internalModelFor(store, 'test', 10),
+    internalModelFor(store, 'phone', 20),
+    internalModelFor(store, 'phone', 21),
   ];
 
   return run(() => {
@@ -784,9 +789,9 @@ test('the store calls adapter.findMany according to groupings returned by adapte
   });
 
   let internalModels = [
-    store._internalModelForId('test', 10),
-    store._internalModelForId('test', 20),
-    store._internalModelForId('test', 21),
+    internalModelFor(store, 'test', 10),
+    internalModelFor(store, 'test', 20),
+    internalModelFor(store, 'test', 21),
   ];
 
   return run(() => {
@@ -1368,22 +1373,6 @@ test('store should reload all records in the background when `shouldBackgroundRe
   assert.equal(store.peekRecord('person', 1).get('name'), 'Tom');
 
   return done;
-});
-
-testInDebug('store should assert of the user tries to call store.filter', function(assert) {
-  assert.expect(1);
-
-  const Person = DS.Model.extend({
-    name: DS.attr('string'),
-  });
-
-  store = createStore({
-    person: Person,
-  });
-
-  assert.expectAssertion(() => {
-    run(() => store.filter('person', {}));
-  }, /The filter API has been moved to a plugin/);
 });
 
 testInDebug('Calling adapterFor with a model class should assert', function(assert) {

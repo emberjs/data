@@ -137,7 +137,7 @@ export default class BelongsToRelationship extends Relationship {
     storeWrapper.notifyBelongsToChange(
       recordData.modelName,
       recordData.id,
-      recordData.clientId,
+      recordData.lid,
       this.key
     );
   }

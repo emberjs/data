@@ -1910,8 +1910,8 @@ test("belongsTo relationship with links doesn't trigger extra change notificatio
 
 test("belongsTo relationship doesn't trigger when model data doesn't support implicit relationship", function(assert) {
   class TestRecordData extends RecordData {
-    constructor(modelName, id, clientId, storeWrapper, store) {
-      super(modelName, id, clientId, storeWrapper, store);
+    constructor(identifier, storeWrapper) {
+      super(identifier, storeWrapper);
       delete this.__implicitRelationships;
       delete this.__relationships;
     }
@@ -1928,7 +1928,7 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
 
     destroy() {
       this.isDestroyed = true;
-      this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+      this.storeWrapper.disconnectRecord(this.modelName, this.id, this.lid);
     }
 
     get _implicitRelationships() {
@@ -1947,11 +1947,13 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   });
 
   const createRecordDataFor = env.store.createRecordDataFor;
-  env.store.createRecordDataFor = function(modelName, id, lid, storeWrapper) {
-    if (modelName === 'book1' || modelName === 'section') {
-      return new TestRecordData(modelName, id, lid, storeWrapper, this);
+  env.store.createRecordDataFor = function(type, id, lid, storeWrapper) {
+    if (type === 'book1' || type === 'section') {
+      let identifier = storeWrapper.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
+    
+      return new TestRecordData(identifier, storeWrapper);
     }
-    return createRecordDataFor.call(this, modelName, id, lid, storeWrapper);
+    return createRecordDataFor.call(this, type, id, lid, storeWrapper);
   };
 
   const data = {

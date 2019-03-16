@@ -23,6 +23,7 @@ function createRelationshipFor(relationshipMeta, store, recordData, key) {
 
 export default class Relationships {
   constructor(recordData) {
+    this._store = recordData.storeWrapper.store;
     this.recordData = recordData;
     this.initializedRelationships = Object.create(null);
   }
@@ -51,7 +52,7 @@ export default class Relationships {
       if (rel) {
         relationship = relationships[key] = createRelationshipFor(
           rel,
-          recordData.store,
+          this._store,
           recordData,
           key
         );

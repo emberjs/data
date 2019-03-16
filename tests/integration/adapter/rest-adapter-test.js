@@ -12,6 +12,10 @@ import Pretender from 'pretender';
 
 import DS from 'ember-data';
 
+function internalModelsFor(store, modelName) {
+  return store._imCache.all(modelName);
+}
+
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
 let server;
@@ -626,12 +630,12 @@ test("createRecord - response can contain relationships the client doesn't yet k
         'the comments are related to the correct post model'
       );
       assert.equal(
-        store._internalModelsFor('post').models.length,
+        internalModelsFor(store, 'post').length,
         1,
         'There should only be one post record in the store'
       );
 
-      let postRecords = store._internalModelsFor('post').models;
+      let postRecords = internalModelsFor(store, 'post');
       for (var i = 0; i < postRecords.length; i++) {
         assert.equal(
           post,

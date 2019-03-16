@@ -8,13 +8,13 @@ import coerceId from '../coerce-id';
 
 let nextBfsId = 1;
 export default class RecordData {
-  constructor(modelName, id, clientId, storeWrapper, store) {
-    this.store = store;
-    this.modelName = modelName;
+  constructor(identifier, storeWrapper) {
+    this.modelName = identifier.type;
     this.__relationships = null;
     this.__implicitRelationships = null;
-    this.clientId = clientId;
-    this.id = id;
+    this.lid = identifier.lid;
+    this.id = identifier.id;
+    this.identifier = identifier;
     this.storeWrapper = storeWrapper;
     this.isDestroyed = false;
     this._isNew = false;
@@ -27,11 +27,7 @@ export default class RecordData {
   // PUBLIC API
 
   getResourceIdentifier() {
-    return {
-      id: this.id,
-      type: this.modelName,
-      clientId: this.clientId,
-    };
+    return this.identifier;
   }
 
   pushData(data, calculateChange) {
@@ -94,7 +90,7 @@ export default class RecordData {
       let relationshipData = data.relationships[relationshipName];
 
       if (DEBUG) {
-        let store = this.store;
+        let storeWrapper = this.storeWrapper;
         let recordData = this;
         let relationshipMeta = relationships[relationshipName];
         if (!relationshipData || !relationshipMeta) {
@@ -123,7 +119,12 @@ export default class RecordData {
               )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
               !Array.isArray(relationshipData.data)
             );
-            assertRelationshipData(store, recordData, relationshipData.data, relationshipMeta);
+            assertRelationshipData(
+              storeWrapper,
+              recordData,
+              relationshipData.data,
+              relationshipMeta
+            );
           } else if (relationshipMeta.kind === 'hasMany') {
             assert(
               `A ${
@@ -136,7 +137,7 @@ export default class RecordData {
             if (Array.isArray(relationshipData.data)) {
               for (let i = 0; i < relationshipData.data.length; i++) {
                 assertRelationshipData(
-                  store,
+                  storeWrapper,
                   recordData,
                   relationshipData.data[i],
                   relationshipMeta
@@ -232,7 +233,7 @@ export default class RecordData {
       }
       if (data.id) {
         // didCommit provided an ID, notify the store of it
-        this.storeWrapper.setRecordId(this.modelName, data.id, this.clientId);
+        this.storeWrapper.setRecordId(this.modelName, data.id, this.lid);
         this.id = coerceId(data.id);
       }
       data = data.attributes;
@@ -351,11 +352,11 @@ export default class RecordData {
   destroy() {
     this._relationships.forEach((name, rel) => rel.destroy());
     this.isDestroyed = true;
-    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.clientId);
+    this.storeWrapper.disconnectRecord(this.modelName, this.id, this.lid);
   }
 
   isRecordInUse() {
-    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.clientId);
+    return this.storeWrapper.isRecordInUse(this.modelName, this.id, this.lid);
   }
 
   /**
@@ -702,7 +703,7 @@ export default class RecordData {
   }
 }
 
-function assertRelationshipData(store, recordData, data, meta) {
+function assertRelationshipData(storeWrapper, recordData, data, meta) {
   assert(
     `A ${recordData.modelName} record was pushed into the store with the value of ${
       meta.key
@@ -735,7 +736,7 @@ function assertRelationshipData(store, recordData, data, meta) {
     } relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${
       meta.type
     }'. No model was found for '${data.type}'.`,
-    data === null || !data.type || store._hasModelFor(data.type)
+    data === null || !data.type || storeWrapper._hasModelFor(data.type)
   );
 }
 

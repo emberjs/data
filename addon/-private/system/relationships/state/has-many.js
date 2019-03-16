@@ -195,7 +195,7 @@ export default class ManyRelationship extends Relationship {
     storeWrapper.notifyPropertyChange(
       recordData.modelName,
       recordData.id,
-      recordData.clientId,
+      recordData.lid,
       this.key
     );
   }
@@ -206,7 +206,7 @@ export default class ManyRelationship extends Relationship {
     storeWrapper.notifyHasManyChange(
       recordData.modelName,
       recordData.id,
-      recordData.clientId,
+      recordData.lid,
       this.key
     );
   }
