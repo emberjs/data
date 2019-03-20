@@ -125,7 +125,7 @@ before_install:
 
 install:
   - yarn install
-  - yarn add global bower
+  - yarn global add bower
 
 script:
   - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
