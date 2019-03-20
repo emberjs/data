@@ -40,7 +40,7 @@ jobs:
       name: "Linting"
       if: NOT (branch ~= /^(release|lts).*/)
       script:
-        - ./bin/lint-features
+        - yarn lint:features
         - yarn lint:js
     - name: "Basic Tests"
       script: yarn test
