@@ -247,12 +247,9 @@ const DirtyState = {
     },
 
     pushedData(internalModel) {
-      let token = heimdall.start('stats.uncommitted.pushedData');
-
       if (!internalModel.hasChangedAttributes()) {
         internalModel.transitionTo('loaded.saved');
       }
-      heimdall.stop(token);
     },
 
     becomeDirty() {},

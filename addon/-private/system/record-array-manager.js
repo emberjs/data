@@ -11,27 +11,6 @@ import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
 
 const emberRun = emberRunloop.backburner;
 
-const {
-  _flush,
-  array_remove,
-  create,
-  createAdapterPopulatedRecordArray,
-  createRecordArray,
-  liveRecordArrayFor,
-  recordDidChange,
-  unregisterRecordArray,
-} = heimdall.registerMonitor(
-  'recordArrayManager',
-  '_flush',
-  'array_remove',
-  'create',
-  'createAdapterPopulatedRecordArray',
-  'createRecordArray',
-  'liveRecordArrayFor',
-  'recordDidChange',
-  'unregisterRecordArray'
-);
-
 /**
   @class RecordArrayManager
   @namespace DS
@@ -39,7 +18,6 @@ const {
 */
 export default class RecordArrayManager {
   constructor(options) {
-    heimdall.increment(create);
     this.store = options.store;
     this.isDestroying = false;
     this.isDestroyed = false;
@@ -61,8 +39,6 @@ export default class RecordArrayManager {
   }
 
   internalModelDidChange(internalModel) {
-    heimdall.increment(recordDidChange);
-
     let modelName = internalModel.modelName;
 
     if (internalModel._pendingRecordArrayManagerFlush) {
@@ -108,8 +84,6 @@ export default class RecordArrayManager {
   }
 
   _flush() {
-    heimdall.increment(_flush);
-
     let pending = this._pending;
     this._pending = Object.create(null);
 
@@ -185,8 +159,6 @@ export default class RecordArrayManager {
       typeof modelName === 'string'
     );
 
-    heimdall.increment(liveRecordArrayFor);
-
     let array = this._liveRecordArrays[modelName];
 
     if (array) {
@@ -228,7 +200,6 @@ export default class RecordArrayManager {
       `recordArrayManger.createRecordArray expects modelName not modelClass as the param`,
       typeof modelName === 'string'
     );
-    heimdall.increment(createRecordArray);
 
     let array = RecordArray.create({
       modelName,
@@ -254,7 +225,6 @@ export default class RecordArrayManager {
     @return {DS.AdapterPopulatedRecordArray}
   */
   createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
-    heimdall.increment(createAdapterPopulatedRecordArray);
     assert(
       `recordArrayManger.createAdapterPopulatedRecordArray expects modelName not modelClass as the first param, received ${modelName}`,
       typeof modelName === 'string'
@@ -298,8 +268,6 @@ export default class RecordArrayManager {
     @param {DS.RecordArray} array
   */
   unregisterRecordArray(array) {
-    heimdall.increment(unregisterRecordArray);
-
     let modelName = array.modelName;
 
     // remove from adapter populated record array
@@ -339,7 +307,6 @@ function destroy(entry) {
 }
 
 function remove(array, item) {
-  heimdall.increment(array_remove);
   let index = array.indexOf(item);
 
   if (index !== -1) {

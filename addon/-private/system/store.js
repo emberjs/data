@@ -15,7 +15,6 @@ import { typeOf, isPresent, isNone } from '@ember/utils';
 
 import Ember from 'ember';
 import { InvalidError } from '../adapters/errors';
-import { instrument } from 'ember-data/-debug';
 import { assert, deprecate, warn, inspect } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
@@ -77,35 +76,6 @@ function promiseRecord(internalModelPromise, label) {
 //   * +internalModel+ means a record internalModel object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
 //   * +type+ means a DS.Model.
-
-const {
-  _generateId,
-  _internalModelForId,
-  _load,
-  _pushInternalModel,
-  adapterFor,
-  _buildInternalModel,
-  _didUpdateAll,
-  normalize,
-  peekAll,
-  peekRecord,
-  serializerFor,
-  _internalModelsFor,
-} = heimdall.registerMonitor(
-  'store',
-  '_generateId',
-  '_internalModelForId',
-  '_load',
-  '_pushInternalModel',
-  'adapterFor',
-  '_buildInternalModel',
-  '_didUpdateAll',
-  'normalize',
-  'peekAll',
-  'peekRecord',
-  'serializerFor',
-  '_internalModelsFor'
-);
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -412,7 +382,6 @@ const Store = Service.extend({
     @return {String} if the adapter can generate one, an ID
   */
   _generateId(modelName, properties) {
-    heimdall.increment(_generateId);
     let adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -1160,7 +1129,6 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'peekRecord');
     }
-    heimdall.increment(peekRecord);
     assert(`You need to pass a model name to the store's peekRecord method`, isPresent(modelName));
     assert(
       `You need to pass both a model name and id to the store's peekRecord method`,
@@ -1284,7 +1252,6 @@ const Store = Service.extend({
   },
 
   _internalModelForId(modelName, id, clientId) {
-    heimdall.increment(_internalModelForId);
     let trueId = coerceId(id);
     let internalModel = this._getInternalModelForId(modelName, trueId, clientId);
 
@@ -1629,7 +1596,6 @@ const Store = Service.extend({
   },
 
   _query(modelName, query, array, options) {
-    let token = heimdall.start('store._query');
     assert(`You need to pass a model name to the store's query method`, isPresent(modelName));
     assert(`You need to pass a query hash to the store's query method`, query);
     assert(
@@ -1637,12 +1603,7 @@ const Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let modelToken = heimdall.start('initial-modelFor-lookup');
-    heimdall.stop(modelToken);
-
-    let adapterToken = heimdall.start('initial-adapterFor-lookup');
     let adapter = this.adapterFor(modelName);
-    heimdall.stop(adapterToken);
 
     assert(`You tried to load a query but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -1651,11 +1612,6 @@ const Store = Service.extend({
     );
 
     let pA = promiseArray(_query(adapter, this, modelName, query, array, options));
-    instrument(() => {
-      pA.finally(() => {
-        heimdall.stop(token);
-      });
-    });
     return pA;
   },
 
@@ -1997,15 +1953,8 @@ const Store = Service.extend({
       typeof modelName === 'string'
     );
 
-    let token = heimdall.start('store.findAll');
     let normalizedModelName = normalizeModelName(modelName);
     let fetch = this._fetchAll(normalizedModelName, this.peekAll(normalizedModelName), options);
-
-    instrument(() => {
-      fetch.finally(() => {
-        heimdall.stop(token);
-      });
-    });
 
     return fetch;
   },
@@ -2057,7 +2006,6 @@ const Store = Service.extend({
     @private
   */
   _didUpdateAll(modelName) {
-    heimdall.increment(_didUpdateAll);
     this.recordArrayManager._didUpdateAll(modelName);
   },
 
@@ -2086,7 +2034,6 @@ const Store = Service.extend({
     @return {DS.RecordArray}
   */
   peekAll(modelName) {
-    heimdall.increment(peekAll);
     if (DEBUG) {
       assertDestroyingStore(this, 'peekAll');
     }
@@ -2333,7 +2280,6 @@ const Store = Service.extend({
     @return {Object} recordMap
   */
   _internalModelsFor(modelName) {
-    heimdall.increment(_internalModelsFor);
     return this._identityMap.retrieve(modelName);
   },
 
@@ -2353,7 +2299,6 @@ const Store = Service.extend({
     @param {Object} data
   */
   _load(data) {
-    heimdall.increment(_load);
     let modelName = normalizeModelName(data.type);
     let internalModel = this._internalModelForId(modelName, data.id);
 
@@ -2600,22 +2545,18 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'push');
     }
-    let token = heimdall.start('store.push');
     let pushed = this._push(data);
 
     if (Array.isArray(pushed)) {
       let records = pushed.map(internalModel => internalModel.getRecord());
-      heimdall.stop(token);
       return records;
     }
 
     if (pushed === null) {
-      heimdall.stop(token);
       return null;
     }
 
     let record = pushed.getRecord();
-    heimdall.stop(token);
     return record;
   },
 
@@ -2632,7 +2573,6 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, '_push');
     }
-    let token = heimdall.start('store._push');
     let internalModelOrModels = this._backburner.join(() => {
       let included = jsonApiDoc.included;
       let i, length;
@@ -2666,12 +2606,10 @@ const Store = Service.extend({
 
       return this._pushInternalModel(jsonApiDoc.data);
     });
-    heimdall.stop(token);
     return internalModelOrModels;
   },
 
   _pushInternalModel(data) {
-    heimdall.increment(_pushInternalModel);
     let modelName = data.type;
     assert(
       `You must include an 'id' for ${modelName} in an object passed to 'push'`,
@@ -2889,7 +2827,6 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'normalize');
     }
-    heimdall.increment(normalize);
     assert(`You need to pass a model name to the store's normalize method`, isPresent(modelName));
     assert(
       `Passing classes to store methods has been removed. Please pass a dasherized string instead of ${inspect(
@@ -2918,7 +2855,6 @@ const Store = Service.extend({
     @return {InternalModel} internal model
   */
   _buildInternalModel(modelName, id, data, clientId) {
-    heimdall.increment(_buildInternalModel);
 
     assert(
       `You can no longer pass a modelClass as the first argument to store._buildInternalModel. Pass modelName instead.`,
@@ -3016,7 +2952,6 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'adapterFor');
     }
-    heimdall.increment(adapterFor);
     assert(`You need to pass a model name to the store's adapterFor method`, isPresent(modelName));
     assert(
       `Passing classes to store.adapterFor has been removed. Please pass a dasherized string instead of ${modelName}`,
@@ -3103,7 +3038,6 @@ const Store = Service.extend({
     if (DEBUG) {
       assertDestroyingStore(this, 'serializerFor');
     }
-    heimdall.increment(serializerFor);
     assert(
       `You need to pass a model name to the store's serializerFor method`,
       isPresent(modelName)

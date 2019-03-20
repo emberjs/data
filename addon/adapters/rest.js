@@ -1,4 +1,3 @@
-/* global heimdall */
 /* globals najax */
 /**
   @module ember-data
@@ -981,7 +980,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   ajax(url, type, options) {
-    let token = heimdall.start('adapter.ajax');
     let adapter = this;
     let useFetch = get(this, 'useFetch');
 
@@ -993,20 +991,12 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     if (useFetch) {
       return this._fetchRequest(hash)
-        .then(
-          response => {
-            heimdall.stop(token);
-
-            return RSVP.hash({
-              response,
-              payload: determineBodyPromise(response, requestData),
-            });
-          },
-          e => {
-            heimdall.stop(token);
-            throw e;
-          }
-        )
+        .then(response => {
+          return RSVP.hash({
+            response,
+            payload: determineBodyPromise(response, requestData),
+          });
+        })
         .then(({ response, payload }) => {
           if (response.ok) {
             return fetchSuccessHandler(adapter, payload, response, requestData);
@@ -1018,13 +1008,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     return new Promise(function(resolve, reject) {
       hash.success = function(payload, textStatus, jqXHR) {
-        heimdall.stop(token);
         let response = ajaxSuccessHandler(adapter, payload, jqXHR, requestData);
         run.join(null, resolve, response);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        heimdall.stop(token);
         let error = ajaxErrorHandler(adapter, jqXHR, errorThrown, requestData);
         run.join(null, reject, error);
       };

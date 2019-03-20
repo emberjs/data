@@ -44,31 +44,6 @@ function extractPivotName(name) {
   return _extractPivotNameCache[name] || (_extractPivotNameCache[name] = splitOnDot(name)[0]);
 }
 
-// this (and all heimdall instrumentation) will be stripped by a babel transform
-//  https://github.com/heimdalljs/babel5-plugin-strip-heimdall
-const {
-  _triggerDeferredTriggers,
-  changedAttributes,
-  createSnapshot,
-  hasChangedAttributes,
-  materializeRecord,
-  new_InternalModel,
-  send,
-  setupData,
-  transitionTo,
-} = heimdall.registerMonitor(
-  'InternalModel',
-  '_triggerDeferredTriggers',
-  'changedAttributes',
-  'createSnapshot',
-  'hasChangedAttributes',
-  'materializeRecord',
-  'new_InternalModel',
-  'send',
-  'setupData',
-  'transitionTo'
-);
-
 let InternalModelReferenceId = 1;
 
 /*
@@ -117,7 +92,6 @@ export default class InternalModel {
   error: any;
 
   constructor(modelName: string, id: string | null, store, data, clientId) {
-    heimdall.increment(new_InternalModel);
     this.id = id;
     this.store = store;
     this.modelName = modelName;
@@ -268,8 +242,6 @@ export default class InternalModel {
 
   getRecord(properties?) {
     if (!this._record && !this._isDematerializing) {
-      heimdall.increment(materializeRecord);
-      let token = heimdall.start('InternalModel.getRecord');
       let { store } = this;
 
       // lookupFactory should really return an object that creates
@@ -332,7 +304,6 @@ export default class InternalModel {
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
 
       this._triggerDeferredTriggers();
-      heimdall.stop(token);
     }
 
     return this._record;
@@ -737,7 +708,6 @@ export default class InternalModel {
   }
 
   setupData(data) {
-    heimdall.increment(setupData);
     let changedKeys = this._recordData.pushData(data, this.hasRecord);
     if (this.hasRecord) {
       this._record._notifyProperties(changedKeys);
@@ -789,7 +759,6 @@ export default class InternalModel {
     @private
   */
   createSnapshot(options) {
-    heimdall.increment(createSnapshot);
     return new Snapshot(this, options);
   }
 
@@ -827,7 +796,6 @@ export default class InternalModel {
   }
 
   hasChangedAttributes() {
-    heimdall.increment(hasChangedAttributes);
     if (this.isLoading() && !this.isReloading) {
       // no need to instantiate _recordData in this case
       return false;
@@ -843,7 +811,6 @@ export default class InternalModel {
     @private
   */
   changedAttributes() {
-    heimdall.increment(changedAttributes);
     if (this.isLoading() && !this.isReloading) {
       // no need to calculate changed attributes when calling `findRecord`
       return {};
@@ -876,7 +843,6 @@ export default class InternalModel {
     @param {Object} context
   */
   send(name, context?) {
-    heimdall.increment(send);
     let currentState = this.currentState;
 
     if (!currentState[name]) {
@@ -963,7 +929,6 @@ export default class InternalModel {
     @param {String} name
   */
   transitionTo(name) {
-    heimdall.increment(transitionTo);
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct reference to state objects
 
@@ -1045,7 +1010,6 @@ export default class InternalModel {
   }
 
   _triggerDeferredTriggers() {
-    heimdall.increment(_triggerDeferredTriggers);
     //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
     //but for now, we queue up all the events triggered before the record was materialized, and flush
     //them once we have the record

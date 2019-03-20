@@ -426,10 +426,7 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
 
   return promise.then(
     adapterPayload => {
-      let serializerToken = heimdall.start('initial-serializerFor-lookup');
       let serializer = serializerForAdapter(store, adapter, modelName);
-      heimdall.stop(serializerToken);
-      let normalizeToken = heimdall.start('finders#_query::normalizeResponseHelper');
       let payload = normalizeResponseHelper(
         serializer,
         store,
@@ -438,7 +435,6 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
         null,
         'query'
       );
-      heimdall.stop(normalizeToken);
       let internalModels = store._push(payload);
 
       assert(
