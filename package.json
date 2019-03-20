@@ -11,6 +11,7 @@
     "build": "ember build",
     "build:production": "ember build --environment=production",
     "lint:js": "eslint .",
+    "lint:features": "./bin/lint-features",
     "start": "ember server",
     "test": "ember test",
     "test:all": "ember try:each",
