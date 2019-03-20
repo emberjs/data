@@ -1962,11 +1962,6 @@ babel6-plugin-strip-class-callcheck@^6.0.0:
   resolved "https://registry.npmjs.org/babel6-plugin-strip-class-callcheck/-/babel6-plugin-strip-class-callcheck-6.0.0.tgz#de841c1abebbd39f78de0affb2c9a52ee228fddf"
   integrity sha1-3oQcGr6705943gr/ssmlLuIo/d8=
 
-babel6-plugin-strip-heimdall@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/babel6-plugin-strip-heimdall/-/babel6-plugin-strip-heimdall-6.0.1.tgz#35f80eddec1f7fffdc009811dfbd46d9965072b6"
-  integrity sha1-NfgO3ewff//cAJgR371G2ZZQcrY=
-
 babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.npmjs.org/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
@@ -5250,13 +5245,6 @@ heimdalljs@^0.2.0, heimdalljs@^0.2.1, heimdalljs@^0.2.3, heimdalljs@^0.2.5, heim
   version "0.2.6"
   resolved "https://registry.npmjs.org/heimdalljs/-/heimdalljs-0.2.6.tgz#b0eebabc412813aeb9542f9cc622cb58dbdcd9fe"
   integrity sha512-o9bd30+5vLBvBtzCPwwGqpry2+n0Hi6H1+qwt6y+0kwRHGGF8TFIhJPmnuM0xO97zaKrDZMwO/V56fAnn8m/tA==
-  dependencies:
-    rsvp "~3.2.1"
-
-heimdalljs@^0.3.0:
-  version "0.3.3"
-  resolved "https://registry.npmjs.org/heimdalljs/-/heimdalljs-0.3.3.tgz#e92d2c6f77fd46d5bf50b610d28ad31755054d0b"
-  integrity sha1-6S0sb3f9RtW/ULYQ0orTF1UFTQs=
   dependencies:
     rsvp "~3.2.1"
 

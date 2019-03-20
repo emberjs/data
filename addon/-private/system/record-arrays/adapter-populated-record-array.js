@@ -70,8 +70,6 @@ export default RecordArray.extend({
     @private
   */
   _setInternalModels(internalModels, payload) {
-    let token = heimdall.start('AdapterPopulatedRecordArray._setInternalModels');
-
     // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
@@ -88,6 +86,5 @@ export default RecordArray.extend({
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     once(this, 'trigger', 'didLoad');
-    heimdall.stop(token);
   },
 });
