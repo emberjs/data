@@ -133,3 +133,24 @@ test('ajaxOptions() empty data', function(assert) {
     url: 'example.com',
   });
 });
+
+test('_fetchRequest() returns a promise', function(assert) {
+  console.log('DS.RESTAdapter', adapter);
+  let noop = function(){};
+
+  return run(() => {
+    let fetchPlacePromise = adapter._fetchRequest({
+      url: '/places/1',
+      success: noop,
+      error: noop,
+    });
+
+    assert.equal(
+      typeof fetchPlacePromise.then,
+      'function',
+      '_fetchRequest does not return a promise'
+    );
+
+    return fetchPlacePromise;
+  });
+});

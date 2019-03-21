@@ -992,9 +992,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
     if (get(this, 'useFetch')) {
       return this._fetchRequest(hash)
-        .catch(() => {
-          heimdall.stop(token);
-        })
         .then(response => {
           heimdall.stop(token);
 
@@ -1009,6 +1006,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
           } else {
             throw fetchErrorHandler(adapter, payload, response, null, requestData);
           }
+        })
+        .catch(() => {
+          heimdall.stop(token);
         });
     }
 
@@ -1054,7 +1054,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    fetch(options.url, options)
+    return fetch(options.url, options)
       .then(response => {
         if (response.ok) {
           options.success(response);
