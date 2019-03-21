@@ -135,8 +135,7 @@ test('ajaxOptions() empty data', function(assert) {
 });
 
 test('_fetchRequest() returns a promise', function(assert) {
-  console.log('DS.RESTAdapter', adapter);
-  let noop = function(){};
+  let noop = function() {};
 
   return run(() => {
     let fetchPlacePromise = adapter._fetchRequest({
