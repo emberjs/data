@@ -21,7 +21,7 @@ import { DEBUG } from '@glimmer/env';
 import Model from './model/model';
 import normalizeModelName from './normalize-model-name';
 import IdentityMap from './identity-map';
-import RecordDataWrapper from './store/record-data-wrapper';
+import StoreWrapper from './store/store-wrapper';
 
 import { promiseArray, promiseObject } from './promise-proxies';
 
@@ -220,7 +220,7 @@ const Store = Service.extend({
     this._adapterCache = Object.create(null);
     this._serializerCache = Object.create(null);
 
-    this.recordDataWrapper = new RecordDataWrapper(this);
+    this.storeWrapper = new StoreWrapper(this);
 
     if (DEBUG) {
       this.shouldAssertMethodCallsOnDestroyedStore =
@@ -2851,7 +2851,7 @@ const Store = Service.extend({
   },
 
   _createRecordData(modelName, id, clientId, internalModel) {
-    return this.createRecordDataFor(modelName, id, clientId, this.recordDataWrapper);
+    return this.createRecordDataFor(modelName, id, clientId, this.storeWrapper);
   },
 
   createRecordDataFor(modelName, id, clientId, storeWrapper) {

@@ -216,53 +216,28 @@ function ensureRelationshipIsSetToParent(
 }
 
 function getInverse(store, parentInternalModel, parentRelationship, type) {
-  if (store.recordDataWrapper) {
-    return recordDataFindInverseRelationshipInfo(
-      store,
-      parentInternalModel,
-      parentRelationship,
-      type
-    );
-  } else {
-    return legacyFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship);
-  }
+  return recordDataFindInverseRelationshipInfo(
+    store,
+    parentInternalModel,
+    parentRelationship,
+    type
+  );
 }
 
 function recordDataFindInverseRelationshipInfo(
-  { recordDataWrapper },
+  { storeWrapper },
   parentInternalModel,
   parentRelationship,
   type
 ) {
   let { name: lhs_relationshipName } = parentRelationship;
   let { modelName } = parentInternalModel;
-  let inverseKey = recordDataWrapper.inverseForRelationship(modelName, lhs_relationshipName);
+  let inverseKey = storeWrapper.inverseForRelationship(modelName, lhs_relationshipName);
 
   if (inverseKey) {
     let {
       meta: { kind },
-    } = recordDataWrapper.relationshipsDefinitionFor(type)[inverseKey];
-    return {
-      inverseKey,
-      kind,
-    };
-  }
-}
-
-function legacyFindInverseRelationshipInfo(store, parentInternalModel, parentRelationship) {
-  let { name: lhs_relationshipName } = parentRelationship;
-  let { modelName } = parentInternalModel;
-
-  let relationshipInfo = store._relationshipsPayloads.getRelationshipInfo(
-    modelName,
-    lhs_relationshipName
-  );
-  let { hasInverse, rhs_relationshipName: inverseKey, rhs_relationshipMeta } = relationshipInfo;
-
-  if (hasInverse) {
-    let {
-      meta: { kind },
-    } = rhs_relationshipMeta;
+    } = storeWrapper.relationshipsDefinitionFor(type)[inverseKey];
     return {
       inverseKey,
       kind,
