@@ -5,7 +5,7 @@
 */
 
 import Ember from 'ember';
-import fetch, { Response } from 'fetch';
+import fetch from 'fetch';
 import serializeQueryParams from 'ember-fetch/utils/serialize-query-params';
 import determineBodyPromise from 'ember-fetch/utils/determine-body-promise';
 
@@ -983,6 +983,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   ajax(url, type, options) {
     let token = heimdall.start('adapter.ajax');
     let adapter = this;
+    let useFetch = get(this, 'useFetch');
 
     let requestData = {
       url: url,
@@ -990,25 +991,28 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     };
     let hash = adapter.ajaxOptions(url, type, options);
 
-    if (get(this, 'useFetch')) {
+    if (useFetch) {
       return this._fetchRequest(hash)
-        .then(response => {
-          heimdall.stop(token);
+        .then(
+          response => {
+            heimdall.stop(token);
 
-          return RSVP.hash({
-            response,
-            payload: determineBodyPromise(response, requestData),
-          });
-        })
+            return RSVP.hash({
+              response,
+              payload: determineBodyPromise(response, requestData),
+            });
+          },
+          e => {
+            heimdall.stop(token);
+            throw e;
+          }
+        )
         .then(({ response, payload }) => {
           if (response.ok) {
             return fetchSuccessHandler(adapter, payload, response, requestData);
           } else {
             throw fetchErrorHandler(adapter, payload, response, null, requestData);
           }
-        })
-        .catch(() => {
-          heimdall.stop(token);
         });
     }
 
@@ -1054,15 +1058,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    return fetch(options.url, options)
-      .then(response => {
-        if (response.ok) {
-          options.success(response);
-        } else {
-          options.error(response);
-        }
-      })
-      .catch(error => options.error(new Response(), error));
+    return fetch(options.url, options);
   },
 
   _ajax(options) {
