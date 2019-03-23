@@ -1214,16 +1214,6 @@ if (DEBUG) {
       }
 
       if (
-        !isDefaultEmptyDescriptor(this, 'recordData') ||
-        this.recordData !== undefined ||
-        this.recordData !== this._internalModel.recordData
-      ) {
-        throw new Error(
-          `'recordData' is a reserved property name on instances of classes extending Model. Please choose a different property name for ${this.constructor.toString()}`
-        );
-      }
-
-      if (
         !isDefaultEmptyDescriptor(this, 'currentState') ||
         this.get('currentState') !== this._internalModel.currentState
       ) {
