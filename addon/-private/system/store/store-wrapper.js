@@ -1,4 +1,4 @@
-export default class RecordDataWrapper {
+export default class StoreWrapper {
   constructor(store) {
     this.store = store;
     this._willUpdateManyArrays = false;
