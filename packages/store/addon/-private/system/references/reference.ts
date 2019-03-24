@@ -1,7 +1,7 @@
-import Store from '../ds-model-store';
 import InternalModel from '../model/internal-model';
 import recordDataFor from '../record-data-for';
 import { Object as JSONObject, Value as JSONValue } from 'json-typescript';
+import { getRecordDataManagerFor } from '../../record-data/record-data-manager';
 import CoreStore from '../core-store';
 
 /**
@@ -28,7 +28,8 @@ function isResourceIdentiferWithRelatedLinks(value: any): value is ResourceIdent
 export default abstract class Reference {
   public recordData: InternalModel['_recordData'];
   constructor(public store: CoreStore, public internalModel: InternalModel) {
-    this.recordData = recordDataFor(this);
+    let recordData = recordDataFor(this);
+    this.recordData = getRecordDataManagerFor(recordData);
   }
 
   public _resource(): ResourceIdentifier | (JSONObject & { meta?: { [k: string]: JSONValue } }) | void {}
