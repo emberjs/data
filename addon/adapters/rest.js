@@ -992,7 +992,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     let hash = adapter.ajaxOptions(url, type, options);
 
     if (useFetch) {
-      return this._fetchRequest(hash)
+      return fetch(url, hash)
         .then(
           response => {
             heimdall.stop(token);
@@ -1057,14 +1057,8 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
   },
 
-  _fetchRequest(options) {
-    return fetch(options.url, options);
-  },
-
   _ajax(options) {
-    if (get(this, 'useFetch')) {
-      this._fetchRequest(options);
-    } else if (get(this, 'fastboot.isFastBoot')) {
+    if (get(this, 'fastboot.isFastBoot')) {
       this._najaxRequest(options);
     } else {
       this._ajaxRequest(options);
