@@ -203,12 +203,7 @@ export default class ManyRelationship extends Relationship {
   notifyHasManyChange() {
     let recordData = this.recordData;
     let storeWrapper = recordData.storeWrapper;
-    storeWrapper.notifyHasManyChange(
-      recordData.modelName,
-      recordData.id,
-      recordData.lid,
-      this.key
-    );
+    storeWrapper.notifyHasManyChange(recordData.modelName, recordData.id, recordData.lid, this.key);
   }
 
   getData() {

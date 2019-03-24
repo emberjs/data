@@ -756,11 +756,7 @@ module('integration/unload - Unloading Records', function(hooks) {
       });
     });
 
-    assert.equal(
-      internalModelsFor(store, 'person').length,
-      1,
-      'one person record is loaded'
-    );
+    assert.equal(internalModelsFor(store, 'person').length, 1, 'one person record is loaded');
     assert.equal(internalModelsFor(store, 'boat').length, 2, 'two boat records are loaded');
     assert.equal(store.hasRecordForId('person', 1), true);
     assert.equal(store.hasRecordForId('boat', 1), true);

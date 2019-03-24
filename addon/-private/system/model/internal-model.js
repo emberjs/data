@@ -491,7 +491,10 @@ export default class InternalModel {
 
   getBelongsTo(key, options) {
     let resource = this._recordData.getBelongsTo(key);
-    let identifier = resource && resource.data ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data) : null;
+    let identifier =
+      resource && resource.data
+        ? this.store.identifierCache.getOrCreateRecordIdentifier(resource.data)
+        : null;
     let relationshipMeta = this.store._relationshipMetaFor(this.modelName, null, key);
     let store = this.store;
     let parentInternalModel = this;

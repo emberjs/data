@@ -130,9 +130,9 @@ export default class RecordArrayManager {
     let pending = this._pending[modelName];
     let hasPendingChanges = Array.isArray(pending);
     let hasNoPotentialDeletions = !hasPendingChanges || pending.length === 0;
-    
+
     // TODO this prevents elimination of "all" behavior
-    let all = this.store._imCache.all(modelName)
+    let all = this.store._imCache.all(modelName);
     let hasNoInsertionsOrRemovals = all.length === get(array, 'length');
 
     /*
@@ -207,7 +207,7 @@ export default class RecordArrayManager {
 
   _visibleInternalModelsByType(modelName) {
     // TODO this prevents elimination of "all" behavior
-    let all = this.store._imCache.all(modelName)
+    let all = this.store._imCache.all(modelName);
     let visible = [];
     for (let i = 0; i < all.length; i++) {
       let model = all[i];

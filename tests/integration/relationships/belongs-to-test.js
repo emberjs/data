@@ -1949,8 +1949,12 @@ test("belongsTo relationship doesn't trigger when model data doesn't support imp
   const createRecordDataFor = env.store.createRecordDataFor;
   env.store.createRecordDataFor = function(type, id, lid, storeWrapper) {
     if (type === 'book1' || type === 'section') {
-      let identifier = storeWrapper.store.identifierCache.getOrCreateRecordIdentifier({ type, id, lid });
-    
+      let identifier = storeWrapper.store.identifierCache.getOrCreateRecordIdentifier({
+        type,
+        id,
+        lid,
+      });
+
       return new TestRecordData(identifier, storeWrapper);
     }
     return createRecordDataFor.call(this, type, id, lid, storeWrapper);

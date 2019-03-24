@@ -331,7 +331,6 @@ export default class Snapshot {
     if (value.data) {
       results = [];
       value.data.forEach(member => {
-
         let identifier = store.identifierCache.getOrCreateRecordIdentifier(member);
         let internalModel = store._imCache.get(identifier);
         if (!internalModel.isDeleted()) {
