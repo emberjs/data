@@ -153,7 +153,10 @@ const JSONAPIAdapter = RESTAdapter.extend({
     @return {Object}
   */
   ajaxOptions(url, type, options) {
-    options.contentType = 'application/vnd.api+json';
+    if (['POST', 'PUT', 'PATCH'].includes(type)) {
+      options.contentType = 'application/vnd.api+json';
+    }
+
     let hash = this._super(url, type, options);
     hash.headers['Accept'] = 'application/vnd.api+json';
     return hash;
