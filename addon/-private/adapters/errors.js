@@ -80,14 +80,16 @@ export function AdapterError(errors, message = 'Adapter operation failed') {
 
   // in ember 3.8+ Error is a Native Error and we don't
   // gain these automatically from the EmberError.call
-  this.stack = error.stack;
-  this.description = error.description;
-  this.fileName = error.fileName;
-  this.lineNumber = error.lineNumber;
-  this.message = error.message;
-  this.name = error.name;
-  this.number = error.number;
-  this.code = error.code;
+  if (error) {
+    this.stack = error.stack;
+    this.description = error.description;
+    this.fileName = error.fileName;
+    this.lineNumber = error.lineNumber;
+    this.message = error.message;
+    this.name = error.name;
+    this.number = error.number;
+    this.code = error.code;
+  }
 
   this.errors = errors || [
     {
