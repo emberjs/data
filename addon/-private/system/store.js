@@ -42,7 +42,6 @@ import {
 
 import coerceId from './coerce-id';
 import RecordArrayManager from './record-array-manager';
-import InternalModel from './model/internal-model';
 import RecordData from './model/record-data';
 import edBackburner from './backburner';
 import IdentifierCache from '../identifiers/cache';
