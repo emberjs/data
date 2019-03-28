@@ -1,35 +1,40 @@
-/bower_components
+# compiled output
+/dist/
+/tmp/
+
+# dependencies
+/bower_components/
+
+# misc
+/.bowerrc
+/.editorconfig
+/.ember-cli
+/.env*
+/.eslintignore
+/.eslintrc.js
+/.gitignore
+/.template-lintrc.js
+/.travis.yml
+/.watchmanconfig
+/bower.json
 /config/ember-try.js
-/node-tests
-/tests
-/tmp
+/CONTRIBUTING.md
+/ember-cli-build.js
+/testem.js
+/tests/
+/yarn.lock
+.gitkeep
+
+# ember-try
+/.node_modules.ember-try/
+/bower.json.ember-try
+/package.json.ember-try
+
+# ember-data
 /bin
 /docs
-/.node_modules.ember-try
-/notes
-
-# Ignore all assets except /dist/docs folder
-/dist/assets/
-/dist/crossdomain.xml
-/dist/index.html
-/dist/robots.txt
-
-**/.gitkeep
+/node-tests
+!/dist/docs # ignore all assets except /dist/docs folder
 .appveyor.yml
-.bowerrc
-.editorconfig
-.ember-cli
-.gitignore
-.eslintrc.js
-.watchmanconfig
-.travis.yml
-bower.json
-ember-cli-build.js
-testem.js
-yarn.lock
-
-*.gem
-*.gemspec
-**/*.rb
-node-tests/
+lib/scripts
 lib/version-replace.js
