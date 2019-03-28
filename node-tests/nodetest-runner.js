@@ -14,7 +14,6 @@ var rimraf = require('rimraf');
 var mochaOnlyDetector = require('mocha-only-detector');
 
 rimraf.sync('.node_modules-tmp');
-rimraf.sync('.bower_components-tmp');
 
 var root = 'node-tests/{blueprints,acceptance,unit}';
 var _checkOnlyInTests = RSVP.denodeify(
