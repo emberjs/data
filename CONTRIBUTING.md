@@ -1,4 +1,4 @@
-# Contributing
+# How To Contribute
 
 ## Welcome!
 

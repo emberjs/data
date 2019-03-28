@@ -1,5 +1,4 @@
 module.exports = {
-  framework: 'qunit',
   test_page: 'tests/index.html?hidepassed',
   disable_watching: true,
   reporter: 'dot',
@@ -7,8 +6,7 @@ module.exports = {
   launch_in_dev: ['Chrome'],
   browser_args: {
     Chrome: {
-      mode: 'ci',
-      args: [
+      ci: [
         '--headless',
         '--disable-gpu',
         '--disable-dev-shm-usage',
