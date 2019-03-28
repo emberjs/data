@@ -7,7 +7,6 @@ environment:
 
 cache:
   - '%LOCALAPPDATA%\Yarn'
-  - '%APPDATA%\Roaming\bower'
 
 # Install scripts. (runs after repo cloning)
 install:

@@ -13,7 +13,6 @@ module.exports = function() {
       scenarios: [
         {
           name: 'default',
-          bower: {},
           npm: {},
         },
         {
