@@ -84,7 +84,6 @@ export interface AttributesSchema {
 }
 
 export interface AttributeSchema {
-  kind: string;
   name: string;
   options: { [key: string]: any };
   type: string;
