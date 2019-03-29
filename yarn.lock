@@ -3712,13 +3712,13 @@ ember-cli-test-loader@^2.2.0:
   dependencies:
     ember-cli-babel "^6.8.1"
 
-ember-cli-typescript-blueprints@^2.0.0-beta.1:
-  version "2.0.0-beta.1"
-  resolved "https://registry.npmjs.org/ember-cli-typescript-blueprints/-/ember-cli-typescript-blueprints-2.0.0-beta.1.tgz#2db2e34ad01b5a50a4459c2f7cfc8f132b21fcea"
-  integrity sha512-tU1hN9Wj/nzWrSArogr/n9j8kfsv+2wueRuaIr7X+h4klb/Vb92bVkyW1xx8SW9hsWkv8n7ct8PzMmW033ws8g==
+ember-cli-typescript-blueprints@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ember-cli-typescript-blueprints/-/ember-cli-typescript-blueprints-2.0.0.tgz#a8cc6f2ea481a68315008c8264781c4932275751"
+  integrity sha512-doBO4V9CdT9/QUofmsArgUs1dixnbggS8yGSTasRGEvd7x8u/2cNEst8QxAxRSbOc3gSzcrk6qPwumaPc+Sxeg==
   dependencies:
     chalk "^2.4.1"
-    ember-cli-babel "^6.6.0"
+    ember-cli-babel "^7.0.0"
     ember-cli-get-component-path-option "^1.0.0"
     ember-cli-is-package-missing "^1.0.0"
     ember-cli-normalize-entity-name "^1.0.0"
@@ -3726,7 +3726,7 @@ ember-cli-typescript-blueprints@^2.0.0-beta.1:
     ember-cli-string-utils "^1.1.0"
     ember-cli-test-info "^1.0.0"
     ember-cli-valid-component-name "^1.0.0"
-    ember-cli-version-checker "^2.1.2"
+    ember-cli-version-checker "^3.0.0"
     ember-router-generator "^1.2.3"
     exists-sync "^0.1.0"
     fs-extra "^7.0.0"
