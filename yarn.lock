@@ -5836,10 +5836,10 @@ json-stringify-safe@~5.0.0:
   resolved "https://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
   integrity sha1-Epai1Y/UXxmg9s4B1lcB4sc1tus=
 
-json-typescript@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/json-typescript/-/json-typescript-1.1.0.tgz#5369013526d516b13bde1ae2bbc541386dd12c72"
-  integrity sha512-6BzXAzBSfO4L3+IdCLISVQUzR4Wq946Xk2u7ChUAnvftyj/Ec1YgRmBOjw9Rw4wpdtvX678HPIYtYaGYr9fb9w==
+json-typescript@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/json-typescript/-/json-typescript-1.1.2.tgz#033f8309856ef9054cc3384db2ce81d4e0ad4d00"
+  integrity sha512-Np07MUsYMKbB0nNlw/MMIRjUK7ehO48LA4FsrzrhCfTUxMKbvOBAo0sc0b4nQ80ge9d32sModCunCgoyUojgUA==
 
 json5@^0.5.1:
   version "0.5.1"
