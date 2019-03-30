@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PKG_ROOT = path.join(__dirname, '../packages');
-const PATH_TO_CONFIG = 'config/features.json';
+const PATH_TO_CONFIG = 'config/in-progress-features.json';
 const packages = fs.readdirSync(PKG_ROOT);
 const beginsWithDS = /^ds-/;
 const violations = [];
@@ -22,7 +22,7 @@ packages.forEach(function(package) {
 
 if (violations.length) {
   console.log(
-    'Features in features.json MUST begin with `ds-`! These features do not:\n\t',
+    'Features in in-progress-features.json MUST begin with `ds-`! These features do not:\n\t',
     violations.join('\n\t')
   );
   process.exit(1);

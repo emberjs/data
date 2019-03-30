@@ -15,7 +15,7 @@
     "test:node": "yarn workspace ember-data node node-tests/nodetest-runner.js",
     "test:production": "yarn workspace ember-data test:production",
     "test:try-one": "yarn workspace ember-data test:try-one",
-    "test:optional-features": "yarn workspace ember-data test:optional-features",
+    "test:enabled-in-progress-features": "yarn workspace ember-data test --enable-in-progress",
     "test-external:ember-m3": "yarn workspace ember-data test-external:ember-m3",
     "test-external:ember-data-change-tracker": "yarn workspace ember-data test-external:ember-data-change-tracker",
     "test-external:emberaddons.com": "yarn workspace ember-data test-external:emberaddons.com",

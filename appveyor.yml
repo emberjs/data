@@ -19,7 +19,7 @@ install:
 test_script:
   # Output useful info for debugging.
   - cmd: yarn test
-  - cmd: yarn test:optional-features
+  - cmd: yarn test:enabled-in-progress-features
   - cmd: yarn test:production
   - cmd: yarn test:node
 

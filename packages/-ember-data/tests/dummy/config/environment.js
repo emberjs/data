@@ -1,11 +1,5 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
-var featuresJsonPath = path.join(__dirname, '../../../config/features.json');
-var featuresJson = fs.readFileSync(featuresJsonPath, { encoding: 'utf8' });
-var featureFlags = JSON.parse(featuresJson);
-
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'dummy',
@@ -14,7 +8,6 @@ module.exports = function(environment) {
     rootURL: '/',
     locationType: 'auto',
     EmberENV: {
-      FEATURES: featureFlags,
       RAISE_ON_DEPRECATION: false,
     },
 
@@ -23,10 +16,6 @@ module.exports = function(environment) {
       // when it is created
     },
   };
-
-  if (environment === 'test-optional-features') {
-    ENV.EmberENV.ENABLE_OPTIONAL_FEATURES = true;
-  }
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;

@@ -142,9 +142,18 @@ module.exports = {
     return this.debugTree(merge([publicTree, privateTree]), 'final');
   },
 
+  isLocalBuild() {
+    let appName = this.parent.pkg.name;
+
+    return this.isDevelopingAddon() && appName === 'ember-data';
+  },
+
   buildBabelOptions() {
     let existing = this.options.babel;
-    let customPlugins = require('./lib/stripped-build-plugins')(process.env.EMBER_ENV);
+    let customPlugins = require('./lib/stripped-build-plugins')(
+      process.env.EMBER_ENV,
+      this.isLocalBuild()
+    );
     let plugins = existing.plugins.map(plugin => {
       return Array.isArray(plugin) ? plugin : [plugin];
     });
