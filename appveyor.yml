@@ -3,7 +3,7 @@
 # Test against these versions of Node.js.
 environment:
   matrix:
-    - nodejs_version: "6"
+    - nodejs_version: '6'
 
 cache:
   - '%LOCALAPPDATA%\Yarn'
@@ -27,4 +27,4 @@ test_script:
 build: off
 
 # Set build version format here instead of in the admin panel.
-version: "{build}"
+version: '{build}'

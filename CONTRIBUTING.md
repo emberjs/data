@@ -49,13 +49,13 @@ are narrowly scoped with clear understanding of alternatives, drawbacks, and the
 4. Attend the weekly team meeting to discuss your idea
 5. Open an [RFC issue](https://github.com/emberjs/rfcs/issues?q=is%3Aissue+is%3Aopen+label%3AT-ember-data)
    to broaden and record the discussion if the idea needs more time for discussion and iteration.
-   * label your issue with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
-   * announce your issue in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+   - label your issue with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
+   - announce your issue in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
 6. [Draft an RFC](https://github.com/emberjs/rfcs#what-the-process-is) and share it with those you have
    been discussing the ideas with.
 7. Publish your RFC by opening a PR to [emberjs/rfcs/](https://github.com/emberjs/rfcs/pulls?q=is%3Apr+is%3Aopen+label%3AT-ember-data)
-   * label your PR with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
-   * announce your PR in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
+   - label your PR with `T-ember-data` (or ask someone in `#dev-ember-data` to add the label if you lack the permission)
+   - announce your PR in `#dev-ember-data` and anywhere else desired such as `#news-and-announcements` and `twitter`.
 8. Attend weekly team meetings to discuss the RFC, continue iterating on the RFC, and help shepherd it to completion.
 9. Build a proof-of-concept. Sometimes this is best if it occurs alongside drafting the RFC, as it often informs
    the RFC design, known drawbacks, and alternatives. Often it will become incorporated in the final implementation.
@@ -69,23 +69,23 @@ Before implementing a feature or a fix, it is usually best to discuss the propos
 existing public APIs. If this is the case, it is even more important to discuss the issue's problem
 space and the proposed changes before diving too deep into the implementation.
 
-* Submissions should be made as PRs against the `master` branch.
+- Submissions should be made as PRs against the `master` branch.
 
 #### Writing Tests
 
 All PRs should have accompanying tests. For bug-fixes, this should include tests that demonstrate
- the issue being fixed and test that the solution works.
+the issue being fixed and test that the solution works.
 
-* We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
-* Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on
+- We do write tests for our warns and assertion messages, using the `assert.expectAssertion()` and `assert.expectWarning()` helpers.
+- Because Travis runs tests in the `production` environment, assertions and warnings are stripped out. To avoid tests on
   warning/assertion messages failing for your PR, use the `testInDebug` function instead of `qunit` `test` to skip them in production.
-* Include tests that fail without your code, and pass with it
-* Update the documentation, examples, and guides when affected by your contribution
+- Include tests that fail without your code, and pass with it
+- Update the documentation, examples, and guides when affected by your contribution
 
 #### Running Tests
 
-* PRs will automatically run an extensive set of test scenarios for your work
-* `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
+- PRs will automatically run an extensive set of test scenarios for your work
+- `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
   use `ember test` or `ember test --serve`. For additional test commands see the list
   of commands in [./package.json](./package.json)
 
@@ -93,14 +93,14 @@ All PRs should have accompanying tests. For bug-fixes, this should include tests
 
 All commits should be tagged. Tags are denoted by square brackets (`[]`) and come at the start of the commit message.
 
-* `[CLEANUP]`: commits that remove deprecated functionality
-* `[CHORE]`: commits that refactor code or update dependencies
-* `[TEST <feature-name>]`: commits that add tests for a feature
-* `[FEAT <feature-name>]`: commits that add features
-* `[DOC <feature-name>]` | `[DOC]`: commits that add or fix documentation for a feature
-* `[SECURITY <cve>]`: commits that address security vulnerabilities. Please do not submit security related PRs without
+- `[CLEANUP]`: commits that remove deprecated functionality
+- `[CHORE]`: commits that refactor code or update dependencies
+- `[TEST <feature-name>]`: commits that add tests for a feature
+- `[FEAT <feature-name>]`: commits that add features
+- `[DOC <feature-name>]` | `[DOC]`: commits that add or fix documentation for a feature
+- `[SECURITY <cve>]`: commits that address security vulnerabilities. Please do not submit security related PRs without
   coordinating with the security team. See the [Security Policy](https://emberjs.com/security/) for more information.
-* `[BUGFIX <feature-name>]`: commits that fix an issue. The PR should also specify the github issue # of the
+- `[BUGFIX <feature-name>]`: commits that fix an issue. The PR should also specify the github issue # of the
   issue being resolved.
 
 In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
@@ -189,4 +189,4 @@ for analysis. To run scenarios:
 
 ## Notes
 
-* Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
+- Commit tagging section taken from [ember.js](https://github.com/emberjs/ember.js/blob/5641c3089180bdd1d4fa54e9dd2d3ac285f088e4/CONTRIBUTING.md#commit-tagging)
