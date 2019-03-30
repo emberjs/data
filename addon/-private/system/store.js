@@ -596,7 +596,7 @@ const Store = Service.extend({
     });
     ```
 
-    If no reload is indicated via the abovementioned ways, then the promise
+    If no reload is indicated via the above mentioned ways, then the promise
     immediately resolves with the cached version in the store.
 
     ### Background Reloading
@@ -1845,7 +1845,7 @@ const Store = Service.extend({
     });
     ```
 
-    If no reload is indicated via the abovementioned ways, then the promise
+    If no reload is indicated via the above mentioned ways, then the promise
     immediately resolves with all the records currently loaded in the store.
 
     ### Background Reloading
