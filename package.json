@@ -17,7 +17,7 @@
     "test:all": "ember try:each",
     "test:node": "node node-tests/nodetest-runner.js",
     "test:production": "ember test -e production",
-    "test:optional-features": "ember test -e test-optional-features",
+    "test:enabled-in-progress-features": "ember test --enable-in-progress",
     "test-external:ember-m3": "node ./lib/scripts/test-external ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./lib/scripts/test-external ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
     "test-external:emberaddons.com": "node ./lib/scripts/test-external ember-cli-addon-search https://github.com/gcollazo/ember-cli-addon-search.git",

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var features = require('../config/features');
+var features = require('../config/in-progress-features');
 
 var beginsWithDS = /^ds-/;
 

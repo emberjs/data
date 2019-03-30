@@ -106,23 +106,62 @@ All commits should be tagged. Tags are denoted by square brackets (`[]`) and com
 In general almost all commits should fall into one of the above categories. In the cases where they don't please submit
 your PR untagged.
 
-#### Developing a New Feature with Feature Flags
+#### Developing a New Feature with in-progress-feature Flags
 
-Sometimes a new feature will require use of a feature flag.
+Sometimes a new feature can't be completed all at once, but portions
+of it can be landed to help parallelize the effort and make the review
+process simpler.
 
-Feature flags allow new features to be tested in dev builds, but
-the features are stripped out of production builds automatically.
+`in-progress-feature` flags allow for code to be present on the `master`
+branch but stripped from any build that isn't.
 
-1. Add your new feature flag to the [config/features.json](https://github.com/emberjs/data/blob/master/config/features.json) file.
+These flags have three states. Locally here means that a developer is
+working within the `addon` itself. Locally linking `ember-data` to
+another project or using a `master` build will not make code behind
+the flags available unless `isDevelopingAddon` in `index.js` is modified
+to return `true`.
+
+- `false`: the feature is only available locally and the code behind the
+  flag is stripped at all times. To develop on this feature use
+  `--enable-in-progress-flag="desired-flag-name,another-flag-name"` when running a command.
+  This flag will never be active in `CI` jobs.
+
+- `null`: The same as `false` except it comes with regression protection
+  in `CI`. Use this for features that are nearing delivery and need
+  protection against regressions but are not quite polished off yet.
+
+  Test runs and `CI` will still default the flag to `false` to ensure
+  that what we would release (were we to release master) works as
+  expected.
+
+  The `--enable-in-progress` flag and the Travis Job `Enabled In-Progress Features`
+  will run the tests with any flags set to `null` enabled to prevent
+  regressions.
+
+- `true`: Indicates that this feature is "complete". Features set to
+  `true` will be included in any `release` published while the flag
+  is in that state, any build from `master` and all `CI` jobs.
+
+  This is a sign that the feature has entered a final testing phase
+  and the in-progress flags for the feature should be removed
+  before a stable release is published.
+
+  Sometimes a nearly releasable feature may encounter problems late
+  in the release cycle. For such problems, the flag should be moved
+  back to the `null` state prior to doing a release.
+
+  Versions published with a flag set to `true` will include that
+  feature.
+
+1. Add your new feature flag to the [config/in-progress-features.json](https://github.com/emberjs/data/blob/master/config/in-progress-features.json) file with the `ds-` prefix.
 
 ```js
 {
-  "ds-boolean-transform-allow-null": null,
-  "ds-mynew-feature": null
+  "ds-mynew-feature": false
 }
 ```
 
-Give it a default of `null` so it will not be used in production builds.
+Give it a default of `false` so it will not be used in production builds.
 
 2. Import `isEnabled` from `ember-data/-private`, wrapping any new
    code with your feature:
@@ -152,19 +191,12 @@ if (isEnabled('ds-mynew-feature')) {
 
 This will ensure these feature tests are only run when then feature is included in the build for `ember-data`.
 
-4. Running tests with all feature flags enabled is possible via
-   `ember test --environment=test-optional-features` This is also possible while
-   running tests in the browser via the `Enable Opt Feature` checkbox.
+4. Commit your work. For more information about commit prefixes see [Commit Tagging](#commit-tagging).
 
-5. Add your feature to the [Features](https://github.com/emberjs/data/blob/master/FEATURES.md) file.
-   Be sure to leave a description of the feature and possible example of how to
-   use it (if necessary).
-
-For more information about commit prefixes see [Commit Tagging](#commit-tagging).
-
-6. Push to your fork and submit a pull request. Please provide us with some
+5. Push to your fork and submit a pull request. Please provide us with some
    explanation of why you made the changes you made. For new features make sure to
-   explain a standard use case to us.
+   explain a standard use case to us. Use the commit tagging guidelines for the PR
+   title.
 
 ## Benchmarking
 
