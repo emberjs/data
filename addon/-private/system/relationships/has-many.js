@@ -143,7 +143,22 @@ import { DEBUG } from '@glimmer/env';
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-export default function hasMany(type, options) {
+function isDecorator(args) {
+  let isDecorator = args.length > 3;
+  if (!isDecorator && args.length === 3) {
+    // decorators calls start with (instance, key, definition)
+    if (typeof args[0] === 'object' && typeof args[1] === 'string' && typeof args[2] === 'object') {
+      isDecorator = true;
+    }
+  }
+
+  return isDecorator;
+}
+export default function hasMany(...args) {
+  return isDecorator(args) ? _hasMany()(...args) : _hasMany(...args);
+}
+
+function _hasMany(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;

@@ -101,7 +101,22 @@ import { DEBUG } from '@glimmer/env';
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-export default function belongsTo(modelName, options) {
+function isDecorator(args) {
+  let isDecorator = args.length > 3;
+  if (!isDecorator && args.length === 3) {
+    // decorators calls start with (instance, key, definition)
+    if (typeof args[0] === 'object' && typeof args[1] === 'string' && typeof args[2] === 'object') {
+      isDecorator = true;
+    }
+  }
+
+  return isDecorator;
+}
+export default function belongsTo(...args) {
+  return isDecorator(args) ? _belongsTo()(...args) : _belongsTo(...args);
+}
+
+function _belongsTo(modelName, options) {
   let opts, userEnteredModelName;
   if (typeof modelName === 'object') {
     opts = modelName;

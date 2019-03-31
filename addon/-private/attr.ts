@@ -111,7 +111,22 @@ interface AttrOptions {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-export default function attr(type?: string | AttrOptions, options?: AttrOptions) {
+function isDecorator(args) {
+  let isDecorator = args.length > 3;
+  if (!isDecorator && args.length === 3) {
+    // decorators calls start with (instance, key, definition)
+    if (typeof args[0] === 'object' && typeof args[1] === 'string' && typeof args[2] === 'object') {
+      isDecorator = true;
+    }
+  }
+
+  return isDecorator;
+}
+export default function attr(...args) {
+  return isDecorator(args) ? _attr()(...args) : _attr(...args);
+}
+
+function _attr(type?: string | AttrOptions, options?: AttrOptions) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
