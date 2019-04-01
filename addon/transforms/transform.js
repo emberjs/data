@@ -23,6 +23,17 @@ import EmberObject from '@ember/object';
     }
   });
   ```
+  
+  Usage
+
+  ```app/models/requirement.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    name: DS.attr('string'),
+    temperature: DS.attr('temperature')
+  });
+  ```
 
   The options passed into the `DS.attr` function when the attribute is
   declared on the model is also available in the transform.
@@ -50,17 +61,6 @@ import EmberObject from '@ember/object';
 
       return marked(serialized, markdownOptions);
     }
-  });
-  ```
-
-  Usage
-
-  ```app/models/requirement.js
-  import DS from 'ember-data';
-
-  export default DS.Model.extend({
-    name: DS.attr('string'),
-    temperature: DS.attr('temperature')
   });
   ```
 
