@@ -1,36 +1,36 @@
 import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 
-import DS from 'ember-data';
+module('unit/transform - DateTransform', function(hooks) {
+  setupTest(hooks);
+  const dateString = '2015-01-01T00:00:00.000Z';
+  const dateInMillis = Date.parse(dateString);
+  const date = new Date(dateString);
 
-module('unit/transform - DS.DateTransform');
+  test('#serialize', async function(assert) {
+    const transform = this.owner.lookup('transform:date');
 
-let dateString = '2015-01-01T00:00:00.000Z';
-let dateInMillis = Date.parse(dateString);
-let date = new Date(dateString);
+    assert.strictEqual(transform.serialize(null), null);
+    assert.strictEqual(transform.serialize(undefined), null);
+    assert.strictEqual(transform.serialize(new Date('invalid')), null);
 
-test('#serialize', function(assert) {
-  let transform = new DS.DateTransform();
+    assert.equal(transform.serialize(date), dateString);
+  });
 
-  assert.strictEqual(transform.serialize(null), null);
-  assert.strictEqual(transform.serialize(undefined), null);
-  assert.strictEqual(transform.serialize(new Date('invalid')), null);
+  test('#deserialize', async function(assert) {
+    const transform = this.owner.lookup('transform:date');
 
-  assert.equal(transform.serialize(date), dateString);
-});
+    // from String
+    assert.equal(transform.deserialize(dateString).toISOString(), dateString);
 
-test('#deserialize', function(assert) {
-  let transform = new DS.DateTransform();
+    // from Number
+    assert.equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
 
-  // from String
-  assert.equal(transform.deserialize(dateString).toISOString(), dateString);
+    // from other
+    assert.strictEqual(transform.deserialize({}), null);
 
-  // from Number
-  assert.equal(transform.deserialize(dateInMillis).valueOf(), dateInMillis);
-
-  // from other
-  assert.strictEqual(transform.deserialize({}), null);
-
-  // from none
-  assert.strictEqual(transform.deserialize(null), null);
-  assert.strictEqual(transform.deserialize(undefined), undefined);
+    // from none
+    assert.strictEqual(transform.deserialize(null), null);
+    assert.strictEqual(transform.deserialize(undefined), undefined);
+  });
 });
