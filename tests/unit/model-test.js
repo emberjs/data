@@ -730,6 +730,7 @@ module('unit/model - Model', function(hooks) {
       async function(assert) {
         class NativePerson extends Model {}
         const LegacyPerson = Model.extend({});
+        const EmberObjectNewError = 'was not instantiated correctly.';
 
         assert.throws(
           () => {
@@ -741,7 +742,16 @@ module('unit/model - Model', function(hooks) {
 
         assert.throws(
           () => {
-            new NativePerson();
+            try {
+              // the `{}` here is so that in recent ember we throw a nice error vs an
+              // obtuse error. An error will thrown in any case though.
+              new NativePerson({});
+            } catch (e) {
+              if (e.message.indexOf(EmberObjectNewError) !== -1) {
+                throw new Error('You should not call `create` on a model');
+              }
+              throw e;
+            }
           },
           /You should not call `create` on a model/,
           'Throws an error when calling instantiating via new Model'
@@ -757,7 +767,16 @@ module('unit/model - Model', function(hooks) {
 
         assert.throws(
           () => {
-            new LegacyPerson();
+            try {
+              // the `{}` here is so that in recent ember we throw a nice error vs an
+              // obtuse error. An error will thrown in any case though.
+              new LegacyPerson({});
+            } catch (e) {
+              if (e.message.indexOf(EmberObjectNewError) !== -1) {
+                throw new Error('You should not call `create` on a model');
+              }
+              throw e;
+            }
           },
           /You should not call `create` on a model/,
           'Throws an error when calling instantiating view new Model()'
