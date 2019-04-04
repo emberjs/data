@@ -1311,12 +1311,12 @@ test('PromiseArray proxies evented methods to its ManyArray', function(assert) {
   });
 
   assert.equal(comments.has('on-event'), true);
+  const cb = function() {
+    assert.ok(false, 'We should not trigger this event');
+  };
 
-  comments.on('off-event', function() {
-    assert.ok(false);
-  });
-
-  comments.off('off-event');
+  comments.on('off-event', cb);
+  comments.off('off-event', cb);
 
   assert.equal(comments.has('off-event'), false);
 
