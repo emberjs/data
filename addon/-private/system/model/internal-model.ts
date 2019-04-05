@@ -92,7 +92,6 @@ class InternalModel {
   store: any;
   modelName: string;
   clientId: string | null;
-  __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
   _pendingRecordArrayManagerFlush: boolean; 
@@ -105,10 +104,6 @@ class InternalModel {
   _promiseProxy: any;
   _record: any;
   _scheduledDestroy: any;
-  __deferredTriggers: any;
-  __recordArrays: any;
-  _references: any;
-  _recordReference: any;
   _manyArrayCache: any;
   _retainedManyArrayCache: any;
   _relationshipPromisesCache: any;
@@ -121,8 +116,6 @@ class InternalModel {
     this.store = store;
     this.modelName = modelName;
     this.clientId = clientId;
-
-    this.__recordData = null;
 
     // this ensure ordered set can quickly identify this as unique
     this[Ember.GUID_KEY] = InternalModelReferenceId++ + 'internal-model';
@@ -144,10 +137,6 @@ class InternalModel {
     this.resetRecord();
 
     // caches for lazy getters
-    this.__deferredTriggers = null;
-    this.__recordArrays = null;
-    this._references = null;
-    this._recordReference = null;
 
     this._manyArrayCache = Object.create(null);
     // The previous ManyArrays for this relationship which will be destroyed when
@@ -167,10 +156,7 @@ class InternalModel {
   }
 
   get recordReference() {
-    if (this._recordReference === null) {
-      this._recordReference = new RecordReference(this.store, this);
-    }
-    return this._recordReference;
+    return new RecordReference(this.store, this);
   }
 
   @lazyProp
@@ -179,26 +165,20 @@ class InternalModel {
   }
 
   @isPrivate
+  @lazyProp
   get _recordArrays() {
-    if (this.__recordArrays === null) {
-      this.__recordArrays = new OrderedSet();
-    }
-    return this.__recordArrays;
+    return new OrderedSet();
   }
 
+  @lazyProp
   get references() {
-    if (this._references === null) {
-      this._references = Object.create(null);
-    }
-    return this._references;
+    return Object.create(null);
   }
 
   @isPrivate
+  @lazyProp
   get _deferredTriggers() {
-    if (this.__deferredTriggers === null) {
-      this.__deferredTriggers = [];
-    }
-    return this.__deferredTriggers;
+    return [];
   }
 
   isHiddenFromRecordArrays() {

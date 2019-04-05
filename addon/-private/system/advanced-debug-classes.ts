@@ -55,9 +55,11 @@ export function lazyProp(target, name, descriptor) {
   const set = descriptor.set;
   let setter;
 
+  DEBUG ? metaFor(this)[key] = null : this[key] = null;
+
   function lazyGetter() {
     let value = DEBUG ? metaFor(this)[key] : this[key];
-    if (value === undefined) {
+    if (value === null) {
       value = get.call(this);
       DEBUG ? metaFor(this)[key] = value : this[key] =  value;
     }
