@@ -13,7 +13,7 @@ import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
 import ManyArray from '../many-array';
 import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
-
+import { lazyProp, isPrivate, DebugProxy } from '../advanced-debug-classes';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordDataDefault from './record-data';
@@ -87,7 +87,7 @@ let InternalModelReferenceId = 1;
   @private
   @class InternalModel
 */
-export default class InternalModel {
+class InternalModel {
   id: string | null;
   store: any;
   modelName: string;
@@ -105,7 +105,6 @@ export default class InternalModel {
   _promiseProxy: any;
   _record: any;
   _scheduledDestroy: any;
-  _modelClass: any;
   __deferredTriggers: any;
   __recordArrays: any;
   _references: any;
@@ -145,7 +144,6 @@ export default class InternalModel {
     this.resetRecord();
 
     // caches for lazy getters
-    this._modelClass = null;
     this.__deferredTriggers = null;
     this.__recordArrays = null;
     this._references = null;
@@ -159,8 +157,9 @@ export default class InternalModel {
     this._relationshipPromisesCache = Object.create(null);
   }
 
+  @lazyProp
   get modelClass() {
-    return this._modelClass || (this._modelClass = this.store.modelFor(this.modelName));
+    return this.store.modelFor(this.modelName);
   }
 
   get type() {
@@ -174,19 +173,12 @@ export default class InternalModel {
     return this._recordReference;
   }
 
+  @lazyProp
   get _recordData(): RecordData {
-    if (this.__recordData === null) {
-      let recordData = this.store._createRecordData(this.modelName, this.id, this.clientId, this);
-      this._recordData = recordData;
-      return recordData;
-    }
-    return this.__recordData;
+    return this.store._createRecordData(this.modelName, this.id, this.clientId, this);
   }
 
-  set _recordData(newValue) {
-    this.__recordData = newValue;
-  }
-
+  @isPrivate
   get _recordArrays() {
     if (this.__recordArrays === null) {
       this.__recordArrays = new OrderedSet();
@@ -201,6 +193,7 @@ export default class InternalModel {
     return this._references;
   }
 
+  @isPrivate
   get _deferredTriggers() {
     if (this.__deferredTriggers === null) {
       this.__deferredTriggers = [];
@@ -338,6 +331,7 @@ export default class InternalModel {
     return this._record;
   }
 
+  @isPrivate
   resetRecord() {
     this._record = null;
     this.isReloading = false;
@@ -397,6 +391,7 @@ export default class InternalModel {
     return resolver.promise;
   }
 
+  @isPrivate
   startedReloading() {
     this.isReloading = true;
     if (this.hasRecord) {
@@ -510,6 +505,7 @@ export default class InternalModel {
     this.destroy();
   }
 
+  @isPrivate
   _checkForOrphanedInternalModels() {
     this._isDematerializing = false;
     this._scheduledDestroy = null;
@@ -1292,6 +1288,8 @@ export default class InternalModel {
     return reference;
   }
 }
+
+export default DebugProxy(InternalModel);
 
 function assertRecordsPassedToHasMany(records) {
   // TODO only allow native arrays

@@ -877,7 +877,7 @@ const Store = Service.extend({
       typeof adapter.findRecord === 'function'
     );
 
-    return _find(adapter, this, internalModel.type, internalModel.id, internalModel, options);
+    return _find(adapter, this, internalModel.modelClass, internalModel.id, internalModel, options);
   },
 
   _scheduleFetchMany(internalModels, options) {
