@@ -1,7 +1,6 @@
 import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import Store from 'ember-data/store';
-import { run } from '@ember/runloop';
 
 class TestAdapter {
   constructor(args) {
@@ -95,8 +94,7 @@ module('integration/store - adapterFor', function(hooks) {
     assert.ok(didInstantiate, 'We instantiated the other adapter');
     assert.ok(otherAdapter !== adapter, 'We have a different adapter instance');
 
-    // Ember 2.18 requires us to wrap destroy in a run. Use `await settled()` for newer versions.
-    run(() => otherStore.destroy());
+    otherStore.destroy();
   });
 
   test('we can find and instantiate per-type adapters', async function(assert) {

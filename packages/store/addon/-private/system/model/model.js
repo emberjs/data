@@ -71,11 +71,6 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @uses Ember.Evented
 */
 const Model = EmberObject.extend(Evented, {
-  // until: "3.9" as we need to support 2.18
-  __defineNonEnumerable(property) {
-    this[property.name] = property.descriptor.value;
-  },
-
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have

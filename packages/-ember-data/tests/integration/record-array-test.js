@@ -1,5 +1,4 @@
 import { get } from '@ember/object';
-import { run } from '@ember/runloop';
 import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
@@ -185,9 +184,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
     await settled();
 
-    // Ember 2.18 requires wrapping destroy in a run. Once we drop support with 3.8 LTS
-    //  we can remove this.
-    run(() => recordArray.destroy());
+    recordArray.destroy();
 
     await settled();
 
