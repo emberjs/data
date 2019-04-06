@@ -11,7 +11,8 @@ const projectRoot = path.resolve(__dirname, '../../');
 const externalProjectName = process.argv[2];
 const gitUrl = process.argv[3];
 const skipSmokeTest = process.argv[4] && process.argv[4] === '--skip-smoke-test';
-const tempDir = path.join(projectRoot, '../__external-test-cache');
+const cachePath = '../../../__external-test-cache';
+const tempDir = path.join(projectRoot, cachePath);
 const projectTempDir = path.join(tempDir, externalProjectName);
 
 if (!gitUrl) {
@@ -29,7 +30,7 @@ console.log(
 );
 
 function execExternal(command, force) {
-  command = `cd ../__external-test-cache/${externalProjectName} && ${command}`;
+  command = `cd ${cachePath}/${externalProjectName} && ${command}`;
   return execWithLog(command, force);
 }
 
@@ -51,7 +52,7 @@ if (fs.existsSync(projectTempDir)) {
 
 // install the project
 try {
-  execWithLog(`git clone --depth=1 ${gitUrl} ../__external-test-cache/${externalProjectName}`);
+  execWithLog(`git clone --depth=1 ${gitUrl} ${cachePath}/${externalProjectName}`);
 } catch (e) {
   debug(e);
   throw new Error(
@@ -62,11 +63,11 @@ try {
 const useYarn = fs.existsSync(path.join(projectTempDir, 'yarn.lock'));
 
 const npmInstall = `
-cd ../adapter; npm link; 
+cd ../adapter; npm link;
 cd ../store; npm link @ember-data/adapter; npm link;
-cd ../serializer; npm link @ember-data/store; npm link; 
-cd ../model; npm link @ember-data/store; npm link; 
-cd ../-ember-data; 
+cd ../serializer; npm link @ember-data/store; npm link;
+cd ../model; npm link @ember-data/store; npm link;
+cd ../-ember-data;
 npm link @ember-data/adapter; npm link @ember-data/store;npm link @ember-data/serializer;
 npm link @ember-data/model;
 npm link;
