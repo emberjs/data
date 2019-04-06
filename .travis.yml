@@ -69,9 +69,6 @@ jobs:
       script: yarn test:node
 
     # runs tests against each supported Ember version
-    - stage: ember version tests
-      name: 'Ember LTS 2.18'
-      env: EMBER_TRY_SCENARIO=ember-lts-2.18
     - name: 'Ember LTS 3.4'
       env: EMBER_TRY_SCENARIO=ember-lts-3.4
     - name: 'Ember Release'
