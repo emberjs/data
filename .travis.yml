@@ -28,8 +28,6 @@ stages:
   - ember version tests
   - name: external partner tests
     if: NOT (branch ~= /^(release|lts).*/)
-  - name: deploy
-    if: type = push AND (branch IN (master, beta, release) OR tag IS present)
 
 jobs:
   fail_fast: true
@@ -113,13 +111,6 @@ jobs:
     - name: 'ember-m3' # ~3.5min job
       script: yarn test-external:ember-m3
 
-    - stage: deploy
-      name: 'Publish'
-      install: yarn install
-      script:
-        - node_modules/.bin/ember try:reset
-        - yarn build:production
-
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
   - export PATH=$HOME/.yarn/bin:$PATH
@@ -129,21 +120,3 @@ install:
 
 script:
   - yarn test:try-one $EMBER_TRY_SCENARIO --skip-cleanup
-
-env:
-  global:
-    - BROCCOLI_ENV="production"
-    - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
-    - S3_BUCKET_NAME=builds.emberjs.com
-    - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
-
-        gsxElZtB2kpyUq81gWgZcuygO53mcBuCa4rPIsh0Di6Ik+HDELSFVZ4EN4NK
-
-        z9yP6D7pMY+RnlSvErf3OXSzrxkDcXDxCU4ljBJl1rNBbtAOu5E='
-    - secure: ! 'YjnT2cF8K0M2fSkab+PY3j8XzumBrjzeGsAN4jtyw4shqnywFaE68qO1IIjY
-
-        UvaE/CbWMxO/6FszR02gJHaF+YyfU5WAS0ahFFLHuC1twMtQPxi+nScjKZEs
-
-        kLwKiKgRNhindV3WvbUcoiIrmrgBMCiBRRd4eyVBlhbZ8RTo1Ig='
-
-    - secure: 'hJZXijsot2wMiMsxbDImH+nB5v77a7O7lQ7bicOQEQxmnTtXSvqfa4X4vQ/d4o7NNYYYHUuOpyILgRV+arqI6UOi7XEVGka/7M5q58R5exS6bk0cY0jnpUhUVW/8mpKEUgcVeE6mIDWaR090l3uaT2JhU/WSLkzbj45e38HaF/4='
