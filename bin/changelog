@@ -62,7 +62,13 @@ function processPages(res) {
     .filter(function(commitInfo) {
       var message = commitInfo.commit.message;
       var author = commitInfo.author || commitInfo.commit.author;
-      if (author.type === 'Bot' || author.login === 'dependabot[bot]' || author.name === 'dependabot[bot]') {
+      if (
+        author.type === 'Bot' || 
+        author.login === 'dependabot[bot]' || 
+        author.name === 'dependabot[bot]' ||
+        author.login === 'dependabot-bot' ||
+        author.name === 'dependabot-bot'
+        ) {
         return false;
       }
       return (
