@@ -61,6 +61,10 @@ function processPages(res) {
   var contributions = res.commits
     .filter(function(commitInfo) {
       var message = commitInfo.commit.message;
+      var author = commitInfo.author || commitInfo.commit.author;
+      if (author.type === 'Bot' || author.login === 'dependabot[bot]' || author.name === 'dependabot[bot]') {
+        return false;
+      }
       return (
         message.indexOf('Merge pull request #') > -1 ||
         message.indexOf('cherry picked from') > -1 ||
