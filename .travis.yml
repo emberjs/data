@@ -70,10 +70,10 @@ jobs:
 
     # runs tests against each supported Ember version
     - stage: ember version tests
-      name: 'Ember LTS 2.18'
-      env: EMBER_TRY_SCENARIO=ember-lts-2.18
-    - name: 'Ember LTS 3.4'
+      name: 'Ember LTS 3.4'
       env: EMBER_TRY_SCENARIO=ember-lts-3.4
+    - name: 'Ember LTS 3.8'
+      env: EMBER_TRY_SCENARIO=ember-lts-3.8
     - name: 'Ember Release'
       if: NOT (branch ~= /^(release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release
