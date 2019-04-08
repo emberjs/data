@@ -702,10 +702,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@ember-decorators/babel-transforms@^5.1.4":
-  version "5.1.4"
-  resolved "https://registry.npmjs.org/@ember-decorators/babel-transforms/-/babel-transforms-5.1.4.tgz#e26e0480425e4b6e43be75e24ba85103a02d5459"
-  integrity sha512-uawhQ7fVAaeUgL13aOyvchW77i3Gu1T1lSNf7ZGTRj4SZKIVHPC0HyNTNShd/YIdnTLdBlch0ybCj/2/KJ0mMA==
+"@ember-decorators/babel-transforms@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@ember-decorators/babel-transforms/-/babel-transforms-5.2.0.tgz#c66703af399a26f34a91167e101aba51c1142fa1"
+  integrity sha512-fLr3OCWXkQ8a5iGykBny1E3FkrGHray+eRfOuXNczzaqJ3EHdz/h/ALv5mU3peAjr+FNkDlkjHGWJIoy1+0Tbg==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.1.0"
     "@babel/plugin-proposal-decorators" "^7.1.2"
