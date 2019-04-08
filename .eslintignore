@@ -1,0 +1,23 @@
+# unconventional js
+packages/*/blueprints/*/*files/
+vendor/
+
+# compiled output
+dist
+tmp
+
+# dependencies
+bower_components
+node_modules
+
+# misc
+/coverage/
+!.*
+
+# ember-try
+.node_modules.ember-try
+bower.json.ember-try
+package.json.ember-try
+
+# ember-data
+packages/*/node-tests/fixtures

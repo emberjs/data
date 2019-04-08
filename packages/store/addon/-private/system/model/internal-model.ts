@@ -17,9 +17,8 @@ import { PromiseBelongsTo, PromiseManyArray } from '../promise-proxies';
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
 import RecordDataDefault from './record-data';
-import RecordData from '../../ts-interfaces/record-data'
-import { JsonApiResource } from "../../ts-interfaces/record-data-json-api";
-
+import RecordData from '../../ts-interfaces/record-data';
+import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -70,7 +69,7 @@ export default class InternalModel {
   __recordData: RecordData | null;
   _isDestroyed: boolean;
   isError: boolean;
-  _pendingRecordArrayManagerFlush: boolean; 
+  _pendingRecordArrayManagerFlush: boolean;
   _isDematerializing: boolean;
   isReloading: boolean;
   _doNotDestroy: boolean;
@@ -251,7 +250,7 @@ export default class InternalModel {
         _internalModel: this,
         currentState: this.currentState,
         isError: this.isError,
-        adapterError: this.error
+        adapterError: this.error,
       };
 
       if (properties !== undefined) {
@@ -378,7 +377,11 @@ export default class InternalModel {
   linkWasLoadedForRelationship(key, data) {
     let relationships = {};
     relationships[key] = data;
-    this._recordData.pushData({ id: this.id, type: this.modelName, relationships });
+    this._recordData.pushData({
+      id: this.id,
+      type: this.modelName,
+      relationships,
+    });
   }
 
   finishedReloading() {

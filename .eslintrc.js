@@ -46,18 +46,18 @@ module.exports = {
       files: [
         '.eslintrc.js',
         '.prettierrc.js',
-        'ember-cli-build.js',
-        'index.js',
-        'testem.js',
-        'bin/**',
-        'blueprints/*/index.js',
-        'blueprints/*.js',
-        'config/**/*.js',
-        'lib/**/*.js',
-        'node-tests/**',
-        'tests/dummy/config/**/*.js',
+        'packages/*/ember-cli-build.js',
+        'packages/*/index.js',
+        'packages/*/testem.js',
+        'packages/*/bin/**',
+        'packages/*/blueprints/*/index.js',
+        'packages/*/blueprints/*.js',
+        'packages/*/config/**/*.js',
+        'packages/*/lib/**/*.js',
+        'packages/*/node-tests/**',
+        'packages/*/tests/dummy/config/**/*.js',
       ],
-      excludedFiles: ['addon/**/index.js'],
+      excludedFiles: ['packages/*/addon/**/index.js'],
       parserOptions: {
         sourceType: 'script',
         ecmaVersion: 2015,
@@ -68,6 +68,7 @@ module.exports = {
         es6: true,
       },
       plugins: ['node'],
+      // eslint-disable-next-line node/no-unpublished-require
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         // add your custom rules and overrides for node files here
       }),
@@ -75,7 +76,7 @@ module.exports = {
 
     // node tests
     {
-      files: ['node-tests/**'],
+      files: ['packages/*/node-tests/**'],
 
       env: {
         mocha: true,
