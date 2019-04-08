@@ -31,8 +31,6 @@ stages:
 
 jobs:
   fail_fast: true
-  allow_failures:
-    - name: "emberaddons.com"
 
   include:
     # runs tests with current locked deps and linting
