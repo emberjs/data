@@ -57,22 +57,92 @@ function getCommitMessage(commitInfo) {
   return message;
 }
 
+var label_cache = Object.create(null);
+function getLabels(str) {
+  if (typeof str !== 'string') {
+    return [];
+  }
+  if (label_cache[str] !== undefined) {
+    return label_cache[str];
+  }
+
+  if (str[0] !== '[') {
+    label_cache[str] = [];
+    return label_cache[str];
+  }
+
+  let hasOpen = true;
+  let labels = [];
+  let label = '[';
+  for (let i = 1; i < str.length; i++) {
+    let c = str[i];
+    if (hasOpen === true && c === ']') {
+      label += c;
+      labels.push(label);
+      hasOpen = false;
+      label = '';
+    } else if (hasOpen === false && c === '[') {
+      label = c;
+      hasOpen = true;
+    } else if (c === EOL) {
+      hasOpen = false;
+      label = '';
+      break;
+    } else if (hasOpen === true) {
+      label += c;
+    }
+  }
+
+  label_cache[str] = labels;
+  return labels;
+}
+
+const MEANINGFUL_LABELS = ['FIX', 'BUGFIX', 'FEAT', 'FEATURE', 'DOCS', 'DOC'];
+function hasLabelForChangelog(message) {
+  let labels = getLabels(message);
+
+  for (let i = 0; i < labels.length; i++) {
+    let label = labels[i];
+
+    for (let j = 0; j < MEANINGFUL_LABELS.length; j++) {
+      if (label.indexOf(MEANINGFUL_LABELS[j]) !== -1) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function processPages(res) {
   var contributions = res.commits
     .filter(function(commitInfo) {
       var message = commitInfo.commit.message;
+      var author = commitInfo.author || commitInfo.commit.author;
+      if (
+        author.type === 'Bot' || 
+        author.login === 'dependabot[bot]' || 
+        author.name === 'dependabot[bot]' ||
+        author.login === 'dependabot-bot' ||
+        author.name === 'dependabot-bot'
+        ) {
+        return false;
+      }
+
       return (
         message.indexOf('Merge pull request #') > -1 ||
         message.indexOf('cherry picked from') > -1 ||
-        message.match(/\(#\d+\)\n/)
+        message.match(/\(#\d+\)\n/) ||
+        hasLabelForChangelog(message)
       );
     })
     .map(function(commitInfo) {
       var message = getCommitMessage(commitInfo);
+      var labels = getLabels(message);
       var match = message.match(/#(\d+) from (.*)\//);
       var squashMatch = message.match(/#(\d+)\)\n/);
       var result = {
         sha: commitInfo.sha,
+        labels,
       };
 
       if (match) {

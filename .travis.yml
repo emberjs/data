@@ -69,8 +69,11 @@ jobs:
       script: yarn test:node
 
     # runs tests against each supported Ember version
-    - name: 'Ember LTS 3.4'
+    - stage: ember version tests
+      name: 'Ember LTS 3.4'
       env: EMBER_TRY_SCENARIO=ember-lts-3.4
+    - name: 'Ember LTS 3.8'
+      env: EMBER_TRY_SCENARIO=ember-lts-3.8
     - name: 'Ember Release'
       if: NOT (branch ~= /^(release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release
