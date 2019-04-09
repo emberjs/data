@@ -5,7 +5,7 @@ const co = require('co');
 const Babel = require('broccoli-babel-transpiler');
 const chai = require('ember-cli-blueprint-test-helpers/chai');
 const stripIndent = require('common-tags').stripIndent;
-const StripFilteredImports = require('../../lib/transforms/babel-plugin-remove-imports');
+const StripFilteredImports = require('@ember-data/-build-infra/src/transforms/babel-plugin-remove-imports');
 
 const expect = chai.expect;
 const createTempDir = BroccoliTestHelper.createTempDir;

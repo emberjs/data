@@ -1,9 +1,10 @@
+var createFile = require('broccoli-file-creator');
 var path = require('path');
 var fs = require('fs');
 var gitRepoInfo = require('git-repo-info');
 var npmGitInfo = require('npm-git-info');
 
-module.exports = function() {
+function calculateVersion() {
   var gitPath = path.join(__dirname, '..', '.git');
   var pkg = require('../package.json');
   var packageVersion = pkg.version;
@@ -25,4 +26,8 @@ module.exports = function() {
   }
 
   return packageVersion + suffix;
+}
+
+module.exports = function() {
+  return createFile('version.js', 'export default "' + calculateVersion() + '";');
 };
