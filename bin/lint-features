@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const path = require('path');
+
+const PKG_ROOT = path.join(__dirname, '../packages');
+const PATH_TO_CONFIG = 'config/features.json';
+const packages = fs.readdirSync(PKG_ROOT);
+const beginsWithDS = /^ds-/;
+const violations = [];
+
+packages.forEach(function(package) {
+  const configPath = path.join(PKG_ROOT, package, PATH_TO_CONFIG);
+  if (fs.existsSync(configPath)) {
+    const features = require(configPath);
+    Object.keys(features).forEach(function(feature) {
+      if (!beginsWithDS.exec(feature)) {
+        violations.push('"' + feature + '" in @ember-data/' + package);
+      }
+    });
+  }
+});
+
+if (violations.length) {
+  console.log(
+    'Features in features.json MUST begin with `ds-`! These features do not:\n\t',
+    violations.join('\n\t')
+  );
+  process.exit(1);
+} else {
+  console.log('Features passed linting!');
+}
