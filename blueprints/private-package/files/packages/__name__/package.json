@@ -1,0 +1,34 @@
+{
+  "name": "<%= packageName %>",
+  "version": "0.0.0",
+  "description": "The default blueprint for ember-cli addons.",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "lint:hbs": "ember-template-lint .",
+    "start": "ember serve",
+    "test": "ember test",
+    "test:all": "ember try:each",
+    "prepublishOnly": "ember ts:precompile",
+    "postpublish": "ember ts:clean"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "ember-cli": "*"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
+}

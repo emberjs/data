@@ -29,7 +29,6 @@
     "test-external:ember-data-relationship-tracker": "yarn workspace ember-data test-external:ember-data-relationship-tracker"
   },
   "devDependencies": {
-    "lerna": "^3.13.2",
     "@babel/plugin-transform-typescript": "^7.2.0",
     "@ember-decorators/babel-transforms": "^5.2.0",
     "@ember-decorators/data": "^5.1.4",
@@ -61,6 +60,7 @@
     "ember-cli-pretender": "^3.1.1",
     "ember-cli-shims": "^1.2.0",
     "ember-cli-sri": "^2.1.1",
+    "ember-cli-string-utils": "^1.1.0",
     "ember-cli-test-loader": "^2.2.0",
     "ember-cli-typescript-blueprints": "^2.0.0-beta.1",
     "ember-cli-uglify": "2.1.0",
@@ -84,6 +84,7 @@
     "github": "^1.1.1",
     "glob": "^7.1.3",
     "json-typescript": "^1.1.0",
+    "lerna": "^3.13.2",
     "loader.js": "^4.7.0",
     "mocha": "^6.1.2",
     "mocha-only-detector": "1.0.0",
