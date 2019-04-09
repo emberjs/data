@@ -29,7 +29,7 @@
     "test-external:ember-data-relationship-tracker": "yarn workspace ember-data test-external:ember-data-relationship-tracker"
   },
   "devDependencies": {
-    "lerna": "^3.13.0",
+    "lerna": "^3.13.2",
     "@babel/plugin-transform-typescript": "^7.2.0",
     "@ember-decorators/babel-transforms": "^5.2.0",
     "@ember-decorators/data": "^5.1.4",
