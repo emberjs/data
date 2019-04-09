@@ -85,7 +85,7 @@
     "glob": "^7.1.3",
     "json-typescript": "^1.1.0",
     "loader.js": "^4.7.0",
-    "mocha": "^6.1.1",
+    "mocha": "^6.1.2",
     "mocha-only-detector": "1.0.0",
     "prettier": "^1.15.3",
     "rimraf": "^2.6.2",
