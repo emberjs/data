@@ -1,7 +1,7 @@
 const inflection = require('inflection');
 const stringUtils = require('ember-cli-string-utils');
 const EOL = require('os').EOL;
-const isModuleUnificationProject = require('../../lib/utilities/module-unification')
+const isModuleUnificationProject = require('@ember-data/-build-infra/src/utilities/module-unification')
   .isModuleUnificationProject;
 const path = require('path');
 const useEditionDetector = require('../edition-detector');

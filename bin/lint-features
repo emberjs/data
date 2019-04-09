@@ -2,27 +2,25 @@
 const fs = require('fs');
 const path = require('path');
 
-const PKG_ROOT = path.join(__dirname, '../packages');
-const PATH_TO_CONFIG = 'config/features.json';
-const packages = fs.readdirSync(PKG_ROOT);
+const configPath = path.join(
+  __dirname,
+  '../packages/-build-infra/config/in-progress-features.json'
+);
 const beginsWithDS = /^ds-/;
 const violations = [];
 
-packages.forEach(function(package) {
-  const configPath = path.join(PKG_ROOT, package, PATH_TO_CONFIG);
-  if (fs.existsSync(configPath)) {
-    const features = require(configPath);
-    Object.keys(features).forEach(function(feature) {
-      if (!beginsWithDS.exec(feature)) {
-        violations.push('"' + feature + '" in @ember-data/' + package);
-      }
-    });
-  }
-});
+if (fs.existsSync(configPath)) {
+  const features = require(configPath);
+  Object.keys(features).forEach(function(feature) {
+    if (!beginsWithDS.exec(feature)) {
+      violations.push(feature);
+    }
+  });
+}
 
 if (violations.length) {
   console.log(
-    'Features in features.json MUST begin with `ds-`! These features do not:\n\t',
+    'Features in in-progress-features.json MUST begin with `ds-`! These features do not:\n\t',
     violations.join('\n\t')
   );
   process.exit(1);

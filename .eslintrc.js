@@ -46,6 +46,7 @@ module.exports = {
       files: [
         '.eslintrc.js',
         '.prettierrc.js',
+        'packages/-build-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
         'packages/*/index.js',
         'packages/*/testem.js',
@@ -76,7 +77,7 @@ module.exports = {
 
     // node tests
     {
-      files: ['packages/*/node-tests/**'],
+      files: ['packages/*/node-tests/**', 'node-tests/**'],
 
       env: {
         mocha: true,

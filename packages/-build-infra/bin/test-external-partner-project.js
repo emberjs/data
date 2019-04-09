@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 /* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
 const fs = require('fs');
@@ -7,7 +9,7 @@ const { shellSync } = require('execa');
 const debug = require('debug')('test-external');
 const rimraf = require('rimraf');
 
-const projectRoot = path.resolve(__dirname, '../../');
+const projectRoot = path.resolve(__dirname, '../');
 const externalProjectName = process.argv[2];
 const gitUrl = process.argv[3];
 const skipSmokeTest = process.argv[4] && process.argv[4] === '--skip-smoke-test';
@@ -17,11 +19,11 @@ const projectTempDir = path.join(tempDir, externalProjectName);
 
 if (!gitUrl) {
   throw new Error(
-    'No git url provided to `node ./lib/scripts/test-external`. An https git url should be the first argument.'
+    'No git url provided to `test-external-partner`. An https git url should be the first argument.'
   );
 } else if (gitUrl.indexOf('https') !== 0) {
   throw new Error(
-    `The git url provided to \`node ./lib/scripts/test-external\` should use https. Received '${gitUrl}'`
+    `The git url provided to \`node test-external-partner\` should use https. Received '${gitUrl}'`
   );
 }
 
@@ -43,10 +45,12 @@ function execWithLog(command, force) {
 }
 
 if (!fs.existsSync(tempDir)) {
+  debug(`Ensuring Cache Root at: ${tempDir}`);
   fs.mkdirSync(tempDir);
 }
 
 if (fs.existsSync(projectTempDir)) {
+  debug(`Cleaning Cache at: ${projectTempDir}`);
   rimraf.sync(projectTempDir);
 }
 
@@ -56,25 +60,40 @@ try {
 } catch (e) {
   debug(e);
   throw new Error(
-    `Install of ${gitUrl} for external project ${externalProjectName} testing failed.`
+    `Install of ${gitUrl} in ${projectTempDir} for external project ${externalProjectName} testing failed.`
   );
 }
 
 const useYarn = fs.existsSync(path.join(projectTempDir, 'yarn.lock'));
 
-const npmInstall = `
-cd ../adapter; npm link;
-cd ../store; npm link @ember-data/adapter; npm link;
-cd ../serializer; npm link @ember-data/store; npm link;
-cd ../model; npm link @ember-data/store; npm link;
+const npmLink = `
+npm link;
+cd ../adapter;
+npm link @ember-data/-build-infra;
+npm link;
+cd ../store;
+npm link @ember-data/-build-infra;
+npm link @ember-data/adapter;
+npm link;
+cd ../serializer;
+npm link @ember-data/-build-infra;
+npm link @ember-data/store;
+npm link;
+cd ../model;
+npm link @ember-data/-build-infra;
+npm link @ember-data/store;
+npm link;
 cd ../-ember-data;
-npm link @ember-data/adapter; npm link @ember-data/store;npm link @ember-data/serializer;
+npm link @ember-data/-build-infra;
+npm link @ember-data/adapter;
+npm link @ember-data/store;
+npm link @ember-data/serializer;
 npm link @ember-data/model;
 npm link;
 `;
 // install project dependencies and link our local version of ember-data
 try {
-  execWithLog(`${useYarn ? 'yarn link' : npmInstall}`);
+  execWithLog(`${useYarn ? 'yarn link' : npmLink}`);
   execExternal(`${useYarn ? 'yarn' : 'npm install'}`);
 } catch (e) {
   debug(e);

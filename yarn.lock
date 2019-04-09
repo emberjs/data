@@ -2735,11 +2735,6 @@ babel6-plugin-strip-class-callcheck@^6.0.0:
   resolved "https://registry.npmjs.org/babel6-plugin-strip-class-callcheck/-/babel6-plugin-strip-class-callcheck-6.0.0.tgz#de841c1abebbd39f78de0affb2c9a52ee228fddf"
   integrity sha1-3oQcGr6705943gr/ssmlLuIo/d8=
 
-babel6-plugin-strip-heimdall@^6.0.1:
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/babel6-plugin-strip-heimdall/-/babel6-plugin-strip-heimdall-6.0.1.tgz#35f80eddec1f7fffdc009811dfbd46d9965072b6"
-  integrity sha1-NfgO3ewff//cAJgR371G2ZZQcrY=
-
 babylon@^6.18.0:
   version "6.18.0"
   resolved "https://registry.npmjs.org/babylon/-/babylon-6.18.0.tgz#af2f3b88fa6f5c1e4c634d1a0f8eac4f55b395e3"
@@ -4679,7 +4674,7 @@ ember-cli-babel@^6.0.0-beta.4, ember-cli-babel@^6.0.0-beta.7, ember-cli-babel@^6
     ember-cli-version-checker "^2.1.2"
     semver "^5.5.0"
 
-ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.2, ember-cli-babel@^7.1.3, ember-cli-babel@^7.1.4, ember-cli-babel@^7.4.2, ember-cli-babel@^7.4.3, ember-cli-babel@^7.5.0:
+ember-cli-babel@^7.0.0, ember-cli-babel@^7.1.3, ember-cli-babel@^7.4.2, ember-cli-babel@^7.4.3, ember-cli-babel@^7.5.0, ember-cli-babel@^7.7.3:
   version "7.7.3"
   resolved "https://registry.npmjs.org/ember-cli-babel/-/ember-cli-babel-7.7.3.tgz#f94709f6727583d18685ca6773a995877b87b8a0"
   integrity sha512-/LWwyKIoSlZQ7k52P+6agC7AhcOBqPJ5C2u27qXHVVxKvCtg6ahNuRk/KmfZmV4zkuw4EjTZxfJE1PzpFyHkXg==
@@ -4898,7 +4893,7 @@ ember-cli-typescript-blueprints@*, ember-cli-typescript-blueprints@^2.0.0-beta.1
     inflection "^1.12.0"
     silent-error "^1.1.0"
 
-ember-cli-typescript@^2.0.0-beta.2, ember-cli-typescript@^2.0.0-rc.2:
+ember-cli-typescript@^2.0.0-rc.2:
   version "2.0.0"
   resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-2.0.0.tgz#c31f7b649892ff8f7bb518539ccfa336d0613965"
   integrity sha512-UUm/uMI1ToBQMmr5aiArEhHiCTyARXNxzbQxU+Yf1cBKuIXbDFTa/jdS55wt2o8qCPNay8v90m2C0Nvk3KuAEQ==

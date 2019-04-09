@@ -37,4 +37,3 @@
 !/dist/docs # ignore all assets except /dist/docs folder
 .appveyor.yml
 lib/scripts
-lib/version-replace.js
