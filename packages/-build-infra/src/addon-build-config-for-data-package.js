@@ -11,15 +11,13 @@ function addonBuildConfigForDataPackage(name) {
     },
 
     buildBabelOptions() {
-      let existing = this.options.babel;
-      if (!existing || !existing.plugins) {
-        console.log(this.name, this.project.appName);
-      }
+      let babelOptions = this.options.babel || {};
+      let existingPlugins = babelOptions.plugins || [];
       let customPlugins = require('./stripped-build-plugins')(
         process.env.EMBER_ENV,
         this.isLocalBuild()
       );
-      let plugins = existing.plugins.map(plugin => {
+      let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
       plugins = plugins.concat(customPlugins.plugins);
