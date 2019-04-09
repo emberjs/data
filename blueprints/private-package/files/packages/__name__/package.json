@@ -1,0 +1,22 @@
+{
+  "name": "<%= packageName %>",
+  "version": "0.0.0",
+  "description": "The default blueprint for ember-data private packages.",
+  "keywords": [],
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "prepublishOnly": "ember ts:precompile",
+    "postpublish": "ember ts:clean"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">= 6.0.0"
+  }
+}
