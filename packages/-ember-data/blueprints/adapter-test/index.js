@@ -1,6 +1,6 @@
 const testInfo = require('ember-cli-test-info');
 const useTestFrameworkDetector = require('../test-framework-detector');
-const isModuleUnificationProject = require('../../lib/utilities/module-unification')
+const isModuleUnificationProject = require('@ember-data/-build-infra/src/utilities/module-unification')
   .isModuleUnificationProject;
 const path = require('path');
 

@@ -29,11 +29,3 @@
 /.node_modules.ember-try/
 /bower.json.ember-try
 /package.json.ember-try
-
-# ember-data
-/bin
-/docs
-/node-tests
-!/dist/docs # ignore all assets except /dist/docs folder
-.appveyor.yml
-lib/scripts

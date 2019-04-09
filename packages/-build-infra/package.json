@@ -1,0 +1,26 @@
+{
+  "name": "@ember-data/-build-infra",
+  "version": "0.0.0",
+  "description": "The default blueprint for ember-data private packages.",
+  "keywords": [],
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "prepublishOnly": "ember ts:precompile",
+    "postpublish": "ember ts:clean"
+  },
+  "dependencies": {
+    "babel-plugin-feature-flags": "^0.3.1",
+    "babel-plugin-filter-imports": "^2.0.4",
+    "babel6-plugin-strip-class-callcheck": "^6.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">= 6.0.0"
+  }
+}

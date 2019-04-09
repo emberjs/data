@@ -19,7 +19,9 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "ember-cli-babel": "^7.1.4"
+    "@ember-data/-build-infra": "^0.0.0",
+    "ember-cli-babel": "^7.7.3",
+    "ember-cli-typescript": "^2.0.0-rc.2"
   },
   "devDependencies": {
     "@ember/optional-features": "*",

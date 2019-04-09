@@ -4,10 +4,9 @@ const path = require('path');
 const Funnel = require('broccoli-funnel');
 const Rollup = require('broccoli-rollup');
 const merge = require('broccoli-merge-trees');
-const version = require('./lib/version');
-const { isInstrumentedBuild } = require('./lib/cli-flags');
+const version = require('@ember-data/-build-infra/src/create-version-module');
+const { isInstrumentedBuild } = require('@ember-data/-build-infra/src/cli-flags');
 const BroccoliDebug = require('broccoli-debug');
-const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
@@ -16,9 +15,10 @@ function isProductionEnv() {
   return isProd && !isTest;
 }
 
-module.exports = {
-  name: 'ember-data',
+const addonBuildConfigForDataPackage = require('@ember-data/-build-infra/src/addon-build-config-for-data-package');
+const addonBaseConfig = addonBuildConfigForDataPackage('ember-data');
 
+module.exports = Object.assign(addonBaseConfig, {
   _prodLikeWarning() {
     let emberEnv = process.env.EMBER_ENV;
     if (emberEnv !== 'production' && /production/.test(emberEnv)) {
@@ -141,49 +141,4 @@ module.exports = {
 
     return this.debugTree(merge([publicTree, privateTree]), 'final');
   },
-
-  isLocalBuild() {
-    let appName = this.parent.pkg.name;
-
-    return this.isDevelopingAddon() && appName === 'ember-data';
-  },
-
-  buildBabelOptions() {
-    let existing = this.options.babel;
-    let customPlugins = require('./lib/stripped-build-plugins')(
-      process.env.EMBER_ENV,
-      this.isLocalBuild()
-    );
-    let plugins = existing.plugins.map(plugin => {
-      return Array.isArray(plugin) ? plugin : [plugin];
-    });
-    plugins = plugins.concat(customPlugins.plugins);
-
-    return {
-      loose: true,
-      plugins,
-      postTransformPlugins: customPlugins.postTransformPlugins,
-      exclude: ['transform-block-scoping', 'transform-typeof-symbol'],
-    };
-  },
-
-  _setupBabelOptions() {
-    if (this._hasSetupBabelOptions) {
-      return;
-    }
-
-    this.options.babel = this.buildBabelOptions();
-
-    this._hasSetupBabelOptions = true;
-  },
-
-  included(app) {
-    this._super.included.apply(this, arguments);
-
-    this._setupBabelOptions();
-  },
-
-  cacheKeyForTree(treeType) {
-    return calculateCacheKeyForTree(treeType, this);
-  },
-};
+});
