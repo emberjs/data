@@ -2884,7 +2884,7 @@ bops@0.0.3:
     base64-js "0.0.2"
     to-utf8 "0.0.1"
 
-bower-config@^1.3.0, bower-config@^1.4.1:
+bower-config@^1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/bower-config/-/bower-config-1.4.1.tgz#85fd9df367c2b8dbbd0caa4c5f2bad40cd84c2cc"
   integrity sha1-hf2d82fCuNu9DKpMXyutQM2Ewsw=
@@ -2951,7 +2951,7 @@ broccoli-asset-rewrite@^2.0.0:
   dependencies:
     broccoli-filter "^1.2.3"
 
-broccoli-babel-transpiler@*, broccoli-babel-transpiler@^7.1.1, broccoli-babel-transpiler@^7.1.2, broccoli-babel-transpiler@^7.2.0:
+broccoli-babel-transpiler@*, broccoli-babel-transpiler@^7.1.2, broccoli-babel-transpiler@^7.2.0:
   version "7.2.0"
   resolved "https://registry.npmjs.org/broccoli-babel-transpiler/-/broccoli-babel-transpiler-7.2.0.tgz#5c0d694c4055106abb385e2d3d88936d35b7cb18"
   integrity sha512-lkP9dNFfK810CRHHWsNl9rjyYqcXH3qg0kArnA6tV9Owx3nlZm3Eyr0cGo6sMUQCNLH+2oKrRjOdUGSc6Um6Cw==
@@ -4958,7 +4958,7 @@ ember-cli-yuidoc@*, ember-cli-yuidoc@^0.8.8:
     rsvp "3.0.14"
     yuidocjs "^0.10.0"
 
-ember-cli@*:
+ember-cli@*, ember-cli@^3.9.0:
   version "3.9.0"
   resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-3.9.0.tgz#7ee8120c48514488c692265c4a429625e8f0187e"
   integrity sha512-y5PAdj08BApNUXL4IL4rOo3+8M6BQKobCx2zvczCyu9jjPaxfZ+X/xEw6UHXe5F3i3tWm7IwX9kG6sz5pv7vuQ==
@@ -5050,102 +5050,6 @@ ember-cli@*:
     uuid "^3.3.2"
     validate-npm-package-name "^3.0.0"
     walk-sync "^1.1.3"
-    watch-detector "^0.1.0"
-    yam "^1.0.0"
-
-ember-cli@^3.8.1:
-  version "3.8.1"
-  resolved "https://registry.npmjs.org/ember-cli/-/ember-cli-3.8.1.tgz#2a4f66cf9da3c9665658690e615479af32749807"
-  integrity sha512-cg8Ug60lbNPQVGjHnO66cmrgFXxlFFdkDp+//e58Kgl9mz17cQIbU1TD1pMaW0dYi+2/XADeftHBULs3ejQBSA==
-  dependencies:
-    "@babel/core" "^7.0.0"
-    "@babel/plugin-transform-modules-amd" "^7.2.0"
-    amd-name-resolver "^1.3.1"
-    babel-plugin-module-resolver "^3.1.1"
-    bower-config "^1.3.0"
-    bower-endpoint-parser "0.2.2"
-    broccoli "^2.0.0"
-    broccoli-amd-funnel "^2.0.1"
-    broccoli-babel-transpiler "^7.1.1"
-    broccoli-builder "^0.18.14"
-    broccoli-concat "^3.7.3"
-    broccoli-config-loader "^1.0.1"
-    broccoli-config-replace "^1.1.2"
-    broccoli-debug "^0.6.4"
-    broccoli-funnel "^2.0.1"
-    broccoli-funnel-reducer "^1.0.0"
-    broccoli-merge-trees "^3.0.0"
-    broccoli-middleware "^2.0.1"
-    broccoli-module-normalizer "^1.3.0"
-    broccoli-module-unification-reexporter "^1.0.0"
-    broccoli-source "^1.1.0"
-    broccoli-stew "^2.0.0"
-    calculate-cache-key-for-tree "^1.1.0"
-    capture-exit "^2.0.0"
-    chalk "^2.4.2"
-    ci-info "^2.0.0"
-    clean-base-url "^1.0.0"
-    compression "^1.7.3"
-    configstore "^4.0.0"
-    console-ui "^3.0.0"
-    core-object "^3.1.5"
-    dag-map "^2.0.2"
-    diff "^4.0.1"
-    ember-cli-broccoli-sane-watcher "^3.0.0"
-    ember-cli-is-package-missing "^1.0.0"
-    ember-cli-lodash-subset "^2.0.1"
-    ember-cli-normalize-entity-name "^1.0.0"
-    ember-cli-preprocess-registry "^3.1.2"
-    ember-cli-string-utils "^1.1.0"
-    ember-source-channel-url "^1.1.0"
-    ensure-posix-path "^1.0.2"
-    execa "^1.0.0"
-    exit "^0.1.2"
-    express "^4.16.3"
-    filesize "^3.6.1"
-    find-up "^3.0.0"
-    find-yarn-workspace-root "^1.1.0"
-    fs-extra "^7.0.0"
-    fs-tree-diff "^1.0.0"
-    get-caller-file "^2.0.0"
-    git-repo-info "^2.0.0"
-    glob "^7.1.2"
-    heimdalljs "^0.2.5"
-    heimdalljs-fs-monitor "^0.2.2"
-    heimdalljs-graph "^0.3.4"
-    heimdalljs-logger "^0.1.9"
-    http-proxy "^1.17.0"
-    inflection "^1.12.0"
-    is-git-url "^1.0.0"
-    isbinaryfile "^3.0.3"
-    js-yaml "^3.12.1"
-    json-stable-stringify "^1.0.1"
-    leek "0.0.24"
-    lodash.template "^4.4.0"
-    markdown-it "^8.4.2"
-    markdown-it-terminal "0.1.0"
-    minimatch "^3.0.4"
-    morgan "^1.9.0"
-    node-modules-path "^1.0.1"
-    nopt "^3.0.6"
-    npm-package-arg "^6.1.0"
-    portfinder "^1.0.15"
-    promise-map-series "^0.2.3"
-    quick-temp "^0.1.8"
-    resolve "^1.8.1"
-    rsvp "^4.8.3"
-    sane "^4.0.0"
-    semver "^5.5.0"
-    silent-error "^1.1.0"
-    sort-package-json "^1.15.0"
-    symlink-or-copy "^1.2.0"
-    temp "0.9.0"
-    testem "^2.9.2"
-    tiny-lr "^1.1.1"
-    tree-sync "^1.2.2"
-    uuid "^3.3.2"
-    validate-npm-package-name "^3.0.0"
-    walk-sync "^1.0.0"
     watch-detector "^0.1.0"
     yam "^1.0.0"
 
@@ -5722,7 +5626,7 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
   dependencies:
     homedir-polyfill "^1.0.1"
 
-express@^4.10.7, express@^4.13.1, express@^4.16.3, express@^4.16.4:
+express@^4.10.7, express@^4.13.1, express@^4.16.4:
   version "4.16.4"
   resolved "https://registry.npmjs.org/express/-/express-4.16.4.tgz#fddef61926109e24c515ea97fd2f1bdbf62df12e"
   integrity sha512-j12Uuyb4FMrd/qQAm6uCHAkPtO8FDTRJZBDd5D2KOL2eLaz1yUNdUB/NOIyq0iU4q4cFarsUCrnFDPBcnksuOg==
@@ -5910,11 +5814,6 @@ file-entry-cache@^5.0.1:
   integrity sha512-bCg29ictuBaKUwwArK4ouCaqDgLZcysCFLmM/Yn/FDoqndh/9vNuQfXRDvTuXKLxfD/JtZQGKFT8MGcJBK644g==
   dependencies:
     flat-cache "^2.0.1"
-
-filesize@^3.6.1:
-  version "3.6.1"
-  resolved "https://registry.npmjs.org/filesize/-/filesize-3.6.1.tgz#090bb3ee01b6f801a8a8be99d31710b3422bb317"
-  integrity sha512-7KjR1vv6qnicaPMi1iiTcI85CyYwRO/PSFCu6SvqL8jN2Wjt/NIYQTFtFs7fSDCYOstUkEWIQGFUg5YZQfjlcg==
 
 filesize@^4.1.2:
   version "4.1.2"
@@ -6216,7 +6115,7 @@ fs-tree-diff@^0.5.2, fs-tree-diff@^0.5.3, fs-tree-diff@^0.5.4, fs-tree-diff@^0.5
     path-posix "^1.0.0"
     symlink-or-copy "^1.1.8"
 
-fs-tree-diff@^1.0.0, fs-tree-diff@^1.0.2:
+fs-tree-diff@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/fs-tree-diff/-/fs-tree-diff-1.0.2.tgz#0e2931733a85b55feb3472c0b89a20b0c03ac0de"
   integrity sha512-Zro2ACaPVDgVOx9+s5s5AfPlAD0kMJdbwGvTGF6KC1SjxjiGWxJvV4mUTDkFVSy3OUw2C/f1qpdjF81hGqSBAw==
@@ -6296,7 +6195,7 @@ get-caller-file@^1.0.1:
   resolved "https://registry.npmjs.org/get-caller-file/-/get-caller-file-1.0.3.tgz#f978fa4c90d1dfe7ff2d6beda2a515e713bdcf4a"
   integrity sha512-3t6rVToeoZfYSGd8YoLFR2DJkiQrIiUrGcjvFX2mDw3bn6k2OtwHN0TNCLbBO+w8qTvimhDkv+LSscbJY1vE6w==
 
-get-caller-file@^2.0.0, get-caller-file@^2.0.1:
+get-caller-file@^2.0.1:
   version "2.0.5"
   resolved "https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
   integrity sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
@@ -6780,7 +6679,7 @@ heimdalljs-fs-monitor@^0.2.2:
     heimdalljs "^0.2.3"
     heimdalljs-logger "^0.1.7"
 
-heimdalljs-graph@^0.3.4, heimdalljs-graph@^0.3.5:
+heimdalljs-graph@^0.3.5:
   version "0.3.5"
   resolved "https://registry.npmjs.org/heimdalljs-graph/-/heimdalljs-graph-0.3.5.tgz#420fbbc8fc3aec5963ddbbf1a5fb47921c4a5927"
   integrity sha512-szOy9WZUc7eUInEBQEsoa1G2d+oYHrn6ndZPf76eh8A9ID1zWUCEEsxP3F+CvQx9+EDrg1srdyLUmfVAr8EB4g==
@@ -7473,7 +7372,7 @@ js-yaml@3.13.0:
     argparse "^1.0.7"
     esprima "^4.0.0"
 
-js-yaml@^3.12.1, js-yaml@^3.12.2, js-yaml@^3.13.0, js-yaml@^3.2.5, js-yaml@^3.2.7:
+js-yaml@^3.12.2, js-yaml@^3.13.0, js-yaml@^3.2.5, js-yaml@^3.2.7:
   version "3.13.1"
   resolved "https://registry.npmjs.org/js-yaml/-/js-yaml-3.13.1.tgz#aff151b30bfdfa8e49e05da22e7415e9dfa37847"
   integrity sha512-YfbcO7jXDdyj0DGxYVSlSeQNHbD7XPWvrVWeVUujrQEoZzWJIRrCPoyk6kL6IAjAG2IolMK4T0hNUe0HOUs5Jw==
@@ -8651,7 +8550,7 @@ modify-values@^1.0.0:
   resolved "https://registry.npmjs.org/modify-values/-/modify-values-1.0.1.tgz#b3939fa605546474e3e3e3c63d64bd43b4ee6022"
   integrity sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==
 
-morgan@^1.9.0, morgan@^1.9.1:
+morgan@^1.9.1:
   version "1.9.1"
   resolved "https://registry.npmjs.org/morgan/-/morgan-1.9.1.tgz#0a8d16734a1d9afbc824b99df87e738e58e2da59"
   integrity sha512-HQStPIV4y3afTiCYVxirakhlCfGkI161c76kKFca7Fk1JusM//Qeo1ej2XaMniiNeaZklMVrh3vTtIzpzwbpmA==
@@ -9471,7 +9370,7 @@ pkg-up@^2.0.0:
   dependencies:
     find-up "^2.1.0"
 
-portfinder@^1.0.15, portfinder@^1.0.20:
+portfinder@^1.0.20:
   version "1.0.20"
   resolved "https://registry.npmjs.org/portfinder/-/portfinder-1.0.20.tgz#bea68632e54b2e13ab7b0c4775e9b41bf270e44a"
   integrity sha512-Yxe4mTyDzTd59PZJY4ojZR8F+E5e97iq2ZOHPz3HDgSvYC5siNad2tLooQ5y5QHyQhc3xVqvyk/eNA3wuoa7Sw==
@@ -10256,7 +10155,7 @@ route-recognizer@^0.3.3:
   resolved "https://registry.npmjs.org/route-recognizer/-/route-recognizer-0.3.4.tgz#39ab1ffbce1c59e6d2bdca416f0932611e4f3ca3"
   integrity sha512-2+MhsfPhvauN1O8KaXpXAOfR/fwe8dnUXVM+xw7yt40lJRfPVQxV6yryZm0cgRvAj5fMF/mdRZbL2ptwbs5i2g==
 
-rsvp@*, rsvp@^4.7.0, rsvp@^4.8.1, rsvp@^4.8.2, rsvp@^4.8.3, rsvp@^4.8.4:
+rsvp@*, rsvp@^4.7.0, rsvp@^4.8.1, rsvp@^4.8.2, rsvp@^4.8.4:
   version "4.8.4"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-4.8.4.tgz#b50e6b34583f3dd89329a2f23a8a2be072845911"
   integrity sha512-6FomvYPfs+Jy9TfXmBpBuMWNH94SgCsZmJKcanySzgNNP6LjWxBvyLTa9KaMfDDM5oxRfrKDB0r/qeRsLwnBfA==
@@ -10589,7 +10488,7 @@ sort-object-keys@^1.1.2:
   resolved "https://registry.npmjs.org/sort-object-keys/-/sort-object-keys-1.1.2.tgz#d3a6c48dc2ac97e6bc94367696e03f6d09d37952"
   integrity sha1-06bEjcKsl+a8lDZ2luA/bQnTeVI=
 
-sort-package-json@^1.15.0, sort-package-json@^1.19.0:
+sort-package-json@^1.19.0:
   version "1.22.1"
   resolved "https://registry.npmjs.org/sort-package-json/-/sort-package-json-1.22.1.tgz#384ce7a098cd13be4109800d5ce2f0cf7826052e"
   integrity sha512-uVINQraFQvnlzNHFnQOT4MYy0qonIEzKwhrI2yrTiQjNo5QF4h3ffrnCk7a95QAwoK/RdkO/w8W9tJIcaOWC7g==
@@ -11061,7 +10960,7 @@ testdouble@^3.2.6:
     stringify-object-es5 "^2.5.0"
     theredoc "^1.0.0"
 
-testem@^2.14.0, testem@^2.9.2:
+testem@^2.14.0:
   version "2.14.0"
   resolved "https://registry.npmjs.org/testem/-/testem-2.14.0.tgz#418a9a15843f68381659c6a486abb4ea48d06c29"
   integrity sha512-tldpNPCzXfibmxOoTMGOfr8ztUiHf9292zSXCu7SitBx9dCK83k7vEoa77qJBS9t3RGCQCRF+GNMUuiFw//Mbw==
