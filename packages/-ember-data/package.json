@@ -21,7 +21,7 @@
     "test:try-one": "ember try:one",
     "test-external:ember-m3": "node ./lib/scripts/test-external ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "node ./lib/scripts/test-external ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
-    "test-external:emberaddons.com": "node ./lib/scripts/test-external ember-cli-addon-search https://github.com/gcollazo/ember-cli-addon-search.git",
+    "test-external:emberaddons.com": "node ./lib/scripts/test-external ember-cli-addon-search https://github.com/dcyriller/ember-cli-addon-search.git",
     "test-external:model-fragments": "node ./lib/scripts/test-external ember-data-model-fragments https://github.com/lytics/ember-data-model-fragments.git",
     "test-external:ember-observer": "node ./lib/scripts/test-external ember-observer https://github.com/emberobserver/client.git",
     "test-external:travis-web": "node ./lib/scripts/test-external travis-web https://github.com/travis-ci/travis-web.git",
