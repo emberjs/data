@@ -38,7 +38,6 @@ jobs:
     # runs tests with current locked deps and linting
     - stage: test
       name: 'Linting'
-      if: NOT (branch ~= /^(release|lts).*/)
       script:
         - yarn lint:features
         - yarn lint:js
@@ -47,7 +46,6 @@ jobs:
 
     - stage: additional tests
       name: 'Optional Features'
-      if: NOT (branch ~= /^(release|lts).*/)
       install: yarn install
       script: yarn test:optional-features
 
