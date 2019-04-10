@@ -503,12 +503,18 @@ export default class InternalModel {
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
+    let _belongsToState = { 
+      key, 
+      store, 
+      originatingInternalModel: this,
+      modelName: relationshipMeta.type
+    }
 
     if (isAsync) {
       let internalModel =
         resource && resource.data ? store._internalModelForResource(resource.data) : null;
       return PromiseBelongsTo.create({
-        _belongsToState: resource._relationship,
+        _belongsToState,
         promise: store._findBelongsToByJsonApiResource(
           resource,
           parentInternalModel,
