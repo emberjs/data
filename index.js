@@ -8,6 +8,7 @@ const version = require('./lib/version');
 const { isInstrumentedBuild } = require('./lib/cli-flags');
 const BroccoliDebug = require('broccoli-debug');
 const calculateCacheKeyForTree = require('calculate-cache-key-for-tree');
+const resolve = require('resolve');
 
 function isProductionEnv() {
   let isProd = /production/.test(process.env.EMBER_ENV);
@@ -67,6 +68,19 @@ module.exports = {
 
   blueprintsPath() {
     return path.join(__dirname, 'blueprints');
+  },
+
+  updateFastBootManifest(manifest) {
+    manifest.vendorFiles.push('ember-data/fetch-fastboot.js');
+    return manifest;
+  },
+
+  treeForPublic() {
+    let fetchPath = resolve.sync('ember-fetch');
+
+    return new Funnel(path.join(path.dirname(fetchPath), 'public'), {
+      destDir: 'ember-data',
+    });
   },
 
   treeForAddon(tree) {
