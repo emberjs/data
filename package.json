@@ -133,6 +133,11 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config"
+    "configPath": "tests/dummy/config",
+    "fastbootDependencies": [
+      "node-fetch",
+      "abortcontroller-polyfill",
+      "abortcontroller-polyfill/dist/cjs-ponyfill"
+    ]
   }
 }
