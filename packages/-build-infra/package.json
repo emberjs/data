@@ -22,7 +22,7 @@
     "git-repo-info": "^2.0.0",
     "npm-git-info": "^1.0.3",
     "ember-cli-string-utils": "^1.1.0",
-    "calculate-cache-key-for-tree": "^1.1.0",
+    "calculate-cache-key-for-tree": "^2.0.0",
     "silent-error": "^1.1.1",
     "ember-cli-path-utils": "^1.0.0"
   },
