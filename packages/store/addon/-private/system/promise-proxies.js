@@ -1,11 +1,14 @@
 import ObjectProxy from '@ember/object/proxy';
 import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
-import ArrayProxy from '@ember/array/proxy';
-import { get, computed } from '@ember/object';
-import { reads } from '@ember/object/computed';
+import ArrayProxy from './record-arrays/array-proxy';
+import { computed, setProperties, notifyPropertyChange } from '@ember/object';
 import { Promise } from 'rsvp';
 import { assert } from '@ember/debug';
 
+const ARRAY_OBSERVER_MAPPING = {
+  willChange: '_contentArrayWillChange',
+  didChange: '_contentArrayDidChange',
+};
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
   and a promise. When the promise is resolved the resulting value
@@ -35,9 +38,106 @@ import { assert } from '@ember/debug';
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-export const PromiseArray = ArrayProxy.extend(PromiseProxyMixin, {
-  meta: reads('content.meta'),
-});
+export class PromiseArray extends ArrayProxy {
+  constructor(options) {
+    super(options);
+    this.reason = null;
+    this.isRejected = false;
+    this.isFulfilled = false;
+    this._content = options.content || null;
+  }
+  get meta() {
+    return this.content ? this.content.meta : null;
+  }
+
+  get content() {
+    return this._content;
+  }
+
+  set content(content) {
+    if (this._content) {
+      this._content.removeArrayObserver(this, ARRAY_OBSERVER_MAPPING);
+    }
+    this._content = content;
+    if (this._content) {
+      this._content.addArrayObserver(this, ARRAY_OBSERVER_MAPPING);
+    }
+  }
+
+  willDestroy() {
+    if (this._content) {
+      this._content.removeArrayObserver(this, ARRAY_OBSERVER_MAPPING);
+    }
+    super.willDestroy(...arguments);
+  }
+
+  _contentArrayWillChange() {}
+
+  _contentArrayDidChange(proxy, idx, removedCnt, addedCnt) {
+    this.arrayContentWillChange(idx, removedCnt, addedCnt);
+    this.arrayContentDidChange(idx, removedCnt, addedCnt);
+  }
+
+  get isPending() {
+    return !this.isSettled;
+  }
+
+  get isSettled() {
+    return this.isRejected || this.isFulfilled;
+  }
+
+  get promise() {
+    return this._promise;
+  }
+  set promise(promise) {
+    this._promise = tap(this, promise);
+  }
+
+  then() {
+    return this.promise.then(...arguments);
+  }
+  catch() {
+    return this.promise.catch(...arguments);
+  }
+  finally() {
+    return this.promise.finally(...arguments);
+  }
+}
+
+function tap(proxy, promise) {
+  setProperties(proxy, {
+    isFulfilled: false,
+    isRejected: false,
+  });
+  notifyPropertyChange(proxy, 'isSettled');
+  notifyPropertyChange(proxy, 'isPending');
+
+  return promise.then(
+    value => {
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        setProperties(proxy, {
+          content: value,
+          isFulfilled: true,
+        });
+        notifyPropertyChange(proxy, 'isSettled');
+        notifyPropertyChange(proxy, 'isPending');
+      }
+      return value;
+    },
+    reason => {
+      if (!proxy.isDestroyed && !proxy.isDestroying) {
+        setProperties(proxy, {
+          reason,
+          isRejected: true,
+        });
+        notifyPropertyChange(proxy, 'isSettled');
+        notifyPropertyChange(proxy, 'isPending');
+      }
+      throw reason;
+    },
+    'Ember: PromiseProxy'
+  );
+}
 
 /**
   A `PromiseObject` is an object that acts like both an `EmberObject`
@@ -125,35 +225,38 @@ export const PromiseBelongsTo = PromiseObject.extend({
   @namespace DS
   @extends Ember.ArrayProxy
 */
-
-export function proxyToContent(method) {
-  return function() {
-    return get(this, 'content')[method](...arguments);
-  };
-}
-
-export const PromiseManyArray = PromiseArray.extend({
+export class PromiseManyArray extends PromiseArray {
   reload(options) {
-    assert(
-      'You are trying to reload an async manyArray before it has been created',
-      get(this, 'content')
-    );
-    this.set('promise', this.get('content').reload(options));
+    assert('You are trying to reload an async manyArray before it has been created', this.content);
+    this.promise = this.content.reload(options);
+    this.notifyPropertyChange('promise');
     return this;
-  },
+  }
 
-  createRecord: proxyToContent('createRecord'),
+  createRecord() {
+    return this.content.createRecord(...arguments);
+  }
 
-  on: proxyToContent('on'),
+  on() {
+    return this.content.on(...arguments);
+  }
 
-  one: proxyToContent('one'),
+  one() {
+    return this.content.one(...arguments);
+  }
 
-  trigger: proxyToContent('trigger'),
+  trigger() {
+    return this.content.trigger(...arguments);
+  }
 
-  off: proxyToContent('off'),
+  off() {
+    return this.content.off(...arguments);
+  }
 
-  has: proxyToContent('has'),
-});
+  has() {
+    return this.content.has(...arguments);
+  }
+}
 
 export function promiseManyArray(promise, label) {
   return PromiseManyArray.create({

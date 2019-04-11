@@ -1,7 +1,5 @@
-import { mapBy, not } from '@ember/object/computed';
-import Evented from '@ember/object/evented';
-import ArrayProxy from '@ember/array/proxy';
-import { set, get, computed } from '@ember/object';
+import ArrayProxy from '../record-arrays/array-proxy';
+import { set } from '@ember/object';
 import { makeArray, A } from '@ember/array';
 
 /**
@@ -82,7 +80,12 @@ import { makeArray, A } from '@ember/array';
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
-export default ArrayProxy.extend(Evented, {
+export default class Errors extends ArrayProxy {
+  constructor(options = {}) {
+    options._errorsByAttributeName = null;
+    options.content = A();
+    super(options);
+  }
   /**
     Register with target handler
 
@@ -92,16 +95,17 @@ export default ArrayProxy.extend(Evented, {
   _registerHandlers(target, becameInvalid, becameValid) {
     this.on('becameInvalid', target, becameInvalid);
     this.on('becameValid', target, becameValid);
-  },
+  }
 
   /**
     @property errorsByAttributeName
     @type {MapWithDefault}
     @private
   */
-  errorsByAttributeName: computed(function() {
-    return new Map();
-  }),
+  get errorsByAttributeName() {
+    this._errorsByAttributeName = this._errorsByAttributeName || new Map();
+    return this._errorsByAttributeName;
+  }
 
   /**
     Returns errors for a given attribute
@@ -122,14 +126,14 @@ export default ArrayProxy.extend(Evented, {
     @return {Array}
   */
   errorsFor(attribute) {
-    let map = get(this, 'errorsByAttributeName');
+    let map = this.errorsByAttributeName;
 
     if (!map.has(attribute)) {
       map.set(attribute, A());
     }
 
     return map.get(attribute);
-  },
+  }
 
   /**
     An array containing all of the error messages for this
@@ -146,16 +150,15 @@ export default ArrayProxy.extend(Evented, {
     @property messages
     @type {Array}
   */
-  messages: mapBy('content', 'message'),
+  get messages() {
+    return this.mapBy('message');
+  }
 
   /**
     @property content
     @type {Array}
     @private
   */
-  content: computed(function() {
-    return A();
-  }),
 
   /**
     @method unknownProperty
@@ -167,7 +170,7 @@ export default ArrayProxy.extend(Evented, {
       return undefined;
     }
     return errors;
-  },
+  }
 
   /**
     Total number of errors.
@@ -182,7 +185,9 @@ export default ArrayProxy.extend(Evented, {
     @type {Boolean}
     @readOnly
   */
-  isEmpty: not('length').readOnly(),
+  get isEmpty() {
+    return this.length === 0;
+  }
 
   /**
    Manually adds errors to the record. This will triger the `becameInvalid` event/ lifecycle method on
@@ -221,14 +226,14 @@ export default ArrayProxy.extend(Evented, {
   @param {string[]|string} messages - an error message or array of error messages for the attribute
    */
   add(attribute, messages) {
-    let wasEmpty = get(this, 'isEmpty');
+    let wasEmpty = this.isEmpty;
 
     this._add(attribute, messages);
 
-    if (wasEmpty && !get(this, 'isEmpty')) {
+    if (wasEmpty && !this.isEmpty) {
       this.trigger('becameInvalid');
     }
-  },
+  }
 
   /**
     Adds error messages to a given attribute without sending event.
@@ -238,12 +243,14 @@ export default ArrayProxy.extend(Evented, {
   */
   _add(attribute, messages) {
     messages = this._findOrCreateMessages(attribute, messages);
-    this.addObjects(messages);
+    this._addObjects(messages);
 
     this.errorsFor(attribute).addObjects(messages);
 
     this.notifyPropertyChange(attribute);
-  },
+    this.notifyPropertyChange('messages');
+    this.notifyPropertyChange('isEmpty');
+  }
 
   /**
     @method _findOrCreateMessages
@@ -268,7 +275,7 @@ export default ArrayProxy.extend(Evented, {
     }
 
     return _messages;
-  },
+  }
 
   /**
    Manually removes all errors for a given member from the record.
@@ -297,16 +304,16 @@ export default ArrayProxy.extend(Evented, {
    @param {string} member - the property name of an attribute or relationship
    */
   remove(attribute) {
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       return;
     }
 
     this._remove(attribute);
 
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       this.trigger('becameValid');
     }
-  },
+  }
 
   /**
     Removes all error messages from the given attribute without sending event.
@@ -315,17 +322,19 @@ export default ArrayProxy.extend(Evented, {
     @private
   */
   _remove(attribute) {
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       return;
     }
 
     let content = this.rejectBy('attribute', attribute);
     set(this, 'content', content);
-    get(this, 'errorsByAttributeName').delete(attribute);
+    this.errorsByAttributeName.delete(attribute);
 
     this.notifyPropertyChange(attribute);
     this.notifyPropertyChange('length');
-  },
+    this.notifyPropertyChange('messages');
+    this.notifyPropertyChange('isEmpty');
+  }
 
   /**
    Manually clears all errors for the record.
@@ -366,13 +375,13 @@ export default ArrayProxy.extend(Evented, {
    @method remove
    */
   clear() {
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       return;
     }
 
     this._clear();
     this.trigger('becameValid');
-  },
+  }
 
   /**
     Removes all error messages.
@@ -382,11 +391,11 @@ export default ArrayProxy.extend(Evented, {
     @private
   */
   _clear() {
-    if (get(this, 'isEmpty')) {
+    if (this.isEmpty) {
       return;
     }
 
-    let errorsByAttributeName = get(this, 'errorsByAttributeName');
+    let errorsByAttributeName = this.errorsByAttributeName;
     let attributes = [];
 
     errorsByAttributeName.forEach(function(_, attribute) {
@@ -397,9 +406,10 @@ export default ArrayProxy.extend(Evented, {
     attributes.forEach(attribute => {
       this.notifyPropertyChange(attribute);
     });
-
-    ArrayProxy.prototype.clear.call(this);
-  },
+    this.notifyPropertyChange('messages');
+    this.notifyPropertyChange('isEmpty');
+    super.clear();
+  }
 
   /**
     Checks if there are error messages for the given attribute.
@@ -425,5 +435,5 @@ export default ArrayProxy.extend(Evented, {
   */
   has(attribute) {
     return this.errorsFor(attribute).length > 0;
-  },
-});
+  }
+}

@@ -1,14 +1,11 @@
 /**
   @module ember-data
 */
-
-import Evented from '@ember/object/evented';
-
-import ArrayProxy from '@ember/array/proxy';
-import { set, get, computed } from '@ember/object';
+import { set } from '@ember/object';
 import { Promise } from 'rsvp';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
+import ArrayProxy from './array-proxy';
 
 /**
   A record array is an array that contains records of a certain modelName. The record
@@ -19,13 +16,11 @@ import SnapshotRecordArray from '../snapshot-record-array';
 
   @class RecordArray
   @namespace DS
-  @extends Ember.ArrayProxy
-  @uses Ember.Evented
+  @extends MutableArray
 */
-
-export default ArrayProxy.extend(Evented, {
-  init() {
-    this._super(...arguments);
+export default class RecordArray extends ArrayProxy {
+  constructor(options) {
+    super(options);
 
     /**
       The array of client ids backing the record array. When a
@@ -41,30 +36,30 @@ export default ArrayProxy.extend(Evented, {
 
     /**
     The flag to signal a `RecordArray` is finished loading data.
-
+ 
     Example
-
+ 
     ```javascript
     var people = store.peekAll('person');
     people.get('isLoaded'); // true
     ```
-
+ 
     @property isLoaded
     @type Boolean
     */
     this.isLoaded = this.isLoaded || false;
     /**
     The flag to signal a `RecordArray` is currently loading data.
-
+ 
     Example
-
+ 
     ```javascript
     var people = store.peekAll('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
     ```
-
+ 
     @property isUpdating
     @type Boolean
     */
@@ -72,48 +67,25 @@ export default ArrayProxy.extend(Evented, {
 
     /**
     The store that created this record array.
-
+ 
     @property store
     @private
     @type DS.Store
     */
     this.store = this.store || null;
     this._updatingPromise = null;
-  },
+  }
 
-  replace() {
-    throw new Error(
-      `The result of a server query (for all ${
-        this.modelName
-      } types) is immutable. To modify contents, use toArray()`
-    );
-  },
+  get length() {
+    return this.content ? this.content.length : 0;
+  }
 
-  /**
-   The modelClass represented by this record array.
+  objectAt(index) {
+    let internalModel = super.objectAt(index);
+    let v = internalModel && internalModel.getRecord();
 
-   @property type
-   @type DS.Model
-   */
-  type: computed('modelName', function() {
-    if (!this.modelName) {
-      return null;
-    }
-    return this.store.modelFor(this.modelName);
-  }).readOnly(),
-
-  /**
-    Retrieves an object from the content by index.
-
-    @method objectAtContent
-    @private
-    @param {Number} index
-    @return {DS.Model} record
-  */
-  objectAtContent(index) {
-    let internalModel = get(this, 'content').objectAt(index);
-    return internalModel && internalModel.getRecord();
-  },
+    return v;
+  }
 
   /**
     Used to get the latest version of all of the records in this array
@@ -135,7 +107,7 @@ export default ArrayProxy.extend(Evented, {
     @method update
   */
   update() {
-    if (get(this, 'isUpdating')) {
+    if (this.isUpdating) {
       return this._updatingPromise;
     }
 
@@ -143,7 +115,7 @@ export default ArrayProxy.extend(Evented, {
 
     let updatingPromise = this._update().finally(() => {
       this._updatingPromise = null;
-      if (this.get('isDestroying') || this.get('isDestroyed')) {
+      if (this.isDestroying || this.isDestroyed) {
         return;
       }
       this.set('isUpdating', false);
@@ -152,15 +124,15 @@ export default ArrayProxy.extend(Evented, {
     this._updatingPromise = updatingPromise;
 
     return updatingPromise;
-  },
+  }
 
   /*
-    Update this RecordArray and return a promise which resolves once the update
+    Update this RecordArray and return a promise which resolves the update
     is finished.
    */
   _update() {
     return this.store.findAll(this.modelName, { reload: true });
-  },
+  }
 
   /**
     Adds an internal model to the `RecordArray` without duplicates
@@ -170,11 +142,8 @@ export default ArrayProxy.extend(Evented, {
     @param {InternalModel} internalModel
   */
   _pushInternalModels(internalModels) {
-    // pushObjects because the internalModels._recordArrays set was already
-    // consulted for inclusion, so addObject and its on .contains call is not
-    // required.
-    get(this, 'content').pushObjects(internalModels);
-  },
+    this._pushObjects(internalModels);
+  }
 
   /**
     Removes an internalModel to the `RecordArray`.
@@ -184,8 +153,8 @@ export default ArrayProxy.extend(Evented, {
     @param {InternalModel} internalModel
   */
   _removeInternalModels(internalModels) {
-    get(this, 'content').removeObjects(internalModels);
-  },
+    this._removeObjects(internalModels);
+  }
 
   /**
     Saves all of the records in the `RecordArray`.
@@ -212,17 +181,17 @@ export default ArrayProxy.extend(Evented, {
     );
 
     return PromiseArray.create({ promise });
-  },
+  }
 
   _dissociateFromOwnRecords() {
-    this.get('content').forEach(internalModel => {
+    this.content.forEach(internalModel => {
       let recordArrays = internalModel.__recordArrays;
 
       if (recordArrays) {
         recordArrays.delete(this);
       }
     });
-  },
+  }
 
   /**
     @method _unregisterFromManager
@@ -230,8 +199,9 @@ export default ArrayProxy.extend(Evented, {
   */
   _unregisterFromManager() {
     this.manager.unregisterRecordArray(this);
-  },
+  }
 
+  // move to destroy when we kill MutableArray
   willDestroy() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
@@ -243,9 +213,7 @@ export default ArrayProxy.extend(Evented, {
     //     and must be informed to release e.g. e.g. removing itself from th
     //     recordArrayMananger
     set(this, 'content', null);
-    set(this, 'length', 0);
-    this._super(...arguments);
-  },
+  }
 
   /*
     @method _createSnapshot
@@ -253,14 +221,22 @@ export default ArrayProxy.extend(Evented, {
   */
   _createSnapshot(options) {
     // this is private for users, but public for ember-data internals
-    return new SnapshotRecordArray(this, this.get('meta'), options);
-  },
+    return new SnapshotRecordArray(this, this.meta, options);
+  }
 
   /*
     @method _takeSnapshot
     @private
   */
   _takeSnapshot() {
-    return get(this, 'content').map(internalModel => internalModel.createSnapshot());
-  },
-});
+    return this.content.map(internalModel => internalModel.createSnapshot());
+  }
+
+  replace() {
+    throw new Error(
+      `The result of a server query (for all ${
+        this.modelName
+      } types) is immutable. To modify contents, use toArray()`
+    );
+  }
+}

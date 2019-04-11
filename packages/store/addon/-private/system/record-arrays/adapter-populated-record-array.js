@@ -42,26 +42,25 @@ import cloneNull from '../clone-null';
   @namespace DS
   @extends DS.RecordArray
 */
-export default RecordArray.extend({
-  init() {
-    // yes we are touching `this` before super, but ArrayProxy has a bug that requires this.
-    this.set('content', this.get('content') || A());
-
-    this._super(...arguments);
+export default class AdapterPopulatedRecordArray extends RecordArray {
+  constructor() {
+    super(...arguments);
     this.query = this.query || null;
     this.links = this.links || null;
-  },
+    this.meta = this.meta || null;
+    this.set('content', this.content || A());
+  }
 
   replace() {
     throw new Error(`The result of a server query (on ${this.modelName}) is immutable.`);
-  },
+  }
 
   _update() {
     let store = get(this, 'store');
     let query = get(this, 'query');
 
     return store._query(this.modelName, query, this);
-  },
+  }
 
   /**
     @method _setInternalModels
@@ -73,8 +72,10 @@ export default RecordArray.extend({
     // TODO: initial load should not cause change events at all, only
     // subsequent. This requires changing the public api of adapter.query, but
     // hopefully we can do that soon.
-    this.get('content').setObjects(internalModels);
-
+    const originalLength = this.length;
+    this.arrayContentWillChange(0, originalLength, internalModels.length);
+    this.content.setObjects(internalModels);
+    this.arrayContentDidChange(0, originalLength, internalModels.length);
     this.setProperties({
       isLoaded: true,
       isUpdating: false,
@@ -86,5 +87,5 @@ export default RecordArray.extend({
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     once(this, 'trigger', 'didLoad');
-  },
-});
+  }
+}
