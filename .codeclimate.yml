@@ -3,14 +3,20 @@ languages:
   JavaScript: true
 
 exclude_paths:
-  - "tests/*"
-  - "generators/*"
-  - "blueprints/*"
-  - "bin/*"
-  - "lib/*"
-  - "node-tests/*"
+  - 'tests/*'
+  - 'generators/*'
+  - 'blueprints/*'
+  - 'bin/*'
+  - 'lib/*'
+  - 'node-tests/*'
+  - 'packages/*/tests/*'
+  - 'packages/*/generators/*'
+  - 'packages/*/blueprints/*'
+  - 'packages/*/bin/*'
+  - 'packages/*/lib/*'
+  - 'packages/*/node-tests/*'
 
-version: "2"         # required to adjust maintainability checks
+version: '2' # required to adjust maintainability checks
 checks:
   argument-count:
     config:
