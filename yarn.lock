@@ -4893,10 +4893,10 @@ ember-cli-typescript-blueprints@*, ember-cli-typescript-blueprints@^2.0.0-beta.1
     inflection "^1.12.0"
     silent-error "^1.1.0"
 
-ember-cli-typescript@^2.0.0-rc.2:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/ember-cli-typescript/-/ember-cli-typescript-2.0.0.tgz#c31f7b649892ff8f7bb518539ccfa336d0613965"
-  integrity sha512-UUm/uMI1ToBQMmr5aiArEhHiCTyARXNxzbQxU+Yf1cBKuIXbDFTa/jdS55wt2o8qCPNay8v90m2C0Nvk3KuAEQ==
+ember-cli-typescript@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ember-cli-typescript/-/ember-cli-typescript-2.0.1.tgz#9c46729213b9e1d13f5c3ff8421d772134aa889e"
+  integrity sha512-xwSEQOUNM621Wt+XJWpbLhBIeqC/dM1lDS+oZQ2nSjxp4MLZkpKuiVBqdbBWcURbvv8ghoVQPfy8wYU4JIFkLA==
   dependencies:
     "@babel/plugin-proposal-class-properties" "^7.1.0"
     "@babel/plugin-transform-typescript" "^7.1.0"
@@ -4907,7 +4907,7 @@ ember-cli-typescript@^2.0.0-rc.2:
     fs-extra "^7.0.0"
     resolve "^1.5.0"
     rsvp "^4.8.1"
-    semver "^5.5.1"
+    semver "^6.0.0"
     stagehand "^1.0.0"
     walk-sync "^1.0.0"
 
