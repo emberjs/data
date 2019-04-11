@@ -27,7 +27,7 @@ stages:
   - additional tests
   - ember version tests
   - name: external partner tests
-    if: NOT (branch ~= /^(release|lts).*/)
+    if: NOT (branch ~= /^(release|lts)*/)
   - name: deploy
     if: type = push AND (branch IN (master, beta, release) OR tag IS present)
 
@@ -38,7 +38,7 @@ jobs:
     # runs tests with current locked deps and linting
     - stage: test
       name: 'Linting'
-      if: NOT (branch ~= /^(release|lts).*/)
+      if: NOT (branch ~= /^(release|lts)*/)
       script:
         - yarn lint:features
         - yarn lint:js
@@ -47,7 +47,7 @@ jobs:
 
     - stage: additional tests
       name: 'Optional Features'
-      if: NOT (branch ~= /^(release|lts).*/)
+      if: NOT (branch ~= /^(release|lts)*/)
       install: yarn install
       script: yarn test:optional-features
 
@@ -75,13 +75,13 @@ jobs:
     - name: 'Ember LTS 3.8'
       env: EMBER_TRY_SCENARIO=ember-lts-3.8
     - name: 'Ember Release'
-      if: NOT (branch ~= /^(release|lts).*/)
+      if: NOT (branch ~= /^(release|lts)*/)
       env: EMBER_TRY_SCENARIO=ember-release
     - name: 'Ember Beta'
-      if: NOT (branch ~= /^(release|lts).*/)
+      if: NOT (branch ~= /^(release|lts)*/)
       env: EMBER_TRY_SCENARIO=ember-beta
     - name: 'Ember Canary'
-      if: NOT (branch ~= /^(release|lts).*/)
+      if: NOT (branch ~= /^(release|lts)*/)
       env: EMBER_TRY_SCENARIO=ember-canary
 
     # runs tests against various open-source projects for early-warning regression analysis
