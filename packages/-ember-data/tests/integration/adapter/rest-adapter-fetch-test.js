@@ -65,7 +65,11 @@ module('RESTAdapter - fetch', function(hooks) {
 
       assert.equal(posts.get('length'), 2, 'The posts are in the array');
       assert.equal(posts.get('isLoaded'), true, 'The RecordArray is loaded');
-      assert.deepEqual(posts.toArray(), [post1, post2], 'The correct records are in the array');
+      assert.deepEqual(
+        posts.toArray().map(p => p.name),
+        ['Rails is omakase', 'The Parley Letter'],
+        'The correct records are in the array'
+      );
     });
   });
 });

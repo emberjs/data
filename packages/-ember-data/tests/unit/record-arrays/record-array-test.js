@@ -379,7 +379,6 @@ test('#destroy', function(assert) {
     1,
     'after destroy, we should have dissociated from own record array'
   );
-  recordArray.destroy();
 
   assert.strictEqual(get(recordArray, 'content'), null);
   assert.equal(get(recordArray, 'length'), 0, 'after destroy we should have no length');

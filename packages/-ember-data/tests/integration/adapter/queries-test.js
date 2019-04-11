@@ -99,26 +99,26 @@ test('a query can be updated via `update()`', function(assert) {
     return store
       .query('person', {})
       .then(query => {
-        assert.equal(query.get('length'), 1);
-        assert.equal(query.get('firstObject.id'), 'first');
-        assert.equal(query.get('isUpdating'), false);
+        assert.equal(query.get('length'), 1, 'we have one person');
+        assert.equal(query.get('firstObject.id'), 'first', 'the right person is present');
+        assert.equal(query.get('isUpdating'), false, 'we are not updating');
 
         adapter.query = function() {
-          assert.ok('query is called a second time');
+          assert.ok(true, 'query is called a second time');
           return resolve({ data: [{ id: 'second', type: 'person' }] });
         };
 
         let updateQuery = query.update();
 
-        assert.equal(query.get('isUpdating'), true);
+        assert.equal(query.get('isUpdating'), true, 'we are updating');
 
         return updateQuery;
       })
       .then(query => {
-        assert.equal(query.get('length'), 1);
-        assert.equal(query.get('firstObject.id'), 'second');
+        assert.equal(query.get('length'), 1, 'we still have one person');
+        assert.equal(query.get('firstObject.id'), 'second', 'now it is a different person');
 
-        assert.equal(query.get('isUpdating'), false);
+        assert.equal(query.get('isUpdating'), false, 'we are no longer updating');
       });
   });
 });
