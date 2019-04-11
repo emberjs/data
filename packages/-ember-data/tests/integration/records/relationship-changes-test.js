@@ -455,12 +455,14 @@ test('Calling push with relationship does not trigger observers if the relations
     person = store.peekRecord('person', 'wat');
   });
 
+  const observerMethod = function() {
+    observerCount++;
+  };
+
   run(() => {
     // prime the pump
     person.get('siblings');
-    person.addObserver('siblings.[]', function() {
-      observerCount++;
-    });
+    person.addObserver('siblings.[]', observerMethod);
   });
 
   run(() => {
@@ -482,6 +484,8 @@ test('Calling push with relationship does not trigger observers if the relations
   run(() => {
     assert.equal(observerCount, 0, 'siblings observer should not be triggered');
   });
+
+  person.removeObserver('siblings.[]', observerMethod);
 });
 
 test('Calling push with relationship triggers willChange and didChange with detail when appending', function(assert) {
