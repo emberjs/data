@@ -119,7 +119,7 @@ export default class RecordArrayManager {
 
     if (hasPendingChanges) {
       this._flushPendingInternalModelsForModelName(modelName, pending);
-      delete pending[modelName];
+      delete this._pending[modelName];
     }
 
     let internalModels = this._visibleInternalModelsByType(modelName);
