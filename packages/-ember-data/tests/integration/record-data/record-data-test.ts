@@ -5,6 +5,7 @@ import Store from 'ember-data/store';
 import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
+import EmberObject from '@ember/object';
 
 class Person extends Model {
   // TODO fix the typing for naked attrs
@@ -28,6 +29,9 @@ class House extends Model {
 // TODO: this should work
 // class TestRecordData implements RecordData
 class TestRecordData {
+  // Use correct interface once imports have been fix
+  _storeWrapper: any;
+
   pushData(data, calculateChange?: boolean) { }
   clientDidCreate() { }
 
@@ -226,7 +230,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
     });
 
-    let TestAdapter = Ember.Object.extend({
+    let TestAdapter = EmberObject.extend({
       updateRecord() {
         called++;
         if (called === 1) {
@@ -380,6 +384,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
     let belongsToReturnValue = { data: { id: '1', type: 'person' } };
 
     class RelationshipRecordData extends TestRecordData {
+
       constructor(storeWrapper) {
         super();
         this._storeWrapper = storeWrapper;
@@ -390,7 +395,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
         return belongsToReturnValue;
       }
 
-      setDirtyBelongsTo(key: string, recordData: this | null) {
+      // Use correct interface once imports have been fix
+      setDirtyBelongsTo(key: string, recordData: any) {
         assert.equal(key, 'landlord', 'Passed correct key to setBelongsTo');
         assert.equal(recordData.id, '2', 'Passed correct RD to setBelongsTo');
       }
@@ -504,7 +510,8 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       // TODO: investigate addToHasMany being called during unloading 
-      addToHasMany(key: string, recordDatas: this[], idx?: number) {
+      // Use correct interface once imports have been fix
+      addToHasMany(key: string, recordDatas: any[], idx?: number) {
         // dealing with getting called during unload
         if (calledAddToHasMany === 1) {
           return;
@@ -514,7 +521,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledAddToHasMany++;
       }
 
-      removeFromHasMany(key: string, recordDatas: this[]) {
+      removeFromHasMany(key: string, recordDatas: any[]) {
         // dealing with getting called during unload
         if (calledRemoveFromHasMany === 1) {
           return;
@@ -524,7 +531,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         calledRemoveFromHasMany++;
       }
       
-      setDirtyHasMany(key: string, recordDatas: this[]) {
+      setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
       }
@@ -590,7 +597,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
       }
 
       // TODO: investigate addToHasMany being called during unloading 
-      addToHasMany(key: string, recordDatas: this[], idx?: number) {
+      addToHasMany(key: string, recordDatas: any[], idx?: number) {
         // dealing with getting called during unload
         if (calledAddToHasMany === 1) {
           return;
@@ -603,7 +610,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
 
-      removeFromHasMany(key: string, recordDatas: this[]) {
+      removeFromHasMany(key: string, recordDatas: any[]) {
         // dealing with getting called during unload
         if (calledRemoveFromHasMany === 1) {
           return;
@@ -615,7 +622,7 @@ module('integration/record-data - Custom RecordData Implementations', function (
         this._storeWrapper.notifyHasManyChange('house', '1', null, 'tenants');
       }
       
-      setDirtyHasMany(key: string, recordDatas: this[]) {
+      setDirtyHasMany(key: string, recordDatas: any[]) {
         assert.equal(key, 'tenants', 'Passed correct key to addToHasMany');
         assert.equal(recordDatas[0].id, '3', 'Passed correct RD to addToHasMany');
         hasManyReturnValue = { data: [{ id: '1', type: 'person'} , { id: '2', type: 'person' }] };
