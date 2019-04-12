@@ -3,7 +3,7 @@ language: node_js
 sudo: false
 dist: trusty
 node_js:
-  - "10"
+  - '10'
 
 addons:
   chrome: stable
@@ -27,97 +27,90 @@ stages:
   - additional tests
   - ember version tests
   - name: external partner tests
-    if: NOT (branch ~= /^(release|lts).*/)
-  - name: deploy
-    if: type = push AND (branch IN (master, beta, release) OR tag IS present)
+    if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
 
 jobs:
   fail_fast: true
+  allow_failures:
+    - name: 'Ember Data Factory Guy'
 
   include:
     # runs tests with current locked deps and linting
     - stage: test
-      name: "Linting"
-      if: NOT (branch ~= /^(release|lts).*/)
+      name: 'Linting'
+      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       script:
-        - ./bin/lint-features
+        - yarn lint:features
         - yarn lint:js
-    - name: "Basic Tests"
+    - name: 'Basic Tests'
       script: yarn test
 
     - stage: additional tests
-      name: "Optional Features"
-      if: NOT (branch ~= /^(release|lts).*/)
-      install: yarn install
-      script: yarn test:optional-features
 
-    - name: "Floating Dependencies"
+      name: 'Enabled In-Progress Features'
+      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      install: yarn install
+      script: yarn test:enabled-in-progress-features
+
+    - name: 'Floating Dependencies'
       install: yarn install --no-lockfile --non-interactive
       script: yarn test
 
-    - name: "Production"
+    - name: 'Production'
       install: yarn install
       script: yarn test:production
 
-    - name: "Max Transpilation"
+    - name: 'Max Transpilation'
       install: yarn install
       env: TARGET_IE11=true
       script: yarn test
 
-    - name: "Node Tests"
+    - name: 'Node Tests'
       install: yarn install
       script: yarn test:node
 
     # runs tests against each supported Ember version
     - stage: ember version tests
-      name: "Ember LTS 2.18"
-      env: EMBER_TRY_SCENARIO=ember-lts-2.18
-    - name: "Ember LTS 3.4"
+      name: 'Ember LTS 3.4'
       env: EMBER_TRY_SCENARIO=ember-lts-3.4
-    - name: "Ember Release"
-      if: NOT (branch ~= /^(release|lts).*/)
+    - name: 'Ember LTS 3.8'
+      env: EMBER_TRY_SCENARIO=ember-lts-3.8
+    - name: 'Ember Release'
+      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release
-    - name: "Ember Beta"
-      if: NOT (branch ~= /^(release|lts).*/)
+    - name: 'Ember Beta'
+      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-beta
-    - name: "Ember Canary"
-      if: NOT (branch ~= /^(release|lts).*/)
+    - name: 'Ember Canary'
+      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-canary
 
     # runs tests against various open-source projects for early-warning regression analysis
     # We typically have 4 concurrent jobs, these jobs below are ordered to optimize total completion time
     # By running longer jobs first, we allow the shorter jobs to complete within the same time block in parallel
     - stage: external partner tests
-      name: "Ilios Frontend" # ~30min job
+      name: 'Ilios Frontend' # ~30min job
       script: yarn test-external:ilios-frontend
-    - name: "Travis Web" # ~10min job
+    - name: 'Travis Web' # ~10min job
       script: yarn test-external:travis-web
-    - name: "Ember Data Storefront" # ~5min job
+    - name: 'Ember Data Storefront' # ~5min job
       script: yarn test-external:storefront
-    - name: "Ember Data Factory Guy" # ~5min job
+    - name: 'Ember Data Factory Guy' # ~5min job
       script: yarn test-external:factory-guy
-    - name: "Ember Observer" # ~5min job
+    - name: 'Ember Observer' # ~5min job
       script: yarn test-external:ember-observer
-    - name: "Ember Resource Metadata" # ~4.25min job
+    - name: 'Ember Resource Metadata' # ~4.25min job
       script: yarn test-external:ember-resource-metadata
-    - name: "Ember Data Relationship Tracker" # ~4.25min job
+    - name: 'Ember Data Relationship Tracker' # ~4.25min job
       script: yarn test-external:ember-data-relationship-tracker
-    - name: "Ember Data Model Fragments" # ~3.5min job
+    - name: 'Ember Data Model Fragments' # ~3.5min job
       script: yarn test-external:model-fragments
-    - name: "emberaddons.com" # ~3.5min job
+    - name: 'emberaddons.com' # ~3.5min job
       script: yarn test-external:emberaddons.com
-    - name: "Ember Data Change Tracker" # ~3.5min job
+    - name: 'Ember Data Change Tracker' # ~3.5min job
       script: yarn test-external:ember-data-change-tracker
-    - name: "ember-m3" # ~3.5min job
+    - name: 'ember-m3' # ~3.5min job
       script: yarn test-external:ember-m3
-
-    - stage: deploy
-      name: "Publish"
-      install: yarn install
-      script:
-        - node_modules/.bin/ember try:reset
-        - yarn build:production
-
 
 before_install:
   - curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -125,25 +118,6 @@ before_install:
 
 install:
   - yarn install
-  - yarn add global bower
 
 script:
-  - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO --skip-cleanup
-
-env:
-  global:
-  - BROCCOLI_ENV="production"
-  - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
-  - S3_BUCKET_NAME=builds.emberjs.com
-  - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
-
-      gsxElZtB2kpyUq81gWgZcuygO53mcBuCa4rPIsh0Di6Ik+HDELSFVZ4EN4NK
-
-      z9yP6D7pMY+RnlSvErf3OXSzrxkDcXDxCU4ljBJl1rNBbtAOu5E='
-  - secure: ! 'YjnT2cF8K0M2fSkab+PY3j8XzumBrjzeGsAN4jtyw4shqnywFaE68qO1IIjY
-
-      UvaE/CbWMxO/6FszR02gJHaF+YyfU5WAS0ahFFLHuC1twMtQPxi+nScjKZEs
-
-      kLwKiKgRNhindV3WvbUcoiIrmrgBMCiBRRd4eyVBlhbZ8RTo1Ig='
-
-  - secure: "hJZXijsot2wMiMsxbDImH+nB5v77a7O7lQ7bicOQEQxmnTtXSvqfa4X4vQ/d4o7NNYYYHUuOpyILgRV+arqI6UOi7XEVGka/7M5q58R5exS6bk0cY0jnpUhUVW/8mpKEUgcVeE6mIDWaR090l3uaT2JhU/WSLkzbj45e38HaF/4="
+  - yarn test:try-one $EMBER_TRY_SCENARIO --skip-cleanup

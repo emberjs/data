@@ -2,6 +2,38 @@
 
 ### Master
 
+### Release 3.9.0 (April 8, 2019)
+
+- [1ebff8cb](https://github.com/emberjs/data/commit/1ebff8cb4bcd848e797a056f8cab9a80405772d8) [DOCS] [BUGFIX] Get model relationships by string
+- [a095bebf](https://github.com/emberjs/data/commit/a095bebf1ac94a116dcfd1919fd454c962b0bb13) [DOCS] [BUGFIX] Adding type to forEach app serializer
+- [d13e7840](https://github.com/emberjs/data/commit/d13e7840e6dead927842f095c3c8f2a4537abf50) [DOC serializeHasMany ] Update ember-data imports
+- [2858c32d](https://github.com/emberjs/data/commit/2858c32dbc9458bb28f95c31a5afdeb7a499ea35) [DOCS] [BUGFIX] recordRef push param must be with type
+- [328e1b4f](https://github.com/emberjs/data/commit/328e1b4ff81ac3beb5688bed60717b049f7aa671) [DOCS] [BUGFIX] Added attributes wrapper object
+- [4fdde1ed](https://github.com/emberjs/data/commit/4fdde1edb36372913f8e5271180e95cc5d47ccac) [BUGFIX #5918] Fix promise not being returned
+- [1dbe1015](https://github.com/emberjs/data/commit/1dbe10158fc3b5e36bdf3fb202b744a82a8a1756) [DOCS] [BUGFIX] generateIdForRecord api doc #5803
+- [739f78e3](https://github.com/emberjs/data/commit/739f78e381762525b90bbf91c96578b2ca418e62) [BUGFIX canary] eliminate recordData prop restriction
+- [a61651df](https://github.com/emberjs/data/commit/a61651df4b6c1e759cf308212b9272055cf4e9a9) [BUGFIX canary] Fix options assignment in json-api adapter
+- [f26d07b6](https://github.com/emberjs/data/commit/f26d07b62e4240f723a822b73d5a196ebee8de22) [BUGFIX fetch] Don't set json:api content-type for DELETE requests
+- [75c77a74](https://github.com/emberjs/data/commit/75c77a7427d397e49e835d00c9c7b7403ef99c26) [FIX transforms] don't instantiate via `new`
+- [081432ce](https://github.com/emberjs/data/commit/081432cec3d3a11388046ffc7ea1dd661172ed27) [FIX ManyArray] Evented.off requires a reference to the original callback
+- [1df83339](https://github.com/emberjs/data/commit/1df833396855d956b817540923dd89338463fec2) [BUGFIX model] assertions around create need to account for Ember's own
+
+### Release 3.8.0 (February 20, 2019)
+
+- [#5671](https://github.com/emberjs/data/pull/5671) Use _scheduleFetch instead of _fetchRecord for belongsTo relationship (#5671)
+- [#5702](https://github.com/emberjs/data/pull/5702) [CHORE reference] update reference to be ES2015
+- [#5763](https://github.com/emberjs/data/pull/5763) Update Release instructions
+- [#5736](https://github.com/emberjs/data/pull/5736) [DOC] Add Reference doc and AdapterError uses
+- [#5733](https://github.com/emberjs/data/pull/5733) [BUGFIX inspector] Fix columns names in debug-adapter (#5733)
+- [#5735](https://github.com/emberjs/data/pull/5735) Clarify load/reload behavior
+- [#5721](https://github.com/emberjs/data/pull/5721) [BUGFIX 5720] - assert that replacing has-many with non-array throws assertion
+- [#5749](https://github.com/emberjs/data/pull/5749) [DOC beta] Fix broken links
+- [#5743](https://github.com/emberjs/data/pull/5743) drop use of MODEL_FACTORY_FOR
+
+### Release 3.7.0 (January 8, 2019)
+
+- Re-release of 3.6.0
+
 ### Release 3.6.0 (December 12, 2018)
 
 - [#5671](https://github.com/emberjs/data/pull/5671) Fix issue preventing coalescing of belongsTo

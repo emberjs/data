@@ -3,11 +3,10 @@
 # Test against these versions of Node.js.
 environment:
   matrix:
-    - nodejs_version: "6"
+    - nodejs_version: '6'
 
 cache:
   - '%LOCALAPPDATA%\Yarn'
-  - '%APPDATA%\Roaming\bower'
 
 # Install scripts. (runs after repo cloning)
 install:
@@ -20,7 +19,7 @@ install:
 test_script:
   # Output useful info for debugging.
   - cmd: yarn test
-  - cmd: yarn test:optional-features
+  - cmd: yarn test:enabled-in-progress-features
   - cmd: yarn test:production
   - cmd: yarn test:node
 
@@ -28,4 +27,4 @@ test_script:
 build: off
 
 # Set build version format here instead of in the admin panel.
-version: "{build}"
+version: '{build}'

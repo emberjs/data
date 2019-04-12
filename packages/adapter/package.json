@@ -1,0 +1,53 @@
+{
+  "name": "@ember-data/adapter",
+  "version": "0.0.0",
+  "description": "The default blueprint for ember-cli addons.",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "start": "ember serve",
+    "test": "ember test",
+    "test:all": "ember try:each"
+  },
+  "dependencies": {
+    "@ember-data/-build-infra": "^0.0.0",
+    "ember-cli-babel": "^7.7.3",
+    "ember-cli-typescript": "^2.0.1"
+  },
+  "devDependencies": {
+    "@ember/optional-features": "*",
+    "broccoli-asset-rev": "*",
+    "ember-cli": "*",
+    "ember-cli-dependency-checker": "*",
+    "ember-cli-htmlbars": "*",
+    "ember-cli-htmlbars-inline-precompile": "*",
+    "ember-cli-inject-live-reload": "*",
+    "ember-cli-sri": "*",
+    "ember-cli-uglify": "*",
+    "ember-disable-prototype-extensions": "*",
+    "ember-export-application-global": "*",
+    "ember-load-initializers": "*",
+    "ember-maybe-import-regenerator": "*",
+    "ember-qunit": "*",
+    "ember-resolver": "*",
+    "ember-source": "*",
+    "ember-source-channel-url": "*",
+    "ember-try": "*",
+    "loader.js": "*"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
+}

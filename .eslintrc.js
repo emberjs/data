@@ -1,55 +1,67 @@
 module.exports = {
+  parser: 'babel-eslint',
   root: true,
   parserOptions: {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  parser: 'babel-eslint',
-  extends: ['eslint:recommended', 'prettier'],
   plugins: ['prettier'],
+  extends: ['eslint:recommended', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
 
-    'no-unused-vars': ['error', {
-      'args': 'none',
-    }],
+    'no-unused-vars': [
+      'error',
+      {
+        args: 'none',
+      },
+    ],
 
-    // from JSHint
     'no-cond-assign': ['error', 'except-parens'],
-    'eqeqeq': 'error',
+    eqeqeq: 'error',
     'no-eval': 'error',
-    'new-cap': ['error', {
-      'capIsNew': false,
-    }],
+    'new-cap': [
+      'error',
+      {
+        capIsNew: false,
+      },
+    ],
     'no-caller': 'error',
     'no-irregular-whitespace': 'error',
     'no-undef': 'error',
     'no-eq-null': 'error',
   },
+  globals: {
+    heimdall: true,
+    Map: false,
+    WeakMap: true,
+  },
+  env: {
+    browser: true,
+    node: false,
+  },
   overrides: [
     // node files
     {
       files: [
-        'ember-cli-build.js',
-        'index.js',
-        'testem.js',
-        'lib/**/*.js',
-        'blueprints/*/index.js',
-        'blueprints/*.js',
-        'config/**/*.js',
-        'tests/dummy/config/**/*.js',
-        'node-tests/**',
-        'bin/**',
+        '.eslintrc.js',
+        '.prettierrc.js',
+        'packages/-build-infra/src/**/*.js',
+        'packages/*/ember-cli-build.js',
+        'packages/*/index.js',
+        'packages/*/testem.js',
+        'packages/*/bin/**',
+        'packages/*/blueprints/*/index.js',
+        'packages/*/blueprints/*.js',
+        'packages/*/config/**/*.js',
+        'packages/*/lib/**/*.js',
+        'packages/*/node-tests/**',
+        'packages/*/tests/dummy/config/**/*.js',
       ],
-      excludedFiles: [
-        'addon/**',
-        'addon-test-support/**',
-        'app/**',
-        'tests/dummy/app/**'
-      ],
+      excludedFiles: ['packages/*/addon/**/index.js'],
       parserOptions: {
         sourceType: 'script',
-        ecmaVersion: 2015
+        ecmaVersion: 2015,
       },
       env: {
         browser: false,
@@ -57,52 +69,19 @@ module.exports = {
         es6: true,
       },
       plugins: ['node'],
+      // eslint-disable-next-line node/no-unpublished-require
       rules: Object.assign({}, require('eslint-plugin-node').configs.recommended.rules, {
         // add your custom rules and overrides for node files here
-      })
-    },
-
-    // browser files
-    {
-      files: [
-        'addon/**',
-        'app/**',
-        'tests/**',
-      ],
-      excludedFiles: [
-        'tests/dummy/config/**'
-      ],
-      env: {
-        browser: true,
-        node: false,
-      },
-      globals: {
-        heimdall: true,
-        Map: false,
-        WeakMap: true,
-      }
-    },
-
-    // browser tests
-    {
-      files: [
-        'tests/**'
-      ],
-
-      rules: {
-        'no-console': 0
-      }
+      }),
     },
 
     // node tests
     {
-      files: [
-        'node-tests/**'
-      ],
+      files: ['packages/*/node-tests/**', 'node-tests/**'],
 
       env: {
         mocha: true,
-      }
-    }
+      },
+    },
   ],
 };
