@@ -1,7 +1,7 @@
 import { mapBy, not } from '@ember/object/computed';
 import Evented from '@ember/object/evented';
 import ArrayProxy from '@ember/array/proxy';
-import { set, get, computed } from '@ember/object';
+import { get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
 
 /**
@@ -320,7 +320,7 @@ export default ArrayProxy.extend(Evented, {
     }
 
     let content = this.rejectBy('attribute', attribute);
-    set(this, 'content', content);
+    get(this, 'content').setObjects(content);
     get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
