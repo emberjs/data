@@ -212,6 +212,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     let count = 0;
     class RecordDataForTest extends TestRecordData {
+      id: string;
+
       constructor(storeWrapper, id) {
         super();
         count++;
@@ -250,6 +252,8 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
 
     let count = 0;
     class RecordDataForTest extends TestRecordData {
+      id: string;
+
       constructor(storeWrapper, id, clientId) {
         super();
         storeWrapper.setRecordId('house', '17', clientId)
