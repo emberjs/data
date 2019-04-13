@@ -6,7 +6,7 @@ import { get } from '@ember/object';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import Model from '@ember-data/model';
 import { settled } from '@ember/test-helpers';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { attr } from '@ember-data/model';
 
 class Person extends Model {
   @attr()
