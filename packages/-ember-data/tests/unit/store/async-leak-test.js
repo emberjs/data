@@ -8,7 +8,7 @@ import { Promise } from 'rsvp';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
 import test from '../../helpers/test-in-debug';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { attr } from '@ember-data/model';
 
 class Person extends Model {
   @attr()

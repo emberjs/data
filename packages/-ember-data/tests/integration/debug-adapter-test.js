@@ -6,7 +6,7 @@ import Model from '@ember-data/model';
 import Adapter from '@ember-data/adapter';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
-import { attr, hasMany, belongsTo } from '@ember-data/model';
+import { attr } from '@ember-data/model';
 
 class Post extends Model {
   @attr()

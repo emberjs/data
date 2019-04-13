@@ -19,7 +19,7 @@ import {
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
-const { attr, hasMany, belongsTo } = DS;
+const { attr, belongsTo } = DS;
 
 let env, store, User, Message, Post, Comment, Book, Book1, Chapter, Author, NewMessage, Section;
 
