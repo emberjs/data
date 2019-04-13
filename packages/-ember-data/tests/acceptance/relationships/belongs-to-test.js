@@ -4,15 +4,15 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
 import { render, settled } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { attr, hasMany, belongsTo } from '@ember-decorators/data';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import { Promise, resolve, reject } from 'rsvp';
 import { ServerError } from '@ember-data/adapter/error';
 import Ember from 'ember';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
   @hasMany('person', { async: true, inverse: 'parent' })
   children;
@@ -25,7 +25,7 @@ class Person extends Model {
 class Pet extends Model {
   @belongsTo('person', { inverse: 'bestDog', async: false })
   bestHuman;
-  @attr
+  @attr()
   name;
 }
 

@@ -6,7 +6,7 @@ import Store from '@ember-data/store';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Model from '@ember-data/model';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('integration/reload - Reloading Records', function(hooks) {
   let store;
@@ -14,13 +14,13 @@ module('integration/reload - Reloading Records', function(hooks) {
 
   hooks.beforeEach(function() {
     class Person extends Model {
-      @attr
+      @attr()
       updatedAt;
-      @attr
+      @attr()
       name;
-      @attr
+      @attr()
       firstName;
-      @attr
+      @attr()
       lastName;
     }
 
@@ -195,13 +195,13 @@ module('integration/reload - Reloading Records', function(hooks) {
 
   test('When a record is reloaded, its async hasMany relationships still work', async function(assert) {
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @hasMany('tag', { async: true, inverse: null })
       tags;
     }
     class Tag extends Model {
-      @attr
+      @attr()
       name;
     }
 
@@ -264,7 +264,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr
+        @attr()
         name;
       }
 
@@ -321,7 +321,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr
+        @attr()
         name;
       }
 
@@ -369,7 +369,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
         owners;
-        @attr
+        @attr()
         name;
       }
 
@@ -429,7 +429,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
         owners;
-        @attr
+        @attr()
         name;
       }
 
@@ -482,7 +482,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr
+        @attr()
         name;
       }
 
@@ -542,7 +542,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @belongsTo('person', { async: false, inverse: null })
         owner;
-        @attr
+        @attr()
         name;
       }
 
@@ -593,7 +593,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
         owners;
-        @attr
+        @attr()
         name;
       }
 
@@ -658,7 +658,7 @@ module('integration/reload - Reloading Records', function(hooks) {
       class Pet extends Model {
         @hasMany('person', { async: false, inverse: null })
         owners;
-        @attr
+        @attr()
         name;
       }
 

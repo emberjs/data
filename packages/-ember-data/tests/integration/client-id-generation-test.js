@@ -4,7 +4,7 @@ import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
 import Model from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('integration - Client Id Generation', function(hooks) {
   setupTest(hooks);
@@ -15,13 +15,13 @@ module('integration - Client Id Generation', function(hooks) {
     let { owner } = this;
 
     class Comment extends Model {
-      @attr
+      @attr()
       text;
       @belongsTo('post', { async: false, inverse: 'comments' })
       post;
     }
     class Post extends Model {
-      @attr
+      @attr()
       title;
       @hasMany('comment', { async: false, inverse: 'post' })
       comments;

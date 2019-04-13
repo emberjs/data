@@ -5,20 +5,20 @@ import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import Model from '@ember-data/model';
-import { attr } from '@ember-decorators/data';
 import { settled } from '@ember/test-helpers';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   updatedAt;
 
-  @attr
+  @attr()
   name;
 
-  @attr
+  @attr()
   firstName;
 
-  @attr
+  @attr()
   lastName;
 
   toString() {

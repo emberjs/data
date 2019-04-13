@@ -5,13 +5,13 @@ import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import { Promise } from 'rsvp';
-import { attr } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
 import Ember from 'ember';
 import test from '../../helpers/test-in-debug';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
 }
 

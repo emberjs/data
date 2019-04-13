@@ -5,14 +5,14 @@ import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import { resolve } from 'rsvp';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
   pets;
   @belongsTo('pet', { inverse: 'bestHuman', async: true })
   bestDog;
-  @attr
+  @attr()
   name;
 }
 
@@ -21,7 +21,7 @@ class Pet extends Model {
   owner;
   @belongsTo('person', { inverse: 'bestDog', async: false })
   bestHuman;
-  @attr
+  @attr()
   name;
 }
 

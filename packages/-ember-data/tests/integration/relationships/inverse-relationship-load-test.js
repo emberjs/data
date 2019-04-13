@@ -5,8 +5,8 @@ import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import { resolve } from 'rsvp';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import testInDebug from '../../helpers/test-in-debug';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('inverse relationship load test', function(hooks) {
   let store;
@@ -429,13 +429,13 @@ module('inverse relationship load test', function(hooks) {
         async: true,
       })
       dogs;
-      @attr
+      @attr()
       name;
     }
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
     }
 
@@ -495,7 +495,7 @@ module('inverse relationship load test', function(hooks) {
     );
 
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('dog', { async: true })
       favoriteDog;
@@ -503,7 +503,7 @@ module('inverse relationship load test', function(hooks) {
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('person', { async: true })
       person;
@@ -567,7 +567,7 @@ module('inverse relationship load test', function(hooks) {
     );
 
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('dog', { async: true })
       favoriteDog;
@@ -575,7 +575,7 @@ module('inverse relationship load test', function(hooks) {
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('person', { async: true })
       person;
@@ -639,7 +639,7 @@ module('inverse relationship load test', function(hooks) {
     );
 
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('dog', { async: true, inverse: 'pal' })
       favoriteDog;
@@ -647,7 +647,7 @@ module('inverse relationship load test', function(hooks) {
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('person', { async: true })
       pal;
@@ -711,7 +711,7 @@ module('inverse relationship load test', function(hooks) {
     );
 
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('dog', { async: true, inverse: 'pal' })
       favoriteDog;
@@ -719,7 +719,7 @@ module('inverse relationship load test', function(hooks) {
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('person', { async: true })
       pal;
@@ -783,7 +783,7 @@ module('inverse relationship load test', function(hooks) {
     );
 
     class Person extends Model {
-      @attr
+      @attr()
       name;
       @belongsTo('dog', { async: true })
       favoriteDog;
@@ -791,7 +791,7 @@ module('inverse relationship load test', function(hooks) {
     owner.register('model:person', Person);
 
     class Dog extends Model {
-      @attr
+      @attr()
       name;
     }
     owner.register('model:dog', Dog);

@@ -8,7 +8,6 @@ import JSONAPISerializer from '@ember-data/serializer/json-api';
 import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
-import { attr, belongsTo } from '@ember-decorators/data';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import DS from 'ember-data';
 import {
@@ -20,6 +19,7 @@ import {
 
 const { attr: DSattr, hasMany: DShasMany, belongsTo: DSbelongsTo } = DS;
 const { hash } = RSVP;
+const { attr, hasMany, belongsTo } = DS;
 
 let env, store, User, Message, Post, Comment, Book, Book1, Chapter, Author, NewMessage, Section;
 
@@ -30,14 +30,14 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
   class Person extends Model {
     @belongsTo('pet', { inverse: 'bestHuman', async: true })
     bestDog;
-    @attr
+    @attr()
     name;
   }
 
   class Pet extends Model {
     @belongsTo('person', { inverse: 'bestDog', async: false })
     bestHuman;
-    @attr
+    @attr()
     name;
   }
 

@@ -1,8 +1,8 @@
 import { module, test } from 'qunit';
-import { belongsTo, hasMany, attr } from '@ember-decorators/data';
 import { setupTest } from 'ember-qunit';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import Model from '@ember-data/model';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 module('integration/relationships/inverse_relationships - Inverse Relationships', function(hooks) {
   setupTest(hooks);

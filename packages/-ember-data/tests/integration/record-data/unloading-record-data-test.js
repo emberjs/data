@@ -2,22 +2,22 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import Model from '@ember-data/model';
 import { run } from '@ember/runloop';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { assign } from '@ember/polyfills';
 import { RecordData, recordDataFor } from 'ember-data/-private';
 import { resolve } from 'rsvp';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: null, async: false })
   pets;
-  @attr
+  @attr()
   name;
 }
 
 class Pet extends Model {
   @belongsTo('person', { inverse: null, async: false })
   owner;
-  @attr
+  @attr()
   name;
 }
 
