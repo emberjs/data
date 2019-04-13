@@ -3,13 +3,13 @@ import { A } from '@ember/array';
 import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import Model from '@ember-data/model';
-import { attr } from '@ember-decorators/data';
 import Adapter from '@ember-data/adapter';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Post extends Model {
-  @attr
+  @attr()
   title;
 }
 
@@ -190,10 +190,10 @@ module('integration/debug-adapter - DS.DebugAdapter', function(hooks) {
 
   test('Column names', function(assert) {
     class Person extends Model {
-      @attr
+      @attr()
       title;
 
-      @attr
+      @attr()
       firstOrLastName;
     }
 

@@ -1,12 +1,12 @@
 import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from '@ember-data/model';
-import { attr } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
 }
 

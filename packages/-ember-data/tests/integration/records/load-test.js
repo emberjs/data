@@ -5,12 +5,12 @@ import Store from '@ember-data/store';
 import Model from '@ember-data/model';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
-import { attr, belongsTo } from '@ember-decorators/data';
 import { run } from '@ember/runloop';
 import todo from '../../helpers/todo';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
 
   @belongsTo('person', { async: true, inverse: 'bestFriend' })

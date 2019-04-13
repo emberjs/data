@@ -3,12 +3,12 @@ import { resolve } from 'rsvp';
 import { setupTest } from 'ember-qunit';
 import { settled } from '@ember/test-helpers';
 import Model from '@ember-data/model';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import Adapter from '@ember-data/adapter';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
   @belongsTo('tag', { async: false, inverse: 'people' })
   tag;
@@ -283,7 +283,7 @@ module('unit/record-array - RecordArray', function(hooks) {
 
   test("a loaded record is not removed from a record array when it is deleted even if the belongsTo side isn't defined", async function(assert) {
     class Person extends Model {
-      @attr
+      @attr()
       name;
     }
 

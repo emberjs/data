@@ -2,7 +2,7 @@ import { module, test } from 'qunit';
 import { setupTest } from 'ember-qunit';
 import Store from '@ember-data/store';
 import Model from '@ember-data/model';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @hasMany('pet', { inverse: 'owner', async: false })
@@ -11,14 +11,14 @@ class Person extends Model {
   friends;
   @belongsTo('person', { inverse: 'bestFriend', async: true })
   bestFriend;
-  @attr
+  @attr()
   name;
 }
 
 class Pet extends Model {
   @belongsTo('person', { inverse: 'pets', async: false })
   owner;
-  @attr
+  @attr()
   name;
 }
 

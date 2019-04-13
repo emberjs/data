@@ -4,19 +4,19 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
 import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import { attr, hasMany, belongsTo } from '@ember-decorators/data';
 import JSONAPISerializer from '@ember-data/serializer/json-api';
 import Store from '@ember-data/store';
 import { resolve, reject } from 'rsvp';
 import { ServerError } from '@ember-data/adapter/error';
 import Ember from 'ember';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 function domListToArray(domList) {
   return Array.prototype.slice.call(domList);
 }
 
 class Person extends Model {
-  @attr
+  @attr()
   name;
   @hasMany('person', { async: true, inverse: 'parent' })
   children;

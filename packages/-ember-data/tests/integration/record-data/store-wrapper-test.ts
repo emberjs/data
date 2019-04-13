@@ -2,10 +2,10 @@ import { get } from '@ember/object';
 import { setupTest } from 'ember-qunit';
 import Model from 'ember-data/model';
 import Store from 'ember-data/store';
-import { attr, belongsTo, hasMany } from '@ember-decorators/data';
 import { module, test } from 'qunit';
 import { settled } from '@ember/test-helpers';
 import publicProps from '../../helpers/public-props';
+import { attr, hasMany, belongsTo } from '@ember-data/model';
 
 class Person extends Model {
   @attr('string', {})
@@ -105,7 +105,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         name: 'Moomin'
       }
     };
-    
+
     houseHash2 = {
       type: 'house',
       id: '2',
@@ -259,7 +259,7 @@ module('integration/store-wrapper - RecordData StoreWrapper tests', function (ho
         storeWrapper.setRecordId('house', '17', clientId)
         this.id = '17';
       }
-      
+
     }
 
     let TestStore = Store.extend({
