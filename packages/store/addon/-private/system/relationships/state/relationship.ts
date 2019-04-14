@@ -214,7 +214,8 @@ export default class Relationship {
   }
 
   recordDataDidDematerialize() {
-    if (!this.inverseKey) {
+    const inverseKey = this.inverseKey
+    if (!inverseKey) {
       return;
     }
     // TODO @runspired fairly sure we need to become stale here
@@ -226,8 +227,18 @@ export default class Relationship {
       if (!this._hasSupportForRelationships(inverseRecordData)) {
         return;
       }
-      let relationship = relationshipStateFor(inverseRecordData, this.inverseKey);
-      relationship.inverseDidDematerialize(this.recordData);
+      let relationship = relationshipStateFor(inverseRecordData, inverseKey);
+      let belongsToRelationship = inverseRecordData.getBelongsTo(inverseKey)._relationship;
+
+      // For canonical members, it is possible that inverseRecordData has already been associated to
+      // to another record. For such cases, do not dematerialize the inverseRecordData
+      if (
+        !belongsToRelationship ||
+        !belongsToRelationship.inverseRecordData ||
+        this.recordData === belongsToRelationship.inverseRecordData
+      ) {
+        relationship.inverseDidDematerialize(this.recordData);
+      }
     });
   }
 

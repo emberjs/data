@@ -195,6 +195,89 @@ module('Editing a Record', function(hooks) {
           .map(pet => pet.get('name'));
         assert.deepEqual(pets, ['Shen'], 'Chris has Shen as a pet');
       });
+
+      test('Change parent relationship and unload original parent', async function(assert) {
+        let chris = store.push({
+          data: {
+            id: '1',
+            type: 'person',
+            attributes: { name: 'Chris' },
+            relationships: {
+              pets: {
+                data: [{ type: 'pet', id: '3' }, { type: 'pet', id: '4' }],
+              },
+            },
+          },
+        });
+
+        let john = store.push({
+          data: {
+            id: '2',
+            type: 'person',
+            attributes: { name: 'John' },
+            relationships: {
+              pets: {
+                data: [],
+              },
+            },
+          },
+        });
+
+        let shen = store.push({
+          data: {
+            id: '3',
+            type: 'pet',
+            attributes: { name: 'Shen' },
+            relationships: {
+              owner: {
+                data: {
+                  type: 'person',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+
+        let rocky = store.push({
+          data: {
+            id: '4',
+            type: 'pet',
+            attributes: { name: 'Rocky' },
+            relationships: {
+              owner: {
+                data: {
+                  type: 'person',
+                  id: '1',
+                },
+              },
+            },
+          },
+        });
+
+        assert.ok(shen.get('owner') === chris, 'Precondition: Chris is the current owner');
+        assert.ok(rocky.get('owner') === chris, 'Precondition: Chris is the current owner');
+
+        let pets = chris.pets.toArray().map(pet => pet.name);
+        assert.deepEqual(pets, ['Shen', 'Rocky'], 'Precondition: Chris has Shen and Rocky as pets');
+
+        shen.set('owner', john);
+        assert.ok(shen.get('owner') === john, 'Precondition: John is the new owner of Shen');
+
+        pets = chris.pets.toArray().map(pet => pet.name);
+        assert.deepEqual(pets, ['Rocky'], 'Precondition: Chris has Rocky as a pet');
+
+        pets = john.pets.toArray().map(pet => pet.name);
+        assert.deepEqual(pets, ['Shen'], 'Precondition: John has Shen as a pet');
+
+        chris.unloadRecord();
+
+        assert.ok(rocky.get('owner') === null, 'Rocky has no owner');
+        assert.ok(shen.get('owner') === john, 'John should still be the owner of Shen');
+
+        pets = john.pets.toArray().map(pet => pet.name);
+        assert.deepEqual(pets, ['Shen'], 'John still has Shen as a pet');
+      });
     });
 
     module('Adding an async belongsTo relationship to a record', function() {
