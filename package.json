@@ -88,7 +88,7 @@
     "loader.js": "^4.7.0",
     "mocha": "^6.1.2",
     "mocha-only-detector": "1.0.1",
-    "prettier": "^1.15.3",
+    "prettier": "^1.17.0",
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
     "typescript": "~3.4.3"
