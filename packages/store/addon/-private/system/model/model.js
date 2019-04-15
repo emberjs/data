@@ -1,6 +1,7 @@
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import Evented from '@ember/object/evented';
+//import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn, deprecate } from '@ember/debug';
@@ -68,9 +69,9 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @class Model
   @namespace DS
   @extends EmberObject
-  @uses Ember.Evented
+  @uses EmberData.DeprecatedEvented
 */
-const Model = EmberObject.extend(Evented, {
+const Model = EmberObject.extend(DeprecatedEvented, {
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -837,6 +838,10 @@ const Model = EmberObject.extend(Evented, {
       for (let i = 1; i < length; i++) {
         args[i - 1] = arguments[i];
       }
+      deprecate(`Defining ${name} on models is deprecated`, false, {
+        id: 'ember-evented',
+        until: '3.12',
+      });
       fn.apply(this, args);
     }
 
