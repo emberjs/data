@@ -119,6 +119,114 @@ module('integration/relationship/belongs-to BelongsTo Relationships (new-style)'
     assert.ok(personPet === pet, 'We ended up in the same state');
   });
 
+  test('async belongsTo resolves to the record (not a proxy) when sideloaded', async function(assert) {
+    let personFindRecordCalls = 0;
+    this.owner.register(
+      'adapter:pet',
+      JSONAPIAdapter.extend({
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
+        findRecord() {
+          assert.ok(false, 'We should not attempt to fetch the pet');
+          // still resolve so that test can continue nicely
+          return resolve({
+            data: {
+              type: 'pet',
+              id: '1',
+              attributes: { name: 'Shen' },
+              relationships: {
+                bestHuman: {
+                  data: { type: 'person', id: '1' },
+                },
+              },
+            },
+          });
+        },
+        findBelongsTo() {
+          assert.ok(false, 'We should not attempt to fetch the person for out pet');
+          return this.store.adapterFor('person').findRecord();
+        },
+      })
+    );
+
+    this.owner.register(
+      'adapter:person',
+      JSONAPIAdapter.extend({
+        shouldBackgroundReloadRecord() {
+          return false;
+        },
+        findRecord() {
+          personFindRecordCalls++;
+          assert.equal(personFindRecordCalls, 1, 'We call findRecord only once for our person');
+
+          return resolve({
+            data: {
+              type: 'person',
+              id: '1',
+              attributes: { name: 'Chris' },
+              relationships: {
+                bestDog: {
+                  data: { type: 'pet', id: '1' },
+                  links: {
+                    related: './pet/1',
+                  },
+                },
+              },
+            },
+            included: [
+              {
+                type: 'pet',
+                id: '1',
+                attributes: { name: 'Shen' },
+                relationships: {
+                  bestHuman: {
+                    data: { type: 'person', id: '1' },
+                  },
+                },
+              },
+            ],
+          });
+        },
+        // called if we attempt to find bestDog via link
+        // we should not call this, and the adapter:pet
+        // findRecord method  will assert
+        findBelongsTo() {
+          return this.store.adapterFor('pet').findRecord();
+        },
+      })
+    );
+
+    const person = await store.findRecord('person', '1');
+    const pet = store.peekRecord('pet', '1');
+
+    // the promise returned by accessing the property should
+    //   resolve to the record instance
+    const personPetRequest = person.get('bestDog');
+    const personPet = await personPetRequest;
+
+    assert.ok(person !== null, 'Precond: We loaded the person');
+    assert.ok(pet !== null, 'Precond: We loaded the pet');
+    assert.ok(personPet === pet, 'We ended up in the correct state via .get');
+
+    // the promise returned by accessing the property should
+    //   resolve to the record instance even inside the promise
+    //   chain
+    let promiseDog;
+    await personPetRequest.then(dog => {
+      promiseDog = dog;
+      return dog;
+    });
+
+    assert.ok(promiseDog === pet, 'We ended up in the correct state via .get.then');
+
+    // the promise returned by calling findRecord for a previously
+    //   sideloaded record should resolve to the record instance
+    const foundPet = await store.findRecord('pet', '1');
+
+    assert.ok(foundPet === pet, 'We ended up in the correct state via findRecord');
+  });
+
   test('async belongsTo returns correct new value after a local change', async function(assert) {
     let chris = store.push({
       data: {
