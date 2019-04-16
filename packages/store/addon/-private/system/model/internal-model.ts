@@ -8,6 +8,8 @@ import RSVP, { Promise, resolve } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
+import { deprecate } from '@ember/application/deprecations';
+import Model from './model';
 import RootState from './states';
 import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
@@ -35,6 +37,24 @@ interface BelongsToMetaWrapper {
   store: Store;
   originatingInternalModel: InternalModel;
   modelName: string;
+}
+
+let INSTANCE_DEPRECATIONS;
+let lookupDeprecations;
+
+if (DEBUG) {
+  INSTANCE_DEPRECATIONS = new WeakMap();
+
+  lookupDeprecations = function lookupInstanceDrecations(instance) {
+    let deprecations = INSTANCE_DEPRECATIONS.get(instance);
+
+    if (!deprecations) {
+      deprecations = {};
+      INSTANCE_DEPRECATIONS.set(instance, deprecations);
+    }
+
+    return deprecations;
+  };
 }
 
 /*
@@ -367,6 +387,31 @@ export default class InternalModel {
       setOwner(createOptions, getOwner(store));
 
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      if (DEBUG) {
+        let klass = this._record.constructor;
+        let deprecations = lookupDeprecations(klass);
+        [
+          'becameError',
+          'becameInvalid',
+          'didCreate',
+          'didDelete',
+          'didLoad',
+          'didUpdate',
+          'ready',
+          'rolledBack',
+        ].forEach(methodName => {
+          if (this instanceof Model && typeof this._record[methodName] === 'function') {
+            deprecate(
+              `Attempted to define ${methodName} on ${this._record.modelName}#${this._record.id}`,
+              deprecations[methodName],
+              {
+                id: 'ember-data:record-lifecycle-event-methods',
+                until: '3.12',
+              }
+            );
+          }
+        });
+      }
 
       this._triggerDeferredTriggers();
     }
@@ -713,9 +758,7 @@ export default class InternalModel {
       return this._updatePromiseProxyFor('hasMany', key, { promise, content: manyArray });
     } else {
       assert(
-        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${
-          this.id
-        } but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
+        `You looked up the '${key}' relationship on a '${this.type.modelName}' with id ${this.id} but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async ('DS.hasMany({ async: true })')`,
         !manyArray.anyUnloaded()
       );
 
@@ -1154,7 +1197,8 @@ export default class InternalModel {
     let record = this._record;
     let trigger = record.trigger;
     for (let i = 0, l = triggers.length; i < l; i++) {
-      trigger.apply(record, triggers[i]);
+      let eventName = triggers[i];
+      trigger.apply(record, eventName);
     }
 
     triggers.length = 0;

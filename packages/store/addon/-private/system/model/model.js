@@ -1,6 +1,6 @@
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn, deprecate } from '@ember/debug';
@@ -104,9 +104,9 @@ if (RECORD_DATA_STATE) {
 
   @class Model
   @extends EmberObject
-  @uses Ember.Evented
+  @uses EmberData.DeprecatedEvented
 */
-const Model = EmberObject.extend(Evented, {
+const Model = EmberObject.extend(DeprecatedEvented, {
   init() {
     this._super(...arguments);
     if (RECORD_DATA_ERRORS) {
@@ -455,11 +455,10 @@ const Model = EmberObject.extend(Evented, {
     let errors = Errors.create();
 
     errors._registerHandlers(
-      this._internalModel,
-      function() {
+      () => {
         this.send('becameInvalid');
       },
-      function() {
+      () => {
         this.send('becameValid');
       }
     );
@@ -709,7 +708,7 @@ const Model = EmberObject.extend(Evented, {
   },
 
   /**
-    Unloads the record from the store. This will not send a delete request 
+    Unloads the record from the store. This will not send a delete request
     to your server, it just unloads the record from memory.
 
     @method unloadRecord
@@ -934,7 +933,10 @@ const Model = EmberObject.extend(Evented, {
       fn.apply(this, args);
     }
 
-    this._super(...arguments);
+    const _hasEvent = DEBUG ? this._has(name) : this.has(name);
+    if (_hasEvent) {
+      this._super(...arguments);
+    }
   },
 
   attr() {
@@ -1289,6 +1291,10 @@ if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
+
+      if (DEBUG) {
+        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
+      }
 
       if (!this._internalModel) {
         throw new EmberError(

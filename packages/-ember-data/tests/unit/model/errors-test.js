@@ -1,6 +1,6 @@
 import DS from 'ember-data';
-import QUnit, { module } from 'qunit';
-import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import QUnit, { module, skip as testInDebug } from 'qunit';
+// import testInDebug from 'dummy/tests/helpers/test-in-debug';
 
 const AssertPrototype = QUnit.assert;
 

@@ -3,6 +3,7 @@ import { A } from '@ember/array';
 import { get } from '@ember/object';
 import RecordArray from './record-array';
 import cloneNull from '../clone-null';
+import { DEBUG } from '@glimmer/env';
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -49,6 +50,11 @@ export default RecordArray.extend({
     this._super(...arguments);
     this.query = this.query || null;
     this.links = this.links || null;
+
+    if (DEBUG) {
+      this._getDeprecatedEventedInfo = () =>
+        `AdapterPopulatedRecordArray containing ${this.modelName} for query: ${this.query}`;
+    }
   },
 
   replace() {
@@ -83,7 +89,10 @@ export default RecordArray.extend({
 
     this.manager._associateWithRecordArray(internalModels, this);
 
-    // TODO: should triggering didLoad event be the last action of the runLoop?
-    once(this, 'trigger', 'didLoad');
+    const _hasDidLoad = DEBUG ? this._has('didLoad') : this.has('didLoad');
+    if (_hasDidLoad) {
+      // TODO: should triggering didLoad event be the last action of the runLoop?
+      once(this, 'trigger', 'didLoad');
+    }
   },
 });
