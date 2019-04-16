@@ -8,6 +8,7 @@ import RSVP, { Promise } from 'rsvp';
 import Ember from 'ember';
 import { DEBUG } from '@glimmer/env';
 import { assert, inspect } from '@ember/debug';
+import Model from './model';
 import RootState from './states';
 import Snapshot from '../snapshot';
 import OrderedSet from '../ordered-set';
@@ -19,6 +20,25 @@ import { default as recordDataFor, relationshipStateFor } from '../record-data-f
 import RecordDataDefault from './record-data';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
+import { deprecate } from '@ember/application/deprecations';
+
+let INSTANCE_DEPRECATIONS;
+let lookupDeprecations;
+
+if (DEBUG) {
+  INSTANCE_DEPRECATIONS = new WeakMap();
+
+  lookupDeprecations = function lookupInstanceDrecations(instance) {
+    let deprecations = INSTANCE_DEPRECATIONS.get(instance);
+
+    if (!deprecations) {
+      deprecations = {};
+      INSTANCE_DEPRECATIONS.set(instance, deprecations);
+    }
+
+    return deprecations;
+  };
+}
 
 /*
   The TransitionChainMap caches the `state.enters`, `state.setups`, and final state reached
@@ -301,6 +321,31 @@ export default class InternalModel {
       }
 
       this._record = store._modelFactoryFor(this.modelName).create(createOptions);
+      if (DEBUG) {
+        let klass = this._record.constructor;
+        let deprecations = lookupDeprecations(klass);
+        [
+          'becameError',
+          'becameInvalid',
+          'didCreate',
+          'didDelete',
+          'didLoad',
+          'didUpdate',
+          'ready',
+          'rolledBack',
+        ].forEach(methodName => {
+          if (this instanceof Model && typeof this._record[methodName] === 'function') {
+            deprecate(
+              `Attempted to define ${methodName} on ${this._record.modelName}#${this._record.id}`,
+              deprecations[methodName],
+              {
+                id: 'ember-data:record-lifecycle-event-methods',
+                until: '3.12',
+              }
+            );
+          }
+        });
+      }
 
       this._triggerDeferredTriggers();
     }
@@ -503,12 +548,12 @@ export default class InternalModel {
     let parentInternalModel = this;
     let async = relationshipMeta.options.async;
     let isAsync = typeof async === 'undefined' ? true : async;
-    let _belongsToState = { 
-      key, 
-      store, 
+    let _belongsToState = {
+      key,
+      store,
       originatingInternalModel: this,
-      modelName: relationshipMeta.type
-    }
+      modelName: relationshipMeta.type,
+    };
 
     if (isAsync) {
       let internalModel =
@@ -1029,7 +1074,8 @@ export default class InternalModel {
     let record = this._record;
     let trigger = record.trigger;
     for (let i = 0, l = triggers.length; i < l; i++) {
-      trigger.apply(record, triggers[i]);
+      let eventName = triggers[i];
+      trigger.apply(record, eventName);
     }
 
     triggers.length = 0;

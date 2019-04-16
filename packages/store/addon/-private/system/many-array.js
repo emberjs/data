@@ -3,7 +3,8 @@
 */
 import { all } from 'rsvp';
 
-import Evented from '@ember/object/evented';
+//import Evented from '@ember/object/evented';
+import DeprecatedEvent from './deprecated-evented';
 import MutableArray from '@ember/array/mutable';
 import EmberArray from '@ember/array';
 import EmberObject, { get } from '@ember/object';
@@ -54,9 +55,9 @@ import recordDataFor from './record-data-for';
   @class ManyArray
   @namespace DS
   @extends EmberObject
-  @uses Ember.MutableArray, Ember.Evented
+  @uses Ember.MutableArray, EmberData.DeprecatedEvent
 */
-export default EmberObject.extend(MutableArray, Evented, {
+export default EmberObject.extend(MutableArray, DeprecatedEvent, {
   init() {
     this._super(...arguments);
 

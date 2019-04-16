@@ -1,8 +1,9 @@
 import { mapBy, not } from '@ember/object/computed';
-import Evented from '@ember/object/evented';
+import DeprecatedEvent from '../deprecated-evented';
 import ArrayProxy from '@ember/array/proxy';
 import { get, computed } from '@ember/object';
 import { makeArray, A } from '@ember/array';
+import { DEBUG } from '@glimmer/env';
 
 /**
 @module ember-data
@@ -82,16 +83,18 @@ import { makeArray, A } from '@ember/array';
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */
-export default ArrayProxy.extend(Evented, {
+export default ArrayProxy.extend(DeprecatedEvent, {
   /**
     Register with target handler
 
     @method _registerHandlers
     @private
   */
-  _registerHandlers(target, becameInvalid, becameValid) {
-    this.on('becameInvalid', target, becameInvalid);
-    this.on('becameValid', target, becameValid);
+  _registerHandlers(becameInvalid, becameValid) {
+    this._registeredHandlers = {
+      becameInvalid,
+      becameValid,
+    };
   },
 
   /**
@@ -191,14 +194,14 @@ export default ArrayProxy.extend(Evented, {
    Example
    ```javascript
     let errors = get(user, 'errors');
-    
+
     // add multiple errors
     errors.add('password', [
       'Must be at least 12 characters',
       'Must contain at least one symbol',
       'Cannot contain your name'
     ]);
-    
+
     errors.errorsFor('password');
     // =>
     // [
@@ -206,7 +209,7 @@ export default ArrayProxy.extend(Evented, {
     //   { attribute: 'password', message: 'Must contain at least one symbol' },
     //   { attribute: 'password', message: 'Cannot contain your name' },
     // ]
-    
+
     // add a single error
     errors.add('username', 'This field is required');
 
@@ -226,7 +229,10 @@ export default ArrayProxy.extend(Evented, {
     this._add(attribute, messages);
 
     if (wasEmpty && !get(this, 'isEmpty')) {
-      this.trigger('becameInvalid');
+      this._registeredHandlers && this._registeredHandlers.becameInvalid();
+      if (DEBUG && this._has('becameInvalid')) {
+        this.trigger('becameInvalid');
+      }
     }
   },
 
@@ -280,16 +286,16 @@ export default ArrayProxy.extend(Evented, {
    ```javascript
     let errors = get('user', errors);
     errors.add('phone', ['error-1', 'error-2']);
-    
+
     errors.errorsFor('phone');
     // =>
     // [
     //   { attribute: 'phone', message: 'error-1' },
     //   { attribute: 'phone', message: 'error-2' },
     // ]
-    
+
     errors.remove('phone');
-    
+
     errors.errorsFor('phone');
     // => undefined
    ```
@@ -304,7 +310,10 @@ export default ArrayProxy.extend(Evented, {
     this._remove(attribute);
 
     if (get(this, 'isEmpty')) {
-      this.trigger('becameValid');
+      this._registeredHandlers && this._registeredHandlers.becameValid();
+      if (DEBUG && this._has('becameValid')) {
+        this.trigger('becameValid');
+      }
     }
   },
 
@@ -331,35 +340,35 @@ export default ArrayProxy.extend(Evented, {
    Manually clears all errors for the record.
      This will transition the record into a `valid` state, and
      will trigger the `becameValid` event and lifecycle method.
-   
+
   Example:
-   
+
    ```javascript
    let errors = get('user', errors);
    errors.add('username', ['error-a']);
    errors.add('phone', ['error-1', 'error-2']);
-   
+
    errors.errorsFor('username');
    // =>
    // [
    //   { attribute: 'username', message: 'error-a' },
    // ]
-   
+
    errors.errorsFor('phone');
    // =>
    // [
    //   { attribute: 'phone', message: 'error-1' },
    //   { attribute: 'phone', message: 'error-2' },
    // ]
-   
+
    errors.clear();
-   
+
    errors.errorsFor('username');
    // => undefined
-   
+
    errors.errorsFor('phone');
    // => undefined
-   
+
    errors.get('messages')
    // => []
    ```
@@ -371,7 +380,10 @@ export default ArrayProxy.extend(Evented, {
     }
 
     this._clear();
-    this.trigger('becameValid');
+    this._registeredHandlers && this._registeredHandlers.becameValid();
+    if (DEBUG && this._has('becameValid')) {
+      this.trigger('becameValid');
+    }
   },
 
   /**

@@ -6,6 +6,7 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
+import { deprecatedTest } from 'dummy/tests/helpers/deprecated-test';
 import { module, test, skip } from 'qunit';
 import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
 import DS from 'ember-data';
@@ -1266,71 +1267,78 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
   });
 
-  test('PromiseArray proxies evented methods to its ManyArray', function(assert) {
-    assert.expect(6);
+  deprecatedTest(
+    'PromiseArray proxies evented methods to its ManyArray',
+    {
+      id: 'ember-evented',
+      until: '3.12',
+    },
+    function(assert) {
+      assert.expect(6);
 
-    Post.reopen({
-      comments: DS.hasMany('comment', { async: true }),
-    });
-
-    env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-      return resolve({
-        data: [
-          { id: 1, type: 'comment', attributes: { body: 'First' } },
-          { id: 2, type: 'comment', attributes: { body: 'Second' } },
-        ],
+      Post.reopen({
+        comments: DS.hasMany('comment', { async: true }),
       });
-    };
-    let post, comments;
 
-    run(function() {
-      env.store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              links: {
-                related: 'someLink',
+      env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+        return resolve({
+          data: [
+            { id: 1, type: 'comment', attributes: { body: 'First' } },
+            { id: 2, type: 'comment', attributes: { body: 'Second' } },
+          ],
+        });
+      };
+      let post, comments;
+
+      run(function() {
+        env.store.push({
+          data: {
+            type: 'post',
+            id: '1',
+            relationships: {
+              comments: {
+                links: {
+                  related: 'someLink',
+                },
               },
             },
           },
-        },
+        });
+        post = env.store.peekRecord('post', 1);
+        comments = post.get('comments');
       });
-      post = env.store.peekRecord('post', 1);
-      comments = post.get('comments');
-    });
 
-    comments.on('on-event', function() {
-      assert.ok(true);
-    });
+      comments.on('on-event', function() {
+        assert.ok(true);
+      });
 
-    run(function() {
-      comments.trigger('on-event');
-    });
+      run(function() {
+        comments.trigger('on-event');
+      });
 
-    assert.equal(comments.has('on-event'), true);
-    const cb = function() {
-      assert.ok(false, 'We should not trigger this event');
-    };
+      assert.equal(comments.has('on-event'), true);
+      const cb = function() {
+        assert.ok(false, 'We should not trigger this event');
+      };
 
-    comments.on('off-event', cb);
-    comments.off('off-event', cb);
+      comments.on('off-event', cb);
+      comments.off('off-event', cb);
 
-    assert.equal(comments.has('off-event'), false);
+      assert.equal(comments.has('off-event'), false);
 
-    comments.one('one-event', function() {
-      assert.ok(true);
-    });
+      comments.one('one-event', function() {
+        assert.ok(true);
+      });
 
-    assert.equal(comments.has('one-event'), true);
+      assert.equal(comments.has('one-event'), true);
 
-    run(function() {
-      comments.trigger('one-event');
-    });
+      run(function() {
+        comments.trigger('one-event');
+      });
 
-    assert.equal(comments.has('one-event'), false);
-  });
+      assert.equal(comments.has('one-event'), false);
+    }
+  );
 
   test('An updated `links` value should invalidate a relationship cache', function(assert) {
     assert.expect(8);

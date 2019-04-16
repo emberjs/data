@@ -1,6 +1,6 @@
 import { isNone } from '@ember/utils';
 import EmberError from '@ember/error';
-import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../deprecated-evented';
 import EmberObject, { computed, get } from '@ember/object';
 import { DEBUG } from '@glimmer/env';
 import { assert, warn, deprecate } from '@ember/debug';
@@ -68,9 +68,9 @@ const retrieveFromCurrentState = computed('currentState', function(key) {
   @class Model
   @namespace DS
   @extends EmberObject
-  @uses Ember.Evented
+  @uses EmberData.DeprecatedEvented
 */
-const Model = EmberObject.extend(Evented, {
+const Model = EmberObject.extend(DeprecatedEvented, {
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -400,11 +400,10 @@ const Model = EmberObject.extend(Evented, {
     let errors = Errors.create();
 
     errors._registerHandlers(
-      this._internalModel,
-      function() {
+      () => {
         this.send('becameInvalid');
       },
-      function() {
+      () => {
         this.send('becameValid');
       }
     );
@@ -840,7 +839,10 @@ const Model = EmberObject.extend(Evented, {
       fn.apply(this, args);
     }
 
-    this._super(...arguments);
+    const _hasEvent = DEBUG ? this._has(name) : this.has(name);
+    if (_hasEvent) {
+      this._super(...arguments);
+    }
   },
 
   attr() {
@@ -1192,6 +1194,10 @@ if (DEBUG) {
   Model.reopen({
     init() {
       this._super(...arguments);
+
+      if (DEBUG) {
+        this._getDeprecatedEventedInfo = () => `${this._internalModel.modelName}#${this.id}`;
+      }
 
       if (!this._internalModel) {
         throw new EmberError(

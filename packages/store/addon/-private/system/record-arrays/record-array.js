@@ -2,11 +2,13 @@
   @module ember-data
 */
 
-import Evented from '@ember/object/evented';
+//import Evented from '@ember/object/evented';
+import DeprecatedEvented from '../deprecated-evented';
 
 import ArrayProxy from '@ember/array/proxy';
 import { set, get, computed } from '@ember/object';
 import { Promise } from 'rsvp';
+import { DEBUG } from '@glimmer/env';
 import { PromiseArray } from '../promise-proxies';
 import SnapshotRecordArray from '../snapshot-record-array';
 
@@ -23,9 +25,13 @@ import SnapshotRecordArray from '../snapshot-record-array';
   @uses Ember.Evented
 */
 
-export default ArrayProxy.extend(Evented, {
+export default ArrayProxy.extend(DeprecatedEvented, {
   init() {
     this._super(...arguments);
+
+    if (DEBUG) {
+      this._getDeprecatedEventedInfo = () => `RecordArray containing ${this.modelName}`;
+    }
 
     /**
       The array of client ids backing the record array. When a
