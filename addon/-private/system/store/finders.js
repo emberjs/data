@@ -225,12 +225,11 @@ export function _query(adapter, store, modelName, query, recordArray, options) {
   if (createRecordArray) {
     recordArray =
       recordArray || store.recordArrayManager.createAdapterPopulatedRecordArray(modelName, query);
-    promise = Promise.resolve().then(() =>
-      adapter.query(store, modelClass, query, recordArray, options)
-    );
-  } else {
-    promise = Promise.resolve().then(() => adapter.query(store, modelClass, query));
   }
+
+  promise = Promise.resolve().then(() =>
+    adapter.query(store, modelClass, query, recordArray, options)
+  );
 
   let label = `DS: Handle Adapter#query of ${modelName}`;
   promise = guardDestroyedStore(promise, store, label);
