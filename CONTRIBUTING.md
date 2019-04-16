@@ -86,7 +86,7 @@ the issue being fixed and test that the solution works.
 
 - PRs will automatically run an extensive set of test scenarios for your work
 - `ember-data` is an `ember-addon` and uses `ember-cli`. To run tests locally
-  use `ember test` or `ember test --serve`. For additional test commands see the list
+  use `yarn test` or `yarn test --serve`. For additional test commands see the list
   of commands in [./package.json](./package.json)
 
 #### Commit Tagging
