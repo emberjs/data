@@ -1744,7 +1744,7 @@ abbrev@1:
   resolved "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
-abortcontroller-polyfill@^1.1.9, abortcontroller-polyfill@^1.2.5:
+abortcontroller-polyfill@^1.1.9, abortcontroller-polyfill@^1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/abortcontroller-polyfill/-/abortcontroller-polyfill-1.3.0.tgz#de69af32ae926c210b7efbcc29bf644ee4838b00"
   integrity sha512-lbWQgf+eRvku3va8poBlDBO12FigTQr9Zb7NIjXrePrhxWVKdCP2wbDl1tLDaYa18PWTom3UEWwdH13S46I+yA==
@@ -3314,7 +3314,7 @@ broccoli-sri-hash@^2.1.0:
     sri-toolbox "^0.2.0"
     symlink-or-copy "^1.0.1"
 
-broccoli-stew@*, broccoli-stew@^2.0.0, broccoli-stew@^2.0.1:
+broccoli-stew@*, broccoli-stew@^2.0.1, broccoli-stew@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/broccoli-stew/-/broccoli-stew-2.1.0.tgz#ba73add17fda3b9b01d8cfb343a8b613b7136a0a"
   integrity sha512-tgCkuTWYl4uf7k7ib2D79KFEj2hCgnTUNPMnrCoAha0/4bywcNccmaZVWtL9Ex37yX5h5eAbnM/ak2ULoMwSSw==
@@ -5065,19 +5065,19 @@ ember-export-application-global@*, ember-export-application-global@^2.0.0:
   dependencies:
     ember-cli-babel "^6.0.0-beta.7"
 
-ember-fetch@^6.5.0:
-  version "6.5.0"
-  resolved "https://registry.npmjs.org/ember-fetch/-/ember-fetch-6.5.0.tgz#efed80b3dd2259b52efce7498659e9125235bfb7"
-  integrity sha512-B9KSeeO3xDNMQ22JqNwbmgnOprBzc8kNVfQMtzkAmugMb2aCmBZohAlQlwUUX5ODz8fHq2xfuZXDHD81Dzb0vg==
+ember-fetch@^6.5.1:
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/ember-fetch/-/ember-fetch-6.5.1.tgz#6512153b9b85042744ed5a7934c8edb4a5b02dd0"
+  integrity sha512-ZA90lbTFZHhQCQKQNA6/3TdtiF1wBoT8nC7EI1pmkUZ49XDBP7i2eddUodR6qWRn8jK/D7IavQy3tx5fJBx7mw==
   dependencies:
-    abortcontroller-polyfill "^1.2.5"
+    abortcontroller-polyfill "^1.3.0"
     broccoli-concat "^3.2.2"
     broccoli-debug "^0.6.5"
     broccoli-merge-trees "^3.0.0"
     broccoli-rollup "^2.1.1"
-    broccoli-stew "^2.0.0"
+    broccoli-stew "^2.1.0"
     broccoli-templater "^2.0.1"
-    calculate-cache-key-for-tree "^1.1.0"
+    calculate-cache-key-for-tree "^2.0.0"
     caniuse-api "^3.0.0"
     ember-cli-babel "^6.8.2"
     node-fetch "^2.3.0"
