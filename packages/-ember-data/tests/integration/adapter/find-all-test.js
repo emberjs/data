@@ -174,6 +174,31 @@ module('integration/adapter/find-all - Finding All Records of a Type', function(
     );
   });
 
+  test('When all records for a type are requested, records that are created on the client should be added to the record array.', assert => {
+    assert.expect(4);
+
+    let allRecords = store.peekAll('person');
+
+    assert.equal(
+      get(allRecords, 'length'),
+      0,
+      "precond - the record array's length is zero before any records are loaded"
+    );
+
+    run.schedule('actions', () => {
+      assert.ok(true, 'scheduled action was run');
+    });
+
+    store.createRecord('person', { name: 'Carsten Nielsen' });
+
+    assert.equal(get(allRecords, 'length'), 1, "the record array's length is 1");
+    assert.equal(
+      allRecords.objectAt(0).get('name'),
+      'Carsten Nielsen',
+      'the first item in the record array is Carsten Nielsen'
+    );
+  });
+
   testInDebug('When all records are requested, assert the payload is not blank', async function(
     assert
   ) {
