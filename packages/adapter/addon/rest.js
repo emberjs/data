@@ -1,9 +1,8 @@
-/* globals najax */
+/* globals najax jQuery */
 /**
   @module ember-data
 */
 
-import Ember from 'ember';
 import fetch from 'fetch';
 import serializeQueryParams from 'ember-fetch/utils/serialize-query-params';
 import determineBodyPromise from 'ember-fetch/utils/determine-body-promise';
@@ -30,6 +29,7 @@ import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 const Promise = EmberPromise;
+const jQ = typeof jQuery !== 'undefined' ? jQuery : undefined;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -301,7 +301,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
-    return (ENV && ENV._JQUERY_INTEGRATION) === false || Ember.$ === undefined;
+    return (ENV && ENV._JQUERY_INTEGRATION) === false || jQ === undefined;
   }),
 
   /**
@@ -1026,7 +1026,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options) {
-    Ember.$.ajax(options);
+    jQ.ajax(options);
   },
 
   /**
