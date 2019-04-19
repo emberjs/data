@@ -86,7 +86,7 @@
     "json-typescript": "^1.1.0",
     "lerna": "^3.13.2",
     "loader.js": "^4.7.0",
-    "mocha": "^6.1.2",
+    "mocha": "^6.1.4",
     "mocha-only-detector": "1.0.1",
     "prettier": "^1.15.3",
     "rimraf": "^2.6.2",
