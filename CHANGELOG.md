@@ -2,6 +2,11 @@
 
 ### Master
 
+## Release 3.9.1 (April 19, 2019)
+
+- [7e3ca651](https://github.com/emberjs/data/commit/7e3ca651e0ce2525cfab666870e54fd16d23b57c) [BUGFIX jQuery] avoid jQuery deprecation notice for intentional use
+- [BUGFIX fastboot] ember-fetch fastboot passthrough
+
 ### Release 3.9.0 (April 8, 2019)
 
 - [1ebff8cb](https://github.com/emberjs/data/commit/1ebff8cb4bcd848e797a056f8cab9a80405772d8) [DOCS] [BUGFIX] Get model relationships by string
