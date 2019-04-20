@@ -2,17 +2,26 @@ import { assertPolymorphicType } from 'ember-data/-debug';
 import Relationship from './relationship';
 import OrderedSet from '../../ordered-set';
 import { isNone } from '@ember/utils';
-import { RelationshipRecordData } from "../../../ts-interfaces/relationship-record-data";
-import { JsonApiHasManyRelationship, JsonApiResourceIdentity } from "../../../ts-interfaces/record-data-json-api";
-import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
+import { RelationshipRecordData } from '../../../ts-interfaces/relationship-record-data';
+import {
+  JsonApiHasManyRelationship,
+  JsonApiResourceIdentity,
+} from '../../../ts-interfaces/record-data-json-api';
+import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 
 export default class ManyRelationship extends Relationship {
   canonicalState: RelationshipRecordData[];
   currentState: RelationshipRecordData[];
   _willUpdateManyArray: boolean;
   _pendingManyArrayUpdates: any;
-  key: string
-  constructor(store: any, inverseKey: string, relationshipMeta: RelationshipSchema, recordData: RelationshipRecordData, inverseIsAsync: boolean) {
+  key: string;
+  constructor(
+    store: any,
+    inverseKey: string,
+    relationshipMeta: RelationshipSchema,
+    recordData: RelationshipRecordData,
+    inverseIsAsync: boolean
+  ) {
     super(store, inverseKey, relationshipMeta, recordData, inverseIsAsync);
     this.canonicalState = [];
     this.currentState = [];
@@ -239,7 +248,10 @@ export default class ManyRelationship extends Relationship {
     } else {
       recordDatas = new Array(data.length);
       for (let i = 0; i < data.length; i++) {
-        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(data[i].type, data[i].id);
+        recordDatas[i] = this.recordData.storeWrapper.recordDataFor(
+          data[i].type,
+          data[i].id
+        ) as RelationshipRecordData;
       }
     }
     if (initial) {
