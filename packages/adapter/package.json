@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/adapter",
-  "version": "0.0.0",
+  "version": "3.10.0-beta.1",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
@@ -19,7 +19,7 @@
     "test:all": "ember try:each"
   },
   "dependencies": {
-    "@ember-data/-build-infra": "^0.0.0",
+    "@ember-data/-build-infra": "^3.10.0-beta.1",
     "ember-cli-babel": "^7.7.3",
     "ember-cli-typescript": "^2.0.1"
   },

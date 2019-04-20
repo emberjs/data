@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/-build-infra",
-  "version": "0.0.0",
+  "version": "3.10.0-beta.1",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
@@ -19,17 +19,16 @@
     "babel-plugin-filter-imports": "^2.0.4",
     "babel6-plugin-strip-class-callcheck": "^6.0.0",
     "broccoli-file-creator": "^2.1.1",
+    "calculate-cache-key-for-tree": "^2.0.0",
+    "ember-cli-path-utils": "^1.0.0",
+    "ember-cli-string-utils": "^1.1.0",
     "git-repo-info": "^2.0.0",
     "npm-git-info": "^1.0.3",
-    "ember-cli-string-utils": "^1.1.0",
-    "calculate-cache-key-for-tree": "^2.0.0",
-    "silent-error": "^1.1.1",
-    "ember-cli-path-utils": "^1.0.0"
+    "silent-error": "^1.1.1"
   },
   "bin": {
     "test-external-partner": "./bin/test-external-partner-project.js"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">= 8.0.0"
   }
