@@ -2,5 +2,5 @@
   "npmClient": "yarn",
   "useWorkspaces": true,
   "packages": ["packages/*"],
-  "version": "3.11.0-canary"
+  "version": "3.10.0-beta.1"
 }
