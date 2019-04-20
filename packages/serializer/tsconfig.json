@@ -17,10 +17,10 @@
     "paths": {
       "dummy/tests/*": ["tests/*"],
       "dummy/*": ["tests/dummy/app/*", "app/*"],
-      "@ember-data/store": ["addon"],
-      "@ember-data/store/*": ["addon/*"],
-      "@ember-data/store/test-support": ["addon-test-support"],
-      "@ember-data/store/test-support/*": ["addon-test-support/*"],
+      "@ember-data/serializer": ["addon"],
+      "@ember-data/serializer/*": ["addon/*"],
+      "@ember-data/serializer/test-support": ["addon-test-support"],
+      "@ember-data/serializer/test-support/*": ["addon-test-support/*"],
       "ember-data": ["../-ember-data/addon"],
       "ember-data/*": ["../-ember-data/addon/*"],
       "*": ["types/*"]

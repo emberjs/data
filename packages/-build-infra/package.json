@@ -1,6 +1,6 @@
 {
   "name": "@ember-data/-build-infra",
-  "version": "3.10.0-beta.2",
+  "version": "3.10.0-beta.1",
   "description": "The default blueprint for ember-data private packages.",
   "keywords": [],
   "repository": "",
@@ -10,10 +10,7 @@
     "doc": "doc",
     "test": "tests"
   },
-  "scripts": {
-    "prepublishOnly": "ember ts:precompile",
-    "postpublish": "ember ts:clean"
-  },
+  "scripts": {},
   "dependencies": {
     "babel-plugin-feature-flags": "^0.3.1",
     "babel-plugin-filter-imports": "^2.0.4",
