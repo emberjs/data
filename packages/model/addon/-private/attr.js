@@ -24,10 +24,6 @@ function hasValue(internalModel, key) {
   return recordDataFor(internalModel).hasAttr(key);
 }
 
-interface AttrOptions {
-  defaultValue?: string | null | (() => any);
-}
-
 /**
   `DS.attr` defines an attribute on a [DS.Model](/api/data/classes/DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
@@ -112,7 +108,7 @@ interface AttrOptions {
   @param {Object} options a hash of options
   @return {Attribute}
 */
-export default function attr(type?: string | AttrOptions, options?: AttrOptions) {
+export default function attr(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
