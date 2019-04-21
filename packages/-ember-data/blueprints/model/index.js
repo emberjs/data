@@ -142,7 +142,7 @@ function nativeAttr(attr) {
       result = "@hasMany('" + name + "')";
     }
   } else if (type === '') {
-    result = '@attr';
+    result = '@attr()';
   } else {
     result = "@attr('" + type + "')";
   }
