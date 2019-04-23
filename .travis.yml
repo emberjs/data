@@ -27,7 +27,7 @@ stages:
   - additional tests
   - ember version tests
   - name: external partner tests
-    if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+    if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
 
 jobs:
   fail_fast: true
@@ -38,7 +38,7 @@ jobs:
     # runs tests with current locked deps and linting
     - stage: test
       name: 'Linting'
-      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       script:
         - yarn lint:features
         - yarn lint:js
@@ -48,7 +48,7 @@ jobs:
     - stage: additional tests
 
       name: 'Enabled In-Progress Features'
-      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       install: yarn install
       script: yarn test:enabled-in-progress-features
 
@@ -76,13 +76,13 @@ jobs:
     - name: 'Ember LTS 3.8'
       env: EMBER_TRY_SCENARIO=ember-lts-3.8
     - name: 'Ember Release'
-      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release
     - name: 'Ember Beta'
-      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-beta
     - name: 'Ember Canary'
-      if: NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
+      if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-canary
 
     # runs tests against various open-source projects for early-warning regression analysis
