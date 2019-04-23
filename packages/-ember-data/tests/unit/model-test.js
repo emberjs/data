@@ -483,6 +483,17 @@ module('unit/model - Model', function(hooks) {
         get(tag, 'tagInfo');
       }, /Non primitive defaultValues are not supported/);
     });
+
+    test('return `null` when a defaultValue is not defined', async function(assert) {
+      class Person extends Model {
+        @attr('string')
+        name;
+      }
+      this.owner.register('model:person', Person);
+
+      let person = store.createRecord('person');
+      assert.strictEqual(get(person, 'name'), null, 'the defaultValue is null if not defined');
+    });
   });
 
   module('Attribute Transforms', function() {
