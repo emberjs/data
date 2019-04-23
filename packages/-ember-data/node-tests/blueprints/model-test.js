@@ -397,7 +397,7 @@ describe('Acceptance: generate and destroy model blueprints', function() {
             .to.contain("import DS from 'ember-data';")
             .to.contain('const { Model, attr } = DS;')
             .to.contain('export default class FooModel extends Model {')
-            .to.contain('  @attr misc;')
+            .to.contain('  @attr() misc;')
             .to.contain("  @attr('array') skills;")
             .to.contain("  @attr('boolean') isActive;")
             .to.contain("  @attr('date') birthday;")
