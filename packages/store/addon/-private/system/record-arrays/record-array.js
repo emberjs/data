@@ -19,7 +19,7 @@ import SnapshotRecordArray from '../snapshot-record-array';
 
   @class RecordArray
   @namespace DS
-  @extends Ember.ArrayProxy
+  @extends ArrayProxy
   @uses Ember.Evented
 */
 
