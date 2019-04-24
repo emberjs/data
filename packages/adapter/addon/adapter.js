@@ -614,13 +614,9 @@ export default EmberObject.extend({
 
     ```javascript
     shouldBackgroundReloadRecord(store, snapshot) {
-      let connection = window.navigator.connection;
+      let { downlink, effectiveType } = navigator.connection;
 
-      if (connection === 'cellular' || connection === 'none') {
-        return false;
-      } else {
-        return true;
-      }
+      return downlink > 0 && effectiveType === '4g';
     }
     ```
 
@@ -654,13 +650,9 @@ export default EmberObject.extend({
 
     ```javascript
     shouldBackgroundReloadAll(store, snapshotArray) {
-      let connection = window.navigator.connection;
+      let { downlink, effectiveType } = navigator.connection;
 
-      if (connection === 'cellular' || connection === 'none') {
-        return false;
-      } else {
-        return true;
-      }
+      return downlink > 0 && effectiveType === '4g';
     }
     ```
 
