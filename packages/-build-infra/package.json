@@ -23,9 +23,6 @@
     "npm-git-info": "^1.0.3",
     "silent-error": "^1.1.1"
   },
-  "bin": {
-    "test-external-partner": "./bin/test-external-partner-project.js"
-  },
   "engines": {
     "node": ">= 8.0.0"
   }

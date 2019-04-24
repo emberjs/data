@@ -16,17 +16,17 @@
     "test:production": "yarn workspace ember-data test:production",
     "test:try-one": "yarn workspace ember-data test:try-one",
     "test:enabled-in-progress-features": "yarn workspace ember-data test --enable-in-progress",
-    "test-external:ember-m3": "test-external-partner ember-m3 https://github.com/hjdivad/ember-m3.git",
-    "test-external:ember-data-change-tracker": "test-external-partner ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
-    "test-external:emberaddons.com": "test-external-partner ember-cli-addon-search https://github.com/gcollazo/ember-cli-addon-search.git",
-    "test-external:model-fragments": "test-external-partner ember-data-model-fragments https://github.com/lytics/ember-data-model-fragments.git",
-    "test-external:ember-observer": "test-external-partner ember-observer https://github.com/emberobserver/client.git",
-    "test-external:travis-web": "test-external-partner travis-web https://github.com/travis-ci/travis-web.git",
-    "test-external:storefront": "test-external-partner storefront https://github.com/embermap/ember-data-storefront.git",
-    "test-external:factory-guy": "test-external-partner factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
-    "test-external:ilios-frontend": "test-external-partner ilios-frontend https://github.com/ilios/frontend.git --skip-smoke-test",
-    "test-external:ember-resource-metadata": "test-external-partner ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git",
-    "test-external:ember-data-relationship-tracker": "test-external-partner ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
+    "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
+    "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
+    "test-external:emberaddons.com": "./bin/test-external-partner-project.js ember-cli-addon-search https://github.com/gcollazo/ember-cli-addon-search.git",
+    "test-external:model-fragments": "./bin/test-external-partner-project.js ember-data-model-fragments https://github.com/lytics/ember-data-model-fragments.git",
+    "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git",
+    "test-external:travis-web": "./bin/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
+    "test-external:storefront": "./bin/test-external-partner-project.js storefront https://github.com/embermap/ember-data-storefront.git",
+    "test-external:factory-guy": "./bin/test-external-partner-project.js factory-guy https://github.com/danielspaniel/ember-data-factory-guy.git",
+    "test-external:ilios-frontend": "./bin/test-external-partner-project.js ilios-frontend https://github.com/ilios/frontend.git --skip-smoke-test",
+    "test-external:ember-resource-metadata": "./bin/test-external-partner-project.js ember-resource-metadata https://github.com/ef4/ember-resource-metadata.git",
+    "test-external:ember-data-relationship-tracker": "./bin/test-external-partner-project.js ember-data-relationship-tracker https://github.com/ef4/ember-data-relationship-tracker.git"
   },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.2.0",
@@ -89,5 +89,9 @@
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
     "typescript": "~3.4.3"
+  },
+  "bin": {
+    "test-partner-project": "./bin/test-external-partner-project.js",
+    "prepare-local-packages": "./bin/packages-for-commit.js"
   }
 }

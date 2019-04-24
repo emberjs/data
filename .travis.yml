@@ -118,6 +118,7 @@ before_install:
 
 install:
   - yarn install
+  - node ./bin/packages-for-commit.js
 
 script:
   - yarn test:try-one $EMBER_TRY_SCENARIO --skip-cleanup

@@ -46,6 +46,7 @@ module.exports = {
       files: [
         '.eslintrc.js',
         '.prettierrc.js',
+        'bin/*.js',
         'packages/-build-infra/src/**/*.js',
         'packages/*/ember-cli-build.js',
         'packages/*/index.js',
