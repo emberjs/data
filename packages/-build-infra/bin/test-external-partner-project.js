@@ -32,7 +32,7 @@ console.log(
 );
 
 function execExternal(command, force) {
-  command = `cd ${cachePath}/${externalProjectName} && ${command}`;
+  command = `cd ${projectTempDir} && ${command}`;
   return execWithLog(command, force);
 }
 
@@ -47,16 +47,20 @@ function execWithLog(command, force) {
 if (!fs.existsSync(tempDir)) {
   debug(`Ensuring Cache Root at: ${tempDir}`);
   fs.mkdirSync(tempDir);
+} else {
+  debug(`Cache Root Exists at: ${tempDir}`);
 }
 
 if (fs.existsSync(projectTempDir)) {
   debug(`Cleaning Cache at: ${projectTempDir}`);
   rimraf.sync(projectTempDir);
+} else {
+  debug(`No pre-existing cache present at: ${projectTempDir}`);
 }
 
 // install the project
 try {
-  execWithLog(`git clone --depth=1 ${gitUrl} ${cachePath}/${externalProjectName}`);
+  execWithLog(`git clone --depth=1 ${gitUrl} ${projectTempDir}`);
 } catch (e) {
   debug(e);
   throw new Error(
