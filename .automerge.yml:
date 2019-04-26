@@ -1,0 +1,9 @@
+merge:
+	whitelist:
+		# a PR must have these labels set
+		labels: ["bot_automerge"]
+	# merge method, see https://help.github.com/en/articles/about-merge-methods-on-github
+	# one of: merge, squash, rebase
+	method: squash
+	# statuses required in addition to the ones defined in GitHub
+	delete_after_merge: true
