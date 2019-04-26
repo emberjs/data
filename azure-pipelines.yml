@@ -10,18 +10,20 @@ trigger:
 
 jobs:
 - job: Lint
+
   pool:
     vmImage: 'macOS-10.14'
+  
+  steps:
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
 
-- task: NodeTool@0
-  displayName: Node install
-  inputs:
-    versionSpec: '10.x' # The version we're installing
-
-- script: |
-    yarn
-    yarn lint:features
-    yarn lint:js
+  - script: |
+      yarn
+      yarn lint:features
+      yarn lint:js
   displayName: 'Lint'
 
 - job: Basic_Ember_Data_tests
@@ -31,7 +33,6 @@ jobs:
     vmImage: 'macOS-10.14'
 
   steps:
-
   - task: NodeTool@0
     displayName: Node install
     inputs:
