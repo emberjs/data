@@ -5,6 +5,8 @@
 
 trigger:
 - master
+- beta
+- release
 
 pool:
   vmImage: 'Ubuntu-16.04'
