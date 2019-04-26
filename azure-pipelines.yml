@@ -1,0 +1,225 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+- beta
+- release
+jobs:
+- job: Basic_Ember_Data_tests
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      yarn
+
+  - script: |
+      yarn lint:features
+      yarn lint:js
+    displayName: 'Lint'
+
+  - script: |
+      yarn test
+    displayName: 'Basic Tests'
+
+  - script: |
+      yarn test:enabled-in-progress-features
+    displayName: 'In progress features'
+
+  - script: |
+      yarn test:production
+    displayName: 'Production'
+
+  - script: |
+      TARGET_IE11=true yarn test
+    displayName: 'Max transpilation Tests'
+
+  - script: |
+      yarn test:node
+    displayName: 'Node Tests'
+
+- job: Floating_dependencies
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      yarn install --no-lockfile --non-interactive
+
+  - script: |
+      yarn test
+    displayName: 'Basic Tests'
+
+- job: Ember_LTS_tests
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      yarn
+
+  - script: |
+      yarn test:try-one ember-lts-3.4
+    displayName: 'Ember LTS test 3.4'
+
+  - script: |
+      yarn test:try-one ember-lts-3.8
+    displayName: 'Ember LTS test 3.8'
+
+  - script: |
+      yarn test:try-one ember-release
+    displayName: 'Ember Release'
+
+  - script: |
+      yarn test:try-one ember-beta
+    displayName: 'Ember Beta'
+
+  - script: |
+      yarn test:try-one ember-canary
+    displayName: 'Ember Canary'
+ 
+- job: External_Partner_tests_ilios
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install firefox
+      yarn
+
+  - script: |
+       yarn test-external:ilios-frontend
+    displayName: 'External: ilios-frontend'
+
+- job: External_Partner_tests_travis
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      brew cask install firefox
+      yarn
+
+  - script: |
+       yarn test-external:travis-web
+    displayName: 'External: travis-web'
+
+- job: External_Partner_tests_ember_observer
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      brew cask install firefox
+      yarn
+
+  - script: |
+      yarn test-external:ember-observer
+    displayName: 'External: ember-observer'
+
+
+- job: External_Partner_tests_other
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      brew cask install firefox
+      yarn
+
+  - script: |
+       yarn test-external:storefront
+    displayName: 'External: storefront'
+
+#  - script: |
+#      yarn test-external:factory-guy
+#    displayName: 'External: factory-guy'
+
+  - script: |
+      yarn test-external:ember-resource-metadata
+    displayName: 'External: ember-resource-metadata'
+
+  - script: |
+      yarn test-external:ember-data-relationship-tracker
+    displayName: 'External: ember-data-relationship-tracker'
+
+  - script: |
+      yarn test-external:model-fragments
+    displayName: 'External: model-fragments'
+
+  - script: |
+      yarn test-external:emberaddons.com
+    displayName: 'External: emberaddons.com'
+
+  - script: |
+      yarn test-external:ember-data-change-tracker
+    displayName: 'External: ember-data-change-tracker'
+
+  - script: |
+      yarn test-external:ember-m3
+    displayName: 'External: ember-m3'
