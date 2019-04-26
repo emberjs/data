@@ -34,6 +34,24 @@ jobs:
       yarn test
     displayName: 'Basic Tests'
 
+- job: Ember_Data_builds_tests
+  dependsOn: Basic_Ember_Data_tests
+
+  pool:
+    vmImage: 'macOS-10.14'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      brew update
+      brew cask install google-chrome
+      yarn
+
   - script: |
       yarn test:enabled-in-progress-features
     displayName: 'In progress features'
@@ -51,6 +69,7 @@ jobs:
     displayName: 'Node Tests'
 
 - job: Floating_dependencies
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
@@ -72,6 +91,7 @@ jobs:
     displayName: 'Basic Tests'
 
 - job: Ember_LTS_tests
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
@@ -109,6 +129,7 @@ jobs:
     displayName: 'Ember Canary'
  
 - job: External_Partner_tests_ilios
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
@@ -130,6 +151,7 @@ jobs:
     displayName: 'External: ilios-frontend'
 
 - job: External_Partner_tests_travis
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
@@ -152,6 +174,7 @@ jobs:
     displayName: 'External: travis-web'
 
 - job: External_Partner_tests_ember_observer
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
@@ -175,6 +198,7 @@ jobs:
 
 
 - job: External_Partner_tests_other
+  dependsOn: Basic_Ember_Data_tests
 
   pool:
     vmImage: 'macOS-10.14'
