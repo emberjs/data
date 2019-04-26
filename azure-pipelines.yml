@@ -7,11 +7,28 @@ trigger:
 - master
 - beta
 - release
+
 jobs:
+- job: Lint
+  pool:
+    vmImage: 'macOS-10.14'
+
+- task: NodeTool@0
+  displayName: Node install
+  inputs:
+    versionSpec: '10.x' # The version we're installing
+
+- script: |
+    yarn
+    yarn lint:features
+    yarn lint:js
+  displayName: 'Lint'
+
 - job: Basic_Ember_Data_tests
+  dependsOn: Lint
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'macOS-10.14'
 
   steps:
 
@@ -22,14 +39,8 @@ jobs:
 
   - script: |
        yarn
-#      brew update
-#      brew cask install google-chrome
-#      yarn
-
-#  - script: |
-#      yarn lint:features
-#      yarn lint:js
-#    displayName: 'Lint'
+       brew update
+       brew cask install google-chrome
 
   - script: |
       yarn test
@@ -69,6 +80,36 @@ jobs:
   - script: |
       yarn test:node
     displayName: 'Node Tests'
+
+- job: Windows_tests
+  dependsOn: Basic_Ember_Data_tests
+
+  pool:
+    vmImage: 'windows-2019'
+
+  steps:
+
+  - task: NodeTool@0
+    displayName: Node install
+    inputs:
+      versionSpec: '10.x' # The version we're installing
+
+  - script: |
+      yarn
+    displayName: 'Yarn install'
+
+  - script: |
+      yarn test
+    displayName: 'Basic Tests'
+
+  - script: |
+      yarn test:enabled-in-progress-features
+    displayName: 'In progress features'
+
+  - script: |
+      yarn test:production
+    displayName: 'Production'
+
 
 - job: Floating_dependencies
   dependsOn: Basic_Ember_Data_tests
