@@ -11,7 +11,7 @@ jobs:
 - job: Basic_Ember_Data_tests
 
   pool:
-    vmImage: 'macOS-10.14'
+    vmImage: 'windows-2019'
 
   steps:
 
@@ -21,18 +21,20 @@ jobs:
       versionSpec: '10.x' # The version we're installing
 
   - script: |
-      brew update
-      brew cask install google-chrome
-      yarn
+       yarn
+#      brew update
+#      brew cask install google-chrome
+#      yarn
 
-  - script: |
-      yarn lint:features
-      yarn lint:js
-    displayName: 'Lint'
+#  - script: |
+#      yarn lint:features
+#      yarn lint:js
+#    displayName: 'Lint'
 
   - script: |
       yarn test
     displayName: 'Basic Tests'
+
 
 - job: Ember_Data_builds_tests
   dependsOn: Basic_Ember_Data_tests
