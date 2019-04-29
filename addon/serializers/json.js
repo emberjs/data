@@ -44,9 +44,7 @@ const emberAssign = assign || merge;
     id: 1,
     name: 'Sebastian',
     friends: [3, 4],
-    links: {
-      house: '/houses/lefkada'
-    }
+    house: '/houses/lefkada'
   }
   ```
 
