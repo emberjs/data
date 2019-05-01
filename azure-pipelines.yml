@@ -80,6 +80,10 @@ jobs:
           yarn test:node
         displayName: 'Node Tests'
 
+      - script: |
+          yarn test:try-one with-ember-fetch
+        displayName: 'Basic Tests with ember-fetch'
+
   - job: Windows_tests
     dependsOn: Basic_Ember_Data_tests
 

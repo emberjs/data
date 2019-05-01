@@ -3,17 +3,18 @@
   @module ember-data
 */
 
-import fetch from 'fetch';
-import serializeQueryParams from 'ember-fetch/utils/serialize-query-params';
-import determineBodyPromise from 'ember-fetch/utils/determine-body-promise';
-
 import RSVP, { Promise as EmberPromise } from 'rsvp';
 import { get, computed } from '@ember/object';
 import { getOwner } from '@ember/application';
 import { run } from '@ember/runloop';
 import Adapter, { BuildURLMixin } from '@ember-data/adapter';
 import { assign } from '@ember/polyfills';
-import { parseResponseHeaders } from '@ember-data/adapter/-private';
+import {
+  determineBodyPromise,
+  fetch,
+  parseResponseHeaders,
+  serializeQueryParams,
+} from './-private';
 import {
   AdapterError,
   InvalidError,
@@ -301,7 +302,9 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
-    return (ENV && ENV._JQUERY_INTEGRATION) === false || jQ === undefined;
+    let shouldUseFetch = (ENV && ENV._JQUERY_INTEGRATION) === false || jQ === undefined;
+
+    return shouldUseFetch;
   }),
 
   /**
