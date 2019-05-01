@@ -87,7 +87,7 @@ git push origin lts-<majorVersion>-<minorVersion>;
 3. Publish the LTS
 
 ```
-node ./bin/release.js lts
+node ./bin/publish.js lts
 ```
 
 4. Update the Release Notes on Github
@@ -172,7 +172,7 @@ git push origin release;
 4. Publish the release
 
 ```
-node ./bin/release.js release
+node ./bin/publish.js release
 ```
 
 5. Update the Release Notes on Github
@@ -185,7 +185,7 @@ node ./bin/release.js release
 
 6. Submit a PR to `ember-learn/builds` to update the builds for this channel
 
-- File to edit for [release](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/release.js
+- File to edit for [release](https://github.com/ember-learn/builds/blob/master/app/fixtures/ember-data/release.js)
 
 ### Beta
 
@@ -234,7 +234,7 @@ git push origin beta;
 3. Publish the weekly beta
 
 ```
-node ./bin/release.js beta
+node ./bin/publish.js beta
 ```
 
 4. Update the Release Notes on Github
@@ -267,19 +267,19 @@ git reset --hard origin/master
 a. If this is the very first `canary` release for a new minor
 
 ```
-node ./bin/release.js canary --bumpMinor
+node ./bin/publish.js canary --bumpMinor
 ```
 
 b. If this is the very first `canary` release for a new major
 
 ```
-node ./bin/release.js canary --bumpMajor
+node ./bin/publish.js canary --bumpMajor
 ```
 
 c. For all other "nightly" canary releases
 
 ```
-node ./bin/release.js canary
+node ./bin/publish.js canary
 ```
 
 Congrats, you are finished!
