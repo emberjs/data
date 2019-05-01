@@ -73,3 +73,20 @@ test('ajaxOptions() adds Accept header to existing computed properties headers',
     'headers assigned'
   );
 });
+
+test('ajaxOptions() does not overwrite passed value of Accept headers', function(assert) {
+  adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
+  let url = 'example.com';
+  let type = 'GET';
+  let ajaxOptions = adapter.ajaxOptions(url, type, {});
+  let receivedHeaders = ajaxOptions.headers;
+
+  assert.deepEqual(
+    receivedHeaders,
+    {
+      Accept: 'application/json',
+      'Other-Key': 'Other Value',
+    },
+    'headers assigned, Accept header not overwritten'
+  );
+});
