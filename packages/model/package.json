@@ -18,7 +18,7 @@
     "start": "ember serve",
     "test": "ember test",
     "test:all": "ember try:each",
-    "prepublishOnly": "ember ts:precompile",
+    "prepublishOnly": "ember build --environment=production && ember ts:precompile",
     "postpublish": "ember ts:clean"
   },
   "dependencies": {
