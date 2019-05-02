@@ -54,7 +54,6 @@
     "ember-cli-test-info": "^1.0.0",
     "ember-cli-typescript": "^2.0.0",
     "ember-cli-version-checker": "^3.1.3",
-    "ember-fetch": "^6.5.0",
     "ember-inflector": "^3.0.0",
     "git-repo-info": "^2.0.0",
     "heimdalljs": "^0.3.0",
@@ -133,11 +132,6 @@
     "ember-addon"
   ],
   "ember-addon": {
-    "configPath": "tests/dummy/config",
-    "fastbootDependencies": [
-      "node-fetch",
-      "abortcontroller-polyfill",
-      "abortcontroller-polyfill/dist/cjs-ponyfill"
-    ]
+    "configPath": "tests/dummy/config"
   }
 }

@@ -53,3 +53,8 @@ export { default as DebugAdapter } from './system/debug/debug-adapter';
 // Used by tests
 export { default as diffArray } from './system/diff-array';
 export { default as SnapshotRecordArray } from './system/snapshot-record-array';
+
+// fetch support, used by rest adapter
+export { determineBodyPromise } from './utils/determine-body-promise';
+export { serializeQueryParams } from './utils/serialize-query-params';
+export { default as fetch } from './utils/fetch';
