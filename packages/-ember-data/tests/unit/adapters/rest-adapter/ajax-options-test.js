@@ -8,13 +8,14 @@ import DS from 'ember-data';
 
 var Person, Place, store, adapter, env;
 
-module('unit/adapters/rest-adapter/ajax - building requests', function(hooks) {
+module('unit/adapters/rest-adapter/ajax-options - building requests', function(hooks) {
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
     store = env.store;
     adapter = env.adapter;
+    adapter.set('useFetch', true);
   });
 
   hooks.afterEach(function() {
@@ -68,16 +69,14 @@ module('unit/adapters/rest-adapter/ajax - building requests', function(hooks) {
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = [];
-    let fakeXHR = {
-      setRequestHeader(key, value) {
-        receivedHeaders.push([key, value]);
-      },
-    };
-    ajaxOptions.beforeSend(fakeXHR);
+    let receivedHeaders = ajaxOptions.headers;
+
     assert.deepEqual(
       receivedHeaders,
-      [['Content-Type', 'application/json'], ['Other-key', 'Other Value']],
+      {
+        'Content-Type': 'application/json',
+        'Other-key': 'Other Value',
+      },
       'headers assigned'
     );
   });
@@ -89,15 +88,14 @@ module('unit/adapters/rest-adapter/ajax - building requests', function(hooks) {
     delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
-      context: adapter,
+      credentials: 'same-origin',
       data: {
         key: 'value',
       },
-      dataType: 'json',
       type: 'GET',
       method: 'GET',
       headers: {},
-      url: 'example.com',
+      url: 'example.com?key=value',
     });
   });
 
@@ -108,10 +106,9 @@ module('unit/adapters/rest-adapter/ajax - building requests', function(hooks) {
     delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
-      contentType: 'application/json; charset=utf-8',
-      context: adapter,
-      data: '{"key":"value"}',
-      dataType: 'json',
+      credentials: 'same-origin',
+      data: { key: 'value' },
+      body: '{"key":"value"}',
       type: 'POST',
       method: 'POST',
       headers: {
@@ -128,12 +125,31 @@ module('unit/adapters/rest-adapter/ajax - building requests', function(hooks) {
     delete ajaxOptions.beforeSend;
 
     assert.deepEqual(ajaxOptions, {
-      context: adapter,
-      dataType: 'json',
+      credentials: 'same-origin',
       type: 'POST',
       method: 'POST',
       headers: {},
       url: 'example.com',
+    });
+  });
+
+  test('_fetchRequest() returns a promise', function(assert) {
+    let noop = function() {};
+
+    return run(() => {
+      let fetchPlacePromise = adapter._fetchRequest({
+        url: '/places/1',
+        success: noop,
+        error: noop,
+      });
+
+      assert.equal(
+        typeof fetchPlacePromise.then,
+        'function',
+        '_fetchRequest does not return a promise'
+      );
+
+      return fetchPlacePromise;
     });
   });
 });
