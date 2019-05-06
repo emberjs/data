@@ -14,6 +14,7 @@ import { default as RSVP, all, resolve, Promise, defer } from 'rsvp';
 import Service from '@ember/service';
 import { typeOf, isPresent, isNone } from '@ember/utils';
 
+import require from 'require';
 import Ember from 'ember';
 import { InvalidError } from '@ember-data/adapter/error';
 import { assert, warn, inspect } from '@ember/debug';
@@ -285,6 +286,29 @@ abstract class CoreStore extends Service {
     }
 
     if (DEBUG) {
+      // support for moduleFor style unit tests
+      // that were relying on ember-test-helpers
+      // doing an auto-registration of the transform
+      // or us doing one
+      const Mapping = {
+        date: 'DateTransform',
+        boolean: 'BooleanTransform',
+        number: 'NumberTransform',
+        string: 'StringTransform',
+      };
+
+      Object.keys(Mapping).forEach(attributeType => {
+        const transform = getOwner(this).lookup(`transform:${attributeType}`);
+
+        if (!transform) {
+          // we don't deprecate this because the moduleFor style tests with the closed
+          // resolver will be deprecated on their own. When that deprecation completes
+          // we can drop this.
+          const Transform = require(`@ember-data/serializer/-private`)[Mapping[attributeType]];
+          getOwner(this).register(`transform:${attributeType}`, Transform);
+        }
+      });
+
       this.shouldAssertMethodCallsOnDestroyedStore = this.shouldAssertMethodCallsOnDestroyedStore || false;
       if (this.shouldTrackAsyncRequests === undefined) {
         this.shouldTrackAsyncRequests = false;
@@ -3237,6 +3261,15 @@ abstract class CoreStore extends Service {
     let owner = getOwner(this);
 
     serializer = owner.lookup(`serializer:${normalizedModelName}`);
+
+    // getting rid of this case will be handed by the deprecation of moduleFor in ember test helpers
+    // in production this is handled by the re-export
+    if (DEBUG && serializer === undefined && normalizedModelName === '-json-api') {
+      const Serializer = require('@ember-data/serializer/json-api').default;
+      owner.register(`serializer:-json-api`, Serializer);
+      serializer = owner.lookup(`serializer:-json-api`);
+    }
+
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3259,6 +3292,15 @@ abstract class CoreStore extends Service {
     serializer = serializerName
       ? _serializerCache[serializerName] || owner.lookup(`serializer:${serializerName}`)
       : undefined;
+
+    // getting rid of this case will be handed by the deprecation of moduleFor in ember test helpers
+    // in production this is handled by the re-export
+    if (DEBUG && serializer === undefined && serializerName === '-json-api') {
+      const Serializer = require('@ember-data/serializer/json-api').default;
+      owner.register(`serializer:-json-api`, Serializer);
+      serializer = owner.lookup(`serializer:-json-api`);
+    }
+
     if (serializer !== undefined) {
       set(serializer, 'store', this);
       _serializerCache[normalizedModelName] = serializer;
@@ -3267,12 +3309,23 @@ abstract class CoreStore extends Service {
     }
 
     // final fallback, no model specific serializer, no application serializer, no
-    // `serializer` property on store: use json-api serializer
+    // `serializer` property on store: use JSON serializer
     serializer = _serializerCache['-default'] || owner.lookup('serializer:-default');
+    if (DEBUG && serializer === undefined) {
+      const JSONSerializer = require('@ember-data/serializer/json').default;
+      owner.register('serializer:-default', JSONSerializer);
+      serializer = owner.lookup('serializer:-default');
+    }
+
     assert(
-      `No serializer was found for '${modelName}' and no 'application', Adapter.defaultSerializer, or '-default' serializer were found as fallbacks.`,
+      `No serializer was found for '${modelName}' and no 'application' serializer was found as a fallback`,
       serializer !== undefined
     );
+    deprecate(`Usage of the '-default' serializer is deprecated.`, false, {
+      id: 'ember-data:default-serializer-fallback',
+      until: '3.12.0',
+    });
+
     set(serializer, 'store', this);
     _serializerCache[normalizedModelName] = serializer;
     _serializerCache['-default'] = serializer;

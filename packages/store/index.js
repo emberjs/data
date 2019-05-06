@@ -13,6 +13,7 @@ module.exports = Object.assign(addonBaseConfig, {
       'ember-inflector',
       '@ember/ordered-set',
       'ember-data/-debug',
+      'require',
     ];
   },
 });

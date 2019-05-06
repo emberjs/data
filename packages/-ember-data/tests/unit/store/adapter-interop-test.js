@@ -7,12 +7,14 @@ import setupStore from 'dummy/tests/helpers/store';
 
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
 import { module, test } from 'qunit';
-
 import DS from 'ember-data';
+import { setupTest } from 'ember-qunit';
 
 let TestAdapter, store;
 
 module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', function(hooks) {
+  setupTest(hooks);
+
   hooks.beforeEach(function() {
     TestAdapter = DS.Adapter.extend();
   });
@@ -43,9 +45,14 @@ module('unit/store/adapter-interop - DS.Store working with a DS.Adapter', functi
   testInDebug('Adapter can not be set as an instance', function(assert) {
     assert.expect(1);
 
-    store = DS.Store.create({
+    const BadStore = DS.Store.extend({
       adapter: DS.Adapter.create(),
     });
+    const { owner } = this;
+
+    owner.unregister('service:store');
+    owner.register('service:store', BadStore);
+    const store = owner.lookup('service:store');
     assert.expectAssertion(() => store.get('defaultAdapter'));
   });
 

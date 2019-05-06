@@ -1,22 +1,18 @@
 import { DebugAdapter } from './-private';
 import Store from '@ember-data/store';
-import JSONAPISerializer from '@ember-data/serializer/json-api';
-import JSONSerializer from '@ember-data/serializer/json';
-import RESTSerializer from '@ember-data/serializer/rest';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-import { BooleanTransform, DateTransform, NumberTransform, StringTransform } from '@ember-data/serializer/-private';
-
-function has(applicationOrRegistry, fullName) {
-  if (applicationOrRegistry.has) {
-    // < 2.1.0
-    return applicationOrRegistry.has(fullName);
-  } else {
-    // 2.1.0+
-    return applicationOrRegistry.hasRegistration(fullName);
+function hasRegistration(application, registrationName) {
+  // fallback our ember-data tests necessary
+  // until we kill-off createStore/setupStore
+  // or @ember/test-helpers kills off it's
+  // legacy support that calls our initializer with registry
+  // instead of application
+  if (!application.hasRegistration) {
+    return application.has(registrationName);
   }
+  return application.hasRegistration(registrationName);
 }
-
 /*
  Configures a registry for use with an Ember-Data
  store. Accepts an optional namespace argument.
@@ -24,18 +20,15 @@ function has(applicationOrRegistry, fullName) {
  @method initializeStore
  @param {Ember.Registry} registry
  */
-function initializeStore(registry) {
-  let registerOptionsForType = registry.registerOptionsForType || registry.optionsForType;
-  registerOptionsForType.call(registry, 'serializer', { singleton: false });
-  registerOptionsForType.call(registry, 'adapter', { singleton: false });
-  registry.register('serializer:-default', JSONSerializer);
-  registry.register('serializer:-rest', RESTSerializer);
+function initializeStore(application) {
+  let registerOptionsForType = application.registerOptionsForType || application.optionsForType;
+  registerOptionsForType.call(application, 'serializer', { singleton: false });
+  registerOptionsForType.call(application, 'adapter', { singleton: false });
 
-  registry.register('adapter:-json-api', JSONAPIAdapter);
-  registry.register('serializer:-json-api', JSONAPISerializer);
+  application.register('adapter:-json-api', JSONAPIAdapter);
 
-  if (!has(registry, 'service:store')) {
-    registry.register('service:store', Store);
+  if (!hasRegistration(application, 'service:store')) {
+    application.register('service:store', Store);
   }
 }
 
@@ -66,23 +59,8 @@ function initializeStoreInjections(registry) {
   inject.call(registry, 'data-adapter', 'store', 'service:store');
 }
 
-/*
- Configures a registry for use with Ember-Data
- transforms.
-
- @method initializeTransforms
- @param {Ember.Registry} registry
- */
-function initializeTransforms(registry) {
-  registry.register('transform:boolean', BooleanTransform);
-  registry.register('transform:date', DateTransform);
-  registry.register('transform:number', NumberTransform);
-  registry.register('transform:string', StringTransform);
-}
-
 export default function setupContainer(application) {
   initializeDataAdapter(application);
-  initializeTransforms(application);
   initializeStoreInjections(application);
   initializeStore(application);
 }

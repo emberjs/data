@@ -42,10 +42,16 @@ module('integration/store - serializerFor', function(hooks) {
     let { owner } = this;
     /*
       serializer:-default is the "last chance" fallback and is
-      registered automatically as the json-api serializer.
-      unregistering it will cause serializerFor to return `undefined`.
+      the json-api serializer which is re-exported as app/serializers/-default.
+      here we override to ensure serializerFor will return `undefined`.
      */
-    owner.unregister('serializer:-default');
+    const lookup = owner.lookup;
+    owner.lookup = registrationName => {
+      if (registrationName === 'serializer:-default') {
+        return undefined;
+      }
+      return lookup.call(owner, registrationName);
+    };
     /*
       we fallback to -json-api adapter by default when no other adapter is present.
       This adapter specifies a defaultSerializer. We register our own to ensure
@@ -64,7 +70,7 @@ module('integration/store - serializerFor', function(hooks) {
 
     assert.expectAssertion(() => {
       store.serializerFor('person');
-    }, /No serializer was found for 'person' and no 'application', Adapter\.defaultSerializer, or '-default' serializer were found as fallbacks\./);
+    }, /Assertion Failed: No serializer was found for 'person' and no 'application' serializer was found as a fallback/);
   });
 
   test('we find and instantiate the application serializer', async function(assert) {

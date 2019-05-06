@@ -19,20 +19,16 @@
       "dummy/*": ["tests/dummy/app/*", "app/*"],
       "@ember-data/serializer": ["addon"],
       "@ember-data/serializer/*": ["addon/*"],
+      "@ember-data/store": ["../store/addon"],
+      "@ember-data/store/*": ["../store/addon/*"],
+      "@ember-data/canary-features": ["../canary-features/addon"],
+      "@ember-data/adapter": ["../adapter/addon"],
+      "@ember-data/adapter/*": ["../adapter/addon/*"],
       "@ember-data/serializer/test-support": ["addon-test-support"],
       "@ember-data/serializer/test-support/*": ["addon-test-support/*"],
-      "ember-data": ["../-ember-data/addon"],
-      "ember-data/*": ["../-ember-data/addon/*"],
       "*": ["types/*"]
     }
   },
-  "include": [
-    "app/**/*",
-    "addon/**/*",
-    "tests/**/*",
-    "types/**/*",
-    "test-support/**/*",
-    "addon-test-support/**/*"
-  ],
+  "include": ["app/**/*", "addon/**/*", "tests/**/*", "types/**/*", "test-support/**/*", "addon-test-support/**/*"],
   "exclude": ["node_modules"]
 }
