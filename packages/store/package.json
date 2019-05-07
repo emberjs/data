@@ -5,7 +5,7 @@
   "keywords": [
     "ember-addon"
   ],
-  "repository": "",
+  "repository": "https://github.com/emberjs/data/tree/master/packages/store",
   "license": "MIT",
   "author": "",
   "directories": {
