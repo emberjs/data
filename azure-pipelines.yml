@@ -10,6 +10,11 @@ trigger:
 
 jobs:
   - job: Lint
+    condition: |
+      or(
+        in(variables['Build.SourceBranchName'], 'master', 'beta'),
+        in(variables['System.PullRequest.TargetBranch'], 'master', 'beta')
+      )
 
     pool:
       vmImage: 'macOS-10.14'
@@ -28,6 +33,7 @@ jobs:
 
   - job: Basic_Ember_Data_tests
     dependsOn: Lint
+    condition: or(succeeded(), eq(dependencies.Lint.result, 'Skipped'))
 
     pool:
       vmImage: 'macOS-10.14'
