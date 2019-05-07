@@ -5,7 +5,7 @@
   "keywords": [
     "ember-addon"
   ],
-  "repository": "",
+  "repository": "https://github.com/emberjs/data/tree/master/packages/serializer",
   "license": "MIT",
   "author": "",
   "directories": {
