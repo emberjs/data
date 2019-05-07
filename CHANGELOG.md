@@ -2,6 +2,11 @@
 
 ### Master
 
+## Release 3.9.2 (May 7, 2019)
+
+- [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
+- [#6082](https://github.com/emberjs/data/pull/6082) [BUGFIX release] Remove ember-fetch dependency. (#6082)
+
 ## Release 3.9.1 (April 19, 2019)
 
 - [7e3ca651](https://github.com/emberjs/data/commit/7e3ca651e0ce2525cfab666870e54fd16d23b57c) [BUGFIX jQuery] avoid jQuery deprecation notice for intentional use
