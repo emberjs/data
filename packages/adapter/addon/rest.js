@@ -30,7 +30,8 @@ import { warn } from '@ember/debug';
 import { DEBUG } from '@glimmer/env';
 
 const Promise = EmberPromise;
-const jQ = typeof jQuery !== 'undefined' ? jQuery : undefined;
+const hasJQuery = typeof jQuery !== 'undefined';
+const hasNajax = typeof najax !== 'undefined';
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -302,9 +303,17 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
 
   useFetch: computed(function() {
     let ENV = getOwner(this).resolveRegistration('config:environment');
-    let shouldUseFetch = (ENV && ENV._JQUERY_INTEGRATION) === false || jQ === undefined;
+    // TODO: https://github.com/emberjs/data/issues/6093
+    let jQueryIntegrationDisabled =
+      ENV && ENV.EmberENV && ENV.EmberENV._JQUERY_INTEGRATION === false;
 
-    return shouldUseFetch;
+    if (jQueryIntegrationDisabled) {
+      return true;
+    } else if (hasNajax || hasJQuery) {
+      return false;
+    } else {
+      return true;
+    }
   }),
 
   /**
@@ -1029,7 +1038,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the ajax request
   */
   _ajaxRequest(options) {
-    jQ.ajax(options);
+    jQuery.ajax(options);
   },
 
   /**
@@ -1038,7 +1047,7 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @param {Object} options jQuery ajax options to be used for the najax request
   */
   _najaxRequest(options) {
-    if (typeof najax !== 'undefined') {
+    if (hasNajax) {
       najax(options);
     } else {
       throw new Error(
