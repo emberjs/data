@@ -1,11 +1,11 @@
 'use strict';
 
 function isInstrumentedBuild() {
-  return process.argv.includes('--instrument');
+  return process.env.INSTRUMENT;
 }
 
 function wantsEnabledFeatures() {
-  return process.argv.includes('--enable-in-progress');
+  return process.env.ENABLE_IN_PROGRESS;
 }
 
 function getManuallyEnabledFeatures() {
