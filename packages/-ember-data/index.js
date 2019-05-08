@@ -126,6 +126,7 @@ module.exports = Object.assign(addonBaseConfig, {
           'ember-data/-debug',
           'ember-data/adapters/errors',
           '@ember/ordered-set',
+          'require',
         ],
         onwarn: this._suppressCircularDependencyWarnings,
         // cache: true|false Defaults to true
