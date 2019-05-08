@@ -9,19 +9,14 @@ function wantsEnabledFeatures() {
 }
 
 function getManuallyEnabledFeatures() {
-  let args = process.argv;
   let enabled = {};
-  let ARG = '--enable-in-progress-flag';
+  let ARGS = process.env.ENABLE_IN_PROGRESS;
 
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].indexOf(ARG) === 0) {
-      let toEnable = args[i].substr(ARG.length + 1).split(',');
-      toEnable.forEach(function(flag) {
-        enabled[flag] = true;
-      });
-      break;
+  ARGS.split(',').forEach(function(flag) {
+    if (flag.length > 0) {
+      enabled[flag] = true;
     }
-  }
+  });
 
   return enabled;
 }
