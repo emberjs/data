@@ -5,7 +5,7 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  plugins: ['prettier'],
+  plugins: ['prettier', 'qunit'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
     'prettier/prettier': 'error',

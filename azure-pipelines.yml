@@ -23,7 +23,7 @@ jobs:
       - script: |
           yarn
           yarn lint:features
-          yarn lint:js
+          yarn lint:prettier
     displayName: 'Lint'
 
   - job: Basic_Ember_Data_tests
