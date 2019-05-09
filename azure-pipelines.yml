@@ -2,337 +2,168 @@
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
+#
+# | Type               | Master | Beta | Release | LTS  | Tags |
+# | ---                | ---    | ---  | ---     | ---  | ---  |
+# | Lint               | yes    | yes  | no      | no   | no   |
+# | Basic Tests        | yes    | yes  | yes     | yes  | no   |
+# | Build  Tests       | yes    | yes  | yes*    | yes* | no   |
+# | Windows Tests      | yes    | yes  | yes*    | yes* | no   |
+# | Floating Deps      | yes    | yes  | yes     | yes  | no   |
+# | Ember LTS Branches | yes    | yes  | yes     | yes  | no   |
+# | Release Channels   | yes    | yes  | no      | no   | no   |
+# | External Partners  | yes    | yes  | no      | no   | no   |
+#
+# * Runs but skips tests for in-progress-features
 
 trigger:
   - master
   - beta
   - release
+  - release-*
+  - lts-*
 
 jobs:
   - job: Lint
+    displayName: 'Lint'
     condition: |
       or(
         in(variables['Build.SourceBranchName'], 'master', 'beta'),
         in(variables['System.PullRequest.TargetBranch'], 'master', 'beta')
       )
-
     pool:
       vmImage: 'macOS-10.14'
-
     steps:
       - task: NodeTool@0
-        displayName: Node install
+        displayName: 'Node install'
         inputs:
           versionSpec: '10.x' # The version we're installing
-      - script: |
-          yarn
-          yarn lint:features
-      - script: |
-          yarn lint:prettier
-      - script: |
-          yarn problems
-        displayName: 'Lint'
-
-  - job: Basic_Ember_Data_tests
-    dependsOn: Lint
-    condition: or(succeeded(), eq(dependencies.Lint.result, 'Skipped'))
-
-    pool:
-      vmImage: 'macOS-10.14'
-
-    steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          yarn
-          brew update
-          brew cask install google-chrome
-
-      - script: |
-          yarn test
-        displayName: 'Basic Tests'
-
-      - script: |
-          yarn test:encapsulation
-        displayName: 'Encapsulation Tests'
-
-  - job: Ember_Data_builds_tests
-    dependsOn: Basic_Ember_Data_tests
-
-    pool:
-      vmImage: 'macOS-10.14'
-
-    steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          brew update
-          brew cask install google-chrome
-          yarn
-
-      - script: |
-          yarn test:enabled-in-progress-features
-        env:
-          EMBER_DATA_FEATURE_OVERRIDE: ENABLE_ALL_OPTIONAL
-          displayName: 'In progress features'
-
-      - script: |
-          yarn test:production
-        displayName: 'Production'
-
-      - script: |
-          TARGET_IE11=true yarn test
-        displayName: 'Max transpilation Tests'
-
-      - script: |
-          yarn test:node
-        displayName: 'Node Tests'
-
-      - script: |
-          yarn test:docs
-        displayName: 'Docs Tests'
-
-      - script: |
-          yarn test:try-one with-ember-fetch
-        displayName: 'Basic Tests with ember-fetch'
-
-  - job: Windows_tests
-    dependsOn: Basic_Ember_Data_tests
-
-    pool:
-      vmImage: 'windows-2019'
-
-    steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          yarn
+      - script: yarn
         displayName: 'Yarn install'
+      - script: yarn lint:features
+        displayName: 'Lint features'
+      - script: yarn lint:features
+        displayName: 'Lint prettier'
+      - script: yarn problems
+        displayName: 'Check for TypeScript problems'
 
-      - script: |
-          yarn test
-        displayName: 'Basic Tests'
-
-      - script: |
-          yarn test:enabled-in-progress-features
-        displayName: 'In progress features'
-
-      - script: |
-          yarn test:production
-        displayName: 'Production'
-
-  - job: jQuery_Tests
-    dependsOn: Basic_Ember_Data_tests
-
+  - job: BasicTests
+    condition: or(succeeded(), eq(dependencies.Lint.result, 'Skipped'))
+    strategy:
+      matrix:
+        linux_fixed:
+          vmImage: 'ubuntu-16.04'
+        linux_floating:
+          vmImage: 'ubuntu-16.04'
+          useLockfile: false
+        mac_fixed:
+          vmImage: 'macOS-10.14'
+        mac_floating:
+          vmImage: 'macOS-10.14'
+          useLockfile: false
+        windows_fixed:
+          vmImage: 'windows-2019'
+        windows_floating:
+          vmImage: 'windows-2019'
+          useLockfile: false
     pool:
-      vmImage: 'macOS-10.14'
-
+      vmImage: $(vmImage)
     steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
+      - template: '.azure/basic-tests.yml'
+        parameters:
+          useLockfile: $(useLockfile)
 
-      - script: |
-          brew update
-          brew cask install google-chrome
-          yarn install --no-lockfile --non-interactive
-
-      - script: |
-          yarn test:try-one default-with-jquery
-        displayName: 'Basic Tests with jQuery'
-
-      - script: |
-          yarn test:try-one ember-release-with-jquery
-        displayName: 'Ember Release Channel Tests with jQuery'
-
-  - job: Floating_dependencies
-    dependsOn: Basic_Ember_Data_tests
-
+  - job: LTS
+    dependsOn: BasicTests
     pool:
-      vmImage: 'macOS-10.14'
-
+      vmImage: 'ubuntu-16.04'
     steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
+      - template: '.azure/try-scenario.yml'
+        parameters:
+          scenario: ember-lts-3.8
 
-      - script: |
-          brew update
-          brew cask install google-chrome
-          yarn install --no-lockfile --non-interactive
-
-      - script: |
-          yarn test
-        displayName: 'Basic Tests'
-
-  - job: Ember_LTS_tests
-    dependsOn: Basic_Ember_Data_tests
-
+  - job: ReleaseChannels
+    dependsOn: BasicTests
+    condition: |
+      and(
+        succeeded(),
+        or(
+          in(variables['Build.SourceBranchName'], 'master', 'beta'),
+          in(variables['System.PullRequest.TargetBranch'], 'master', 'beta')
+        )
+      )
     pool:
-      vmImage: 'macOS-10.14'
-
+      vmImage: 'ubuntu-16.04'
+    strategy:
+      matrix:
+        ember_release:
+          scenario: ember-release
+        ember_beta:
+          scenario: ember-beta
+        ember_canary:
+          scenario: ember-canary
+        ember_release_with_jquery:
+          scenario: ember-release-with-jquery
     steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
+      - template: '.azure/try-scenario.yml'
+        parameters:
+          scenario: $(scenario)
 
-      - script: |
-          brew update
-          brew cask install google-chrome
-          yarn
-
-      - script: |
-          yarn install
-          yarn test:try-one ember-lts-3.8
-        displayName: 'Ember LTS test 3.8'
-
-      - script: |
-          yarn install
-          yarn test:try-one ember-release
-        displayName: 'Ember Release'
-
-      - script: |
-          yarn install
-          yarn test:try-one ember-beta
-        displayName: 'Ember Beta'
-
-      - script: |
-          yarn install
-          yarn test:try-one ember-canary
-        displayName: 'Ember Canary'
-
-  - job: External_Partner_tests_ilios
-    dependsOn: Basic_Ember_Data_tests
-
+  - job: AdditionalScenarios
+    dependsOn: BasicTests
     pool:
-      vmImage: 'macOS-10.14'
-
+      vmImage: 'ubuntu-16.04'
+    strategy:
+      matrix:
+        with_ember_fetch:
+          scenario: with-ember-fetch
+        with_jquery:
+          scenario: default-with-jquery
+        with_max_transpilation:
+          scenario: with-max-transpilation
     steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
+      - template: '.azure/try-scenario.yml'
+        parameters:
+          scenario: $(scenario)
 
-      - script: |
-          brew update
-          brew cask install firefox
-          yarn
-          node ./bin/packages-for-commit.js
-
-      - script: |
-          yarn test-external:ilios-frontend
-        displayName: 'External: ilios-frontend'
-
-  - job: External_Partner_tests_travis
-    dependsOn: Basic_Ember_Data_tests
-
+  - job: ExternalPartners
+    dependsOn:
+      - LTS
+      # - ReleaseChannels
+      - AdditionalScenarios
+    condition: |
+      and(
+        succeeded(),
+        or(
+          in(variables['Build.SourceBranchName'], 'master', 'beta'),
+          in(variables['System.PullRequest.TargetBranch'], 'master', 'beta')
+        )
+      )
     pool:
-      vmImage: 'macOS-10.14'
-
+      vmImage: 'ubuntu-16.04'
+    strategy:
+      matrix:
+        ilios_frontend:
+          partner: ilios-frontend
+        ember_observer:
+          partner: ember-observer
+        ember_data_change_tracker:
+          partner: ember-data-change-tracker
+        ember_data_relationship_tracker:
+          partner: ember-data-relationship-tracker
+        ember_m3:
+          partner: ember-m3
+        ember_resource_metadata:
+          partner: ember-resource-metadata
+        #factory_guy:
+        #  partner: factory-guy
+        model_fragments:
+          partner: model-fragments
+        storefront:
+          partner: storefront
+        travis_web:
+          partner: travis-web
     steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
-          yarn
-          node ./bin/packages-for-commit.js
-
-      - script: |
-          CI=true yarn test-external:travis-web
-        displayName: 'External: travis-web'
-
-  - job: External_Partner_tests_ember_observer
-    dependsOn: Basic_Ember_Data_tests
-
-    pool:
-      vmImage: 'macOS-10.14'
-
-    steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
-          yarn
-          node ./bin/packages-for-commit.js
-
-      - script: |
-          yarn test-external:ember-observer
-        displayName: 'External: ember-observer'
-
-  - job: External_Partner_tests_other
-    dependsOn: Basic_Ember_Data_tests
-
-    pool:
-      vmImage: 'macOS-10.14'
-
-    steps:
-      - task: NodeTool@0
-        displayName: Node install
-        inputs:
-          versionSpec: '10.x' # The version we're installing
-
-      - script: |
-          brew update
-          brew cask install google-chrome
-          brew cask install firefox
-          yarn
-          node ./bin/packages-for-commit.js
-        condition: always()
-
-      - script: |
-          yarn test-external:storefront
-        displayName: 'External: storefront'
-        condition: always()
-
-      #  - script: |
-      #      yarn test-external:factory-guy
-      #    displayName: 'External: factory-guy'
-
-      - script: |
-          yarn test-external:ember-resource-metadata
-        displayName: 'External: ember-resource-metadata'
-        condition: always()
-
-      - script: |
-          yarn test-external:ember-data-relationship-tracker
-        displayName: 'External: ember-data-relationship-tracker'
-        condition: always()
-
-      - script: |
-          yarn test-external:model-fragments
-          exit 0
-        displayName: 'External: model-fragments'
-        condition: always()
-
-      - script: |
-          yarn test-external:ember-data-change-tracker
-          exit 0
-        displayName: 'External: ember-data-change-tracker'
-        condition: always()
-
-      - script: |
-          yarn test-external:ember-m3
-        displayName: 'External: ember-m3'
-        condition: always()
+      - template: '.azure/external-partner-test.yml'
+        parameters:
+          partner: $(partner)
