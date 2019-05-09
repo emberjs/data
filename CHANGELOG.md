@@ -2,6 +2,11 @@
 
 ### Master
 
+## Release 3.9.3 (May 9, 2019)
+
+- [ab45d352](https://github.com/emberjs/data/commit/ab45d352cac06c8a5fd10e92cf99accc96a19ff7) [BUGFIX release] Fix fetch detection.
+- [0dce363b](https://github.com/emberjs/data/commit/0dce363bb99118e8aae051a9660c78f9be880850) [BUGFIX release] Fix rollup warnings for require as an external module. (#6095)
+
 ## Release 3.9.2 (May 7, 2019)
 
 - [#6076](https://github.com/emberjs/data/pull/6076) [BUGFIX fetch] prevent Accept & ContentType header overwriting (#6062)
