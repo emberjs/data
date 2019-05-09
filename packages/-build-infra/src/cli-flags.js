@@ -12,11 +12,11 @@ function getManuallyEnabledFeatures() {
   let enabled = {};
   let ARGS = process.env.ENABLE_IN_PROGRESS;
 
-  ARGS.split(',').forEach(function(flag) {
-    if (flag.length > 0) {
+  if (ARGS) {
+    ARGS.split(',').forEach(function(flag) {
       enabled[flag] = true;
-    }
-  });
+    });
+  }
 
   return enabled;
 }
