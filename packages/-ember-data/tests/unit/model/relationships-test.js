@@ -20,7 +20,7 @@ class User extends Model {
 
 class Occupation extends Model {}
 
-module('unit/model/relationships - DS.Model', function(hooks) {
+module('[@ember-data/model] unit - relationships', function(hooks) {
   let store;
   setupTest(hooks);
 
@@ -51,20 +51,30 @@ module('unit/model/relationships - DS.Model', function(hooks) {
       });
     }
 
-    assert.deepEqual(extractDetails('person'), [
-      { name: 'people', kind: 'hasMany', options: { async: false, inverse: 'parent' } },
-      { name: 'parent', kind: 'belongsTo', options: { async: false, inverse: 'people' } },
-    ]);
-    assert.deepEqual(extractDetails('occupation'), [
-      { name: 'occupations', kind: 'hasMany', options: { async: false } },
-    ]);
+    assert.deepEqual(
+      extractDetails('person'),
+      [
+        { name: 'people', kind: 'hasMany', options: { async: false, inverse: 'parent' } },
+        { name: 'parent', kind: 'belongsTo', options: { async: false, inverse: 'people' } },
+      ],
+      'person relationships contains the expected meta information'
+    );
+    assert.deepEqual(
+      extractDetails('occupation'),
+      [{ name: 'occupations', kind: 'hasMany', options: { async: false } }],
+      'occupation relationships contains the expected meta information'
+    );
   });
 
   test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
-    assert.deepEqual(get(Person, 'relationshipNames'), {
-      hasMany: ['occupations', 'people'],
-      belongsTo: ['parent'],
-    });
+    assert.deepEqual(
+      get(Person, 'relationshipNames'),
+      {
+        hasMany: ['occupations', 'people'],
+        belongsTo: ['parent'],
+      },
+      'relationshipNames hash contains the expected relationship types as keys'
+    );
   });
 
   test('eachRelatedType() iterates over relations without duplication', function(assert) {
@@ -72,7 +82,11 @@ module('unit/model/relationships - DS.Model', function(hooks) {
 
     Person.eachRelatedType(modelName => relations.push(modelName));
 
-    assert.deepEqual(relations, ['occupation', 'person']);
+    assert.deepEqual(
+      relations,
+      ['occupation', 'person'],
+      'eachRelatedType() did not return duplicate modelNames'
+    );
   });
 
   test('normalizing belongsTo relationship names', function(assert) {
