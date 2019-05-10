@@ -1,117 +1,118 @@
-import { get } from '@ember/object';
-import { createStore } from 'dummy/tests/helpers/store';
-
+import { setupTest } from 'ember-qunit';
 import { module, test } from 'qunit';
+import Model from '@ember-data/model';
+import { hasMany, belongsTo } from '@ember-data/model';
+import { get } from '@ember/object';
 
-import DS from 'ember-data';
+class Person extends Model {
+  @hasMany('occupation', { async: false }) occupations;
+  @hasMany('person', { inverse: 'parent', async: false }) people;
+  @belongsTo('person', { inverse: 'people', async: false }) parent;
+}
 
-let Occupation, Person, store;
+class UserProfile extends Model {
+  @belongsTo() user;
+}
 
-module('unit/model/relationships - DS.Model', {
-  beforeEach() {
-    Occupation = DS.Model.extend();
+class User extends Model {
+  @belongsTo() userProfile;
+}
 
-    Person = DS.Model.extend({
-      occupations: DS.hasMany('occupation', { async: false }),
-      people: DS.hasMany('person', { inverse: 'parent', async: false }),
-      parent: DS.belongsTo('person', { inverse: 'people', async: false }),
+class Occupation extends Model {}
+
+module('unit/model/relationships - DS.Model', function(hooks) {
+  let store;
+  setupTest(hooks);
+
+  hooks.beforeEach(function() {
+    let { owner } = this;
+
+    owner.register('model:occupation', Occupation);
+    owner.register('model:person', Person);
+    owner.register('model:user-profile', UserProfile);
+    owner.register('model:user', User);
+
+    store = owner.lookup('service:store');
+  });
+
+  test('exposes a hash of the relationships on a model', function(assert) {
+    let Person = store.modelFor('person');
+
+    let relationships = get(Person, 'relationships');
+    function extractDetails(key) {
+      let descs = relationships.get(key);
+
+      return descs.map(desc => {
+        return {
+          kind: desc.kind,
+          name: desc.name,
+          options: desc.options,
+        };
+      });
+    }
+
+    assert.deepEqual(extractDetails('person'), [
+      { name: 'people', kind: 'hasMany', options: { async: false, inverse: 'parent' } },
+      { name: 'parent', kind: 'belongsTo', options: { async: false, inverse: 'people' } },
+    ]);
+    assert.deepEqual(extractDetails('occupation'), [
+      { name: 'occupations', kind: 'hasMany', options: { async: false } },
+    ]);
+  });
+
+  test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
+    assert.deepEqual(get(Person, 'relationshipNames'), {
+      hasMany: ['occupations', 'people'],
+      belongsTo: ['parent'],
     });
-
-    store = createStore({
-      occupation: Occupation,
-      person: Person,
-    });
-
-    Person = store.modelFor('person');
-  },
-});
-
-test('exposes a hash of the relationships on a model', function(assert) {
-  let Person = store.modelFor('person');
-
-  let relationships = get(Person, 'relationships');
-  function extractDetails(key) {
-    let descs = relationships.get(key);
-
-    return descs.map(desc => {
-      return {
-        kind: desc.kind,
-        name: desc.name,
-        options: desc.options,
-      };
-    });
-  }
-
-  assert.deepEqual(extractDetails('person'), [
-    { name: 'people', kind: 'hasMany', options: { async: false, inverse: 'parent' } },
-    { name: 'parent', kind: 'belongsTo', options: { async: false, inverse: 'people' } },
-  ]);
-  assert.deepEqual(extractDetails('occupation'), [
-    { name: 'occupations', kind: 'hasMany', options: { async: false } },
-  ]);
-});
-
-test('relationshipNames a hash of the relationships on a model with type as a key', function(assert) {
-  assert.deepEqual(get(Person, 'relationshipNames'), {
-    hasMany: ['occupations', 'people'],
-    belongsTo: ['parent'],
-  });
-});
-
-test('eachRelatedType() iterates over relations without duplication', function(assert) {
-  let relations = [];
-
-  Person.eachRelatedType(modelName => relations.push(modelName));
-
-  assert.deepEqual(relations, ['occupation', 'person']);
-});
-
-test('normalizing belongsTo relationship names', function(assert) {
-  const UserProfile = DS.Model.extend({
-    user: DS.belongsTo(),
   });
 
-  let User = DS.Model.extend({
-    userProfile: DS.belongsTo(),
+  test('eachRelatedType() iterates over relations without duplication', function(assert) {
+    let relations = [];
+
+    Person.eachRelatedType(modelName => relations.push(modelName));
+
+    assert.deepEqual(relations, ['occupation', 'person']);
   });
 
-  store = createStore({
-    user: User,
-    userProfile: UserProfile,
+  test('normalizing belongsTo relationship names', function(assert) {
+    let User = store.modelFor('user');
+
+    const relationships = get(User, 'relationships');
+
+    assert.ok(relationships.has('user-profile'), 'relationship key has been normalized');
+
+    const relationship = relationships.get('user-profile')[0];
+
+    assert.equal(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
   });
 
-  User = store.modelFor('user');
+  test('normalizing hasMany relationship names', function(assert) {
+    let store;
+    let { owner } = this;
 
-  const relationships = get(User, 'relationships');
+    class StreamItem extends Model {
+      @belongsTo() user;
+    }
 
-  assert.ok(relationships.has('user-profile'), 'relationship key has been normalized');
+    class User extends Model {
+      @hasMany() streamItems;
+    }
 
-  const relationship = relationships.get('user-profile')[0];
+    owner.unregister('model:user');
+    owner.register('model:stream-item', StreamItem);
+    owner.register('model:user', User);
 
-  assert.equal(relationship.meta.name, 'userProfile', 'relationship name has not been changed');
-});
+    store = owner.lookup('service:store');
 
-test('normalizing hasMany relationship names', function(assert) {
-  const StreamItem = DS.Model.extend({
-    user: DS.belongsTo(),
+    let user = store.modelFor('user');
+
+    const relationships = get(user, 'relationships');
+
+    assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
+
+    const relationship = relationships.get('stream-item')[0];
+
+    assert.equal(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
   });
-
-  let User = DS.Model.extend({
-    streamItems: DS.hasMany(),
-  });
-
-  store = createStore({
-    user: User,
-    streamItem: StreamItem,
-  });
-
-  User = store.modelFor('user');
-
-  const relationships = get(User, 'relationships');
-
-  assert.ok(relationships.has('stream-item'), 'relationship key has been normalized');
-
-  const relationship = relationships.get('stream-item')[0];
-
-  assert.equal(relationship.meta.name, 'streamItems', 'relationship name has not been changed');
 });
