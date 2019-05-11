@@ -250,7 +250,11 @@ module('unit/model/merge - Merging', function(hooks) {
     assert.equal(person.get('hasDirtyAttributes'), true, 'the local changes are reapplied');
     assert.equal(person.get('isValid'), false, 'record is still invalid');
     assert.equal(person.get('name'), 'Brondan McLoughlin', 'the local changes are reapplied');
-    assert.equal(person.get('city'), 'Prague', 'if there are no local changes, the new data applied');
+    assert.equal(
+      person.get('city'),
+      'Prague',
+      'if there are no local changes, the new data applied'
+    );
   });
 
   test('A record with no changes can still be saved', function(assert) {

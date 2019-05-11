@@ -81,7 +81,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
 
       updateRecord(store, type, snapshot) {
-        assert.equal(callCount, 0, 'didUpdate callback was not called until didSaveRecord is called');
+        assert.equal(
+          callCount,
+          0,
+          'didUpdate callback was not called until didSaveRecord is called'
+        );
 
         return resolve();
       },
@@ -125,7 +129,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
 
     const Adapter = DS.Adapter.extend({
       createRecord(store, type, snapshot) {
-        assert.equal(callCount, 0, 'didCreate callback was not called until didSaveRecord is called');
+        assert.equal(
+          callCount,
+          0,
+          'didCreate callback was not called until didSaveRecord is called'
+        );
 
         return resolve();
       },
@@ -169,7 +177,11 @@ module('unit/model/lifecycle_callbacks - Lifecycle Callbacks', function() {
       },
 
       deleteRecord(store, type, snapshot) {
-        assert.equal(callCount, 0, 'didDelete callback was not called until didSaveRecord is called');
+        assert.equal(
+          callCount,
+          0,
+          'didDelete callback was not called until didSaveRecord is called'
+        );
 
         return resolve();
       },

@@ -69,9 +69,17 @@ module('unit/model/relationships - DS.belongsTo', function() {
 
     return run(() => {
       return store.findRecord('person', 1).then(person => {
-        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+        assert.equal(
+          get(person, 'name'),
+          'Tom Dale',
+          'precond - retrieves person record from store'
+        );
 
-        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
+        assert.equal(
+          get(person, 'tag') instanceof Tag,
+          true,
+          'the tag property should return a tag'
+        );
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag shuld have name');
 
         assert.strictEqual(
@@ -670,9 +678,17 @@ module('unit/model/relationships - DS.belongsTo', function() {
 
     return run(() => {
       return store.findRecord('person', 1).then(person => {
-        assert.equal(get(person, 'name'), 'Tom Dale', 'precond - retrieves person record from store');
+        assert.equal(
+          get(person, 'name'),
+          'Tom Dale',
+          'precond - retrieves person record from store'
+        );
 
-        assert.equal(get(person, 'tag') instanceof Tag, true, 'the tag property should return a tag');
+        assert.equal(
+          get(person, 'tag') instanceof Tag,
+          true,
+          'the tag property should return a tag'
+        );
         assert.equal(get(person, 'tag.name'), 'friendly', 'the tag should have name');
 
         assert.strictEqual(

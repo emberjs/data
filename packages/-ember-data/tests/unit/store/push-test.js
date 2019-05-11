@@ -354,7 +354,11 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       });
     });
 
-    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
+    assert.equal(
+      post.get('postTitle'),
+      'Ember rocks (updated)',
+      'You can update data in the store'
+    );
   });
 
   test('Calling pushPayload allows pushing singular payload properties', function(assert) {
@@ -380,7 +384,11 @@ module('unit/store/push - DS.Store#push', function(hooks) {
       });
     });
 
-    assert.equal(post.get('postTitle'), 'Ember rocks (updated)', 'You can update data in the store');
+    assert.equal(
+      post.get('postTitle'),
+      'Ember rocks (updated)',
+      'You can update data in the store'
+    );
   });
 
   test(`Calling pushPayload should use the type's serializer for normalizing`, function(assert) {
@@ -660,7 +668,9 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     }
   );
 
-  testInDebug('Calling push with an unknown model name throws an assertion error', function(assert) {
+  testInDebug('Calling push with an unknown model name throws an assertion error', function(
+    assert
+  ) {
     assert.expectAssertion(() => {
       run(() => {
         store.push({
@@ -725,7 +735,9 @@ module('unit/store/push - DS.Store#push', function(hooks) {
     assert.equal(person.get('firstName'), 'Tan', 'you can use links that contain null as a value');
   });
 
-  testInDebug('calling push with hasMany relationship the value must be an array', function(assert) {
+  testInDebug('calling push with hasMany relationship the value must be an array', function(
+    assert
+  ) {
     assert.expectAssertion(() => {
       run(() => {
         store.push({

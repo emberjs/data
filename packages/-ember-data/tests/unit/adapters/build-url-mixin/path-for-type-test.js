@@ -6,7 +6,9 @@ import { module, test } from 'qunit';
 
 let env, adapter;
 
-module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType', function(hooks) {
+module('unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType', function(
+  hooks
+) {
   hooks.beforeEach(function() {
     // test for overriden pathForType methods which return null path values
     let customPathForType = {
