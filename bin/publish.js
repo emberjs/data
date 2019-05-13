@@ -211,24 +211,25 @@ function retrieveNextVersion() {
   let v;
   if (options.channel === 'release' || options.channel === 'lts') {
     // a new patch, or our first release of a new minor/major
-    // for new minor/major the version will have drifted up
+    // usually for new minor/major the version will have drifted up
     // from prior beta/canary incrementing
-    v = semver.inc(options.currentVersion, 'patch');
+    // bumpMajor means we are doing a re-release that makes us a new major release
+    // bumpMinor means we are doing a re-release that makes us a new minor release
+    // else this is a new patch release or the first release but cut from a previous beta.
+    let bumpType = options.bumpMajor ? 'major' : options.bumpMinor ? 'minor' : 'patch';
+    v = semver.inc(options.currentVersion, bumpType);
   } else if (options.channel === 'beta') {
-    v = semver.inc(options.currentVersion, 'prerelease', 'beta');
+    // bumpMajor means we are doing a re-release that makes us the first beta of an upcoming major release
+    // bumpMinor means we are doing a re-release that makes us the first beta of an upcoming minor release
+    // else this is a new weekly beta or the first beta but cut from a previous canary.
+    let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
+    v = semver.inc(options.currentVersion, bumpType, 'beta');
   } else if (options.channel === 'canary') {
-    if (options.bumpMajor === true) {
-      // our first canary for an upcoming major
-      v = semver.inc(options.currentVersion, 'major');
-      v = semver.inc(v, 'prerelease', 'canary');
-    } else if (options.bumpMinor === true) {
-      // our first canary for an upcoming minor
-      v = semver.inc(options.currentVersion, 'minor');
-      v = semver.inc(v, 'prerelease', 'canary');
-    } else {
-      // a new nightly canary
-      v = semver.inc(options.currentVersion, 'prerelease', 'canary');
-    }
+    // bumpMajor is our first canary for an upcoming major
+    // bumpMinor is our first canary for an upcoming minor
+    // else this is a new nightly canary
+    let bumpType = options.bumpMajor ? 'premajor' : options.bumpMinor ? 'preminor' : 'prerelease';
+    v = semver.inc(options.currentVersion, bumpType, 'canary');
   }
 
   return v;
