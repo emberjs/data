@@ -2,6 +2,10 @@
 
 ### Master
 
+## Release 3.10.0 (May 13, 2019)
+
+Re-release of 3.9.3 to allow for an extended stabilization period for the [Packages RFC](https://github.com/emberjs/data/labels/TRACK-packages)
+
 ## Release 3.9.3 (May 9, 2019)
 
 - [ab45d352](https://github.com/emberjs/data/commit/ab45d352cac06c8a5fd10e92cf99accc96a19ff7) [BUGFIX release] Fix fetch detection.
