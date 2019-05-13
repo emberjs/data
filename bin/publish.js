@@ -220,12 +220,10 @@ function retrieveNextVersion() {
     if (options.bumpMajor === true) {
       // our first canary for an upcoming major
       v = semver.inc(options.currentVersion, 'major');
-      v = semver.inc(v, 'major');
       v = semver.inc(v, 'prerelease', 'canary');
     } else if (options.bumpMinor === true) {
       // our first canary for an upcoming minor
       v = semver.inc(options.currentVersion, 'minor');
-      v = semver.inc(v, 'minor');
       v = semver.inc(v, 'prerelease', 'canary');
     } else {
       // a new nightly canary
