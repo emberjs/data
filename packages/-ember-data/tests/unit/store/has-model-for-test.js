@@ -4,17 +4,17 @@ import DS from 'ember-data';
 
 let store;
 
-module('unit/store/has-model-For', {
-  beforeEach() {
+module('unit/store/has-model-For', function(hooks) {
+  hooks.beforeEach(function() {
     store = createStore({
       adapter: DS.Adapter.extend(),
       'one-foo': DS.Model.extend({}),
       'two-foo': DS.Model.extend({}),
     });
-  },
-});
+  });
 
-test(`hasModelFor correctly normalizes`, function(assert) {
-  assert.equal(store._hasModelFor('oneFoo'), true);
-  assert.equal(store._hasModelFor('twoFoo').true);
+  test(`hasModelFor correctly normalizes`, function(assert) {
+    assert.equal(store._hasModelFor('oneFoo'), true);
+    assert.equal(store._hasModelFor('twoFoo').true);
+  });
 });

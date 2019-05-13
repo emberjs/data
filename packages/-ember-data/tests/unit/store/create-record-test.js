@@ -9,8 +9,8 @@ const { Model, attr, belongsTo, hasMany } = DS;
 
 let store, Record, Storage;
 
-module('unit/store/createRecord - Store creating records', {
-  beforeEach() {
+module('unit/store/createRecord - Store creating records', function(hooks) {
+  hooks.beforeEach(function() {
     Record = DS.Model.extend({
       title: DS.attr('string'),
     });
@@ -25,125 +25,125 @@ module('unit/store/createRecord - Store creating records', {
       record: Record,
       storage: Storage,
     });
-  },
-});
+  });
 
-test(`doesn't modify passed in properties hash`, function(assert) {
-  const Post = Model.extend({
-    title: attr(),
-    author: belongsTo('author', { async: false, inverse: 'post' }),
-    comments: hasMany('comment', { async: false, inverse: 'post' }),
-  });
-  const Comment = Model.extend({
-    text: attr(),
-    post: belongsTo('post', { async: false, inverse: 'comments' }),
-  });
-  const Author = Model.extend({
-    name: attr(),
-    post: belongsTo('post', { async: false, inverse: 'author' }),
-  });
-  let env = setupStore({
-    post: Post,
-    comment: Comment,
-    author: Author,
-  });
-  let store = env.store;
-  let comment, author;
-
-  run(() => {
-    comment = store.push({
-      data: {
-        type: 'comment',
-        id: '1',
-        attributes: {
-          text: 'Hello darkness my old friend',
-        },
-      },
+  test(`doesn't modify passed in properties hash`, function(assert) {
+    const Post = Model.extend({
+      title: attr(),
+      author: belongsTo('author', { async: false, inverse: 'post' }),
+      comments: hasMany('comment', { async: false, inverse: 'post' }),
     });
-    author = store.push({
-      data: {
-        type: 'author',
-        id: '1',
-        attributes: {
-          name: '@runspired',
-        },
-      },
+    const Comment = Model.extend({
+      text: attr(),
+      post: belongsTo('post', { async: false, inverse: 'comments' }),
     });
-  });
+    const Author = Model.extend({
+      name: attr(),
+      post: belongsTo('post', { async: false, inverse: 'author' }),
+    });
+    let env = setupStore({
+      post: Post,
+      comment: Comment,
+      author: Author,
+    });
+    let store = env.store;
+    let comment, author;
 
-  let properties = {
-    title: 'My Post',
-    randomProp: 'An unknown prop',
-    comments: [comment],
-    author,
-  };
-  let propertiesClone = {
-    title: 'My Post',
-    randomProp: 'An unknown prop',
-    comments: [comment],
-    author,
-  };
-
-  store.createRecord('post', properties);
-
-  assert.deepEqual(properties, propertiesClone, 'The properties hash is not modified');
-});
-
-test('allow passing relationships as well as attributes', function(assert) {
-  let records, storage;
-
-  run(() => {
-    store.push({
-      data: [
-        {
-          type: 'record',
+    run(() => {
+      comment = store.push({
+        data: {
+          type: 'comment',
           id: '1',
           attributes: {
-            title: "it's a beautiful day",
+            text: 'Hello darkness my old friend',
           },
         },
-        {
-          type: 'record',
-          id: '2',
+      });
+      author = store.push({
+        data: {
+          type: 'author',
+          id: '1',
           attributes: {
-            title: "it's a beautiful day",
+            name: '@runspired',
           },
         },
-      ],
+      });
     });
 
-    records = store.peekAll('record');
-    storage = store.createRecord('storage', { name: 'Great store', records: records });
+    let properties = {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
+      comments: [comment],
+      author,
+    };
+    let propertiesClone = {
+      title: 'My Post',
+      randomProp: 'An unknown prop',
+      comments: [comment],
+      author,
+    };
+
+    store.createRecord('post', properties);
+
+    assert.deepEqual(properties, propertiesClone, 'The properties hash is not modified');
   });
 
-  assert.equal(storage.get('name'), 'Great store', 'The attribute is well defined');
-  assert.equal(
-    storage.get('records').findBy('id', '1'),
-    A(records).findBy('id', '1'),
-    'Defined relationships are allowed in createRecord'
-  );
-  assert.equal(
-    storage.get('records').findBy('id', '2'),
-    A(records).findBy('id', '2'),
-    'Defined relationships are allowed in createRecord'
-  );
+  test('allow passing relationships as well as attributes', function(assert) {
+    let records, storage;
+
+    run(() => {
+      store.push({
+        data: [
+          {
+            type: 'record',
+            id: '1',
+            attributes: {
+              title: "it's a beautiful day",
+            },
+          },
+          {
+            type: 'record',
+            id: '2',
+            attributes: {
+              title: "it's a beautiful day",
+            },
+          },
+        ],
+      });
+
+      records = store.peekAll('record');
+      storage = store.createRecord('storage', { name: 'Great store', records: records });
+    });
+
+    assert.equal(storage.get('name'), 'Great store', 'The attribute is well defined');
+    assert.equal(
+      storage.get('records').findBy('id', '1'),
+      A(records).findBy('id', '1'),
+      'Defined relationships are allowed in createRecord'
+    );
+    assert.equal(
+      storage.get('records').findBy('id', '2'),
+      A(records).findBy('id', '2'),
+      'Defined relationships are allowed in createRecord'
+    );
+  });
 });
 
-module('unit/store/createRecord - Store with models by dash', {
-  beforeEach() {
+module('unit/store/createRecord - Store with models by dash', function(hooks) {
+  hooks.beforeEach(function() {
     let env = setupStore({
       someThing: DS.Model.extend({
         foo: DS.attr('string'),
       }),
     });
     store = env.store;
-  },
-});
+  });
 
-test('creating a record by dasherize string finds the model', function(assert) {
-  let attributes = { foo: 'bar' };
-  let record = store.createRecord('some-thing', attributes);
+  test('creating a record by dasherize string finds the model', function(assert) {
+    let attributes = { foo: 'bar' };
+    let record = store.createRecord('some-thing', attributes);
 
-  assert.equal(record.get('foo'), attributes.foo, 'The record is created');
-  assert.equal(store.modelFor('some-thing').modelName, 'some-thing');
+    assert.equal(record.get('foo'), attributes.foo, 'The record is created');
+    assert.equal(store.modelFor('some-thing').modelName, 'some-thing');
+  });
 });
