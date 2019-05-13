@@ -40,246 +40,246 @@ function setupModels(testState) {
   });
 }
 
-module('unit/model - init properties', {});
+module('unit/model - init properties', function() {
+  test('createRecord(properties) makes properties available during record init', function(assert) {
+    assert.expect(4);
+    let comment;
+    let author;
 
-test('createRecord(properties) makes properties available during record init', function(assert) {
-  assert.expect(4);
-  let comment;
-  let author;
+    function testState(types, record) {
+      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.ok(
+        get(record, 'randomProp') === 'An unknown prop',
+        'Unknown properties are available as expected'
+      );
+      assert.ok(
+        get(record, 'author') instanceof types.Author,
+        'belongsTo relationships are available as expected'
+      );
+      assert.ok(
+        get(record, 'comments.firstObject') instanceof types.Comment,
+        'hasMany relationships are available as expected'
+      );
+    }
 
-  function testState(types, record) {
-    assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(
-      get(record, 'randomProp') === 'An unknown prop',
-      'Unknown properties are available as expected'
-    );
-    assert.ok(
-      get(record, 'author') instanceof types.Author,
-      'belongsTo relationships are available as expected'
-    );
-    assert.ok(
-      get(record, 'comments.firstObject') instanceof types.Comment,
-      'hasMany relationships are available as expected'
-    );
-  }
+    let { store } = setupModels(testState);
 
-  let { store } = setupModels(testState);
-
-  run(() => {
-    comment = store.push({
-      data: {
-        type: 'comment',
-        id: '1',
-        attributes: {
-          text: 'Hello darkness my old friend',
-        },
-      },
-    });
-    author = store.push({
-      data: {
-        type: 'author',
-        id: '1',
-        attributes: {
-          name: '@runspired',
-        },
-      },
-    });
-  });
-
-  run(() => {
-    store.createRecord('post', {
-      title: 'My Post',
-      randomProp: 'An unknown prop',
-      comments: [comment],
-      author,
-    });
-  });
-});
-
-test('store.push() makes properties available during record init', function(assert) {
-  assert.expect(3);
-
-  function testState(types, record) {
-    assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(
-      get(record, 'author') instanceof types.Author,
-      'belongsTo relationships are available as expected'
-    );
-    assert.ok(
-      get(record, 'comments.firstObject') instanceof types.Comment,
-      'hasMany relationships are available as expected'
-    );
-  }
-
-  let { store } = setupModels(testState);
-
-  run(() =>
-    store.push({
-      data: {
-        type: 'post',
-        id: '1',
-        attributes: {
-          title: 'My Post',
-        },
-        relationships: {
-          comments: {
-            data: [{ type: 'comment', id: '1' }],
-          },
-          author: {
-            data: { type: 'author', id: '1' },
-          },
-        },
-      },
-      included: [
-        {
+    run(() => {
+      comment = store.push({
+        data: {
           type: 'comment',
           id: '1',
           attributes: {
             text: 'Hello darkness my old friend',
           },
         },
-        {
+      });
+      author = store.push({
+        data: {
           type: 'author',
           id: '1',
           attributes: {
             name: '@runspired',
           },
         },
-      ],
-    })
-  );
-});
-
-test('store.findRecord(type, id) makes properties available during record init', function(assert) {
-  assert.expect(3);
-
-  function testState(types, record) {
-    assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(
-      get(record, 'author') instanceof types.Author,
-      'belongsTo relationships are available as expected'
-    );
-    assert.ok(
-      get(record, 'comments.firstObject') instanceof types.Comment,
-      'hasMany relationships are available as expected'
-    );
-  }
-
-  let { adapter, store } = setupModels(testState);
-
-  adapter.findRecord = () => {
-    return resolve({
-      data: {
-        type: 'post',
-        id: '1',
-        attributes: {
-          title: 'My Post',
-        },
-        relationships: {
-          comments: {
-            data: [{ type: 'comment', id: '1' }],
-          },
-          author: {
-            data: { type: 'author', id: '1' },
-          },
-        },
-      },
-      included: [
-        {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            text: 'Hello darkness my old friend',
-          },
-        },
-        {
-          type: 'author',
-          id: '1',
-          attributes: {
-            name: '@runspired',
-          },
-        },
-      ],
+      });
     });
-  };
 
-  run(() => store.findRecord('post', '1'));
-});
-
-test('store.queryRecord(type, query) makes properties available during record init', function(assert) {
-  assert.expect(3);
-
-  function testState(types, record) {
-    assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
-    assert.ok(
-      get(record, 'author') instanceof types.Author,
-      'belongsTo relationships are available as expected'
-    );
-    assert.ok(
-      get(record, 'comments.firstObject') instanceof types.Comment,
-      'hasMany relationships are available as expected'
-    );
-  }
-
-  let { adapter, store } = setupModels(testState);
-
-  adapter.queryRecord = () => {
-    return resolve({
-      data: {
-        type: 'post',
-        id: '1',
-        attributes: {
-          title: 'My Post',
-        },
-        relationships: {
-          comments: {
-            data: [{ type: 'comment', id: '1' }],
-          },
-          author: {
-            data: { type: 'author', id: '1' },
-          },
-        },
-      },
-      included: [
-        {
-          type: 'comment',
-          id: '1',
-          attributes: {
-            text: 'Hello darkness my old friend',
-          },
-        },
-        {
-          type: 'author',
-          id: '1',
-          attributes: {
-            name: '@runspired',
-          },
-        },
-      ],
+    run(() => {
+      store.createRecord('post', {
+        title: 'My Post',
+        randomProp: 'An unknown prop',
+        comments: [comment],
+        author,
+      });
     });
-  };
-
-  run(() => store.queryRecord('post', { id: '1' }));
-});
-
-test('Model class does not get properties passed to setUknownProperty accidentally', function(assert) {
-  assert.expect(2);
-  // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
-  // how to get setUnknownProperty to continue working
-  let { store } = setupStore({
-    adapter: JSONAPIAdapter.extend(),
-    post: Model.extend({
-      title: attr(),
-      setUnknownProperty: function(key, value) {
-        assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
-        assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
-      },
-    }),
   });
-  run(() => {
-    store.createRecord('post', {
-      title: 'My Post',
-      randomProp: 'An unknown prop',
+
+  test('store.push() makes properties available during record init', function(assert) {
+    assert.expect(3);
+
+    function testState(types, record) {
+      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.ok(
+        get(record, 'author') instanceof types.Author,
+        'belongsTo relationships are available as expected'
+      );
+      assert.ok(
+        get(record, 'comments.firstObject') instanceof types.Comment,
+        'hasMany relationships are available as expected'
+      );
+    }
+
+    let { store } = setupModels(testState);
+
+    run(() =>
+      store.push({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'My Post',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+            author: {
+              data: { type: 'author', id: '1' },
+            },
+          },
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '1',
+            attributes: {
+              text: 'Hello darkness my old friend',
+            },
+          },
+          {
+            type: 'author',
+            id: '1',
+            attributes: {
+              name: '@runspired',
+            },
+          },
+        ],
+      })
+    );
+  });
+
+  test('store.findRecord(type, id) makes properties available during record init', function(assert) {
+    assert.expect(3);
+
+    function testState(types, record) {
+      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.ok(
+        get(record, 'author') instanceof types.Author,
+        'belongsTo relationships are available as expected'
+      );
+      assert.ok(
+        get(record, 'comments.firstObject') instanceof types.Comment,
+        'hasMany relationships are available as expected'
+      );
+    }
+
+    let { adapter, store } = setupModels(testState);
+
+    adapter.findRecord = () => {
+      return resolve({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'My Post',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+            author: {
+              data: { type: 'author', id: '1' },
+            },
+          },
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '1',
+            attributes: {
+              text: 'Hello darkness my old friend',
+            },
+          },
+          {
+            type: 'author',
+            id: '1',
+            attributes: {
+              name: '@runspired',
+            },
+          },
+        ],
+      });
+    };
+
+    run(() => store.findRecord('post', '1'));
+  });
+
+  test('store.queryRecord(type, query) makes properties available during record init', function(assert) {
+    assert.expect(3);
+
+    function testState(types, record) {
+      assert.ok(get(record, 'title') === 'My Post', 'Attrs are available as expected');
+      assert.ok(
+        get(record, 'author') instanceof types.Author,
+        'belongsTo relationships are available as expected'
+      );
+      assert.ok(
+        get(record, 'comments.firstObject') instanceof types.Comment,
+        'hasMany relationships are available as expected'
+      );
+    }
+
+    let { adapter, store } = setupModels(testState);
+
+    adapter.queryRecord = () => {
+      return resolve({
+        data: {
+          type: 'post',
+          id: '1',
+          attributes: {
+            title: 'My Post',
+          },
+          relationships: {
+            comments: {
+              data: [{ type: 'comment', id: '1' }],
+            },
+            author: {
+              data: { type: 'author', id: '1' },
+            },
+          },
+        },
+        included: [
+          {
+            type: 'comment',
+            id: '1',
+            attributes: {
+              text: 'Hello darkness my old friend',
+            },
+          },
+          {
+            type: 'author',
+            id: '1',
+            attributes: {
+              name: '@runspired',
+            },
+          },
+        ],
+      });
+    };
+
+    run(() => store.queryRecord('post', { id: '1' }));
+  });
+
+  test('Model class does not get properties passed to setUknownProperty accidentally', function(assert) {
+    assert.expect(2);
+    // If we end up passing additional properties to init in modelClasses, we will need to come up with a strategy for
+    // how to get setUnknownProperty to continue working
+    let { store } = setupStore({
+      adapter: JSONAPIAdapter.extend(),
+      post: Model.extend({
+        title: attr(),
+        setUnknownProperty: function(key, value) {
+          assert.equal(key, 'randomProp', 'Passed the correct key to setUknownProperty');
+          assert.equal(value, 'An unknown prop', 'Passed the correct value to setUknownProperty');
+        },
+      }),
+    });
+    run(() => {
+      store.createRecord('post', {
+        title: 'My Post',
+        randomProp: 'An unknown prop',
+      });
     });
   });
 });
