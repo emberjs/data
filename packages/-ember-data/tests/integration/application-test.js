@@ -10,10 +10,6 @@ import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import initializeEmberData from 'ember-data/setup-container';
 import initializeStoreService from 'ember-data/initialize-store-service';
 
-/*
-  These tests ensure that Ember Data works with Ember's application
-  initialization and dependency injection APIs.
-*/
 module('integration/application - Injecting a Custom Store', function(hooks) {
   setupTest(hooks);
 
