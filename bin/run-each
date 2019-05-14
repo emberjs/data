@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+const { shellSync } = require('execa');
+const chalk = require('chalk');
+
+function execWithLog(command) {
+  return shellSync(command, { stdio: [0, 1, 2] });
+}
+
+const args = process.argv;
+
+let command = args[2];
+
+if (args.length < 3) {
+  throw new Error(`No command was specified for run-each.`);
+} else if (args.length < 4) {
+  throw new Error(`No packages were specified for run-each to run the command ${command} in.`);
+}
+
+const commands = [];
+const packageNames = [];
+for (let i = 3; i < args.length; i++) {
+  let packageName = args[i];
+
+  if (packageName !== 'ember-data' && packageName.charAt(0) !== '@') {
+    packageName = `@ember-data/${packageName}`;
+  }
+
+  packageNames.push(packageName);
+  commands.push({
+    cmd: `yarn workspace ${packageName} ${command}`,
+    msg: chalk(
+      `Executing: ${chalk.yellow('yarn workspace')} ${chalk.cyan(packageName)} ${chalk.red(
+        command
+      )}`
+    ),
+  });
+}
+
+console.log(
+  chalk(
+    `Executing: ${chalk.yellow(command)} for the following workspaces: ${chalk.cyan(
+      packageNames.join(', ')
+    )}`
+  )
+);
+commands.forEach(item => {
+  console.log(item.msg);
+  execWithLog(item.cmd);
+});
