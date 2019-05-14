@@ -8,8 +8,8 @@ import DS from 'ember-data';
 
 var Person, store, env;
 
-module('integration/store/query', {
-  beforeEach() {
+module('integration/store/query', function(hooks) {
+  hooks.beforeEach(function() {
     Person = DS.Model.extend();
 
     env = setupStore({
@@ -17,35 +17,35 @@ module('integration/store/query', {
     });
 
     store = env.store;
-  },
+  });
 
-  afterEach() {
+  hooks.afterEach(function() {
     run(store, 'destroy');
-  },
-});
-
-test('meta is proxied correctly on the PromiseArray', function(assert) {
-  let defered = RSVP.defer();
-
-  env.owner.register(
-    'adapter:person',
-    DS.Adapter.extend({
-      query(store, type, query) {
-        return defered.promise;
-      },
-    })
-  );
-
-  let result;
-  run(function() {
-    result = store.query('person', {});
   });
 
-  assert.notOk(result.get('meta.foo'), 'precond: meta is not yet set');
+  test('meta is proxied correctly on the PromiseArray', function(assert) {
+    let defered = RSVP.defer();
 
-  run(function() {
-    defered.resolve({ data: [], meta: { foo: 'bar' } });
+    env.owner.register(
+      'adapter:person',
+      DS.Adapter.extend({
+        query(store, type, query) {
+          return defered.promise;
+        },
+      })
+    );
+
+    let result;
+    run(function() {
+      result = store.query('person', {});
+    });
+
+    assert.notOk(result.get('meta.foo'), 'precond: meta is not yet set');
+
+    run(function() {
+      defered.resolve({ data: [], meta: { foo: 'bar' } });
+    });
+
+    assert.equal(result.get('meta.foo'), 'bar');
   });
-
-  assert.equal(result.get('meta.foo'), 'bar');
 });
