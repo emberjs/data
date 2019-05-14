@@ -4967,7 +4967,7 @@ ember-cli-version-checker@^2.0.0, ember-cli-version-checker@^2.1.0, ember-cli-ve
     resolve "^1.3.3"
     semver "^5.3.0"
 
-ember-cli-version-checker@^3.0.0, ember-cli-version-checker@^3.0.1, ember-cli-version-checker@^3.1.3:
+ember-cli-version-checker@^3.0.0, ember-cli-version-checker@^3.0.1, ember-cli-version-checker@^3.1.2, ember-cli-version-checker@^3.1.3:
   version "3.1.3"
   resolved "https://registry.npmjs.org/ember-cli-version-checker/-/ember-cli-version-checker-3.1.3.tgz#7c9b4f5ff30fdebcd480b1c06c4de43bb51c522c"
   integrity sha512-PZNSvpzwWgv68hcXxyjREpj3WWb81A7rtYNQq1lLEgrWIchF8ApKJjWP3NBpHjaatwILkZAV8klair5WFlXAKg==
@@ -5721,7 +5721,7 @@ exec-sh@^0.3.2:
   resolved "https://registry.npmjs.org/exec-sh/-/exec-sh-0.3.2.tgz#6738de2eb7c8e671d0366aea0b0db8c6f7d7391b"
   integrity sha512-9sLAvzhI5nc8TpuQUh4ahMdCrWT00wPWz7j47/emR5+2qEfoZP5zzUXvx+vdx+H6ohhnsYC31iX04QLYJK8zTg==
 
-execa@*, execa@^1.0.0:
+execa@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/execa/-/execa-1.0.0.tgz#c6236a5bb4df6d6f15e88e7f017798216749ddd8"
   integrity sha512-adbxcyWV46qiHyvSp50TKt05tB4tK3HcmF7/nxfAdhnox83seTDbwnaqKO4sXRy7roHAIFqJP/Rw/AuEbX61LA==
@@ -6562,7 +6562,7 @@ glob-to-regexp@^0.3.0:
   resolved "https://registry.npmjs.org/glob-to-regexp/-/glob-to-regexp-0.3.0.tgz#8c5a1494d2066c570cc3bfe4496175acc4d502ab"
   integrity sha1-jFoUlNIGbFcMw7/kSWF1rMTVAqs=
 
-glob@*, glob@7.1.3:
+glob@7.1.3:
   version "7.1.3"
   resolved "https://registry.npmjs.org/glob/-/glob-7.1.3.tgz#3960832d3f1574108342dafd3a67b332c0969df1"
   integrity sha512-vcfuiIxogLV4DlGBHIUOwI0IbrJ8HWPc4MU7HzviGeNho/UJDfi6B5p3sHeWIQ0KGIU0Jpxi5ZHxemQfLkkAwQ==
@@ -6587,7 +6587,7 @@ glob@^5.0.10:
 
 glob@^7.0.3, glob@^7.0.4, glob@^7.1.0, glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4:
   version "7.1.4"
-  resolved "https://registry.npmjs.org/glob/-/glob-7.1.4.tgz#aa608a2f6c577ad357e1ae5a5c26d9a8d1969255"
+  resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.4.tgz#aa608a2f6c577ad357e1ae5a5c26d9a8d1969255"
   integrity sha512-hkLPepehmnKk41pUGm3sYxoFs/umurYfYJCerbXEyFIWcAzvpipAgVkBqqT9RBKMGjnq6kMuyYwha6csxbiM1A==
   dependencies:
     fs.realpath "^1.0.0"
@@ -7065,7 +7065,7 @@ indexof@0.0.1:
   resolved "https://registry.npmjs.org/indexof/-/indexof-0.0.1.tgz#82dc336d232b9062179d05ab3293a66059fd435d"
   integrity sha1-gtwzbSMrkGIXnQWrMpOmYFn9Q10=
 
-inflection@^1.12.0:
+inflection@1.12.0, inflection@^1.12.0:
   version "1.12.0"
   resolved "https://registry.npmjs.org/inflection/-/inflection-1.12.0.tgz#a200935656d6f5f6bc4dc7502e1aecb703228416"
   integrity sha1-ogCTVlbW9fa8TcdQLhrstwMihBY=
@@ -8644,7 +8644,7 @@ mktemp@~0.4.0:
   resolved "https://registry.npmjs.org/mktemp/-/mktemp-0.4.0.tgz#6d0515611c8a8c84e484aa2000129b98e981ff0b"
   integrity sha1-bQUVYRyKjITkhKogABKbmOmB/ws=
 
-mocha-only-detector@*, mocha-only-detector@1.0.1:
+mocha-only-detector@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/mocha-only-detector/-/mocha-only-detector-1.0.1.tgz#a60392d253653fb3da77d783ed96aec8eaa7293e"
   integrity sha512-lTnCIwmL5xKS4dWa+vlYfTOwioG1Vot5KUE5bD1jvwCHGmJUk71g9QHuy1B99r52Mih2cFQmLWlfeOyFXVqRxw==
@@ -8653,7 +8653,7 @@ mocha-only-detector@*, mocha-only-detector@1.0.1:
     esprimaq "^0.0.1"
     glob "^7.1.2"
 
-mocha@*, mocha@^6.1.2:
+mocha@^6.1.2:
   version "6.1.4"
   resolved "https://registry.npmjs.org/mocha/-/mocha-6.1.4.tgz#e35fada242d5434a7e163d555c705f6875951640"
   integrity sha512-PN8CIy4RXsIoxoFJzS4QNnCH4psUCPWc4/rPrst/ecSJJbLBkubMiyGCP2Kj/9YnWbotFqAoeXyXMucj7gwCFg==
@@ -10270,7 +10270,7 @@ retry@^0.10.0:
   resolved "https://registry.npmjs.org/retry/-/retry-0.10.1.tgz#e76388d217992c252750241d3d3956fed98d8ff4"
   integrity sha1-52OI0heZLCUnUCQdPTlW/tmNj/Q=
 
-rimraf@*, rimraf@2, rimraf@2.6.3, rimraf@^2.1.4, rimraf@^2.2.8, rimraf@^2.3.2, rimraf@^2.3.4, rimraf@^2.4.1, rimraf@^2.4.3, rimraf@^2.4.4, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3, rimraf@~2.6.2:
+rimraf@2, rimraf@2.6.3, rimraf@^2.1.4, rimraf@^2.2.8, rimraf@^2.3.2, rimraf@^2.3.4, rimraf@^2.4.1, rimraf@^2.4.3, rimraf@^2.4.4, rimraf@^2.5.3, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3, rimraf@~2.6.2:
   version "2.6.3"
   resolved "https://registry.npmjs.org/rimraf/-/rimraf-2.6.3.tgz#b2d104fe0d8fb27cf9e0a1cda8262dd3833c6cab"
   integrity sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==
@@ -10298,11 +10298,6 @@ route-recognizer@^0.3.3:
   resolved "https://registry.npmjs.org/route-recognizer/-/route-recognizer-0.3.4.tgz#39ab1ffbce1c59e6d2bdca416f0932611e4f3ca3"
   integrity sha512-2+MhsfPhvauN1O8KaXpXAOfR/fwe8dnUXVM+xw7yt40lJRfPVQxV6yryZm0cgRvAj5fMF/mdRZbL2ptwbs5i2g==
 
-rsvp@*:
-  version "4.8.4"
-  resolved "https://registry.npmjs.org/rsvp/-/rsvp-4.8.4.tgz#b50e6b34583f3dd89329a2f23a8a2be072845911"
-  integrity sha512-6FomvYPfs+Jy9TfXmBpBuMWNH94SgCsZmJKcanySzgNNP6LjWxBvyLTa9KaMfDDM5oxRfrKDB0r/qeRsLwnBfA==
-
 rsvp@3.0.14:
   version "3.0.14"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-3.0.14.tgz#9d2968cf36d878d3bb9a9a5a4b8e1ff55a76dd31"
@@ -10313,7 +10308,12 @@ rsvp@^3.0.14, rsvp@^3.0.17, rsvp@^3.0.18, rsvp@^3.0.21, rsvp@^3.0.6, rsvp@^3.1.0
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-3.6.2.tgz#2e96491599a96cde1b515d5674a8f7a91452926a"
   integrity sha512-OfWGQTb9vnwRjwtA2QwpG2ICclHC3pgXZO5xt8H2EfgDquO0qVdSb5T88L4qJVAEugbS56pAuV4XZM58UX8ulw==
 
-rsvp@^4.7.0, rsvp@^4.8.1, rsvp@^4.8.2, rsvp@^4.8.4, rsvp@^4.8.5:
+rsvp@^4.7.0, rsvp@^4.8.1, rsvp@^4.8.2, rsvp@^4.8.4:
+  version "4.8.4"
+  resolved "https://registry.npmjs.org/rsvp/-/rsvp-4.8.4.tgz#b50e6b34583f3dd89329a2f23a8a2be072845911"
+  integrity sha512-6FomvYPfs+Jy9TfXmBpBuMWNH94SgCsZmJKcanySzgNNP6LjWxBvyLTa9KaMfDDM5oxRfrKDB0r/qeRsLwnBfA==
+
+rsvp@^4.8.5:
   version "4.8.5"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-4.8.5.tgz#c8f155311d167f68f21e168df71ec5b083113734"
   integrity sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA==
@@ -10499,7 +10499,7 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-silent-error@^1.0.0, silent-error@^1.0.1, silent-error@^1.1.0, silent-error@^1.1.1:
+silent-error@*, silent-error@^1.0.0, silent-error@^1.0.1, silent-error@^1.1.0, silent-error@^1.1.1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/silent-error/-/silent-error-1.1.1.tgz#f72af5b0d73682a2ba1778b7e32cd8aa7c2d8662"
   integrity sha512-n4iEKyNcg4v6/jpb3c0/iyH2G1nzUNl7Gpqtn/mHIJK9S/q/7MCfoO4rwVOoO59qPFIc0hVHvMbiOJ0NdtxKKw==

@@ -10,7 +10,9 @@
     "doc": "doc",
     "test": "tests"
   },
-  "scripts": {},
+  "scripts": {
+    "test:node": "node node-tests/nodetest-runner.js"
+  },
   "dependencies": {
     "broccoli-funnel": "^2.0.2",
     "broccoli-rollup": "^4.1.1",
@@ -28,7 +30,20 @@
     "chalk": "^2.4.1",
     "mocha": "^6.1.2",
     "npm-git-info": "^1.0.3",
-    "silent-error": "^1.1.1"
+    "silent-error": "^1.1.1",
+    "glob": "^7.1.3",
+    "mocha": "^6.1.2",
+    "mocha-only-detector": "1.0.1",
+    "rimraf": "^2.6.2",
+    "rsvp": "^4.8.4",
+    "ember-cli-version-checker": "^3.1.2",
+    "ember-cli-blueprint-test-helpers": "^0.19.1"
+  },
+  "devDependencies": {
+    "broccoli-test-helper": "*",
+    "co": "*",
+    "broccoli-babel-transpiler": "*",
+    "common-tags": "*"
   },
   "engines": {
     "node": ">= 8.0.0"

@@ -78,7 +78,11 @@ module.exports = {
 
     // node tests
     {
-      files: ['packages/*/node-tests/**', 'node-tests/**'],
+      files: [
+        'packages/*/node-tests/**',
+        'node-tests/**',
+        'packages/-build-infra/src/node-test-helpers/setup-test-environment.js',
+      ],
 
       env: {
         mocha: true,

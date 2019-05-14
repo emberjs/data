@@ -13,3 +13,6 @@
 /tests/
 /yarn.lock
 .gitkeep
+
+# ember-data
+/node-tests
