@@ -88,7 +88,7 @@
     "github": "^1.1.1",
     "glob": "^7.1.4",
     "json-typescript": "^1.1.0",
-    "lerna": "^3.13.4",
+    "lerna": "^3.14.0",
     "loader.js": "^4.7.0",
     "mocha": "^6.1.2",
     "mocha-only-detector": "1.0.1",
