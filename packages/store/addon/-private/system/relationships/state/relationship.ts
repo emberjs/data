@@ -4,13 +4,13 @@ import { relationshipStateFor } from '../../record-data-for';
 import { assert, warn } from '@ember/debug';
 import OrderedSet from '../../ordered-set';
 import _normalizeLink from '../../normalize-link';
-import { RelationshipRecordData } from "../../..//ts-interfaces/relationship-record-data";
+import { RelationshipRecordData } from '../../..//ts-interfaces/relationship-record-data';
 import RecordData from '../../../ts-interfaces/record-data';
-import { JsonApiRelationship } from "../../../ts-interfaces/record-data-json-api";
-import { RelationshipSchema } from "../../../ts-interfaces/record-data-schemas";
+import { JsonApiRelationship } from '../../../ts-interfaces/record-data-json-api';
+import { RelationshipSchema } from '../../../ts-interfaces/record-data-schemas';
 
 interface ImplicitRelationshipMeta {
-  key?: string, 
+  key?: string;
   kind?: string;
   options: any;
 }
@@ -31,15 +31,22 @@ export default class Relationship {
   meta: any;
   __inverseMeta: any;
   _tempModelName: string;
-  shouldForceReload: boolean;
+  shouldForceReload: boolean = false;
   relationshipIsStale: boolean;
   hasDematerializedInverse: boolean;
   hasAnyRelationshipData: boolean;
   relationshipIsEmpty: boolean;
+  hasFailedLoadAttempt: boolean = false;
   link?: string | null;
   willSync?: boolean;
 
-  constructor(store: any, inverseKey: string, relationshipMeta: ImplicitRelationshipMeta, recordData: RelationshipRecordData, inverseIsAsync?: boolean) {
+  constructor(
+    store: any,
+    inverseKey: string,
+    relationshipMeta: ImplicitRelationshipMeta,
+    recordData: RelationshipRecordData,
+    inverseIsAsync?: boolean
+  ) {
     this.inverseIsAsync = inverseIsAsync;
     this.kind = relationshipMeta.kind;
     let async = relationshipMeta.options.async;
@@ -63,7 +70,7 @@ export default class Relationship {
      This flag forces fetch. `true` for a single request once `reload()`
        has been called `false` at all other times.
     */
-    this.shouldForceReload = false;
+    // this.shouldForceReload = false;
 
     /*
        This flag indicates whether we should
@@ -214,12 +221,10 @@ export default class Relationship {
   }
 
   recordDataDidDematerialize() {
-    const inverseKey = this.inverseKey
+    const inverseKey = this.inverseKey;
     if (!inverseKey) {
       return;
     }
-    // TODO @runspired fairly sure we need to become stale here
-    // this.setRelationshipIsStale(true);
 
     // we actually want a union of members and canonicalMembers
     // they should be disjoint but currently are not due to a bug
@@ -277,12 +282,11 @@ export default class Relationship {
     }
   }
 
-  updateMeta(meta : any) {
+  updateMeta(meta: any) {
     this.meta = meta;
   }
 
   clear() {
-
     let members = this.members.list;
     while (members.length > 0) {
       let member = members[0];
@@ -360,7 +364,7 @@ export default class Relationship {
         relationship = relationships[this.inverseKeyForImplicit] = new Relationship(
           this.store,
           // we know we are not an implicit relationship here
-          (this.key as string),
+          this.key as string,
           { options: { async: this.isAsync } },
           recordData
         );
@@ -410,7 +414,7 @@ export default class Relationship {
             recordData._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(
               this.store,
               // we know we are not an implicit relationship here
-              (this.key as string),
+              this.key as string,
               { options: { async: this.isAsync } },
               recordData,
               this.isAsync
@@ -597,6 +601,14 @@ export default class Relationship {
     this.relationshipIsEmpty = value;
   }
 
+  setShouldForceReload(value: boolean) {
+    this.shouldForceReload = value;
+  }
+
+  setHasFailedLoadAttempt(value: boolean) {
+    this.hasFailedLoadAttempt = value;
+  }
+
   /*
    `push` for a relationship allows the store to push a JSON API Relationship
    Object onto the relationship. The relationship will then extract and set the
@@ -646,6 +658,7 @@ export default class Relationship {
      IF contains only links
       relationshipIsStale -> true
      */
+    this.setHasFailedLoadAttempt(false);
     if (hasRelationshipDataProperty) {
       let relationshipIsEmpty =
         payload.data === null || (Array.isArray(payload.data) && payload.data.length === 0);
@@ -665,7 +678,7 @@ export default class Relationship {
           recordData.id,
           recordData.clientId,
           // We know we are not an implicit relationship here
-          (this.key as string)
+          this.key as string
         );
       }
     }

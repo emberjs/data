@@ -1,4 +1,4 @@
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
@@ -287,7 +287,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    skip('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
+    test('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
@@ -330,10 +330,16 @@ module('async has-many rendering tests', function(hooks) {
       );
 
       let relationshipState = parent.hasMany('children').hasManyRelationship;
+      let RelationshipPromiseCache = parent._internalModel._relationshipPromisesCache;
+      let RelationshipProxyCache = parent._internalModel._relationshipProxyCache;
 
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(relationshipState.relationshipIsStale, true, 'The relationship is still stale');
+      assert.equal(
+        relationshipState.hasDematerializedInverse,
+        true,
+        'The relationship has a dematerialized inverse'
+      );
       assert.equal(
         relationshipState.allInverseRecordsAreLoaded,
         false,
@@ -345,9 +351,9 @@ module('async has-many rendering tests', function(hooks) {
         'The relationship knows which record it needs'
       );
       assert.equal(
-        relationshipState.fetchPromise === null,
-        true,
-        'The relationship has no fetchPromise'
+        !!RelationshipPromiseCache['children'],
+        false,
+        'The relationship has no fetch promise'
       );
       assert.equal(
         relationshipState.hasFailedLoadAttempt === true,
@@ -355,9 +361,9 @@ module('async has-many rendering tests', function(hooks) {
         'The relationship has attempted a load'
       );
       assert.equal(
-        relationshipState._promiseProxy !== null,
+        !!RelationshipProxyCache['children'],
         true,
-        'The relationship has a loadingPromise'
+        'The relationship has a promise proxy'
       );
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
 
@@ -444,7 +450,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    skip('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
+    test('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({
@@ -489,6 +495,8 @@ module('async has-many rendering tests', function(hooks) {
       assert.deepEqual(names, [], 'We rendered no names');
 
       let relationshipState = parent.hasMany('children').hasManyRelationship;
+      let RelationshipPromiseCache = parent._internalModel._relationshipPromisesCache;
+      let RelationshipProxyCache = parent._internalModel._relationshipProxyCache;
 
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(
@@ -508,19 +516,19 @@ module('async has-many rendering tests', function(hooks) {
         'The relationship knows which record it needs'
       );
       assert.equal(
-        relationshipState.fetchPromise === null,
+        !!RelationshipPromiseCache['children'],
+        false,
+        'The relationship has no fetch promise'
+      );
+      assert.equal(
+        !!RelationshipProxyCache['children'],
         true,
-        'The relationship has no fetchPromise'
+        'The relationship has a promise proxy'
       );
       assert.equal(
         relationshipState.hasFailedLoadAttempt === true,
         true,
         'The relationship has attempted a load'
-      );
-      assert.equal(
-        relationshipState._promiseProxy !== null,
-        true,
-        'The relationship has a loadingPromise'
       );
       assert.equal(!!relationshipState.link, true, 'The relationship has a link');
 

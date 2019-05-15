@@ -6,7 +6,7 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
 import DS from 'ember-data';
 
@@ -955,8 +955,8 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
   });
 
-  skip('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
-    assert.expect(6);
+  test('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
+    assert.expect(7);
 
     const { store, adapter } = env;
 
@@ -964,7 +964,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       comments: DS.hasMany('comment', { async: true }),
     });
 
-    adapter.findRecord = function(store, type, id) {
+    adapter.findRecord = function() {
       return resolve({
         data: {
           id: 1,
@@ -978,10 +978,10 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       });
     };
 
-    let loadingCount = -1;
-    adapter.findHasMany = function(store, record, link, relationship) {
+    let loadingCount = 0;
+    adapter.findHasMany = function() {
       loadingCount++;
-      if (loadingCount % 2 === 0) {
+      if (loadingCount % 2 === 1) {
         return reject({ data: null });
       } else {
         return resolve({
@@ -995,16 +995,24 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
 
     let post = await store.findRecord('post', 1);
     let comments = post.get('comments');
-    let manyArray = await comments.catch(() => {
-      assert.ok(true, 'An error was thrown on the first reload of comments');
-      return comments.reload();
-    });
+    let manyArray;
+
+    try {
+      manyArray = await comments;
+      assert.ok(false, 'Expected exception to be raised');
+    } catch (e) {
+      assert.ok(true, `An error was thrown on the first reload of comments: ${e.message}`);
+      manyArray = await comments.reload();
+    }
 
     assert.equal(manyArray.get('isLoaded'), true, 'the reload worked, comments are now loaded');
 
-    await manyArray.reload().catch(() => {
-      assert.ok(true, 'An error was thrown on the second reload via manyArray');
-    });
+    try {
+      await manyArray.reload();
+      assert.ok(false, 'Expected exception to be raised');
+    } catch (e) {
+      assert.ok(true, `An error was thrown on the second reload via manyArray: ${e.message}`);
+    }
 
     assert.equal(
       manyArray.get('isLoaded'),
@@ -1020,6 +1028,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       'the third reload worked, comments are loaded again'
     );
     assert.ok(reloadedManyArray === manyArray, 'the many array stays the same');
+    assert.equal(loadingCount, 4, 'We only fired 4 requests');
   });
 
   test('A hasMany relationship can be directly reloaded if it was fetched via links', function(assert) {
@@ -2135,25 +2144,26 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     );
   });
 
-  skip('A sync hasMany errors out if there are unloaded records in it', function(assert) {
-    let post = run(() => {
-      env.store.push({
-        data: {
-          type: 'post',
-          id: '1',
-          relationships: {
-            comments: {
-              data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
-            },
+  testInDebug('A sync hasMany errors out if there are unloaded records in it', function(assert) {
+    let post = env.store.push({
+      data: {
+        type: 'post',
+        id: '1',
+        relationships: {
+          comments: {
+            data: [{ type: 'comment', id: '1' }, { type: 'comment', id: '2' }],
           },
         },
-      });
-      return env.store.peekRecord('post', 1);
+      },
     });
+    const assertionMessage = /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded./;
 
-    assert.expectAssertion(() => {
-      run(post, 'get', 'comments');
-    }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
+    try {
+      post.get('comments');
+      assert.ok(false, 'expected assertion');
+    } catch (e) {
+      assert.ok(assertionMessage.test(e.message), 'correct assertion');
+    }
   });
 
   test('After removing and unloading a record, a hasMany relationship should still be valid', function(assert) {

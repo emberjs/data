@@ -56,6 +56,10 @@ import recordDataFor from './record-data-for';
   @uses Ember.MutableArray, Ember.Evented
 */
 export default EmberObject.extend(MutableArray, Evented, {
+  // here to make TS happy
+  _inverseIsAsync: false,
+  isLoaded: false,
+
   init() {
     this._super(...arguments);
 
@@ -64,7 +68,7 @@ export default EmberObject.extend(MutableArray, Evented, {
 
     @property {Boolean} isLoaded
     */
-    this.isLoaded = false;
+    this.isLoaded = this.isLoaded || false;
     this.length = 0;
 
     /**

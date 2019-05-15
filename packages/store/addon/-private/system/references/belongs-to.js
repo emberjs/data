@@ -318,31 +318,9 @@ export default class BelongsToReference extends Reference {
    @param {Object} options the options to pass in.
    @return {Promise} a promise that resolves with the record in this belongs-to relationship after the reload has completed.
    */
-  // TODO IGOR CHECK FOR OBJECT PROXIES
   reload(options) {
-    let resource = this._resource();
-    if (resource && resource.links && resource.links.related) {
-      return this.store._fetchBelongsToLinkFromResource(
-        resource,
-        this.parentInternalModel,
-        this.belongsToRelationship.relationshipMeta,
-        options
-      );
-    }
-    if (resource && resource.data) {
-      if (resource.data && (resource.data.id || resource.data.clientId)) {
-        let internalModel = this.store._internalModelForResource(resource.data);
-        if (internalModel.isLoaded()) {
-          return internalModel.reload(options).then(internalModel => {
-            if (internalModel) {
-              return internalModel.getRecord();
-            }
-            return null;
-          });
-        } else {
-          return this.store._findByInternalModel(internalModel, options);
-        }
-      }
-    }
+    return this.parentInternalModel.reloadBelongsTo(this.key, options).then(internalModel => {
+      return this.value();
+    });
   }
 }
