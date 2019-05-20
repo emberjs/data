@@ -1,7 +1,6 @@
 'use strict';
 
 const BroccoliTestHelper = require('broccoli-test-helper');
-const co = require('co');
 const Babel = require('broccoli-babel-transpiler');
 const chai = require('ember-cli-blueprint-test-helpers/chai');
 const stripIndent = require('common-tags').stripIndent;
@@ -19,45 +18,39 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
   let plugins, pluginOptions;
   let input, output;
 
-  function transform(code) {
-    return co.wrap(function*() {
-      input.write({ 'test.js': code });
-      let babel = new Babel(input.path(), {
-        plugins,
-      });
+  async function transform(code) {
+    input.write({ 'test.js': code });
+    let babel = new Babel(input.path(), {
+      plugins,
+    });
 
-      output = createBuilder(babel);
+    output = createBuilder(babel);
 
-      yield output.build();
+    await output.build();
 
-      const transpiled = output.read();
+    const transpiled = output.read();
 
-      return stripNewlines(transpiled['test.js']);
-    })();
+    return stripNewlines(transpiled['test.js']);
   }
 
-  beforeEach(
-    co.wrap(function*() {
-      pluginOptions = {};
+  beforeEach(async function() {
+    pluginOptions = {};
 
-      plugins = [[StripFilteredImports, pluginOptions]];
+    plugins = [[StripFilteredImports, pluginOptions]];
 
-      input = yield createTempDir();
-    })
-  );
+    input = await createTempDir();
+  });
 
-  afterEach(
-    co.wrap(function*() {
-      if (input) {
-        yield input.dispose();
-      }
-      if (output) {
-        yield output.dispose();
-      }
+  afterEach(async function() {
+    if (input) {
+      await input.dispose();
+    }
+    if (output) {
+      await output.dispose();
+    }
 
-      input = output = undefined;
-    })
-  );
+    input = output = undefined;
+  });
 
   it('Returns a plugin', function() {
     let plugin = StripFilteredImports();
@@ -65,25 +58,20 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
     expect(plugin).to.be.ok;
   });
 
-  it(
-    'Does not alter a file if no imports are meant to be filtered',
-    co.wrap(function*() {
-      const input = stripIndent`
+  it('Does not alter a file if no imports are meant to be filtered', async function() {
+    const input = stripIndent`
       import Foo from 'bar';
       import { baz } from 'none';
       import * as drinks from 'drinks';
       import 'bem';
     `;
-      const result = yield transform(input);
+    const result = await transform(input);
 
-      expect(result).to.equal(stripNewlines(input));
-    })
-  );
+    expect(result).to.equal(stripNewlines(input));
+  });
 
-  it(
-    'Properly strips desired imports and specifiers',
-    co.wrap(function*() {
-      const input = stripIndent`
+  it('Properly strips desired imports and specifiers', async function() {
+    const input = stripIndent`
       import Foo from 'bar';
       import { bit } from 'wow';
       import { baz, bell } from 'none';
@@ -95,24 +83,23 @@ describe('Unit: babel-plugin-remove-filtered-imports', function() {
       import 'bell';
     `;
 
-      pluginOptions.none = ['baz'];
-      pluginOptions.bar = true;
-      pluginOptions.drinks = '*';
-      pluginOptions.wow = ['bit'];
-      pluginOptions.bem = ['biz'];
-      pluginOptions.bosh = '*';
-      pluginOptions.dranks = ['bex'];
-      pluginOptions.bell = true;
+    pluginOptions.none = ['baz'];
+    pluginOptions.bar = true;
+    pluginOptions.drinks = '*';
+    pluginOptions.wow = ['bit'];
+    pluginOptions.bem = ['biz'];
+    pluginOptions.bosh = '*';
+    pluginOptions.dranks = ['bex'];
+    pluginOptions.bell = true;
 
-      const expectedOutput = stripNewlines(stripIndent`
+    const expectedOutput = stripNewlines(stripIndent`
       import { bell } from 'none';
       import { foo } from 'happy';
       import * as dranks from 'dranks';
       import 'bem';
     `);
-      const result = yield transform(input);
+    const result = await transform(input);
 
-      expect(result).to.equal(expectedOutput);
-    })
-  );
+    expect(result).to.equal(expectedOutput);
+  });
 });
