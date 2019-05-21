@@ -63,7 +63,7 @@ AllPackages.forEach(packageName => {
   execWithLog(`
   cd ${tarballDir};
   npm pack ${pkg.location};
-  npm cache add ${pkg.tarballLocation};
+  npm cache add ${pkg.tarballLocation} --global;
     `);
 
   availablePackages.push(`${pkg.packageInfo.name}@${pkg.version}`);
