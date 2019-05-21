@@ -16,17 +16,16 @@
 'use strict';
 /* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
 const fs = require('fs');
-const path = require('path');
 const { shellSync } = require('execa');
 // apparently violates no-extraneous require? /shrug
 const debug = require('debug')('test-external');
 const chalk = require('chalk');
 
-const projectRoot = path.resolve(__dirname, '../');
 // we share this for the build
-const tarballDir = path.join(projectRoot, '../__tarball-cache');
+const TarballConfig = require('./-tarball-info').config;
 const OurPackages = require('./-tarball-info').PackageInfos;
 const insertTarballsToPackageJson = require('./-tarball-info').insertTarballsToPackageJson;
+const tarballDir = TarballConfig.tarballDir;
 
 function execWithLog(command, force) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
@@ -37,24 +36,52 @@ function execWithLog(command, force) {
   return shellSync(command);
 }
 
-if (!fs.existsSync(tarballDir)) {
-  debug(`Ensuring Tarball Cache at: ${tarballDir}`);
-  fs.mkdirSync(tarballDir);
+if (!fs.existsSync(TarballConfig.cacheDir)) {
+  debug(`Ensuring Cache for Commit Builds at: ${TarballConfig.cacheDir}`);
+  fs.mkdirSync(TarballConfig.cacheDir);
 } else {
-  debug(`Tarball Cache Exists at: ${tarballDir}`);
+  debug(`Cache for Commit Builds Exists at: ${TarballConfig.cacheDir}`);
+}
+
+if (!fs.existsSync(TarballConfig.tarballDir)) {
+  debug(`Ensuring Tarball Cache for SHA ${TarballConfig.sha} at: ${TarballConfig.tarballDir}`);
+  fs.mkdirSync(TarballConfig.tarballDir);
+} else {
+  debug(`Tarball Cache Exists for SHA ${TarballConfig.sha} at: ${TarballConfig.tarballDir}`);
 }
 
 const AllPackages = Object.keys(OurPackages);
+const availablePackages = [];
 AllPackages.forEach(packageName => {
   const pkg = OurPackages[packageName];
 
-  insertTarballsToPackageJson(pkg.fileLocation);
+  insertTarballsToPackageJson(pkg.fileLocation, {
+    fileDestination: pkg.tarballLocation,
+    isRelativeTarball: true,
+  });
 
   execWithLog(`
   cd ${tarballDir};
-  npm pack ${pkg.location}
+  npm pack ${pkg.location};
+  npm cache add ${pkg.tarballLocation};
     `);
+
+  availablePackages.push(`${pkg.packageInfo.name}@${pkg.version}`);
 
   // cleanup
   fs.writeFileSync(pkg.fileLocation, pkg.originalPackageInfo);
 });
+
+console.log(
+  chalk.cyan(`Successfully packaged commit ${chalk.white(TarballConfig.sha)}!`) +
+    '\n\r\n\r' +
+    chalk.yellow(`The following packages have been added to the local npm cache:\n\r\t✅ `) +
+    chalk.grey(availablePackages.join('\n\r\t✅ ')) +
+    '\n\r\n\r' +
+    chalk.yellow(
+      `The tarballs for these packages are also available within ${chalk.white(
+        tarballDir
+      )} and can be installed elsewhere using `
+    ) +
+    chalk.magenta('`npm cache add <tarball>`')
+);
