@@ -101,7 +101,7 @@ const optionsDefinitions = [
     defaultValue: false,
   },
 ];
-const options = cliArgs(optionsDefinitions);
+const options = cliArgs(optionsDefinitions, { partial: true });
 
 function execWithLog(command, force) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
