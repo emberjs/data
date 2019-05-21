@@ -63,10 +63,11 @@ AllPackages.forEach(packageName => {
   execWithLog(`
   cd ${tarballDir};
   npm pack ${pkg.location};
-  npm cache add ${pkg.tarballLocation} --global;
     `);
 
-  availablePackages.push(`${pkg.packageInfo.name}@${pkg.version}`);
+  availablePackages.push(
+    chalk.cyan(`"${pkg.packageInfo.name}"`) + chalk.white(': ') + chalk.grey(`"${pkg.reference}"`)
+  );
 
   // cleanup
   fs.writeFileSync(pkg.fileLocation, pkg.originalPackageInfo);
@@ -75,13 +76,19 @@ AllPackages.forEach(packageName => {
 console.log(
   chalk.cyan(`Successfully packaged commit ${chalk.white(TarballConfig.sha)}!`) +
     '\n\r\n\r' +
-    chalk.yellow(`The following packages have been added to the local npm cache:\n\r\t✅ `) +
+    chalk.yellow(`The following packages have been generated:\n\r\t✅ `) +
     chalk.grey(availablePackages.join('\n\r\t✅ ')) +
     '\n\r\n\r' +
     chalk.yellow(
-      `The tarballs for these packages are also available within ${chalk.white(
-        tarballDir
-      )} and can be installed elsewhere using `
+      `The tarballs for these packages are available within ${chalk.white(tarballDir)}.\n\r\n\r`
     ) +
-    chalk.magenta('`npm cache add <tarball>`')
+    (TarballConfig.options.hostPath.indexOf('file:') === 0
+      ? chalk.red('⚠️ They may only be used on this machine.')
+      : chalk.yellow(
+          `They can be hosted ${
+            TarballConfig.options.insertTarballLinks
+              ? 'only at ' + TarballConfig.options.hostPath
+              : 'on any registry'
+          }`
+        ))
 );

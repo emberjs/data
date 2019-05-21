@@ -77,15 +77,7 @@ const path = require('path');
 const { shellSync } = require('execa');
 const debug = require('debug')('tarball-info');
 const chalk = require('chalk');
-
-function execWithLog(command, force) {
-  debug(chalk.cyan('Executing: ') + chalk.yellow(command));
-  if (debug.enabled || force) {
-    return shellSync(command, { stdio: [0, 1, 2] });
-  }
-
-  return shellSync(command).stdout;
-}
+const cliArgs = require('command-line-args');
 
 const projectRoot = path.resolve(__dirname, '../');
 // we share this for the build
@@ -95,6 +87,30 @@ const OurPackages = {};
 const CurrentSha = execWithLog(`git rev-parse HEAD`);
 const cacheDir = path.join(projectRoot, `../__tarball-cache`);
 const tarballDir = path.join(cacheDir, CurrentSha);
+
+const optionsDefinitions = [
+  {
+    name: 'hostPath',
+    alias: 'p',
+    type: String,
+    defaultValue: `file:${tarballDir}`,
+  },
+  {
+    name: 'referenceViaVersion',
+    type: Boolean,
+    defaultValue: false,
+  },
+];
+const options = cliArgs(optionsDefinitions);
+
+function execWithLog(command, force) {
+  debug(chalk.cyan('Executing: ') + chalk.yellow(command));
+  if (debug.enabled || force) {
+    return shellSync(command, { stdio: [0, 1, 2] });
+  }
+
+  return shellSync(command).stdout;
+}
 
 function convertPackageNameToTarballName(str) {
   str = str.replace('@', '');
@@ -113,13 +129,22 @@ packages.forEach(localName => {
     fileLocation: pkgPath,
     localName: localName,
     version: version,
-    tarballLocation: path.join(tarballDir, tarballName),
+    tarballName: tarballName,
+    localTarballLocation: path.join(tarballDir, tarballName),
+    reference: generatePackageReference(version, tarballName),
     packageInfo: pkgInfo,
     originalPackageInfo: fs.readFileSync(pkgPath),
   };
 });
 
 const AllPackages = Object.keys(OurPackages);
+
+function generatePackageReference(version, tarballName) {
+  if (options.referenceViaVersion === true) {
+    return version;
+  }
+  return path.join(options.hostPath, tarballName);
+}
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
   const pkgInfo = require(fileLocation);
@@ -131,9 +156,14 @@ function insertTarballsToPackageJson(fileLocation, options = {}) {
     const pkg = OurPackages[packageName];
 
     if (pkgInfo.dependencies && pkgInfo.dependencies[packageName] !== undefined) {
-      pkgInfo.dependencies[packageName] = `${pkg.version}`;
+      pkgInfo.dependencies[packageName] = pkg.reference;
     } else if (pkgInfo.devDependencies && pkgInfo.devDependencies[packageName] !== undefined) {
-      pkgInfo.devDependencies[packageName] = `${pkg.version}`;
+      pkgInfo.devDependencies[packageName] = pkg.reference;
+    }
+
+    if (!options.isRelativeTarball) {
+      const resolutions = (pkgInfo.resolutions = pkgInfo.resolutions || {});
+      resolutions[packageName] = pkg.tarballLocation;
     }
   });
 
@@ -145,6 +175,7 @@ module.exports = {
     sha: CurrentSha,
     cacheDir: cacheDir,
     tarballDir: tarballDir,
+    options,
   },
   PackageInfos: OurPackages,
   insertTarballsToPackageJson,
