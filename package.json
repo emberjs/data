@@ -22,7 +22,6 @@
     "test:enabled-in-progress-features": "yarn workspace ember-data test --enable-in-progress",
     "test-external:ember-m3": "./bin/test-external-partner-project.js ember-m3 https://github.com/hjdivad/ember-m3.git",
     "test-external:ember-data-change-tracker": "./bin/test-external-partner-project.js ember-data-change-tracker https://github.com/danielspaniel/ember-data-change-tracker.git",
-    "test-external:emberaddons.com": "./bin/test-external-partner-project.js ember-cli-addon-search https://github.com/gcollazo/ember-cli-addon-search.git",
     "test-external:model-fragments": "./bin/test-external-partner-project.js ember-data-model-fragments https://github.com/lytics/ember-data-model-fragments.git",
     "test-external:ember-observer": "./bin/test-external-partner-project.js ember-observer https://github.com/emberobserver/client.git",
     "test-external:travis-web": "./bin/test-external-partner-project.js travis-web https://github.com/travis-ci/travis-web.git",
