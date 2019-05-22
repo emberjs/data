@@ -16,7 +16,7 @@
     "start": "yarn workspace ember-data start",
     "test": "yarn workspace ember-data test",
     "test:all": "yarn workspace ember-data test:all",
-    "test:node": "./bin/run-each test:node -build-infra adapter model serializer",
+    "test:node": "lerna run test:node",
     "test:production": "yarn workspace ember-data test:production",
     "test:try-one": "yarn workspace ember-data test:try-one",
     "test:enabled-in-progress-features": "yarn workspace ember-data test --enable-in-progress",

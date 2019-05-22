@@ -11,7 +11,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test:node": "node node-tests/nodetest-runner.js"
+    "test:node": "mocha"
   },
   "dependencies": {
     "babel-plugin-feature-flags": "^0.3.1",
