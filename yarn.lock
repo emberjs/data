@@ -5348,6 +5348,13 @@ eslint-plugin-es@^1.3.1:
     eslint-utils "^1.3.0"
     regexpp "^2.0.1"
 
+eslint-plugin-mocha@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.npmjs.org/eslint-plugin-mocha/-/eslint-plugin-mocha-5.3.0.tgz#cf3eb18ae0e44e433aef7159637095a7cb19b15b"
+  integrity sha512-3uwlJVLijjEmBeNyH60nzqgA1gacUWLUmcKV8PIGNvj1kwP/CTgAWQHn2ayyJVwziX+KETkr9opNwT1qD/RZ5A==
+  dependencies:
+    ramda "^0.26.1"
+
 eslint-plugin-node@^8.0.0:
   version "8.0.1"
   resolved "https://registry.npmjs.org/eslint-plugin-node/-/eslint-plugin-node-8.0.1.tgz#55ae3560022863d141fa7a11799532340a685964"
@@ -5454,7 +5461,7 @@ espree@^5.0.1:
     acorn-jsx "^5.0.0"
     eslint-visitor-keys "^1.0.0"
 
-esprima@^4.0.0, esprima@^4.0.1:
+esprima@^4.0.0:
   version "4.0.1"
   resolved "https://registry.npmjs.org/esprima/-/esprima-4.0.1.tgz#13b04cdb3e6c5d19df91ab6987a8695619b0aa71"
   integrity sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==
@@ -5468,11 +5475,6 @@ esprima@~3.1.0:
   version "3.1.3"
   resolved "https://registry.npmjs.org/esprima/-/esprima-3.1.3.tgz#fdca51cee6133895e3c88d535ce49dbff62a4633"
   integrity sha1-/cpRzuYTOJXjyI1TXOSdv/YqRjM=
-
-esprimaq@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.npmjs.org/esprimaq/-/esprimaq-0.0.1.tgz#3ea3a41f55ba0ab98fc3564c875818bd890aa2a3"
-  integrity sha1-PqOkH1W6CrmPw1ZMh1gYvYkKoqM=
 
 esquery@^1.0.1:
   version "1.0.1"
@@ -8443,15 +8445,6 @@ mktemp@~0.4.0:
   resolved "https://registry.npmjs.org/mktemp/-/mktemp-0.4.0.tgz#6d0515611c8a8c84e484aa2000129b98e981ff0b"
   integrity sha1-bQUVYRyKjITkhKogABKbmOmB/ws=
 
-mocha-only-detector@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/mocha-only-detector/-/mocha-only-detector-1.0.1.tgz#a60392d253653fb3da77d783ed96aec8eaa7293e"
-  integrity sha512-lTnCIwmL5xKS4dWa+vlYfTOwioG1Vot5KUE5bD1jvwCHGmJUk71g9QHuy1B99r52Mih2cFQmLWlfeOyFXVqRxw==
-  dependencies:
-    esprima "^4.0.1"
-    esprimaq "^0.0.1"
-    glob "^7.1.2"
-
 mocha@^6.1.2:
   version "6.1.4"
   resolved "https://registry.npmjs.org/mocha/-/mocha-6.1.4.tgz#e35fada242d5434a7e163d555c705f6875951640"
@@ -9583,6 +9576,11 @@ qunit@^2.9.2:
     minimatch "3.0.4"
     node-watch "0.6.0"
     resolve "1.9.0"
+
+ramda@^0.26.1:
+  version "0.26.1"
+  resolved "https://registry.npmjs.org/ramda/-/ramda-0.26.1.tgz#8d41351eb8111c55353617fc3bbffad8e4d35d06"
+  integrity sha512-hLWjpy7EnsDBb0p+Z3B7rPi3GDeRG5ZtiI33kJhTt+ORCd38AbAIjB/9zRIUoeTbE/AVX5ZkU7m6bznsvrf8eQ==
 
 range-parser@~1.2.0:
   version "1.2.0"

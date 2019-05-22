@@ -5,9 +5,10 @@ module.exports = {
     ecmaVersion: 2017,
     sourceType: 'module',
   },
-  plugins: ['prettier', 'qunit'],
+  plugins: ['prettier', 'qunit', 'mocha'],
   extends: ['eslint:recommended', 'prettier'],
   rules: {
+    'mocha/no-exclusive-tests': 'error',
     'prettier/prettier': 'error',
 
     'no-unused-vars': [
