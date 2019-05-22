@@ -105,8 +105,6 @@ jobs:
       script: yarn test-external:ember-data-relationship-tracker
     - name: 'Ember Data Model Fragments' # ~3.5min job
       script: yarn test-external:model-fragments
-    - name: 'emberaddons.com' # ~3.5min job
-      script: yarn test-external:emberaddons.com
     - name: 'Ember Data Change Tracker' # ~3.5min job
       script: yarn test-external:ember-data-change-tracker
     - name: 'ember-m3' # ~3.5min job
