@@ -104,10 +104,13 @@ const optionsDefinitions = [
 ];
 const options = cliArgs(optionsDefinitions, { partial: true });
 
-// ensure we add the trailing slash, otherwise `url.resolve` will
+// ensure we add the trailing slash, otherwise `url.URL` will
 // eliminate a directory by accident.
 if (options.hostPath.charAt(options.hostPath.length - 1) !== '/') {
   options.hostPath = options.hostPath + '/';
+}
+if (options.hostPath.charAt(0) === '/') {
+  options.hostPath = 'file:' + options.hostPath;
 }
 
 function execWithLog(command, force) {
@@ -153,7 +156,7 @@ function generatePackageReference(version, tarballName) {
   if (options.hostPath.indexOf('file:') === 0) {
     return path.join(options.hostPath, tarballName);
   }
-  return url.resolve(options.hostPath, tarballName);
+  return new url.URL(tarballName, options.hostPath);
 }
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
