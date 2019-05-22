@@ -9,6 +9,18 @@ export interface ChangedAttributesHash {
 }
 
 export default interface RecordData {
+  // New Methods:
+  isNew(identifier: RecordIdentifier): boolean
+
+  isDeleted(identifier: RecordIdentifier): boolean
+
+  isDeletionCommitted(identifier: RecordIdentifier): boolean
+    
+  setIsDeleted(identifier: RecordIdentifier, boolean: isDeleted): void
+
+
+  // Existing methods:
+
   pushData(data: JsonApiResource, calculateChange?: boolean): void;
   clientDidCreate(): void;
   willCommit(): void;
