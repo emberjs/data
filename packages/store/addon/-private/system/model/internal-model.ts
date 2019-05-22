@@ -17,15 +17,20 @@ import Store from '../store';
 
 import { RecordReference, BelongsToReference, HasManyReference } from '../references';
 import { default as recordDataFor, relationshipStateFor } from '../record-data-for';
-import RecordDataDefault from './record-data';
 import RecordData from '../../ts-interfaces/record-data';
 import { JsonApiResource } from '../../ts-interfaces/record-data-json-api';
+import { Record } from '../../ts-interfaces/record';
 import { Dict } from '../../types';
-import BelongsToRelationship from '../relationships/state/belongs-to';
+
+// move to TS hacks module that we can delete when this is no longer a necessary recast
+type ManyArray = InstanceType<typeof ManyArray>;
+type Store = InstanceType<typeof Store>;
+type PromiseBelongsTo = InstanceType<typeof PromiseBelongsTo>;
+type PromiseManyArray = InstanceType<typeof PromiseManyArray>;
 
 interface BelongsToMetaWrapper {
   key: string;
-  store: InstanceType<typeof Store>;
+  store: Store;
   originatingInternalModel: InternalModel;
   modelName: string;
 }
@@ -73,7 +78,7 @@ let InternalModelReferenceId = 1;
 */
 export default class InternalModel {
   id: string | null;
-  store: InstanceType<typeof Store>;
+  store: Store;
   modelName: string;
   clientId: string | null;
   __recordData: RecordData | null;
@@ -94,17 +99,14 @@ export default class InternalModel {
   __recordArrays: any;
   _references: any;
   _recordReference: any;
-  _manyArrayCache: Dict<string, InstanceType<typeof ManyArray>> = Object.create(null);
+  _manyArrayCache: Dict<string, ManyArray> = Object.create(null);
 
   // The previous ManyArrays for this relationship which will be destroyed when
   // we create a new ManyArray, but in the interim the retained version will be
   // updated if inverse internal models are unloaded.
-  _retainedManyArrayCache: Dict<string, InstanceType<typeof ManyArray>> = Object.create(null);
+  _retainedManyArrayCache: Dict<string, ManyArray> = Object.create(null);
   _relationshipPromisesCache: Dict<string, RSVP.Promise<unknown>> = Object.create(null);
-  _relationshipProxyCache: Dict<
-    string,
-    InstanceType<typeof PromiseManyArray> | InstanceType<typeof PromiseBelongsTo>
-  > = Object.create(null);
+  _relationshipProxyCache: Dict<string, PromiseManyArray | PromiseBelongsTo> = Object.create(null);
   currentState: any;
   error: any;
 
@@ -664,32 +666,21 @@ export default class InternalModel {
     key: string,
     args: {
       promise: RSVP.Promise<unknown>;
-      // TODO @runspired
-      // follow up with @mikenorth about what to do here as
-      // we don't have a clear way to type instances of records
-      // it can only be
-      //
-      // * ManyArray
-      // * null
-      // * a record instance (where record may be user defined. instanceof DS.Model is not accurate)
-      // * possibly? undefined when the initial promise has not resolved (I suspect null in this case in reality)
-      //
-      // unknown seems better as this is something we can "know" later and it is one of a finite set of things,
-      // but instance types do not seem to accept `unknown` when we do
-      // `promiseProxy.set('content', args.content);` whereas they do accept `any`
-      content?: any;
+      content?: Record | ManyArray | null;
       _belongsToState?: BelongsToMetaWrapper;
     }
   ) {
     let promiseProxy = this._relationshipProxyCache[key];
     if (promiseProxy) {
       if (args.content !== undefined) {
-        promiseProxy.set('content', args.content);
+        // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
+        promiseProxy.set('content', args.content as any);
       }
       promiseProxy.set('promise', args.promise);
     } else {
       const klass = kind === 'hasMany' ? PromiseManyArray : PromiseBelongsTo;
-      this._relationshipProxyCache[key] = klass.create(args);
+      // this usage of `any` can be removed when `@types/ember_object` proxy allows `null` for content
+      this._relationshipProxyCache[key] = klass.create(args as any);
     }
 
     return this._relationshipProxyCache[key];
