@@ -103,5 +103,8 @@
     "prepare-local-packages": "./bin/packages-for-commit.js",
     "publish": "./bin/publish.js"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "engines": {
+    "node": ">= 8.0.0"
+  }
 }
