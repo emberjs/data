@@ -94,7 +94,7 @@
     "prettier": "^1.17.1",
     "rimraf": "^2.6.2",
     "rsvp": "^4.8.4",
-    "semver": "^6.0.0",
+    "semver": "^6.1.0",
     "typescript": "~3.4.3"
   },
   "bin": {
