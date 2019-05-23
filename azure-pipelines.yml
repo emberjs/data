@@ -309,10 +309,6 @@ jobs:
         displayName: 'External: model-fragments'
 
       - script: |
-          yarn test-external:emberaddons.com
-        displayName: 'External: emberaddons.com'
-
-      - script: |
           yarn test-external:ember-data-change-tracker
         displayName: 'External: ember-data-change-tracker'
 

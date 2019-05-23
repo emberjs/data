@@ -74,13 +74,43 @@
 /* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
 const fs = require('fs');
 const path = require('path');
+const { shellSync } = require('execa');
+const debug = require('debug')('tarball-info');
+const chalk = require('chalk');
+const cliArgs = require('command-line-args');
 
 const projectRoot = path.resolve(__dirname, '../');
 // we share this for the build
-const tarballDir = path.join(projectRoot, '../__tarball-cache');
 const packagesDir = path.join(projectRoot, './packages');
 const packages = fs.readdirSync(packagesDir);
 const OurPackages = {};
+const CurrentSha = execWithLog(`git rev-parse HEAD`);
+const cacheDir = path.join(projectRoot, `../__tarball-cache`);
+const tarballDir = path.join(cacheDir, CurrentSha);
+
+const optionsDefinitions = [
+  {
+    name: 'hostPath',
+    alias: 'p',
+    type: String,
+    defaultValue: `file:${tarballDir}`,
+  },
+  {
+    name: 'referenceViaVersion',
+    type: Boolean,
+    defaultValue: false,
+  },
+];
+const options = cliArgs(optionsDefinitions, { partial: true });
+
+function execWithLog(command, force) {
+  debug(chalk.cyan('Executing: ') + chalk.yellow(command));
+  if (debug.enabled || force) {
+    return shellSync(command, { stdio: [0, 1, 2] });
+  }
+
+  return shellSync(command).stdout;
+}
 
 function convertPackageNameToTarballName(str) {
   str = str.replace('@', '');
@@ -92,12 +122,16 @@ packages.forEach(localName => {
   const pkgDir = path.join(packagesDir, localName);
   const pkgPath = path.join(pkgDir, 'package.json');
   const pkgInfo = require(pkgPath);
-  const tarballName = `${convertPackageNameToTarballName(pkgInfo.name)}-${pkgInfo.version}.tgz`;
+  const version = `${pkgInfo.version}.${CurrentSha}`;
+  const tarballName = `${convertPackageNameToTarballName(pkgInfo.name)}-${version}.tgz`;
   OurPackages[pkgInfo.name] = {
     location: pkgDir,
     fileLocation: pkgPath,
     localName: localName,
-    tarballLocation: path.join(tarballDir, tarballName),
+    version: version,
+    tarballName: tarballName,
+    localTarballLocation: path.join(tarballDir, tarballName),
+    reference: generatePackageReference(version, tarballName),
     packageInfo: pkgInfo,
     originalPackageInfo: fs.readFileSync(pkgPath),
   };
@@ -105,20 +139,44 @@ packages.forEach(localName => {
 
 const AllPackages = Object.keys(OurPackages);
 
-function insertTarballsToPackageJson(fileLocation) {
+function generatePackageReference(version, tarballName) {
+  if (options.referenceViaVersion === true) {
+    return version;
+  }
+  return path.join(options.hostPath, tarballName);
+}
+
+function insertTarballsToPackageJson(fileLocation, options = {}) {
   const pkgInfo = require(fileLocation);
+  if (options.isRelativeTarball) {
+    pkgInfo.version = `${pkgInfo.version}.${CurrentSha}`;
+  }
+
   AllPackages.forEach(packageName => {
     const pkg = OurPackages[packageName];
+
     if (pkgInfo.dependencies && pkgInfo.dependencies[packageName] !== undefined) {
-      pkgInfo.dependencies[packageName] = `file:${pkg.tarballLocation}`;
+      pkgInfo.dependencies[packageName] = pkg.reference;
     } else if (pkgInfo.devDependencies && pkgInfo.devDependencies[packageName] !== undefined) {
-      pkgInfo.devDependencies[packageName] = `file:${pkg.tarballLocation}`;
+      pkgInfo.devDependencies[packageName] = pkg.reference;
+    }
+
+    if (!options.isRelativeTarball) {
+      const resolutions = (pkgInfo.resolutions = pkgInfo.resolutions || {});
+      resolutions[packageName] = pkg.tarballLocation;
     }
   });
+
   fs.writeFileSync(fileLocation, JSON.stringify(pkgInfo, null, 2));
 }
 
 module.exports = {
+  config: {
+    sha: CurrentSha,
+    cacheDir: cacheDir,
+    tarballDir: tarballDir,
+    options,
+  },
   PackageInfos: OurPackages,
   insertTarballsToPackageJson,
 };

@@ -13,7 +13,12 @@ const chalk = require('chalk');
 const projectRoot = path.resolve(__dirname, '../');
 const externalProjectName = process.argv[2];
 const gitUrl = process.argv[3];
-const skipSmokeTest = process.argv[4] && process.argv[4] === '--skip-smoke-test';
+const skipSmokeTest =
+  (process.argv[4] && process.argv[4] === '--skip-smoke-test') ||
+  (process.argv[5] && process.argv[5] === '--skip-smoke-test');
+const skipClone =
+  (process.argv[4] && process.argv[4] === '--skip-clone') ||
+  (process.argv[5] && process.argv[5] === '--skip-clone');
 // we share this for the build
 const cachePath = '../__external-test-cache';
 const tempDir = path.join(projectRoot, cachePath);
@@ -56,15 +61,23 @@ if (!fs.existsSync(tempDir)) {
 }
 
 if (fs.existsSync(projectTempDir)) {
-  debug(`Cleaning Cache at: ${projectTempDir}`);
-  rimraf.sync(projectTempDir);
+  if (!skipClone) {
+    debug(`Cleaning Cache at: ${projectTempDir}`);
+    rimraf.sync(projectTempDir);
+  } else {
+    debug(`Skipping Cache Clean at: ${projectTempDir}`);
+  }
 } else {
   debug(`No pre-existing cache present at: ${projectTempDir}`);
 }
 
 // install the project
 try {
-  execWithLog(`git clone --depth=1 ${gitUrl} ${projectTempDir}`);
+  if (!skipClone) {
+    execWithLog(`git clone --depth=1 ${gitUrl} ${projectTempDir}`);
+  } else {
+    debug(`Skipping git clone`);
+  }
 } catch (e) {
   debug(e);
   throw new Error(
@@ -107,7 +120,9 @@ try {
   // the nested tarballs correctly (just as it fails to pack them correctly)
   // we rimraf node_modules first because it was previously
   // installed using yarn's resolution algorithm
-  execExternal(`rm -rf node_modules`);
+  if (!skipSmokeTest) {
+    execExternal(`rm -rf node_modules`);
+  }
   execExternal(`npm install`);
 } catch (e) {
   debug(e);
