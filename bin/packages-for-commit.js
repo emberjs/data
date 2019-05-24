@@ -74,13 +74,13 @@ AllPackages.forEach(packageName => {
 });
 
 console.log(
-  chalk.cyan(`Successfully packaged commit ${chalk.white(TarballConfig.sha)}!`) +
+  chalk.cyan(`Successfully packaged commit ${chalk.white(TarballConfig.sha)}`) +
     '\n\r\n\r' +
     chalk.yellow(`The following packages have been generated:\n\r\t✅ `) +
     chalk.grey(availablePackages.join('\n\r\t✅ ')) +
     '\n\r\n\r' +
     chalk.yellow(
-      `The tarballs for these packages are available within ${chalk.white(tarballDir)}.\n\r\n\r`
+      `The tarballs for these packages are available within ${chalk.white(tarballDir)}\n\r\n\r`
     ) +
     (!TarballConfig.options.referenceViaVersion &&
     TarballConfig.options.hostPath.indexOf('file:') === 0

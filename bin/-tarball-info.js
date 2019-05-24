@@ -74,6 +74,7 @@
 /* eslint-disable no-console, node/no-extraneous-require, node/no-unpublished-require */
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 const { shellSync } = require('execa');
 const debug = require('debug')('tarball-info');
 const chalk = require('chalk');
@@ -102,6 +103,15 @@ const optionsDefinitions = [
   },
 ];
 const options = cliArgs(optionsDefinitions, { partial: true });
+
+// ensure we add the trailing slash, otherwise `url.URL` will
+// eliminate a directory by accident.
+if (options.hostPath.charAt(options.hostPath.length - 1) !== '/') {
+  options.hostPath = options.hostPath + '/';
+}
+if (options.hostPath.charAt(0) === '/') {
+  options.hostPath = 'file:' + options.hostPath;
+}
 
 function execWithLog(command, force) {
   debug(chalk.cyan('Executing: ') + chalk.yellow(command));
@@ -143,7 +153,10 @@ function generatePackageReference(version, tarballName) {
   if (options.referenceViaVersion === true) {
     return version;
   }
-  return path.join(options.hostPath, tarballName);
+  if (options.hostPath.indexOf('file:') === 0) {
+    return path.join(options.hostPath, tarballName);
+  }
+  return new url.URL(tarballName, options.hostPath);
 }
 
 function insertTarballsToPackageJson(fileLocation, options = {}) {
