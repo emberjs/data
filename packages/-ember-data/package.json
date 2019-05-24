@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@babel/plugin-transform-typescript": "*",
+    "@ember/optional-features": "*",
     "@types/ember": "*",
     "@types/ember-qunit": "*",
     "@types/ember-test-helpers": "*",

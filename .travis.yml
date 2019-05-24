@@ -78,6 +78,9 @@ jobs:
     - name: 'Ember Release'
       if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-release
+    - name: 'Ember Release with jQuery'
+      if: NOT (branch ~= /^(release|lts).*/)
+      env: EMBER_TRY_SCENARIO=ember-release-with-jquery
     - name: 'Ember Beta'
       if: NOT tag IS present AND NOT (branch ~= /^(emberjs:release|emberjs:lts|release|lts).*/)
       env: EMBER_TRY_SCENARIO=ember-beta

@@ -1,5 +1,7 @@
+/* globals jQuery */
+
 import { underscore } from '@ember/string';
-import RSVP, { resolve, reject } from 'rsvp';
+import { resolve, reject } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
@@ -11,6 +13,8 @@ import { module, test } from 'qunit';
 import Pretender from 'pretender';
 
 import DS from 'ember-data';
+
+const hasJQuery = typeof jQuery !== 'undefined';
 
 let env, store, adapter, Post, Comment, SuperUser;
 let passedUrl, passedVerb, passedHash;
@@ -50,25 +54,74 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   });
 
   function ajaxResponse(value) {
-    adapter.ajax = function(url, verb, hash) {
+    adapter._fetchRequest = hash => {
+      passedHash = hash;
+      passedUrl = passedHash.url;
+      passedVerb = passedHash.method;
+      return resolve({
+        text() {
+          return resolve(JSON.stringify(deepCopy(value)));
+        },
+        ok: true,
+        status: 200,
+      });
+    };
+
+    adapter.ajax = (url, verb, hash) => {
       passedUrl = url;
       passedVerb = verb;
       passedHash = hash;
 
-      return run(RSVP, 'resolve', deepCopy(value));
+      return resolve(deepCopy(value));
     };
   }
 
-  function ajaxError(responseText, status = 400, headers = '') {
-    adapter._ajaxRequest = function(hash) {
+  function ajaxError(responseText, status = 400, headers = {}) {
+    adapter._fetchRequest = () => {
+      return resolve({
+        text() {
+          return resolve(responseText);
+        },
+        ok: false,
+        status,
+        headers: new Headers(headers),
+      });
+    };
+
+    adapter._ajaxRequest = hash => {
       let jqXHR = {
         status,
         responseText,
         getAllResponseHeaders() {
-          return headers;
+          let reducer = (prev, key) => prev + key + ': ' + headers[key] + '\r\n';
+          let stringify = headers => {
+            return Object.keys(headers).reduce(reducer, '');
+          };
+          return stringify(headers);
         },
       };
       hash.error(jqXHR, responseText);
+    };
+  }
+
+  function ajaxZero() {
+    adapter._fetchRequest = () => {
+      return resolve({
+        text() {
+          return resolve();
+        },
+        ok: false,
+        status: 0,
+      });
+    };
+
+    adapter._ajaxRequest = function(hash) {
+      hash.error({
+        status: 0,
+        getAllResponseHeaders() {
+          return '';
+        },
+      });
     };
   }
 
@@ -2461,54 +2514,56 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     run(() => post.get('comments'));
   });
 
-  test('calls adapter.handleResponse with the jqXHR and json', function(assert) {
-    assert.expect(2);
+  if (hasJQuery) {
+    test('calls adapter.handleResponse with the jqXHR and json', function(assert) {
+      assert.expect(2);
 
-    let data = {
-      post: {
-        id: '1',
-        name: 'Docker is amazing',
-      },
-    };
+      let data = {
+        post: {
+          id: '1',
+          name: 'Docker is amazing',
+        },
+      };
 
-    server.get('/posts/1', function() {
-      return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
+      server.get('/posts/1', function() {
+        return [200, { 'Content-Type': 'application/json' }, JSON.stringify(data)];
+      });
+
+      adapter.handleResponse = function(status, headers, json) {
+        assert.deepEqual(status, 200);
+        assert.deepEqual(json, data);
+        return json;
+      };
+
+      return run(() => store.findRecord('post', '1'));
     });
 
-    adapter.handleResponse = function(status, headers, json) {
-      assert.deepEqual(status, 200);
-      assert.deepEqual(json, data);
-      return json;
-    };
+    test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', function(assert) {
+      assert.expect(4);
 
-    return run(() => store.findRecord('post', '1'));
-  });
+      let responseText = 'Nope lol';
 
-  test('calls handleResponse with jqXHR, jqXHR.responseText, and requestData', function(assert) {
-    assert.expect(4);
+      let expectedRequestData = {
+        method: 'GET',
+        url: '/posts/1',
+      };
 
-    let responseText = 'Nope lol';
+      server.get('/posts/1', function() {
+        return [400, {}, responseText];
+      });
 
-    let expectedRequestData = {
-      method: 'GET',
-      url: '/posts/1',
-    };
+      adapter.handleResponse = function(status, headers, json, requestData) {
+        assert.deepEqual(status, 400);
+        assert.deepEqual(json, responseText);
+        assert.deepEqual(requestData, expectedRequestData);
+        return new DS.AdapterError('nope!');
+      };
 
-    server.get('/posts/1', function() {
-      return [400, {}, responseText];
+      return run(() => {
+        return store.findRecord('post', '1').catch(err => assert.ok(err, 'promise rejected'));
+      });
     });
-
-    adapter.handleResponse = function(status, headers, json, requestData) {
-      assert.deepEqual(status, 400);
-      assert.deepEqual(json, responseText);
-      assert.deepEqual(requestData, expectedRequestData);
-      return new DS.AdapterError('nope!');
-    };
-
-    return run(() => {
-      return store.findRecord('post', '1').catch(err => assert.ok(err, 'promise rejected'));
-    });
-  });
+  }
 
   test('rejects promise if DS.AdapterError is returned from adapter.handleResponse', function(assert) {
     assert.expect(3);
@@ -2576,14 +2631,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   test('treats status code 0 as an abort', function(assert) {
     assert.expect(3);
 
-    adapter._ajaxRequest = function(hash) {
-      hash.error({
-        status: 0,
-        getAllResponseHeaders() {
-          return '';
-        },
-      });
-    };
+    ajaxZero();
     adapter.handleResponse = function(status, headers, payload) {
       assert.ok(false);
     };
@@ -2610,33 +2658,59 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  test('on error appends errorThrown for sanity', function(assert) {
-    assert.expect(2);
+  if (hasJQuery) {
+    test('on error appends errorThrown for sanity', function(assert) {
+      assert.expect(2);
 
-    let jqXHR = {
-      responseText: 'Nope lol',
-      getAllResponseHeaders() {
-        return '';
-      },
-    };
+      let jqXHR = {
+        responseText: 'Nope lol',
+        getAllResponseHeaders() {
+          return '';
+        },
+      };
 
-    let errorThrown = new Error('nope!');
+      let errorThrown = new Error('nope!');
 
-    adapter._ajaxRequest = function(hash) {
-      hash.error(jqXHR, jqXHR.responseText, errorThrown);
-    };
+      adapter._ajaxRequest = function(hash) {
+        hash.error(jqXHR, jqXHR.responseText, errorThrown);
+      };
 
-    adapter.handleResponse = function(status, headers, payload) {
-      assert.ok(false);
-    };
+      adapter.handleResponse = function(status, headers, payload) {
+        assert.ok(false);
+      };
 
-    return run(() => {
-      return store.findRecord('post', '1').catch(err => {
-        assert.equal(err, errorThrown);
-        assert.ok(err, 'promise rejected');
+      return run(() => {
+        return store.findRecord('post', '1').catch(err => {
+          assert.equal(err, errorThrown);
+          assert.ok(err, 'promise rejected');
+        });
       });
     });
-  });
+
+    test('on error wraps the error string in an DS.AdapterError object', function(assert) {
+      assert.expect(2);
+
+      let jqXHR = {
+        responseText: '',
+        getAllResponseHeaders() {
+          return '';
+        },
+      };
+
+      let errorThrown = 'nope!';
+
+      adapter._ajaxRequest = function(hash) {
+        hash.error(jqXHR, 'error', errorThrown);
+      };
+
+      run(() => {
+        store.findRecord('post', '1').catch(err => {
+          assert.equal(err.errors[0].detail, errorThrown);
+          assert.ok(err, 'promise rejected');
+        });
+      });
+    });
+  }
 
   test('rejects promise with a specialized subclass of DS.AdapterError if ajax responds with http error codes', function(assert) {
     assert.expect(10);
@@ -2702,38 +2776,12 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  test('on error wraps the error string in an DS.AdapterError object', function(assert) {
-    assert.expect(2);
-
-    let jqXHR = {
-      responseText: '',
-      getAllResponseHeaders() {
-        return '';
-      },
-    };
-
-    let errorThrown = 'nope!';
-
-    adapter._ajaxRequest = function(hash) {
-      hash.error(jqXHR, 'error', errorThrown);
-    };
-
-    run(() => {
-      store.findRecord('post', '1').catch(err => {
-        assert.equal(err.errors[0].detail, errorThrown);
-        assert.ok(err, 'promise rejected');
-      });
-    });
-  });
-
   test('error handling includes a detailed message from the server', assert => {
     assert.expect(2);
 
-    ajaxError(
-      'An error message, perhaps generated from a backend server!',
-      500,
-      'Content-Type: text/plain'
-    );
+    ajaxError('An error message, perhaps generated from a backend server!', 500, {
+      'Content-Type': 'text/plain',
+    });
 
     run(() => {
       store.findRecord('post', '1').catch(err => {
@@ -2749,7 +2797,7 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
   test('error handling with a very long HTML-formatted payload truncates the friendly message', assert => {
     assert.expect(2);
 
-    ajaxError(new Array(100).join('<blink />'), 500, 'Content-Type: text/html');
+    ajaxError(new Array(100).join('<blink />'), 500, { 'Content-Type': 'text/html' });
 
     run(() => {
       store.findRecord('post', '1').catch(err => {
@@ -2835,23 +2883,25 @@ module('integration/adapter/rest_adapter - REST Adapter', function(hooks) {
     });
   });
 
-  testInDebug(
-    'warns when an empty response is returned, though a valid stringified JSON is expected',
-    function(assert) {
-      server.post('/posts', function() {
-        return [201, { 'Content-Type': 'application/json' }, ''];
-      });
+  if (hasJQuery) {
+    testInDebug(
+      'warns when an empty response is returned, though a valid stringified JSON is expected',
+      function(assert) {
+        server.post('/posts', function() {
+          return [201, { 'Content-Type': 'application/json' }, ''];
+        });
 
-      return run(() => {
-        return store.createRecord('post').save();
-      }).then(
-        () => {
-          assert.equal(true, false, 'should not have fulfilled');
-        },
-        reason => {
-          assert.ok(/JSON/.test(reason.message));
-        }
-      );
-    }
-  );
+        return run(() => {
+          return store.createRecord('post').save();
+        }).then(
+          () => {
+            assert.equal(true, false, 'should not have fulfilled');
+          },
+          reason => {
+            assert.ok(/JSON/.test(reason.message));
+          }
+        );
+      }
+    );
+  }
 });

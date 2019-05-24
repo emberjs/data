@@ -7,17 +7,14 @@ import DS from 'ember-data';
 
 let Person, Place, store, adapter, env;
 
-function alphabetize(headers) {
-  return headers.sort((a, b) => (a[0] > b[0] ? 1 : -1));
-}
-
-module('unit/adapters/json-api-adapter/ajax - building requests', function(hooks) {
+module('unit/adapters/json-api-adapter/ajax-options - building requests', function(hooks) {
   hooks.beforeEach(function() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.JSONAPIAdapter, person: Person, place: Place });
     store = env.store;
     adapter = env.adapter;
+    adapter.set('useFetch', true);
   });
 
   hooks.afterEach(function() {
@@ -31,16 +28,13 @@ module('unit/adapters/json-api-adapter/ajax - building requests', function(hooks
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = [];
-    let fakeXHR = {
-      setRequestHeader(key, value) {
-        receivedHeaders.push([key, value]);
-      },
-    };
-    ajaxOptions.beforeSend(fakeXHR);
+    let receivedHeaders = ajaxOptions.headers;
+
     assert.deepEqual(
-      alphabetize(receivedHeaders),
-      [['Accept', 'application/vnd.api+json']],
+      receivedHeaders,
+      {
+        Accept: 'application/vnd.api+json',
+      },
       'headers assigned'
     );
   });
@@ -50,16 +44,14 @@ module('unit/adapters/json-api-adapter/ajax - building requests', function(hooks
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = [];
-    let fakeXHR = {
-      setRequestHeader(key, value) {
-        receivedHeaders.push([key, value]);
-      },
-    };
-    ajaxOptions.beforeSend(fakeXHR);
+    let receivedHeaders = ajaxOptions.headers;
+
     assert.deepEqual(
-      alphabetize(receivedHeaders),
-      [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
+      receivedHeaders,
+      {
+        Accept: 'application/vnd.api+json',
+        'Other-key': 'Other Value',
+      },
       'headers assigned'
     );
   });
@@ -69,37 +61,32 @@ module('unit/adapters/json-api-adapter/ajax - building requests', function(hooks
     let url = 'example.com';
     let type = 'GET';
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = [];
-    let fakeXHR = {
-      setRequestHeader(key, value) {
-        receivedHeaders.push([key, value]);
-      },
-    };
-    ajaxOptions.beforeSend(fakeXHR);
+    let receivedHeaders = ajaxOptions.headers;
 
     assert.deepEqual(
-      alphabetize(receivedHeaders),
-      [['Accept', 'application/vnd.api+json'], ['Other-key', 'Other Value']],
+      receivedHeaders,
+      {
+        Accept: 'application/vnd.api+json',
+        'Other-key': 'Other Value',
+      },
       'headers assigned'
     );
   });
 
-  test('ajaxOptions() does not overwrite Accept header if it is provided', function(assert) {
+  test('ajaxOptions() does not overwrite passed value of Accept headers', function(assert) {
+    adapter.headers = { 'Other-Key': 'Other Value', Accept: 'application/json' };
     let url = 'example.com';
     let type = 'GET';
-    adapter.headers = { Accept: 'application/json' };
     let ajaxOptions = adapter.ajaxOptions(url, type, {});
-    let receivedHeaders = [];
-    let fakeXHR = {
-      setRequestHeader(key, value) {
-        receivedHeaders.push([key, value]);
-      },
-    };
-    ajaxOptions.beforeSend(fakeXHR);
+    let receivedHeaders = ajaxOptions.headers;
+
     assert.deepEqual(
-      alphabetize(receivedHeaders),
-      [['Accept', 'application/json']],
-      'Accept header is not overwritten'
+      receivedHeaders,
+      {
+        Accept: 'application/json',
+        'Other-Key': 'Other Value',
+      },
+      'headers assigned, Accept header not overwritten'
     );
   });
 });

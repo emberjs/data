@@ -702,7 +702,7 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@ember/optional-features@*":
+"@ember/optional-features@*", "@ember/optional-features@^0.7.0":
   version "0.7.0"
   resolved "https://registry.npmjs.org/@ember/optional-features/-/optional-features-0.7.0.tgz#f65a858007020ddfb8342f586112750c32abd2d9"
   integrity sha512-qLXvL/Kq/COb43oQmCrKx7Fy8k1XJDI2RlgbCnZHH26AGVgJT/sZugx1A2AIxKdamtl/Mi+rQSjGIuscSjqjDw==

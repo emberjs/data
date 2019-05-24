@@ -118,6 +118,31 @@ jobs:
           yarn test:production
         displayName: 'Production'
 
+  - job: jQuery_Tests
+    dependsOn: Basic_Ember_Data_tests
+
+    pool:
+      vmImage: 'macOS-10.14'
+
+    steps:
+      - task: NodeTool@0
+        displayName: Node install
+        inputs:
+          versionSpec: '10.x' # The version we're installing
+
+      - script: |
+          brew update
+          brew cask install google-chrome
+          yarn install --no-lockfile --non-interactive
+
+      - script: |
+           yarn test:try-one default-with-jquery
+        displayName: 'Basic Tests with jQuery'
+
+      - script: |
+           yarn test:try-one ember-release-with-jquery
+        displayName: 'Ember Release Channel Tests with jQuery'
+
   - job: Floating_dependencies
     dependsOn: Basic_Ember_Data_tests
 
