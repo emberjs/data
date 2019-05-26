@@ -99,12 +99,12 @@ import { pluralize } from 'ember-inflector';
   Failed responses with status code 422 ("Unprocessable Entity") will
   be considered "invalid". The response will be discarded, except for
   the `errors` key. The request promise will be rejected with a
-  `DS.InvalidError`. This error object will encapsulate the saved
+  `InvalidError`. This error object will encapsulate the saved
   `errors` value.
 
   Any other status codes will be treated as an adapter error. The
   request promise will be rejected, similarly to the invalid case,
-  but with an instance of `DS.AdapterError` instead.
+  but with an instance of `AdapterError` instead.
 
   ### Endpoint path customization
 
@@ -112,9 +112,9 @@ import { pluralize } from 'ember-inflector';
   namespace property on the adapter:
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default DS.JSONAPIAdapter.extend({
+  export default JSONAPIAdapter.extend({
     namespace: 'api/1'
   });
   ```
@@ -125,9 +125,9 @@ import { pluralize } from 'ember-inflector';
   An adapter can target other hosts by setting the `host` property.
 
   ```app/adapters/application.js
-  import DS from 'ember-data';
+  import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-  export default DS.JSONAPIAdapter.extend({
+  export default JSONAPIAdapter.extend({
     host: 'https://api.example.com'
   });
   ```
