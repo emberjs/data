@@ -26,23 +26,23 @@ import { normalizeModelName } from '@ember-data/store';
   This serializer normalizes a JSON API payload that looks like:
 
   ```app/models/player.js
-  import DS from 'ember-data';
+  import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    name: DS.attr('string'),
-    skill: DS.attr('string'),
-    gamesPlayed: DS.attr('number'),
-    club: DS.belongsTo('club')
+  export default Model.extend({
+    name: attr('string'),
+    skill: attr('string'),
+    gamesPlayed: attr('number'),
+    club: belongsTo('club')
   });
   ```
 
   ```app/models/club.js
-  import DS from 'ember-data';
+  import Model, { attr, hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    name: DS.attr('string'),
-    location: DS.attr('string'),
-    players: DS.hasMany('player')
+  export default Model.extend({
+    name: attr('string'),
+    location: attr('string'),
+    players: hasMany('player')
   });
   ```
 
@@ -125,8 +125,7 @@ import { normalizeModelName } from '@ember-data/store';
 
   @since 1.13.0
   @class JSONAPISerializer
-  @namespace DS
-  @extends DS.JSONSerializer
+  @extends JSONSerializer
 */
 const JSONAPISerializer = JSONSerializer.extend({
   /**
@@ -417,10 +416,10 @@ const JSONAPISerializer = JSONSerializer.extend({
     Example
 
     ```app/serializers/application.js
-    import DS from 'ember-data';
+    import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { dasherize } from '@ember/string';
 
-    export default DS.JSONAPISerializer.extend({
+    export default JSONAPISerializer.extend({
       keyForAttribute(attr, method) {
         return dasherize(attr).toUpperCase();
       }
@@ -448,10 +447,10 @@ const JSONAPISerializer = JSONSerializer.extend({
    Example
 
     ```app/serializers/post.js
-    import DS from 'ember-data';
+    import JSONAPISerializer from '@ember-data/serializer/json-api';
     import { underscore } from '@ember/string';
 
-    export default DS.JSONAPISerializer.extend({
+    export default JSONAPISerializer.extend({
       keyForRelationship(key, relationship, method) {
         return underscore(key);
       }

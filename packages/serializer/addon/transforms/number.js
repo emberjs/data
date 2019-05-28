@@ -5,7 +5,7 @@ function isNumber(value) {
 }
 
 /**
-  The `DS.NumberTransform` class is used to serialize and deserialize
+  The `NumberTransform` class is used to serialize and deserialize
   numeric attributes on Ember Data record objects. This transform is
   used when `number` is passed as the type parameter to the
   [DS.attr](../../data#method_attr) function.
@@ -13,18 +13,17 @@ function isNumber(value) {
   Usage
 
   ```app/models/score.js
-  import DS from 'ember-data';
+  import Model, { attr, belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    value: DS.attr('number'),
-    player: DS.belongsTo('player'),
-    date: DS.attr('date')
+  export default Model.extend({
+    value: attr('number'),
+    player: belongsTo('player'),
+    date: attr('date')
   });
   ```
 
   @class NumberTransform
-  @extends DS.Transform
-  @namespace DS
+  @extends Transform
  */
 export default Transform.extend({
   deserialize(serialized) {
