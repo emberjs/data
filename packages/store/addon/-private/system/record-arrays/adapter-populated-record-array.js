@@ -39,8 +39,7 @@ import cloneNull from '../clone-null';
   ```
 
   @class AdapterPopulatedRecordArray
-  @namespace DS
-  @extends DS.RecordArray
+  @extends RecordArray
 */
 export default RecordArray.extend({
   init() {
