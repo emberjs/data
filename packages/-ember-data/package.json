@@ -77,7 +77,7 @@
     "ember-cli-uglify": "*",
     "ember-cli-yuidoc": "*",
     "ember-compatibility-helpers": "^1.2.0",
-    "ember-decorators-polyfill": "^1.0.4",
+    "ember-decorators-polyfill": "^1.0.5",
     "ember-disable-prototype-extensions": "*",
     "ember-export-application-global": "*",
     "ember-load-initializers": "*",
