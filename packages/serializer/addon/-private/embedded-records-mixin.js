@@ -424,14 +424,16 @@ export default Mixin.create({
     if (serializedKey === relationship.key && this.keyForRelationship) {
       serializedKey = this.keyForRelationship(relationship.key, relationship.kind, 'serialize');
     }
-
-    warn(
-      `The embedded relationship '${serializedKey}' is undefined for '${
-        snapshot.modelName
-      }' with id '${snapshot.id}'. Please include it in your original payload.`,
-      typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
-      { id: 'ds.serializer.embedded-relationship-undefined' }
-    );
+    
+    if (!snapshot._internalModel.currentState.isNew) {
+      warn(
+        `The embedded relationship '${serializedKey}' is undefined for '${
+          snapshot.modelName
+        }' with id '${snapshot.id}'. Please include it in your original payload.`,
+        typeOf(snapshot.hasMany(relationship.key)) !== 'undefined',
+        { id: 'ds.serializer.embedded-relationship-undefined' }
+      );
+    }
 
     json[serializedKey] = this._generateSerializedHasMany(snapshot, relationship);
   },
