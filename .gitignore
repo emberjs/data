@@ -31,7 +31,7 @@ benchmarks/results/*.json
 
 .github-upload-token
 *.swp
-docs/build/
+docs/
 .metadata_never_index
 
 DEBUG
