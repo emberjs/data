@@ -1,17 +1,20 @@
 import require, { has } from 'require';
 
-type MaybeFetch = {
-  (input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
-} | null;
+type FetchFunction = (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
 
-let _fetch: MaybeFetch = null;
+let _fetch: (() => FetchFunction) | null = null;
 
 if (has('fetch')) {
   // use `fetch` module by default, this is commonly provided by ember-fetch
-  _fetch = require('fetch').default;
+  let foundFetch = require('fetch').default;
+  _fetch = () => foundFetch;
 } else if (typeof fetch === 'function') {
   // fallback to using global fetch
-  _fetch = fetch;
+  _fetch = () => fetch;
+} else {
+  throw new Error(
+    'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
+  );
 }
 
 export default _fetch;
