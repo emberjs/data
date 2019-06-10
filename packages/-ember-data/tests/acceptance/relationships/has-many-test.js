@@ -1,4 +1,4 @@
-import { module, test, skip } from 'qunit';
+import { module, test, todo } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
@@ -287,7 +287,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    skip('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
+    todo('Rendering an async hasMany whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipData();
       let parent = store.push({
@@ -444,7 +444,7 @@ module('async has-many rendering tests', function(hooks) {
       );
     });
 
-    skip('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
+    todo('Rendering an async hasMany with a link whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(12);
       let people = makePeopleWithRelationshipLinks(true);
       let parent = store.push({

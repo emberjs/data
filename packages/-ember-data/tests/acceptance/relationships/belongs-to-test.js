@@ -1,4 +1,4 @@
-import { module, test, skip } from 'qunit';
+import { module, test, todo } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
@@ -374,7 +374,7 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
-    skip('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
+    todo('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
       assert.expect(15);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({

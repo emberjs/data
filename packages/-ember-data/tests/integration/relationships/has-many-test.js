@@ -6,7 +6,7 @@ import { get } from '@ember/object';
 import { run } from '@ember/runloop';
 import setupStore from 'dummy/tests/helpers/store';
 import testInDebug from 'dummy/tests/helpers/test-in-debug';
-import { module, test, skip } from 'qunit';
+import { module, test, todo } from 'qunit';
 import { relationshipStateFor, relationshipsFor } from 'ember-data/-private';
 import DS from 'ember-data';
 
@@ -955,7 +955,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     });
   });
 
-  skip('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
+  todo('A hasMany relationship can be reloaded even if it failed at the first time', async function(assert) {
     assert.expect(6);
 
     const { store, adapter } = env;
@@ -2135,7 +2135,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
     );
   });
 
-  skip('A sync hasMany errors out if there are unloaded records in it', function(assert) {
+  todo('A sync hasMany errors out if there are unloaded records in it', function(assert) {
     let post = run(() => {
       env.store.push({
         data: {

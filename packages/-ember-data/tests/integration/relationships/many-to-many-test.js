@@ -4,8 +4,7 @@ import { resolve, Promise as EmberPromise } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import setupStore from 'dummy/tests/helpers/store';
-import { module, test } from 'qunit';
-import todo from '../../helpers/todo';
+import { module, test, todo } from 'qunit';
 import DS from 'ember-data';
 
 const { attr, hasMany } = DS;
