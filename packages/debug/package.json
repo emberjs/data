@@ -1,0 +1,58 @@
+{
+  "name": "@ember-data/debug",
+  "version": "3.12.0-canary.0",
+  "description": "The default blueprint for ember-cli addons.",
+  "keywords": [
+    "ember-addon"
+  ],
+  "repository": "",
+  "license": "MIT",
+  "author": "",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "ember build",
+    "lint:hbs": "ember-template-lint .",
+    "lint:js": "eslint .",
+    "start": "ember serve",
+    "test": "ember test",
+    "test:all": "ember try:each"
+  },
+  "dependencies": {
+    "ember-cli-babel": "^7.1.2"
+  },
+  "devDependencies": {
+    "@ember/optional-features": "*",
+    "broccoli-asset-rev": "*",
+    "ember-cli": "*",
+    "ember-cli-dependency-checker": "*",
+    "ember-cli-eslint": "*",
+    "ember-cli-htmlbars": "*",
+    "ember-cli-htmlbars-inline-precompile": "*",
+    "ember-cli-inject-live-reload": "*",
+    "ember-cli-sri": "*",
+    "ember-cli-template-lint": "*",
+    "ember-cli-uglify": "*",
+    "ember-disable-prototype-extensions": "*",
+    "ember-export-application-global": "*",
+    "ember-load-initializers": "*",
+    "ember-maybe-import-regenerator": "*",
+    "ember-qunit": "*",
+    "ember-resolver": "*",
+    "ember-source": "*",
+    "ember-source-channel-url": "*",
+    "ember-try": "*",
+    "eslint-plugin-ember": "*",
+    "eslint-plugin-node": "*",
+    "loader.js": "*",
+    "qunit-dom": "*"
+  },
+  "engines": {
+    "node": "6.* || 8.* || >= 10.*"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  }
+}
