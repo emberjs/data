@@ -4,11 +4,11 @@ import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
 
 /**
-  `DS.belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
+  `belongsTo` is used to define One-To-One and One-To-Many
+  relationships on a [Model](/api/data/classes/DS.Model.html).
 
 
-  `DS.belongsTo` takes an optional hash as a second parameter, currently
+  `belongsTo` takes an optional hash as a second parameter, currently
   supported options are:
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
@@ -17,41 +17,41 @@ import { DEBUG } from '@glimmer/env';
 
   #### One-To-One
   To declare a one-to-one relationship between two models, use
-  `DS.belongsTo`:
+  `belongsTo`:
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    profile: DS.belongsTo('profile')
+  export default Model.extend({
+    profile: belongsTo('profile')
   });
   ```
 
   ```app/models/profile.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    user: DS.belongsTo('user')
+  export default Model.extend({
+    user: belongsTo('user')
   });
   ```
 
   #### One-To-Many
   To declare a one-to-many relationship between two models, use
-  `DS.belongsTo` in combination with `DS.hasMany`, like this:
+  `belongsTo` in combination with `hasMany`, like this:
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    comments: DS.hasMany('comment')
+  export default Model.extend({
+    comments: hasMany('comment')
   });
   ```
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    post: DS.belongsTo('post')
+  export default Model.extend({
+    post: belongsTo('post')
   });
   ```
 
@@ -59,10 +59,10 @@ import { DEBUG } from '@glimmer/env';
   will infer the type from the key name.
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    post: DS.belongsTo()
+  export default Model.extend({
+    post: belongsTo()
   });
   ```
 
@@ -75,10 +75,10 @@ import { DEBUG } from '@glimmer/env';
   to be loaded before or along-side the primary resource.
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    post: DS.belongsTo('post', {
+  export default Model.extend({
+    post: belongsTo('post', {
       async: false
     })
   });
@@ -94,9 +94,7 @@ import { DEBUG } from '@glimmer/env';
 
   ```
 
-  @namespace
   @method belongsTo
-  @for DS
   @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
@@ -116,9 +114,9 @@ export default function belongsTo(modelName, options) {
   }
 
   assert(
-    'The first argument to DS.belongsTo must be a string representing a model type key, not an instance of ' +
+    'The first argument to belongsTo must be a string representing a model type key, not an instance of ' +
       inspect(userEnteredModelName) +
-      ". E.g., to define a relation to the Person model, use DS.belongsTo('person')",
+      ". E.g., to define a relation to the Person model, use belongsTo('person')",
     typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined'
   );
 
@@ -145,7 +143,7 @@ export default function belongsTo(modelName, options) {
           warn(
             `You provided a serialize option on the "${key}" property in the "${
               this._internalModel.modelName
-            }" class, this belongs in the serializer. See DS.Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`,
+            }" class, this belongs in the serializer. See Serializer and it's implementations https://emberjs.com/api/data/classes/DS.Serializer.html`,
             false,
             {
               id: 'ds.model.serialize-option-in-belongs-to',
@@ -157,7 +155,7 @@ export default function belongsTo(modelName, options) {
           warn(
             `You provided an embedded option on the "${key}" property in the "${
               this._internalModel.modelName
-            }" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`,
+            }" class, this belongs in the serializer. See EmbeddedRecordsMixin https://emberjs.com/api/data/classes/DS.EmbeddedRecordsMixin.html`,
             false,
             {
               id: 'ds.model.embedded-option-in-belongs-to',

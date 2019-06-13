@@ -7,10 +7,10 @@ import { normalizeModelName } from '@ember-data/store';
 import { DEBUG } from '@glimmer/env';
 
 /**
-  `DS.hasMany` is used to define One-To-Many and Many-To-Many
-  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
+  `hasMany` is used to define One-To-Many and Many-To-Many
+  relationships on a [Model](/api/data/classes/DS.Model.html).
 
-  `DS.hasMany` takes an optional hash as a second parameter, currently
+  `hasMany` takes an optional hash as a second parameter, currently
   supported options are:
 
   - `async`: A boolean value used to explicitly declare this to be an async relationship. The default is true.
@@ -18,41 +18,41 @@ import { DEBUG } from '@glimmer/env';
 
   #### One-To-Many
   To declare a one-to-many relationship between two models, use
-  `DS.belongsTo` in combination with `DS.hasMany`, like this:
+  `belongsTo` in combination with `hasMany`, like this:
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    comments: DS.hasMany('comment')
+  export default Model.extend({
+    comments: hasMany('comment')
   });
   ```
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    post: DS.belongsTo('post')
+  export default Model.extend({
+    post: belongsTo('post')
   });
   ```
 
   #### Many-To-Many
   To declare a many-to-many relationship between two models, use
-  `DS.hasMany`:
+  `hasMany`:
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    tags: DS.hasMany('tag')
+  export default Model.extend({
+    tags: hasMany('tag')
   });
   ```
 
   ```app/models/tag.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    posts: DS.hasMany('post')
+  export default Model.extend({
+    posts: hasMany('post')
   });
   ```
 
@@ -60,10 +60,10 @@ import { DEBUG } from '@glimmer/env';
   will infer the type from the singularized key name.
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    tags: DS.hasMany()
+  export default Model.extend({
+    tags: hasMany()
   });
   ```
 
@@ -79,24 +79,24 @@ import { DEBUG } from '@glimmer/env';
 
   However, sometimes you may have multiple `belongsTo`/`hasMany` for the
   same type. You can specify which property on the related model is
-  the inverse using `DS.hasMany`'s `inverse` option:
+  the inverse using `hasMany`'s `inverse` option:
 
   ```app/models/comment.js
-  import DS from 'ember-data';
+  import Model, { belongsTo } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    onePost: DS.belongsTo('post'),
-    twoPost: DS.belongsTo('post'),
-    redPost: DS.belongsTo('post'),
-    bluePost: DS.belongsTo('post')
+  export default Model.extend({
+    onePost: belongsTo('post'),
+    twoPost: belongsTo('post'),
+    redPost: belongsTo('post'),
+    bluePost: belongsTo('post')
   });
   ```
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    comments: DS.hasMany('comment', {
+  export default Model.extend({
+    comments: hasMany('comment', {
       inverse: 'redPost'
     })
   });
@@ -112,17 +112,17 @@ import { DEBUG } from '@glimmer/env';
   to be loaded before or along-side the primary resource.
 
   ```app/models/post.js
-  import DS from 'ember-data';
+  import Model, { hasMany } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    comments: DS.hasMany('comment', {
+  export default Model.extend({
+    comments: hasMany('comment', {
       async: false
     })
   });
   ```
 
   In contrast to async relationship, accessing a sync relationship
-  will always return a [DS.ManyArray](/api/data/classes/DS.ManyArray.html) instance
+  will always return a [ManyArray](/api/data/classes/DS.ManyArray.html) instance
   containing the existing local resources. But it will error on access
   when any of the known related resources have not been loaded.
 
@@ -150,9 +150,9 @@ export default function hasMany(type, options) {
   }
 
   assert(
-    `The first argument to DS.hasMany must be a string representing a model type key, not an instance of ${inspect(
+    `The first argument to hasMany must be a string representing a model type key, not an instance of ${inspect(
       type
-    )}. E.g., to define a relation to the Comment model, use DS.hasMany('comment')`,
+    )}. E.g., to define a relation to the Comment model, use hasMany('comment')`,
     typeof type === 'string' || typeof type === 'undefined'
   );
 
