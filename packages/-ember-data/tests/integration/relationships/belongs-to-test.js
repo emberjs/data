@@ -1141,7 +1141,7 @@ module('integration/relationship/belongs_to Belongs-To Relationships', function(
       DS.Model.extend({
         user: DSbelongsTo(User, { async: false }),
       });
-    }, /The first argument to DS.belongsTo must be a string/);
+    }, /The first argument to belongsTo must be a string/);
   });
 
   test('belongsTo hasAnyRelationshipData async loaded', function(assert) {

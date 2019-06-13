@@ -2649,7 +2649,7 @@ module('integration/relationships/has_many - Has-Many Relationships', function(h
       Contact = DS.Model.extend({
         users: hasMany(User, { async: false }),
       });
-    }, /The first argument to DS.hasMany must be a string/);
+    }, /The first argument to hasMany must be a string/);
   });
 
   test('Relationship.clear removes all records correctly', function(assert) {

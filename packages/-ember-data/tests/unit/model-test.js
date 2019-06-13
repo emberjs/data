@@ -1485,7 +1485,7 @@ module('unit/model - Model', function(hooks) {
 
       assert.expectAssertion(() => {
         person.attr();
-      }, /Assertion Failed: The `attr` method is not available on DS\.Model, a DS\.Snapshot was probably expected\. Are you passing a DS\.Model instead of a DS\.Snapshot to your serializer\?/);
+      }, /Assertion Failed: The `attr` method is not available on Model, a Snapshot was probably expected\. Are you passing a Model instead of a Snapshot to your serializer\?/);
     });
   });
 });
