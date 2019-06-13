@@ -270,10 +270,12 @@ export default class Relationship {
   }
 
   inverseDidDematerialize(inverseRecordData: RelationshipRecordData | null) {
-    if (!this.isAsync) {
+    if (!this.isAsync || (inverseRecordData && inverseRecordData.isNew())) {
       // unloading inverse of a sync relationship is treated as a client-side
       // delete, so actually remove the models don't merely invalidate the cp
       // cache.
+      // if the record being unloaded only exists on the client, we similarly
+      // treat it as a client side delete
       this.removeRecordDataFromOwn(inverseRecordData);
       this.removeCanonicalRecordDataFromOwn(inverseRecordData);
       this.setRelationshipIsEmpty(true);
