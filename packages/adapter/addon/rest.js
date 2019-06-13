@@ -1057,7 +1057,15 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
   },
 
   _fetchRequest(options) {
-    return fetch(options.url, options);
+    let fetchFunction = fetch();
+
+    if (fetchFunction) {
+      return fetchFunction(options.url, options);
+    } else {
+      throw new Error(
+        'cannot find the `fetch` module or the `fetch` global. Did you mean to install the `ember-fetch` addon?'
+      );
+    }
   },
 
   _ajax(options) {
