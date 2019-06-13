@@ -49,7 +49,7 @@ let InternalModelReferenceId = 1;
   `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
   Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
 
-  We expose `DS.Model` to application code, by materializing a `DS.Model` from `InternalModel` lazily, as
+  We expose `Model` to application code, by materializing a `Model` from `InternalModel` lazily, as
   a performance optimization.
 
   `InternalModel` should never be exposed to application code. At the boundaries of the system, in places
@@ -1273,7 +1273,7 @@ function assertRecordsPassedToHasMany(records) {
     Array.isArray(records) || EmberArray.detect(records)
   );
   assert(
-    `All elements of a hasMany relationship must be instances of DS.Model, you passed ${inspect(
+    `All elements of a hasMany relationship must be instances of Model, you passed ${inspect(
       records
     )}`,
     (function() {

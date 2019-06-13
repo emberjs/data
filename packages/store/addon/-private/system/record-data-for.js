@@ -1,6 +1,6 @@
-/**
+/*
  * Returns the RecordData instance associated with a given
- * DS.Model or InternalModel.
+ * Model or InternalModel.
  *
  * Intentionally "loose" to allow anything with an _internalModel
  * property until InternalModel is eliminated.

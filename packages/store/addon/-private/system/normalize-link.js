@@ -8,7 +8,6 @@
   @private
   @param {String} link
   @return {Object|null}
-  @for DS
 */
 export default function _normalizeLink(link) {
   switch (typeof link) {

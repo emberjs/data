@@ -21,7 +21,6 @@ function isResourceIdentiferWithRelatedLinks(
   like RecordReference/HasManyReference/BelongsToReference
 
  @class Reference
- @namespace DS
  */
 export default abstract class Reference {
   public recordData: InternalModel['_recordData'];
@@ -46,8 +45,10 @@ export default abstract class Reference {
    Example
 
    ```app/models/post.js
-   export default DS.Model.extend({
-     comments: DS.hasMany({ async: true })
+   import Model, { hasMany } from '@ember-data/model';
+
+   export default Model.extend({
+     comments: hasMany({ async: true })
    });
    ```
 
@@ -93,8 +94,9 @@ export default abstract class Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
@@ -140,8 +142,9 @@ export default abstract class Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({

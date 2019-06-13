@@ -79,7 +79,7 @@ export default class Snapshot {
    ```
 
    @property record
-   @type {DS.Model}
+   @type {Model}
    */
   get record() {
     return this._internalModel.getRecord();
@@ -99,10 +99,10 @@ export default class Snapshot {
   }
 
   /**
-   The type of the underlying record for this snapshot, as a DS.Model.
+   The type of the underlying record for this snapshot, as a Model.
 
    @property type
-   @type {DS.Model}
+   @type {Model}
    */
   get type() {
     // TODO @runspired we should deprecate this in favor of modelClass but only once
@@ -194,7 +194,7 @@ export default class Snapshot {
    ```javascript
    // store.push('post', { id: 1, title: 'Hello World' });
    // store.createRecord('comment', { body: 'Lorem ipsum', post: post });
-   commentSnapshot.belongsTo('post'); // => DS.Snapshot
+   commentSnapshot.belongsTo('post'); // => Snapshot
    commentSnapshot.belongsTo('post', { id: true }); // => '1'
 
    // store.push('comment', { id: 1, body: 'Lorem ipsum' });
@@ -211,7 +211,7 @@ export default class Snapshot {
    @method belongsTo
    @param {String} keyName
    @param {Object} [options]
-   @return {(DS.Snapshot|String|null|undefined)} A snapshot or ID of a known
+   @return {(Snapshot|String|null|undefined)} A snapshot or ID of a known
    relationship or null if the relationship is known but unset. undefined
    will be returned if the contents of the relationship is unknown.
    */
@@ -282,7 +282,7 @@ export default class Snapshot {
 
    ```javascript
    // store.push('post', { id: 1, title: 'Hello World', comments: [2, 3] });
-   postSnapshot.hasMany('comments'); // => [DS.Snapshot, DS.Snapshot]
+   postSnapshot.hasMany('comments'); // => [Snapshot, Snapshot]
    postSnapshot.hasMany('comments', { ids: true }); // => ['2', '3']
 
    // store.push('post', { id: 1, title: 'Hello World' });
@@ -396,9 +396,9 @@ export default class Snapshot {
     Example
 
     ```app/adapters/application.js
-    import DS from 'ember-data';
+    import Adapter from '@ember-data/adapter';
 
-    export default DS.Adapter.extend({
+    export default Adapter.extend({
       createRecord(store, type, snapshot) {
         var data = snapshot.serialize({ includeId: true });
         var url = `/${type.modelName}`;

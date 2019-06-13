@@ -10,8 +10,7 @@ import recordDataFor from '../record-data-for';
  relationship.
 
  @class BelongsToReference
- @namespace DS
- @extends DS.Reference
+ @extends Reference
  */
 export default class BelongsToReference extends Reference {
   constructor(store, parentInternalModel, belongsToRelationship, key) {
@@ -36,8 +35,8 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
@@ -82,10 +81,11 @@ export default class BelongsToReference extends Reference {
 
    Example
 
-   ```javascript
-   // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   ```app/models/blog.js
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
@@ -155,8 +155,10 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
@@ -189,7 +191,7 @@ export default class BelongsToReference extends Reference {
    ```
 
    @method value
-   @return {DS.Model} the record in this relationship
+   @return {Model} the record in this relationship
    */
   value() {
     let store = this.parentInternalModel.store;
@@ -213,8 +215,10 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   import Model, { belongsTo } from '@ember-data/model';
+
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
@@ -276,8 +280,9 @@ export default class BelongsToReference extends Reference {
 
    ```javascript
    // models/blog.js
-   export default DS.Model.extend({
-      user: DS.belongsTo({ async: true })
+   import Model, { belongsTo } from '@ember-data/model';
+   export default Model.extend({
+      user: belongsTo({ async: true })
     });
 
    let blog = store.push({
