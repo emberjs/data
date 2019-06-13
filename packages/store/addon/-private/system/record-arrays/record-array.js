@@ -14,11 +14,10 @@ import SnapshotRecordArray from '../snapshot-record-array';
   A record array is an array that contains records of a certain modelName. The record
   array materializes records as needed when they are retrieved for the first
   time. You should not create record arrays yourself. Instead, an instance of
-  `DS.RecordArray` or its subclasses will be returned by your application's store
+  `RecordArray` or its subclasses will be returned by your application's store
   in response to queries.
 
   @class RecordArray
-  @namespace DS
   @extends ArrayProxy
   @uses Ember.Evented
 */
@@ -75,7 +74,7 @@ export default ArrayProxy.extend(Evented, {
 
     @property store
     @private
-    @type DS.Store
+    @type Store
     */
     this.store = this.store || null;
     this._updatingPromise = null;
@@ -93,7 +92,7 @@ export default ArrayProxy.extend(Evented, {
    The modelClass represented by this record array.
 
    @property type
-   @type DS.Model
+   @type Model
    */
   type: computed('modelName', function() {
     if (!this.modelName) {
@@ -108,7 +107,7 @@ export default ArrayProxy.extend(Evented, {
     @method objectAtContent
     @private
     @param {Number} index
-    @return {DS.Model} record
+    @return {Model} record
   */
   objectAtContent(index) {
     let internalModel = get(this, 'content').objectAt(index);
@@ -201,7 +200,7 @@ export default ArrayProxy.extend(Evented, {
     ```
 
     @method save
-    @return {DS.PromiseArray} promise
+    @return {PromiseArray} promise
   */
   save() {
     let promiseLabel = `DS: RecordArray#save ${this.modelName}`;

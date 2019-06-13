@@ -6,7 +6,6 @@ import Reference from './reference';
    addon author to perform meta-operations on a record.
 
    @class RecordReference
-   @namespace DS
 */
 export default class RecordReference extends Reference {
   public type = this.internalModel.modelName;
@@ -111,7 +110,7 @@ export default class RecordReference extends Reference {
      ```
 
      @method value
-     @return {DS.Model} the record for this RecordReference
+     @return {Model} the record for this RecordReference
   */
   value() {
     if (this.internalModel.hasRecord) {
