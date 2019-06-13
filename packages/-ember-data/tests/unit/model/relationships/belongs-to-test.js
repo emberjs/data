@@ -757,7 +757,7 @@ module('unit/model/relationships - DS.belongsTo', function() {
       return store.findRecord('person', 1).then(person => {
         assert.expectWarning(() => {
           get(person, 'hobby');
-        }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
+        }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See Serializer and it's implementations/);
       });
     });
   });
@@ -814,12 +814,12 @@ module('unit/model/relationships - DS.belongsTo', function() {
       return store.findRecord('person', 1).then(person => {
         assert.expectWarning(() => {
           get(person, 'hobby');
-        }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
+        }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See EmbeddedRecordsMixin/);
       });
     });
   });
 
-  test('DS.belongsTo should be async by default', function(assert) {
+  test('belongsTo should be async by default', function(assert) {
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person', { async: false }),

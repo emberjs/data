@@ -2317,7 +2317,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     assert.equal(tags.objectAt(2), tag3);
   });
 
-  test('DS.hasMany is async by default', function(assert) {
+  test('hasMany is async by default', function(assert) {
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person'),
@@ -2337,7 +2337,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     );
   });
 
-  test('DS.hasMany is stable', function(assert) {
+  test('hasMany is stable', function(assert) {
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person'),
@@ -2364,7 +2364,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     return EmberPromise.all([people]);
   });
 
-  test('DS.hasMany proxy is destroyed', function(assert) {
+  test('hasMany proxy is destroyed', function(assert) {
     const Tag = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany('person'),
@@ -2593,7 +2593,7 @@ module('unit/model/relationships - DS.hasMany', function(hooks) {
     run(() => {
       assert.expectAssertion(() => {
         tag.set('people', [person]);
-      }, /All elements of a hasMany relationship must be instances of DS.Model/);
+      }, /All elements of a hasMany relationship must be instances of Model/);
     });
   });
 });
