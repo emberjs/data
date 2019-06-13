@@ -11,18 +11,18 @@ import { makeArray, A } from '@ember/array';
 /**
   Holds validation errors for a given record, organized by attribute names.
 
-  Every `DS.Model` has an `errors` property that is an instance of
-  `DS.Errors`. This can be used to display validation error
+  Every `Model` has an `errors` property that is an instance of
+  `Errors`. This can be used to display validation error
   messages returned from the server when a `record.save()` rejects.
 
   For Example, if you had a `User` model that looked like this:
 
   ```app/models/user.js
-  import DS from 'ember-data';
+  import Model, { attr } from '@ember-data/model';
 
-  export default DS.Model.extend({
-    username: DS.attr('string'),
-    email: DS.attr('string')
+  export default Model.extend({
+    username: attr('string'),
+    email: attr('string')
   });
   ```
   And you attempted to save a record that did not validate on the backend:
@@ -38,7 +38,7 @@ import { makeArray, A } from '@ember/array';
   Your backend would be expected to return an error response that described
   the problem, so that error messages can be generated on the app.
 
-  API responses will be translated into instances of `DS.Errors` differently,
+  API responses will be translated into instances of `Errors` differently,
   depending on the specific combination of adapter and serializer used. You
   may want to check the documentation or the source code of the libraries
   that you are using, to know how they expect errors to be communicated.
@@ -78,7 +78,6 @@ import { makeArray, A } from '@ember/array';
   ```
 
   @class Errors
-  @namespace DS
   @extends Ember.ArrayProxy
   @uses Ember.Evented
  */

@@ -4,7 +4,6 @@
 
 /**
   @class SnapshotRecordArray
-  @namespace DS
   @private
   @constructor
   @param {Array} snapshots An array of snapshots
@@ -34,9 +33,9 @@ export default class SnapshotRecordArray {
       Example
 
       ```app/adapters/post.js
-      import DS from 'ember-data'
+      import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-      export default DS.JSONAPIAdapter.extend({
+      export default JSONAPIAdapter.extend({
         shouldReloadAll(store, snapshotRecordArray) {
           return !snapshotRecordArray.length;
         },
@@ -56,9 +55,9 @@ export default class SnapshotRecordArray {
       Example
 
       ```app/adapters/post.js
-      import DS from 'ember-data'
+      import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-      export default DS.JSONAPIAdapter.extend({
+      export default JSONAPIAdapter.extend({
         shouldReloadAll(store, snapshotRecordArray) {
           var lastRequestTime = snapshotRecordArray.meta.lastRequestTime;
           var twentyMinutes = 20 * 60 * 1000;
@@ -101,9 +100,9 @@ export default class SnapshotRecordArray {
       Example
 
       ```app/adapters/application.js
-      import DS from 'ember-data';
+      import Adapter from '@ember-data/adapter';
 
-      export default DS.Adapter.extend({
+      export default Adapter.extend({
         findAll(store, type, snapshotRecordArray) {
           var url = `/${type.modelName}?include=${encodeURIComponent(snapshotRecordArray.include)}`;
 
@@ -118,9 +117,9 @@ export default class SnapshotRecordArray {
   }
 
   /**
-    The type of the underlying records for the snapshots in the array, as a DS.Model
+    The type of the underlying records for the snapshots in the array, as a Model
     @property type
-    @type {DS.Model}
+    @type {Model}
   */
   get type() {
     return this._type || (this._type = this._recordArray.get('type'));
@@ -132,9 +131,9 @@ export default class SnapshotRecordArray {
     Example
 
     ```app/adapters/post.js
-    import DS from 'ember-data'
+    import JSONAPIAdapter from '@ember-data/adapter/json-api';
 
-    export default DS.JSONAPIAdapter.extend({
+    export default JSONAPIAdapter.extend({
       shouldReloadAll(store, snapshotArray) {
         var snapshots = snapshotArray.snapshots();
 

@@ -11,11 +11,6 @@ import { RecordArray, AdapterPopulatedRecordArray } from './record-arrays';
 
 const emberRun = emberRunloop.backburner;
 
-/**
-  @class RecordArrayManager
-  @namespace DS
-  @private
-*/
 export default class RecordArrayManager {
   constructor(options) {
     this.store = options.store;
@@ -145,13 +140,13 @@ export default class RecordArrayManager {
     }
   }
 
-  /**
-    Get the `DS.RecordArray` for a modelName, which contains all loaded records of
+  /*
+    Get the `RecordArray` for a modelName, which contains all loaded records of
     given modelName.
 
     @method liveRecordArrayFor
     @param {String} modelName
-    @return {DS.RecordArray}
+    @return {RecordArray}
   */
   liveRecordArrayFor(modelName) {
     assert(
@@ -187,13 +182,13 @@ export default class RecordArrayManager {
     return visible;
   }
 
-  /**
-    Create a `DS.RecordArray` for a modelName.
+  /*
+    Create a `RecordArray` for a modelName.
 
     @method createRecordArray
     @param {String} modelName
     @param {Array} _content (optional|private)
-    @return {DS.RecordArray}
+    @return {RecordArray}
   */
   createRecordArray(modelName, content) {
     assert(
@@ -216,13 +211,13 @@ export default class RecordArrayManager {
     return array;
   }
 
-  /**
-    Create a `DS.AdapterPopulatedRecordArray` for a modelName with given query.
+  /*
+    Create a `AdapterPopulatedRecordArray` for a modelName with given query.
 
     @method createAdapterPopulatedRecordArray
     @param {String} modelName
     @param {Object} query
-    @return {DS.AdapterPopulatedRecordArray}
+    @return {AdapterPopulatedRecordArray}
   */
   createAdapterPopulatedRecordArray(modelName, query, internalModels, payload) {
     assert(
@@ -260,12 +255,12 @@ export default class RecordArrayManager {
     return array;
   }
 
-  /**
+  /*
     Unregister a RecordArray.
     So manager will not update this array.
 
     @method unregisterRecordArray
-    @param {DS.RecordArray} array
+    @param {RecordArray} array
   */
   unregisterRecordArray(array) {
     let modelName = array.modelName;
