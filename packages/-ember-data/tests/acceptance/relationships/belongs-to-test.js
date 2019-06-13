@@ -1,4 +1,4 @@
-import { module, test, skip } from 'qunit';
+import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import JSONAPIAdapter from '@ember-data/adapter/json-api';
 import Model from '@ember-data/model';
@@ -374,8 +374,8 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), 'Kevin has two children and one parent');
     });
 
-    skip('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
-      assert.expect(15);
+    test('Rendering an async belongs-to whose fetch fails does not trigger a new request', async function(assert) {
+      assert.expect(14);
       let people = makePeopleWithRelationshipData();
       let sedona = store.push({
         data: people.dict['5:has-parent-no-children'],
@@ -412,10 +412,16 @@ module('async belongs-to rendering tests', function(hooks) {
       assert.equal(this.element.textContent.trim(), '', 'we have no parent');
 
       let relationshipState = sedona.belongsTo('parent').belongsToRelationship;
+      let RelationshipPromiseCache = sedona._internalModel._relationshipPromisesCache;
+      let RelationshipProxyCache = sedona._internalModel._relationshipProxyCache;
 
       assert.equal(relationshipState.isAsync, true, 'The relationship is async');
       assert.equal(relationshipState.relationshipIsEmpty, false, 'The relationship is not empty');
-      assert.equal(relationshipState.relationshipIsStale, true, 'The relationship is still stale');
+      assert.equal(
+        relationshipState.hasDematerializedInverse,
+        true,
+        'The relationship inverse is dematerialized'
+      );
       assert.equal(
         relationshipState.allInverseRecordsAreLoaded,
         false,
@@ -427,9 +433,9 @@ module('async belongs-to rendering tests', function(hooks) {
         'The relationship knows which record it needs'
       );
       assert.equal(
-        relationshipState.fetchPromise === null,
-        true,
-        'The relationship has no fetchPromise'
+        !!RelationshipPromiseCache['parent'],
+        false,
+        'The relationship has no fetch promise'
       );
       assert.equal(
         relationshipState.hasFailedLoadAttempt === true,
@@ -442,18 +448,18 @@ module('async belongs-to rendering tests', function(hooks) {
         'The relationship will not force a reload'
       );
       assert.equal(
-        relationshipState._promiseProxy !== null,
+        !!RelationshipProxyCache['parent'],
         true,
-        'The relationship has a loadingPromise'
+        'The relationship has a promise proxy'
       );
       assert.equal(!!relationshipState.link, false, 'The relationship does not have a link');
-      assert.equal(
-        relationshipState.shouldMakeRequest(),
-        false,
-        'The relationship does not need to make a request'
-      );
-      let result = await sedona.get('parent');
-      assert.ok(result === null, 're-access is safe');
+
+      try {
+        let result = await sedona.get('parent');
+        assert.ok(result === null, 're-access is safe');
+      } catch (e) {
+        assert.ok(false, `Accessing resulted in rejected promise error: ${e.message}`);
+      }
 
       Ember.onerror = originalOnError;
     });

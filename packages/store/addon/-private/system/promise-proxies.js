@@ -106,6 +106,12 @@ export const PromiseBelongsTo = PromiseObject.extend({
   },
 });
 
+export function proxyToContent(method) {
+  return function() {
+    return get(this, 'content')[method](...arguments);
+  };
+}
+
 /*
   A PromiseManyArray is a PromiseArray that also proxies certain method calls
   to the underlying manyArray.
@@ -122,13 +128,6 @@ export const PromiseBelongsTo = PromiseObject.extend({
   @class PromiseManyArray
   @extends Ember.ArrayProxy
 */
-
-export function proxyToContent(method) {
-  return function() {
-    return get(this, 'content')[method](...arguments);
-  };
-}
-
 export const PromiseManyArray = PromiseArray.extend({
   reload(options) {
     assert(
