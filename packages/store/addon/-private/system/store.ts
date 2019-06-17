@@ -40,21 +40,13 @@ import edBackburner from './backburner';
 import { RECORD_DATA_ERRORS, RECORD_DATA_STATE } from '@ember-data/canary-features';
 import { Record } from '../ts-interfaces/record';
 
+import promiseRecord from '../utils/promise-record';
 const badIdFormatAssertion = '`id` passed to `findRecord()` has to be non-empty string or number';
 const emberRun = emberRunLoop.backburner;
 
 const { ENV } = Ember;
 
 let globalClientIdCounter = 1;
-
-//Get the materialized model from the internalModel/promise that returns
-//an internal model and return it in a promiseObject. Useful for returning
-//from find methods
-function promiseRecord(internalModelPromise, label) {
-  let toReturn = internalModelPromise.then(internalModel => internalModel.getRecord());
-
-  return promiseObject(toReturn, label);
-}
 
 // Implementors Note:
 //
