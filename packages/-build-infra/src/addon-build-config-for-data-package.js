@@ -79,7 +79,9 @@ function addonBuildConfigForDataPackage(PackageName) {
       let plugins = existingPlugins.map(plugin => {
         return Array.isArray(plugin) ? plugin : [plugin];
       });
-      plugins = plugins.concat(customPlugins.plugins);
+      plugins = plugins
+        .concat(customPlugins.plugins)
+        .concat(require('./debug-macros')(process.env.EMBER_ENV));
 
       return {
         loose: true,

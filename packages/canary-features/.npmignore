@@ -1,0 +1,18 @@
+# compiled output
+/dist/
+/tmp/
+
+# misc
+/.bowerrc
+/.editorconfig
+/.env*
+/.gitignore
+/.watchmanconfig
+/CONTRIBUTING.md
+/testem.js
+/tests/
+/yarn.lock
+.gitkeep
+
+# ember-data
+/node-tests
