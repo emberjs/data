@@ -1314,7 +1314,10 @@ function handleCompletedRelationshipRequest(internalModel, key, relationship, va
     // when a load fails, in this case we need
     // to make sure that we aren't proxying
     // to destroyed content
-    if (relationship.kind === 'belongsTo') {
+    // for the sync belongsTo reload case there will be no proxy
+    // for the async reload case there will be no proxy if the ui
+    // has never been accessed
+    if (proxy && relationship.kind === 'belongsTo') {
       if (proxy.content.isDestroying) {
         proxy.set('content', null);
       }
