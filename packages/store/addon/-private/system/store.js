@@ -1970,7 +1970,6 @@ const Store = Service.extend({
   */
   _fetchAll(modelName, array, options = {}) {
     let adapter = this.adapterFor(modelName);
-    let sinceToken = this._internalModelsFor(modelName).metadata.since;
 
     assert(`You tried to load all records but you have no adapter (for ${modelName})`, adapter);
     assert(
@@ -1980,14 +1979,14 @@ const Store = Service.extend({
 
     if (options.reload) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     let snapshotArray = array._createSnapshot(options);
 
     if (adapter.shouldReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      return promiseArray(_findAll(adapter, this, modelName, sinceToken, options));
+      return promiseArray(_findAll(adapter, this, modelName, options));
     }
 
     if (options.backgroundReload === false) {
@@ -1996,7 +1995,7 @@ const Store = Service.extend({
 
     if (options.backgroundReload || adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
       set(array, 'isUpdating', true);
-      _findAll(adapter, this, modelName, sinceToken, options);
+      _findAll(adapter, this, modelName, options);
     }
 
     return promiseArray(Promise.resolve(array));
