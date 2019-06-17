@@ -41,8 +41,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     public modelName: string,
     public id: string | null,
     public clientId: string,
-    public storeWrapper: RecordDataStoreWrapper,
-    public store: any
+    public storeWrapper: RecordDataStoreWrapper
   ) {
     this.__relationships = null;
     this.__implicitRelationships = null;
@@ -113,10 +112,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
   }
 
   getErrors(): JsonApiValidationError[] {
-    assert(
-      'Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on',
-      RECORD_DATA_ERRORS
-    );
+    assert('Can not call getErrors unless the RECORD_DATA_ERRORS feature flag is on', RECORD_DATA_ERRORS);
     if (RECORD_DATA_ERRORS) {
       let errors: JsonApiValidationError[] = this._errors || [];
       return errors;
@@ -174,7 +170,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
       let relationshipData = data.relationships[relationshipName];
 
       if (DEBUG) {
-        let store = this.store;
+        let storeWrapper = this.storeWrapper;
         let recordData = this;
         let relationshipMeta = relationships[relationshipName];
         if (!relationshipData || !relationshipMeta) {
@@ -185,9 +181,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
           let isAsync = relationshipMeta.options && relationshipMeta.options.async !== false;
           let relationship = this._relationships.get(relationshipName);
           warn(
-            `You pushed a record of type '${
-              this.modelName
-            }' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
+            `You pushed a record of type '${this.modelName}' with a relationship '${relationshipName}' configured as 'async: false'. You've included a link but no primary data, this may be an error in your payload. EmberData will treat this relationship as known-to-be-empty.`,
             isAsync || relationshipData.data || relationship.hasAnyRelationshipData,
             {
               id: 'ds.store.push-link-for-sync-relationship',
@@ -203,7 +197,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
               )}, but ${relationshipName} is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
               !Array.isArray(relationshipData.data)
             );
-            assertRelationshipData(store, recordData, relationshipData.data, relationshipMeta);
+            assertRelationshipData(storeWrapper, recordData, relationshipData.data, relationshipMeta);
           } else if (relationshipMeta.kind === 'hasMany') {
             assert(
               `A ${
@@ -215,12 +209,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
             );
             if (Array.isArray(relationshipData.data)) {
               for (let i = 0; i < relationshipData.data.length; i++) {
-                assertRelationshipData(
-                  store,
-                  recordData,
-                  relationshipData.data[i],
-                  relationshipMeta
-                );
+                assertRelationshipData(storeWrapper, recordData, relationshipData.data[i], relationshipMeta);
               }
             }
           }
@@ -439,11 +428,7 @@ export default class RecordDataDefault implements RelationshipRecordData {
     this._destroyRelationships();
     this.reset();
     if (!this._scheduledDestroy) {
-      this._scheduledDestroy = run.backburner.schedule(
-        'destroy',
-        this,
-        '_cleanupOrphanedRecordDatas'
-      );
+      this._scheduledDestroy = run.backburner.schedule('destroy', this, '_cleanupOrphanedRecordDatas');
     }
   }
 
@@ -818,9 +803,9 @@ export default class RecordDataDefault implements RelationshipRecordData {
 
 function assertRelationshipData(store, recordData, data, meta) {
   assert(
-    `A ${recordData.modelName} record was pushed into the store with the value of ${
-      meta.key
-    } being '${JSON.stringify(data)}', but ${
+    `A ${recordData.modelName} record was pushed into the store with the value of ${meta.key} being '${JSON.stringify(
+      data
+    )}', but ${
       meta.key
     } is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.`,
     !Array.isArray(data)
@@ -828,9 +813,7 @@ function assertRelationshipData(store, recordData, data, meta) {
   assert(
     `Encountered a relationship identifier without a type for the ${meta.kind} relationship '${
       meta.key
-    }' on ${recordData}, expected a json-api identifier with type '${
-      meta.type
-    }' but found '${JSON.stringify(
+    }' on ${recordData}, expected a json-api identifier with type '${meta.type}' but found '${JSON.stringify(
       data
     )}'. Please check your serializer and make sure it is serializing the relationship payload into a JSON API format.`,
     data === null || (typeof data.type === 'string' && data.type.length)
@@ -844,11 +827,7 @@ function assertRelationshipData(store, recordData, data, meta) {
     data === null || !!coerceId(data.id)
   );
   assert(
-    `Encountered a relationship identifier with type '${data.type}' for the ${
-      meta.kind
-    } relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${
-      meta.type
-    }'. No model was found for '${data.type}'.`,
+    `Encountered a relationship identifier with type '${data.type}' for the ${meta.kind} relationship '${meta.key}' on ${recordData}, Expected a json-api identifier with type '${meta.type}'. No model was found for '${data.type}'.`,
     data === null || !data.type || store._hasModelFor(data.type)
   );
 }

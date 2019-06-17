@@ -1,5 +1,6 @@
 import BelongsToRelationship from '../system/relationships/state/belongs-to';
 import ManyRelationship from '../system/relationships/state/has-many';
+
 export interface AttributesHash {
   attributes?: {
     [key: string]: any;
@@ -43,7 +44,7 @@ export interface JsonApiValidationError {
   detail: string;
   source: {
     pointer: string;
-  }
+  };
 }
 
 export type JsonApiRelationship = JsonApiBelongsToRelationship | JsonApiHasManyRelationship;

@@ -1,7 +1,11 @@
 import { singularize } from 'ember-inflector';
 import { DEBUG } from '@glimmer/env';
 import normalizeModelName from './normalize-model-name';
-import { RelationshipSchema } from "../ts-interfaces/record-data-schemas";
+import { RelationshipSchema } from '../ts-interfaces/record-data-schemas';
+import { BRAND_SYMBOL } from '../ts-interfaces/utils/brand';
+import Store from './store';
+
+type Store = InstanceType<typeof Store>;
 
 export function typeForRelationshipMeta(meta) {
   let modelName;
@@ -21,18 +25,15 @@ function shouldFindInverse(relationshipMeta) {
   return !(options && options.inverse === null);
 }
 
-class RelationshipDefinition implements RelationshipSchema {
-  meta: any;
-  _type: string;
-  __inverseKey: string;
-  __inverseIsAsync: boolean | null;
+export class RelationshipDefinition implements RelationshipSchema {
+  [BRAND_SYMBOL]: 'RelationshipSchema';
+  _type: string = '';
+  __inverseKey: string = '';
+  __inverseIsAsync: boolean = true;
+  __hasCalculatedInverse: boolean = false;
   parentModelName: string;
 
-  constructor(meta) {
-    this.meta = meta;
-    this._type = '';
-    this.__inverseKey = '';
-    this.__inverseIsAsync = null;
+  constructor(public meta: any) {
     this.parentModelName = meta.parentModelName;
   }
 
@@ -56,21 +57,22 @@ class RelationshipDefinition implements RelationshipSchema {
     return this.meta.name;
   }
 
-  _inverseKey(store, modelClass) {
-    if (this.__inverseKey === '') {
+  _inverseKey(store: Store, modelClass): string {
+    if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseKey;
   }
 
-  _inverseIsAsync(store, modelClass) {
-    if (this.__inverseIsAsync === null) {
+  _inverseIsAsync(store: Store, modelClass): boolean {
+    if (this.__hasCalculatedInverse === false) {
       this._calculateInverse(store, modelClass);
     }
     return this.__inverseIsAsync;
   }
 
-  _calculateInverse(store, modelClass) {
+  _calculateInverse(store: Store, modelClass): void {
+    this.__hasCalculatedInverse = true;
     let inverseKey, inverseIsAsync;
     let inverse: any = null;
 
@@ -92,11 +94,11 @@ class RelationshipDefinition implements RelationshipSchema {
   }
 }
 
-function isInverseAsync(meta) {
+function isInverseAsync(meta): boolean {
   let inverseAsync = meta.options && meta.options.async;
   return typeof inverseAsync === 'undefined' ? true : inverseAsync;
 }
 
-export function relationshipFromMeta(meta) {
+export function relationshipFromMeta(meta): RelationshipDefinition {
   return new RelationshipDefinition(meta);
 }

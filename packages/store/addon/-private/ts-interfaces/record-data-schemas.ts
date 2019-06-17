@@ -1,5 +1,10 @@
+import { BRAND_SYMBOL } from './utils/brand';
 
 export interface RelationshipSchema {
+  /**
+   * @internal
+   */
+  [BRAND_SYMBOL]: 'RelationshipSchema';
   kind: string;
   type: string;
   key: string;
