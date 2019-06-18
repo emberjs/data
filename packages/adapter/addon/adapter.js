@@ -130,11 +130,10 @@ export default EmberObject.extend({
     import $ from 'jquery';
 
     export default DS.Adapter.extend({
-      findAll(store, type, sinceToken) {
-        let query = { since: sinceToken };
+      findAll(store, type) {
 
         return new RSVP.Promise(function(resolve, reject) {
-          $.getJSON(`/${type.modelName}`, query).then(function(data) {
+          $.getJSON(`/${type.modelName}`).then(function(data) {
             resolve(data);
           }, function(jqXHR) {
             reject(jqXHR);
@@ -147,7 +146,6 @@ export default EmberObject.extend({
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {String} sinceToken
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */

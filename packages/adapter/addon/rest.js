@@ -516,7 +516,6 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {String} sinceToken
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
