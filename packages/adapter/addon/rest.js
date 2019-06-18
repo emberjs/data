@@ -1104,7 +1104,11 @@ const RESTAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     if (options.data && options.type !== 'GET') {
-      let contentType = options.contentType || 'application/json; charset=utf-8';
+      let contentType =
+        options.contentType ||
+        options.headers['content-type'] ||
+        options.headers['Content-Type'] ||
+        'application/json; charset=utf-8';
       options.headers['content-type'] = contentType;
     }
 
