@@ -112,6 +112,54 @@ module('integration/adapter/find - Finding Records', function(hooks) {
     return Promise.all([requestOne, requestTwo]);
   });
 
+  test('When a single record is requested multiple times, and the id of the primary resource is different than the requested id, reload: true is honored', function(assert) {
+    let deferred;
+    let requestCount = 0;
+
+    env.owner.register(
+      'adapter:person',
+      DS.Adapter.extend({
+        findRecord() {
+          ++requestCount;
+          deferred = defer();
+          return deferred.promise;
+        },
+      })
+    );
+
+    let response = {
+      data: {
+        id: 'person:1',
+        type: 'person',
+        attributes: {
+          name: 'Someone',
+        },
+      },
+    };
+
+    let requestOne = run(() => {
+      return store.findRecord('person', 1).then(person => {
+        assert.equal(person.get('id'), 'person:1', 'request 1 person.id');
+        assert.equal(person.get('name'), 'Someone', 'request 1 person.name');
+      });
+    });
+
+    run(() => deferred.resolve(response));
+
+    let requestTwo = run(() => {
+      return store.findRecord('person', 1, { reload: true }).then(post => {
+        assert.equal(post.get('id'), 'person:1', 'request 2 person.id');
+        assert.equal(post.get('name'), 'Someone', 'request 2 person.name');
+      });
+    });
+
+    run(() => deferred.resolve(response));
+
+    return Promise.all([requestOne, requestTwo]).then(() => {
+      assert.equal(requestCount, 2, 'another request is fired when reload: true is given');
+    });
+  });
+
   test('When a single record is requested, and the promise is rejected, .findRecord() is rejected.', function(assert) {
     env.owner.register(
       'adapter:person',
