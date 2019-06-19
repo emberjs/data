@@ -146,6 +146,7 @@ export default EmberObject.extend({
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type
+    @param {undefined} neverSet a value is never provided to this argument
     @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
